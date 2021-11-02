@@ -987,7 +987,7 @@
   dependencies:
     "@ethersproject/logger" "^5.5.0"
 
-"@ethersproject/constants@5.5.0", "@ethersproject/constants@>=5.0.0-beta.128", "@ethersproject/constants@^5.0.4", "@ethersproject/constants@^5.5.0":
+"@ethersproject/constants@5.5.0", "@ethersproject/constants@>=5.0.0-beta.128", "@ethersproject/constants@^5.0.4", "@ethersproject/constants@^5.4.0", "@ethersproject/constants@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/constants/-/constants-5.5.0.tgz#d2a2cd7d94bd1d58377d1d66c4f53c9be4d0a45e"
   integrity sha512-2MsRRVChkvMWR+GyMGY4N1sAX9Mt3J9KykCsgUFd/1mwS0UH1qw+Bv9k1UJb3X3YJYFco9H20pjSlOIfCG5HYQ==
@@ -8746,15 +8746,16 @@ hard-rejection@^2.1.0:
   integrity sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==
 
 hardhat-deploy@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/hardhat-deploy/-/hardhat-deploy-0.9.0.tgz#83480e1834ecf41d4a63017ab1aecfc586476ba5"
-  integrity sha512-opAolAR0WiUkMfZU0RljqwxXyrNjefx4eHn+sARXLPUfaUJWx/kjaaUUWw9Vz6Qlvi1pQfENDfYwGaWjnDJImw==
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/hardhat-deploy/-/hardhat-deploy-0.9.4.tgz#8039b6283e8adc8bc908a3af8079f0d4c9850387"
+  integrity sha512-0Zr8R5SAq6oK/gi170yCDqPTvKNPHdlm6wQe3ZQg/uiIDZxofpRM2frQVPUFlgdI2yUXtVcGBiPcC2r2fEockw==
   dependencies:
     "@ethersproject/abi" "^5.4.0"
     "@ethersproject/abstract-signer" "^5.4.1"
     "@ethersproject/address" "^5.4.0"
     "@ethersproject/bignumber" "^5.4.1"
     "@ethersproject/bytes" "^5.4.0"
+    "@ethersproject/constants" "^5.4.0"
     "@ethersproject/contracts" "^5.4.1"
     "@ethersproject/providers" "^5.4.4"
     "@ethersproject/solidity" "^5.4.0"
