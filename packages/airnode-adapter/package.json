@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@api3/airnode-ois": "^0.2.1",
-    "axios": "^0.22.0",
+    "axios": "^0.21.2",
     "bignumber.js": "^9.0.0",
     "ethers": "^5.4.5",
     "lodash": "^4.17.21"
