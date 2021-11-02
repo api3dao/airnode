@@ -32,7 +32,11 @@ FROM source${build} AS deps
 
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
-    rm -rf node_modules/@api3
+    rm -rf node_modules/@api3 && \
+    mkdir -p ${dependenciesDir}/common && \
+    cp -r ${buildDir}/node_modules/. ${dependenciesDir}/common && \
+    cd ${buildDir}/packages && \
+    for name in *; do mkdir ${dependenciesDir}/${name} && cp -r ${name}/node_modules/. ${dependenciesDir}/${name}; done
 
 # Build
 FROM source${build} AS build
@@ -49,6 +53,6 @@ RUN yarn bootstrap && \
 # Artifact storage
 FROM environment AS artifacts
 
-COPY --from=deps ${buildDir}/node_modules ${dependenciesDir}
+COPY --from=deps ${dependenciesDir} ${dependenciesDir}
 COPY --from=build ${packagesDir} ${packagesDir}
 COPY --from=build ${buildDir} ${buildDir}
