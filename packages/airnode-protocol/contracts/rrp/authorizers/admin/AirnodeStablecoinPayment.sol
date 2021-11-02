@@ -7,13 +7,14 @@ import "./interfaces/IERC20Extended.sol";
 import "./interfaces/IAirnodeStablecoinPayment.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
+/// @notice In order for an Airnode provider to accept payments using this contract
+///         it must fist grant the whitelistExpirationExtenderRole to this contract.
 contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
     string private constant ERROR_NOT_AIRNODE = "Not airnode";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
-    string private constant ERROR_AIRNODE_NOT_OPTED_IN = "Airnode not opted in";
 
     /// @notice Address of AirnodeFeeRegistry
     address public airnodeFeeRegistry;
@@ -31,10 +32,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     mapping(uint256 => mapping(address => mapping(address => bool)))
         public airnodeSupportedERC20;
 
-    /// @notice mapping used to store opted in status of Airnodes.
-    /// The status are set by opt status setter.
-    mapping(address => bool) public airnodeSelfOptInStatus;
-
     /// @notice mapping used to store all the RequesterAuthorizerWithManager
     /// addresses for different chains
     mapping(uint256 => address) public chainIdToRequesterAuthorizerWithManager;
@@ -42,13 +39,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     constructor(address _airnodeFeeRegistry) {
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
-    }
-
-    /// @notice Reverts if the airnode is not opted in
-    /// @param _airnode The airnode Address
-    modifier isOptedIn(address _airnode) {
-        require(airnodeSelfOptInStatus[_airnode], ERROR_AIRNODE_NOT_OPTED_IN);
-        _;
     }
 
     /// @notice Reverts if the erc20 is not supported by
@@ -121,21 +111,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         );
     }
 
-    /// @notice Called by the airnode to set the opt status for itself
-    /// @param _airnode The airnode address
-    /// @param _status The Opted status for the airnode
-    function setSelfOptInStatus(address _airnode, bool _status)
-        external
-        override
-    {
-        require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
-        airnodeSelfOptInStatus[_airnode] = _status;
-        if (_status && airnodePaymentAddress[_airnode] == address(0)) {
-            airnodePaymentAddress[_airnode] = _airnode;
-        }
-        emit SetSelfOptInStatus(_airnode, _status);
-    }
-
     /// @notice Called by a requesterAuthorizerWithManager setter to set the address of
     /// RequesterAuthorizerWithManager for different chains
     /// @param _chainId The chainId
@@ -187,12 +162,7 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         bytes32 _endpointId,
         address _requesterAddress,
         uint64 _days
-    )
-        external
-        override
-        isOptedIn(_airnode)
-        isSupportedERC20(_stablecoin, _chainId, _airnode)
-    {
+    ) external override isSupportedERC20(_stablecoin, _chainId, _airnode) {
         require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);

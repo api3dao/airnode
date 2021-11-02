@@ -22,8 +22,6 @@ interface IAirnodeStablecoinPayment {
         address admin
     );
 
-    event SetSelfOptInStatus(address airnode, bool status);
-
     event SetRequesterAuthorizerWithManager(
         uint256 chainId,
         address requesterAuthorizerWithManager,
@@ -62,8 +60,6 @@ interface IAirnodeStablecoinPayment {
         address stablecoin,
         bool status
     ) external;
-
-    function setSelfOptInStatus(address _airnode, bool _status) external;
 
     function setAirnodePaymentAddress(address airnode, address paymentAddress)
         external;
