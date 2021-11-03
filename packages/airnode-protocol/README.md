@@ -127,13 +127,18 @@ The contracts are under the `contracts/` directory.
 
   `rrp/authorizers/admin`: Houses the token locking and fee registry contacts
 
-  - `admin/AirnodeTokenLock.sol`: A contract that Requesters will use to get authorized by the RequesterAuthorizer by locking in API3 tokens
-  - `admin/AirnodeFeeRegistry.sol`: A contract that will specify the price of an endpoint for an airnode across different chains
-  - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract that will be managed by a single account through an AccessControlRegistry
-  - `admin/AirnodeFeeRegistryRolesWithManager.sol`: A contract that implements the roles for a AirnodeFeeRegistry contract that will be managed by a single account through an AccessControlRegistry
-  - `admin/AirnodeRequesterAuthorizerRegistry.sol`: A contract that will store the RequesterAuthorizerWithManager contract address for different chains
-  - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract to inherit for contracts that will be interacting with
-  AirnodeRequesterAuthorizerRegistry
+  - `admin/AirnodeTokenLock.sol`: A contract that Requesters will use to get authorized by the RequesterAuthorizer by
+    locking in API3 tokens
+  - `admin/AirnodeFeeRegistry.sol`: A contract that will specify the price of an endpoint for an airnode across
+    different chains
+  - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract
+    that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeFeeRegistryRolesWithManager.sol`: A contract that implements the roles for a AirnodeFeeRegistry
+    contract that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeRequesterAuthorizerRegistry.sol`: A contract that will store the RequesterAuthorizerWithManager
+    contract address for different chains
+  - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract to inherit for contracts that will be interacting
+    with AirnodeRequesterAuthorizerRegistry
 
 ## Unique patterns
 
@@ -300,9 +305,16 @@ request a withdrawal from the Airnode, which sends the entire balance of the spo
 Before serving this request, the Airnode must verify that the specified sponsor wallet address belongs to the maker of
 the request by deriving the sponsor wallet address itself.
 
+## Token Locking
 
-## Token Locking 
+For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the
+`RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all
+airnodes and the latter is managed by each airnode individually. The token locking contract `AirnodeTokenLock.sol` has
+the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinently
+whitelist a requester. Requesters who want to be whitelisted need to lock in API3 tokens for each endpoint they wish to
+access. Unlocking these locked tokens revokes the whitelisting.
 
-For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the `RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all airnodes and the latter is managed by each airnode individually. The token locking contract `AirnodeTokenLock.sol` has the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinently whitelist a requester. Requesters who want to be whitelisted need to lock in API3 tokens for each endpoint they wish to access. Unlocking these locked tokens revokes the whitelisting.
-
-The amount of tokens to be locked is calculated based on the `AirnodeFeeRegistry` contract which specifies the price of each airnode endpoint across chains in USD. The price is derived based on [this](https://user-images.githubusercontent.com/31223740/140074846-530b899a-f744-43be-a10c-5638c47044f2.png) selection scheme.
+The amount of tokens to be locked is calculated based on the `AirnodeFeeRegistry` contract which specifies the price of
+each airnode endpoint across chains in USD. The price is derived based on
+[this](https://user-images.githubusercontent.com/31223740/140074846-530b899a-f744-43be-a10c-5638c47044f2.png) selection
+scheme.

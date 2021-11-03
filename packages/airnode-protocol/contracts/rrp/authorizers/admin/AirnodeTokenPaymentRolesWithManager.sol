@@ -13,25 +13,15 @@ contract AirnodeTokenPaymentRolesWithManager is
     AccessControlClient,
     IAirnodeTokenPaymentRolesWithManager
 {
-    // There are 5 roles implemented in this contract:
+    // There are 3 roles implemented in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
-    //     ├── (2) Airnode authorizer registry setter
-    //     ├── (3) Airnode fee registry setter
-    //     ├── (4) Payment token price setter (Oracle)
-    //     ├── (5) Airnode to maximum whitelist duration setter
-    //     ├── (6) Airnode to payment destination setter
+    //     ├── (2) Payment token price setter (Oracle)
+    //     ├── (3) Airnode to maximum whitelist duration setter
+    //     ├── (4) Airnode to payment destination setter
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
     string public override adminRoleDescription;
-    string
-        public constant
-        override AIRNODE_AUTHORIZER_REGISTRY_SETTER_ROLE_DESCRIPTION =
-        "Airnode authorizer registry setter";
-    string
-        public constant
-        override AIRNODE_FEE_REGISTRY_SETTER_ROLE_DESCRIPTION =
-        "Airnode fee registry setter";
     string
         public constant
         override PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION =
@@ -46,18 +36,6 @@ contract AirnodeTokenPaymentRolesWithManager is
         "Airnode to payment destination setter";
 
     bytes32 internal adminRoleDescriptionHash;
-    bytes32
-        internal constant AIRNODE_AUTHORIZER_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(
-            abi.encodePacked(
-                AIRNODE_AUTHORIZER_REGISTRY_SETTER_ROLE_DESCRIPTION
-            )
-        );
-    bytes32
-        internal constant AIRNODE_FEE_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(
-            abi.encodePacked(AIRNODE_FEE_REGISTRY_SETTER_ROLE_DESCRIPTION)
-        );
     bytes32 internal constant PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(
             abi.encodePacked(PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION)
@@ -83,8 +61,6 @@ contract AirnodeTokenPaymentRolesWithManager is
 
     // Since there will be a single manager, we can derive the roles beforehand
     bytes32 public immutable override adminRole;
-    bytes32 public immutable override airnodeAuthorizerRegistrySetterRole;
-    bytes32 public immutable override airnodeFeeRegistrySetterRole;
     bytes32 public immutable override paymentTokenPriceSetterRole;
     bytes32
         public immutable
@@ -115,12 +91,6 @@ contract AirnodeTokenPaymentRolesWithManager is
         );
         manager = _manager;
         adminRole = _deriveAdminRole(_manager);
-        airnodeAuthorizerRegistrySetterRole = _deriveAirnodeAuthorizerRegistrySetterRole(
-            _manager
-        );
-        airnodeFeeRegistrySetterRole = _deriveAirnodeFeeRegistrySetterRole(
-            _manager
-        );
         paymentTokenPriceSetterRole = _derivePaymentTokenPriceSetterRole(
             _manager
         );
@@ -143,38 +113,6 @@ contract AirnodeTokenPaymentRolesWithManager is
         _adminRole = _deriveRole(
             _deriveRootRole(_manager),
             adminRoleDescriptionHash
-        );
-    }
-
-    /// @notice Derives the Airnode authorizer registry setter role for the
-    /// specific manager address
-    /// @param _manager Manager address
-    /// @return _airnodeAuthorizerRegistrySetterRole Airnode authorizer
-    /// registry setter role
-    function _deriveAirnodeAuthorizerRegistrySetterRole(address _manager)
-        internal
-        view
-        returns (bytes32 _airnodeAuthorizerRegistrySetterRole)
-    {
-        _airnodeAuthorizerRegistrySetterRole = _deriveRole(
-            _deriveAdminRole(_manager),
-            AIRNODE_AUTHORIZER_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH
-        );
-    }
-
-    /// @notice Derives the Airnode fee registry setter role for the
-    /// specific manager address
-    /// @param _manager Manager address
-    /// @return _airnodeFeeRegistrySetterRole Airnode fee
-    /// registry setter role
-    function _deriveAirnodeFeeRegistrySetterRole(address _manager)
-        internal
-        view
-        returns (bytes32 _airnodeFeeRegistrySetterRole)
-    {
-        _airnodeFeeRegistrySetterRole = _deriveRole(
-            _deriveAdminRole(_manager),
-            AIRNODE_FEE_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH
         );
     }
 
@@ -226,42 +164,6 @@ contract AirnodeTokenPaymentRolesWithManager is
             _deriveAdminRole(_manager),
             AIRNODE_TO_PAYMENT_DESTINATION_SETTER_ROLE_DESCRIPTION_HASH
         );
-    }
-
-    /// @dev Returns if the account has the Airnode authorizer registry setter
-    /// role or is the manager
-    /// @param account Account address
-    /// @return If the account has the Airnode authorizer registry setter role
-    /// or is the manager
-    function hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(address account)
-        internal
-        view
-        returns (bool)
-    {
-        return
-            manager == account ||
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                airnodeAuthorizerRegistrySetterRole,
-                account
-            );
-    }
-
-    /// @dev Returns if the account has the Airnode fee registry setter role
-    /// or is the manager
-    /// @param account Account address
-    /// @return If the account has the Airnode fee registry setter role or is the
-    /// manager
-    function hasAirnodeFeeRegistrySetterRoleOrIsManager(address account)
-        internal
-        view
-        returns (bool)
-    {
-        return
-            manager == account ||
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                airnodeFeeRegistrySetterRole,
-                account
-            );
     }
 
     /// @dev Returns if the account has the payment token price setter role or

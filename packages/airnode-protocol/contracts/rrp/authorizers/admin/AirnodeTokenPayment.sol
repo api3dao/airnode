@@ -17,6 +17,7 @@ contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
     IAirnodeTokenPayment
 {
+    /// TODO: is this minimum instead?
     /// @notice The default maximum whitelisting duration in seconds (30 days)
     uint64 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
 
@@ -69,42 +70,6 @@ contract AirnodeTokenPayment is
         require(_paymentTokenAddress != address(0), "Zero address");
         airnodeFeeRegistry = _airnodeFeeRegistry;
         paymentTokenAddress = _paymentTokenAddress;
-    }
-
-    /// @notice Called by an Airnode authorizer registry setter to set the
-    /// address of the AirnodeAuthorizerRegistry contract
-    /// @param _airnodeAuthorizerRegistry AirnodeAuthorizerRegistry contract
-    /// address
-    // function setAirnodeAuthorizerRegistry(address _airnodeAuthorizerRegistry)
-    //     external
-    //     override
-    // {
-    //     require(
-    //         hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
-    //         "Not airnode authorizer registry setter"
-    //     );
-    //     require(_airnodeAuthorizerRegistry != address(0), "Zero address");
-    //     airnodeRequesterAuthorizerRegistry = _airnodeAuthorizerRegistry;
-    //     emit SetAirnodeAuthorizerRegistry(
-    //         _airnodeAuthorizerRegistry,
-    //         msg.sender
-    //     );
-    // }
-
-    /// @notice Called by an Airnode fee registry setter to set the address of
-    /// the AirnodeFeeRegistry contract
-    /// @param _airnodeFeeRegistry AirnodeFeeRegistry contract address
-    function setAirnodeFeeRegistry(address _airnodeFeeRegistry)
-        external
-        override
-    {
-        require(
-            hasAirnodeFeeRegistrySetterRoleOrIsManager(msg.sender),
-            "Not Airnode fee registry setter"
-        );
-        require(_airnodeFeeRegistry != address(0), "Zero address");
-        airnodeFeeRegistry = _airnodeFeeRegistry;
-        emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
     }
 
     /// @notice Called by a payment token price setter to set the payment

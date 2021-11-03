@@ -7,16 +7,6 @@ interface IAirnodeTokenPayment {
         address indexed paymentTokenPriceSetter
     );
 
-    event SetAirnodeFeeRegistry(
-        address indexed airnodeFeeRegistry,
-        address indexed airnodeFeeRegistrySetter
-    );
-
-    event SetAirnodeAuthorizerRegistry(
-        address indexed airnodeAuthorizerRegistry,
-        address indexed airnodeAuthorizerRegistrySetter
-    );
-
     event SetAirnodeToMaximumWhitelistDuration(
         uint256 maximumWhitelistDuration,
         address indexed airnodeToMaximumWhitelistDurationSetter
@@ -48,8 +38,6 @@ interface IAirnodeTokenPayment {
 
     function paymentTokenPrice() external view returns (uint256);
 
-    function airnodeFeeRegistry() external view returns (address);
-
     function airnodeToMaximumWhitelistDuration(address airnode)
         external
         view
@@ -61,12 +49,6 @@ interface IAirnodeTokenPayment {
         returns (address paymentDestination);
 
     function setPaymentTokenPrice(uint256 tokenPrice) external;
-
-    // TODO: disabled for now, because airnodeRequesterAuthorizerRegistry is set as immutable
-    // function setAirnodeAuthorizerRegistry(address airnodeAuthorizerRegistry)
-    //     external;
-
-    function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
 
     function setAirnodeToMaximumWhitelistDuration(
         uint64 maximumWhitelistDuration
