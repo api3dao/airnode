@@ -12,7 +12,6 @@ import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 contract AirnodeTokenLockRolesWithManager is
     RoleDeriver,
     AccessControlClient,
-    AirnodeRequesterAuthorizerRegistryClient,
     IAirnodeTokenLockRolesWithManager
 {
     // There are Six roles implemented in this contract:
@@ -24,8 +23,6 @@ contract AirnodeTokenLockRolesWithManager is
     //     ├── (5) Opt status setter
     //     ├── (6) Block withdraw destination setter
     //     ├── (7) Block requester
-    // The airnodeFeeRegistry setter can set the AirnodeFeeRegistry address
-    /// and Multiplier Coefficient integer.
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
     string public override adminRoleDescription;
@@ -81,19 +78,11 @@ contract AirnodeTokenLockRolesWithManager is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeRequesterAuthorizerRegistry The address of the AirnodeRequesterAuthorizerRegistry contract
-
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
-        address _manager,
-        address _airnodeRequesterAuthorizerRegistry
-    )
-        AccessControlClient(_accessControlRegistry)
-        AirnodeRequesterAuthorizerRegistryClient(
-            _airnodeRequesterAuthorizerRegistry
-        )
-    {
+        address _manager
+    ) AccessControlClient(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"

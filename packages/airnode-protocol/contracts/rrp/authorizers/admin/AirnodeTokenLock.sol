@@ -2,14 +2,16 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./AirnodeTokenLockRolesWithManager.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
-import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
+import "./AirnodeRequesterAuthorizerRegistryClient.sol";
+import "./AirnodeTokenLockRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
+import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 import "./interfaces/IAirnodeTokenLock.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract AirnodeTokenLock is
+    AirnodeRequesterAuthorizerRegistryClient,
     AirnodeTokenLockRolesWithManager,
     IAirnodeTokenLock
 {
@@ -99,7 +101,9 @@ contract AirnodeTokenLock is
         AirnodeTokenLockRolesWithManager(
             _accessControlRegistry,
             _adminRoleDescription,
-            _manager,
+            _manager
+        )
+        AirnodeRequesterAuthorizerRegistryClient(
             _airnodeRequesterAuthorizerRegistry
         )
     {
@@ -149,7 +153,6 @@ contract AirnodeTokenLock is
     }
 
     /// @notice Called by an oracle to set the price of API3
-    /// @dev The price is set with 6 decimal places
     /// @param _price The price of API3 in USD
     function setAPI3Price(uint256 _price) external override {
         require(hasOracleRoleOrIsManager(msg.sender), ERROR_NOT_ORACLE);

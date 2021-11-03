@@ -7,12 +7,6 @@
   "useTabs": false,
   "overrides": [
     {
-      "files": "*.ts",
-      "options": {
-        "parser": "typescript"
-      }
-    },
-    {
       "files": "*.md",
       "options": {
         "parser": "markdown",
