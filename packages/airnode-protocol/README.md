@@ -132,7 +132,7 @@ The contracts are under the `contracts/` directory.
   - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract that will be managed by a single account through an AccessControlRegistry
   - `admin/AirnodeFeeRegistryRolesWithManager.sol`: A contract that implements the roles for a AirnodeFeeRegistry contract that will be managed by a single account through an AccessControlRegistry
   - `admin/AirnodeRequesterAuthorizerRegistry.sol`: A contract that will store the RequesterAuthorizerWithManager contract address for different chains
-  - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract to inherit for contracts that will be interacting with
+  - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract that is meant to be inherited by any contract that will be interacting with
   AirnodeRequesterAuthorizerRegistry
 
 ## Unique patterns
