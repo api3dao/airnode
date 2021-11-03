@@ -11,6 +11,8 @@ contract AirnodeFeeRegistry is
     AirnodeFeeRegistryRolesWithManager,
     IAirnodeFeeRegistry
 {
+    string private constant ERROR_ZERO_CHAINID = "Zero chainId";
+
     /// @notice The USD price of an endpoint for an airnode on a specific chain
     mapping(uint256 => mapping(address => mapping(bytes32 => uint256)))
         public
@@ -24,10 +26,10 @@ contract AirnodeFeeRegistry is
     /// @notice The default price of an endpoint for an airnode on a specific chain
     mapping(uint256 => mapping(address => uint256))
         public
-        override defaultChainAirnodePrice;
+        override chainIdToAirnodeToPrice;
 
     /// @notice The default price of an endpoint on an airnode
-    mapping(address => uint256) public override defaultAirnodePrice;
+    mapping(address => uint256) public override airnodeToPrice;
 
     /// @notice The default price of an endpoint for a chain
     mapping(uint256 => uint256) public override defaultChainPrice;
@@ -37,10 +39,12 @@ contract AirnodeFeeRegistry is
 
     /// @notice A flag that indicates which price to default to in
     /// the getAirnodeEndpointFee function
-    mapping(address => bool) public override airnodeEndpointFlag;
+    mapping(address => bool)
+        public
+        override prioritizeEndpointPriceOverChainPrice;
 
-    /// @notice Prices will have upto 6 decimal places
-    uint8 public constant DECIMALS = 6;
+    /// @notice Prices will have upto 18 decimal places
+    uint8 public constant DECIMALS = 18;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
@@ -57,184 +61,172 @@ contract AirnodeFeeRegistry is
         )
     {}
 
-    /// @notice Called by an airnode flag and price setter to
-    /// set the endpoint flag for an airnode
-    /// @param _airnode The address of the airnode
-    /// @param _status The airnode endpoint flag status
-    function setAirnodeEndpointFlag(address _airnode, bool _status)
-        external
-        override
-    {
-        require(
-            hasAirnodeFlagAndPriceSetterRole(msg.sender),
-            "Not airnode flag and price setter"
-        );
-        require(_airnode != address(0), "Address is zero");
-        airnodeEndpointFlag[_airnode] = _status;
-        emit SetAirnodeEndpointFlag(_airnode, _status, msg.sender);
-    }
-
-    /// @notice Called by a global default price setter to set the
-    /// default price in USD
-    /// @param _price The price in USD
-    function setDefaultPrice(uint256 _price) external override {
-        require(
-            hasGlobalDefaultPriceSetterRoleOrIsManager(msg.sender),
-            "Not global default price setter"
-        );
-        require(_price != 0, "Price is zero");
-        defaultPrice = _price * 10**DECIMALS;
-        emit SetDefaultPrice(_price, msg.sender);
-    }
-
-    /// @notice Called by a global default price setter to set the
-    /// default price on a chain in USD
-    /// @param _chainId The id of the chain
-    /// @param _price The price in USD
-    function setDefaultChainPrice(uint256 _chainId, uint256 _price)
-        external
-        override
-    {
-        require(
-            hasGlobalDefaultPriceSetterRoleOrIsManager(msg.sender),
-            "Not global default price setter"
-        );
-        require(_chainId != 0, "ChainId is zero");
-        require(_price != 0, "Price is zero");
-        defaultChainPrice[_chainId] = _price * 10**DECIMALS;
-        emit SetDefaultChainPrice(_chainId, _price, msg.sender);
-    }
-
-    /// @notice Called by an airnode flag and price setter to set the
-    /// default price on an airnode across all chains in USD
-    /// @param _airnode The address of the airnode
-    /// @param _price The price in USD
-    function setDefaultAirnodePrice(address _airnode, uint256 _price)
-        external
-        override
-    {
-        require(
-            hasAirnodeFlagAndPriceSetterRole(msg.sender),
-            "Not airnode flag and price setter"
-        );
-        require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is zero");
-        defaultAirnodePrice[_airnode] = _price * 10**DECIMALS;
-        emit SetDefaultAirnodePrice(_airnode, _price, msg.sender);
-    }
-
-    /// @notice Called by an airnode flag and price setter to set the
-    /// default price for an airnode on a chain in USD
-    /// @param _chainId The id of the chain
-    /// @param _airnode The address of the airnode
-    /// @param _price The price in USD
-    function setDefaultChainAirnodePrice(
-        uint256 _chainId,
-        address _airnode,
-        uint256 _price
+    /// @notice Called by an airnode price setter to
+    /// set the prioritizeEndpointPriceOverChainPrice flag for an airnode
+    /// @param airnode The address of the airnode
+    /// @param status The airnode endpoint flag status
+    function setEndpointPriceOverChainPricePriority(
+        address airnode,
+        bool status
     ) external override {
         require(
-            hasAirnodeFlagAndPriceSetterRole(msg.sender),
-            "Not airnode flag and price setter"
+            hasAirnodePriceSetterRoleOrIsManager(msg.sender),
+            "Not airnode price setter"
         );
-        require(_chainId != 0, "ChainId is zero");
-        require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is zero");
-        defaultChainAirnodePrice[_chainId][_airnode] = _price * 10**DECIMALS;
-        emit SetDefaultChainAirnodePrice(
-            _chainId,
-            _airnode,
-            _price,
+        require(airnode != address(0), "Address is zero");
+        prioritizeEndpointPriceOverChainPrice[airnode] = status;
+        emit SetEndpointPriceOverChainPricePriority(
+            airnode,
+            status,
             msg.sender
         );
     }
 
-    /// @notice Called by an airnode flag and price setter to set the
-    /// price of an endpoint for an airnode across all chains in USD
-    /// @param _airnode The address of the airnode
-    /// @param _endpointId The endpointId whose price is being set
-    /// @param _price The price in USD
-    function setAirnodeEndpointPrice(
-        address _airnode,
-        bytes32 _endpointId,
-        uint256 _price
-    ) external override {
+    /// @notice Called by a default price setter to set the
+    /// default price in USD
+    /// @param price The price in USD
+    function setDefaultPrice(uint256 price) external override {
         require(
-            hasAirnodeFlagAndPriceSetterRole(msg.sender),
-            "Not airnode flag and price setter"
+            hasDefaultPriceSetterRoleOrIsManager(msg.sender),
+            "Not default price setter"
         );
-        require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is zero");
-        airnodeToEndpointToPrice[_airnode][_endpointId] = _price * 10**DECIMALS;
-        emit SetAirnodeEndpointPrice(_airnode, _endpointId, _price, msg.sender);
+        require(price != 0, "Price is zero");
+        defaultPrice = price;
+        emit SetDefaultPrice(price, msg.sender);
     }
 
-    /// @notice Called by an airnode flag and price setter to set the price of an
-    /// endpoint for an airnode on a chain in USD
-    /// @param _chainId The id of the chain
-    /// @param _airnode The address of the airnode
-    /// @param _endpointId The endpointId whose price is being set
-    /// @param _price The price in USD
-    function setChainAirnodeEndpointPrice(
-        uint256 _chainId,
-        address _airnode,
-        bytes32 _endpointId,
-        uint256 _price
+    /// @notice Called by a default price setter to set the
+    /// default price on a chain in USD
+    /// @param chainId The id of the chain
+    /// @param price The price in USD
+    function setDefaultChainPrice(uint256 chainId, uint256 price)
+        external
+        override
+    {
+        require(
+            hasDefaultPriceSetterRoleOrIsManager(msg.sender),
+            "Not default price setter"
+        );
+        require(chainId != 0, "ChainId is zero");
+        require(price != 0, "Price is zero");
+        defaultChainPrice[chainId] = price;
+        emit SetDefaultChainPrice(chainId, price, msg.sender);
+    }
+
+    /// @notice Called by an airnode price setter to set the
+    /// default price on an airnode across all chains in USD
+    /// @param airnode The address of the airnode
+    /// @param price The price in USD
+    function setAirnodePrice(address airnode, uint256 price) external override {
+        require(
+            hasAirnodePriceSetterRoleOrIsManager(msg.sender),
+            "Not airnode price setter"
+        );
+        require(airnode != address(0), "Address is zero");
+        require(price != 0, "Price is zero");
+        airnodeToPrice[airnode] = price;
+        emit SetAirnodePrice(airnode, price, msg.sender);
+    }
+
+    /// @notice Called by an airnode price setter to set the
+    /// default price for an airnode on a chain in USD
+    /// @param chainId The id of the chain
+    /// @param airnode The address of the airnode
+    /// @param price The price in USD
+    function setChainAirnodePrice(
+        uint256 chainId,
+        address airnode,
+        uint256 price
     ) external override {
         require(
-            hasAirnodeFlagAndPriceSetterRole(msg.sender),
-            "Not airnode flag and price setter"
+            hasAirnodePriceSetterRoleOrIsManager(msg.sender),
+            "Not airnode price setter"
         );
-        require(_chainId != 0, "ChainId is zero");
-        require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is zero");
-        chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][_endpointId] =
-            _price *
-            10**DECIMALS;
+        require(chainId != 0, "ChainId is zero");
+        require(airnode != address(0), "Address is zero");
+        require(price != 0, "Price is zero");
+        chainIdToAirnodeToPrice[chainId][airnode] = price;
+        emit SetChainAirnodePrice(chainId, airnode, price, msg.sender);
+    }
+
+    /// @notice Called by an airnode price setter to set the
+    /// price of an endpoint for an airnode across all chains in USD
+    /// @param airnode The address of the airnode
+    /// @param endpointId The endpointId whose price is being set
+    /// @param price The price in USD
+    function setAirnodeEndpointPrice(
+        address airnode,
+        bytes32 endpointId,
+        uint256 price
+    ) external override {
+        require(
+            hasAirnodePriceSetterRoleOrIsManager(msg.sender),
+            "Not airnode price setter"
+        );
+        require(airnode != address(0), "Address is zero");
+        require(price != 0, "Price is zero");
+        airnodeToEndpointToPrice[airnode][endpointId] = price;
+        emit SetAirnodeEndpointPrice(airnode, endpointId, price, msg.sender);
+    }
+
+    /// @notice Called by an airnode price setter to set the price of an
+    /// endpoint for an airnode on a chain in USD
+    /// @param chainId The id of the chain
+    /// @param airnode The address of the airnode
+    /// @param endpointId The endpointId whose price is being set
+    /// @param price The price in USD
+    function setChainAirnodeEndpointPrice(
+        uint256 chainId,
+        address airnode,
+        bytes32 endpointId,
+        uint256 price
+    ) external override {
+        require(
+            hasAirnodePriceSetterRoleOrIsManager(msg.sender),
+            "Not airnode price setter"
+        );
+        require(chainId != 0, "ChainId is zero");
+        require(airnode != address(0), "Address is zero");
+        require(price != 0, "Price is zero");
+        chainIdToAirnodeToEndpointToPrice[chainId][airnode][endpointId] = price;
         emit SetChainAirnodeEndpointPrice(
-            _chainId,
-            _airnode,
-            _endpointId,
-            _price,
+            chainId,
+            airnode,
+            endpointId,
+            price,
             msg.sender
         );
     }
 
     /// @notice Called to get the price of an endpoint for an airnode on a chain in USD
-    /// @param _chainId The id of the chain
-    /// @param _airnode The address of the airnode
-    /// @param _endpointId The endpointId whose price is being fetched
+    /// @param chainId The id of the chain
+    /// @param airnode The address of the airnode
+    /// @param endpointId The endpointId whose price is being fetched
     function getEndpointPrice(
-        uint256 _chainId,
-        address _airnode,
-        bytes32 _endpointId
+        uint256 chainId,
+        address airnode,
+        bytes32 endpointId
     ) external view override returns (uint256) {
         if (
-            chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][
-                _endpointId
-            ] != 0
+            chainIdToAirnodeToEndpointToPrice[chainId][airnode][endpointId] != 0
         )
             return
-                chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][
-                    _endpointId
-                ];
+                chainIdToAirnodeToEndpointToPrice[chainId][airnode][endpointId];
 
-        if (airnodeEndpointFlag[_airnode]) {
-            if (airnodeToEndpointToPrice[_airnode][_endpointId] != 0)
-                return airnodeToEndpointToPrice[_airnode][_endpointId];
-            if (defaultChainAirnodePrice[_chainId][_airnode] != 0)
-                return defaultChainAirnodePrice[_chainId][_airnode];
+        if (prioritizeEndpointPriceOverChainPrice[airnode]) {
+            if (airnodeToEndpointToPrice[airnode][endpointId] != 0)
+                return airnodeToEndpointToPrice[airnode][endpointId];
+            if (chainIdToAirnodeToPrice[chainId][airnode] != 0)
+                return chainIdToAirnodeToPrice[chainId][airnode];
         } else {
-            if (defaultChainAirnodePrice[_chainId][_airnode] != 0)
-                return defaultChainAirnodePrice[_chainId][_airnode];
-            if (airnodeToEndpointToPrice[_airnode][_endpointId] != 0)
-                return airnodeToEndpointToPrice[_airnode][_endpointId];
+            if (chainIdToAirnodeToPrice[chainId][airnode] != 0)
+                return chainIdToAirnodeToPrice[chainId][airnode];
+            if (airnodeToEndpointToPrice[airnode][endpointId] != 0)
+                return airnodeToEndpointToPrice[airnode][endpointId];
         }
 
-        if (defaultAirnodePrice[_airnode] != 0)
-            return defaultAirnodePrice[_airnode];
-        if (defaultChainPrice[_chainId] != 0)
-            return defaultChainPrice[_chainId];
+        if (airnodeToPrice[airnode] != 0) return airnodeToPrice[airnode];
+        if (defaultChainPrice[chainId] != 0) return defaultChainPrice[chainId];
         return defaultPrice;
     }
 }

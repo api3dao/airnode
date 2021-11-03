@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 interface IAirnodeFeeRegistry {
-    event SetAirnodeEndpointFlag(
+    event SetEndpointPriceOverChainPricePriority(
         address indexed airnode,
         bool status,
         address airnodeFlagAndPriceSetter
@@ -16,13 +16,13 @@ interface IAirnodeFeeRegistry {
         address globalDefaultPriceSetter
     );
 
-    event SetDefaultAirnodePrice(
+    event SetAirnodePrice(
         address indexed airnode,
         uint256 price,
         address airnodeFlagAndPriceSetter
     );
 
-    event SetDefaultChainAirnodePrice(
+    event SetChainAirnodePrice(
         uint256 indexed chainId,
         address indexed airnode,
         uint256 price,
@@ -44,15 +44,18 @@ interface IAirnodeFeeRegistry {
         address airnodeFlagAndPriceSetter
     );
 
-    function setAirnodeEndpointFlag(address airnode, bool status) external;
+    function setEndpointPriceOverChainPricePriority(
+        address airnode,
+        bool status
+    ) external;
 
     function setDefaultPrice(uint256 price) external;
 
     function setDefaultChainPrice(uint256 chainId, uint256 price) external;
 
-    function setDefaultAirnodePrice(address airnode, uint256 price) external;
+    function setAirnodePrice(address airnode, uint256 price) external;
 
-    function setDefaultChainAirnodePrice(
+    function setChainAirnodePrice(
         uint256 chainId,
         address airnode,
         uint256 price
@@ -88,19 +91,19 @@ interface IAirnodeFeeRegistry {
         view
         returns (uint256);
 
-    function defaultChainAirnodePrice(uint256 chainId, address airnode)
+    function chainIdToAirnodeToPrice(uint256 chainId, address airnode)
         external
         view
         returns (uint256);
 
-    function defaultAirnodePrice(address airnode)
-        external
-        view
-        returns (uint256);
+    function airnodeToPrice(address airnode) external view returns (uint256);
 
     function defaultChainPrice(uint256 chainId) external view returns (uint256);
 
     function defaultPrice() external view returns (uint256);
 
-    function airnodeEndpointFlag(address airnode) external view returns (bool);
+    function prioritizeEndpointPriceOverChainPrice(address airnode)
+        external
+        view
+        returns (bool);
 }

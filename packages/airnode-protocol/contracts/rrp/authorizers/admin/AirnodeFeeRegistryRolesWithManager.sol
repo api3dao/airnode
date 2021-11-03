@@ -7,7 +7,7 @@ import "../../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAirnodeFeeRegistryRolesWithManager.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for
-/// the AirnodeTokenLock contract
+/// the AirnodeFeeRegistry contract
 contract AirnodeFeeRegistryRolesWithManager is
     RoleDeriver,
     AccessControlClient,
@@ -16,27 +16,22 @@ contract AirnodeFeeRegistryRolesWithManager is
     // There are three roles implemented in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
-    //     ├── (2) Global Default Price setter
-    //     └── (3) Airnode Flag and Price setter
+    //     ├── (2) Default price setter
+    //     └── (3) Airnode price setter
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
 
     string public override adminRoleDescription;
-    string
-        public constant
-        override GLOBAL_DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION =
-        "Oracle address setter";
-    string public constant override AIRNODE_FLAG_AND_PRICE_SETTER_DESCRIPTION =
-        "Whitelist expiration setter";
+    string public constant override DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION =
+        "Default price setter";
+    string public constant override AIRNODE_PRICE_SETTER_DESCRIPTION =
+        "Airnode price setter";
 
     bytes32 internal adminRoleDescriptionHash;
-    bytes32
-        internal constant GLOBAL_DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(
-            abi.encodePacked(GLOBAL_DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION)
-        );
-    bytes32 internal constant AIRNODE_FLAG_AND_PRICE_SETTER_DESCRIPTION_HASH =
-        keccak256(abi.encodePacked(AIRNODE_FLAG_AND_PRICE_SETTER_DESCRIPTION));
+    bytes32 internal constant DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION));
+    bytes32 internal constant AIRNODE_PRICE_SETTER_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(AIRNODE_PRICE_SETTER_DESCRIPTION));
 
     /// @notice Address of the manager that manages the related
     /// AccessControlRegistry roles
@@ -44,8 +39,8 @@ contract AirnodeFeeRegistryRolesWithManager is
 
     // Since there will be a single manager, we can derive the roles beforehand
     bytes32 public immutable override adminRole;
-    bytes32 public immutable override globalDefaultPriceSetterRole;
-    bytes32 public immutable override airnodeFlagAndPriceSetterRole;
+    bytes32 public immutable override defaultPriceSetterRole;
+    bytes32 public immutable override airnodePriceSetterRole;
 
     /// @dev Contracts deployed with the same admin role descriptions will have
     /// the same roles, meaning that granting an account a role will authorize
@@ -71,19 +66,15 @@ contract AirnodeFeeRegistryRolesWithManager is
         );
         manager = _manager;
         adminRole = _deriveAdminRole(_manager);
-        globalDefaultPriceSetterRole = _deriveGlobalDefaultPriceSetterRole(
-            _manager
-        );
-        airnodeFlagAndPriceSetterRole = _deriveAirnodeFlagAndPriceSetterRole(
-            _manager
-        );
+        defaultPriceSetterRole = _deriveDefaultPriceSetterRole(_manager);
+        airnodePriceSetterRole = _deriveAirnodePriceSetterRole(_manager);
     }
 
     /// @notice Derives the admin role for the specific manager address
     /// @param _manager Manager address
     /// @return _adminRole Admin role
     function _deriveAdminRole(address _manager)
-        internal
+        private
         view
         returns (bytes32 _adminRole)
     {
@@ -93,43 +84,43 @@ contract AirnodeFeeRegistryRolesWithManager is
         );
     }
 
-    /// @notice Derives the global default price setter role for the specific
+    /// @notice Derives the default price setter role for the specific
     /// manager address
     /// @param _manager Manager address
-    /// @return _globalDefaultPriceSetterRole Global Default Price Setter
+    /// @return _defaultPriceSetterRole default price Setter
     /// role
-    function _deriveGlobalDefaultPriceSetterRole(address _manager)
-        internal
+    function _deriveDefaultPriceSetterRole(address _manager)
+        private
         view
-        returns (bytes32 _globalDefaultPriceSetterRole)
+        returns (bytes32 _defaultPriceSetterRole)
     {
-        _globalDefaultPriceSetterRole = _deriveRole(
+        _defaultPriceSetterRole = _deriveRole(
             _deriveAdminRole(_manager),
-            GLOBAL_DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION_HASH
+            DEFAULT_PRICE_SETTER_ROLE_DESCRIPTION_HASH
         );
     }
 
-    /// @notice Derives the airnode flag and price setter role for the specific
+    /// @notice Derives the airnode price setter role for the specific
     /// manager address
     /// @param _manager Manager address
-    /// @return _airnodeFlagAndPriceSetterRole Airnode Flag and Price Setter role
-    function _deriveAirnodeFlagAndPriceSetterRole(address _manager)
-        internal
+    /// @return _airnodePriceSetterRole airnode price setter role
+    function _deriveAirnodePriceSetterRole(address _manager)
+        private
         view
-        returns (bytes32 _airnodeFlagAndPriceSetterRole)
+        returns (bytes32 _airnodePriceSetterRole)
     {
-        _airnodeFlagAndPriceSetterRole = _deriveRole(
+        _airnodePriceSetterRole = _deriveRole(
             _deriveAdminRole(_manager),
-            AIRNODE_FLAG_AND_PRICE_SETTER_DESCRIPTION_HASH
+            AIRNODE_PRICE_SETTER_DESCRIPTION_HASH
         );
     }
 
-    /// @dev Returns if the account has the global default price setter role
+    /// @dev Returns if the account has the default price setter role
     /// or is the manager
     /// @param account Account address
-    /// @return If the account has the global default price setter or is the
+    /// @return If the account has the default price setter role or is the
     /// manager
-    function hasGlobalDefaultPriceSetterRoleOrIsManager(address account)
+    function hasDefaultPriceSetterRoleOrIsManager(address account)
         internal
         view
         returns (bool)
@@ -137,17 +128,17 @@ contract AirnodeFeeRegistryRolesWithManager is
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                globalDefaultPriceSetterRole,
+                defaultPriceSetterRole,
                 account
             );
     }
 
-    /// @dev Returns if the account has the airnode flag and price setter role
+    /// @dev Returns if the account has the airnode price setter role
     /// or is the manager
     /// @param account Account address
-    /// @return If the account has the airnode flag and price setter or is the
+    /// @return If the account has the airnode price setter role or is the
     /// manager
-    function hasAirnodeFlagAndPriceSetterRole(address account)
+    function hasAirnodePriceSetterRoleOrIsManager(address account)
         internal
         view
         returns (bool)
@@ -155,7 +146,7 @@ contract AirnodeFeeRegistryRolesWithManager is
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                airnodeFlagAndPriceSetterRole,
+                airnodePriceSetterRole,
                 account
             );
     }
