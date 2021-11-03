@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-node",
   "license": "MIT",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": false,
   "main": "dist/src/index",
   "types": "dist/src/index",
@@ -22,11 +22,11 @@
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit"
   },
   "dependencies": {
-    "@api3/airnode-adapter": "^0.2.1",
-    "@api3/airnode-abi": "^0.2.1",
-    "@api3/airnode-ois": "^0.2.1",
-    "@api3/airnode-protocol": "^0.2.1",
-    "@api3/airnode-validator": "^0.2.1",
+    "@api3/airnode-adapter": "^0.2.2",
+    "@api3/airnode-abi": "^0.2.2",
+    "@api3/airnode-ois": "^0.2.2",
+    "@api3/airnode-protocol": "^0.2.2",
+    "@api3/airnode-validator": "^0.2.2",
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.753.0",
     "date-fns": "^2.16.1",
@@ -36,7 +36,7 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@api3/airnode-operation": "^0.2.1",
+    "@api3/airnode-operation": "^0.2.2",
     "@types/jest": "^27.0.2",
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.12.2",
