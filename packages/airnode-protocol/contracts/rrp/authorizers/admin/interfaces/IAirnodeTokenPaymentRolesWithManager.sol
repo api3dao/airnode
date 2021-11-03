@@ -23,7 +23,7 @@ interface IAirnodeTokenPaymentRolesWithManager {
         returns (string memory);
 
     // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION()
+    function AIRNODE_TO_MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION()
         external
         view
         returns (string memory);
@@ -47,7 +47,7 @@ interface IAirnodeTokenPaymentRolesWithManager {
 
     function paymentTokenPriceSetterRole() external view returns (bytes32);
 
-    function maximumWhitelistDurationSetterRole()
+    function airnodeToMaximumWhitelistDurationSetterRole()
         external
         view
         returns (bytes32);

@@ -19,7 +19,7 @@ contract AirnodeTokenPaymentRolesWithManager is
     //     ├── (2) Airnode authorizer registry setter
     //     ├── (3) Airnode fee registry setter
     //     ├── (4) Payment token price setter (Oracle)
-    //     ├── (5) Maximum whitelist duration setter
+    //     ├── (5) Airnode to maximum whitelist duration setter
     //     ├── (6) Airnode to payment destination setter
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
@@ -38,8 +38,8 @@ contract AirnodeTokenPaymentRolesWithManager is
         "Payment token price setter";
     string
         public constant
-        override MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION =
-        "Maximum whitelist duration setter";
+        override AIRNODE_TO_MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION =
+        "Airnode to maximum whitelist duration setter";
     string
         public constant
         override AIRNODE_TO_PAYMENT_DESTINATION_SETTER_ROLE_DESCRIPTION =
@@ -63,9 +63,11 @@ contract AirnodeTokenPaymentRolesWithManager is
             abi.encodePacked(PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION)
         );
     bytes32
-        internal constant MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION_HASH =
+        internal constant AIRNODE_TO_MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(
-            abi.encodePacked(MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION)
+            abi.encodePacked(
+                AIRNODE_TO_MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION
+            )
         );
     bytes32
         internal constant AIRNODE_TO_PAYMENT_DESTINATION_SETTER_ROLE_DESCRIPTION_HASH =
@@ -84,7 +86,9 @@ contract AirnodeTokenPaymentRolesWithManager is
     bytes32 public immutable override airnodeAuthorizerRegistrySetterRole;
     bytes32 public immutable override airnodeFeeRegistrySetterRole;
     bytes32 public immutable override paymentTokenPriceSetterRole;
-    bytes32 public immutable override maximumWhitelistDurationSetterRole;
+    bytes32
+        public immutable
+        override airnodeToMaximumWhitelistDurationSetterRole;
     bytes32 public immutable override airnodeToPaymentDestinationSetterRole;
 
     /// @dev Contracts deployed with the same admin role descriptions will have
@@ -120,7 +124,7 @@ contract AirnodeTokenPaymentRolesWithManager is
         paymentTokenPriceSetterRole = _derivePaymentTokenPriceSetterRole(
             _manager
         );
-        maximumWhitelistDurationSetterRole = _deriveMaximumWhitelistDurationSetterRole(
+        airnodeToMaximumWhitelistDurationSetterRole = _deriveAirnodeToMaximumWhitelistDurationSetterRole(
             _manager
         );
         airnodeToPaymentDestinationSetterRole = _deriveAirnodeToPaymentDestinationSetterRole(
@@ -190,23 +194,25 @@ contract AirnodeTokenPaymentRolesWithManager is
         );
     }
 
-    /// @notice Derives the maximum whitelist duration setter role for the
-    /// specific manager address
+    /// @notice Derives the Airnode to maximum whitelist duration setter role
+    /// for the specific manager address
     /// @param _manager Manager address
-    /// @return _maximumWhitelistDurationSetterRole Maximum whitelist duration
-    /// setter role
-    function _deriveMaximumWhitelistDurationSetterRole(address _manager)
+    /// @return _airnodeToMaximumWhitelistDurationSetterRole Airnode to maximum
+    /// whitelist duration setter role
+    function _deriveAirnodeToMaximumWhitelistDurationSetterRole(
+        address _manager
+    )
         internal
         view
-        returns (bytes32 _maximumWhitelistDurationSetterRole)
+        returns (bytes32 _airnodeToMaximumWhitelistDurationSetterRole)
     {
-        _maximumWhitelistDurationSetterRole = _deriveRole(
+        _airnodeToMaximumWhitelistDurationSetterRole = _deriveRole(
             _deriveAdminRole(_manager),
-            MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION_HASH
+            AIRNODE_TO_MAXIMUM_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION_HASH
         );
     }
 
-    /// @notice Derives the airnode to payment destination setter role for the
+    /// @notice Derives the Airnode to payment destination setter role for the
     /// specific manager address
     /// @param _manager Manager address
     /// @return _airnodeToPaymentDestinationSetterRole Airnode to payment
@@ -276,20 +282,18 @@ contract AirnodeTokenPaymentRolesWithManager is
             );
     }
 
-    /// @dev Returns if the account has the maximum whitelist duration setter
-    /// role or is the manager
+    /// @dev Returns if the account has the Airnode to maximum whitelist
+    /// duration setter role or is the manager
     /// @param account Account address
-    /// @return If the account has the maximum whitelist duration setter or is
-    /// the manager
-    function hasMaximumWhitelistDurationSetterRoleOrIsManager(address account)
-        internal
-        view
-        returns (bool)
-    {
+    /// @return If the account has the Airnode to maximum whitelist duration
+    /// setter or is the manager
+    function hasAirnodeToMaximumWhitelistDurationSetterRoleOrIsManager(
+        address account
+    ) internal view returns (bool) {
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                maximumWhitelistDurationSetterRole,
+                airnodeToMaximumWhitelistDurationSetterRole,
                 account
             );
     }

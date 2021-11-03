@@ -17,14 +17,14 @@ interface IAirnodeTokenPayment {
         address indexed airnodeAuthorizerRegistrySetter
     );
 
-    event SetMaximumWhitelistDuration(
+    event SetAirnodeToMaximumWhitelistDuration(
         uint256 maximumWhitelistDuration,
-        address indexed maximumWhitelistDurationSetter
+        address indexed airnodeToMaximumWhitelistDurationSetter
     );
 
     event SetAirnodeToPaymentDestination(
-        address indexed airnode,
-        address indexed paymentAddress
+        address indexed paymentAddress,
+        address indexed airnodeToPaymentDestinationSetter
     );
 
     event MadePayment(
@@ -46,7 +46,10 @@ interface IAirnodeTokenPayment {
 
     function airnodeFeeRegistry() external view returns (address);
 
-    function maximumWhitelistDuration() external view returns (uint256);
+    function airnodeToMaximumWhitelistDuration(address airnode)
+        external
+        view
+        returns (uint256);
 
     function airnodeToPaymentDestination(address airnode)
         external
@@ -60,8 +63,9 @@ interface IAirnodeTokenPayment {
 
     function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
 
-    function setMaximumWhitelistDuration(uint256 maximumWhitelistDuration)
-        external;
+    function setAirnodeToMaximumWhitelistDuration(
+        uint256 maximumWhitelistDuration
+    ) external;
 
     function setAirnodeToPaymentDestination(address paymentAddress) external;
 
