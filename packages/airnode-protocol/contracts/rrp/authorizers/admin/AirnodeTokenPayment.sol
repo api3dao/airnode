@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
 import "./AirnodeTokenPaymentRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
-import "./interfaces/IERC20Extended.sol";
 
 /// @title The contract used to pay with ERC20 in order to gain access to Airnodes
 /// @notice In order for an Airnode provider to accept payments using this contract
@@ -14,11 +14,7 @@ contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
     IAirnodeTokenPayment
 {
-    string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
-    string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
-    string private constant ERROR_INVALID_DURATION = "Invalid duration";
-    string private constant ERROR_INVALID_TOKEN_PRICE = "Invalid token price";
 
     /// @notice The default maximum whitelisting duration in seconds (30 days)
     uint256 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
@@ -126,7 +122,7 @@ contract AirnodeTokenPayment is
             hasPaymentTokenPriceSetterRoleOrIsManager(msg.sender),
             "Not payment token price setter"
         );
-        require(paymentTokenPrice != 0, ERROR_INVALID_TOKEN_PRICE);
+        require(paymentTokenPrice != 0, "Invalid token price");
         paymentTokenPrice = _paymentTokenPrice;
         emit SetPaymentTokenPrice(_paymentTokenPrice, msg.sender);
     }
@@ -143,7 +139,7 @@ contract AirnodeTokenPayment is
             ),
             "Not Airnode to maximum whitelist duration setter"
         );
-        require(_maximumWhitelistDuration != 0, ERROR_INVALID_DURATION);
+        require(_maximumWhitelistDuration != 0, "Invalid duration");
         airnodeToMaximumWhitelistDuration[
             msg.sender
         ] = _maximumWhitelistDuration;
@@ -168,32 +164,27 @@ contract AirnodeTokenPayment is
         emit SetAirnodeToPaymentDestination(_paymentDestination, msg.sender);
     }
 
-    /// @notice Make payments to gain access to Airnode only if the sender has
-    /// the whitelist expiration extender role.
-    /// @dev chainId-airnode-endpoint-requester pair gets authorized for the
+    /// @notice Make payments to gain access to Airnode
+    /// @dev In order for this function to be able to extend the whitelisting,
+    /// the Airnode operator must first grant the whitelist expiration extender
+    /// role to this contract, otherwise it will revert.
+    /// chainId-airnode-endpoint-requester pair gets authorized for the
     /// duration specified. The amount to be paid is determined by the fee set
-    /// in the AirnodeFeeRegistry contract and the token price
-    /// @param _token ERC20 token contract address used for payment
+    /// in the AirnodeFeeRegistry contract and the token price.
     /// @param _chainId Id of the chain
     /// @param _airnode Airnode address
     /// @param _endpointId Id of the endpoint
-    /// @param _requesterAddress The address of the requester for which tokens
-    /// are being locked
-    /// @param _whitelistDuration The duration in seconds for which the
-    /// requester will be whitelisted
+    /// @param _requesterAddress Requester address
+    /// @param _whitelistDuration Duration in seconds for which the requester
+    /// will be whitelisted
     function makePayment(
-        address _token,
         uint256 _chainId,
         address _airnode,
         bytes32 _endpointId,
         address _requesterAddress,
         uint256 _whitelistDuration
     ) external override {
-        // require(
-        //     hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
-        //     "Not whitelist expiration extender"
-        // );
-        require(_chainId != 0, ERROR_ZERO_CHAINID);
+        require(_chainId != 0, "Zero chainId");
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
 
@@ -202,10 +193,12 @@ contract AirnodeTokenPayment is
         ] != 0
             ? airnodeToMaximumWhitelistDuration[_airnode]
             : DEFAULT_MAXIMUM_WHITELIST_DURATION;
-        require(
-            _whitelistDuration <= maximumWhitelistDuration,
-            "Exceed maximum whitelisting"
-        );
+
+        // This check might be redundant since we are checking it after fetching whitelist status
+        // require(
+        //     _whitelistDuration <= maximumWhitelistDuration,
+        //     "Exceed maximum whitelisting"
+        // );
 
         // (
         //     uint64 expirationTimestamp,
@@ -217,7 +210,6 @@ contract AirnodeTokenPayment is
         //             _endpointId,
         //             _requesterAddress
         //         );
-
         // require(
         //     indefiniteWhitelistCount == 0,
         //     "Requester already indefinently whitelisted"
@@ -227,17 +219,11 @@ contract AirnodeTokenPayment is
         //     "Exceed maximum whitelisting"
         // );
 
-        uint256 amount = getTokenPaymentAmount(
-            _token,
+        uint256 amount = getPaymentAmount(
             _chainId,
             _airnode,
             _endpointId,
             _whitelistDuration
-        );
-
-        require(
-            IERC20Extended(_token).balanceOf(msg.sender) >= amount,
-            ERROR_INSUFFICIENT_AMOUNT
         );
 
         // IRequesterAuthorizerWithManager(
@@ -250,7 +236,7 @@ contract AirnodeTokenPayment is
         //     );
 
         assert(
-            IERC20Extended(_token).transferFrom(
+            IERC20Metadata(paymentTokenAddress).transferFrom(
                 msg.sender,
                 airnodeToPaymentDestination[_airnode],
                 amount
@@ -265,6 +251,7 @@ contract AirnodeTokenPayment is
             msg.sender,
             airnodeToPaymentDestination[_airnode],
             amount,
+            IERC20Metadata(paymentTokenAddress).symbol(),
             _whitelistDuration //+ expirationTimestamp
         );
     }
@@ -272,14 +259,12 @@ contract AirnodeTokenPayment is
     /// @notice Returns the amount of tokens a sponsor has to transfer to the
     /// Airnode in order to be whitelisted for a given
     /// chainId-airnode-endpointId
-    /// @param _token ERC20 token contract address used for payment
     /// @param _chainId Id of the chain
     /// @param _airnode Airnode address
     /// @param _endpointId Id of the endpoint
-    /// @param _whitelistDuration The duration in seconds for which the
-    /// requester will be whitelisted
-    function getTokenPaymentAmount(
-        address _token,
+    /// @param _whitelistDuration Duration in seconds for which the requester
+    /// will be whitelisted
+    function getPaymentAmount(
         uint256 _chainId,
         address _airnode,
         bytes32 _endpointId,
@@ -289,7 +274,7 @@ contract AirnodeTokenPayment is
             .getEndpointPrice(_chainId, _airnode, _endpointId);
         uint8 feeDecimals = IAirnodeFeeRegistry(airnodeFeeRegistry).decimals();
         uint16 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).interval();
-        uint8 tokenDecimals = IERC20Extended(_token).decimals();
+        uint8 tokenDecimals = IERC20Metadata(paymentTokenAddress).decimals();
         amount =
             ((10**tokenDecimals) * feeInUsd * _whitelistDuration) /
             ((10**feeDecimals) * paymentTokenPrice * feeInterval);

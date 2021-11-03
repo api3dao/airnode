@@ -35,6 +35,7 @@ interface IAirnodeTokenPayment {
         address sponsor,
         address paymentAddress,
         uint256 paymentAmount,
+        string paymentTokenSymbol,
         uint256 expirationTimestamp
     );
 
@@ -70,7 +71,6 @@ interface IAirnodeTokenPayment {
     function setAirnodeToPaymentDestination(address paymentAddress) external;
 
     function makePayment(
-        address token,
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
@@ -78,8 +78,7 @@ interface IAirnodeTokenPayment {
         uint256 whitelistDuration
     ) external;
 
-    function getTokenPaymentAmount(
-        address token,
+    function getPaymentAmount(
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
