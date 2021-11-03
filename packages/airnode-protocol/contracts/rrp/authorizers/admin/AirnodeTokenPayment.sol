@@ -2,14 +2,18 @@
 pragma solidity 0.8.9;
 
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
+import "./AirnodeTokenPaymentRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
-import "./interfaces/IERC20Extended.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
+import "./interfaces/IERC20Extended.sol";
 
 /// @title The contract used to pay with ERC20 in order to gain access to Airnodes
 /// @notice In order for an Airnode provider to accept payments using this contract
 /// it must fist grant the whitelistExpirationExtenderRole to this contract.
-contract AirnodeTokenPayment is IAirnodeTokenPayment {
+contract AirnodeTokenPayment is
+    AirnodeTokenPaymentRolesWithManager,
+    IAirnodeTokenPayment
+{
     string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
@@ -39,12 +43,31 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
     /// @notice Mapping to store the default payment address for an airnode
     mapping(address => address) public airnodeToPaymentDestination;
 
+    /// @dev The manager address here is expected to belong to an
+    /// AccessControlAgent contract that is owned by the DAO
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
+    /// @param _manager Manager address
+    /// @param _airnodeAuthorizerRegistry AirnodeAuthorizerRegistry contract
+    /// address
+    /// @param _airnodeFeeRegistry AirnodeFeeRegistry contract address
+    /// @param _paymentTokenAddress ERC20 token contract address
+    /// @param _maximumWhitelistDuration Maximum whitelist duration in seconds
     constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription,
+        address _manager,
         address _airnodeAuthorizerRegistry,
         address _airnodeFeeRegistry,
         address _paymentTokenAddress,
         uint256 _maximumWhitelistDuration
-    ) {
+    )
+        AirnodeTokenPaymentRolesWithManager(
+            _accessControlRegistry,
+            _adminRoleDescription,
+            _manager
+        )
+    {
         require(_airnodeAuthorizerRegistry != address(0), ERROR_ZERO_ADDRESS);
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         require(_paymentTokenAddress != address(0), ERROR_ZERO_ADDRESS);
@@ -57,16 +80,16 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
 
     /// @notice Called by an airnode authorizer registry setter to set the
     /// address of the AirnodeAuthorizerRegistry contract
-    /// @param _airnodeAuthorizerRegistry The address of the
-    /// AirnodeAuthorizerRegistry contract
+    /// @param _airnodeAuthorizerRegistry AirnodeAuthorizerRegistry contract
+    /// address
     function setAirnodeAuthorizerRegistry(address _airnodeAuthorizerRegistry)
         external
         override
     {
-        // require(
-        //     hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
-        //     "Not airnode authorizer registry setter"
-        // );
+        require(
+            hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
+            "Not airnode authorizer registry setter"
+        );
         require(_airnodeAuthorizerRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeAuthorizerRegistry = _airnodeAuthorizerRegistry;
         emit SetAirnodeAuthorizerRegistry(
@@ -76,17 +99,16 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
     }
 
     /// @notice Called by an airnode fee registry setter to set the address of
-    /// the AirnodeAuthorizerRegistry contract
-    /// @param _airnodeFeeRegistry The address of the AirnodeFeeRegistry
-    /// contract
+    /// the AirnodeFeeRegistry contract
+    /// @param _airnodeFeeRegistry AirnodeFeeRegistry contract address
     function setAirnodeFeeRegistry(address _airnodeFeeRegistry)
         external
         override
     {
-        // require(
-        //     hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
-        //     "Not airnode fee registry setter"
-        // );
+        require(
+            hasAirnodeFeeRegistrySetterRoleOrIsManager(msg.sender),
+            "Not airnode fee registry setter"
+        );
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
         emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
@@ -95,15 +117,15 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
     /// @notice Called by a payment token price setter to set the payment
     /// token price. The caller most likely be an oracle
     /// @dev The price should be set with 18 decimal places
-    /// @param _paymentTokenPrice The price of the token in USD
+    /// @param _paymentTokenPrice Payment token price in USD
     function setPaymentTokenPrice(uint256 _paymentTokenPrice)
         external
         override
     {
-        // require(
-        //     hasPaymentTokenPriceSetterRoleOrIsManager(msg.sender),
-        //     "Not payment token price setter"
-        // );
+        require(
+            hasPaymentTokenPriceSetterRoleOrIsManager(msg.sender),
+            "Not payment token price setter"
+        );
         require(paymentTokenPrice != 0, ERROR_INVALID_TOKEN_PRICE);
         paymentTokenPrice = _paymentTokenPrice;
         emit SetPaymentTokenPrice(_paymentTokenPrice, msg.sender);
@@ -111,15 +133,15 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
 
     /// @notice Called by a maximum whitelist duration setter to set the
     /// maximum allowed period of whitelisting for an airnode
-    /// @param _maximumWhitelistDuration The maximum whitelist duration in seconds
+    /// @param _maximumWhitelistDuration Maximum whitelist duration in seconds
     function setMaximumWhitelistDuration(uint256 _maximumWhitelistDuration)
         external
         override
     {
-        // require(
-        //     hasMaximumWhitelistDurationSetterRoleOrIsManager(msg.sender),
-        //     "Not maximum whitelist duration setter"
-        // );
+        require(
+            hasMaximumWhitelistDurationSetterRoleOrIsManager(msg.sender),
+            "Not maximum whitelist duration setter"
+        );
         require(maximumWhitelistDuration != 0, ERROR_INVALID_DURATION);
         maximumWhitelistDuration = _maximumWhitelistDuration;
         emit SetMaximumWhitelistDuration(_maximumWhitelistDuration, msg.sender);
@@ -127,15 +149,15 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
 
     /// @notice Called by an airnode to payment destination setter to set the
     /// address to which payments will be transferred
-    /// @param _paymentDestination The address of the payment destination
+    /// @param _paymentDestination Payment destination address
     function setAirnodeToPaymentDestination(address _paymentDestination)
         external
         override
     {
-        // require(
-        //     hasAirnodeToPaymentDestinationSetterRoleOrIsManager(msg.sender),
-        //     "Not airnode to payment destination setter"
-        // );
+        require(
+            hasAirnodeToPaymentDestinationSetterRoleOrIsManager(msg.sender),
+            "Not airnode to payment destination setter"
+        );
         airnodeToPaymentDestination[msg.sender] = _paymentDestination;
         emit SetAirnodeToPaymentDestination(msg.sender, _paymentDestination);
     }
@@ -145,12 +167,14 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
     /// @dev chainId-airnode-endpoint-requester pair gets authorized for the
     /// duration specified. The amount to be paid is determined by the fee set
     /// in the AirnodeFeeRegistry contract and the token price
-    /// @param _token The address of the ERC20 token contract
-    /// @param _chainId The id of the chain
-    /// @param _airnode The address of the airnode
-    /// @param _endpointId The id of the endpoint
-    /// @param _requesterAddress The address of the requester for which tokens are being locked
-    /// @param _whitelistDuration The duration in seconds for which the requester will be whitelisted
+    /// @param _token ERC20 token contract address used for payment
+    /// @param _chainId Id of the chain
+    /// @param _airnode Airnode address
+    /// @param _endpointId Id of the endpoint
+    /// @param _requesterAddress The address of the requester for which tokens
+    /// are being locked
+    /// @param _whitelistDuration The duration in seconds for which the
+    /// requester will be whitelisted
     function makePayment(
         address _token,
         uint256 _chainId,
@@ -236,11 +260,12 @@ contract AirnodeTokenPayment is IAirnodeTokenPayment {
     /// @notice Returns the amount of tokens a sponsor has to transfer to the
     /// airnode in order to be whitelisted for a given
     /// chainId-airnode-endpointId
-    /// @param _token The address of the ERC20 token contract
-    /// @param _chainId The id of the chain
-    /// @param _airnode The address of the airnode
-    /// @param _endpointId The id of the endpoint
-    /// @param _whitelistDuration The duration in seconds for which the requester will be whitelisted
+    /// @param _token ERC20 token contract address used for payment
+    /// @param _chainId Id of the chain
+    /// @param _airnode Airnode address
+    /// @param _endpointId Id of the endpoint
+    /// @param _whitelistDuration The duration in seconds for which the
+    /// requester will be whitelisted
     function getTokenPaymentAmount(
         address _token,
         uint256 _chainId,
