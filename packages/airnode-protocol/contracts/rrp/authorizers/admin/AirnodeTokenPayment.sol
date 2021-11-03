@@ -3,24 +3,22 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
+import "./AirnodeRequesterAuthorizerRegistryClient.sol";
 import "./AirnodeTokenPaymentRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
+import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
 
 /// @title The contract used to pay with ERC20 in order to gain access to Airnodes
 /// @notice In order for an Airnode provider to accept payments using this contract
 /// it must fist grant the whitelistExpirationExtenderRole to this contract.
 contract AirnodeTokenPayment is
+    AirnodeRequesterAuthorizerRegistryClient,
     AirnodeTokenPaymentRolesWithManager,
     IAirnodeTokenPayment
 {
-    string private constant ERROR_ZERO_ADDRESS = "Zero address";
-
     /// @notice The default maximum whitelisting duration in seconds (30 days)
-    uint256 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
-
-    /// @notice Address of AirnodeFeeRegistry
-    address public airnodeAuthorizerRegistry;
+    uint64 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
 
     /// @notice Address of AirnodeFeeRegistry
     address public airnodeFeeRegistry;
@@ -38,7 +36,7 @@ contract AirnodeTokenPayment is
 
     /// @notice Mapping to store the maximum whitelisting duration in seconds
     /// for an Airnode
-    mapping(address => uint256) public airnodeToMaximumWhitelistDuration;
+    mapping(address => uint64) public airnodeToMaximumWhitelistDuration;
 
     /// @notice Mapping to store the default payment address for an Airnode
     mapping(address => address) public airnodeToPaymentDestination;
@@ -48,8 +46,8 @@ contract AirnodeTokenPayment is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeAuthorizerRegistry AirnodeAuthorizerRegistry contract
-    /// address
+    /// @param _airnodeAuthorizerRegistry AirnodeRequesterAuthorizerRegistry
+    /// contract address
     /// @param _airnodeFeeRegistry AirnodeFeeRegistry contract address
     /// @param _paymentTokenAddress ERC20 token contract address
     constructor(
@@ -65,11 +63,10 @@ contract AirnodeTokenPayment is
             _adminRoleDescription,
             _manager
         )
+        AirnodeRequesterAuthorizerRegistryClient(_airnodeAuthorizerRegistry)
     {
-        require(_airnodeAuthorizerRegistry != address(0), ERROR_ZERO_ADDRESS);
-        require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
-        require(_paymentTokenAddress != address(0), ERROR_ZERO_ADDRESS);
-        airnodeAuthorizerRegistry = _airnodeAuthorizerRegistry;
+        require(_airnodeFeeRegistry != address(0), "Zero address");
+        require(_paymentTokenAddress != address(0), "Zero address");
         airnodeFeeRegistry = _airnodeFeeRegistry;
         paymentTokenAddress = _paymentTokenAddress;
     }
@@ -78,21 +75,21 @@ contract AirnodeTokenPayment is
     /// address of the AirnodeAuthorizerRegistry contract
     /// @param _airnodeAuthorizerRegistry AirnodeAuthorizerRegistry contract
     /// address
-    function setAirnodeAuthorizerRegistry(address _airnodeAuthorizerRegistry)
-        external
-        override
-    {
-        require(
-            hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
-            "Not airnode authorizer registry setter"
-        );
-        require(_airnodeAuthorizerRegistry != address(0), ERROR_ZERO_ADDRESS);
-        airnodeAuthorizerRegistry = _airnodeAuthorizerRegistry;
-        emit SetAirnodeAuthorizerRegistry(
-            _airnodeAuthorizerRegistry,
-            msg.sender
-        );
-    }
+    // function setAirnodeAuthorizerRegistry(address _airnodeAuthorizerRegistry)
+    //     external
+    //     override
+    // {
+    //     require(
+    //         hasAirnodeAuthorizerRegistrySetterRoleOrIsManager(msg.sender),
+    //         "Not airnode authorizer registry setter"
+    //     );
+    //     require(_airnodeAuthorizerRegistry != address(0), "Zero address");
+    //     airnodeRequesterAuthorizerRegistry = _airnodeAuthorizerRegistry;
+    //     emit SetAirnodeAuthorizerRegistry(
+    //         _airnodeAuthorizerRegistry,
+    //         msg.sender
+    //     );
+    // }
 
     /// @notice Called by an Airnode fee registry setter to set the address of
     /// the AirnodeFeeRegistry contract
@@ -105,7 +102,7 @@ contract AirnodeTokenPayment is
             hasAirnodeFeeRegistrySetterRoleOrIsManager(msg.sender),
             "Not Airnode fee registry setter"
         );
-        require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
+        require(_airnodeFeeRegistry != address(0), "Zero address");
         airnodeFeeRegistry = _airnodeFeeRegistry;
         emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
     }
@@ -131,7 +128,7 @@ contract AirnodeTokenPayment is
     /// set the maximum allowed period of whitelisting for an Airnode
     /// @param _maximumWhitelistDuration Maximum whitelist duration in seconds
     function setAirnodeToMaximumWhitelistDuration(
-        uint256 _maximumWhitelistDuration
+        uint64 _maximumWhitelistDuration
     ) external override {
         require(
             hasAirnodeToMaximumWhitelistDurationSetterRoleOrIsManager(
@@ -182,42 +179,44 @@ contract AirnodeTokenPayment is
         address _airnode,
         bytes32 _endpointId,
         address _requesterAddress,
-        uint256 _whitelistDuration
+        uint64 _whitelistDuration
     ) external override {
         require(_chainId != 0, "Zero chainId");
-        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
-        require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
-
-        uint256 maximumWhitelistDuration = airnodeToMaximumWhitelistDuration[
-            _airnode
-        ] != 0
-            ? airnodeToMaximumWhitelistDuration[_airnode]
-            : DEFAULT_MAXIMUM_WHITELIST_DURATION;
+        require(_airnode != address(0), "Zero address");
+        require(_requesterAddress != address(0), "Zero address");
 
         // This check might be redundant since we are checking it after fetching whitelist status
         // require(
-        //     _whitelistDuration <= maximumWhitelistDuration,
+        //     _whitelistDuration <= getMaximumWhitelistDuration(_airnode),
         //     "Exceed maximum whitelisting"
         // );
 
-        // (
-        //     uint64 expirationTimestamp,
-        //     uint192 indefiniteWhitelistCount
-        // ) = IRequesterAuthorizerWithManager(
-        //         airnodeAuthorizerRegistry.getAuthorizerAddress(_chainId)
-        //     ).airnodeToEndpointIdToRequesterToWhitelistStatus(
-        //             _airnode,
-        //             _endpointId,
-        //             _requesterAddress
-        //         );
-        // require(
-        //     indefiniteWhitelistCount == 0,
-        //     "Requester already indefinently whitelisted"
-        // );
-        // require(
-        //     _whitelistDuration + expirationTimestamp <= maximumWhitelistDuration,
-        //     "Exceed maximum whitelisting"
-        // );
+        address requesterAuthorizerWithManager = IAirnodeRequesterAuthorizerRegistry(
+                airnodeRequesterAuthorizerRegistry
+            ).chainIdToRequesterAuthorizerWithManager(_chainId);
+        require(
+            requesterAuthorizerWithManager != address(0),
+            "No requester authorizer set for chain"
+        );
+
+        (
+            uint64 expirationTimestamp,
+            uint192 indefiniteWhitelistCount
+        ) = IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+                .airnodeToEndpointIdToRequesterToWhitelistStatus(
+                    _airnode,
+                    _endpointId,
+                    _requesterAddress
+                );
+        require(
+            indefiniteWhitelistCount == 0,
+            "Requester already indefinently whitelisted"
+        );
+        require(
+            _whitelistDuration + expirationTimestamp <=
+                getMaximumWhitelistDuration(_airnode),
+            "Exceed maximum whitelisting"
+        );
 
         uint256 amount = getPaymentAmount(
             _chainId,
@@ -226,14 +225,13 @@ contract AirnodeTokenPayment is
             _whitelistDuration
         );
 
-        // IRequesterAuthorizerWithManager(
-        //     airnodeAuthorizerRegistry.getAuthorizerAddress(_chainId)
-        // ).extendWhitelistExpiration(
-        //         _airnode,
-        //         _endpointId,
-        //         _requesterAddress,
-        //         _whitelistDuration + expirationTimestamp
-        //     );
+        IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+            .extendWhitelistExpiration(
+                _airnode,
+                _endpointId,
+                _requesterAddress,
+                _whitelistDuration + expirationTimestamp
+            );
 
         assert(
             IERC20Metadata(paymentTokenAddress).transferFrom(
@@ -252,7 +250,7 @@ contract AirnodeTokenPayment is
             airnodeToPaymentDestination[_airnode],
             amount,
             IERC20Metadata(paymentTokenAddress).symbol(),
-            _whitelistDuration //+ expirationTimestamp
+            _whitelistDuration + expirationTimestamp
         );
     }
 
@@ -269,13 +267,27 @@ contract AirnodeTokenPayment is
         uint256 _chainId,
         address _airnode,
         bytes32 _endpointId,
-        uint256 _whitelistDuration
+        uint64 _whitelistDuration
     ) public view override returns (uint256 amount) {
         uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
             .getEndpointPrice(_chainId, _airnode, _endpointId);
-        uint16 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).interval();
+        uint24 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).INTERVAL();
         amount =
             (feeInUsd * _whitelistDuration) /
             (paymentTokenPrice * feeInterval);
+    }
+
+    /// @notice Gets the maximum whitelist duration period in seconds for a
+    /// specific Airnode address
+    /// @param _airnode Airnode address
+    function getMaximumWhitelistDuration(address _airnode)
+        private
+        view
+        returns (uint64)
+    {
+        return
+            airnodeToMaximumWhitelistDuration[_airnode] != 0
+                ? airnodeToMaximumWhitelistDuration[_airnode]
+                : DEFAULT_MAXIMUM_WHITELIST_DURATION;
     }
 }

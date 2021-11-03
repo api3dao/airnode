@@ -39,18 +39,21 @@ interface IAirnodeTokenPayment {
         uint256 expirationTimestamp
     );
 
+    function DEFAULT_MAXIMUM_WHITELIST_DURATION()
+        external
+        view
+        returns (uint64);
+
     function paymentTokenAddress() external view returns (address);
 
     function paymentTokenPrice() external view returns (uint256);
-
-    function airnodeAuthorizerRegistry() external view returns (address);
 
     function airnodeFeeRegistry() external view returns (address);
 
     function airnodeToMaximumWhitelistDuration(address airnode)
         external
         view
-        returns (uint256);
+        returns (uint64);
 
     function airnodeToPaymentDestination(address airnode)
         external
@@ -59,13 +62,14 @@ interface IAirnodeTokenPayment {
 
     function setPaymentTokenPrice(uint256 tokenPrice) external;
 
-    function setAirnodeAuthorizerRegistry(address airnodeAuthorizerRegistry)
-        external;
+    // TODO: disabled for now, because airnodeRequesterAuthorizerRegistry is set as immutable
+    // function setAirnodeAuthorizerRegistry(address airnodeAuthorizerRegistry)
+    //     external;
 
     function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
 
     function setAirnodeToMaximumWhitelistDuration(
-        uint256 maximumWhitelistDuration
+        uint64 maximumWhitelistDuration
     ) external;
 
     function setAirnodeToPaymentDestination(address paymentAddress) external;
@@ -75,13 +79,13 @@ interface IAirnodeTokenPayment {
         address airnode,
         bytes32 endpointId,
         address requesterAddress,
-        uint256 whitelistDuration
+        uint64 whitelistDuration
     ) external;
 
     function getPaymentAmount(
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
-        uint256 whitelistDuration
+        uint64 whitelistDuration
     ) external view returns (uint256 amount);
 }
