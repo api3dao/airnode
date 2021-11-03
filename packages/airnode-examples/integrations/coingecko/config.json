@@ -25,7 +25,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.1.0",
+    "nodeVersion": "0.2.0",
     "region": "us-east-1",
     "stage": "dev"
   },

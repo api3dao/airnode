@@ -25,7 +25,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.1.0",
+    "nodeVersion": "0.2.0",
     "region": "us-east-1",
     "stage": "dev"
   },
@@ -44,9 +44,6 @@
       "version": "1.2.3",
       "title": "Currency Converter API",
       "apiSpecifications": {
-        "info": {
-          "title": "Currency Converter API"
-        },
         "servers": [
           {
             "url": "http://localhost:5000"
