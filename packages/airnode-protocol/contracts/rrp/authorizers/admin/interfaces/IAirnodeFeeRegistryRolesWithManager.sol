@@ -16,9 +16,6 @@ interface IAirnodeFeeRegistryRolesWithManager {
         view
         returns (string memory);
 
-    // solhint-disable-next-line func-name-mixedcase
-    function DECIMALS() external view returns (uint8);
-
     function manager() external view returns (address);
 
     function adminRole() external view returns (bytes32);

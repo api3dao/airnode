@@ -5,14 +5,13 @@ const utils = require('../../../utils');
 
 let roles;
 let accessControlRegistry, airnodeTokenLock;
-let airnodeFeeRegistry, requesterAuthorizerWithManager;
+let airnodeFeeRegistry, requesterAuthorizerWithManager, airnodeRequesterAuthorizerRegistry;
 let api3Token;
 let airnodeTokenLockAdminRoleDescription = 'AirnodeTokenLock admin';
 let requesterAuthorizerWithManagerAdminRoleDescription = 'RequesterAuthorizerWithManager admin';
 let airnodeFeeRegistryAdminRoleDescription = 'AirnodeFeeRegistry admin';
-let adminRole, oracleAddressSetterRole, coefficientAndRegistrySetterRole;
+let adminRole, airnodeFeeRegistrySetterRole, coefficientSetterRole;
 let optStatusSetterRole, blockWithdrawDestinationSetterRole, blockRequesterRole;
-let requesterAuthorizerWithManagerSetterRole;
 let airnodeAddress = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
 let endpointPrice;
@@ -22,16 +21,15 @@ beforeEach(async () => {
   roles = {
     deployer: accounts[0],
     manager: accounts[1],
-    oracleAddressSetter: accounts[2],
-    coefficientAndRegistrySetter: accounts[3],
+    oracle: accounts[2],
+    airnodeFeeRegistrySetter: accounts[3],
     optStatusSetter: accounts[4],
     blockWithdrawDestinationSetter: accounts[5],
     blockRequester: accounts[6],
-    requesterAuthorizerWithManagerSetter: accounts[7],
+    coefficientSetter: accounts[7],
     requester: accounts[8],
     locker: accounts[9],
     anotherLocker: accounts[10],
-    oracle: accounts[11],
     airnode: accounts[12],
     blockWithdrawDestination: accounts[13],
     randomPerson: accounts[14],
@@ -58,6 +56,18 @@ beforeEach(async () => {
     roles.manager.address
   );
 
+  // deploy Authorizer Registry contract
+
+  airnodeRequesterAuthorizerRegistry = await hre.ethers.getContractFactory(
+    'AirnodeRequesterAuthorizerRegistry',
+    roles.deployer
+  );
+  airnodeRequesterAuthorizerRegistry = await airnodeRequesterAuthorizerRegistry.deploy();
+
+  airnodeRequesterAuthorizerRegistry
+    .connect(roles.deployer)
+    .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
+
   // deploy api3Token
   const api3TokenFactory = await hre.ethers.getContractFactory('MockApi3Token', roles.deployer);
   api3Token = await api3TokenFactory.deploy(roles.deployer.address, roles.locker.address);
@@ -71,39 +81,40 @@ beforeEach(async () => {
     airnodeTokenLockAdminRoleDescription,
     roles.manager.address,
     api3Token.address,
-    airnodeFeeRegistry.address
+    airnodeFeeRegistry.address,
+    airnodeRequesterAuthorizerRegistry.address
   );
 
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
   adminRole = await airnodeTokenLock.adminRole();
   const requesterAuthorizerWithManagerAdminRole = await requesterAuthorizerWithManager.adminRole();
 
-  oracleAddressSetterRole = await airnodeTokenLock.oracleAddressSetterRole();
-  coefficientAndRegistrySetterRole = await airnodeTokenLock.coefficientAndRegistrySetterRole();
+  //oracleRole = await airnodeTokenLock.oracleRole();
+  airnodeFeeRegistrySetterRole = await airnodeTokenLock.airnodeFeeRegistrySetterRole();
+  coefficientSetterRole = await airnodeTokenLock.coefficientSetterRole();
   optStatusSetterRole = await airnodeTokenLock.optStatusSetterRole();
   blockWithdrawDestinationSetterRole = await airnodeTokenLock.blockWithdrawDestinationSetterRole();
   blockRequesterRole = await airnodeTokenLock.blockRequesterRole();
-  requesterAuthorizerWithManagerSetterRole = await airnodeTokenLock.requesterAuthorizerWithManagerSetterRole();
 
   await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
     [managerRootRole, adminRole, adminRole, adminRole, adminRole, adminRole, adminRole],
     [
       airnodeTokenLockAdminRoleDescription,
-      await airnodeTokenLock.ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION(),
-      await airnodeTokenLock.COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION(),
+      await airnodeTokenLock.ORACLE_ROLE_DESCRIPTION(),
+      await airnodeTokenLock.AIRNODE_FEE_REGISTRY_SETTER_ROLE(),
+      await airnodeTokenLock.COEFFICIENT_ROLE_DESCRIPTION(),
       await airnodeTokenLock.OPT_STATUS_SETTER_ROLE_DESCRIPTION(),
       await airnodeTokenLock.BLOCK_WITHDRAW_DESTINATION_SETTER_ROLE_DESCRIPTION(),
       await airnodeTokenLock.BLOCK_REQUESTER_ROLE_DESCRIPTION(),
-      await airnodeTokenLock.REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION(),
     ],
     [
       roles.manager.address, // which will already have been granted the role
-      roles.oracleAddressSetter.address,
-      roles.coefficientAndRegistrySetter.address,
+      roles.oracle.address,
+      roles.airnodeFeeRegistrySetter.address,
+      roles.coefficientSetter.address,
       roles.optStatusSetter.address,
       roles.blockWithdrawDestinationSetter.address,
       roles.blockRequester.address,
-      roles.requesterAuthorizerWithManagerSetter.address,
     ]
   );
   // Grant `roles.randomPerson` some invalid roles
@@ -121,12 +132,12 @@ beforeEach(async () => {
       ],
       [
         Math.random(),
-        await airnodeTokenLock.ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION(),
-        await airnodeTokenLock.COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION(),
+        await airnodeTokenLock.ORACLE_ROLE_DESCRIPTION(),
+        await airnodeTokenLock.AIRNODE_FEE_REGISTRY_SETTER_ROLE(),
+        await airnodeTokenLock.COEFFICIENT_ROLE_DESCRIPTION(),
         await airnodeTokenLock.OPT_STATUS_SETTER_ROLE_DESCRIPTION(),
         await airnodeTokenLock.BLOCK_WITHDRAW_DESTINATION_SETTER_ROLE_DESCRIPTION(),
         await airnodeTokenLock.BLOCK_REQUESTER_ROLE_DESCRIPTION(),
-        await airnodeTokenLock.REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION(),
       ],
       [
         roles.randomPerson.address,
@@ -152,7 +163,7 @@ beforeEach(async () => {
     );
 
   // Set the default Price to 100
-  await airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(100);
+  await airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(hre.ethers.utils.parseEther((100).toString()));
 
   endpointPrice = await airnodeFeeRegistry.defaultPrice();
 });
@@ -163,20 +174,41 @@ describe('constructor', function () {
       context('Manager address is not zero', function () {
         context('Api3Token address is not zero', function () {
           context('AirnodeFeeRegistry address is not zero', function () {
-            it('constructs', async function () {
-              const airnodeTokenLockFactory = await hre.ethers.getContractFactory('AirnodeTokenLock', roles.deployer);
-              airnodeTokenLock = await airnodeTokenLockFactory.deploy(
-                accessControlRegistry.address,
-                airnodeTokenLockAdminRoleDescription,
-                roles.manager.address,
-                api3Token.address,
-                airnodeFeeRegistry.address
-              );
-              expect(await airnodeTokenLock.accessControlRegistry()).to.equal(accessControlRegistry.address);
-              expect(await airnodeTokenLock.adminRoleDescription()).to.equal(airnodeTokenLockAdminRoleDescription);
-              expect(await airnodeTokenLock.manager()).to.equal(roles.manager.address);
-              expect(await airnodeTokenLock.api3Token()).to.equal(api3Token.address);
-              expect(await airnodeTokenLock.airnodeFeeRegistry()).to.equal(airnodeFeeRegistry.address);
+            context('AirnodeRequesterAuthorizerRegistry is not zero', function () {
+              it('constructs', async function () {
+                const airnodeTokenLockFactory = await hre.ethers.getContractFactory('AirnodeTokenLock', roles.deployer);
+                airnodeTokenLock = await airnodeTokenLockFactory.deploy(
+                  accessControlRegistry.address,
+                  airnodeTokenLockAdminRoleDescription,
+                  roles.manager.address,
+                  api3Token.address,
+                  airnodeFeeRegistry.address,
+                  airnodeRequesterAuthorizerRegistry.address
+                );
+                expect(await airnodeTokenLock.accessControlRegistry()).to.equal(accessControlRegistry.address);
+                expect(await airnodeTokenLock.adminRoleDescription()).to.equal(airnodeTokenLockAdminRoleDescription);
+                expect(await airnodeTokenLock.manager()).to.equal(roles.manager.address);
+                expect(await airnodeTokenLock.api3Token()).to.equal(api3Token.address);
+                expect(await airnodeTokenLock.airnodeFeeRegistry()).to.equal(airnodeFeeRegistry.address);
+                expect(await airnodeTokenLock.airnodeRequesterAuthorizerRegistry()).to.equal(
+                  airnodeRequesterAuthorizerRegistry.address
+                );
+              });
+            });
+            context('AirnodeRequesterAuthorizerRegistry is zero', function () {
+              it('reverts', async function () {
+                const airnodeTokenLockFactory = await hre.ethers.getContractFactory('AirnodeTokenLock', roles.deployer);
+                airnodeTokenLock = await expect(
+                  airnodeTokenLockFactory.deploy(
+                    accessControlRegistry.address,
+                    airnodeTokenLockAdminRoleDescription,
+                    roles.manager.address,
+                    api3Token.address,
+                    airnodeFeeRegistry.address,
+                    hre.ethers.constants.AddressZero
+                  )
+                ).to.be.revertedWith('Zero address');
+              });
             });
           });
           context('AinodeFeeRegistry address is zero', function () {
@@ -188,7 +220,8 @@ describe('constructor', function () {
                   airnodeTokenLockAdminRoleDescription,
                   roles.manager.address,
                   api3Token.address,
-                  hre.ethers.constants.AddressZero
+                  hre.ethers.constants.AddressZero,
+                  airnodeRequesterAuthorizerRegistry.address
                 )
               ).to.be.revertedWith('Zero address');
             });
@@ -203,7 +236,8 @@ describe('constructor', function () {
                 airnodeTokenLockAdminRoleDescription,
                 roles.manager.address,
                 hre.ethers.constants.AddressZero,
-                airnodeFeeRegistry.address
+                airnodeFeeRegistry.address,
+                airnodeRequesterAuthorizerRegistry.address
               )
             ).to.be.revertedWith('Zero address');
           });
@@ -218,7 +252,8 @@ describe('constructor', function () {
               airnodeTokenLockAdminRoleDescription,
               hre.ethers.constants.AddressZero,
               api3Token.address,
-              airnodeFeeRegistry.address
+              airnodeFeeRegistry.address,
+              airnodeRequesterAuthorizerRegistry.address
             )
           ).to.be.revertedWith('Manager address zero');
         });
@@ -233,7 +268,8 @@ describe('constructor', function () {
             '',
             roles.manager.address,
             api3Token.address,
-            airnodeFeeRegistry.address
+            airnodeFeeRegistry.address,
+            airnodeRequesterAuthorizerRegistry.address
           )
         ).to.be.revertedWith('Admin role description empty');
       });
@@ -248,7 +284,8 @@ describe('constructor', function () {
           airnodeTokenLockAdminRoleDescription,
           roles.manager.address,
           api3Token.address,
-          airnodeFeeRegistry.address
+          airnodeFeeRegistry.address,
+          airnodeRequesterAuthorizerRegistry.address
         )
       ).to.be.revertedWith('ACR address zero');
     });
@@ -263,17 +300,15 @@ describe('setAirnodeFeeRegistry', function () {
           let airnodeFeeRegistryAddress;
           airnodeFeeRegistryAddress = await airnodeTokenLock.airnodeFeeRegistry();
           expect(airnodeFeeRegistryAddress).to.equal(airnodeFeeRegistry.address);
-          await expect(
-            airnodeTokenLock.connect(roles.coefficientAndRegistrySetter).setAirnodeFeeRegistry(airnodeAddress)
-          )
+          await expect(airnodeTokenLock.connect(roles.airnodeFeeRegistrySetter).setAirnodeFeeRegistry(airnodeAddress))
             .to.emit(airnodeTokenLock, 'SetAirnodeFeeRegistry')
-            .withArgs(airnodeAddress, roles.coefficientAndRegistrySetter.address);
+            .withArgs(airnodeAddress, roles.airnodeFeeRegistrySetter.address);
           airnodeFeeRegistryAddress = await airnodeTokenLock.airnodeFeeRegistry();
           expect(airnodeFeeRegistryAddress).to.equal(airnodeAddress);
 
           await accessControlRegistry
             .connect(roles.manager)
-            .renounceRole(coefficientAndRegistrySetterRole, roles.manager.address);
+            .renounceRole(airnodeFeeRegistrySetterRole, roles.manager.address);
 
           await expect(airnodeTokenLock.connect(roles.manager).setAirnodeFeeRegistry(airnodeFeeRegistry.address))
             .to.emit(airnodeTokenLock, 'SetAirnodeFeeRegistry')
@@ -286,7 +321,7 @@ describe('setAirnodeFeeRegistry', function () {
         it('reverts', async function () {
           await expect(
             airnodeTokenLock
-              .connect(roles.coefficientAndRegistrySetter)
+              .connect(roles.airnodeFeeRegistrySetter)
               .setAirnodeFeeRegistry(hre.ethers.constants.AddressZero)
           ).to.be.revertedWith('Zero address');
         });
@@ -297,50 +332,7 @@ describe('setAirnodeFeeRegistry', function () {
     it('reverts', async function () {
       await expect(
         airnodeTokenLock.connect(roles.randomPerson).setAirnodeFeeRegistry(airnodeAddress)
-      ).to.be.revertedWith('Not coefficient and registry setter');
-    });
-  });
-});
-
-describe('setOracle', function () {
-  context('Sender has oracle address setter role or is manager', function () {
-    context('Oracle address status is being set', function () {
-      context('address is valid', function () {
-        it('sets the status', async function () {
-          let oracleStatus;
-          oracleStatus = await airnodeTokenLock.isOracle(roles.oracle.address);
-          expect(oracleStatus).to.equal(false);
-          await expect(airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true))
-            .to.emit(airnodeTokenLock, 'SetOracle')
-            .withArgs(roles.oracle.address, true, roles.oracleAddressSetter.address);
-          oracleStatus = await airnodeTokenLock.isOracle(roles.oracle.address);
-          expect(oracleStatus).to.equal(true);
-
-          await accessControlRegistry
-            .connect(roles.manager)
-            .renounceRole(oracleAddressSetterRole, roles.manager.address);
-
-          await expect(airnodeTokenLock.connect(roles.manager).setOracle(roles.oracle.address, false))
-            .to.emit(airnodeTokenLock, 'SetOracle')
-            .withArgs(roles.oracle.address, false, roles.manager.address);
-          oracleStatus = await airnodeTokenLock.isOracle(roles.oracle.address);
-          expect(oracleStatus).to.equal(false);
-        });
-      });
-      context('address is not valid', function () {
-        it('reverts', async function () {
-          await expect(
-            airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(hre.ethers.constants.AddressZero, true)
-          ).to.be.revertedWith('Zero address');
-        });
-      });
-    });
-  });
-  context('Sender does not have the oracle address setter role', function () {
-    it('reverts', async function () {
-      await expect(
-        airnodeTokenLock.connect(roles.randomPerson).setOracle(roles.oracle.address, true)
-      ).to.be.revertedWith('Not oracle address setter');
+      ).to.be.revertedWith('Not airnodeFeeRegistry setter');
     });
   });
 });
@@ -350,24 +342,20 @@ describe('setAPI3Price', function () {
     context('API3 price is being set', function () {
       context('price is valid', function () {
         it('sets the multiplier coefficient', async function () {
-          // Set the oracle address as oracle
-          airnodeTokenLock.connect(roles.manager).setOracle(roles.oracle.address, true);
-
           let api3PriceInUsd;
           api3PriceInUsd = await airnodeTokenLock.api3PriceInUsd();
           expect(api3PriceInUsd).to.equal(0);
           await expect(
-            airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString())
+            airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString())
           )
             .to.emit(airnodeTokenLock, 'SetAPI3Price')
-            .withArgs(hre.ethers.utils.parseUnits('7.5', 6).toString(), roles.oracle.address);
+            .withArgs(hre.ethers.utils.parseUnits('7.5', 18).toString(), roles.oracle.address);
           api3PriceInUsd = await airnodeTokenLock.api3PriceInUsd();
-          expect(api3PriceInUsd).to.equal(hre.ethers.utils.parseUnits('7.5', 6).toString());
+          expect(api3PriceInUsd).to.equal(hre.ethers.utils.parseUnits('7.5', 18).toString());
         });
       });
       context('price is not valid', function () {
         it('reverts', async function () {
-          airnodeTokenLock.connect(roles.manager).setOracle(roles.oracle.address, true);
           await expect(airnodeTokenLock.connect(roles.oracle).setAPI3Price(0)).to.be.revertedWith('Zero amount');
         });
       });
@@ -392,17 +380,15 @@ describe('setMultiplierCoefficient', function () {
           expect(multiplierCoefficient).to.equal(0);
           await expect(
             airnodeTokenLock
-              .connect(roles.coefficientAndRegistrySetter)
+              .connect(roles.coefficientSetter)
               .setMultiplierCoefficient(hre.ethers.utils.parseEther((1000).toString()))
           )
             .to.emit(airnodeTokenLock, 'SetMultiplierCoefficient')
-            .withArgs(hre.ethers.utils.parseEther((1000).toString()), roles.coefficientAndRegistrySetter.address);
+            .withArgs(hre.ethers.utils.parseEther((1000).toString()), roles.coefficientSetter.address);
           multiplierCoefficient = await airnodeTokenLock.multiplierCoefficient();
           expect(multiplierCoefficient).to.equal(hre.ethers.utils.parseEther((1000).toString()));
 
-          await accessControlRegistry
-            .connect(roles.manager)
-            .renounceRole(coefficientAndRegistrySetterRole, roles.manager.address);
+          await accessControlRegistry.connect(roles.manager).renounceRole(coefficientSetterRole, roles.manager.address);
 
           await expect(
             airnodeTokenLock
@@ -418,7 +404,7 @@ describe('setMultiplierCoefficient', function () {
       context('multiplier coefficient is not valid', function () {
         it('reverts', async function () {
           await expect(
-            airnodeTokenLock.connect(roles.coefficientAndRegistrySetter).setMultiplierCoefficient(0)
+            airnodeTokenLock.connect(roles.coefficientSetter).setMultiplierCoefficient(0)
           ).to.be.revertedWith('Zero amount');
         });
       });
@@ -430,7 +416,7 @@ describe('setMultiplierCoefficient', function () {
         airnodeTokenLock
           .connect(roles.randomPerson)
           .setMultiplierCoefficient(hre.ethers.utils.parseEther((1000).toString()))
-      ).to.be.revertedWith('Not coefficient and registry setter');
+      ).to.be.revertedWith('Not coefficient setter');
     });
   });
 });
@@ -483,80 +469,12 @@ describe('setSelfOptOutStatus', function () {
         let optOutStatus;
         optOutStatus = await airnodeTokenLock.airnodeSelfOptOutStatus(roles.airnode.address);
         expect(optOutStatus).to.equal(false);
-        await expect(airnodeTokenLock.connect(roles.airnode).setSelfOptOutStatus(roles.airnode.address, true))
+        await expect(airnodeTokenLock.connect(roles.airnode).setSelfOptOutStatus(true))
           .to.emit(airnodeTokenLock, 'SetSelfOptOutStatus')
           .withArgs(roles.airnode.address, true);
         optOutStatus = await airnodeTokenLock.airnodeSelfOptOutStatus(roles.airnode.address);
         expect(optOutStatus).to.equal(true);
       });
-    });
-  });
-  context('Sender is not airnode', function () {
-    it('reverts', async function () {
-      await expect(
-        airnodeTokenLock.connect(roles.manager).setSelfOptOutStatus(roles.airnode.address, true)
-      ).to.be.revertedWith('Not airnode');
-    });
-  });
-});
-
-describe('setRequesterAuthorizerWithManager', function () {
-  context('Sender has requesterAuthorizerWithManager setter role or is manager', function () {
-    context('AirnodeFeeRegistry address is being set', function () {
-      context('chainId is valid', function () {
-        context('address is valid', function () {
-          it('sets the address', async function () {
-            let requesterAuthorizerWithManagerEthereum;
-            requesterAuthorizerWithManagerEthereum = await airnodeTokenLock.chainIdToRequesterAuthorizerWithManager(1);
-            expect(requesterAuthorizerWithManagerEthereum).to.equal(hre.ethers.constants.AddressZero);
-            await expect(
-              airnodeTokenLock
-                .connect(roles.requesterAuthorizerWithManagerSetter)
-                .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address)
-            )
-              .to.emit(airnodeTokenLock, 'SetRequesterAuthorizerWithManager')
-              .withArgs(1, requesterAuthorizerWithManager.address, roles.requesterAuthorizerWithManagerSetter.address);
-            requesterAuthorizerWithManagerEthereum = await airnodeTokenLock.chainIdToRequesterAuthorizerWithManager(1);
-
-            expect(requesterAuthorizerWithManagerEthereum).to.equal(requesterAuthorizerWithManager.address);
-
-            await accessControlRegistry
-              .connect(roles.manager)
-              .renounceRole(requesterAuthorizerWithManagerSetterRole, roles.manager.address);
-
-            await expect(airnodeTokenLock.connect(roles.manager).setRequesterAuthorizerWithManager(1, airnodeAddress))
-              .to.emit(airnodeTokenLock, 'SetRequesterAuthorizerWithManager')
-              .withArgs(1, airnodeAddress, roles.manager.address);
-            requesterAuthorizerWithManagerEthereum = await airnodeTokenLock.chainIdToRequesterAuthorizerWithManager(1);
-            expect(requesterAuthorizerWithManagerEthereum).to.equal(airnodeAddress);
-          });
-        });
-        context('airnode address is not valid', function () {
-          it('reverts', async function () {
-            await expect(
-              airnodeTokenLock
-                .connect(roles.requesterAuthorizerWithManagerSetter)
-                .setRequesterAuthorizerWithManager(1, hre.ethers.constants.AddressZero)
-            ).to.be.revertedWith('Zero address');
-          });
-        });
-      });
-      context('chainId is not valid', function () {
-        it('reverts', async function () {
-          await expect(
-            airnodeTokenLock
-              .connect(roles.requesterAuthorizerWithManagerSetter)
-              .setRequesterAuthorizerWithManager(0, hre.ethers.constants.AddressZero)
-          ).to.be.revertedWith('Zero chainId');
-        });
-      });
-    });
-  });
-  context('Sender has requesterAuthorizerWithManager setter role or is manager', function () {
-    it('reverts', async function () {
-      await expect(
-        airnodeTokenLock.connect(roles.randomPerson).setRequesterAuthorizerWithManager(0, airnodeAddress)
-      ).to.be.revertedWith('Not RequesterAuthorizerWithManagerSetter');
     });
   });
 });
@@ -666,10 +584,9 @@ describe('blockRequester', function () {
 
 describe('getLockAmount', function () {
   beforeEach(async () => {
-    await airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true);
-    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString());
+    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString());
     await airnodeTokenLock
-      .connect(roles.coefficientAndRegistrySetter)
+      .connect(roles.coefficientSetter)
       .setMultiplierCoefficient(hre.ethers.utils.parseEther((10).toString()));
   });
   it('returns the lockAmount', async function () {
@@ -682,15 +599,11 @@ describe('getLockAmount', function () {
 
 describe('lockerToLockAmount', function () {
   beforeEach(async () => {
-    await airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true);
-    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString());
+    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString());
     await airnodeTokenLock
-      .connect(roles.coefficientAndRegistrySetter)
+      .connect(roles.coefficientSetter)
       .setMultiplierCoefficient(hre.ethers.utils.parseEther((10).toString()));
     await airnodeTokenLock.connect(roles.optStatusSetter).setOptInStatus(airnodeAddress, true);
-    await airnodeTokenLock
-      .connect(roles.requesterAuthorizerWithManagerSetter)
-      .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
 
     await api3Token
       .connect(roles.locker)
@@ -722,13 +635,9 @@ describe('lockerToLockAmount', function () {
 
 describe('lock', function () {
   beforeEach(async () => {
-    await airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true);
-    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString());
+    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString());
     await airnodeTokenLock
-      .connect(roles.requesterAuthorizerWithManagerSetter)
-      .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
-    await airnodeTokenLock
-      .connect(roles.coefficientAndRegistrySetter)
+      .connect(roles.coefficientSetter)
       .setMultiplierCoefficient(hre.ethers.utils.parseEther((10).toString()));
   });
   context('airnode is opted in or not opted out', function () {
@@ -877,7 +786,7 @@ describe('lock', function () {
                     airnodeTokenLock
                       .connect(roles.requester)
                       .lock(1, airnodeAddress, endpointId, roles.requester.address)
-                  ).to.be.revertedWith('Insufficient amount');
+                  ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
                 });
               });
             });
@@ -960,7 +869,7 @@ describe('lock', function () {
   context('airnode has opted out', function () {
     it('reverts', async function () {
       airnodeTokenLock.connect(roles.optStatusSetter).setOptInStatus(roles.airnode.address, true);
-      airnodeTokenLock.connect(roles.airnode).setSelfOptOutStatus(roles.airnode.address, true);
+      airnodeTokenLock.connect(roles.airnode).setSelfOptOutStatus(true);
 
       await expect(
         airnodeTokenLock.connect(roles.locker).lock(1, roles.airnode.address, endpointId, roles.requester.address)
@@ -971,13 +880,9 @@ describe('lock', function () {
 
 describe('unlock', function () {
   beforeEach(async () => {
-    await airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true);
-    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString());
+    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString());
     await airnodeTokenLock
-      .connect(roles.requesterAuthorizerWithManagerSetter)
-      .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
-    await airnodeTokenLock
-      .connect(roles.coefficientAndRegistrySetter)
+      .connect(roles.coefficientSetter)
       .setMultiplierCoefficient(hre.ethers.utils.parseEther((10).toString()));
     await airnodeTokenLock.connect(roles.optStatusSetter).setOptInStatus(airnodeAddress, true);
   });
@@ -1166,13 +1071,9 @@ describe('unlock', function () {
 
 describe('withdrawBlocked', function () {
   beforeEach(async () => {
-    await airnodeTokenLock.connect(roles.oracleAddressSetter).setOracle(roles.oracle.address, true);
-    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 6).toString());
+    await airnodeTokenLock.connect(roles.oracle).setAPI3Price(hre.ethers.utils.parseUnits('7.5', 18).toString());
     await airnodeTokenLock
-      .connect(roles.requesterAuthorizerWithManagerSetter)
-      .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
-    await airnodeTokenLock
-      .connect(roles.coefficientAndRegistrySetter)
+      .connect(roles.coefficientSetter)
       .setMultiplierCoefficient(hre.ethers.utils.parseEther((10).toString()));
     await airnodeTokenLock.connect(roles.optStatusSetter).setOptInStatus(airnodeAddress, true);
     airnodeTokenLock

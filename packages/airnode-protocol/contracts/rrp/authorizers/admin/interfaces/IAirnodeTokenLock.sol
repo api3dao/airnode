@@ -20,12 +20,6 @@ interface IAirnodeTokenLock {
 
     event SetSelfOptOutStatus(address airnode, bool status);
 
-    event SetRequesterAuthorizerWithManager(
-        uint256 chainId,
-        address requesterAuthorizerWithManager,
-        address requesterAuthorizerWithManagerSetter
-    );
-
     event SetBlockWithdrawDestination(
         address destination,
         address blockWithdrawDestinationSetter
@@ -69,20 +63,13 @@ interface IAirnodeTokenLock {
 
     function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
 
-    function setOracle(address oracle, bool status) external;
-
     function setAPI3Price(uint256 price) external;
 
     function setMultiplierCoefficient(uint256 multiplierCoefficient) external;
 
     function setOptInStatus(address airnode, bool status) external;
 
-    function setSelfOptOutStatus(address airnode, bool status) external;
-
-    function setRequesterAuthorizerWithManager(
-        uint256 chainId,
-        address requesterAuthorizerWithManager
-    ) external;
+    function setSelfOptOutStatus(bool status) external;
 
     function setBlockWithdrawDestination(address destination) external;
 
@@ -123,4 +110,24 @@ interface IAirnodeTokenLock {
         address requesterAddress,
         address locker
     ) external returns (uint256);
+
+    function airnodeToRequesterToBlockStatus(
+        address airnode,
+        address requesterAddress
+    ) external view returns (bool);
+
+    function airnodeFeeRegistry() external view returns (address);
+
+    function api3PriceInUsd() external view returns (uint256);
+
+    function multiplierCoefficient() external view returns (uint256);
+
+    function blockWithdrawDestination() external view returns (address);
+
+    function airnodeOptInStatus(address airnode) external view returns (bool);
+
+    function airnodeSelfOptOutStatus(address airnode)
+        external
+        view
+        returns (bool);
 }

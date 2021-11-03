@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import "../../../access-control-registry/RoleDeriver.sol";
 import "../../../access-control-registry/AccessControlClient.sol";
+import "./AirnodeRequesterAuthorizerRegistryClient.sol";
 import "../../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 
@@ -11,48 +12,44 @@ import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 contract AirnodeTokenLockRolesWithManager is
     RoleDeriver,
     AccessControlClient,
+    AirnodeRequesterAuthorizerRegistryClient,
     IAirnodeTokenLockRolesWithManager
 {
     // There are Six roles implemented in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
-    //     ├── (2) Oracle address setter
-    //     ├── (3) coefficient and registry setter
-    //     ├── (4) Opt status setter
-    //     ├── (5) Block Withdraw Destination setter
-    //     ├── (6) Block Requester
-    //     └── (7) RequesterAuthorizerWithManager setter
-    // The coefficient and registry setter can set the AirnodeFeeRegistry address
+    //     ├── (2) Oracle
+    //     ├── (3) AirnodeFeeRegistry setter
+    //     ├── (4) Coefficient setter
+    //     ├── (5) Opt status setter
+    //     ├── (6) Block withdraw destination setter
+    //     ├── (7) Block requester
+    // The airnodeFeeRegistry setter can set the AirnodeFeeRegistry address
     /// and Multiplier Coefficient integer.
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
     string public override adminRoleDescription;
-    string public constant override ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION =
-        "Oracle address setter";
-    string
-        public constant
-        override COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION =
-        "Coefficient and registry setter";
+    string public constant override ORACLE_ROLE_DESCRIPTION = "Oracle";
+    string public constant override AIRNODE_FEE_REGISTRY_SETTER_ROLE =
+        "AirnodeFeeRegistry setter";
+    string public constant override COEFFICIENT_ROLE_DESCRIPTION =
+        "Coefficient setter";
     string public constant override OPT_STATUS_SETTER_ROLE_DESCRIPTION =
         "Opt status setter";
     string
         public constant
         override BLOCK_WITHDRAW_DESTINATION_SETTER_ROLE_DESCRIPTION =
-        "Block Withdraw Destination setter";
+        "Block withdraw destination setter";
     string public constant override BLOCK_REQUESTER_ROLE_DESCRIPTION =
-        "Block Requester";
-    string
-        public constant
-        override REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION =
-        "RequesterAuthorizerWithManager setter";
+        "Block requester";
+
     bytes32 internal adminRoleDescriptionHash;
-    bytes32 internal constant ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(abi.encodePacked(ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION));
-    bytes32
-        internal constant COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(
-            abi.encodePacked(COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION)
-        );
+    bytes32 internal constant ORACLE_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(ORACLE_ROLE_DESCRIPTION));
+    bytes32 internal constant AIRNODE_FEE_REGISTRY_SETTER_ROLE_HASH =
+        keccak256(abi.encodePacked(AIRNODE_FEE_REGISTRY_SETTER_ROLE));
+    bytes32 internal constant COEFFICIENT_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(COEFFICIENT_ROLE_DESCRIPTION));
     bytes32 internal constant OPT_STATUS_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(OPT_STATUS_SETTER_ROLE_DESCRIPTION));
     bytes32
@@ -62,13 +59,6 @@ contract AirnodeTokenLockRolesWithManager is
         );
     bytes32 internal constant BLOCK_REQUESTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(BLOCK_REQUESTER_ROLE_DESCRIPTION));
-    bytes32
-        internal constant REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(
-            abi.encodePacked(
-                REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION
-            )
-        );
 
     /// @notice Address of the manager that manages the related
     /// AccessControlRegistry roles
@@ -76,12 +66,12 @@ contract AirnodeTokenLockRolesWithManager is
 
     // Since there will be a single manager, we can derive the roles beforehand
     bytes32 public immutable override adminRole;
-    bytes32 public immutable override oracleAddressSetterRole;
-    bytes32 public immutable override coefficientAndRegistrySetterRole;
+    bytes32 public immutable override oracleRole;
+    bytes32 public immutable override airnodeFeeRegistrySetterRole;
+    bytes32 public immutable override coefficientSetterRole;
     bytes32 public immutable override optStatusSetterRole;
     bytes32 public immutable override blockWithdrawDestinationSetterRole;
     bytes32 public immutable override blockRequesterRole;
-    bytes32 public immutable override requesterAuthorizerWithManagerSetterRole;
 
     /// @dev Contracts deployed with the same admin role descriptions will have
     /// the same roles, meaning that granting an account a role will authorize
@@ -91,11 +81,19 @@ contract AirnodeTokenLockRolesWithManager is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
+    /// @param _airnodeRequesterAuthorizerRegistry The address of the AirnodeRequesterAuthorizerRegistry contract
+
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
-        address _manager
-    ) AccessControlClient(_accessControlRegistry) {
+        address _manager,
+        address _airnodeRequesterAuthorizerRegistry
+    )
+        AccessControlClient(_accessControlRegistry)
+        AirnodeRequesterAuthorizerRegistryClient(
+            _airnodeRequesterAuthorizerRegistry
+        )
+    {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"
@@ -107,8 +105,8 @@ contract AirnodeTokenLockRolesWithManager is
         );
         manager = _manager;
         adminRole = _deriveAdminRole(_manager);
-        oracleAddressSetterRole = _deriveOracleAddressSetterRole(_manager);
-        coefficientAndRegistrySetterRole = _deriveCoefficientAndRegistrySetterRole(
+        oracleRole = _deriveOracleRole(_manager);
+        airnodeFeeRegistrySetterRole = _deriveAirnodeFeeRegistrySetterRole(
             _manager
         );
         optStatusSetterRole = _deriveOptStatusSetterRole(_manager);
@@ -116,16 +114,14 @@ contract AirnodeTokenLockRolesWithManager is
             _manager
         );
         blockRequesterRole = _deriveBlockRequesterRole(_manager);
-        requesterAuthorizerWithManagerSetterRole = _deriveRequesterAuthorizerWithManagerSetterRole(
-            _manager
-        );
+        coefficientSetterRole = _deriveCoefficientSetterRole(_manager);
     }
 
     /// @notice Derives the admin role for the specific manager address
     /// @param _manager Manager address
     /// @return _adminRole Admin role
     function _deriveAdminRole(address _manager)
-        internal
+        private
         view
         returns (bytes32 _adminRole)
     {
@@ -135,35 +131,47 @@ contract AirnodeTokenLockRolesWithManager is
         );
     }
 
-    /// @notice Derives the oracle address setter role for the specific
-    /// manager address
+    /// @notice Derives the oracle role for the specific manager address
     /// @param _manager Manager address
-    /// @return _oracleAddressSetterRole Oracle Address Setter
-    /// role
-    function _deriveOracleAddressSetterRole(address _manager)
-        internal
+    /// @return _oracleRole oracle role role
+    function _deriveOracleRole(address _manager)
+        private
         view
-        returns (bytes32 _oracleAddressSetterRole)
+        returns (bytes32 _oracleRole)
     {
-        _oracleAddressSetterRole = _deriveRole(
+        _oracleRole = _deriveRole(
             _deriveAdminRole(_manager),
-            ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION_HASH
+            ORACLE_ROLE_DESCRIPTION_HASH
         );
     }
 
-    /// @notice Derives the coefficient and registry setter role for the specific
+    /// @notice Derives the airnodeFeeRegistry setter role for the specific
     /// manager address
     /// @param _manager Manager address
-    /// @return _coefficientAndRegistrySetterRole coefficient and registry setter
-    /// role
-    function _deriveCoefficientAndRegistrySetterRole(address _manager)
-        internal
+    /// @return _airnodeFeeRegistrySetterRole airnodeFeeRegistry setter role
+    function _deriveAirnodeFeeRegistrySetterRole(address _manager)
+        private
         view
-        returns (bytes32 _coefficientAndRegistrySetterRole)
+        returns (bytes32 _airnodeFeeRegistrySetterRole)
     {
-        _coefficientAndRegistrySetterRole = _deriveRole(
+        _airnodeFeeRegistrySetterRole = _deriveRole(
             _deriveAdminRole(_manager),
-            COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH
+            AIRNODE_FEE_REGISTRY_SETTER_ROLE_HASH
+        );
+    }
+
+    /// @notice Derives the coefficient setter role for the specific
+    /// manager address
+    /// @param _manager Manager address
+    /// @return _coefficientSetterRole coefficient setter role
+    function _deriveCoefficientSetterRole(address _manager)
+        private
+        view
+        returns (bytes32 _coefficientSetterRole)
+    {
+        _coefficientSetterRole = _deriveRole(
+            _deriveAdminRole(_manager),
+            COEFFICIENT_ROLE_DESCRIPTION_HASH
         );
     }
 
@@ -172,7 +180,7 @@ contract AirnodeTokenLockRolesWithManager is
     /// @param _manager Manager address
     /// @return _optStatusSetterRole Opt Status Setter role
     function _deriveOptStatusSetterRole(address _manager)
-        internal
+        private
         view
         returns (bytes32 _optStatusSetterRole)
     {
@@ -188,7 +196,7 @@ contract AirnodeTokenLockRolesWithManager is
     /// @return _blockWithdrawDestinationSetterRole BlockWithdrawDestination Setter
     /// role
     function _deriveBlockWithdrawDestinationSetterRole(address _manager)
-        internal
+        private
         view
         returns (bytes32 _blockWithdrawDestinationSetterRole)
     {
@@ -203,7 +211,7 @@ contract AirnodeTokenLockRolesWithManager is
     /// @param _manager Manager address
     /// @return _blockRequesterRole Block Requester role
     function _deriveBlockRequesterRole(address _manager)
-        internal
+        private
         view
         returns (bytes32 _blockRequesterRole)
     {
@@ -213,28 +221,12 @@ contract AirnodeTokenLockRolesWithManager is
         );
     }
 
-    /// @notice Derives the requesterAuthorizerWithManager setter role for the specific
-    /// manager address
-    /// @param _manager Manager address
-    /// @return _requesterAuthorizerWithManagerSetterRole RequesterAuthorizerWithManager
-    /// Setter role
-    function _deriveRequesterAuthorizerWithManagerSetterRole(address _manager)
-        internal
-        view
-        returns (bytes32 _requesterAuthorizerWithManagerSetterRole)
-    {
-        _requesterAuthorizerWithManagerSetterRole = _deriveRole(
-            _deriveAdminRole(_manager),
-            REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER_ROLE_DESCRIPTION_HASH
-        );
-    }
-
-    /// @dev Returns if the account has the oracle address setter role
+    /// @dev Returns if the account has the oracle role
     /// or is the manager
     /// @param account Account address
-    /// @return If the account has the oracle address setter or is the
+    /// @return If the account has the oracle or is the
     /// manager
-    function hasOracleAddressSetterRoleOrIsManager(address account)
+    function hasOracleRoleOrIsManager(address account)
         internal
         view
         returns (bool)
@@ -242,17 +234,17 @@ contract AirnodeTokenLockRolesWithManager is
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                oracleAddressSetterRole,
+                oracleRole,
                 account
             );
     }
 
-    /// @dev Returns if the account has the coefficient and registry setter role role
+    /// @dev Returns if the account has the airnodeFeeRegistry setter role
     /// or is the manager
     /// @param account Account address
-    /// @return If the account has the coefficient and registry setter role or is the
+    /// @return If the account has the airnodeFeeRegistry setter role or is the
     /// manager
-    function hasCoefficientAndRegistrySetterRoleOrIsManager(address account)
+    function hasAirnodeFeeRegistrySetterRoleOrIsManager(address account)
         internal
         view
         returns (bool)
@@ -260,7 +252,25 @@ contract AirnodeTokenLockRolesWithManager is
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                coefficientAndRegistrySetterRole,
+                airnodeFeeRegistrySetterRole,
+                account
+            );
+    }
+
+    /// @dev Returns if the account has the coefficient setter role
+    /// or is the manager
+    /// @param account Account address
+    /// @return If the account has the coefficient setter or is the
+    /// manager
+    function hasCoefficientSetterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            manager == account ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                coefficientSetterRole,
                 account
             );
     }
@@ -315,22 +325,6 @@ contract AirnodeTokenLockRolesWithManager is
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
                 blockRequesterRole,
-                account
-            );
-    }
-
-    /// @dev Returns if the account has the requesterAuthorizerWithManager setter role
-    /// or is the manager
-    /// @param account Account address
-    /// @return If the account has the requesterAuthorizerWithManager setter or is the
-    /// manager
-    function hasRequesterAuthorizerWithManagerSetterRoleOrIsManager(
-        address account
-    ) internal view returns (bool) {
-        return
-            manager == account ||
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                requesterAuthorizerWithManagerSetterRole,
                 account
             );
     }

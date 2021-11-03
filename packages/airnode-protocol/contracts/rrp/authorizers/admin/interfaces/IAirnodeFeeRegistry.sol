@@ -80,6 +80,9 @@ interface IAirnodeFeeRegistry {
         bytes32 endpointId
     ) external view returns (uint256);
 
+    // solhint-disable-next-line func-name-mixedcase
+    function DECIMALS() external view returns (uint8);
+
     function chainIdToAirnodeToEndpointToPrice(
         uint256 chainId,
         address airnode,
