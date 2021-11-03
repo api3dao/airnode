@@ -259,6 +259,7 @@ contract AirnodeTokenPayment is
     /// @notice Returns the amount of tokens a sponsor has to transfer to the
     /// Airnode in order to be whitelisted for a given
     /// chainId-airnode-endpointId
+    /// @dev AirnodeFeeRegistry should return the fee in usd using 18 decimals
     /// @param _chainId Id of the chain
     /// @param _airnode Airnode address
     /// @param _endpointId Id of the endpoint
@@ -272,11 +273,9 @@ contract AirnodeTokenPayment is
     ) public view override returns (uint256 amount) {
         uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
             .getEndpointPrice(_chainId, _airnode, _endpointId);
-        uint8 feeDecimals = IAirnodeFeeRegistry(airnodeFeeRegistry).decimals();
         uint16 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).interval();
-        uint8 tokenDecimals = IERC20Metadata(paymentTokenAddress).decimals();
         amount =
-            ((10**tokenDecimals) * feeInUsd * _whitelistDuration) /
-            ((10**feeDecimals) * paymentTokenPrice * feeInterval);
+            (feeInUsd * _whitelistDuration) /
+            (paymentTokenPrice * feeInterval);
     }
 }
