@@ -49,9 +49,9 @@
       }
     },
     "nodeVersion": {
-      "__regexp": "^1\\.0\\.0$",
+      "__regexp": "^0\\.2\\.0$",
       "__catch": {
-        "__level": "error"
+        "__level": "warning"
       }
     }
   },
