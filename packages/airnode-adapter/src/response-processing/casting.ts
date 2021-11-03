@@ -4,6 +4,7 @@ import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
+import { isNumericType, parseArrayType, ParsedArrayType } from './type-parser';
 import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {
@@ -85,13 +86,27 @@ function castHexString(value: any): string {
   return ethers.utils.hexlify(value);
 }
 
-// Numeric types should be multiplied by the "_times" reserved parameter
-export function isNumericType(type: ResponseType): type is 'uint256' | 'int256' {
-  return type === 'int256' || type === 'uint256';
+export function castArrayRecursively(value: unknown, type: ParsedArrayType): ValueType {
+  if (type.arrayDimensions.length === 0) return castValue(value, type.baseType);
+
+  if (!Array.isArray(value)) {
+    throw new Error(`Expected ${value} to be an array`);
+  }
+
+  const dimension = type.arrayDimensions[0];
+  if (dimension !== -1 && value.length !== dimension) {
+    throw new Error(`Expected array length ${dimension} but it was ${value.length}`);
+  }
+
+  const typeWithReducedDimension: ParsedArrayType = { ...type, arrayDimensions: type.arrayDimensions.slice(1) };
+  return value.map((element) => castArrayRecursively(element, typeWithReducedDimension));
 }
 
 export function castValue(value: unknown, type: ResponseType): ValueType {
   if (isNumericType(type)) return castNumber(value, type);
+
+  const parsedArrayType = parseArrayType(type);
+  if (parsedArrayType) return castArrayRecursively(value, parsedArrayType);
 
   switch (type) {
     case 'bool':
@@ -105,6 +120,8 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
     case 'bytes':
       return castHexString(value);
   }
+
+  throw new Error(`Invalid type: ${type}`);
 }
 
 export function multiplyValue(value: string | BigNumber, times?: string | BigNumber): string {

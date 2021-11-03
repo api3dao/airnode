@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
 import * as casting from './casting';
 import * as encoding from './encoding';
-import { isNumericType } from './casting';
+import { isNumericType } from './type-parser';
 import { ReservedParameters } from '../types';
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {

@@ -57,4 +57,28 @@ contract TestDecoder {
     {
         decodedData = abi.decode(data, (string));
     }
+
+    function decode1DArray(bytes calldata data)
+        public
+        pure
+        returns (int256[] memory decodedData)
+    {
+        decodedData = abi.decode(data, (int256[]));
+    }
+
+    function decode1DFixedArray(bytes calldata data)
+        public
+        pure
+        returns (int256[2] memory decodedData)
+    {
+        decodedData = abi.decode(data, (int256[2]));
+    }
+
+    function decodeNestedArray(bytes calldata data)
+        public
+        pure
+        returns (int256[2][][3] memory decodedData)
+    {
+        decodedData = abi.decode(data, (int256[2][][3]));
+    }
 }

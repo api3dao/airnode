@@ -3,6 +3,20 @@ import { ethers } from 'hardhat';
 import { encodeValue } from '../src';
 import type { Contract } from 'ethers';
 
+// Chai is able to assert that "expect(BigNumber).to.equal(string)"" but fails to assert
+// the values if wrapped in array "expect(BigNumber[]).to.equal(string[])"
+function assertArrayEquals<T = unknown>(actual: T, expected: T) {
+  if (!Array.isArray(actual)) {
+    expect(actual).to.equal(expected);
+    return;
+  }
+
+  // eslint-disable-next-line
+  for (let i = 0; i < actual.length; i++) {
+    assertArrayEquals(actual[i], (expected as any)[i]);
+  }
+}
+
 describe('TestDecoder', () => {
   // eslint-disable-next-line functional/no-let
   let testDecoder: Contract;
@@ -72,5 +86,38 @@ describe('TestDecoder', () => {
     const bytes = encodeValue(string, 'string');
 
     expect(await testDecoder.decodeString(bytes)).to.equal(string);
+  });
+
+  describe('decodes arrays', () => {
+    it('1 dimension unlimited size', async () => {
+      const array = ['123', '456'];
+      const bytes = encodeValue(array, 'int256[]');
+
+      assertArrayEquals(await testDecoder.decode1DArray(bytes), ['123', '456']);
+    });
+
+    it('1 dimension fixed length', async () => {
+      const array = ['123', '456'];
+      const bytes = encodeValue(array, 'int256[2]');
+
+      assertArrayEquals(await testDecoder.decode1DFixedArray(bytes), ['123', '456']);
+    });
+
+    it('mixed fixes/unlimited sized arrays', async () => {
+      const array = [
+        [['30', '40']],
+        [['10', '20']],
+        [
+          ['1', '2'],
+          ['3', '4'],
+        ],
+      ];
+
+      // Solidity arrays are specified "backwards". See https://ethereum.stackexchange.com/a/129
+      const bytes = encodeValue(array, 'int256[2][][3]');
+
+      const decoded = await testDecoder.decodeNestedArray(bytes);
+      assertArrayEquals(decoded, array);
+    });
   });
 });

@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { parseArrayType } from './type-parser';
 import { ResponseType, ValueType } from '../types';
 
 export function convertUnsignedInteger(value: string) {
@@ -34,7 +35,16 @@ export function convertString(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['string'], [value]);
 }
 
+function convertArray(value: ValueType, type: ResponseType): string {
+  return ethers.utils.defaultAbiCoder.encode([type], [value]);
+}
+
 export function encodeValue(value: ValueType, type: ResponseType): string {
+  const parsedArrayType = parseArrayType(type);
+  if (parsedArrayType) {
+    return convertArray(value, type);
+  }
+
   switch (type) {
     case 'uint256':
       return convertUnsignedInteger(value as string);
@@ -51,4 +61,6 @@ export function encodeValue(value: ValueType, type: ResponseType): string {
     case 'string':
       return convertString(value as string);
   }
+
+  throw new Error(`Unknown type: ${type}`);
 }

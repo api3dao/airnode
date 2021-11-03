@@ -47,9 +47,12 @@ export interface Config {
   readonly timeout?: number;
 }
 
-export type ValueType = string | BigNumber | boolean;
+export type ValueType = string | BigNumber | boolean | Array<ValueType>;
 
-export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32' | 'address' | 'bytes' | 'string';
+export const baseResponseTypes = ['uint256', 'int256', 'bool', 'bytes32', 'address', 'bytes', 'string'] as const;
+export type BaseResponseType = typeof baseResponseTypes[number];
+// Use might pass a complex type (e.g. int256[3][]) which we cannot type
+export type ResponseType = string;
 
 export interface ReservedParameters {
   readonly _path?: string;

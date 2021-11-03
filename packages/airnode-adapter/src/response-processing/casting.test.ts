@@ -295,6 +295,40 @@ describe('castValue', () => {
       expect(casting.castValue(bytesString, 'bytes')).toBe(bytesString);
     });
   });
+
+  describe('convert array values', () => {
+    it('convert flat array types', () => {
+      const beforeCast = [0, '123', '777.789', false, true];
+      const afterCast = [
+        new BigNumber('0'),
+        new BigNumber('123'),
+        new BigNumber('777.789'),
+        new BigNumber('0'),
+        new BigNumber('1'),
+      ];
+
+      expect(casting.castValue(beforeCast, 'uint256[]')).toEqual(afterCast);
+      expect(casting.castValue(beforeCast, 'uint256[5]')).toEqual(afterCast);
+    });
+
+    it('convert nested array types', () => {
+      const beforeCast = [[0, '123', '777.789', false, true], [], [45, 89]];
+      const afterCast = [
+        [new BigNumber('0'), new BigNumber('123'), new BigNumber('777.789'), new BigNumber('0'), new BigNumber('1')],
+        [],
+        [new BigNumber('45'), new BigNumber('89')],
+      ];
+
+      expect(casting.castValue(beforeCast, 'uint256[][]')).toEqual(afterCast);
+      expect(casting.castValue(beforeCast, 'uint256[3][]')).toEqual(afterCast);
+    });
+
+    it('throws an error if unable to cast the value', () => {
+      const beforeCast = [0, '123', '777.789', false, true];
+      expect(() => casting.castValue(beforeCast, 'uint256[][]')).toThrowError('Expected 0 to be an array');
+      expect(() => casting.castValue(beforeCast, 'uint256[7]')).toThrowError('Expected array length 7 but it was 5');
+    });
+  });
 });
 
 describe('multiplyValue', () => {
