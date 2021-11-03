@@ -18,5 +18,7 @@ COPY packages/airnode-admin/docker/entrypoint.sh /entrypoint.sh
 RUN apk add --update --no-cache su-exec
 # Make the binary available within PATH
 RUN ln -s ${appDir}/bin/admin.js ${appBin} && chmod +x ${appBin}
+# Create Airnode user
+RUN adduser -h ${appDir} -s /bin/false -S -D -H ${name}
 
 ENTRYPOINT ["/entrypoint.sh"]
