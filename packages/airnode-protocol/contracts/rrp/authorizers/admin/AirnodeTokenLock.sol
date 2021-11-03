@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AirnodeTokenLockRolesWithManager.sol";
+import "./AirnodeRequesterAuthorizerRegistryClient.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
 import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
@@ -11,7 +12,8 @@ import "./interfaces/IAirnodeTokenLock.sol";
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract AirnodeTokenLock is
     AirnodeTokenLockRolesWithManager,
-    IAirnodeTokenLock
+    IAirnodeTokenLock,
+    AirnodeRequesterAuthorizerRegistryClient
 {
     string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
@@ -99,7 +101,9 @@ contract AirnodeTokenLock is
         AirnodeTokenLockRolesWithManager(
             _accessControlRegistry,
             _adminRoleDescription,
-            _manager,
+            _manager
+        )
+        AirnodeRequesterAuthorizerRegistryClient(
             _airnodeRequesterAuthorizerRegistry
         )
     {
