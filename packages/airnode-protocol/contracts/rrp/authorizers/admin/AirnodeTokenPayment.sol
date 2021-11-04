@@ -201,7 +201,7 @@ contract AirnodeTokenPayment is
         assert(
             IERC20Metadata(paymentTokenAddress).transferFrom(
                 msg.sender,
-                airnodeToPaymentDestination[_airnode],
+                getAirnodeToPaymentDestination(_airnode),
                 amount
             )
         );
@@ -212,7 +212,7 @@ contract AirnodeTokenPayment is
             _endpointId,
             _requesterAddress,
             msg.sender,
-            airnodeToPaymentDestination[_airnode],
+            getAirnodeToPaymentDestination(_airnode),
             amount,
             IERC20Metadata(paymentTokenAddress).symbol(),
             _whitelistDuration + expirationTimestamp
@@ -254,5 +254,19 @@ contract AirnodeTokenPayment is
             airnodeToMaximumWhitelistDuration[_airnode] != 0
                 ? airnodeToMaximumWhitelistDuration[_airnode]
                 : DEFAULT_MAXIMUM_WHITELIST_DURATION;
+    }
+
+    /// @notice Gets the Airnode payment destination address
+    /// @dev It defaults to the Airnode address if none was previously set
+    /// @param _airnode Airnode address
+    function getAirnodeToPaymentDestination(address _airnode)
+        private
+        view
+        returns (address)
+    {
+        return
+            airnodeToPaymentDestination[_airnode] != address(0)
+                ? airnodeToPaymentDestination[_airnode]
+                : _airnode;
     }
 }
