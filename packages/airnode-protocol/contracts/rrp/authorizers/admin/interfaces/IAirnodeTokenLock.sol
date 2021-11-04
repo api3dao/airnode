@@ -116,8 +116,6 @@ interface IAirnodeTokenLock {
         address requesterAddress
     ) external view returns (bool);
 
-    function airnodeFeeRegistry() external view returns (address);
-
     function api3PriceInUsd() external view returns (uint256);
 
     function multiplierCoefficient() external view returns (uint256);

@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
 import "./AirnodeRequesterAuthorizerRegistryClient.sol";
+import "./AirnodeFeeRegistryClient.sol";
 import "./AirnodeTokenPaymentRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
 import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
@@ -13,16 +14,14 @@ import "./interfaces/IAirnodeTokenPayment.sol";
 /// @notice In order for an Airnode provider to accept payments using this contract
 /// it must fist grant the whitelistExpirationExtenderRole to this contract.
 contract AirnodeTokenPayment is
-    AirnodeRequesterAuthorizerRegistryClient,
     AirnodeTokenPaymentRolesWithManager,
+    AirnodeRequesterAuthorizerRegistryClient,
+    AirnodeFeeRegistryClient,
     IAirnodeTokenPayment
 {
     /// TODO: is this minimum instead?
     /// @notice The default maximum whitelisting duration in seconds (30 days)
     uint64 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
-
-    /// @notice Address of AirnodeFeeRegistry
-    address public airnodeFeeRegistry;
 
     /// @notice The address of the ERC20 token that is used to pay for the
     /// Airnode whitelisting
@@ -47,7 +46,7 @@ contract AirnodeTokenPayment is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeAuthorizerRegistry AirnodeRequesterAuthorizerRegistry
+    /// @param _airnodeRequesterAuthorizerRegistry AirnodeRequesterAuthorizerRegistry
     /// contract address
     /// @param _airnodeFeeRegistry AirnodeFeeRegistry contract address
     /// @param _paymentTokenAddress ERC20 token contract address
@@ -55,7 +54,7 @@ contract AirnodeTokenPayment is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _airnodeAuthorizerRegistry,
+        address _airnodeRequesterAuthorizerRegistry,
         address _airnodeFeeRegistry,
         address _paymentTokenAddress
     )
@@ -64,11 +63,12 @@ contract AirnodeTokenPayment is
             _adminRoleDescription,
             _manager
         )
-        AirnodeRequesterAuthorizerRegistryClient(_airnodeAuthorizerRegistry)
+        AirnodeRequesterAuthorizerRegistryClient(
+            _airnodeRequesterAuthorizerRegistry
+        )
+        AirnodeFeeRegistryClient(_airnodeFeeRegistry)
     {
-        require(_airnodeFeeRegistry != address(0), "Zero address");
         require(_paymentTokenAddress != address(0), "Zero address");
-        airnodeFeeRegistry = _airnodeFeeRegistry;
         paymentTokenAddress = _paymentTokenAddress;
     }
 
