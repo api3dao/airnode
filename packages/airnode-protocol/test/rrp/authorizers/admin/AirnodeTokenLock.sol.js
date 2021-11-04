@@ -80,9 +80,9 @@ beforeEach(async () => {
     accessControlRegistry.address,
     airnodeTokenLockAdminRoleDescription,
     roles.manager.address,
-    api3Token.address,
+    airnodeRequesterAuthorizerRegistry.address,
     airnodeFeeRegistry.address,
-    airnodeRequesterAuthorizerRegistry.address
+    api3Token.address
   );
 
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
@@ -181,9 +181,9 @@ describe('constructor', function () {
                   accessControlRegistry.address,
                   airnodeTokenLockAdminRoleDescription,
                   roles.manager.address,
-                  api3Token.address,
+                  airnodeRequesterAuthorizerRegistry.address,
                   airnodeFeeRegistry.address,
-                  airnodeRequesterAuthorizerRegistry.address
+                  api3Token.address
                 );
                 expect(await airnodeTokenLock.accessControlRegistry()).to.equal(accessControlRegistry.address);
                 expect(await airnodeTokenLock.adminRoleDescription()).to.equal(airnodeTokenLockAdminRoleDescription);

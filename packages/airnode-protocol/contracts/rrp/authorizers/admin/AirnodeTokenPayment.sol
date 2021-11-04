@@ -84,7 +84,7 @@ contract AirnodeTokenPayment is
             hasPaymentTokenPriceSetterRoleOrIsManager(msg.sender),
             "Not payment token price setter"
         );
-        require(paymentTokenPrice != 0, "Invalid token price");
+        require(_paymentTokenPrice != 0, "Invalid token price");
         paymentTokenPrice = _paymentTokenPrice;
         emit SetPaymentTokenPrice(_paymentTokenPrice, msg.sender);
     }
@@ -115,6 +115,10 @@ contract AirnodeTokenPayment is
         require(
             hasAirnodeToPaymentDestinationSetterRoleOrIsManager(msg.sender),
             "Not Airnode to payment destination setter"
+        );
+        require(
+            _paymentDestination != address(0),
+            "Invalid destination address"
         );
         airnodeToPaymentDestination[msg.sender] = _paymentDestination;
         emit SetAirnodeToPaymentDestination(_paymentDestination, msg.sender);
