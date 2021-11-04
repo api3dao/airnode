@@ -144,12 +144,12 @@ contract AirnodeTokenPayment is
         address _requesterAddress,
         uint64 _whitelistDuration
     ) external override {
-        require(_chainId != 0, "Zero chainId");
-        require(_airnode != address(0), "Zero address");
-        require(_requesterAddress != address(0), "Zero address");
-        require(_whitelistDuration != 0, "Zero whitelist duration");
+        require(_chainId != 0, "Invalid chainId");
+        require(_airnode != address(0), "Invalid Airnode address");
+        require(_requesterAddress != address(0), "Invalid requester address");
         require(
-            _whitelistDuration <= getWhitelistDuration(_airnode),
+            _whitelistDuration != 0 &&
+                _whitelistDuration <= getWhitelistDuration(_airnode),
             "Invalid whitelist duration"
         );
 
@@ -158,7 +158,7 @@ contract AirnodeTokenPayment is
             ).chainIdToRequesterAuthorizerWithManager(_chainId);
         require(
             requesterAuthorizerWithManager != address(0),
-            "No requester authorizer set for chain"
+            "No RequesterAuthorizersWithManager set for chainId"
         );
 
         (
@@ -172,7 +172,11 @@ contract AirnodeTokenPayment is
                 );
         require(
             indefiniteWhitelistCount == 0,
-            "Already whitelisted indefinently"
+            "Already whitelisted indefinitely"
+        );
+        require(
+            uint64(block.timestamp) + _whitelistDuration > expirationTimestamp,
+            "Already whitelisted"
         );
 
         uint256 amount = getPaymentAmount(
@@ -187,7 +191,7 @@ contract AirnodeTokenPayment is
                 _airnode,
                 _endpointId,
                 _requesterAddress,
-                expirationTimestamp + _whitelistDuration
+                uint64(block.timestamp) + _whitelistDuration
             );
 
         assert(
@@ -207,7 +211,7 @@ contract AirnodeTokenPayment is
             getAirnodeToPaymentDestination(_airnode),
             amount,
             IERC20Metadata(paymentTokenAddress).symbol(),
-            expirationTimestamp + _whitelistDuration
+            uint64(block.timestamp) + _whitelistDuration
         );
     }
 

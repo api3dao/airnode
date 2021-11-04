@@ -3,6 +3,9 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../../../utils');
 
+const chainId = 1;
+const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
+
 let roles;
 let accessControlRegistry, airnodeTokenPayment;
 let airnodeFeeRegistry, requesterAuthorizerWithManager, airnodeRequesterAuthorizerRegistry;
@@ -11,6 +14,7 @@ let airnodeTokenPaymentAdminRoleDescription = 'AirnodeTokenPayment admin';
 let requesterAuthorizerWithManagerAdminRoleDescription = 'RequesterAuthorizerWithManager admin';
 let airnodeFeeRegistryAdminRoleDescription = 'AirnodeFeeRegistry admin';
 let adminRole, paymentTokenPriceSetterRole, airnodeToWhitelistDurationSetterRole, airnodeToPaymentDestinationSetterRole;
+let airnodeAddress = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
 let endpointPrice;
 
@@ -50,7 +54,7 @@ beforeEach(async () => {
   airnodeRequesterAuthorizerRegistry = await airnodeRequesterAuthorizerRegistry.deploy();
   airnodeRequesterAuthorizerRegistry
     .connect(roles.deployer)
-    .setRequesterAuthorizerWithManager(1, requesterAuthorizerWithManager.address);
+    .setRequesterAuthorizerWithManager(chainId, requesterAuthorizerWithManager.address);
 
   // Deploy AirnodeFeeRegistry contract
   const airnodeFeeRegistryFactory = await hre.ethers.getContractFactory('AirnodeFeeRegistry', roles.deployer);
@@ -396,6 +400,186 @@ describe('setAirnodeToPaymentDestination', function () {
       await expect(
         airnodeTokenPayment.connect(roles.randomPerson).setAirnodeToPaymentDestination(roles.airnode.address)
       ).to.be.revertedWith('Not Airnode to payment destination setter');
+    });
+  });
+});
+
+describe.only('makePayment', function () {
+  context('chainId is valid', function () {
+    context('Airnode address is valid', function () {
+      context('requester address is valid', function () {
+        context('whitelist duration is valid', function () {
+          context('AirnodeRequesterAuthorizerRegistry has a RequesterAuthorizersWithManager set', function () {
+            context('requester is not already whitelisted indefinitely', function () {
+              context('requester is not already whitelisted', function () {
+                context('payer has approved AirnodeTokenPayment to transfer tokens', function () {
+                  context('payer has tokens to transfer to AirnodeTokenPayment', function () {
+                    it('makes the payment with default token price of 1 USD (stablecoin)', async function () {
+                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                      await api3Token.connect(roles.anotherPayer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                      await expect(
+                        airnodeTokenPayment
+                          .connect(roles.payer)
+                          .makePayment(
+                            chainId,
+                            airnodeAddress,
+                            endpointId,
+                            roles.requester.address,
+                            thirtyDaysInSeconds
+                          )
+                      )
+                        .to.emit(airnodeTokenPayment, 'MadePayment')
+                        .withArgs(
+                          chainId,
+                          airnodeAddress,
+                          endpointId,
+                          roles.requester.address,
+                          roles.payer.address,
+                          airnodeAddress,
+                          endpointPrice,
+                          await api3Token.symbol(),
+                          (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                        );
+                    });
+                  });
+                  context('payer does not have tokens to transfer to AirnodeTokenPayment', function () {
+                    it('reverts', async function () {
+                      const balance = await api3Token.balanceOf(roles.payer.address);
+                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, balance);
+                      await airnodeFeeRegistry
+                        .connect(roles.manager)
+                        .setChainAirnodeEndpointPrice(chainId, airnodeAddress, endpointId, balance + 1);
+                      await expect(
+                        airnodeTokenPayment
+                          .connect(roles.payer)
+                          .makePayment(
+                            chainId,
+                            airnodeAddress,
+                            endpointId,
+                            roles.requester.address,
+                            thirtyDaysInSeconds
+                          )
+                      ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
+                    });
+                  });
+                });
+                context('payer has not approved AirnodeTokenPayment to transfer tokens', function () {
+                  it('reverts', async function () {
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(chainId, airnodeAddress, endpointId, roles.requester.address, thirtyDaysInSeconds)
+                    ).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+                  });
+                });
+              });
+              context('requester is already whitelisted', function () {
+                it('reverts', async function () {
+                  await requesterAuthorizerWithManager
+                    .connect(roles.manager)
+                    .extendWhitelistExpiration(
+                      airnodeAddress,
+                      endpointId,
+                      roles.requester.address,
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds + 1000
+                    );
+                  await expect(
+                    airnodeTokenPayment
+                      .connect(roles.payer)
+                      .makePayment(chainId, airnodeAddress, endpointId, roles.requester.address, thirtyDaysInSeconds)
+                  ).to.be.revertedWith('Already whitelisted');
+                });
+              });
+            });
+            context('requester is already whitelisted indefinitely', function () {
+              it('reverts', async function () {
+                await requesterAuthorizerWithManager
+                  .connect(roles.manager)
+                  .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
+                await expect(
+                  airnodeTokenPayment
+                    .connect(roles.payer)
+                    .makePayment(chainId, airnodeAddress, endpointId, roles.requester.address, thirtyDaysInSeconds)
+                ).to.be.revertedWith('Already whitelisted indefinitely');
+              });
+            });
+          });
+          context(
+            'AirnodeRequesterAuthorizerRegistry does not have a RequesterAuthorizersWithManager set',
+            function () {
+              it('reverts', async function () {
+                await expect(
+                  airnodeTokenPayment
+                    .connect(roles.payer)
+                    .makePayment(2, airnodeAddress, endpointId, roles.requester.address, thirtyDaysInSeconds)
+                ).to.be.revertedWith('No RequesterAuthorizersWithManager set for chainId');
+              });
+            }
+          );
+        });
+        context('whitelist duration is invalid', function () {
+          it('reverts', async function () {
+            await expect(
+              airnodeTokenPayment
+                .connect(roles.payer)
+                .makePayment(chainId, roles.airnode.address, endpointId, roles.requester.address, 0)
+            ).to.be.revertedWith('Invalid whitelist duration');
+            // Default is 30 days in seconds
+            await expect(
+              airnodeTokenPayment
+                .connect(roles.payer)
+                .makePayment(
+                  chainId,
+                  roles.airnode.address,
+                  endpointId,
+                  roles.requester.address,
+                  thirtyDaysInSeconds + 1
+                )
+            ).to.be.revertedWith('Invalid whitelist duration');
+            // Custom Airnode whitelist duration is set to 1 day
+            await airnodeTokenPayment.connect(roles.airnode).setAirnodeToWhitelistDuration(24 * 60 * 60);
+            await expect(
+              airnodeTokenPayment
+                .connect(roles.payer)
+                .makePayment(chainId, roles.airnode.address, endpointId, roles.requester.address, 24 * 60 * 60 + 1)
+            ).to.be.revertedWith('Invalid whitelist duration');
+          });
+        });
+      });
+      context('requester address is invalid', function () {
+        it('reverts', async function () {
+          await expect(
+            airnodeTokenPayment
+              .connect(roles.payer)
+              .makePayment(chainId, airnodeAddress, endpointId, hre.ethers.constants.AddressZero, thirtyDaysInSeconds)
+          ).to.be.revertedWith('Invalid requester address');
+        });
+      });
+    });
+    context('Airnode address is valid', function () {
+      it('reverts', async function () {
+        await expect(
+          airnodeTokenPayment
+            .connect(roles.payer)
+            .makePayment(
+              chainId,
+              hre.ethers.constants.AddressZero,
+              endpointId,
+              roles.requester.address,
+              thirtyDaysInSeconds
+            )
+        ).to.be.revertedWith('Invalid Airnode address');
+      });
+    });
+  });
+  context('chainId is invalid', function () {
+    it('reverts', async function () {
+      await expect(
+        airnodeTokenPayment
+          .connect(roles.payer)
+          .makePayment(0, airnodeAddress, endpointId, roles.requester.address, thirtyDaysInSeconds)
+      ).to.be.revertedWith('Invalid chainId');
     });
   });
 });
