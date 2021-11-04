@@ -19,9 +19,8 @@ contract AirnodeTokenPayment is
     AirnodeFeeRegistryClient,
     IAirnodeTokenPayment
 {
-    /// TODO: is this minimum instead?
-    /// @notice The default maximum whitelisting duration in seconds (30 days)
-    uint64 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 30 days;
+    /// @notice The default whitelisting duration in seconds (30 days)
+    uint64 public constant DEFAULT_WHITELIST_DURATION = 30 days;
 
     /// @notice The address of the ERC20 token that is used to pay for the
     /// Airnode whitelisting
@@ -31,12 +30,12 @@ contract AirnodeTokenPayment is
     /// @dev The price is used to calculate the amount of tokens that are
     /// required to be paid and it is defaulted to 1 for stable coin tokens
     /// but if the token has a different price then an oracle must call
-    /// `setPaymentTokenPrice()` in order to keep the price up to date
+    /// setPaymentTokenPrice() in order to keep the price up to date
     uint256 public paymentTokenPrice = 1;
 
-    /// @notice Mapping to store the maximum whitelisting duration in seconds
+    /// @notice Mapping to store the whitelisting duration in seconds
     /// for an Airnode
-    mapping(address => uint64) public airnodeToMaximumWhitelistDuration;
+    mapping(address => uint64) public airnodeToWhitelistDuration;
 
     /// @notice Mapping to store the default payment address for an Airnode
     mapping(address => address) public airnodeToPaymentDestination;
@@ -73,7 +72,8 @@ contract AirnodeTokenPayment is
     }
 
     /// @notice Called by a payment token price setter to set the payment
-    /// token price. The caller most likely be an oracle
+    /// token price. The caller most likely be an oracle with the role granted
+    /// or the manager of the contract
     /// @dev The price should be set with 18 decimal places
     /// @param _paymentTokenPrice Payment token price in USD
     function setPaymentTokenPrice(uint256 _paymentTokenPrice)
@@ -89,26 +89,20 @@ contract AirnodeTokenPayment is
         emit SetPaymentTokenPrice(_paymentTokenPrice, msg.sender);
     }
 
-    /// @notice Called by an Airnode to maximum whitelist duration setter to
-    /// set the maximum allowed period of whitelisting for an Airnode
-    /// @param _maximumWhitelistDuration Maximum whitelist duration in seconds
-    function setAirnodeToMaximumWhitelistDuration(
-        uint64 _maximumWhitelistDuration
-    ) external override {
+    /// @notice Called by an Airnode to whitelist duration setter to set the
+    /// period of whitelisting for an Airnode
+    /// @param _whitelistDuration Maximum whitelist duration in seconds
+    function setAirnodeToWhitelistDuration(uint64 _whitelistDuration)
+        external
+        override
+    {
         require(
-            hasAirnodeToMaximumWhitelistDurationSetterRoleOrIsManager(
-                msg.sender
-            ),
-            "Not Airnode to maximum whitelist duration setter"
+            hasAirnodeToWhitelistDurationSetterRoleOrIsManager(msg.sender),
+            "Not Airnode to whitelist duration setter"
         );
-        require(_maximumWhitelistDuration != 0, "Invalid duration");
-        airnodeToMaximumWhitelistDuration[
-            msg.sender
-        ] = _maximumWhitelistDuration;
-        emit SetAirnodeToMaximumWhitelistDuration(
-            _maximumWhitelistDuration,
-            msg.sender
-        );
+        require(_whitelistDuration != 0, "Invalid duration");
+        airnodeToWhitelistDuration[msg.sender] = _whitelistDuration;
+        emit SetAirnodeToWhitelistDuration(_whitelistDuration, msg.sender);
     }
 
     /// @notice Called by an Airnode to payment destination setter to set the
@@ -149,12 +143,11 @@ contract AirnodeTokenPayment is
         require(_chainId != 0, "Zero chainId");
         require(_airnode != address(0), "Zero address");
         require(_requesterAddress != address(0), "Zero address");
-
-        // This check might be redundant since we are checking it after fetching whitelist status
-        // require(
-        //     _whitelistDuration <= getMaximumWhitelistDuration(_airnode),
-        //     "Exceed maximum whitelisting"
-        // );
+        require(_whitelistDuration != 0, "Zero whitelist duration");
+        require(
+            _whitelistDuration <= getWhitelistDuration(_airnode),
+            "Invalid whitelist duration"
+        );
 
         address requesterAuthorizerWithManager = IAirnodeRequesterAuthorizerRegistry(
                 airnodeRequesterAuthorizerRegistry
@@ -175,12 +168,7 @@ contract AirnodeTokenPayment is
                 );
         require(
             indefiniteWhitelistCount == 0,
-            "Requester already indefinently whitelisted"
-        );
-        require(
-            _whitelistDuration + expirationTimestamp <=
-                getMaximumWhitelistDuration(_airnode),
-            "Exceed maximum whitelisting"
+            "Already whitelisted indefinently"
         );
 
         uint256 amount = getPaymentAmount(
@@ -195,7 +183,7 @@ contract AirnodeTokenPayment is
                 _airnode,
                 _endpointId,
                 _requesterAddress,
-                _whitelistDuration + expirationTimestamp
+                expirationTimestamp + _whitelistDuration
             );
 
         assert(
@@ -215,7 +203,7 @@ contract AirnodeTokenPayment is
             getAirnodeToPaymentDestination(_airnode),
             amount,
             IERC20Metadata(paymentTokenAddress).symbol(),
-            _whitelistDuration + expirationTimestamp
+            expirationTimestamp + _whitelistDuration
         );
     }
 
@@ -242,18 +230,18 @@ contract AirnodeTokenPayment is
             (paymentTokenPrice * feeInterval);
     }
 
-    /// @notice Gets the maximum whitelist duration period in seconds for a
-    /// specific Airnode address
+    /// @notice Gets the Airnode whitelist duration period in seconds
+    /// @dev It defaults to DEFAULT_WHITELIST_DURATION if none was previously set
     /// @param _airnode Airnode address
-    function getMaximumWhitelistDuration(address _airnode)
+    function getWhitelistDuration(address _airnode)
         private
         view
         returns (uint64)
     {
         return
-            airnodeToMaximumWhitelistDuration[_airnode] != 0
-                ? airnodeToMaximumWhitelistDuration[_airnode]
-                : DEFAULT_MAXIMUM_WHITELIST_DURATION;
+            airnodeToWhitelistDuration[_airnode] != 0
+                ? airnodeToWhitelistDuration[_airnode]
+                : DEFAULT_WHITELIST_DURATION;
     }
 
     /// @notice Gets the Airnode payment destination address
