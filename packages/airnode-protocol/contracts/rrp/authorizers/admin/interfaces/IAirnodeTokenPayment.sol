@@ -7,9 +7,9 @@ interface IAirnodeTokenPayment {
         address indexed paymentTokenPriceSetter
     );
 
-    event SetAirnodeToWhitelistDuration(
-        uint256 whitelistDuration,
-        address indexed airnodeToWhitelistDurationSetter
+    event SetAirnodeToMinimumWhitelistDuration(
+        uint256 minimumWhitelistDuration,
+        address indexed airnodeToMinimumWhitelistDurationSetter
     );
 
     event SetAirnodeToPaymentDestination(
@@ -29,13 +29,21 @@ interface IAirnodeTokenPayment {
         uint256 expirationTimestamp
     );
 
-    function DEFAULT_WHITELIST_DURATION() external view returns (uint64);
+    function DEFAULT_MAXIMUM_WHITELIST_DURATION()
+        external
+        view
+        returns (uint64);
+
+    function DEFAULT_MINIMUM_WHITELIST_DURATION()
+        external
+        view
+        returns (uint64);
 
     function paymentTokenAddress() external view returns (address);
 
     function paymentTokenPrice() external view returns (uint256);
 
-    function airnodeToWhitelistDuration(address airnode)
+    function airnodeToMinimumWhitelistDuration(address airnode)
         external
         view
         returns (uint64);
@@ -47,7 +55,9 @@ interface IAirnodeTokenPayment {
 
     function setPaymentTokenPrice(uint256 tokenPrice) external;
 
-    function setAirnodeToWhitelistDuration(uint64 WhitelistDuration) external;
+    function setAirnodeToMinimumWhitelistDuration(
+        uint64 minimumWhitelistDuration
+    ) external;
 
     function setAirnodeToPaymentDestination(address paymentAddress) external;
 

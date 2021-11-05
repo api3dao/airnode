@@ -19,8 +19,11 @@ contract AirnodeTokenPayment is
     AirnodeFeeRegistryClient,
     IAirnodeTokenPayment
 {
-    /// @notice The default whitelisting duration in seconds (30 days)
-    uint64 public constant DEFAULT_WHITELIST_DURATION = 30 days;
+    /// @notice The default maximum whitelisting duration in seconds (1 year)
+    uint64 public constant DEFAULT_MAXIMUM_WHITELIST_DURATION = 365 days;
+
+    /// @notice The default minimum whitelisting duration in seconds (1 day)
+    uint64 public constant DEFAULT_MINIMUM_WHITELIST_DURATION = 24 hours;
 
     /// @notice The address of the ERC20 token that is used to pay for the
     /// Airnode whitelisting
@@ -33,9 +36,9 @@ contract AirnodeTokenPayment is
     /// setPaymentTokenPrice() in order to keep the price up to date
     uint256 public paymentTokenPrice = 1;
 
-    /// @notice Mapping to store the whitelisting duration in seconds
+    /// @notice Mapping to store the minimum whitelisting duration in seconds
     /// for an Airnode
-    mapping(address => uint64) public airnodeToWhitelistDuration;
+    mapping(address => uint64) public airnodeToMinimumWhitelistDuration;
 
     /// @notice Mapping to store the default payment address for an Airnode
     mapping(address => address) public airnodeToPaymentDestination;
@@ -89,20 +92,26 @@ contract AirnodeTokenPayment is
         emit SetPaymentTokenPrice(_paymentTokenPrice, msg.sender);
     }
 
-    /// @notice Called by an Airnode to whitelist duration setter to set the
-    /// period of whitelisting for an Airnode
-    /// @param _whitelistDuration Maximum whitelist duration in seconds
-    function setAirnodeToWhitelistDuration(uint64 _whitelistDuration)
-        external
-        override
-    {
+    /// @notice Called by an Airnode to minimum whitelist duration setter to
+    /// set the minimum whitelisting duration for an Airnode
+    /// @param _minimumWhitelistDuration Minimum whitelist duration in seconds
+    function setAirnodeToMinimumWhitelistDuration(
+        uint64 _minimumWhitelistDuration
+    ) external override {
         require(
-            hasAirnodeToWhitelistDurationSetterRoleOrIsManager(msg.sender),
-            "Not Airnode to whitelist duration setter"
+            hasAirnodeToMinimumWhitelistDurationSetterRoleOrIsManager(
+                msg.sender
+            ),
+            "Not Airnode to minimum whitelist duration setter"
         );
-        require(_whitelistDuration != 0, "Invalid duration");
-        airnodeToWhitelistDuration[msg.sender] = _whitelistDuration;
-        emit SetAirnodeToWhitelistDuration(_whitelistDuration, msg.sender);
+        require(_minimumWhitelistDuration != 0, "Invalid duration");
+        airnodeToMinimumWhitelistDuration[
+            msg.sender
+        ] = _minimumWhitelistDuration;
+        emit SetAirnodeToMinimumWhitelistDuration(
+            _minimumWhitelistDuration,
+            msg.sender
+        );
     }
 
     /// @notice Called by an Airnode to payment destination setter to set the
@@ -149,7 +158,8 @@ contract AirnodeTokenPayment is
         require(_requesterAddress != address(0), "Invalid requester address");
         require(
             _whitelistDuration != 0 &&
-                _whitelistDuration <= getWhitelistDuration(_airnode),
+                _whitelistDuration <= DEFAULT_MAXIMUM_WHITELIST_DURATION &&
+                _whitelistDuration >= getMinimumWhitelistDuration(_airnode),
             "Invalid whitelist duration"
         );
 
@@ -183,7 +193,10 @@ contract AirnodeTokenPayment is
             _chainId,
             _airnode,
             _endpointId,
-            _whitelistDuration
+            expirationTimestamp > uint64(block.timestamp)
+                ? (uint64(block.timestamp) + _whitelistDuration) -
+                    expirationTimestamp
+                : _whitelistDuration
         );
 
         IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
@@ -238,18 +251,19 @@ contract AirnodeTokenPayment is
             (paymentTokenPrice * feeInterval);
     }
 
-    /// @notice Gets the Airnode whitelist duration period in seconds
-    /// @dev It defaults to DEFAULT_WHITELIST_DURATION if none was previously set
+    /// @notice Gets the Airnode minimum whitelist duration period in seconds
+    /// @dev It defaults to DEFAULT_MINIMUM_WHITELIST_DURATION if none was
+    /// previously set
     /// @param _airnode Airnode address
-    function getWhitelistDuration(address _airnode)
+    function getMinimumWhitelistDuration(address _airnode)
         private
         view
         returns (uint64)
     {
         return
-            airnodeToWhitelistDuration[_airnode] != 0
-                ? airnodeToWhitelistDuration[_airnode]
-                : DEFAULT_WHITELIST_DURATION;
+            airnodeToMinimumWhitelistDuration[_airnode] != 0
+                ? airnodeToMinimumWhitelistDuration[_airnode]
+                : DEFAULT_MINIMUM_WHITELIST_DURATION;
     }
 
     /// @notice Gets the Airnode payment destination address
