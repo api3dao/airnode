@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 import { unknownConversion } from '../utils/messages';
+import { regexList } from '../utils/globals';
 
 const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
 const conversionsPath = path.resolve(__dirname, '../../conversions');
@@ -66,7 +67,7 @@ function getLatestPath(template: string): string | null {
  */
 export function getPath(template: string, messages: Log[], version = ''): string | null {
   if (version) {
-    const parsedVersion = version.replace(/[0-9]+$/, '0');
+    const parsedVersion = version.replace(regexList.patchVersion, '');
     if (fs.existsSync(path.resolve(validatorTemplatesPath, parsedVersion, template))) {
       return path.resolve(validatorTemplatesPath, parsedVersion, template);
     } else {
@@ -140,7 +141,7 @@ export function getConversionPath(
     fromVersion = fromLatest;
   }
 
-  const parsedFromVersion = fromVersion.replace(/[0-9]+$/, '0');
+  const parsedFromVersion = fromVersion.replace(regexList.patchVersion, '');
 
   if (!conversions[from][parsedFromVersion]) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, to));
@@ -167,7 +168,7 @@ export function getConversionPath(
     toVersion = toLatest;
   }
 
-  const parsedToVersion = toVersion.replace(/[0-9]+$/, '0');
+  const parsedToVersion = toVersion.replace(regexList.patchVersion, '');
 
   if (
     !fs.existsSync(path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`))
