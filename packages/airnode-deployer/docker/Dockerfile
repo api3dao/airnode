@@ -1,8 +1,8 @@
 FROM node:14.17-alpine3.14
 
-ENV name="airnode-deployer" \
-    terraformURL="https://releases.hashicorp.com/terraform/1.0.6/terraform_1.0.6_linux_amd64.zip" \
-    appBin="/usr/local/bin/deployer" \
+ENV name="airnode-deployer"
+ENV terraformURL="https://releases.hashicorp.com/terraform/1.0.6/terraform_1.0.6_linux_amd64.zip" \
+    appBin="/usr/local/bin/${name}" \
     appDir="/app"
 
 LABEL application=${name} \

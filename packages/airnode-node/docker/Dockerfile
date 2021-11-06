@@ -1,8 +1,7 @@
 FROM node:14.17-alpine3.14
 
-ENV name="airnode"
+ENV name="airnode-node"
 ENV appDir="/app" \
-    appBin="/usr/local/bin/${name}" \
     cronjob="/etc/cron.d/${name}"
 
 LABEL application=${name} \

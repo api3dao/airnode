@@ -13,8 +13,10 @@ In order to build Deployer docker image locally, you need to build the
 following command from the root directory:
 
 ```bash
-docker build -f packages/airnode-deployer/docker/Dockerfile -t api3/airnode-deployer:latest .
+yarn docker:build:deployer
 ```
+
+or invoke the respective docker build command directly.
 
 > If building on windows ensure that the `entrypoint.sh` file uses `LF` line endings. Otherwise the image will not be
 > built correctly.
