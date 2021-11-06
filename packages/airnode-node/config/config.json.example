@@ -8,7 +8,7 @@
       "id": "31337",
       "providers": {
         "local": {
-          "url": "${LOCAL_PROVIDER_URL}"
+          "url": "${PROVIDER_URL}"
         }
       },
       "type": "evm"

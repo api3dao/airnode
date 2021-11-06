@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import path from 'path';
-import dotenv from 'dotenv';
 import template from 'lodash/template';
 import { validateWithTemplate, validateJsonWithTemplate } from '../src';
 
@@ -13,6 +12,19 @@ const NO_MATCH_REGEXP = /($^)/;
 // Regular expression matching ES template literal delimiter (${}) with escaping
 // https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
 const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+
+const secretsEnv = {
+  PROVIDER_URL: 'http://127.0.0.1:8545',
+  AIRNODE_RRP_ADDRESS: '0x0000000000000000000000000000000000000000',
+  AIRNODE_WALLET_MNEMONIC: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  SS_CURRENCY_CONVERTER_API_KEY: '<enter your API key>',
+  HTTP_GATEWAY_API_KEY: 'apikey_example_apikey_example_apikey_example',
+  HEARTBEAT_API_KEY: '',
+  HEARTBEAT_ID: '',
+  HEARTBEAT_URL: '',
+  CHAIN_ID: '',
+  CLOUD_PROVIDER_TYPE: 'aws',
+};
 
 describe('validator tests', () => {
   for (const config of tests) {
@@ -45,7 +57,7 @@ describe('fixture tests', () => {
         evaluate: NO_MATCH_REGEXP,
         interpolate: ES_MATCH_REGEXP,
       }
-    )(dotenv.parse(fs.readFileSync(path.resolve(__dirname, '../../airnode-node/config/secrets.env.example'))));
+    )(secretsEnv);
     expect(validateJsonWithTemplate(JSON.parse(interpolated), 'config')).toEqual(validOutput);
   });
 
@@ -57,7 +69,7 @@ describe('fixture tests', () => {
         evaluate: NO_MATCH_REGEXP,
         interpolate: ES_MATCH_REGEXP,
       }
-    )(dotenv.parse(fs.readFileSync(path.resolve(__dirname, '../../airnode-deployer/config/secrets.env.example'))));
+    )(secretsEnv);
     expect(validateJsonWithTemplate(JSON.parse(interpolated), 'config')).toEqual(validOutput);
   });
 
@@ -77,7 +89,7 @@ describe('fixture tests', () => {
             evaluate: NO_MATCH_REGEXP,
             interpolate: ES_MATCH_REGEXP,
           }
-        )(dotenv.parse(fs.readFileSync(path.resolve(integrationsPath, integration, 'secrets.example.env'))));
+        )(secretsEnv);
         expect(validateJsonWithTemplate(JSON.parse(interpolated), 'config')).toEqual(validOutput);
       });
     }
