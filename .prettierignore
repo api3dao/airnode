@@ -12,3 +12,4 @@
 **/.webpack/**
 
 packages/airnode-validator/test/fixtures
+packages/airnode-protocol/src/contracts

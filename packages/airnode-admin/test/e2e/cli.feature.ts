@@ -376,6 +376,12 @@ describe('CLI', () => {
     });
   });
 
+  it('generates mnemonic', () => {
+    const out = execCommand('generate-mnemonic');
+
+    expect(out).toMatch(/Generated mnemonic: [\w+ ]+/);
+  });
+
   describe('RequesterAuthorizerWithAirnode', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';

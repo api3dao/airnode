@@ -276,3 +276,8 @@ export async function isRequesterWhitelisted(
 ) {
   return requesterAuthorizerWithAirnode.requesterIsWhitelisted(airnodeAddress, endpointId, requesterAddress);
 }
+
+export async function generateMnemonic() {
+  const wallet = ethers.Wallet.createRandom();
+  return wallet.mnemonic.phrase;
+}
