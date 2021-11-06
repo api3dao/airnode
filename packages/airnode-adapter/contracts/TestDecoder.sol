@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.9;
 
 contract TestDecoder {
     function decodeSignedInt256(bytes calldata data)
