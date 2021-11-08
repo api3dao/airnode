@@ -104,7 +104,11 @@ contract AirnodeTokenPayment is
             ),
             "Not Airnode to minimum whitelist duration setter"
         );
-        require(_minimumWhitelistDuration != 0, "Invalid duration");
+        require(
+            _minimumWhitelistDuration != 0 &&
+                _minimumWhitelistDuration >= DEFAULT_MINIMUM_WHITELIST_DURATION,
+            "Invalid duration"
+        );
         airnodeToMinimumWhitelistDuration[
             msg.sender
         ] = _minimumWhitelistDuration;

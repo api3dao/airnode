@@ -358,6 +358,13 @@ describe('setAirnodeToMinimumWhitelistDuration', function () {
         await expect(
           airnodeTokenPayment.connect(roles.airnode).setAirnodeToMinimumWhitelistDuration(0)
         ).to.be.revertedWith('Invalid duration');
+        await expect(
+          airnodeTokenPayment
+            .connect(roles.airnode)
+            .setAirnodeToMinimumWhitelistDuration(
+              (await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION()).sub(1)
+            )
+        ).to.be.revertedWith('Invalid duration');
       });
     });
   });
