@@ -97,4 +97,6 @@ export class AdminSdk {
 
   isRequesterWhitelisted = (airnodeAddress: string, endpointId: string, requesterAddress: string) =>
     admin.isRequesterWhitelisted(this.requesterAuthorizerWithAirnode, airnodeAddress, endpointId, requesterAddress);
+
+  generateMnemonic = () => admin.generateMnemonic();
 }

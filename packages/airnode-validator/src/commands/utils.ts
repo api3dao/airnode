@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 import { unknownConversion } from '../utils/messages';
+import { regexList } from '../utils/globals';
 
 const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
 const conversionsPath = path.resolve(__dirname, '../../conversions');
@@ -66,8 +67,9 @@ function getLatestPath(template: string): string | null {
  */
 export function getPath(template: string, messages: Log[], version = ''): string | null {
   if (version) {
-    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
-      return path.resolve(validatorTemplatesPath, version, template);
+    const parsedVersion = version.replace(regexList.patchVersion, '');
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, parsedVersion, template))) {
+      return path.resolve(validatorTemplatesPath, parsedVersion, template);
     } else {
       messages.push({
         level: 'warning',
@@ -139,12 +141,14 @@ export function getConversionPath(
     fromVersion = fromLatest;
   }
 
-  if (!conversions[from][fromVersion]) {
+  const parsedFromVersion = fromVersion.replace(regexList.patchVersion, '');
+
+  if (!conversions[from][parsedFromVersion]) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, to));
     return null;
   }
 
-  if (!conversions[from][fromVersion][to]) {
+  if (!conversions[from][parsedFromVersion][to]) {
     messages.push(unknownConversion(from, to));
     return null;
   }
@@ -152,7 +156,7 @@ export function getConversionPath(
   if (!toVersion) {
     let toLatest;
 
-    for (const version of conversions[from][fromVersion][to]) {
+    for (const version of conversions[from][parsedFromVersion][to]) {
       toLatest = !toLatest || (toLatest < version && version.match(/^[0-9\.]+$/)) ? version : toLatest;
     }
 
@@ -164,10 +168,14 @@ export function getConversionPath(
     toVersion = toLatest;
   }
 
-  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`))) {
+  const parsedToVersion = toVersion.replace(regexList.patchVersion, '');
+
+  if (
+    !fs.existsSync(path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`))
+  ) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return null;
   }
 
-  return path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`);
+  return path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`);
 }

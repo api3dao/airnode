@@ -12,8 +12,10 @@ In order to build Airnode Docker image you need to build the [artifacts image fi
 you've done that, you can build the Docker image by running following command from the root directory:
 
 ```bash
-docker build -f packages/airnode-node/docker/Dockerfile -t api3/airnode-client:latest .
+yarn docker:build:node
 ```
+
+or invoke the respective docker build command directly.
 
 > If building on windows ensure that the `airnode-crontab` file uses `LF` line endings. Otherwise the image will not be
 > built correctly.
