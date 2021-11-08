@@ -14,7 +14,10 @@ let api3Token;
 let airnodeTokenPaymentAdminRoleDescription = 'AirnodeTokenPayment admin';
 let requesterAuthorizerWithManagerAdminRoleDescription = 'RequesterAuthorizerWithManager admin';
 let airnodeFeeRegistryAdminRoleDescription = 'AirnodeFeeRegistry admin';
-let adminRole, paymentTokenPriceSetterRole, airnodeToWhitelistDurationSetterRole, airnodeToPaymentDestinationSetterRole;
+let adminRole,
+  paymentTokenPriceSetterRole,
+  airnodeToMinimumWhitelistDurationSetterRole,
+  airnodeToPaymentDestinationSetterRole;
 let airnodePaymentDestination = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
 let endpointPrice;
@@ -89,7 +92,7 @@ beforeEach(async () => {
 
   adminRole = await airnodeTokenPayment.adminRole();
   paymentTokenPriceSetterRole = await airnodeTokenPayment.paymentTokenPriceSetterRole();
-  airnodeToWhitelistDurationSetterRole = await airnodeTokenPayment.airnodeToMinimumWhitelistDurationSetterRole();
+  airnodeToMinimumWhitelistDurationSetterRole = await airnodeTokenPayment.airnodeToMinimumWhitelistDurationSetterRole();
   airnodeToPaymentDestinationSetterRole = await airnodeTokenPayment.airnodeToPaymentDestinationSetterRole();
 
   // Grant roles to valid accounts
@@ -292,6 +295,20 @@ describe('setPaymentTokenPrice', function () {
           .withArgs(hre.ethers.utils.parseUnits('7.5', 18).toString(), roles.oracle.address);
         paymentTokenPrice = await airnodeTokenPayment.paymentTokenPrice();
         expect(paymentTokenPrice).to.equal(hre.ethers.utils.parseUnits('7.5', 18).toString());
+
+        await accessControlRegistry
+          .connect(roles.manager)
+          .renounceRole(paymentTokenPriceSetterRole, roles.manager.address);
+
+        await expect(
+          airnodeTokenPayment
+            .connect(roles.manager)
+            .setPaymentTokenPrice(hre.ethers.utils.parseUnits('10', 18).toString())
+        )
+          .to.emit(airnodeTokenPayment, 'SetPaymentTokenPrice')
+          .withArgs(hre.ethers.utils.parseUnits('10', 18).toString(), roles.manager.address);
+        paymentTokenPrice = await airnodeTokenPayment.paymentTokenPrice();
+        expect(paymentTokenPrice).to.equal(hre.ethers.utils.parseUnits('10', 18).toString());
       });
     });
     context('price is not valid', function () {
@@ -325,6 +342,15 @@ describe('setAirnodeToMinimumWhitelistDuration', function () {
           .withArgs(weekInSeconds, roles.airnode.address);
         whitelistDuration = await airnodeTokenPayment.airnodeToMinimumWhitelistDuration(roles.airnode.address);
         expect(whitelistDuration).to.equal(weekInSeconds);
+
+        await accessControlRegistry
+          .connect(roles.manager)
+          .renounceRole(airnodeToMinimumWhitelistDurationSetterRole, roles.manager.address);
+        await expect(airnodeTokenPayment.connect(roles.manager).setAirnodeToMinimumWhitelistDuration(2 * weekInSeconds))
+          .to.emit(airnodeTokenPayment, 'SetAirnodeToMinimumWhitelistDuration')
+          .withArgs(2 * weekInSeconds, roles.manager.address);
+        whitelistDuration = await airnodeTokenPayment.airnodeToMinimumWhitelistDuration(roles.manager.address);
+        expect(whitelistDuration).to.equal(2 * weekInSeconds);
       });
     });
     context('duration is not valid', function () {
@@ -355,6 +381,17 @@ describe('setAirnodeToPaymentDestination', function () {
           .withArgs(roles.airnode.address, roles.airnode.address);
         paymentDestination = await airnodeTokenPayment.airnodeToPaymentDestination(roles.airnode.address);
         expect(paymentDestination).to.equal(roles.airnode.address);
+
+        await accessControlRegistry
+          .connect(roles.manager)
+          .renounceRole(airnodeToPaymentDestinationSetterRole, roles.manager.address);
+        await expect(
+          airnodeTokenPayment.connect(roles.manager).setAirnodeToPaymentDestination(airnodePaymentDestination)
+        )
+          .to.emit(airnodeTokenPayment, 'SetAirnodeToPaymentDestination')
+          .withArgs(airnodePaymentDestination, roles.manager.address);
+        paymentDestination = await airnodeTokenPayment.airnodeToPaymentDestination(roles.manager.address);
+        expect(paymentDestination).to.equal(airnodePaymentDestination);
       });
     });
     context('payment destination address is not valid', function () {
