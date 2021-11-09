@@ -7,7 +7,7 @@ export function isNumericType(type: ResponseType): type is 'uint256' | 'int256' 
 
 export interface ParsedArrayType {
   readonly baseType: BaseResponseType;
-  readonly arrayDimensions: number[]; // -1 for infinite length
+  readonly dimensions: number; // -1 for infinite length
 }
 
 export function parseArrayType(type: ResponseType): ParsedArrayType | null {
@@ -19,7 +19,8 @@ export function parseArrayType(type: ResponseType): ParsedArrayType | null {
 
   // eslint-disable-next-line functional/no-let
   let dimensionsString = typeMatch[2];
-  const arrayDimensions: number[] = [];
+  // eslint-disable-next-line functional/no-let
+  let dimensions = 0;
   // eslint-disable-next-line functional/no-loop-statement
   while (dimensionsString) {
     const match = dimensionsString.match(/^\[(\d*)\](.*)$/);
@@ -28,12 +29,11 @@ export function parseArrayType(type: ResponseType): ParsedArrayType | null {
     if (match[1]) {
       const parsedLength = Number.parseInt(match[1], 10);
       if (parsedLength === 0) return null;
+    }
 
-      arrayDimensions.push(parsedLength);
-    } else arrayDimensions.push(-1);
-
+    dimensions++;
     dimensionsString = match[2];
   }
 
-  return { baseType, arrayDimensions };
+  return { baseType, dimensions };
 }

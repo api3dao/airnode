@@ -87,18 +87,13 @@ function castHexString(value: any): string {
 }
 
 export function castArrayRecursively(value: unknown, type: ParsedArrayType): ValueType {
-  if (type.arrayDimensions.length === 0) return castValue(value, type.baseType);
+  if (type.dimensions === 0) return castValue(value, type.baseType);
 
   if (!Array.isArray(value)) {
     throw new Error(`Expected ${value} to be an array`);
   }
 
-  const dimension = type.arrayDimensions[0];
-  if (dimension !== -1 && value.length !== dimension) {
-    throw new Error(`Expected array length ${dimension} but it was ${value.length}`);
-  }
-
-  const typeWithReducedDimension: ParsedArrayType = { ...type, arrayDimensions: type.arrayDimensions.slice(1) };
+  const typeWithReducedDimension: ParsedArrayType = { ...type, dimensions: type.dimensions - 1 };
   return value.map((element) => castArrayRecursively(element, typeWithReducedDimension));
 }
 
