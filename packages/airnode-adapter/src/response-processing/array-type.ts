@@ -1,13 +1,13 @@
 import { ResponseType, BaseResponseType, baseResponseTypes } from '../types';
 
-// Numeric types should be multiplied by the "_times" reserved parameter
+// Numeric types could be multiplied by the "_times" reserved parameter
 export function isNumericType(type: ResponseType): type is 'uint256' | 'int256' {
   return type === 'int256' || type === 'uint256';
 }
 
 export interface ParsedArrayType {
   readonly baseType: BaseResponseType;
-  readonly dimensions: number; // -1 for infinite length
+  readonly dimensions: number;
 }
 
 export function parseArrayType(type: ResponseType): ParsedArrayType | null {

@@ -56,7 +56,6 @@ function castBoolean(value: unknown): boolean {
 }
 
 function castStringLike(value: any, target: 'string' | 'bytes32'): string {
-  // TODO: Should we throw here? Isn't String(JSON.stringify(value)) better?
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${target}`);
