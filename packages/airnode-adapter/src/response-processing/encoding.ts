@@ -2,19 +2,19 @@ import { ethers } from 'ethers';
 import { parseArrayType } from './type-parser';
 import { ResponseType, ValueType } from '../types';
 
-export function convertUnsignedInteger(value: string) {
+function convertUnsignedInteger(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['uint256'], [value]);
 }
 
-export function convertSignedInteger(value: string) {
+function convertSignedInteger(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['int256'], [value]);
 }
 
-export function convertBool(value: boolean) {
+function convertBool(value: boolean) {
   return ethers.utils.defaultAbiCoder.encode(['bool'], [value]);
 }
 
-export function convertBytes32(value: string) {
+function convertBytes32(value: string) {
   // We can't encode strings longer than 31 characters to bytes32.
   // Ethers need to keep room for null termination
   const trimmedValue = value.length > 31 ? value.substring(0, 31) : value;
@@ -23,15 +23,15 @@ export function convertBytes32(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['bytes32'], [bytes32String]);
 }
 
-export function convertAddress(value: string) {
+function convertAddress(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['address'], [value]);
 }
 
-export function convertBytes(value: string | ArrayLike<number>) {
+function convertBytes(value: string | ArrayLike<number>) {
   return ethers.utils.defaultAbiCoder.encode(['bytes'], [value]);
 }
 
-export function convertString(value: string) {
+function convertString(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['string'], [value]);
 }
 
