@@ -29,11 +29,13 @@ interface IAirnodeTokenPayment {
         uint256 expirationTimestamp
     );
 
+    // solhint-disable-next-line func-name-mixedcase
     function DEFAULT_MAXIMUM_WHITELIST_DURATION()
         external
         view
         returns (uint64);
 
+    // solhint-disable-next-line func-name-mixedcase
     function DEFAULT_MINIMUM_WHITELIST_DURATION()
         external
         view

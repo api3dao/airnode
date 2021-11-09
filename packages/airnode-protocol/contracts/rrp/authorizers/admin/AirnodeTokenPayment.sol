@@ -34,7 +34,7 @@ contract AirnodeTokenPayment is
     /// required to be paid and it is defaulted to 1 for stable coin tokens
     /// but if the token has a different price then an oracle must call
     /// setPaymentTokenPrice() in order to keep the price up to date
-    uint256 public paymentTokenPrice = 1;
+    uint256 public paymentTokenPrice = 1e18;
 
     /// @notice Mapping to store the minimum whitelisting duration in seconds
     /// for an Airnode
@@ -102,7 +102,7 @@ contract AirnodeTokenPayment is
             hasAirnodeToMinimumWhitelistDurationSetterRoleOrIsManager(
                 msg.sender
             ),
-            "Not Airnode to minimum whitelist duration setter"
+            "Not whitelist duration setter"
         );
         require(
             _minimumWhitelistDuration != 0 &&
@@ -127,7 +127,7 @@ contract AirnodeTokenPayment is
     {
         require(
             hasAirnodeToPaymentDestinationSetterRoleOrIsManager(msg.sender),
-            "Not Airnode to payment destination setter"
+            "Not payment destination setter"
         );
         require(
             _paymentDestination != address(0),
@@ -172,7 +172,7 @@ contract AirnodeTokenPayment is
             ).chainIdToRequesterAuthorizerWithManager(_chainId);
         require(
             requesterAuthorizerWithManager != address(0),
-            "No RequesterAuthorizersWithManager set for chainId"
+            "No requester authorizer set"
         );
 
         (
@@ -247,8 +247,9 @@ contract AirnodeTokenPayment is
         bytes32 _endpointId,
         uint64 _whitelistDuration
     ) public view override returns (uint256 amount) {
+        uint8 decimals = IERC20Metadata(paymentTokenAddress).decimals();
         uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
-            .getEndpointPrice(_chainId, _airnode, _endpointId);
+            .getEndpointPrice(_chainId, _airnode, _endpointId) * (10**decimals);
         uint24 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).INTERVAL();
         amount =
             (feeInUsd * _whitelistDuration) /

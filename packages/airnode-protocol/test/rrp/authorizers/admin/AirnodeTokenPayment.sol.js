@@ -285,7 +285,7 @@ describe('setPaymentTokenPrice', function () {
     context('price is valid', function () {
       it('sets the payment token price', async function () {
         let paymentTokenPrice = await airnodeTokenPayment.paymentTokenPrice();
-        expect(paymentTokenPrice).to.equal(1);
+        expect(paymentTokenPrice).to.equal(hre.ethers.utils.parseEther('1').toString());
         await expect(
           airnodeTokenPayment
             .connect(roles.oracle)
@@ -483,7 +483,7 @@ describe('makePayment', function () {
                       );
                       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                     });
-                    it('makes the payment with custom token price (7.5 USD)', async function () {
+                    it('makes the payment with custom token price (7.25 USD)', async function () {
                       await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
 
                       const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
@@ -501,9 +501,12 @@ describe('makePayment', function () {
                       // sets the payment token price to 7.5 USD
                       await airnodeTokenPayment
                         .connect(roles.oracle)
-                        .setPaymentTokenPrice(hre.ethers.utils.parseUnits('7.5', 18).toString());
+                        .setPaymentTokenPrice(hre.ethers.utils.parseUnits('7.25', 18).toString());
 
-                      const paymentAmount = endpointPrice.div(hre.ethers.utils.parseUnits('7.5', 18)).toString();
+                      const paymentAmount = endpointPrice
+                        .mul(hre.ethers.BigNumber.from(10).pow(await api3Token.decimals()))
+                        .div(hre.ethers.utils.parseUnits('7.25', 18))
+                        .toString();
                       await expect(
                         airnodeTokenPayment
                           .connect(roles.payer)
