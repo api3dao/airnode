@@ -50,7 +50,7 @@ contract AirnodePsp {
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId) {
         // Subscription IDs do not need to be unique. Airnode will not serve the same
-        // sbuscription ID multiple times
+        // subscription ID multiple times
         subscriptionId = keccak256(
             abi.encode(
                 templateId,
@@ -76,7 +76,6 @@ contract AirnodePsp {
     // The node doesn't attempt to fulfill if `callSuccess` is false, logs the revert string internally.
     function fulfill(
         bytes32 subscriptionId,
-        uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData) {
@@ -88,11 +87,11 @@ contract AirnodePsp {
         (address airnode, , ) = airnodeRrp.templates(subscription.templateId);
         // It is a concern for someone to have the API provider sign a response, to be used much
         // later (for example, would be very problematic for asset price data feeds). Therefore,
-        // we add the timestamp to the hash to be signed. 
+        // the timestamp is expect to be appended to `data`
         require(
             (
                 keccak256(
-                    abi.encodePacked(subscriptionId, timestamp, data)
+                    abi.encodePacked(subscriptionId, data)
                 ).toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Invalid signature"
@@ -101,7 +100,6 @@ contract AirnodePsp {
             abi.encodeWithSelector(
                 subscription.fulfillFunctionId,
                 subscriptionId,
-                timestamp,
                 data
             )
         );

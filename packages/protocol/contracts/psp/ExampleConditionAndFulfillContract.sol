@@ -12,15 +12,15 @@ contract ExampleConditionAndFulfillContract {
     {
         // Here, `data` is the API response encoded by the Airnode, i.e., it's
         // `data` from AirnodeRrp.fulfill(). Let's assume the oracle request returns
-        // one `uint256`.
-        uint256 response = abi.decode(data, (uint256));
+        // one `uint256`, and one `uint256` is appended as the timestamp (which we discard here).
+        (uint256 response, ) = abi.decode(data, (uint256, uint256));
         // Condition checks if the data returned by the API is larger than `FOO` (which means
         // the Airnode should go ahead with the fulfillment if the API returns a number larger
         // than `FOO`)
         checkResult = response > FOO;
     }
 
-    function fulfill(bytes32 subscriptionId, uint256 timestamp, bytes calldata data)
+    function fulfill(bytes32 subscriptionId, bytes calldata data)
         external
     {
         // Check if the caller is AirnodePsp
@@ -28,7 +28,7 @@ contract ExampleConditionAndFulfillContract {
 
         // Check if you know about the subscription first
         // require(subscriptionId == ...)
-        // You can also just check if the template ID/parameters is correct
+        // Instead, you can also just check if the template ID/parameters is correct
         // (bytes32 templateId, , , , , bytes parameters) = airnodePsp.subscriptions(subscriptionId);
         // require(templateId == ...);
         // require(parameters.length == 0); // No additional parameters
@@ -42,13 +42,14 @@ contract ExampleConditionAndFulfillContract {
         // data feed case, the signed data is still sound unless the first-party oracle is malicious,
         // it's just that the update is redundant).
 
+        (uint256 response, uint256 timestamp) = abi.decode(data, (uint256, uint256));
+
         // Disregard old responses. Note that this is use-case specific, i.e., you may want to
         // reject outdated asset prices, but accept match results no matter when they were signed.
         if (timestamp + 1000 < block.timestamp) {
           return;
         }
 
-        uint256 response = abi.decode(data, (uint256));
         // then do whatever you want with the API response
     }
 }
