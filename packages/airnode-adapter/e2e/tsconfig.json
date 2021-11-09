@@ -4,5 +4,5 @@
     "baseUrl": "./",
     "types": ["@nomiclabs/hardhat-waffle", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"]
   },
-  "include": ["./**/*", "../hardhat.config.ts"],
+  "include": ["./**/*", "../hardhat.config.ts"]
 }

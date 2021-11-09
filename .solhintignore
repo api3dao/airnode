@@ -1,2 +1,7 @@
 **/node_modules/**
 **/artifacts/**
+
+# https://github.com/protofire/solhint/issues/317
+#
+# /* solhint-disable */ comment doesn't work either because this is a parser issue
+./packages/airnode-adapter/contracts/TestDecoder.sol
