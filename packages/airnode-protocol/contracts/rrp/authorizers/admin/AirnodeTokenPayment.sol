@@ -210,27 +210,24 @@ contract AirnodeTokenPayment is
             indefiniteWhitelistCount == 0,
             "Already whitelisted indefinitely"
         );
-        require(
-            uint64(block.timestamp) + _whitelistDuration > expirationTimestamp,
-            "Already whitelisted"
-        );
 
         uint256 amount = getPaymentAmount(
             _chainId,
             _airnode,
             _endpointId,
-            expirationTimestamp > uint64(block.timestamp)
-                ? (uint64(block.timestamp) + _whitelistDuration) -
-                    expirationTimestamp
-                : _whitelistDuration
+            _whitelistDuration
         );
 
+        uint64 newExpirationTimestamp = expirationTimestamp >
+            uint64(block.timestamp)
+            ? expirationTimestamp + _whitelistDuration
+            : uint64(block.timestamp) + _whitelistDuration;
         IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
             .extendWhitelistExpiration(
                 _airnode,
                 _endpointId,
                 _requesterAddress,
-                uint64(block.timestamp) + _whitelistDuration
+                newExpirationTimestamp
             );
 
         assert(
@@ -250,7 +247,7 @@ contract AirnodeTokenPayment is
             getAirnodeToPaymentDestination(_airnode),
             amount,
             IERC20Metadata(paymentTokenAddress).symbol(),
-            uint64(block.timestamp) + _whitelistDuration
+            newExpirationTimestamp
         );
     }
 

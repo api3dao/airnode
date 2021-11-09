@@ -511,445 +511,23 @@ describe('makePayment', function () {
         context('whitelist duration is valid', function () {
           context('AirnodeRequesterAuthorizerRegistry has a RequesterAuthorizersWithManager set', function () {
             context('requester is not already whitelisted indefinitely', function () {
-              context('requester is not already whitelisted', function () {
-                context('payer has approved AirnodeTokenPayment to transfer tokens', function () {
-                  context('payer has tokens to transfer to AirnodeTokenPayment', function () {
-                    it('makes the payment', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+              context('payer has approved AirnodeTokenPayment to transfer tokens', function () {
+                context('payer has tokens to transfer to AirnodeTokenPayment', function () {
+                  it('makes the payment', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
 
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          roles.airnode.address,
-                          endpointPrice,
-                          await api3Token.symbol(),
-                          (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
                       );
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                    it('makes the payment with custom token price (7.25 USD)', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
-
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      // sets the payment token price to 7.5 USD
-                      await airnodeTokenPayment
-                        .connect(roles.oracle)
-                        .setPaymentTokenPrice(hre.ethers.utils.parseUnits('7.25', 18).toString());
-
-                      const paymentAmount = endpointPrice
-                        .mul(hre.ethers.BigNumber.from(10).pow(await api3Token.decimals()))
-                        .div(hre.ethers.utils.parseUnits('7.25', 18))
-                        .toString();
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          roles.airnode.address,
-                          paymentAmount,
-                          await api3Token.symbol(),
-                          (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmount);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmount);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                      );
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                    it('makes the payment with custom whitelist duration (max = 365 days and min = 15 days)', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
-
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      const oneYearInSeconds = 365 * oneDayInSeconds;
-                      const fifteenDaysInSeconds = 15 * oneDayInSeconds;
-                      await airnodeTokenPayment
-                        .connect(roles.airnode)
-                        .setAirnodeToWhitelistDuration(oneYearInSeconds, fifteenDaysInSeconds);
-
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          roles.airnode.address,
-                          endpointPrice,
-                          await api3Token.symbol(),
-                          (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                      );
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                    it('makes the payment to a different airnode payment address', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
-                      const airnodePaymentDestinationBeforeBalance = await api3Token.balanceOf(
-                        airnodePaymentDestination
-                      );
-
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      // sets payment destination to a different airnode address
-                      await airnodeTokenPayment
-                        .connect(roles.airnode)
-                        .setAirnodeToPaymentDestination(airnodePaymentDestination);
-
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          airnodePaymentDestination,
-                          endpointPrice,
-                          await api3Token.symbol(),
-                          (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance).to.equal(airnodeBeforeBalance);
-                      const airnodePaymentDestinationAfterBalance = await api3Token.balanceOf(
-                        airnodePaymentDestination
-                      );
-                      expect(
-                        airnodePaymentDestinationAfterBalance.sub(airnodePaymentDestinationBeforeBalance)
-                      ).to.equal(endpointPrice);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
-                      );
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                    it('makes the payment proportionally to the whitelisting period to extend', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
-
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      // Whitelist only for 10 days
-                      const tenDaysInSeconds = 10 * oneDayInSeconds;
-                      const initialWhitelistExpiration =
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + tenDaysInSeconds;
-                      await requesterAuthorizerWithManager
-                        .connect(roles.manager)
-                        .setWhitelistExpiration(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          initialWhitelistExpiration
-                        );
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
-                      const nextBlockTimestamp = lastBlockTimestamp + 10;
-                      await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
-                      const paymentAmount = endpointPrice
-                        .mul(
-                          hre.ethers.BigNumber.from(
-                            nextBlockTimestamp + thirtyDaysInSeconds - initialWhitelistExpiration
-                          )
-                        )
-                        .div(hre.ethers.BigNumber.from(thirtyDaysInSeconds))
-                        .toString();
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          roles.airnode.address,
-                          paymentAmount,
-                          await api3Token.symbol(),
-                          nextBlockTimestamp + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmount);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmount);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(nextBlockTimestamp + thirtyDaysInSeconds);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                    it('makes the payment for whitelist duration and ignores previous expired timestamp', async function () {
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
-                      const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
-                      const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
-
-                      let whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      // Whitelist expired 10 days ago
-                      const tenDaysInSeconds = 10 * oneDayInSeconds;
-                      const initialWhitelistExpiration =
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) - tenDaysInSeconds;
-                      await requesterAuthorizerWithManager
-                        .connect(roles.manager)
-                        .setWhitelistExpiration(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          initialWhitelistExpiration
-                        );
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-
-                      const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
-                      const nextBlockTimestamp = lastBlockTimestamp + 10;
-                      await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
-
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      )
-                        .to.emit(airnodeTokenPayment, 'MadePayment')
-                        .withArgs(
-                          chainId,
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address,
-                          roles.payer.address,
-                          roles.airnode.address,
-                          endpointPrice,
-                          await api3Token.symbol(),
-                          nextBlockTimestamp + thirtyDaysInSeconds
-                        );
-
-                      const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                      expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
-                      const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                      expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
-
-                      whitelistStatus =
-                        await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-                          roles.airnode.address,
-                          endpointId,
-                          roles.requester.address
-                        );
-                      expect(whitelistStatus.expirationTimestamp).to.equal(nextBlockTimestamp + thirtyDaysInSeconds);
-                      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-                    });
-                  });
-                  context('payer does not have tokens to transfer to AirnodeTokenPayment', function () {
-                    it('reverts', async function () {
-                      const balance = await api3Token.balanceOf(roles.payer.address);
-                      await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, balance);
-                      await airnodeFeeRegistry
-                        .connect(roles.manager)
-                        .setChainAirnodeEndpointPrice(chainId, roles.airnode.address, endpointId, balance + 1);
-                      await expect(
-                        airnodeTokenPayment
-                          .connect(roles.payer)
-                          .makePayment(
-                            chainId,
-                            roles.airnode.address,
-                            endpointId,
-                            roles.requester.address,
-                            thirtyDaysInSeconds
-                          )
-                      ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
-                    });
-                  });
-                });
-                context('payer has not approved AirnodeTokenPayment to transfer tokens', function () {
-                  it('reverts', async function () {
                     await expect(
                       airnodeTokenPayment
                         .connect(roles.payer)
@@ -960,20 +538,407 @@ describe('makePayment', function () {
                           roles.requester.address,
                           thirtyDaysInSeconds
                         )
-                    ).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        endpointPrice,
+                        await api3Token.symbol(),
+                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment with custom token price (7.25 USD)', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    // sets the payment token price to 7.5 USD
+                    await airnodeTokenPayment
+                      .connect(roles.oracle)
+                      .setPaymentTokenPrice(hre.ethers.utils.parseUnits('7.25', 18).toString());
+
+                    const paymentAmount = endpointPrice
+                      .mul(hre.ethers.BigNumber.from(10).pow(await api3Token.decimals()))
+                      .div(hre.ethers.utils.parseUnits('7.25', 18))
+                      .toString();
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        paymentAmount,
+                        await api3Token.symbol(),
+                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmount);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmount);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment with custom whitelist duration (max = 365 days and min = 15 days)', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    const oneYearInSeconds = 365 * oneDayInSeconds;
+                    const fifteenDaysInSeconds = 15 * oneDayInSeconds;
+                    await airnodeTokenPayment
+                      .connect(roles.airnode)
+                      .setAirnodeToWhitelistDuration(oneYearInSeconds, fifteenDaysInSeconds);
+
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        endpointPrice,
+                        await api3Token.symbol(),
+                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment to a different airnode payment address', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+                    const airnodePaymentDestinationBeforeBalance = await api3Token.balanceOf(airnodePaymentDestination);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    // sets payment destination to a different airnode address
+                    await airnodeTokenPayment
+                      .connect(roles.airnode)
+                      .setAirnodeToPaymentDestination(airnodePaymentDestination);
+
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        airnodePaymentDestination,
+                        endpointPrice,
+                        await api3Token.symbol(),
+                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance).to.equal(airnodeBeforeBalance);
+                    const airnodePaymentDestinationAfterBalance = await api3Token.balanceOf(airnodePaymentDestination);
+                    expect(airnodePaymentDestinationAfterBalance.sub(airnodePaymentDestinationBeforeBalance)).to.equal(
+                      endpointPrice
+                    );
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment and extends current whitelisting period', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    // Whitelisted for 10 days
+                    const tenDaysInSeconds = 10 * oneDayInSeconds;
+                    const initialWhitelistExpiration =
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + tenDaysInSeconds;
+                    await requesterAuthorizerWithManager
+                      .connect(roles.manager)
+                      .setWhitelistExpiration(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        initialWhitelistExpiration
+                      );
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        endpointPrice,
+                        await api3Token.symbol(),
+                        initialWhitelistExpiration + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      initialWhitelistExpiration + thirtyDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment and ignores previous expired timestamp', async function () {
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    // Whitelist expired 10 days ago
+                    const tenDaysInSeconds = 10 * oneDayInSeconds;
+                    const initialWhitelistExpiration =
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) - tenDaysInSeconds;
+                    await requesterAuthorizerWithManager
+                      .connect(roles.manager)
+                      .setWhitelistExpiration(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        initialWhitelistExpiration
+                      );
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPayment, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        endpointPrice,
+                        await api3Token.symbol(),
+                        nextBlockTimestamp + thirtyDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(nextBlockTimestamp + thirtyDaysInSeconds);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                });
+                context('payer does not have tokens to transfer to AirnodeTokenPayment', function () {
+                  it('reverts', async function () {
+                    const balance = await api3Token.balanceOf(roles.payer.address);
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, balance);
+                    await airnodeFeeRegistry
+                      .connect(roles.manager)
+                      .setChainAirnodeEndpointPrice(chainId, roles.airnode.address, endpointId, balance + 1);
+                    await expect(
+                      airnodeTokenPayment
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          thirtyDaysInSeconds
+                        )
+                    ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
                   });
                 });
               });
-              context('requester is already whitelisted', function () {
+              context('payer has not approved AirnodeTokenPayment to transfer tokens', function () {
                 it('reverts', async function () {
-                  await requesterAuthorizerWithManager
-                    .connect(roles.manager)
-                    .extendWhitelistExpiration(
-                      roles.airnode.address,
-                      endpointId,
-                      roles.requester.address,
-                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds + 1000
-                    );
                   await expect(
                     airnodeTokenPayment
                       .connect(roles.payer)
@@ -984,7 +949,7 @@ describe('makePayment', function () {
                         roles.requester.address,
                         thirtyDaysInSeconds
                       )
-                  ).to.be.revertedWith('Already whitelisted');
+                  ).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
                 });
               });
             });
