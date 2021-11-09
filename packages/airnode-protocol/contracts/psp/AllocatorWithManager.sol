@@ -68,8 +68,9 @@ contract AllocatorWithAirnode is AccessControlClient, RoleDeriver {
 
     function vacateSlot(address airnode, uint256 slotIndex) external {
         require(
-            airnodeToSlotIndexToSlot[airnode][slotIndex].setter == msg.sender,
-            "Sender did not set the slot"
+            airnodeToSlotIndexToSlot[airnode][slotIndex].setter == msg.sender ||
+                !slotIsOccuppied(airnode, slotIndex),
+            "Slot not vacatable"
         );
         delete airnodeToSlotIndexToSlot[airnode][slotIndex];
     }
