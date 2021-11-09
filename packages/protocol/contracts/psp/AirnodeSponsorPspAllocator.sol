@@ -74,31 +74,20 @@ contract AirnodeSponsorPspAllocator {
 
     // At the start of each invocation, the node calls this where `limit` is the number of
     // slots specified for this allocator in the config file
-    function getActiveSubscriptions(address airnode, uint256 limit)
+    // We probably want to implement this with MultiCall instead
+    function getActiveSubscriptions(address airnode, uint256 offset, uint256 limit)
         external
         view
-        returns (bytes32[] memory subscriptionIds,
-        address[] memory sponsors)
+        returns (bytes32[] memory subscriptionIds, address[] memory sponsors)
     {
-        // Did a similar thing in the DAO ConvenienceUtils.sol
-        uint256 count = 0;
         mapping(uint256 => Slot)
             storage slotIndexToSlot = airnodeToSlotIndexToSlot[airnode];
-        for (uint256 ind = 0; ind < limit; ind++) {
-            if (slotIndexToSlot[ind].subscriptionId != bytes32(0)) {
-                count++;
-            }
-        }
-        subscriptionIds = new bytes32[](count);
-        sponsors = new address[](count);
-        uint256 subscriptionIndex = 0;
-        for (uint256 ind = 0; ind < limit; ind++) {
-          bytes32 subscriptionId = slotIndexToSlot[ind].subscriptionId;
-            if (subscriptionId != bytes32(0)) {
-                subscriptionIds[subscriptionIndex] = subscriptionId;
-                sponsors[subscriptionIndex] = slotIndexToSlot[ind].sponsor;
-                subscriptionIndex++;
-            }
+        subscriptionIds = new bytes32[](limit);
+        sponsors = new address[](limit);
+        for (uint256 ind = offset; ind < offset + limit; ind++) {
+            bytes32 subscriptionId = slotIndexToSlot[ind].subscriptionId;
+            subscriptionIds[ind - offset] = subscriptionId;
+            sponsors[ind - offset] = slotIndexToSlot[ind].sponsor;
         }
     }
 }
