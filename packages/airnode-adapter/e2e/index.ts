@@ -3,7 +3,7 @@ import { ethers } from 'hardhat';
 import { extractAndEncodeResponse } from '../src';
 import type { Contract } from 'ethers';
 
-// Chai is able to assert that "expect(BigNumber).to.equal(string)"" but fails to assert
+// Chai is able to assert that "expect(BigNumber).to.equal(string)" but fails to assert
 // the values if wrapped in array "expect(BigNumber[]).to.equal(string[])"
 function assertArrayEquals<T = unknown>(actual: T, expected: T) {
   if (!Array.isArray(actual)) {
@@ -100,19 +100,11 @@ describe('Extraction, encoding and simple on chain decoding', () => {
         await testDecoder[methodName](
           extractAndEncodeResponse(apiResponse, {
             _type: type,
-            _path: 'decimal',
+            _path: 'big.float',
+            _times: '1000000',
           }).encodedValue
         )
-      ).to.equal(apiResponse.decimal);
-
-      expect(
-        await testDecoder[methodName](
-          extractAndEncodeResponse(apiResponse, {
-            _type: type,
-            _path: 'decimal',
-          }).encodedValue
-        )
-      ).to.equal(apiResponse.decimal);
+      ).to.equal('112233445566778899');
 
       expect(
         await testDecoder[methodName](
@@ -124,6 +116,14 @@ describe('Extraction, encoding and simple on chain decoding', () => {
         )
       ).to.equal(ethers.BigNumber.from('12345678900'));
     });
+  });
+
+  it('floors the number after multiplying it', async () => {
+    expect(
+      await testDecoder.decodeSignedInt256(
+        extractAndEncodeResponse(apiResponse, { _type: 'int256', _times: '100', _path: 'float' }).encodedValue
+      )
+    ).to.equal(1234567);
   });
 
   it('decodes bool encoded by the adapter package', async () => {
@@ -191,6 +191,16 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       );
     });
 
+    it('1 dimension fixed length with _times parameter', async () => {
+      assertArrayEquals(
+        await testDecoder.decode1DFixedArray(
+          extractAndEncodeResponse(apiResponse, { _type: 'int256[2]', _path: 'array.int256', _times: '1000' })
+            .encodedValue
+        ),
+        [123000, 456000]
+      );
+    });
+
     it('mixed fixes/unlimited sized arrays', async () => {
       // Solidity arrays are specified "backwards". See https://ethereum.stackexchange.com/a/129
       const encodedBytes = extractAndEncodeResponse(apiResponse, {
@@ -206,7 +216,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
   describe('Failures', () => {
     it('throws on invalid type', () => {
       // 'true' is not a valid _type, 'bool' should be used
-      expect(() => extractAndEncodeResponse(apiResponse.boolTrue, { _type: 'true' }).encodedValue).to.Throw(
+      expect(() => extractAndEncodeResponse(apiResponse, { _type: 'true', _path: 'boolTrue' }).encodedValue).to.Throw(
         'Invalid type: true'
       );
     });
@@ -223,7 +233,14 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       }
     });
 
-    // TODO: _times not big enough
-    // TODO: strange.key test
+    it('throws on invalid path', () => {
+      const dynamicKey = 'strange.key';
+
+      expect(
+        () =>
+          extractAndEncodeResponse(apiResponse, { _type: 'int256', _times: '100', _path: `json.${dynamicKey}` })
+            .encodedValue
+      ).to.Throw("Unable to find value from path: 'json.strange.key'");
+    });
   });
 });
