@@ -8,7 +8,7 @@ module.exports = {
         mocha: true,
         node: true,
       },
-      files: ['test/**/*.ts'],
+      files: ['e2e/**/*.ts'],
       rules: {
         'jest/consistent-test-it': 'off',
         'jest/expect-expect': 'off',
