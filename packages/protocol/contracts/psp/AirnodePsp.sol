@@ -22,6 +22,12 @@ contract AirnodePsp {
     // reuse of templates and Airnode ABI is not very efficient in encoding parameters, which
     // is good enough reason to allow PSP to reuse more generic templates with additional
     // subscription-specific parameters.
+    // AirnodeRrp implicitly allows the requester contract to fetch values from chain storage
+    // and use them as request parameters. Here, `parameters` is hardcoded at subscription time
+    // and remains static, which results in AirnodePsp being more limited than AirnodeRrp. As
+    // a workaround, we can implement reserved parameters `_parameterAddress` and `_parameterFunctionId`
+    // which tells the node call this function to get the dynamic parameters in Airnode ABI-encoded
+    // format.
     struct Subscription {
         bytes32 templateId;
         address conditionAddress;
@@ -87,7 +93,7 @@ contract AirnodePsp {
         (address airnode, , ) = airnodeRrp.templates(subscription.templateId);
         // It is a concern for someone to have the API provider sign a response, to be used much
         // later (for example, would be very problematic for asset price data feeds). Therefore,
-        // the timestamp is expect to be appended to `data`
+        // the timestamp is expected to be appended to `data`
         require(
             (
                 keccak256(

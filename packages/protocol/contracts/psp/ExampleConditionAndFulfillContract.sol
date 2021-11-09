@@ -41,7 +41,11 @@ contract ExampleConditionAndFulfillContract {
         // the condition no longer being met is not necessarily catastrophic (for example, in the 
         // data feed case, the signed data is still sound unless the first-party oracle is malicious,
         // it's just that the update is redundant).
+        // Note that this check would be redundant if `_parameterAddress` & `_parameterFunctionId` are
+        // used because the requester would have to trust that the API's blockchain provider is not
+        // lying to them.
 
+        // The node appends the timestamp to the response automatically
         (uint256 response, uint256 timestamp) = abi.decode(data, (uint256, uint256));
 
         // Disregard old responses. Note that this is use-case specific, i.e., you may want to
