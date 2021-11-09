@@ -4,7 +4,7 @@ import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
-import { isNumericType, parseArrayType, ParsedArrayType } from './type-parser';
+import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
 import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {
@@ -86,22 +86,11 @@ function castHexString(value: any): string {
   return ethers.utils.hexlify(value);
 }
 
-export function castArrayRecursively(value: unknown, type: ParsedArrayType): ValueType {
-  if (type.dimensions === 0) return castValue(value, type.baseType);
-
-  if (!Array.isArray(value)) {
-    throw new Error(`Expected ${value} to be an array`);
-  }
-
-  const typeWithReducedDimension: ParsedArrayType = { ...type, dimensions: type.dimensions - 1 };
-  return value.map((element) => castArrayRecursively(element, typeWithReducedDimension));
-}
-
 export function castValue(value: unknown, type: ResponseType): ValueType {
   if (isNumericType(type)) return castNumber(value, type);
 
   const parsedArrayType = parseArrayType(type);
-  if (parsedArrayType) return castArrayRecursively(value, parsedArrayType);
+  if (parsedArrayType) return applyToArrayRecursively(value, parsedArrayType, castNumber) as ValueType;
 
   switch (type) {
     case 'bool':

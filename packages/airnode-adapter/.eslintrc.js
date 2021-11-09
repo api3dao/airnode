@@ -35,6 +35,7 @@ module.exports = {
         'jest/no-standalone-expect': 'off',
         'jest/no-test-prefixes': 'off',
         'jest/no-test-return-statement': 'off',
+        'jest/no-try-expect': 'off',
         'jest/prefer-called-with': 'off',
         'jest/prefer-expect-assertions': 'off',
         'jest/prefer-hooks-on-top': 'off',

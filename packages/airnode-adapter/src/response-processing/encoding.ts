@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { parseArrayType } from './type-parser';
+import { parseArrayType } from './array-type';
 import { ResponseType, ValueType } from '../types';
 
 function convertUnsignedInteger(value: string) {

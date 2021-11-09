@@ -1,9 +1,8 @@
-import { BigNumber } from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
 import * as casting from './casting';
 import * as encoding from './encoding';
-import { isNumericType } from './type-parser';
-import { ReservedParameters } from '../types';
+import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
+import { ReservedParameters, ValueType } from '../types';
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // Some APIs return a simple value not in an object or array, like
@@ -43,9 +42,16 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
 
-  if (isNumericType(parameters._type) && value instanceof BigNumber) {
-    const multipledValue = casting.multiplyValue(value, parameters._times);
-    const encodedValue = encoding.encodeValue(multipledValue.toString(), parameters._type);
+  const parsedArrayType = parseArrayType(parameters._type);
+  const type = parsedArrayType?.baseType ?? parameters._type;
+  if (isNumericType(type)) {
+    const multipledValue = parsedArrayType
+      ? (applyToArrayRecursively(value, parsedArrayType, (num: number) =>
+          casting.multiplyValue(num.toString(), parameters._times)
+        ) as ValueType)
+      : casting.multiplyValue(value.toString(), parameters._times);
+
+    const encodedValue = encoding.encodeValue(multipledValue, parameters._type);
     return { value: multipledValue, encodedValue };
   }
 

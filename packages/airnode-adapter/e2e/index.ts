@@ -184,7 +184,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
     it('1 dimension fixed length', async () => {
       assertArrayEquals(
-        await testDecoder.decode1DArray(
+        await testDecoder.decode1DFixedArray(
           extractAndEncodeResponse(apiResponse, { _type: 'int256[2]', _path: 'array.int256' }).encodedValue
         ),
         apiResponse.array.int256
@@ -202,16 +202,28 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       assertArrayEquals(decoded, apiResponse.array.nested);
     });
   });
-});
 
-describe('Failures', () => {
-  it('throws on invalid type', () => {
-    // 'true' is not a valid _type, 'bool' should be used
-    expect(() => extractAndEncodeResponse(apiResponse.boolTrue, { _type: 'true' }).encodedValue).to.Throw(
-      'Invalid type: true'
-    );
+  describe('Failures', () => {
+    it('throws on invalid type', () => {
+      // 'true' is not a valid _type, 'bool' should be used
+      expect(() => extractAndEncodeResponse(apiResponse.boolTrue, { _type: 'true' }).encodedValue).to.Throw(
+        'Invalid type: true'
+      );
+    });
+
+    it('throws when parsing fixed array as non fixed one', async () => {
+      // eslint-disable-next-line functional/no-try-statement
+      try {
+        await testDecoder.decode1DArray(
+          extractAndEncodeResponse(apiResponse, { _type: 'int256[2]', _path: 'array.int256' }).encodedValue
+        );
+        expect.fail();
+      } catch (e: any) {
+        expect(e.message).to.contain('Transaction reverted');
+      }
+    });
+
+    // TODO: _times not big enough
+    // TODO: strange.key test
   });
-
-  // TODO: _times not big enough
-  // TODO: strange.key test
 });

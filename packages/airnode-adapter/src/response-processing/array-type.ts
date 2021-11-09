@@ -37,3 +37,18 @@ export function parseArrayType(type: ResponseType): ParsedArrayType | null {
 
   return { baseType, dimensions };
 }
+
+export function applyToArrayRecursively<T>(
+  value: unknown,
+  type: ParsedArrayType,
+  predicate: (value: any, type: ResponseType) => T
+): unknown {
+  if (type.dimensions === 0) return predicate(value, type.baseType);
+
+  if (!Array.isArray(value)) {
+    throw new Error(`Expected ${value} to be an array`);
+  }
+
+  const typeWithReducedDimension: ParsedArrayType = { ...type, dimensions: type.dimensions - 1 };
+  return value.map((element) => applyToArrayRecursively(element, typeWithReducedDimension, predicate));
+}
