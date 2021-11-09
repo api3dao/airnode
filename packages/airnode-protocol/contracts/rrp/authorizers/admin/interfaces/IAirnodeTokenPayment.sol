@@ -7,9 +7,10 @@ interface IAirnodeTokenPayment {
         address indexed paymentTokenPriceSetter
     );
 
-    event SetAirnodeToMinimumWhitelistDuration(
+    event SetAirnodeToWhitelistDuration(
+        uint256 maximumWhitelistDuration,
         uint256 minimumWhitelistDuration,
-        address indexed airnodeToMinimumWhitelistDurationSetter
+        address indexed airnodeToWhitelistDurationSetter
     );
 
     event SetAirnodeToPaymentDestination(
@@ -45,19 +46,20 @@ interface IAirnodeTokenPayment {
 
     function paymentTokenPrice() external view returns (uint256);
 
-    function airnodeToMinimumWhitelistDuration(address airnode)
+    function airnodeToWhitelistDuration(address airnode)
         external
         view
-        returns (uint64);
+        returns (uint64, uint64);
 
     function airnodeToPaymentDestination(address airnode)
         external
         view
-        returns (address paymentDestination);
+        returns (address);
 
     function setPaymentTokenPrice(uint256 tokenPrice) external;
 
-    function setAirnodeToMinimumWhitelistDuration(
+    function setAirnodeToWhitelistDuration(
+        uint64 maximumWhitelistDuration,
         uint64 minimumWhitelistDuration
     ) external;
 
