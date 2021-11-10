@@ -346,6 +346,7 @@ contract BeaconServer is
                 : beacon.value - decodedData
         );
         uint256 absoluteBeaconValue = uint256(int256(beacon.value));
+        absoluteBeaconValue = absoluteBeaconValue == 0 ? 1 : absoluteBeaconValue;
         return
             (10**18 * absoluteDelta) / absoluteBeaconValue >
             subscriptionIdToUpdatePercentageThreshold[subscriptionId];
