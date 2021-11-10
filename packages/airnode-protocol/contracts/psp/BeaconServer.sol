@@ -33,6 +33,9 @@ contract BeaconServer is
 
     address public immutable airnodePsp;
 
+    mapping(bytes32 => uint256)
+        public subscriptionIdToUpdatePercentageThreshold;
+
     /// @notice Returns if a sponsor has permitted an account to request
     /// updates at this contract
     mapping(address => mapping(address => bool))
@@ -307,6 +310,47 @@ contract BeaconServer is
             int224(decodedData),
             uint32(timestamp)
         );*/
+    }
+
+    function setUpdatePercentageThreshold(
+        bytes32 subscriptionId,
+        uint256 updatePercentageThreshold
+    ) external {
+        (, address sponsor, , , , , ) = IAirnodePsp(airnodePsp).subscriptions(
+            subscriptionId
+        );
+        require(msg.sender == sponsor, "Sender not sponsor");
+        subscriptionIdToUpdatePercentageThreshold[
+            subscriptionId
+        ] = updatePercentageThreshold;
+    }
+
+    function condition(bytes32 subscriptionId, bytes calldata data)
+        external
+        view
+        returns (bool)
+    {
+        (bytes32 templateId, , , , , , bytes memory parameters) = IAirnodePsp(
+            airnodePsp
+        ).subscriptions(subscriptionId);
+        require(parameters.length == 0, "Subscription has parameters");
+
+        (int256 decodedData, ) = abi.decode(data, (int256, uint256));
+        require(
+            decodedData >= type(int224).min && decodedData <= type(int224).max,
+            "Value typecasting error"
+        );
+        Beacon storage beacon = templateIdToBeacon[templateId];
+
+        uint256 absoluteDelta = uint256(
+            decodedData > beacon.value
+                ? decodedData - beacon.value
+                : beacon.value - decodedData
+        );
+        uint256 absoluteBeaconValue = uint256(int256(beacon.value));
+        return
+            (10**18 * absoluteDelta) / absoluteBeaconValue >
+            subscriptionIdToUpdatePercentageThreshold[subscriptionId];
     }
 
     /// @notice Called to read the beacon

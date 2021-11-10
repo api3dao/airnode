@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 contract ExampleConditionAndFulfillContract {
     uint256 public constant FOO = 10;
 
-    function condition(bytes calldata data)
+    function condition(bytes32 subscriptionId, bytes calldata data)
         public
         view
         returns (bool checkResult)
@@ -14,7 +14,7 @@ contract ExampleConditionAndFulfillContract {
     }
 
     function fulfill(bytes32 subscriptionId, bytes calldata data) external {
-        require(condition(data), "Condition not met");
+        require(condition(subscriptionId, data), "Condition not met");
 
         // Check if you know about the subscription first
         // require(subscriptionId == ...)
