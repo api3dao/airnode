@@ -7,6 +7,7 @@ interface IAirnodePsp {
         view
         returns (
             bytes32 templateId,
+            address sponsor,
             address conditionAddress,
             bytes4 conditionFunctionId,
             address fulfillAddress,

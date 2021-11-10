@@ -9,7 +9,6 @@ contract AllocatorWithAirnode is AccessControlClient, RoleDeriver {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
-        address sponsor;
         uint64 expirationTimestamp;
     }
 
@@ -40,7 +39,6 @@ contract AllocatorWithAirnode is AccessControlClient, RoleDeriver {
         address airnode,
         uint256 slotIndex,
         bytes32 subscriptionId,
-        address sponsor,
         uint64 expirationTimestamp
     ) external {
         require(
@@ -49,7 +47,6 @@ contract AllocatorWithAirnode is AccessControlClient, RoleDeriver {
         );
         require(airnode != address(0), "Zero Airnode address");
         require(subscriptionId != bytes32(0), "Zero subscription ID");
-        require(sponsor != address(0), "Zero sponsor address");
         require(
             expirationTimestamp > block.timestamp,
             "Expiration is in the past"
@@ -58,7 +55,6 @@ contract AllocatorWithAirnode is AccessControlClient, RoleDeriver {
         airnodeToSlotIndexToSlot[airnode][slotIndex] = Slot({
             subscriptionId: subscriptionId,
             setter: msg.sender,
-            sponsor: sponsor,
             expirationTimestamp: expirationTimestamp
         });
     }

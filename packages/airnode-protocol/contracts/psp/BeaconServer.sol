@@ -278,7 +278,7 @@ contract BeaconServer is
         require(msg.sender == airnodePsp, "Sender not AirnodePsp");
         // require(condition(data), "Condition not met");
 
-        (bytes32 templateId, , , , , bytes memory parameters) = IAirnodePsp(
+        (bytes32 templateId, , , , , , bytes memory parameters) = IAirnodePsp(
             airnodePsp
         ).subscriptions(subscriptionId);
         require(parameters.length == 0, "Subscription has parameters");

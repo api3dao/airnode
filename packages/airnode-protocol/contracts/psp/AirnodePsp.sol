@@ -9,6 +9,7 @@ contract AirnodePsp {
 
     struct Subscription {
         bytes32 templateId;
+        address sponsor;
         address conditionAddress;
         bytes4 conditionFunctionId;
         address fulfillAddress;
@@ -26,6 +27,7 @@ contract AirnodePsp {
 
     function createSubscription(
         bytes32 templateId,
+        address sponsor,
         address conditionAddress,
         bytes4 conditionFunctionId,
         address fulfillAddress,
@@ -35,6 +37,7 @@ contract AirnodePsp {
         subscriptionId = keccak256(
             abi.encode(
                 templateId,
+                sponsor,
                 conditionAddress,
                 conditionFunctionId,
                 fulfillAddress,
@@ -44,6 +47,7 @@ contract AirnodePsp {
         );
         subscriptions[subscriptionId] = Subscription({
             templateId: templateId,
+            sponsor: sponsor,
             conditionAddress: conditionAddress,
             conditionFunctionId: conditionFunctionId,
             fulfillAddress: fulfillAddress,
