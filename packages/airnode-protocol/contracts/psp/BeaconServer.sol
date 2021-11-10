@@ -279,8 +279,6 @@ contract BeaconServer is
 
     function fulfillPsp(bytes32 subscriptionId, bytes calldata data) external {
         require(msg.sender == airnodePsp, "Sender not AirnodePsp");
-        // require(condition(data), "Condition not met");
-
         (bytes32 templateId, , , , , , bytes memory parameters) = IAirnodePsp(
             airnodePsp
         ).subscriptions(subscriptionId);
