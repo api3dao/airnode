@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { Config } from '@api3/airnode-node';
 import { validateReceipt } from './validation';
-import { Receipt } from '../types';
+import { CloudProvider, Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
@@ -33,8 +33,7 @@ export function writeReceiptFile(
     },
     deployment: {
       airnodeAddressShort,
-      cloudProvider: config.nodeSettings.cloudProvider,
-      region: config.nodeSettings.region,
+      cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
       stage: config.nodeSettings.stage,
       nodeVersion: config.nodeSettings.nodeVersion,
     },

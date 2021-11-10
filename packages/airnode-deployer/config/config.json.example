@@ -15,7 +15,6 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "aws",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": true,
@@ -29,8 +28,11 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.2.2",
-    "region": "us-east-1",
+    "nodeVersion": "0.3.0",
+    "cloudProvider": {
+      "name": "aws",
+      "region": "us-east-1"
+    },
     "stage": "dev"
   },
   "triggers": {

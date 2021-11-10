@@ -1,5 +1,10 @@
 import AWS from 'aws-sdk';
+import { CloudProvider } from '../types';
 import * as logger from '../utils/logger';
+
+export function awsDynamodbTableFromBucket(bucket: string) {
+  return `${bucket}-lock`;
+}
 
 async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.ObjectIdentifierList) {
   logger.debug(`Deleting objects ${JSON.stringify(objects)} from S3 bucket ${bucket}`);
@@ -45,8 +50,10 @@ async function deleteDynamodbTable(dynamoDb: AWS.DynamoDB, dynamodbTable: string
   await dynamoDb.deleteTable({ TableName: dynamodbTable }).promise();
 }
 
-export async function removeDeployment(region: string, bucket: string, dynamodbTable: string) {
+export async function removeState(bucket: string, cloudProvider: CloudProvider) {
   logger.debug('Removing Terraform state from AWS');
+  const { region } = cloudProvider;
+  const dynamodbTable = awsDynamodbTableFromBucket(bucket);
   AWS.config.update({ region });
   const s3 = new AWS.S3();
   const dynamoDb = new AWS.DynamoDB();
@@ -81,8 +88,10 @@ async function dynamodbTableExists(dynamoDb: AWS.DynamoDB, dynamodbTable: string
   }
 }
 
-export async function stateExists(region: string, bucket: string, dynamodbTable: string) {
+export async function stateExists(bucket: string, cloudProvider: CloudProvider) {
   logger.debug('Checking Terraform state existence in AWS');
+  const { region } = cloudProvider;
+  const dynamodbTable = awsDynamodbTableFromBucket(bucket);
   AWS.config.update({ region });
   const s3 = new AWS.S3();
   const dynamoDb = new AWS.DynamoDB();

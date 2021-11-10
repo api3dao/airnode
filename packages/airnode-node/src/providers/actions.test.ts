@@ -94,7 +94,9 @@ describe('initialize', () => {
             logLevel: 'DEBUG',
             minConfirmations: 0,
             name: 'Pocket Ethereum Mainnet',
-            region: 'us-east-1',
+            cloudProvider: {
+              name: 'local',
+            },
             stage: 'test',
             url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
             xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
@@ -128,7 +130,9 @@ describe('initialize', () => {
             logLevel: 'DEBUG',
             minConfirmations: 0,
             name: 'Infura Ropsten',
-            region: 'us-east-1',
+            cloudProvider: {
+              name: 'local',
+            },
             stage: 'test',
             url: 'https://ropsten.infura.io/v3/<key>',
             xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',

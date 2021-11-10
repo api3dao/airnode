@@ -138,8 +138,8 @@ export interface CoordinatorSettings {
   readonly airnodeAddressShort: string;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
-  readonly region: string;
   readonly stage: string;
+  readonly cloudProvider: CloudProvider;
 }
 
 export interface ProviderStates {
@@ -207,9 +207,8 @@ export interface AggregatedApiCall {
 // Workers
 // ===========================================
 export interface WorkerOptions {
-  readonly cloudProvider: NodeCloudProvider;
+  readonly cloudProvider: CloudProvider;
   readonly airnodeAddressShort: string;
-  readonly region: string;
   readonly stage: string;
 }
 
@@ -358,8 +357,6 @@ export interface ChainConfig {
   readonly providers: Record<string, Provider>;
 }
 
-export type NodeCloudProvider = 'local' | 'aws';
-
 export interface HttpGateway {
   readonly enabled: boolean;
   readonly apiKey?: string;
@@ -372,17 +369,24 @@ export interface Heartbeat {
   readonly url?: string;
 }
 
+export type CloudProviderName = 'local' | 'aws' | 'gcp';
+
+export interface CloudProvider {
+  readonly name: CloudProviderName;
+  readonly region?: string;
+  readonly projectId?: string;
+}
+
 export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
   readonly airnodeAddressShort?: string;
-  readonly cloudProvider: NodeCloudProvider;
+  readonly stage: string;
+  readonly cloudProvider: CloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly region: string;
-  readonly stage: string;
 }
 
 export interface ApiCredentials extends AdapterApiCredentials {

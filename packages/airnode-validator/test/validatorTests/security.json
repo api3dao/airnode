@@ -38,9 +38,11 @@
   },
   "chains": [],
   "nodeSettings": {
-    "nodeVersion": "0.2.0",
-    "cloudProvider": "aws",
-    "region": "us-east-1",
+    "nodeVersion": "0.3.0",
+    "cloudProvider": {
+      "name": "aws",
+      "region": "us-east-1"
+    },
     "stage": "testnet",
     "logFormat": "json",
     "logLevel": "INFO",

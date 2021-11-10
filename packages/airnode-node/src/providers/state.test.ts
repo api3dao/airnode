@@ -40,7 +40,9 @@ describe('create', () => {
         logLevel: 'DEBUG',
         minConfirmations: 0,
         name: 'Ganache test',
-        region: 'us-east-1',
+        cloudProvider: {
+          name: 'local',
+        },
         stage: 'test',
         url: 'http://localhost:4111',
         xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
@@ -98,7 +100,9 @@ describe('create', () => {
         logLevel: 'DEBUG',
         minConfirmations: 3,
         name: 'Ganache test',
-        region: 'us-east-1',
+        cloudProvider: {
+          name: 'local',
+        },
         stage: 'test',
         url: 'http://localhost:4111',
         xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',

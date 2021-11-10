@@ -34,13 +34,20 @@
       ]
     },
     "cloudProvider": {
-      "__regexp": "^(aws|local)$",
-      "__catch": {
-        "__message": "__fullPath: Available cloud providers are only aws or local"
+      "name": {
+        "__regexp": "^(aws|gcp)$",
+        "__catch": {
+          "__message": "__fullPath: Available cloud providers are only aws or gcp"
+        }
+      },
+      "region": {
+        "__type": "string"
+      },
+      "__optional": {
+        "projectId": {
+          "__type": "string"
+        }
       }
-    },
-    "region": {
-      "__type": "string"
     },
     "stage": {
       "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
@@ -49,7 +56,7 @@
       }
     },
     "nodeVersion": {
-      "__regexp": "^0\\.2\\.[0-9]+$",
+      "__regexp": "^0\\.3\\.[0-9]+$",
       "__catch": {
         "__level": "warning"
       }

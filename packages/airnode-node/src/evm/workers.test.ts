@@ -28,7 +28,7 @@ workers.forEach((workerType) => {
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
       );
-      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([]);
       expect(res).toEqual(state);
@@ -45,7 +45,7 @@ workers.forEach((workerType) => {
     it('returns an error if the worker rejects', async () => {
       const state = fixtures.buildEVMProviderState();
       invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
-      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([
         {
@@ -71,7 +71,7 @@ workers.forEach((workerType) => {
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
       );
-      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([errorLog]);
       expect(res).toEqual(null);
@@ -90,7 +90,7 @@ workers.forEach((workerType) => {
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
       );
-      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+      const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([{ level: 'ERROR', message: providerErrorForWorker[workerType] }]);
       expect(res).toEqual(null);

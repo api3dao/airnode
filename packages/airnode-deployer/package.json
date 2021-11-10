@@ -26,6 +26,7 @@
     "@api3/airnode-ois": "^0.2.2",
     "@api3/airnode-protocol": "^0.2.2",
     "@api3/airnode-validator": "^0.2.2",
+    "@google-cloud/storage": "^5.15.5",
     "aws-sdk": "^2.992.0",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.5",

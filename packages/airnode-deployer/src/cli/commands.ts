@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { config as nodeConfig } from '@api3/airnode-node';
+import { CloudProvider } from '../types';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
@@ -48,8 +49,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
     output = await deployAirnode(
       airnodeAddressShort,
       config.nodeSettings.stage,
-      config.nodeSettings.cloudProvider,
-      config.nodeSettings.region,
+      config.nodeSettings.cloudProvider as CloudProvider,
       httpGatewayApiKey,
       configFile,
       tmpSecretsFile
@@ -65,15 +65,15 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
   writeReceiptFile(receiptFile, mnemonic, config, output);
 }
 
-export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: string, region: string) {
-  await removeAirnode(airnodeAddressShort, stage, cloudProvider, region);
+export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
+  await removeAirnode(airnodeAddressShort, stage, cloudProvider);
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
-  const { airnodeAddressShort, cloudProvider, region, stage } = receipt.deployment;
+  const { airnodeAddressShort, cloudProvider, stage } = receipt.deployment;
   try {
-    await remove(airnodeAddressShort, stage, cloudProvider, region);
+    await remove(airnodeAddressShort, stage, cloudProvider);
   } catch (err) {
     logger.warn(`Failed removing configuration, skipping`);
     logger.warn((err as Error).toString());

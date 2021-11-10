@@ -8,7 +8,7 @@ import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
@@ -16,11 +16,13 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual(state);
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
-      cloudProvider: 'aws',
+      cloudProvider: {
+        name: 'aws',
+        region: 'us-east-1',
+      },
       functionName: 'initializeProvider',
       payload: { state },
       airnodeAddressShort: '19255a4',
-      region: 'us-east-1',
       stage: 'test',
     });
   });
@@ -28,7 +30,7 @@ describe('spawnNewProvider', () => {
 
 describe('spawnProviderRequestProcessor', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
@@ -36,11 +38,13 @@ describe('spawnProviderRequestProcessor', () => {
     expect(res).toEqual(state);
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
-      cloudProvider: 'aws',
+      cloudProvider: {
+        name: 'aws',
+        region: 'us-east-1',
+      },
       functionName: 'processProviderRequests',
       payload: { state },
       airnodeAddressShort: '19255a4',
-      region: 'us-east-1',
       stage: 'test',
     });
   });

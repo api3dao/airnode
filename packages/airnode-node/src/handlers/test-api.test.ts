@@ -67,9 +67,10 @@ describe('testApi', () => {
       },
     };
     const workerOptions = {
-      cloudProvider: 'local',
+      cloudProvider: {
+        name: 'local',
+      },
       airnodeAddressShort: expect.any(String),
-      region: 'us-east-1',
       stage: 'test',
     };
 

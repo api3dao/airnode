@@ -15,7 +15,7 @@ import * as workers from './index';
 describe('spawn', () => {
   it('spawns for aws', async () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
     const parameters: WorkerParameters = {
       ...workerOpts,
       functionName: 'callApi' as WorkerFunctionName,
@@ -29,7 +29,7 @@ describe('spawn', () => {
 
   it('spawns for local', async () => {
     spawnLocalMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'local' } });
     const parameters: WorkerParameters = {
       ...workerOpts,
       functionName: 'callApi' as WorkerFunctionName,
