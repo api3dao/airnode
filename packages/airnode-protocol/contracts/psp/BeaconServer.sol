@@ -242,17 +242,20 @@ contract BeaconServer is
         bytes32 templateId = requestIdToTemplateId[requestId];
         require(templateId != bytes32(0), "No such request made");
         delete requestIdToTemplateId[requestId];
-        (int256 decodedData, uint256 timestamp) = abi.decode(data, (int256, uint256));
+        (int256 decodedData, uint256 timestamp) = abi.decode(
+            data,
+            (int256, uint256)
+        );
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
         );
-        require(
-            timestamp <= type(uint32).max,
-            "Timestamp typecasting error"
-        );
+        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
         require(block.timestamp - 1 hours < timestamp, "Fulfillment stale");
-        require(templateIdToBeacon[templateId].timestamp < timestamp, "Fulfillment older than beacon");
+        require(
+            templateIdToBeacon[templateId].timestamp < timestamp,
+            "Fulfillment older than beacon"
+        );
         templateIdToBeacon[templateId] = Beacon({
             value: int224(decodedData),
             timestamp: uint32(timestamp)
