@@ -51,9 +51,9 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
       : casting.multiplyValue(value.toString(), parameters._times);
 
     const encodedValue = encoding.encodeValue(multipledValue, parameters._type);
-    return { value: multipledValue, encodedValue };
+    return { rawValue, value: multipledValue, encodedValue };
   }
 
   const encodedValue = encoding.encodeValue(value, parameters._type);
-  return { value, encodedValue };
+  return { rawValue, value, encodedValue };
 }

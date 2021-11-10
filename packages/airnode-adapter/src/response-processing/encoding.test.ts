@@ -46,28 +46,6 @@ it('Encodes bool values', () => {
 });
 
 describe('Encodes bytes32 values', () => {
-  it('truncates strings 31 chracters or longer', () => {
-    const longString = 'a string with more than 31 characters';
-    const exactString = 'x'.repeat(31);
-
-    // Double check length
-    expect(exactString.length).toEqual(31);
-
-    const longEncoded = encodeValue(longString, 'bytes32');
-    const exactEncoded = encodeValue(exactString, 'bytes32');
-
-    expect(longEncoded).toEqual('0x6120737472696e672077697468206d6f7265207468616e203331206368617200');
-    expect(exactEncoded).toEqual('0x7878787878787878787878787878787878787878787878787878787878787800');
-
-    const parsedLong = ethers.utils.parseBytes32String(longEncoded);
-    expect(parsedLong.length).toEqual(31);
-    expect(parsedLong).toEqual('a string with more than 31 char');
-
-    const parsedExact = ethers.utils.parseBytes32String(exactEncoded);
-    expect(parsedExact.length).toEqual(31);
-    expect(parsedExact).toEqual('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-  });
-
   it('encodes short strings', () => {
     expect(encodeValue('randomstring', 'bytes32')).toEqual(
       '0x72616e646f6d737472696e670000000000000000000000000000000000000000'
@@ -161,8 +139,12 @@ describe('Encoding array values', () => {
   });
 
   it('throws on invalid encoding type', () => {
-    expect(() => encodeValue('', 'unit256')).toThrow(`Unknown type: unit256`);
-    expect(() => encodeValue('', 'int256[[]]')).toThrow(`Unknown type: int256[[]]`);
-    expect(() => encodeValue('', '[int256]')).toThrow(`Unknown type: [int256]`);
+    expect(() => encodeValue('', 'unit256')).toThrow(`invalid type (argument=\"type\", value=\"unit256\"`);
+    expect(() => encodeValue('', 'int256[[]]')).toThrow(
+      `unexpected character at position 7 (argument=\"param\", value=\"int256[[]]\"`
+    );
+    expect(() => encodeValue('', '[int256]')).toThrow(
+      `unexpected character at position 0 (argument=\"param\", value=\"[int256]\"`
+    );
   });
 });

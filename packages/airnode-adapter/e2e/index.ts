@@ -126,6 +126,14 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     ).to.equal(1234567);
   });
 
+  it('floors the number without using "_times" parameter', async () => {
+    expect(
+      await testDecoder.decodeSignedInt256(
+        extractAndEncodeResponse(apiResponse, { _type: 'int256', _path: 'float' }).encodedValue
+      )
+    ).to.equal(12345);
+  });
+
   it('decodes bool encoded by the adapter package', async () => {
     expect(
       await testDecoder.decodeBool(

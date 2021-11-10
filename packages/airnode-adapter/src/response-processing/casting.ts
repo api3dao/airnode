@@ -55,12 +55,27 @@ function castBoolean(value: unknown): boolean {
   }
 }
 
-function castStringLike(value: any, target: 'string' | 'bytes32'): string {
+function assertValueIsNotObject(value: unknown, targetType: 'bytes32' | 'string') {
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${target}`);
+    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${targetType}`);
   }
+}
+
+function castString(value: any): string {
+  assertValueIsNotObject(value, 'string');
   return String(value);
+}
+
+function castBytes32(value: any): string {
+  assertValueIsNotObject(value, 'bytes32');
+
+  // NOTE: Do not use '.toString()' because it's not defined on 'null' value
+  const strValue = '' + value;
+
+  // We can't encode strings longer than 31 characters to bytes32.
+  // Ethers need to keep room for null termination
+  return strValue.length > 31 ? strValue.substring(0, 31) : strValue;
 }
 
 function castAddress(value: any): string {
@@ -95,9 +110,9 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
     case 'bool':
       return castBoolean(value);
     case 'bytes32':
-      return castStringLike(value, 'bytes32');
+      return castBytes32(value);
     case 'string':
-      return castStringLike(value, 'string');
+      return castString(value);
     case 'address':
       return castAddress(value);
     case 'bytes':

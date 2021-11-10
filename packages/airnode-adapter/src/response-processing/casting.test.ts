@@ -118,6 +118,19 @@ describe('castValue', () => {
       );
     });
 
+    it('truncates strings 31 chracters or longer', () => {
+      const longString = 'a string with more than 31 characters';
+      const exactString = 'x'.repeat(31);
+
+      const longCasted = castValue(longString, 'bytes32') as string;
+      const exactCasted = castValue(exactString, 'bytes32') as string;
+
+      expect(longCasted).toEqual('a string with more than 31 char');
+      expect(longCasted.length).toEqual(31);
+      expect(exactCasted).toEqual('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+      expect(exactCasted.length).toEqual(31);
+    });
+
     it('converts values to strings', () => {
       // Nil values
       expect(castValue(null, 'bytes32')).toEqual('null');

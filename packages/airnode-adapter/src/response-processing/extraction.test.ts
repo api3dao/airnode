@@ -56,6 +56,7 @@ describe('extractAndEncodeValue', () => {
     const res = extraction.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
     expect(res).toEqual({
       value: 'simplestring',
+      rawValue: 'simplestring',
       encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
     });
   });
@@ -65,6 +66,7 @@ describe('extractAndEncodeValue', () => {
     const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = extraction.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
+      rawValue: '750.51',
       value: '75051',
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
