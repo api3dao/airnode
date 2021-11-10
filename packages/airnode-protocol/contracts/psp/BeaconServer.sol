@@ -274,6 +274,41 @@ contract BeaconServer is
         );
     }
 
+    function fulfillPsp(bytes32 subscriptionId, bytes calldata data) external {
+        require(msg.sender == airnodePsp, "Sender not AirnodePsp");
+        // require(condition(data), "Condition not met");
+
+        (bytes32 templateId, , , , , bytes memory parameters) = IAirnodePsp(
+            airnodePsp
+        ).subscriptions(subscriptionId);
+        require(parameters.length == 0, "Subscription has parameters");
+
+        (int256 decodedData, uint256 timestamp) = abi.decode(
+            data,
+            (int256, uint256)
+        );
+        require(
+            decodedData >= type(int224).min && decodedData <= type(int224).max,
+            "Value typecasting error"
+        );
+        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
+        require(block.timestamp - 1 hours < timestamp, "Fulfillment stale");
+        require(
+            templateIdToBeacon[templateId].timestamp < timestamp,
+            "Fulfillment older than beacon"
+        );
+        templateIdToBeacon[templateId] = Beacon({
+            value: int224(decodedData),
+            timestamp: uint32(timestamp)
+        });
+        /*emit UpdatedBeacon(
+            templateId,
+            requestId,
+            int224(decodedData),
+            uint32(timestamp)
+        );*/
+    }
+
     /// @notice Called to read the beacon
     /// @dev The caller must be whitelisted.
     /// If the `timestamp` of a beacon is zero, this means that it was never
