@@ -5,6 +5,7 @@ import "../whitelist/Whitelist.sol";
 import "../whitelist/WhitelistRolesWithManager.sol";
 import "../rrp/requesters/RrpRequester.sol";
 import "../rrp/requesters/interfaces/IRrpBeaconServer.sol";
+import "./IAirnodePsp.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
 /// @notice A beacon is a live data point associated with a template ID. This
@@ -29,6 +30,8 @@ contract BeaconServer is
         int224 value;
         uint32 timestamp;
     }
+
+    address public immutable airnodePsp;
 
     /// @notice Returns if a sponsor has permitted an account to request
     /// updates at this contract
@@ -55,7 +58,8 @@ contract BeaconServer is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _airnodeRrp
+        address _airnodeRrp,
+        address _airnodePsp
     )
         WhitelistRolesWithManager(
             _accessControlRegistry,
@@ -63,7 +67,9 @@ contract BeaconServer is
             _manager
         )
         RrpRequester(_airnodeRrp)
-    {}
+    {
+        airnodePsp = _airnodePsp;
+    }
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
     /// to be able to read the beacon with `templateId` if the sender has the
