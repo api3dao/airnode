@@ -16,6 +16,13 @@ contract ExampleConditionAndFulfillContract {
     function fulfill(bytes32 subscriptionId, bytes calldata data) external {
         require(condition(data), "Condition not met");
 
+        // Check if you know about the subscription first
+        // require(subscriptionId == ...)
+        // Instead, you can also just check if the template ID/parameters is correct (e.g. for a common BeaconServer for RRP+PSP)
+        // (bytes32 templateId, , , , , bytes parameters) = airnodePsp.subscriptions(subscriptionId);
+        // require(templateId == ...);
+        // require(parameters.length == 0); // No additional parameters
+
         (uint256 response, uint256 timestamp) = abi.decode(
             data,
             (uint256, uint256)
