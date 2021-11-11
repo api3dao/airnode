@@ -46,14 +46,19 @@ it('Encodes bool values', () => {
 });
 
 describe('Encodes bytes32 values', () => {
-  it('encodes short strings', () => {
-    expect(encodeValue('randomstring', 'bytes32')).toEqual(
-      '0x72616e646f6d737472696e670000000000000000000000000000000000000000'
-    );
-    expect(encodeValue('{"a":23}', 'bytes32')).toEqual(
-      '0x7b2261223a32337d000000000000000000000000000000000000000000000000'
-    );
-    expect(encodeValue('', 'bytes32')).toEqual('0x0000000000000000000000000000000000000000000000000000000000000000');
+  it('encodes short bytes', () => {
+    const encodedString = ethers.utils.formatBytes32String('randomstring');
+    expect(encodedString).toEqual('0x72616e646f6d737472696e670000000000000000000000000000000000000000');
+    expect(encodeValue(encodedString, 'bytes32')).toEqual(encodedString);
+
+    const encodedEmpty = ethers.utils.formatBytes32String('');
+    expect(encodedEmpty).toEqual('0x0000000000000000000000000000000000000000000000000000000000000000');
+    expect(encodeValue(encodedEmpty, 'bytes32')).toEqual(encodedEmpty);
+  });
+
+  it('throws on invalid bytes', () => {
+    const invalidBytes = '0x123';
+    expect(() => encodeValue(invalidBytes, 'bytes32')).toThrow('hex data is odd-length');
   });
 });
 

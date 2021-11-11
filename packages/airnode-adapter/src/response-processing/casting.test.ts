@@ -42,35 +42,57 @@ describe('castValue', () => {
   ['uint256', 'int256'].forEach((type) => {
     describe(`casting ${type} values`, () => {
       it('throws an error for invalid numbers', () => {
-        expect(() => castValue(undefined, type)).toThrowError(new Error(`Unable to convert: 'undefined' to ${type}`));
-        expect(() => castValue(null, type)).toThrowError(new Error(`Unable to convert: 'null' to ${type}`));
-        expect(() => castValue(NaN, type)).toThrowError(new Error(`Unable to convert: 'null' to ${type}`));
-        expect(() => castValue(Infinity, type)).toThrowError(new Error(`Unable to convert: 'null' to ${type}`));
-        expect(() => castValue('', type)).toThrowError(new Error(`Unable to convert: \'""\' to ${type}`));
-        expect(() => castValue('123.123.123', type)).toThrowError(
-          new Error(`Unable to convert: \'"123.123.123"\' to ${type}`)
+        expect(() => castValue(undefined, type)).toThrowError(
+          `Unable to convert: 'undefined' to '${type}'. Reason: Invalid number value`
         );
-        expect(() => castValue('-true', type)).toThrowError(new Error(`Unable to convert: \'"-true"\' to ${type}`));
+        expect(() => castValue(null, type)).toThrowError(
+          `Unable to convert: 'null' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue(NaN, type)).toThrowError(
+          `Unable to convert: 'NaN' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue(Infinity, type)).toThrowError(
+          `Unable to convert: 'Infinity' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue('', type)).toThrowError(
+          `Unable to convert: '' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue('123.123.123', type)).toThrowError(
+          `Unable to convert: '123.123.123' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue('-true', type)).toThrowError(
+          `Unable to convert: '-true' to '${type}'. Reason: Invalid number value`
+        );
       });
 
       it('throws an error for unknown strings', () => {
-        expect(() => castValue('', type)).toThrowError(new Error(`Unable to convert: \'""\' to ${type}`));
-        expect(() => castValue('unknown', type)).toThrowError(new Error(`Unable to convert: \'"unknown"\' to ${type}`));
+        expect(() => castValue('', type)).toThrowError(
+          `Unable to convert: '' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue('unknown', type)).toThrowError(
+          `Unable to convert: 'unknown' to '${type}'. Reason: Invalid number value`
+        );
       });
 
       it('throws an error for complex values', () => {
         // Arrays
-        expect(() => castValue([], type)).toThrowError(new Error(`Unable to convert: '[]' to ${type}`));
+        expect(() => castValue([], type)).toThrowError(
+          `Unable to convert: '[]' to '${type}'. Reason: Invalid number value`
+        );
         expect(() => castValue(['unknown'], type)).toThrowError(
-          new Error(`Unable to convert: \'["unknown"]\' to ${type}`)
+          `Unable to convert: \'["unknown"]\' to '${type}'. Reason: Invalid number value`
         );
         expect(() => castValue([{ a: 1 }], type)).toThrowError(
-          new Error(`Unable to convert: \'[{"a":1}]\' to ${type}`)
+          `Unable to convert: \'[{"a":1}]\' to '${type}'. Reason: Invalid number value`
         );
 
         // Objects
-        expect(() => castValue({}, type)).toThrowError(new Error(`Unable to convert: '{}' to ${type}`));
-        expect(() => castValue({ a: 1 }, type)).toThrowError(new Error(`Unable to convert: \'{"a":1}\' to ${type}`));
+        expect(() => castValue({}, type)).toThrowError(
+          `Unable to convert: '{}' to '${type}'. Reason: Invalid number value`
+        );
+        expect(() => castValue({ a: 1 }, type)).toThrowError(
+          `Unable to convert: \'{"a":1}\' to '${type}'. Reason: Invalid number value`
+        );
       });
 
       it('casts boolean-like values to either 1 or 0', () => {
@@ -100,77 +122,28 @@ describe('castValue', () => {
     });
   });
 
-  describe('casting bytes32 values', () => {
-    it('throws an error for object values', () => {
-      expect(() => castValue({}, 'bytes32')).toThrowError(new Error("Unable to convert: '{}' to bytes32"));
-      expect(() => castValue({ a: 1 }, 'bytes32')).toThrowError(new Error('Unable to convert: \'{"a":1}\' to bytes32'));
-    });
-
-    it('throws an error for array values', () => {
-      expect(() => castValue([], 'bytes32')).toThrowError(new Error("Unable to convert: '[]' to bytes32"));
-      expect(() => castValue([false], 'bytes32')).toThrowError(new Error("Unable to convert: '[false]' to bytes32"));
-      expect(() => castValue([true], 'bytes32')).toThrowError(new Error("Unable to convert: '[true]' to bytes32"));
-      expect(() => castValue(['unknown'], 'bytes32')).toThrowError(
-        new Error('Unable to convert: \'["unknown"]\' to bytes32')
-      );
-      expect(() => castValue([{ a: 1 }], 'bytes32')).toThrowError(
-        new Error('Unable to convert: \'[{"a":1}]\' to bytes32')
-      );
-    });
-
-    it('truncates strings 31 chracters or longer', () => {
-      const longString = 'a string with more than 31 characters';
-      const exactString = 'x'.repeat(31);
-
-      const longCasted = castValue(longString, 'bytes32') as string;
-      const exactCasted = castValue(exactString, 'bytes32') as string;
-
-      expect(longCasted).toEqual('a string with more than 31 char');
-      expect(longCasted.length).toEqual(31);
-      expect(exactCasted).toEqual('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-      expect(exactCasted.length).toEqual(31);
-    });
-
-    it('converts values to strings', () => {
-      // Nil values
-      expect(castValue(null, 'bytes32')).toEqual('null');
-      expect(castValue(undefined, 'bytes32')).toEqual('undefined');
-
-      // Booleans
-      expect(castValue(false, 'bytes32')).toEqual('false');
-      expect(castValue('false', 'bytes32')).toEqual('false');
-      expect(castValue(true, 'bytes32')).toEqual('true');
-      expect(castValue('true', 'bytes32')).toEqual('true');
-
-      // Strings
-      expect(castValue('', 'bytes32')).toEqual('');
-      expect(castValue('unknown', 'bytes32')).toEqual('unknown');
-
-      // Numbers
-      expect(castValue(-1, 'bytes32')).toEqual('-1');
-      expect(castValue(0, 'bytes32')).toEqual('0');
-      expect(castValue(1, 'bytes32')).toEqual('1');
-      expect(castValue(777.89, 'bytes32')).toEqual('777.89');
-      expect(castValue(Infinity, 'bytes32')).toEqual('Infinity');
-      expect(castValue(NaN, 'bytes32')).toEqual('NaN');
-    });
-  });
-
   describe('casting string values', () => {
     it('throws an error for object values', () => {
-      expect(() => castValue({}, 'string')).toThrowError(new Error("Unable to convert: '{}' to string"));
-      expect(() => castValue({ a: 1 }, 'string')).toThrowError(new Error('Unable to convert: \'{"a":1}\' to string'));
+      expect(() => castValue({}, 'string')).toThrowError(
+        "Unable to convert: '{}' to 'string'. Reason: Value is an object"
+      );
+      expect(() => castValue({ a: 1 }, 'string')).toThrowError(
+        `Unable to convert: '{"a":1}' to 'string'. Reason: Value is an object`
+      );
     });
 
     it('throws an error for array values', () => {
-      expect(() => castValue([], 'string')).toThrowError(new Error("Unable to convert: '[]' to string"));
-      expect(() => castValue([false], 'string')).toThrowError(new Error("Unable to convert: '[false]' to string"));
-      expect(() => castValue([true], 'string')).toThrowError(new Error("Unable to convert: '[true]' to string"));
+      expect(() => castValue([], 'string')).toThrowError(
+        "Unable to convert: '[]' to 'string'. Reason: Value is an array"
+      );
+      expect(() => castValue([false], 'string')).toThrowError(
+        "Unable to convert: '[false]' to 'string'. Reason: Value is an array"
+      );
       expect(() => castValue(['unknown'], 'string')).toThrowError(
-        new Error('Unable to convert: \'["unknown"]\' to string')
+        `Unable to convert: '["unknown"]' to 'string'. Reason: Value is an array`
       );
       expect(() => castValue([{ a: 1 }], 'string')).toThrowError(
-        new Error('Unable to convert: \'[{"a":1}]\' to string')
+        `Unable to convert: '[{"a":1}]' to 'string'. Reason: Value is an array`
       );
     });
 
@@ -201,9 +174,15 @@ describe('castValue', () => {
 
   describe('convert address values', () => {
     it('throws on invalid address', () => {
-      expect(() => castValue(null, 'address')).toThrow(`Unable to convert: 'null' to address`);
-      expect(() => castValue('invalid address', 'address')).toThrow(`Unable to convert: 'invalid address' to address`);
-      expect(() => castValue({}, 'address')).toThrow(`Unable to convert: '{}' to address`);
+      expect(() => castValue(null, 'address')).toThrow(
+        `Unable to convert: 'null' to 'address'. Reason: Invalid address`
+      );
+      expect(() => castValue('invalid address', 'address')).toThrow(
+        `Unable to convert: 'invalid address' to 'address'. Reason: Invalid address`
+      );
+      expect(() => castValue({}, 'address')).toThrow(
+        `Unable to convert: '{}' to 'address'. Reason: Value is an object`
+      );
     });
 
     it('casts valid addresses', () => {
@@ -212,23 +191,25 @@ describe('castValue', () => {
     });
   });
 
-  describe('convert bytes values', () => {
-    it('throws on invalid value', () => {
-      expect(() => castValue(null, 'bytes')).toThrow(`Unable to convert: 'null' to bytes`);
-      expect(() => castValue('invalid bytes', 'bytes')).toThrow(`invalid hexlify value`);
-      expect(() => castValue({}, 'bytes')).toThrow(`Unable to convert: '{}' to bytes`);
+  ['bytes', 'bytes32'].forEach((type) => {
+    describe(`convert ${type} values`, () => {
+      it('throws on invalid value', () => {
+        expect(() => castValue(null, type)).toThrow(`Unable to convert: 'null' to '${type}'`);
+        expect(() => castValue('invalid bytes', type)).toThrow(`invalid hexlify value`);
+        expect(() => castValue({}, type)).toThrow(`Unable to convert: '{}' to '${type}'`);
 
-      expect(() => castValue('0x123', 'bytes')).toThrow('hex data is odd-length');
-    });
+        expect(() => castValue('0x123', type)).toThrow('hex data is odd-length');
+      });
 
-    it('casts valid bytes string', () => {
-      const exampleString = 'this is an example string that is a bit longer';
-      const bytesString = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(exampleString));
-      expect(bytesString).toBe(
-        '0x7468697320697320616e206578616d706c6520737472696e672074686174206973206120626974206c6f6e676572'
-      );
+      it('casts valid bytes string', () => {
+        const exampleString = 'this is an example string that is a bit longer';
+        const bytesString = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(exampleString));
+        expect(bytesString).toBe(
+          '0x7468697320697320616e206578616d706c6520737472696e672074686174206973206120626974206c6f6e676572'
+        );
 
-      expect(castValue(bytesString, 'bytes')).toBe(bytesString);
+        expect(castValue(bytesString, type)).toBe(bytesString);
+      });
     });
   });
 
@@ -267,7 +248,7 @@ describe('castValue', () => {
       expect(() => castValue(beforeCast, 'uint256[-7]')).toThrowError('Invalid type: uint256[-7]');
 
       expect(() => castValue(nestedBeforeCast, 'uint256[]')).toThrowError(
-        'Unable to convert: \'[0,"123","777.789",false,true]\' to uint256'
+        `Unable to convert: '[[0,"123","777.789",false,true],[],[45,89]]' to 'uint256[]'. Reason: Invalid number value`
       );
     });
   });

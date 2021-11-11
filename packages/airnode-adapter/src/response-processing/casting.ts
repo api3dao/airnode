@@ -1,11 +1,8 @@
-import isArray from 'lodash/isArray';
-import isFinite from 'lodash/isFinite';
-import isNil from 'lodash/isNil';
-import isPlainObject from 'lodash/isPlainObject';
+import { isArray, isPlainObject } from 'lodash';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
-import { ResponseType, ValueType } from '../types';
+import { ResponseType, ValueType, baseResponseTypes } from '../types';
 
 interface SpecialNumber {
   readonly result: number;
@@ -20,24 +17,18 @@ const SPECIAL_NUMBERS: readonly SpecialNumber[] = [
   { value: 'true', result: 1 },
 ];
 
-function castNumber(value: any, type: ResponseType): BigNumber {
+function castNumber(value: any): BigNumber {
   const specialNumber = SPECIAL_NUMBERS.find((n) => n.value === value);
   if (specialNumber) {
     return new BigNumber(specialNumber.result);
   }
 
-  // +value attempts to convert to a number
-  if (!isFinite(+value) || value === '' || isNil(value) || isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
-  }
-
   // We can't use ethers.js BigNumber.from here as it cannot handle decimals
   // eslint-disable-next-line functional/no-try-statement
-  try {
-    return new BigNumber(value);
-  } catch (e) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
-  }
+  const bigNumberValue = new BigNumber(value);
+
+  if (!bigNumberValue.isFinite()) throw new Error('Invalid number value');
+  return bigNumberValue;
 }
 
 function castBoolean(value: unknown): boolean {
@@ -55,71 +46,80 @@ function castBoolean(value: unknown): boolean {
   }
 }
 
-function assertValueIsNotObject(value: unknown, targetType: 'bytes32' | 'string') {
-  // Objects convert to "[object Object]" which isn't very useful
-  if (isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${targetType}`);
+// Objects and arrays convert to "[object Object]" which isn't very useful
+function assertValueIsNotArrayOrObject(value: unknown) {
+  if (isArray(value)) {
+    throw new Error(`Value is an array`);
+  }
+
+  if (isPlainObject(value)) {
+    throw new Error(`Value is an object`);
   }
 }
 
 function castString(value: any): string {
-  assertValueIsNotObject(value, 'string');
+  assertValueIsNotArrayOrObject(value);
+
   return String(value);
 }
 
-function castBytes32(value: any): string {
-  assertValueIsNotObject(value, 'bytes32');
-
-  // NOTE: Do not use '.toString()' because it's not defined on 'null' value
-  const strValue = '' + value;
-
-  // We can't encode strings longer than 31 characters to bytes32.
-  // Ethers need to keep room for null termination
-  return strValue.length > 31 ? strValue.substring(0, 31) : strValue;
-}
-
 function castAddress(value: any): string {
-  // Objects convert to "[object Object]" which isn't very useful
-  if (isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to address`);
-  }
+  assertValueIsNotArrayOrObject(value);
 
   const stringValue = String(value);
   if (!ethers.utils.isAddress(stringValue)) {
-    throw new Error(`Unable to convert: '${stringValue}' to address`);
+    throw new Error(`Invalid address`);
   }
   return stringValue;
 }
 
-function castHexString(value: any): string {
+function castBytesLike(value: any): string {
+  return ethers.utils.hexlify(String(value));
+}
+
+function isValidType(type: ResponseType) {
+  return baseResponseTypes.includes(type as any) || parseArrayType(type) !== null;
+}
+
+function toHumanReadableString(value: unknown) {
   // Objects convert to "[object Object]" which isn't very useful
-  // also checks if the value is nil
-  if (isArray(value) || isPlainObject(value) || isNil(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes`);
+  if (isArray(value) || isPlainObject(value)) {
+    return JSON.stringify(value);
   }
-  return ethers.utils.hexlify(value);
+
+  return String(value);
 }
 
 export function castValue(value: unknown, type: ResponseType): ValueType {
-  if (isNumericType(type)) return castNumber(value, type);
+  if (!isValidType(type)) throw new Error(`Invalid type: ${type}`);
 
-  const parsedArrayType = parseArrayType(type);
-  if (parsedArrayType) return applyToArrayRecursively(value, parsedArrayType, castNumber) as ValueType;
+  // eslint-disable-next-line functional/no-try-statement
+  try {
+    if (isNumericType(type)) return castNumber(value);
 
-  switch (type) {
-    case 'bool':
-      return castBoolean(value);
-    case 'bytes32':
-      return castBytes32(value);
-    case 'string':
-      return castString(value);
-    case 'address':
-      return castAddress(value);
-    case 'bytes':
-      return castHexString(value);
+    const parsedArrayType = parseArrayType(type);
+    if (parsedArrayType) return applyToArrayRecursively(value, parsedArrayType, castNumber) as ValueType;
+
+    switch (type) {
+      case 'bool':
+        return castBoolean(value);
+      case 'bytes32':
+        return castBytesLike(value);
+      case 'string':
+        return castString(value);
+      case 'address':
+        return castAddress(value);
+      case 'bytes':
+        return castBytesLike(value);
+    }
+
+    // NOTE: Should not happen, we should throw on invalid type sooner
+    throw new Error('Conversion for the given type is not defined');
+  } catch (nativeError) {
+    const nativeErrorMessage = String(nativeError).replace(/^Error: /, '');
+
+    throw new Error(`Unable to convert: '${toHumanReadableString(value)}' to '${type}'. Reason: ${nativeErrorMessage}`);
   }
-
-  throw new Error(`Invalid type: ${type}`);
 }
 
 export function multiplyValue(value: string | BigNumber, times?: string | BigNumber): string {
