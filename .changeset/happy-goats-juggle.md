@@ -3,4 +3,4 @@
 '@api3/airnode-node': minor
 ---
 
-Implement new values for "\_type" reserved parameter (address, bytes, string and arrays)
+Implement new values for "\_type" reserved parameter (address, bytes, string, string32 and arrays)
