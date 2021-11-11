@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@api3/airnode-ois": "^0.2.2",
-    "@types/mocha": "^9.0.0",
     "axios": "^0.21.2",
     "bignumber.js": "^9.0.0",
     "ethers": "^5.4.5",
@@ -30,6 +29,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@types/lodash": "^4.14.169",
+    "@types/mocha": "^9.0.0",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.5",

@@ -17,5 +17,5 @@ packages/airnode-protocol/src/contracts
 # https://github.com/protofire/solhint/issues/317
 #
 # /* solhint-disable */ comment doesn't work either because this is a parser issue
-# Prettier uses this parses for formatting
+# Prettier uses this parser for formatting
 packages/airnode-adapter/contracts/TestDecoder.sol
