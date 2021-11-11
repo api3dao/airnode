@@ -1,10 +1,4 @@
-import { CloudProvider as ConfigCloudProvider } from '@api3/airnode-node';
-
-export const supportedCloudProviders = ['aws', 'gcp'] as const;
-
-export interface CloudProvider extends Omit<ConfigCloudProvider, 'name'> {
-  name: typeof supportedCloudProviders[number];
-}
+import { CloudProvider } from '@api3/airnode-node';
 
 // ===========================================
 // Receipt file

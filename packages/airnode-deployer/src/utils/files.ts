@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Config } from '@api3/airnode-node';
+import { CloudProvider, Config } from '@api3/airnode-node';
 import { validateReceipt } from './validation';
-import { CloudProvider, Receipt } from '../types';
+import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';

@@ -1,8 +1,8 @@
+import { GcpCloudProvider } from '@api3/airnode-node';
 import { Storage } from '@google-cloud/storage';
-import { CloudProvider } from '../types';
 import * as logger from '../utils/logger';
 
-export async function stateExists(bucketName: string, cloudProvider: CloudProvider) {
+export async function stateExists(bucketName: string, cloudProvider: GcpCloudProvider) {
   logger.debug('Checking Terraform state existence in GCP');
   const { projectId } = cloudProvider;
   const storage = new Storage({ projectId });
@@ -11,7 +11,7 @@ export async function stateExists(bucketName: string, cloudProvider: CloudProvid
   return (await bucket.exists())[0] as boolean;
 }
 
-export async function removeState(bucketName: string, cloudProvider: CloudProvider) {
+export async function removeState(bucketName: string, cloudProvider: GcpCloudProvider) {
   logger.debug('Removing Terraform state from GCP');
   const { projectId } = cloudProvider;
   const storage = new Storage({ projectId });

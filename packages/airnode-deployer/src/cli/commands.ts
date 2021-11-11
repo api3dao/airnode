@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { config as nodeConfig } from '@api3/airnode-node';
-import { CloudProvider } from '../types';
+import { config as nodeConfig, CloudProvider } from '@api3/airnode-node';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,

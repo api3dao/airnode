@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { CloudProvider } from '../types';
+import { AwsCloudProvider } from '@api3/airnode-node';
 import * as logger from '../utils/logger';
 
 export function awsDynamodbTableFromBucket(bucket: string) {
@@ -50,7 +50,7 @@ async function deleteDynamodbTable(dynamoDb: AWS.DynamoDB, dynamodbTable: string
   await dynamoDb.deleteTable({ TableName: dynamodbTable }).promise();
 }
 
-export async function removeState(bucket: string, cloudProvider: CloudProvider) {
+export async function removeState(bucket: string, cloudProvider: AwsCloudProvider) {
   logger.debug('Removing Terraform state from AWS');
   const { region } = cloudProvider;
   const dynamodbTable = awsDynamodbTableFromBucket(bucket);
@@ -88,7 +88,7 @@ async function dynamodbTableExists(dynamoDb: AWS.DynamoDB, dynamodbTable: string
   }
 }
 
-export async function stateExists(bucket: string, cloudProvider: CloudProvider) {
+export async function stateExists(bucket: string, cloudProvider: AwsCloudProvider) {
   logger.debug('Checking Terraform state existence in AWS');
   const { region } = cloudProvider;
   const dynamodbTable = awsDynamodbTableFromBucket(bucket);
