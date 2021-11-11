@@ -20,7 +20,6 @@ let adminRole,
   airnodeToPaymentDestinationSetterRole;
 let airnodePaymentDestination = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
-let endpointPrice;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -138,8 +137,6 @@ beforeEach(async () => {
 
   // Set the default Price to 100
   await airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(hre.ethers.utils.parseEther('100'));
-
-  endpointPrice = await airnodeFeeRegistry.defaultPrice();
 });
 
 describe('constructor', function () {
@@ -526,7 +523,10 @@ describe('makePayment', function () {
                     expect(whitelistStatus.expirationTimestamp).to.equal(0);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    // payment for 30 days
+                    const paymentAmountInWei = hre.ethers.utils.parseEther('100');
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
 
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
@@ -551,15 +551,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        endpointPrice,
+                        paymentAmountInWei,
                         api3Token.address,
                         nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
@@ -660,9 +660,9 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
                     // payment for 45 days
-                    const paymentAmountInWei = hre.ethers.utils.parseUnits('150', 6);
+                    const paymentAmountInSzabo = hre.ethers.utils.parseUnits('150', 6);
 
-                    await usdcToken.connect(roles.payer).approve(airnodeTokenPaymentUsdc.address, paymentAmountInWei);
+                    await usdcToken.connect(roles.payer).approve(airnodeTokenPaymentUsdc.address, paymentAmountInSzabo);
 
                     const fortyFiveDaysInSeconds = 45 * oneDayInSeconds;
 
@@ -689,15 +689,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        paymentAmountInWei,
+                        paymentAmountInSzabo,
                         usdcToken.address,
                         nextBlockTimestamp + fortyFiveDaysInSeconds
                       );
 
                     const payerAfterBalance = await usdcToken.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInSzabo);
                     const airnodeAfterBalance = await usdcToken.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInSzabo);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
@@ -729,7 +729,8 @@ describe('makePayment', function () {
 
                     // we are just dividing endpoint price over token price because
                     // the whitelisting duration  is equal to the endpoint price period
-                    const paymentAmountInWei = endpointPrice
+                    const paymentAmountInWei = hre.ethers.utils
+                      .parseEther('100')
                       .mul(hre.ethers.BigNumber.from(10).pow(await api3Token.decimals()))
                       .div(tokenPriceInWei);
 
@@ -798,7 +799,10 @@ describe('makePayment', function () {
                       .connect(roles.airnode)
                       .setAirnodeToWhitelistDuration(oneYearInSeconds, fifteenDaysInSeconds);
 
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    // payment for 30 days
+                    const paymentAmountInWei = hre.ethers.utils.parseEther('100');
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
 
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
@@ -823,15 +827,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        endpointPrice,
+                        paymentAmountInWei,
                         api3Token.address,
                         nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
@@ -863,7 +867,10 @@ describe('makePayment', function () {
                       .connect(roles.airnode)
                       .setAirnodeToPaymentDestination(airnodePaymentDestination);
 
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    // payment for 30 days
+                    const paymentAmountInWei = hre.ethers.utils.parseEther('100');
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
 
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
@@ -888,18 +895,18 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         airnodePaymentDestination,
-                        endpointPrice,
+                        paymentAmountInWei,
                         api3Token.address,
                         nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
                     expect(airnodeAfterBalance).to.equal(airnodeBeforeBalance);
                     const airnodePaymentDestinationAfterBalance = await api3Token.balanceOf(airnodePaymentDestination);
                     expect(airnodePaymentDestinationAfterBalance.sub(airnodePaymentDestinationBeforeBalance)).to.equal(
-                      endpointPrice
+                      paymentAmountInWei
                     );
 
                     whitelistStatus =
@@ -947,7 +954,10 @@ describe('makePayment', function () {
                     expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    // payment for 30 days
+                    const paymentAmountInWei = hre.ethers.utils.parseEther('100');
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
 
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
@@ -972,15 +982,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        endpointPrice,
+                        paymentAmountInWei,
                         api3Token.address,
                         initialWhitelistExpiration + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
@@ -1027,7 +1037,10 @@ describe('makePayment', function () {
                     expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                    // payment for 30 days
+                    const paymentAmountInWei = hre.ethers.utils.parseEther('100');
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
 
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
@@ -1052,15 +1065,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        endpointPrice,
+                        paymentAmountInWei,
                         api3Token.address,
                         nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(endpointPrice);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(endpointPrice);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(

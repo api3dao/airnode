@@ -272,10 +272,11 @@ contract AirnodeTokenPayment is
         uint8 tokenDecimals = IERC20Metadata(paymentTokenAddress).decimals();
         uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
             .getEndpointPrice(_chainId, _airnode, _endpointId);
+        uint24 feeDecimals = IAirnodeFeeRegistry(airnodeFeeRegistry).DECIMALS();
         uint24 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).INTERVAL();
         amount =
-            ((10**tokenDecimals) * feeInUsd * _whitelistDuration) /
-            (paymentTokenPrice * feeInterval);
+            (1e18 * ((10**tokenDecimals) * feeInUsd * _whitelistDuration)) /
+            ((10**feeDecimals) * paymentTokenPrice * feeInterval);
     }
 
     /// @notice Gets the Airnode maximum whitelist duration period in seconds
