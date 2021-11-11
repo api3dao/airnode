@@ -49,7 +49,9 @@ export interface Config {
 
 export type ValueType = string | BigNumber | boolean | Array<ValueType>;
 
-export const baseResponseTypes = ['uint256', 'int256', 'bool', 'bytes32', 'address', 'bytes', 'string'] as const;
+export const solidityBaseTypes = ['uint256', 'int256', 'bool', 'bytes32', 'address', 'bytes', 'string'] as const;
+export const artificialTypes = ['string32'] as const;
+export const baseResponseTypes = [...solidityBaseTypes, ...artificialTypes] as const;
 export type BaseResponseType = typeof baseResponseTypes[number];
 // Use might pass a complex type (e.g. int256[3][]) which we cannot type
 export type ResponseType = string;

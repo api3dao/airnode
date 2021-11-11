@@ -225,6 +225,15 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     });
   });
 
+  it('decodes string32 encoded by the adapter package', async () => {
+    const { parseBytes32String, arrayify } = ethers.utils;
+    const encodedBytes = extractAndEncodeResponse(apiResponse, { _type: 'string32', _path: 'string' }).encodedValue;
+
+    const fromContract = await testDecoder.decodeString32(encodedBytes);
+    const decoded = parseBytes32String(arrayify(fromContract)).toString();
+    expect(decoded).to.equal(apiResponse.string);
+  });
+
   describe('Failures', () => {
     it('throws on invalid type', () => {
       // 'true' is not a valid _type, 'bool' should be used

@@ -81,4 +81,12 @@ contract TestDecoder {
     {
         decodedData = abi.decode(data, (int256[2][][3]));
     }
+
+    function decodeString32(bytes calldata data)
+        public
+        pure
+        returns (bytes32 decodedData)
+    {
+        decodedData = abi.decode(data, (bytes32));
+    }
 }

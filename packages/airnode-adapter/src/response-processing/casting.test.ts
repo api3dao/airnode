@@ -122,54 +122,58 @@ describe('castValue', () => {
     });
   });
 
-  describe('casting string values', () => {
-    it('throws an error for object values', () => {
-      expect(() => castValue({}, 'string')).toThrowError(
-        "Unable to convert: '{}' to 'string'. Reason: Value is an object"
-      );
-      expect(() => castValue({ a: 1 }, 'string')).toThrowError(
-        `Unable to convert: '{"a":1}' to 'string'. Reason: Value is an object`
-      );
+  ['string', 'string32'].forEach((type) => {
+    describe(`casting ${type} values`, () => {
+      it('throws an error for object values', () => {
+        expect(() => castValue({}, type)).toThrowError(
+          `Unable to convert: '{}' to '${type}'. Reason: Value is an object`
+        );
+        expect(() => castValue({ a: 1 }, type)).toThrowError(
+          `Unable to convert: '{"a":1}' to '${type}'. Reason: Value is an object`
+        );
+      });
+
+      it('throws an error for array values', () => {
+        expect(() => castValue([], type)).toThrowError(
+          `Unable to convert: '[]' to '${type}'. Reason: Value is an array`
+        );
+        expect(() => castValue([false], type)).toThrowError(
+          `Unable to convert: '[false]' to '${type}'. Reason: Value is an array`
+        );
+        expect(() => castValue(['unknown'], type)).toThrowError(
+          `Unable to convert: '["unknown"]' to '${type}'. Reason: Value is an array`
+        );
+        expect(() => castValue([{ a: 1 }], type)).toThrowError(
+          `Unable to convert: '[{"a":1}]' to '${type}'. Reason: Value is an array`
+        );
+      });
     });
+  });
 
-    it('throws an error for array values', () => {
-      expect(() => castValue([], 'string')).toThrowError(
-        "Unable to convert: '[]' to 'string'. Reason: Value is an array"
-      );
-      expect(() => castValue([false], 'string')).toThrowError(
-        "Unable to convert: '[false]' to 'string'. Reason: Value is an array"
-      );
-      expect(() => castValue(['unknown'], 'string')).toThrowError(
-        `Unable to convert: '["unknown"]' to 'string'. Reason: Value is an array`
-      );
-      expect(() => castValue([{ a: 1 }], 'string')).toThrowError(
-        `Unable to convert: '[{"a":1}]' to 'string'. Reason: Value is an array`
-      );
-    });
+  it('casting valid string values', () => {
+    // Nil values
+    expect(castValue(null, 'string')).toEqual('null');
+    expect(castValue(undefined, 'string')).toEqual('undefined');
 
-    it('converts values to strings', () => {
-      // Nil values
-      expect(castValue(null, 'string')).toEqual('null');
-      expect(castValue(undefined, 'string')).toEqual('undefined');
+    // Booleans
+    expect(castValue(false, 'string')).toEqual('false');
+    expect(castValue('false', 'string')).toEqual('false');
+    expect(castValue(true, 'string')).toEqual('true');
+    expect(castValue('true', 'string')).toEqual('true');
 
-      // Booleans
-      expect(castValue(false, 'string')).toEqual('false');
-      expect(castValue('false', 'string')).toEqual('false');
-      expect(castValue(true, 'string')).toEqual('true');
-      expect(castValue('true', 'string')).toEqual('true');
+    // Strings
+    expect(castValue('', 'string')).toEqual('');
+    expect(castValue('unknown', 'string')).toEqual('unknown');
+    const longString = 'a really long string with more than 32 chars';
+    expect(castValue(longString, 'string')).toEqual(longString);
 
-      // Strings
-      expect(castValue('', 'string')).toEqual('');
-      expect(castValue('unknown', 'string')).toEqual('unknown');
-
-      // Numbers
-      expect(castValue(-1, 'string')).toEqual('-1');
-      expect(castValue(0, 'string')).toEqual('0');
-      expect(castValue(1, 'string')).toEqual('1');
-      expect(castValue(777.89, 'string')).toEqual('777.89');
-      expect(castValue(Infinity, 'string')).toEqual('Infinity');
-      expect(castValue(NaN, 'string')).toEqual('NaN');
-    });
+    // Numbers
+    expect(castValue(-1, 'string')).toEqual('-1');
+    expect(castValue(0, 'string')).toEqual('0');
+    expect(castValue(1, 'string')).toEqual('1');
+    expect(castValue(777.89, 'string')).toEqual('777.89');
+    expect(castValue(Infinity, 'string')).toEqual('Infinity');
+    expect(castValue(NaN, 'string')).toEqual('NaN');
   });
 
   describe('convert address values', () => {
@@ -251,6 +255,18 @@ describe('castValue', () => {
         `Unable to convert: '[[0,"123","777.789",false,true],[],[45,89]]' to 'uint256[]'. Reason: Invalid number value`
       );
     });
+  });
+
+  it('convert valid string32 values', () => {
+    const longString = 'a really long string with more than 32 chars';
+    expect(castValue(longString, 'string32')).toEqual(
+      '0x61207265616c6c79206c6f6e6720737472696e672077697468206d6f72652000'
+    );
+
+    const maxLengthStr = longString.substring(0, 31);
+    expect(castValue(maxLengthStr, 'string32')).toEqual(
+      '0x61207265616c6c79206c6f6e6720737472696e672077697468206d6f72652000'
+    );
   });
 });
 

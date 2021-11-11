@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { encodeValue } from './encoding';
+import { encodeValue, getSolidityType } from './encoding';
 
 ['uint256', 'int256'].forEach((type) => {
   describe(`Encodes ${type} values`, () => {
@@ -152,4 +152,11 @@ describe('Encoding array values', () => {
       `unexpected character at position 0 (argument=\"param\", value=\"[int256]\"`
     );
   });
+});
+
+it('tests getSolidityType', () => {
+  expect(getSolidityType('string32')).toEqual('bytes32');
+  expect(getSolidityType('string32[][7]')).toEqual('bytes32[][7]');
+
+  expect(getSolidityType('address[7][][3]')).toEqual('address[7][][3]');
 });

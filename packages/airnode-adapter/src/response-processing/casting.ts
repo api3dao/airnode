@@ -6,7 +6,7 @@ import { ResponseType, ValueType, baseResponseTypes } from '../types';
 
 interface SpecialNumber {
   readonly result: number;
-  readonly value: any;
+  readonly value: unknown;
 }
 
 // Any extra values that do not convert to numbers simply
@@ -17,7 +17,7 @@ const SPECIAL_NUMBERS: readonly SpecialNumber[] = [
   { value: 'true', result: 1 },
 ];
 
-function castNumber(value: any): BigNumber {
+function castNumber(value: unknown): BigNumber {
   const specialNumber = SPECIAL_NUMBERS.find((n) => n.value === value);
   if (specialNumber) {
     return new BigNumber(specialNumber.result);
@@ -25,7 +25,7 @@ function castNumber(value: any): BigNumber {
 
   // We can't use ethers.js BigNumber.from here as it cannot handle decimals
   // eslint-disable-next-line functional/no-try-statement
-  const bigNumberValue = new BigNumber(value);
+  const bigNumberValue = new BigNumber(value as any);
 
   if (!bigNumberValue.isFinite()) throw new Error('Invalid number value');
   return bigNumberValue;
@@ -57,13 +57,13 @@ function assertValueIsNotArrayOrObject(value: unknown) {
   }
 }
 
-function castString(value: any): string {
+function castString(value: unknown): string {
   assertValueIsNotArrayOrObject(value);
 
   return String(value);
 }
 
-function castAddress(value: any): string {
+function castAddress(value: unknown): string {
   assertValueIsNotArrayOrObject(value);
 
   const stringValue = String(value);
@@ -73,8 +73,16 @@ function castAddress(value: any): string {
   return stringValue;
 }
 
-function castBytesLike(value: any): string {
+function castBytesLike(value: unknown): string {
   return ethers.utils.hexlify(String(value));
+}
+
+function castString32(value: unknown) {
+  assertValueIsNotArrayOrObject(value);
+
+  const strValue = String(value);
+  // We can't encode strings longer than 31 characters to bytes32. Ethers needs to keep room for null termination
+  return ethers.utils.formatBytes32String(strValue.length > 31 ? strValue.substring(0, 31) : strValue);
 }
 
 function isValidType(type: ResponseType) {
@@ -111,6 +119,8 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
         return castAddress(value);
       case 'bytes':
         return castBytesLike(value);
+      case 'string32':
+        return castString32(value);
     }
 
     // NOTE: Should not happen, we should throw on invalid type sooner
