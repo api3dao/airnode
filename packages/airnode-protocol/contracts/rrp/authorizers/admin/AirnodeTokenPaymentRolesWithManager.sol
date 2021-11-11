@@ -7,7 +7,7 @@ import "../../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAirnodeTokenPaymentRolesWithManager.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for
-/// the AirnodePaymentLock contract
+/// the AirnodeTokenPayment contract
 contract AirnodeTokenPaymentRolesWithManager is
     RoleDeriver,
     AccessControlClient,

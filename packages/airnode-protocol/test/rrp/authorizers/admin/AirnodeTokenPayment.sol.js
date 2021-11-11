@@ -137,7 +137,7 @@ beforeEach(async () => {
     );
 
   // Set the default Price to 100
-  await airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(hre.ethers.utils.parseEther((100).toString()));
+  await airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(hre.ethers.utils.parseEther('100'));
 
   endpointPrice = await airnodeFeeRegistry.defaultPrice();
 });
@@ -514,8 +514,6 @@ describe('makePayment', function () {
               context('payer has approved AirnodeTokenPayment to transfer tokens', function () {
                 context('payer has tokens to transfer to AirnodeTokenPayment', function () {
                   it('makes the payment', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
@@ -527,6 +525,12 @@ describe('makePayment', function () {
                       );
                     expect(whitelistStatus.expirationTimestamp).to.equal(0);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
 
                     await expect(
                       airnodeTokenPayment
@@ -548,8 +552,8 @@ describe('makePayment', function () {
                         roles.payer.address,
                         roles.airnode.address,
                         endpointPrice,
-                        await api3Token.symbol(),
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                        api3Token.address,
+                        nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
@@ -568,9 +572,145 @@ describe('makePayment', function () {
                     );
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                   });
-                  it('makes the payment with custom token price (7.25 USD)', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+                  it('makes the payment where payment contract has 6 decimals', async function () {
+                    const usdcTokenFactory = await hre.ethers.getContractFactory('MockUsdcToken', roles.deployer);
+                    const usdcToken = await usdcTokenFactory.deploy(roles.deployer.address, roles.payer.address);
+                    await usdcToken.deployed();
 
+                    const airnodeTokenPaymentFactory = await hre.ethers.getContractFactory(
+                      'AirnodeTokenPayment',
+                      roles.deployer
+                    );
+                    const airnodeTokenPaymentUsdc = await airnodeTokenPaymentFactory.deploy(
+                      accessControlRegistry.address,
+                      airnodeTokenPaymentAdminRoleDescription,
+                      roles.manager.address,
+                      airnodeRequesterAuthorizerRegistry.address,
+                      airnodeFeeRegistry.address,
+                      usdcToken.address
+                    );
+
+                    const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
+
+                    const requesterAuthorizerWithManagerAdminRole = await requesterAuthorizerWithManager.adminRole();
+
+                    adminRole = await airnodeTokenPaymentUsdc.adminRole();
+                    paymentTokenPriceSetterRole = await airnodeTokenPaymentUsdc.paymentTokenPriceSetterRole();
+                    airnodeToMinimumWhitelistDurationSetterRole =
+                      await airnodeTokenPaymentUsdc.airnodeToWhitelistDurationSetterRole();
+                    airnodeToPaymentDestinationSetterRole =
+                      await airnodeTokenPaymentUsdc.airnodeToPaymentDestinationSetterRole();
+
+                    // Grant roles to valid accounts
+                    await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
+                      [managerRootRole, adminRole, adminRole, adminRole],
+                      [
+                        airnodeTokenPaymentAdminRoleDescription,
+                        await airnodeTokenPaymentUsdc.PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION(),
+                        await airnodeTokenPaymentUsdc.AIRNODE_TO_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION(),
+                        await airnodeTokenPaymentUsdc.AIRNODE_TO_PAYMENT_DESTINATION_SETTER_ROLE_DESCRIPTION(),
+                      ],
+                      [
+                        roles.manager.address, // which will already have been granted the role
+                        roles.oracle.address,
+                        roles.airnode.address,
+                        roles.airnode.address,
+                      ]
+                    );
+                    // Grant `roles.randomPerson` some invalid roles
+                    await accessControlRegistry
+                      .connect(roles.manager)
+                      .initializeAndGrantRoles(
+                        [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
+                        [
+                          Math.random(),
+                          await airnodeTokenPaymentUsdc.PAYMENT_TOKEN_PRICE_SETTER_ROLE_DESCRIPTION(),
+                          await airnodeTokenPaymentUsdc.AIRNODE_TO_WHITELIST_DURATION_SETTER_ROLE_DESCRIPTION(),
+                          await airnodeTokenPaymentUsdc.AIRNODE_TO_PAYMENT_DESTINATION_SETTER_ROLE_DESCRIPTION(),
+                        ],
+                        [
+                          roles.randomPerson.address,
+                          roles.randomPerson.address,
+                          roles.randomPerson.address,
+                          roles.randomPerson.address,
+                        ]
+                      );
+                    // Grant airnodeTokenPaymentUsdc contract the whitelist expiration extender role
+                    await accessControlRegistry
+                      .connect(roles.manager)
+                      .initializeAndGrantRoles(
+                        [managerRootRole, requesterAuthorizerWithManagerAdminRole],
+                        [
+                          requesterAuthorizerWithManagerAdminRoleDescription,
+                          await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+                        ],
+                        [roles.manager.address, airnodeTokenPaymentUsdc.address]
+                      );
+
+                    const payerBeforeBalance = await usdcToken.balanceOf(roles.payer.address);
+                    const airnodeBeforeBalance = await usdcToken.balanceOf(roles.airnode.address);
+
+                    let whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(0);
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+
+                    // payment for 45 days
+                    const paymentAmountInWei = hre.ethers.utils.parseUnits('150', 6);
+
+                    await usdcToken.connect(roles.payer).approve(airnodeTokenPaymentUsdc.address, paymentAmountInWei);
+
+                    const fortyFiveDaysInSeconds = 45 * oneDayInSeconds;
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+
+                    await expect(
+                      airnodeTokenPaymentUsdc
+                        .connect(roles.payer)
+                        .makePayment(
+                          chainId,
+                          roles.airnode.address,
+                          endpointId,
+                          roles.requester.address,
+                          fortyFiveDaysInSeconds
+                        )
+                    )
+                      .to.emit(airnodeTokenPaymentUsdc, 'MadePayment')
+                      .withArgs(
+                        chainId,
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address,
+                        roles.payer.address,
+                        roles.airnode.address,
+                        paymentAmountInWei,
+                        usdcToken.address,
+                        nextBlockTimestamp + fortyFiveDaysInSeconds
+                      );
+
+                    const payerAfterBalance = await usdcToken.balanceOf(roles.payer.address);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
+                    const airnodeAfterBalance = await usdcToken.balanceOf(roles.airnode.address);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
+
+                    whitelistStatus =
+                      await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                        roles.airnode.address,
+                        endpointId,
+                        roles.requester.address
+                      );
+                    expect(whitelistStatus.expirationTimestamp).to.equal(
+                      (await utils.getCurrentTimestamp(hre.ethers.provider)) + fortyFiveDaysInSeconds
+                    );
+                    expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+                  });
+                  it('makes the payment with custom token price (7.25 USD)', async function () {
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
@@ -584,14 +724,21 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
                     // sets the payment token price to 7.5 USD
-                    await airnodeTokenPayment
-                      .connect(roles.oracle)
-                      .setPaymentTokenPrice(hre.ethers.utils.parseUnits('7.25', 18).toString());
+                    const tokenPriceInWei = hre.ethers.utils.parseEther('7.25');
+                    await airnodeTokenPayment.connect(roles.oracle).setPaymentTokenPrice(tokenPriceInWei);
 
-                    const paymentAmount = endpointPrice
+                    // we are just dividing endpoint price over token price because
+                    // the whitelisting duration  is equal to the endpoint price period
+                    const paymentAmountInWei = endpointPrice
                       .mul(hre.ethers.BigNumber.from(10).pow(await api3Token.decimals()))
-                      .div(hre.ethers.utils.parseUnits('7.25', 18))
-                      .toString();
+                      .div(tokenPriceInWei);
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, paymentAmountInWei);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+
                     await expect(
                       airnodeTokenPayment
                         .connect(roles.payer)
@@ -611,15 +758,15 @@ describe('makePayment', function () {
                         roles.requester.address,
                         roles.payer.address,
                         roles.airnode.address,
-                        paymentAmount,
-                        await api3Token.symbol(),
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                        paymentAmountInWei,
+                        api3Token.address,
+                        nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
-                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmount);
+                    expect(payerBeforeBalance.sub(payerAfterBalance)).to.equal(paymentAmountInWei);
                     const airnodeAfterBalance = await api3Token.balanceOf(roles.airnode.address);
-                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmount);
+                    expect(airnodeAfterBalance.sub(airnodeBeforeBalance)).to.equal(paymentAmountInWei);
 
                     whitelistStatus =
                       await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
@@ -633,8 +780,6 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                   });
                   it('makes the payment with custom whitelist duration (max = 365 days and min = 15 days)', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
@@ -652,6 +797,12 @@ describe('makePayment', function () {
                     await airnodeTokenPayment
                       .connect(roles.airnode)
                       .setAirnodeToWhitelistDuration(oneYearInSeconds, fifteenDaysInSeconds);
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
 
                     await expect(
                       airnodeTokenPayment
@@ -673,8 +824,8 @@ describe('makePayment', function () {
                         roles.payer.address,
                         roles.airnode.address,
                         endpointPrice,
-                        await api3Token.symbol(),
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                        api3Token.address,
+                        nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
@@ -694,8 +845,6 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                   });
                   it('makes the payment to a different airnode payment address', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
                     const airnodePaymentDestinationBeforeBalance = await api3Token.balanceOf(airnodePaymentDestination);
@@ -713,6 +862,12 @@ describe('makePayment', function () {
                     await airnodeTokenPayment
                       .connect(roles.airnode)
                       .setAirnodeToPaymentDestination(airnodePaymentDestination);
+
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
+                    const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
+                    const nextBlockTimestamp = lastBlockTimestamp + 10;
+                    await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
 
                     await expect(
                       airnodeTokenPayment
@@ -734,8 +889,8 @@ describe('makePayment', function () {
                         roles.payer.address,
                         airnodePaymentDestination,
                         endpointPrice,
-                        await api3Token.symbol(),
-                        (await utils.getCurrentTimestamp(hre.ethers.provider)) + thirtyDaysInSeconds
+                        api3Token.address,
+                        nextBlockTimestamp + thirtyDaysInSeconds
                       );
 
                     const payerAfterBalance = await api3Token.balanceOf(roles.payer.address);
@@ -759,8 +914,6 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                   });
                   it('makes the payment and extends current whitelisting period', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
@@ -794,9 +947,12 @@ describe('makePayment', function () {
                     expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
                     await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+
                     await expect(
                       airnodeTokenPayment
                         .connect(roles.payer)
@@ -817,7 +973,7 @@ describe('makePayment', function () {
                         roles.payer.address,
                         roles.airnode.address,
                         endpointPrice,
-                        await api3Token.symbol(),
+                        api3Token.address,
                         initialWhitelistExpiration + thirtyDaysInSeconds
                       );
 
@@ -838,8 +994,6 @@ describe('makePayment', function () {
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
                   });
                   it('makes the payment and ignores previous expired timestamp', async function () {
-                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
-
                     const payerBeforeBalance = await api3Token.balanceOf(roles.payer.address);
                     const airnodeBeforeBalance = await api3Token.balanceOf(roles.airnode.address);
 
@@ -873,6 +1027,8 @@ describe('makePayment', function () {
                     expect(whitelistStatus.expirationTimestamp).to.equal(initialWhitelistExpiration);
                     expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
 
+                    await api3Token.connect(roles.payer).approve(airnodeTokenPayment.address, endpointPrice);
+
                     const lastBlockTimestamp = await utils.getCurrentTimestamp(hre.ethers.provider);
                     const nextBlockTimestamp = lastBlockTimestamp + 10;
                     await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
@@ -897,7 +1053,7 @@ describe('makePayment', function () {
                         roles.payer.address,
                         roles.airnode.address,
                         endpointPrice,
-                        await api3Token.symbol(),
+                        api3Token.address,
                         nextBlockTimestamp + thirtyDaysInSeconds
                       );
 

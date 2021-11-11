@@ -12,7 +12,7 @@ import "./interfaces/IAirnodeTokenPayment.sol";
 
 /// @title The contract used to pay with ERC20 in order to gain access to Airnodes
 /// @notice In order for an Airnode provider to accept payments using this contract
-/// it must fist grant the whitelistExpirationExtenderRole to this contract.
+/// it must first grant the whitelistExpirationExtenderRole to this contract.
 contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
     AirnodeRequesterAuthorizerRegistryClient,
@@ -38,7 +38,8 @@ contract AirnodeTokenPayment is
     /// @dev The price is used to calculate the amount of tokens that are
     /// required to be paid and it is defaulted to 1 for stable coin tokens
     /// but if the token has a different price then an oracle must call
-    /// setPaymentTokenPrice() in order to keep the price up to date
+    /// setPaymentTokenPrice() in order to keep the price up to date.
+    /// Payment price is represented using 18 decimals places
     uint256 public paymentTokenPrice = 1e18;
 
     /// @notice Mapping to store the maximum and minimum whitelisting duration
@@ -82,7 +83,7 @@ contract AirnodeTokenPayment is
     /// @notice Called by a payment token price setter to set the payment
     /// token price. The caller most likely be an oracle with the role granted
     /// or the manager of the contract
-    /// @dev The price should be set with 18 decimal places
+    /// @dev The price should be set using 18 decimal places
     /// @param _paymentTokenPrice Payment token price in USD
     function setPaymentTokenPrice(uint256 _paymentTokenPrice)
         external
@@ -163,9 +164,9 @@ contract AirnodeTokenPayment is
     /// @dev In order for this function to be able to extend the whitelisting,
     /// the Airnode operator must first grant the whitelist expiration extender
     /// role to this contract, otherwise it will revert.
-    /// chainId-airnode-endpoint-requester pair gets authorized for the
-    /// duration specified. The amount to be paid is determined by the fee set
-    /// in the AirnodeFeeRegistry contract and the token price.
+    /// Requester gets authorized for the specified duration on a specific
+    /// chainId-airnode-endpointId. The amount to be paid is determined by the
+    /// fee set in the AirnodeFeeRegistry contract and the token price.
     /// @param _chainId Id of the chain
     /// @param _airnode Airnode address
     /// @param _endpointId Id of the endpoint
@@ -246,32 +247,34 @@ contract AirnodeTokenPayment is
             msg.sender,
             getAirnodeToPaymentDestination(_airnode),
             amount,
-            IERC20Metadata(paymentTokenAddress).symbol(),
+            paymentTokenAddress,
             newExpirationTimestamp
         );
     }
 
-    /// @notice Returns the amount of tokens a sponsor has to transfer to the
+    /// @notice Returns the amount of tokens a requester has to transfer to the
     /// Airnode in order to be whitelisted for a given
     /// chainId-airnode-endpointId
     /// @dev AirnodeFeeRegistry should return the fee in usd using 18 decimals
+    /// and the token price should also be set using 18 decimals places
     /// @param _chainId Id of the chain
     /// @param _airnode Airnode address
     /// @param _endpointId Id of the endpoint
     /// @param _whitelistDuration Duration in seconds for which the requester
     /// will be whitelisted
+    /// @return amount Amount of tokens to be transferred to the Airnode
     function getPaymentAmount(
         uint256 _chainId,
         address _airnode,
         bytes32 _endpointId,
         uint64 _whitelistDuration
     ) public view override returns (uint256 amount) {
-        uint8 decimals = IERC20Metadata(paymentTokenAddress).decimals();
+        uint8 tokenDecimals = IERC20Metadata(paymentTokenAddress).decimals();
         uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
-            .getEndpointPrice(_chainId, _airnode, _endpointId) * (10**decimals);
+            .getEndpointPrice(_chainId, _airnode, _endpointId);
         uint24 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).INTERVAL();
         amount =
-            (feeInUsd * _whitelistDuration) /
+            ((10**tokenDecimals) * feeInUsd * _whitelistDuration) /
             (paymentTokenPrice * feeInterval);
     }
 

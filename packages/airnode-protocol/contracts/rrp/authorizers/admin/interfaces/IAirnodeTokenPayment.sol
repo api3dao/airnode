@@ -26,7 +26,7 @@ interface IAirnodeTokenPayment {
         address sponsor,
         address paymentAddress,
         uint256 paymentAmount,
-        string paymentTokenSymbol,
+        address paymentTokenAddress,
         uint256 expirationTimestamp
     );
 
