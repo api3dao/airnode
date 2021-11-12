@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import { ResponseType, ValueType, artificialTypes } from '../types';
+import { artificialTypes } from '../constants';
+import { ResponseType, ValueType } from '../types';
 
 type ArtificialTypeMapping = {
   readonly [key in typeof artificialTypes[number]]: string;
