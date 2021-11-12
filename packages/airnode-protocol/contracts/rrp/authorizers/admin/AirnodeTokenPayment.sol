@@ -121,7 +121,7 @@ contract AirnodeTokenPayment is
                 "Invalid duration"
             );
             require(
-                _maximumWhitelistDuration >
+                _maximumWhitelistDuration >=
                     DEFAULT_MINIMUM_WHITELIST_DURATION &&
                     _maximumWhitelistDuration <=
                     DEFAULT_MAXIMUM_WHITELIST_DURATION,
@@ -130,7 +130,7 @@ contract AirnodeTokenPayment is
             require(
                 _minimumWhitelistDuration >=
                     DEFAULT_MINIMUM_WHITELIST_DURATION &&
-                    _minimumWhitelistDuration <
+                    _minimumWhitelistDuration <=
                     DEFAULT_MAXIMUM_WHITELIST_DURATION,
                 "Invalid duration"
             );

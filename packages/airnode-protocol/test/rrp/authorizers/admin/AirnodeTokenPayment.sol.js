@@ -360,6 +360,40 @@ describe('setAirnodeToWhitelistDuration', function () {
         expect(whitelistDuration.maximum.toString()).to.equal((48 * thirtyDaysInSeconds).toString());
         expect(whitelistDuration.minimum.toString()).to.equal((2 * weekInSeconds).toString());
       });
+      it('sets the whitelist duration of a single period for the airnode', async function () {
+        const tenDaysInSeconds = 10 * oneDayInSeconds;
+        let whitelistDuration = await airnodeTokenPayment.airnodeToWhitelistDuration(roles.airnode.address);
+        expect(whitelistDuration.maximum.toString()).to.equal('0');
+        expect(whitelistDuration.minimum.toString()).to.equal('0');
+        await expect(
+          airnodeTokenPayment.connect(roles.airnode).setAirnodeToWhitelistDuration(tenDaysInSeconds, tenDaysInSeconds)
+        )
+          .to.emit(airnodeTokenPayment, 'SetAirnodeToWhitelistDuration')
+          .withArgs(tenDaysInSeconds, tenDaysInSeconds, roles.airnode.address);
+        whitelistDuration = await airnodeTokenPayment.airnodeToWhitelistDuration(roles.airnode.address);
+        expect(whitelistDuration.maximum.toString()).to.equal(tenDaysInSeconds.toString());
+        expect(whitelistDuration.minimum.toString()).to.equal(tenDaysInSeconds.toString());
+
+        await accessControlRegistry
+          .connect(roles.manager)
+          .renounceRole(airnodeToMinimumWhitelistDurationSetterRole, roles.manager.address);
+
+        const maximum = await airnodeTokenPayment.DEFAULT_MAXIMUM_WHITELIST_DURATION();
+        await expect(airnodeTokenPayment.connect(roles.manager).setAirnodeToWhitelistDuration(maximum, maximum))
+          .to.emit(airnodeTokenPayment, 'SetAirnodeToWhitelistDuration')
+          .withArgs(maximum, maximum, roles.manager.address);
+        whitelistDuration = await airnodeTokenPayment.airnodeToWhitelistDuration(roles.manager.address);
+        expect(whitelistDuration.maximum.toString()).to.equal(maximum.toString());
+        expect(whitelistDuration.minimum.toString()).to.equal(maximum.toString());
+
+        const minimum = await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION();
+        await expect(airnodeTokenPayment.connect(roles.manager).setAirnodeToWhitelistDuration(minimum, minimum))
+          .to.emit(airnodeTokenPayment, 'SetAirnodeToWhitelistDuration')
+          .withArgs(minimum, minimum, roles.manager.address);
+        whitelistDuration = await airnodeTokenPayment.airnodeToWhitelistDuration(roles.manager.address);
+        expect(whitelistDuration.maximum.toString()).to.equal(minimum.toString());
+        expect(whitelistDuration.minimum.toString()).to.equal(minimum.toString());
+      });
       it('resets the whitelist duration period for the airnode', async function () {
         const weekInSeconds = 7 * oneDayInSeconds;
         let whitelistDuration = await airnodeTokenPayment.airnodeToWhitelistDuration(roles.airnode.address);
@@ -386,7 +420,7 @@ describe('setAirnodeToWhitelistDuration', function () {
     });
     context('duration period is not valid', function () {
       it('reverts', async function () {
-        // max is not greater than min
+        // max is not greater or equal than min
         await expect(
           airnodeTokenPayment
             .connect(roles.airnode)
@@ -395,12 +429,12 @@ describe('setAirnodeToWhitelistDuration', function () {
               await airnodeTokenPayment.DEFAULT_MAXIMUM_WHITELIST_DURATION()
             )
         ).to.be.revertedWith('Invalid duration');
-        // max is not greater than default min
+        // max is less than default min
         await expect(
           airnodeTokenPayment
             .connect(roles.airnode)
             .setAirnodeToWhitelistDuration(
-              await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION(),
+              (await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION()).sub(1),
               await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION()
             )
         ).to.be.revertedWith('Invalid duration');
@@ -422,13 +456,13 @@ describe('setAirnodeToWhitelistDuration', function () {
               (await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION()).sub(1)
             )
         ).to.be.revertedWith('Invalid duration');
-        // min is not less than default max
+        // min is greater than default max
         await expect(
           airnodeTokenPayment
             .connect(roles.airnode)
             .setAirnodeToWhitelistDuration(
               await airnodeTokenPayment.DEFAULT_MAXIMUM_WHITELIST_DURATION(),
-              (await airnodeTokenPayment.DEFAULT_MINIMUM_WHITELIST_DURATION()).sub(1)
+              (await airnodeTokenPayment.DEFAULT_MAXIMUM_WHITELIST_DURATION()).add(1)
             )
         ).to.be.revertedWith('Invalid duration');
         // max is 0
