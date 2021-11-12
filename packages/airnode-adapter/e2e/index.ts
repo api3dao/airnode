@@ -47,6 +47,7 @@ const apiResponse = {
     floatNegative: '-112233445566.778899',
   },
   address: '0x0765baA22F6D4A53847D63B056DC79400b9A592a',
+  addressWithoutPrefix: '0765baA22F6D4A53847D63B056DC79400b9A592a',
   boolTrue: true,
   strFalse: false,
   json: {
@@ -164,6 +165,13 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       await testDecoder.decodeAddress(
         extractAndEncodeResponse(apiResponse, { _type: 'address', _path: 'address' }).encodedValue
       )
+    ).to.equal(apiResponse.address);
+
+    expect(
+      await testDecoder.decodeAddress(
+        extractAndEncodeResponse(apiResponse, { _type: 'address', _path: 'addressWithoutPrefix' }).encodedValue
+      )
+      // NOTE: Notice that the response is with prefix '0x'
     ).to.equal(apiResponse.address);
   });
 

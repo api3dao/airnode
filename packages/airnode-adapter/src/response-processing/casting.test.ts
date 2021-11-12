@@ -192,6 +192,8 @@ describe('castValue', () => {
     it('casts valid addresses', () => {
       const addressStr = '0xe021f6bfbdd53c3fd0c5cfd4139b51d1f3108a74';
       expect(castValue(addressStr, 'address')).toBe(addressStr);
+
+      expect(castValue(addressStr.substr(2), 'address')).toBe('e021f6bfbdd53c3fd0c5cfd4139b51d1f3108a74');
     });
   });
 
