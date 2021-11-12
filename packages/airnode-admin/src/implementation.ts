@@ -118,7 +118,7 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string', 'string'], [oisTitle, endpointName]));
 }
 
 export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requesterAddress: string) {
