@@ -8,6 +8,8 @@ import "./interfaces/IAirnodeFeeRegistryRolesWithManager.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for
 /// the AirnodeFeeRegistry contract
+/// @notice The manager address here is expected to belong to a contract that
+// is owned by the DAO
 contract AirnodeFeeRegistryRolesWithManager is
     RoleDeriver,
     AccessControlClient,

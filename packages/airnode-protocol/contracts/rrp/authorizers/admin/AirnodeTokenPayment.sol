@@ -10,9 +10,11 @@ import "./interfaces/IAirnodeFeeRegistry.sol";
 import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
 
-/// @title The contract used to pay with ERC20 in order to gain access to Airnodes
-/// @notice In order for an Airnode provider to accept payments using this contract
-/// it must first grant the whitelistExpirationExtenderRole to this contract.
+/// @title The contract used to pay with ERC20 in order to get whitelisted to
+/// be able to make requests to an Airnode
+/// @notice In order for an Airnode provider to accept payments using this
+/// contract it must first grant the whitelistExpirationExtenderRole to this
+/// contract
 contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
     AirnodeRequesterAuthorizerRegistryClient,
@@ -36,10 +38,9 @@ contract AirnodeTokenPayment is
 
     /// @notice The price of the ERC20 token in USD
     /// @dev The price is used to calculate the amount of tokens that are
-    /// required to be paid and it is defaulted to 1 for stable coin tokens
+    /// required to be paid and it is defaulted to 1e18 for stable coin tokens
     /// but if the token has a different price then an oracle must call
-    /// setPaymentTokenPrice() in order to keep the price up to date.
-    /// Payment price is represented using 18 decimals places
+    /// setPaymentTokenPrice() in order to keep the price up to date
     uint256 public paymentTokenPrice = 1e18;
 
     /// @notice Mapping to store the maximum and minimum whitelisting duration
@@ -100,6 +101,10 @@ contract AirnodeTokenPayment is
 
     /// @notice Called by an Airnode to whitelist duration setter to set the
     /// maximum and minimum whitelisting duration for an Airnode
+    /// @dev Custom maximum and minimun whitelist duration for an Airnode can
+    /// be resetted by calling this function with '0' for both arguments. Also
+    /// the Airnode operator can set them with the same values to only allow
+    /// the payment of a single duration period
     /// @param _maximumWhitelistDuration Maximum whitelist duration in seconds
     /// @param _minimumWhitelistDuration Minimum whitelist duration in seconds
     function setAirnodeToWhitelistDuration(
@@ -160,7 +165,8 @@ contract AirnodeTokenPayment is
         emit SetAirnodeToPaymentDestination(_paymentDestination, msg.sender);
     }
 
-    /// @notice Make payments to gain access to Airnode
+    /// @notice Caller makes payments to whitelist a requester for making
+    /// requests to an endpoint by an Airnode on a specific chain
     /// @dev In order for this function to be able to extend the whitelisting,
     /// the Airnode operator must first grant the whitelist expiration extender
     /// role to this contract, otherwise it will revert.

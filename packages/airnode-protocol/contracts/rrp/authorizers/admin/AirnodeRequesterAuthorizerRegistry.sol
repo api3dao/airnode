@@ -3,9 +3,12 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 
-/// @title AirnodeRequesterAuthorizerRegistry
-/// @notice The registry of RequesterAuthorizersWithManager contracts across different chains
-/// This owner of the registry is expected to be an address managed by the DAO
+/// @title Contract for storing the addresses of RequesterAuthorizerWithManager
+/// authorizer contracts across different chains
+/// @notice Multiple contracts can refer to this contract to retrieve the
+/// address of the authorizer contract they need to interact with in order to
+/// whitelist a requester based on a specific action. For example lock tokens
+/// or make a payment to an Airnode wallet.
 contract AirnodeRequesterAuthorizerRegistry is
     Ownable,
     IAirnodeRequesterAuthorizerRegistry
