@@ -36,8 +36,11 @@ export function extractValue(data: unknown, path?: string) {
   return rawValue;
 }
 
-// This function can throw an error in both extraction and encoding
-export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters) {
+export function splitReservedParameters(parameters: ReservedParameters): ReservedParameters[] {
+  return [parameters];
+}
+
+function extractAndEncodeSingleResponse(data: unknown, parameters: ReservedParameters) {
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
 
@@ -56,4 +59,14 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
 
   const encodedValue = encoding.encodeValue(value, parameters._type);
   return { rawValue, value, encodedValue };
+}
+
+// This function can throw an error in both extraction and encoding
+export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters) {
+  const reservedParameters = splitReservedParameters(parameters);
+  if (reservedParameters.length > 1) {
+    return reservedParameters.map((params) => extractAndEncodeSingleResponse(data, params));
+  }
+
+  return extractAndEncodeSingleResponse(data, parameters);
 }
