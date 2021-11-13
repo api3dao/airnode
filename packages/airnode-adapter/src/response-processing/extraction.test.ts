@@ -55,7 +55,7 @@ describe('extract and encode single value', () => {
     const encodedString = ethers.utils.formatBytes32String('simplestring');
     const res = extractAndEncodeResponse(encodedString, { _type: 'bytes32' });
     expect(res).toEqual({
-      value: encodedString,
+      values: [encodedString],
       rawValue: encodedString,
       encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
     });
@@ -66,8 +66,8 @@ describe('extract and encode single value', () => {
     const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      rawValue: '750.51',
-      value: '75051',
+      rawValue: data,
+      values: ['75051'],
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
   });
@@ -77,8 +77,8 @@ describe('extract and encode single value', () => {
     const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      rawValue: '750.51',
-      value: '750',
+      rawValue: data,
+      values: ['750'],
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000000002ee',
     });
   });
@@ -89,7 +89,7 @@ describe('extract and encode single value', () => {
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: 123456,
-      value: '123456',
+      values: ['123456'],
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001e240',
     });
   });
@@ -100,37 +100,24 @@ describe('extract and encode multiple values', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
     const parameters: ReservedParameters = { _path: 'a.b.1.d,a.b.0.c', _type: 'int256,bool', _times: '100,' };
     const res = extractAndEncodeResponse(data, parameters);
-    expect(res).toEqual([
-      {
-        rawValue: '750.51',
-        value: '75051',
-        encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
-      },
-      {
-        rawValue: 1,
-        value: true,
-        encodedValue: '0x0000000000000000000000000000000000000000000000000000000000000001',
-      },
-    ]);
+    expect(res).toEqual({
+      rawValue: data,
+      values: ['75051', true],
+      encodedValue:
+        '0x000000000000000000000000000000000000000000000000000000000001252b0000000000000000000000000000000000000000000000000000000000000001',
+    });
   });
 
   it('works for more complex request', () => {
     const data = [12.3, 45.6];
     const parameters: ReservedParameters = { _path: ',0', _type: 'int256[],int256', _times: '100,1000' };
     const res = extractAndEncodeResponse(data, parameters);
-    expect(res).toEqual([
-      {
-        rawValue: data,
-        value: ['1230', '4560'],
-        encodedValue:
-          '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004ce00000000000000000000000000000000000000000000000000000000000011d0',
-      },
-      {
-        rawValue: 12.3,
-        value: '12300',
-        encodedValue: '0x000000000000000000000000000000000000000000000000000000000000300c',
-      },
-    ]);
+    expect(res).toEqual({
+      rawValue: data,
+      values: [['1230', '4560'], '12300'],
+      encodedValue:
+        '0x0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000300c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004ce00000000000000000000000000000000000000000000000000000000000011d0',
+    });
   });
 
   it('correctly splits reserved parameters containing multiple values', () => {

@@ -63,7 +63,7 @@ export interface ReservedParameters {
 
 export interface ExtractedAndEncodedResponse {
   rawValue: unknown;
-  value: ValueType;
+  values: ValueType[];
   encodedValue: string;
 }
 
