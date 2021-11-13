@@ -16,7 +16,7 @@
     "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
-    "test:e2e:debug": "jest \"requester-fulfill.feature\" --selectProjects e2e",
+    "test:e2e:debug": "jest \"test-api.feature\" --selectProjects e2e",
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit"

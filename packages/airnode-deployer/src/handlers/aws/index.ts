@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { config, handlers, logger, promiseUtils, providerState, WorkerResponse } from '@api3/airnode-node';
+import { pick } from 'lodash';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = config.parseConfig(configFile, process.env);
