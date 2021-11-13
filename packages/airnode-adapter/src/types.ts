@@ -55,10 +55,16 @@ export type BaseResponseType = typeof baseResponseTypes[number];
 export type ResponseType = string;
 
 export interface ReservedParameters {
-  readonly _path?: string;
-  readonly _times?: string | BigNumber;
-  readonly _type: ResponseType;
-  readonly _relay_metadata?: string;
+  _path?: string;
+  _times?: string;
+  _type: ResponseType;
+  _relay_metadata?: string;
+}
+
+export interface ExtractedAndEncodedResponse {
+  rawValue: unknown;
+  value: ValueType;
+  encodedValue: string;
 }
 
 export type MetadataParameterKeysV1 =
