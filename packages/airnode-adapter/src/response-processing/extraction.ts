@@ -1,8 +1,7 @@
-import isUndefined from 'lodash/isUndefined';
-import { range } from 'lodash';
-import * as casting from './casting';
-import * as encoding from './encoding';
+import { range, isUndefined } from 'lodash';
+import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
+import { encodeMultipleValues, encodeValue } from './encoding';
 import { MULTIPLE_PARAMETERS_DELIMETER } from '../constants';
 import { ReservedParameters, ValueType, ExtractedAndEncodedResponse } from '../types';
 
@@ -73,36 +72,38 @@ export function splitReservedParameters(parameters: ReservedParameters): Reserve
   return reservedParameters;
 }
 
-function extractAndEncodeSingleResponse(data: unknown, parameters: ReservedParameters) {
-  const rawValue = extractValue(data, parameters._path);
-  const value = casting.castValue(rawValue, parameters._type);
+function extractSingleResponse(data: unknown, parameters: ReservedParameters) {
+  const extracted = extractValue(data, parameters._path);
+  const value = castValue(extracted, parameters._type);
 
   const parsedArrayType = parseArrayType(parameters._type);
   const type = parsedArrayType?.baseType ?? parameters._type;
   if (isNumericType(type)) {
     const multipledValue = parsedArrayType
       ? (applyToArrayRecursively(value, parsedArrayType, (num: number) =>
-          casting.multiplyValue(num.toString(), parameters._times)
+          multiplyValue(num.toString(), parameters._times)
         ) as ValueType)
-      : casting.multiplyValue(value.toString(), parameters._times);
+      : multiplyValue(value.toString(), parameters._times);
 
-    const encodedValue = encoding.encodeValue(multipledValue, parameters._type);
-    return { rawValue, value: multipledValue, encodedValue };
+    return multipledValue;
   }
 
-  const encodedValue = encoding.encodeValue(value, parameters._type);
-  return { rawValue, value, encodedValue };
+  return value;
 }
 
 // This function can throw an error in both extraction and encoding
-export function extractAndEncodeResponse(
-  data: unknown,
-  parameters: ReservedParameters
-): ExtractedAndEncodedResponse | ExtractedAndEncodedResponse[] {
+export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters): ExtractedAndEncodedResponse {
   const reservedParameters = splitReservedParameters(parameters);
   if (reservedParameters.length > 1) {
-    return reservedParameters.map((params) => extractAndEncodeSingleResponse(data, params));
+    const extractedValues = reservedParameters.map((params) => extractSingleResponse(data, params));
+    const encodedValue = encodeMultipleValues(
+      extractedValues,
+      reservedParameters.map((param) => param._type)
+    );
+
+    return { rawValue: data, encodedValue, values: extractedValues };
   }
 
-  return extractAndEncodeSingleResponse(data, parameters);
+  const extractedValue = extractSingleResponse(data, parameters);
+  return { rawValue: data, encodedValue: encodeValue(extractedValue, parameters._type), values: [extractedValue] };
 }
