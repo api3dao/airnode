@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as logger from '../utils/logger';
+import template from 'lodash/template';
+import dotenv from 'dotenv';
 import { Log } from '../types';
+import * as logger from '../utils/logger';
 import { unknownConversion } from '../utils/messages';
 import { regexList } from '../utils/globals';
 
@@ -44,6 +46,13 @@ conversionTemplates.forEach((file) => {
   conversions[fromName][fromVersion][toName] ??= [];
   conversions[fromName][fromVersion][toName].push(toVersion);
 });
+
+// Regular expression that does not match anything, ensuring no escaping or interpolation happens
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
+const NO_MATCH_REGEXP = /($^)/;
+// Regular expression matching ES template literal delimiter (${}) with escaping
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
+const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
 /**
  * Finds path to latest version of template
@@ -178,4 +187,57 @@ export function getConversionPath(
   }
 
   return path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`);
+}
+
+export function interpolateFiles(specsPath: string, envPath: string, messages: Log[]): object {
+  let specs, env;
+  specsPath = path.resolve(specsPath);
+  envPath = path.resolve(envPath);
+
+  try {
+    specs = fs.readFileSync(specsPath, 'utf-8');
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${specsPath}`));
+    return {};
+  }
+
+  try {
+    specs = JSON.parse(specs);
+  } catch (e) {
+    messages.push(logger.error(`${path.resolve(__dirname, specsPath)} is not valid JSON`));
+    return {};
+  }
+
+  try {
+    env = fs.readFileSync(envPath);
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${envPath}`));
+    return {};
+  }
+
+  try {
+    env = dotenv.parse(env);
+  } catch (e) {
+    messages.push(logger.error(`${envPath} is not valid env file`));
+    return {};
+  }
+
+  return interpolate(specs, env, messages);
+}
+
+export function interpolate(specs: object, env: Record<string, string | undefined>, messages: Log[]): object {
+  let interpolated;
+
+  try {
+    interpolated = JSON.parse(template(JSON.stringify(specs), {
+      escape: NO_MATCH_REGEXP,
+      evaluate: NO_MATCH_REGEXP,
+      interpolate: ES_MATCH_REGEXP,
+    })(env));
+  } catch (e) {
+    messages.push(logger.error('Unable to interpolate provided specification'));
+    return {};
+  }
+
+  return interpolated;
 }
