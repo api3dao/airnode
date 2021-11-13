@@ -76,6 +76,6 @@ describe('testApi', () => {
     expect(err).toBeNull();
     expect(res).toEqual({ value: '1000' });
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, false);
+    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, { forTestingGateway: true });
   });
 });
