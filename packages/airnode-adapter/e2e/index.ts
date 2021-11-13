@@ -69,7 +69,7 @@ const apiResponse = {
   },
 } as const;
 
-function extractAndEncodeSingle(reservedParams: ReservedParameters) {
+function extractAndEncode(reservedParams: ReservedParameters) {
   const encoded = extractAndEncodeResponse(apiResponse, reservedParams);
   if (Array.isArray(encoded)) expect.fail();
 
@@ -92,7 +92,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
       expect(
         await testDecoder[methodName](
-          extractAndEncodeSingle({
+          extractAndEncode({
             _type: type,
             _path: 'big.decimal',
           })
@@ -101,7 +101,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
       expect(
         await testDecoder[methodName](
-          extractAndEncodeSingle({
+          extractAndEncode({
             _type: type,
             _path: 'decimal',
           })
@@ -110,7 +110,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
       expect(
         await testDecoder[methodName](
-          extractAndEncodeSingle({
+          extractAndEncode({
             _type: type,
             _path: 'big.float',
             _times: '1000000',
@@ -120,7 +120,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
       expect(
         await testDecoder[methodName](
-          extractAndEncodeSingle({
+          extractAndEncode({
             _type: type,
             _path: 'float',
             _times: '1000000',
@@ -132,23 +132,21 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
   it('floors the number after multiplying it', async () => {
     expect(
-      await testDecoder.decodeSignedInt256(extractAndEncodeSingle({ _type: 'int256', _times: '100', _path: 'float' }))
+      await testDecoder.decodeSignedInt256(extractAndEncode({ _type: 'int256', _times: '100', _path: 'float' }))
     ).to.equal(1234567);
   });
 
   it('floors the number without using "_times" parameter', async () => {
-    expect(await testDecoder.decodeSignedInt256(extractAndEncodeSingle({ _type: 'int256', _path: 'float' }))).to.equal(
-      12345
-    );
+    expect(await testDecoder.decodeSignedInt256(extractAndEncode({ _type: 'int256', _path: 'float' }))).to.equal(12345);
   });
 
   it('decodes bool encoded by the adapter package', async () => {
-    expect(await testDecoder.decodeBool(extractAndEncodeSingle({ _type: 'bool', _path: 'boolTrue' }))).to.equal(true);
-    expect(await testDecoder.decodeBool(extractAndEncodeSingle({ _type: 'bool', _path: 'strFalse' }))).to.equal(false);
+    expect(await testDecoder.decodeBool(extractAndEncode({ _type: 'bool', _path: 'boolTrue' }))).to.equal(true);
+    expect(await testDecoder.decodeBool(extractAndEncode({ _type: 'bool', _path: 'strFalse' }))).to.equal(false);
   });
 
   it('decodes bytes32 encoded by the adapter package', async () => {
-    const encodedBytes = extractAndEncodeSingle({ _type: 'bytes32', _path: 'bytes' });
+    const encodedBytes = extractAndEncode({ _type: 'bytes32', _path: 'bytes' });
 
     const fromContract = await testDecoder.decodeBytes32(encodedBytes);
     const decoded = ethers.utils.parseBytes32String(fromContract);
@@ -156,19 +154,19 @@ describe('Extraction, encoding and simple on chain decoding', () => {
   });
 
   it('decodes address encoded by the adapter package', async () => {
-    expect(await testDecoder.decodeAddress(extractAndEncodeSingle({ _type: 'address', _path: 'address' }))).to.equal(
+    expect(await testDecoder.decodeAddress(extractAndEncode({ _type: 'address', _path: 'address' }))).to.equal(
       apiResponse.address
     );
 
     expect(
-      await testDecoder.decodeAddress(extractAndEncodeSingle({ _type: 'address', _path: 'addressWithoutPrefix' }))
+      await testDecoder.decodeAddress(extractAndEncode({ _type: 'address', _path: 'addressWithoutPrefix' }))
       // NOTE: Notice that the response is with prefix '0x'
     ).to.equal(apiResponse.address);
   });
 
   it('decodes bytes encoded by the adapter package', async () => {
     const { toUtf8String, arrayify } = ethers.utils;
-    const encodedBytes = extractAndEncodeSingle({ _type: 'bytes', _path: 'big.bytes' });
+    const encodedBytes = extractAndEncode({ _type: 'bytes', _path: 'big.bytes' });
 
     const fromContract = await testDecoder.decodeBytes(encodedBytes);
     const decoded = toUtf8String(arrayify(fromContract)).toString();
@@ -176,7 +174,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
   });
 
   it('decodes string encoded by the adapter package', async () => {
-    expect(await testDecoder.decodeString(extractAndEncodeSingle({ _type: 'string', _path: 'big.string' }))).to.equal(
+    expect(await testDecoder.decodeString(extractAndEncode({ _type: 'string', _path: 'big.string' }))).to.equal(
       apiResponse.big.string
     );
   });
@@ -184,14 +182,14 @@ describe('Extraction, encoding and simple on chain decoding', () => {
   describe('decodes arrays', () => {
     it('1 dimension unlimited size', async () => {
       assertArrayEquals(
-        await testDecoder.decode1DArray(extractAndEncodeSingle({ _type: 'int256[]', _path: 'array.int256' })),
+        await testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[]', _path: 'array.int256' })),
         apiResponse.array.int256
       );
     });
 
     it('1 dimension fixed length', async () => {
       assertArrayEquals(
-        await testDecoder.decode1DFixedArray(extractAndEncodeSingle({ _type: 'int256[2]', _path: 'array.int256' })),
+        await testDecoder.decode1DFixedArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' })),
         apiResponse.array.int256
       );
     });
@@ -199,7 +197,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     it('1 dimension fixed length with _times parameter', async () => {
       assertArrayEquals(
         await testDecoder.decode1DFixedArray(
-          extractAndEncodeSingle({ _type: 'int256[2]', _path: 'array.int256', _times: '1000' })
+          extractAndEncode({ _type: 'int256[2]', _path: 'array.int256', _times: '1000' })
         ),
         [123000, 456000]
       );
@@ -207,7 +205,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
     it('mixed fixes/unlimited sized arrays', async () => {
       // Solidity arrays are specified "backwards". See https://ethereum.stackexchange.com/a/129
-      const encodedBytes = extractAndEncodeSingle({
+      const encodedBytes = extractAndEncode({
         _type: 'int256[2][][3]',
         _path: 'array.nested',
       });
@@ -219,23 +217,31 @@ describe('Extraction, encoding and simple on chain decoding', () => {
 
   it('decodes string32 encoded by the adapter package', async () => {
     const { parseBytes32String, arrayify } = ethers.utils;
-    const encodedBytes = extractAndEncodeSingle({ _type: 'string32', _path: 'string' });
+    const encodedBytes = extractAndEncode({ _type: 'string32', _path: 'string' });
 
     const fromContract = await testDecoder.decodeString32(encodedBytes);
     const decoded = parseBytes32String(arrayify(fromContract)).toString();
     expect(decoded).to.equal(apiResponse.string);
   });
 
+  it('decodes multiple params encoded by the adapter package', async () => {
+    const decoded = await testDecoder.decodeMultipleParameters(
+      extractAndEncode({ _type: 'string,uint256,address', _path: 'big.string,float,address', _times: ',10000,' })
+    );
+
+    assertArrayEquals(decoded, [apiResponse.big.string, 123456789, apiResponse.address]);
+  });
+
   describe('Failures', () => {
     it('throws on invalid type', () => {
       // 'true' is not a valid _type, 'bool' should be used
-      expect(() => extractAndEncodeSingle({ _type: 'true', _path: 'boolTrue' })).to.Throw('Invalid type: true');
+      expect(() => extractAndEncode({ _type: 'true', _path: 'boolTrue' })).to.Throw('Invalid type: true');
     });
 
     it('throws when parsing fixed array as non fixed one', async () => {
       // eslint-disable-next-line functional/no-try-statement
       try {
-        await testDecoder.decode1DArray(extractAndEncodeSingle({ _type: 'int256[2]', _path: 'array.int256' }));
+        await testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }));
         expect.fail();
       } catch (e: any) {
         expect(e.message).to.contain('Transaction reverted');
@@ -245,7 +251,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     it('throws on invalid path', () => {
       const dynamicKey = 'strange.key';
 
-      expect(() => extractAndEncodeSingle({ _type: 'int256', _times: '100', _path: `json.${dynamicKey}` })).to.Throw(
+      expect(() => extractAndEncode({ _type: 'int256', _times: '100', _path: `json.${dynamicKey}` })).to.Throw(
         "Unable to find value from path: 'json.strange.key'"
       );
     });
