@@ -111,6 +111,7 @@ export async function callApi(
   // eslint-disable-next-line functional/no-try-statement
   try {
     const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
+    // TODO: implement
     const value = encodeResponse ? extracted.encodedValue : extracted.value;
     const printableValue = createPrintableValue(value);
     return [[], { value: printableValue }];

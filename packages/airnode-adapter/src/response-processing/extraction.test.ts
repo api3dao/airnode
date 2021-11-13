@@ -72,14 +72,14 @@ describe('extract and encode single value', () => {
     });
   });
 
-  it('accpets "" (empty string) for _times parameter', () => {
+  it('accepts "" (empty string) for _times parameter', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
     const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: '750.51',
-      value: '750.51',
-      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+      value: '750',
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000002ee',
     });
   });
 
@@ -88,9 +88,9 @@ describe('extract and encode single value', () => {
     const parameters: ReservedParameters = { _path: '', _type: 'int256' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      rawValue: '123456',
+      rawValue: 123456,
       value: '123456',
-      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001e240',
     });
   });
 });
@@ -107,9 +107,9 @@ describe('extract and encode multiple values', () => {
         encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
       },
       {
-        rawValue: '1',
-        value: 'true',
-        encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+        rawValue: 1,
+        value: true,
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000000000001',
       },
     ]);
   });
@@ -121,13 +121,14 @@ describe('extract and encode multiple values', () => {
     expect(res).toEqual([
       {
         rawValue: data,
-        value: [1230, 4560],
-        encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+        value: ['1230', '4560'],
+        encodedValue:
+          '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004ce00000000000000000000000000000000000000000000000000000000000011d0',
       },
       {
-        rawValue: '12.3',
+        rawValue: 12.3,
         value: '12300',
-        encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+        encodedValue: '0x000000000000000000000000000000000000000000000000000000000000300c',
       },
     ]);
   });
@@ -149,16 +150,22 @@ describe('extract and encode multiple values', () => {
       { _type: 'invalid' },
     ]);
     expect(splitReservedParameters({ _type: 'uint256,string,bytes', _path: 'usd,,' })).toEqual([
-      { _type: 'uint256', _path: '100' },
-      { _type: 'string' },
-      { _type: 'bytes' },
+      { _type: 'uint256', _path: 'usd' },
+      { _type: 'string', _path: '' },
+      { _type: 'bytes', _path: '' },
     ]);
     expect(splitReservedParameters({ _type: 'uint256', _times: '100' })).toEqual([{ _type: 'uint256', _times: '100' }]);
   });
 
   it('throws when there are different number of splits', () => {
-    expect(() => splitReservedParameters({ _type: 'uint256', _path: 'usd,eur' })).toThrow('error');
-    expect(() => splitReservedParameters({ _type: 'uint256,', _path: 'usd' })).toThrow('error');
-    expect(() => splitReservedParameters({ _type: 'uint256,,', _path: 'usd,' })).toThrow('error');
+    expect(() => splitReservedParameters({ _type: 'uint256', _path: 'usd,eur' })).toThrow(
+      `Unexpected number of parsed reserved parameters. Number of "_types" parameters = 1, but "_path" has only 2`
+    );
+    expect(() => splitReservedParameters({ _type: 'uint256,', _path: 'usd' })).toThrow(
+      'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_path" has only 1'
+    );
+    expect(() => splitReservedParameters({ _type: 'uint256,,', _path: 'usd,' })).toThrow(
+      'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 3, but "_path" has only 2'
+    );
   });
 });
