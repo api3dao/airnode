@@ -1,5 +1,12 @@
 import { ethers } from 'ethers';
-import { splitReservedParameters, getRawValue, extractAndEncodeResponse, extractValue } from './extraction';
+import {
+  splitReservedParameters,
+  getRawValue,
+  extractAndEncodeResponse,
+  extractValue,
+  escapeAwareSplit,
+  unescape,
+} from './extraction';
 import { ReservedParameters } from '../types';
 
 describe('getRawValue', () => {
@@ -35,6 +42,14 @@ describe('getRawValue', () => {
   it('returns the default value if unable to find the specified value', () => {
     const obj = { a: 1 };
     expect(getRawValue(obj, 'unknown', 'default')).toEqual('default');
+  });
+
+  it('respects escaped path', () => {
+    const obj = {
+      'foo.bar.0': { baz: 555 },
+      foo: { bar: [{ baz: 888 }] },
+    };
+    expect(getRawValue(obj, 'foo\\.bar\\.0.baz')).toEqual(555);
   });
 });
 
@@ -120,39 +135,83 @@ describe('extract and encode multiple values', () => {
     });
   });
 
-  it('correctly splits reserved parameters containing multiple values', () => {
-    expect(splitReservedParameters({ _type: 'uint256' })).toEqual([{ _type: 'uint256' }]);
-    expect(splitReservedParameters({ _type: 'uint256,string', _path: 'key,anotherKey' })).toEqual([
-      { _type: 'uint256', _path: 'key' },
-      { _type: 'string', _path: 'anotherKey' },
-    ]);
-    expect(splitReservedParameters({ _type: 'uint256, invalid' })).toEqual([
-      { _type: 'uint256' },
-      { _type: ' invalid' },
-    ]);
-    expect(splitReservedParameters({ _type: 'uint256,,,invalid' })).toEqual([
-      { _type: 'uint256' },
-      { _type: '' },
-      { _type: '' },
-      { _type: 'invalid' },
-    ]);
-    expect(splitReservedParameters({ _type: 'uint256,string,bytes', _path: 'usd,,' })).toEqual([
-      { _type: 'uint256', _path: 'usd' },
-      { _type: 'string', _path: '' },
-      { _type: 'bytes', _path: '' },
-    ]);
-    expect(splitReservedParameters({ _type: 'uint256', _times: '100' })).toEqual([{ _type: 'uint256', _times: '100' }]);
+  it('tests unescape function', () => {
+    expect(unescape('abcd', ',')).toEqual('abcd');
+    expect(unescape('\\\\', ',')).toEqual('\\\\');
+    expect(unescape('\\,\\', ',')).toEqual(',\\');
   });
 
-  it('throws when there are different number of splits', () => {
-    expect(() => splitReservedParameters({ _type: 'uint256', _path: 'usd,eur' })).toThrow(
-      `Unexpected number of parsed reserved parameters. Number of "_types" parameters = 1, but "_path" has only 2`
-    );
-    expect(() => splitReservedParameters({ _type: 'uint256,', _path: 'usd' })).toThrow(
-      'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_path" has only 1'
-    );
-    expect(() => splitReservedParameters({ _type: 'uint256,,', _path: 'usd,' })).toThrow(
-      'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 3, but "_path" has only 2'
-    );
+  describe('tests escapeAwareSplit function', () => {
+    it('works for basic usage', () => {
+      expect(escapeAwareSplit('simple,string', ',')).toEqual(['simple', 'string']);
+      expect(escapeAwareSplit('simple,string', '.')).toEqual(['simple,string']);
+    });
+
+    it('correctly removes the escape delimeter', () => {
+      expect(escapeAwareSplit('simple\\,string', ',')).toEqual(['simple,string']);
+      expect(escapeAwareSplit('simple\\\\\\,string', ',')).toEqual(['simple\\\\,string']);
+      expect(escapeAwareSplit('\\a....' + '\\'.repeat(6), ',')).toEqual(['\\a....' + '\\'.repeat(6)]);
+    });
+
+    it('works with edge cases', () => {
+      // empty splits
+      expect(escapeAwareSplit('simple,,,string', ',')).toEqual(['simple', '', '', 'string']);
+
+      // only cares about specific delimeter
+      expect(escapeAwareSplit('super.simple,string', '.')).toEqual(['super', 'simple,string']);
+
+      // skips escaped delimeter
+      expect(escapeAwareSplit('simple\\\\,string', ',')).toEqual(['simple\\\\', 'string']);
+    });
+  });
+
+  describe('spliting reserved parameters', () => {
+    it('correctly splits reserved parameters containing multiple values', () => {
+      expect(splitReservedParameters({ _type: 'uint256' })).toEqual([{ _type: 'uint256' }]);
+      expect(splitReservedParameters({ _type: 'uint256,string', _path: 'key,anotherKey' })).toEqual([
+        { _type: 'uint256', _path: 'key' },
+        { _type: 'string', _path: 'anotherKey' },
+      ]);
+      expect(splitReservedParameters({ _type: 'uint256, invalid' })).toEqual([
+        { _type: 'uint256' },
+        { _type: ' invalid' },
+      ]);
+      expect(splitReservedParameters({ _type: 'uint256,,,invalid' })).toEqual([
+        { _type: 'uint256' },
+        { _type: '' },
+        { _type: '' },
+        { _type: 'invalid' },
+      ]);
+      expect(splitReservedParameters({ _type: 'uint256,string,bytes', _path: 'usd,,' })).toEqual([
+        { _type: 'uint256', _path: 'usd' },
+        { _type: 'string', _path: '' },
+        { _type: 'bytes', _path: '' },
+      ]);
+      expect(splitReservedParameters({ _type: 'uint256', _times: '100' })).toEqual([
+        { _type: 'uint256', _times: '100' },
+      ]);
+    });
+
+    it('throws when there are different number of splits', () => {
+      expect(() => splitReservedParameters({ _type: 'uint256', _path: 'usd,eur' })).toThrow(
+        `Unexpected number of parsed reserved parameters. Number of "_types" parameters = 1, but "_path" has only 2`
+      );
+      expect(() => splitReservedParameters({ _type: 'uint256,', _path: 'usd' })).toThrow(
+        'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_path" has only 1'
+      );
+      expect(() => splitReservedParameters({ _type: 'uint256,,', _path: 'usd,' })).toThrow(
+        'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 3, but "_path" has only 2'
+      );
+      expect(() => splitReservedParameters({ _path: 'strange\\.key', _type: 'string,address' })).toThrow(
+        'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_path" has only 1'
+      );
+    });
+
+    it('respects escaping', () => {
+      expect(splitReservedParameters({ _type: 'address\\,bytes32' })).toEqual([{ _type: 'address,bytes32' }]);
+      expect(splitReservedParameters({ _path: 'strange\\.key', _type: 'string' })).toEqual([
+        { _type: 'string', _path: 'strange\\.key' },
+      ]);
+    });
   });
 });
