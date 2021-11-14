@@ -1,10 +1,7 @@
-import fs from 'fs';
-
-import { Result } from './types';
+import { Log, Result } from './types';
 import * as logger from './utils/logger';
 import { processSpecs } from './processor';
-
-const path = require('path');
+import * as utils from './commands/utils';
 
 /**
  * Converts a specification according to the template
@@ -18,29 +15,14 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   }
 
   let template, specs;
+  const messages: Log[] = [];
 
-  try {
-    template = fs.readFileSync(path.resolve(templatePath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(templatePath)}`)], output: {} };
+  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+    return { valid: false, messages };
   }
 
-  try {
-    template = JSON.parse(template);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
-  }
-
-  try {
-    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)], output: {} };
-  }
-
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
+  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+    return { valid: false, messages };
   }
 
   const split = templatePath.split('/');

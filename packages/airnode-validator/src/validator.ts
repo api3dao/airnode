@@ -1,53 +1,8 @@
-import * as path from 'path';
-import fs from 'fs';
 import * as logger from './utils/logger';
 import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
 import { keywords } from './utils/globals';
-
-/**
- * Validates specification from provided file according to template file
- * @param specsPath - specification file to validate
- * @param templatePath - template json file
- * @param returnJson - parsed JSON specification will be returned
- * @returns array of error and warning messages
- */
-export function validate(specsPath: string | undefined, templatePath: string | undefined, returnJson = false): Result {
-  if (!specsPath || !templatePath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
-  }
-
-  let template, specs;
-
-  try {
-    template = fs.readFileSync(path.resolve(templatePath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(templatePath)}`)] };
-  }
-
-  try {
-    template = JSON.parse(template);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
-  }
-
-  try {
-    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
-  }
-
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
-  }
-
-  const split = templatePath.split('/');
-
-  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
-}
 
 /**
  * Validates JSON specification with known template
@@ -70,16 +25,8 @@ export function validateJsonWithTemplate(specs: object, templateName: string | u
 
   let template;
 
-  try {
-    template = fs.readFileSync(templatePath, 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
-  }
-
-  try {
-    template = JSON.parse(template);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
+  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+    return { valid: false, messages };
   }
 
   const split = templatePath.split('/');
@@ -103,20 +50,41 @@ export function validateWithTemplate(
   }
 
   let specs;
+  const messages: Log[] = [];
 
-  try {
-    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
-  }
-
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
+  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+    return { valid: false, messages };
   }
 
   return validateJsonWithTemplate(specs, templateName, returnJson);
+}
+
+/**
+ * Validates specification from provided file according to template file
+ * @param specsPath - specification file to validate
+ * @param templatePath - template json file
+ * @param returnJson - parsed JSON specification will be returned
+ * @returns array of error and warning messages
+ */
+export function validate(specsPath: string | undefined, templatePath: string | undefined, returnJson = false): Result {
+  if (!specsPath || !templatePath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+  }
+
+  let template, specs;
+  const messages: Log[] = [];
+
+  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+    return { valid: false, messages };
+  }
+
+  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+    return { valid: false, messages };
+  }
+
+  const split = templatePath.split('/');
+
+  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
 }
 
 /**

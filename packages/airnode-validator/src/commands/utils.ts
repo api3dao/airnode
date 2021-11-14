@@ -204,7 +204,7 @@ export function interpolateFiles(specsPath: string, envPath: string, messages: L
   try {
     specs = JSON.parse(specs);
   } catch (e) {
-    messages.push(logger.error(`${path.resolve(__dirname, specsPath)} is not valid JSON`));
+    messages.push(logger.error(`${specsPath} is not valid JSON`));
     return {};
   }
 
@@ -240,4 +240,24 @@ export function interpolate(specs: object, env: Record<string, string | undefine
   }
 
   return interpolated;
+}
+
+export function readJson(filePath: string, messages: Log[]): object | undefined {
+  let res;
+
+  try {
+    res = fs.readFileSync(path.resolve(filePath), 'utf-8');
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${path.resolve(filePath)}`));
+    return undefined;
+  }
+
+  try {
+    res = JSON.parse(res);
+  } catch (e) {
+    messages.push(logger.error(`${path.resolve(filePath)} is not valid JSON: ${e}`));
+    return undefined;
+  }
+
+  return res;
 }
