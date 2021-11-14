@@ -31,6 +31,12 @@ Custom templates can be used, by providing path to the validator template file i
 yarn run validate --template="templates/0.2/config.json" --specs="exampleSpecs/config.specs.json"
 ```
 
+Specification files can be interpolated with .env files, interpolation will inject values of variables from the .env file into the specification where variables are in the following format: `${VARIABLE_NAME}`
+
+```sh
+yarn run validate --template="config" --specs="exampleSpecs/secrets.config.json" --interpolate="exampleSpecs/secrets.env"
+```
+
 ## Output
 
 Above mentioned commands will return json in following format:
@@ -66,7 +72,7 @@ validator templates with conversion actions.
 
 ## Usage
 
-Convertor works the same way as validator and can be invoked with the `convert` command, for example:
+Convertor works the same way as validator (including interpolation) and can be invoked with the `convert` command, for example:
 
 ```sh
 yarn run convert --template="conversions/oas@3.0------ois@0.2.json" --specs="exampleSpecs/OAS.specs.json"
