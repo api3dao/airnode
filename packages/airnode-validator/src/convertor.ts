@@ -7,9 +7,10 @@ import * as utils from './commands/utils';
  * Converts a specification according to the template
  * @param specsPath - specification file to convert, root must be an object (not an array)
  * @param templatePath - template json file
+ * @param interpolatePath - path to env file that will be interpolated with specification file
  * @returns array of messages and converted specification
  */
-export function convert(specsPath: string | undefined, templatePath: string | undefined): Result {
+export function convert(specsPath: string | undefined, templatePath: string | undefined, interpolatePath?: string): Result {
   if (!specsPath || !templatePath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
   }
@@ -25,24 +26,39 @@ export function convert(specsPath: string | undefined, templatePath: string | un
     return { valid: false, messages };
   }
 
+  let env = undefined;
+
+  if (interpolatePath) {
+    if ((env = utils.parseEnv(interpolatePath, messages)) === undefined) {
+      return { valid: false, messages };
+    }
+  }
+
   const split = templatePath.split('/');
 
-  return convertJson(specs, template, split.slice(0, split.length - 1).join('/') + '/');
+  return convertJson(specs, template, env, split.slice(0, split.length - 1).join('/') + '/');
 }
 
 /**
  * Converts specification from provided string and converts it into format the template specifies
  * @param specs - specification to convert, root must be an object (not an array)
  * @param template - template json
+ * @param interpolate - list of env variables that will be interpolated with specification
  * @param templatePath - path to current validator template file
  * @returns array of messages and converted specification
  */
-export function convertJson(specs: object, template: object, templatePath = ''): Result {
-  const nonRedundant = {};
-  const output = {};
+export function convertJson(specs: object, template: object, interpolate?: Record<string, string | undefined>, templatePath = ''): Result {
+  const nonRedundant = {}, output = {}, messages: Log[] = [];
+  let interpolated: object | undefined = specs;
+
+  if (interpolate) {
+    if ((interpolated = utils.interpolate(specs, interpolate, messages)) === undefined) {
+      return { valid: false, messages };
+    }
+  }
 
   const result = processSpecs(
-    specs,
+    interpolated,
     template,
     [],
     nonRedundant,
