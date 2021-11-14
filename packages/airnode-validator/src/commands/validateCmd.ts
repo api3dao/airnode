@@ -1,9 +1,8 @@
-import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as utils from './utils';
 import * as logger from '../utils/logger';
-import { validate, validateJson } from '../validator';
+import { validate } from '../validator';
 import { Log, Result, templates } from '../types';
 
 const messages: Log[] = [];
@@ -38,40 +37,11 @@ if (templates[templatePath.toLowerCase() as keyof typeof templates]) {
   messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
 }
 
-let res: Log[] | Result | undefined = undefined;
+let res: Log[] | Result;
 
 if (templatePath) {
-  if (args.interpolate) {
-    const msgs: Log[] = [];
-    const interpolated = utils.interpolateFiles(args.specification, args.interpolate, msgs);
-
-    if (msgs.length) {
-      res = messages;
-      res.push(...msgs);
-    } else {
-      try {
-        const templateStr = fs.readFileSync(templatePath, 'utf-8');
-
-        try {
-          const template = JSON.parse(templateStr);
-          res = validateJson(interpolated, template, templatePath.replace(/config\.json$/, ''));
-          res.messages.push(...messages);
-        } catch (e) {
-          messages.push(logger.error(`${templatePath} is not valid JSON: ${e}`));
-        }
-
-      } catch (e) {
-        messages.push(logger.error(`Unable to read file ${templatePath}`));
-      }
-
-      if (res === undefined) {
-        res = messages;
-      }
-    }
-  } else {
-    res = validate(args.specification, templatePath);
-    res.messages.push(...messages);
-  }
+  res = validate(args.specification, templatePath, args.interpolate);
+  res.messages.push(...messages);
 } else {
   res = messages;
 }

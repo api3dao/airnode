@@ -222,10 +222,28 @@ export function interpolateFiles(specsPath: string, envPath: string, messages: L
     return {};
   }
 
-  return interpolate(specs, env, messages);
+  return interpolate(specs, env, messages) || {};
 }
 
-export function interpolate(specs: object, env: Record<string, string | undefined>, messages: Log[]): object {
+export function parseEnv(envPath: string, messages: Log[]): Record<string, string | undefined> | undefined {
+  let env;
+
+  try {
+    env = fs.readFileSync(envPath);
+
+    try {
+      return dotenv.parse(env);
+    } catch (e) {
+      messages.push(logger.error(`${envPath} is not valid env file`));
+      return undefined;
+    }
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${envPath}`));
+    return undefined;
+  }
+}
+
+export function interpolate(specs: object, env: Record<string, string | undefined>, messages: Log[]): object | undefined {
   let interpolated;
 
   try {
@@ -236,7 +254,7 @@ export function interpolate(specs: object, env: Record<string, string | undefine
     })(env));
   } catch (e) {
     messages.push(logger.error('Unable to interpolate provided specification'));
-    return {};
+    return undefined;
   }
 
   return interpolated;
