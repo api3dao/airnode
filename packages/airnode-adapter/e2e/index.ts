@@ -232,6 +232,18 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     assertArrayEquals(decoded, [apiResponse.big.string, 123456789, apiResponse.address]);
   });
 
+  it('tests escaping path', async () => {
+    const decoded = await testDecoder.decodeMultipleParameters(
+      extractAndEncode({
+        _type: 'string,uint256,address',
+        _path: 'json.strange\\.key,float,address',
+        _times: ',10000,',
+      })
+    );
+
+    assertArrayEquals(decoded, [apiResponse.json['strange.key'], 123456789, apiResponse.address]);
+  });
+
   describe('Failures', () => {
     it('throws on invalid type', () => {
       // 'true' is not a valid _type, 'bool' should be used

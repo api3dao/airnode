@@ -2,7 +2,7 @@
 
 import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
-import { baseResponseTypes } from './constants';
+import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
 export interface ApiCredentials {
   readonly securitySchemeName: string;
@@ -81,3 +81,5 @@ export type MetadataParameterKeysV1 =
 export type MetadataParametersV1 = {
   readonly [key in MetadataParameterKeysV1]: string;
 };
+
+export type ReservedParametersDelimeter = typeof MULTIPLE_PARAMETERS_DELIMETER | typeof PATH_DELIMETER;
