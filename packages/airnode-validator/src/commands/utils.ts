@@ -189,42 +189,6 @@ export function getConversionPath(
   return path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`);
 }
 
-export function interpolateFiles(specsPath: string, envPath: string, messages: Log[]): object {
-  let specs, env;
-  specsPath = path.resolve(specsPath);
-  envPath = path.resolve(envPath);
-
-  try {
-    specs = fs.readFileSync(specsPath, 'utf-8');
-  } catch (e) {
-    messages.push(logger.error(`Unable to read file ${specsPath}`));
-    return {};
-  }
-
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    messages.push(logger.error(`${specsPath} is not valid JSON`));
-    return {};
-  }
-
-  try {
-    env = fs.readFileSync(envPath);
-  } catch (e) {
-    messages.push(logger.error(`Unable to read file ${envPath}`));
-    return {};
-  }
-
-  try {
-    env = dotenv.parse(env);
-  } catch (e) {
-    messages.push(logger.error(`${envPath} is not valid env file`));
-    return {};
-  }
-
-  return interpolate(specs, env, messages) || {};
-}
-
 export function parseEnv(envPath: string, messages: Log[]): Record<string, string | undefined> | undefined {
   let env;
 
