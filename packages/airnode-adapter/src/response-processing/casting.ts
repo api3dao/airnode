@@ -1,4 +1,5 @@
-import { isArray, isPlainObject } from 'lodash';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';

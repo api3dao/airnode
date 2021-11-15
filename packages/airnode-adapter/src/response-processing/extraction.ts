@@ -1,4 +1,5 @@
-import { range, isUndefined } from 'lodash';
+import isUndefined from 'lodash/isUndefined';
+import range from 'lodash/range';
 import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
 import { encodeMultipleValues, encodeValue } from './encoding';
