@@ -379,7 +379,20 @@ describe('CLI', () => {
   it('generates mnemonic', () => {
     const out = execCommand('generate-mnemonic');
 
-    expect(out).toMatch(/Generated mnemonic: [\w+ ]+/);
+    const explanationInfo = [
+      'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
+      'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
+      '',
+    ]
+      .map((str) => `${str}\n`)
+      .join('');
+
+    expect(out.startsWith(explanationInfo)).toBe(true);
+    const mnemonic = out.split(explanationInfo)[1];
+
+    const words = mnemonic.split(' ');
+    expect(words).toHaveLength(12);
+    words.forEach((word) => expect(word).toMatch(/\w+/));
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
