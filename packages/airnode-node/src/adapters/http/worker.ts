@@ -21,8 +21,6 @@ export async function spawnNewApiCall(
   const options = {
     ...workerOpts,
     functionName: 'callApi' as WorkerFunctionName,
-    // TODO: The payload should have the same type for all handlers (local and AWS). Currently it does not.
-    // AWS handlers (in deployer) expects the `config` property to be present in the payload.
     payload: { aggregatedApiCall, logOptions, apiCallOptions } as CallApiArgs,
   };
 

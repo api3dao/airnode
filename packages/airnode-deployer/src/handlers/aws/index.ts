@@ -30,30 +30,9 @@ export async function initializeProvider(event: any) {
   return { statusCode: 200, body };
 }
 
-function parseCallApiPayload(event: any): handlers.CallApiPayload {
-  const requiredKeys = ['config', 'aggregatedApiCall', 'apiCallOptions'];
-
-  // NOTE: We could do more extensive checks, but key renames are the most common cause of failure
-  requiredKeys.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(event, key)) {
-      throw new Error(`Parsing payload for callApi failed. Event is missing required property ${key}`);
-    }
-  });
-
-  return pick(event, requiredKeys) as handlers.CallApiPayload;
-}
-
-export async function callApi(event: unknown) {
-  // TODO: Verify that logOptions are present
-  const { logOptions } = event as any;
-
-  const [error, callApiPayload] = promiseUtils.goSync(() => parseCallApiPayload(event));
-  if (error) {
-    logger.error(error.message, logOptions);
-    return;
-  }
-
-  const [logs, apiCallResponse] = await handlers.callApi(callApiPayload!);
+export async function callApi(event: any) {
+  const { aggregatedApiCall, logOptions, apiCallOptions } = event;
+  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, apiCallOptions, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
@@ -84,5 +63,5 @@ export async function testApi(event: any) {
   }
 
   // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
-  return { statusCode: 200, body: JSON.stringify(result!.value) };
+  return { statusCode: 200, body: result!.value };
 }
