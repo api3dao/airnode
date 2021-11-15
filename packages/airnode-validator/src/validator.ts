@@ -12,7 +12,12 @@ import { keywords } from './utils/globals';
  * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
  */
-export function validateJsonWithTemplate(specs: object, templateName: string | undefined, interpolate?: Record<string, string | undefined>, returnJson = false): Result {
+export function validateJsonWithTemplate(
+  specs: object,
+  templateName: string | undefined,
+  interpolate?: Record<string, string | undefined>,
+  returnJson = false
+): Result {
   if (!templateName) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
@@ -77,7 +82,12 @@ export function validateWithTemplate(
  * @param returnJson - parsed JSON specification will be returned
  * @returns array of error and warning messages
  */
-export function validate(specsPath: string | undefined, templatePath: string | undefined, interpolatePath?: string, returnJson = false): Result {
+export function validate(
+  specsPath: string | undefined,
+  templatePath: string | undefined,
+  interpolatePath?: string,
+  returnJson = false
+): Result {
   if (!specsPath || !templatePath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
@@ -113,7 +123,13 @@ export function validate(specsPath: string | undefined, templatePath: string | u
  * @param returnJson - parsed JSON specification will be returned
  * @returns array of error and warning messages
  */
-export function validateJson(specs: object, template: object, templatePath = '', interpolate?: Record<string, string | undefined>, returnJson = false): Result {
+export function validateJson(
+  specs: object,
+  template: object,
+  templatePath = '',
+  interpolate?: Record<string, string | undefined>,
+  returnJson = false
+): Result {
   const messages: Log[] = [];
   let interpolated: object | undefined = specs;
 

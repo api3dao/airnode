@@ -207,15 +207,21 @@ export function parseEnv(envPath: string, messages: Log[]): Record<string, strin
   }
 }
 
-export function interpolate(specs: object, env: Record<string, string | undefined>, messages: Log[]): object | undefined {
+export function interpolate(
+  specs: object,
+  env: Record<string, string | undefined>,
+  messages: Log[]
+): object | undefined {
   let interpolated;
 
   try {
-    interpolated = JSON.parse(template(JSON.stringify(specs), {
-      escape: NO_MATCH_REGEXP,
-      evaluate: NO_MATCH_REGEXP,
-      interpolate: ES_MATCH_REGEXP,
-    })(env));
+    interpolated = JSON.parse(
+      template(JSON.stringify(specs), {
+        escape: NO_MATCH_REGEXP,
+        evaluate: NO_MATCH_REGEXP,
+        interpolate: ES_MATCH_REGEXP,
+      })(env)
+    );
   } catch (e) {
     messages.push(logger.error('Unable to interpolate provided specification'));
     return undefined;

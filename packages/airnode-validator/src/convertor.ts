@@ -10,7 +10,11 @@ import * as utils from './commands/utils';
  * @param interpolatePath - path to env file that will be interpolated with specification file
  * @returns array of messages and converted specification
  */
-export function convert(specsPath: string | undefined, templatePath: string | undefined, interpolatePath?: string): Result {
+export function convert(
+  specsPath: string | undefined,
+  templatePath: string | undefined,
+  interpolatePath?: string
+): Result {
   if (!specsPath || !templatePath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
   }
@@ -47,8 +51,15 @@ export function convert(specsPath: string | undefined, templatePath: string | un
  * @param templatePath - path to current validator template file
  * @returns array of messages and converted specification
  */
-export function convertJson(specs: object, template: object, interpolate?: Record<string, string | undefined>, templatePath = ''): Result {
-  const nonRedundant = {}, output = {}, messages: Log[] = [];
+export function convertJson(
+  specs: object,
+  template: object,
+  interpolate?: Record<string, string | undefined>,
+  templatePath = ''
+): Result {
+  const nonRedundant = {},
+    output = {},
+    messages: Log[] = [];
   let interpolated: object | undefined = specs;
 
   if (interpolate) {

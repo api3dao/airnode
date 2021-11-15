@@ -30,7 +30,7 @@ const args = yargs(hideBin(process.argv))
   .option('interpolate', {
     description: 'Path to .env file that will be interpolated with specification',
     alias: 'i',
-    type: 'string'
+    type: 'string',
   })
   .option('specs-only', {
     description: 'Instead of standard validator output, only the result of conversion will be returned',
