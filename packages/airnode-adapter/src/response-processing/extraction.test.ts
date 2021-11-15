@@ -214,4 +214,36 @@ describe('extract and encode multiple values', () => {
       ]);
     });
   });
+
+  describe('throws if reserved parameter values are present in certain scenarios', () => {
+    it('throws if _times and _path are non empty for timestamp type', () => {
+      const time = new Date('2020-01-01').getTime();
+      // eslint-disable-next-line functional/immutable-data
+      Date.now = jest.spyOn(Date, 'now').mockImplementation(() => time) as any;
+      expect(time).toEqual(1577836800000);
+
+      const data = [12.3, 45.6];
+      expect(() =>
+        extractAndEncodeResponse(data, {
+          _path: '1,0',
+          _type: 'timestamp,int256',
+          _times: '100,1000',
+        })
+      ).toThrow('Parameter "_times" can only be used with numeric types, but "_type" was "timestamp"');
+      expect(() =>
+        extractAndEncodeResponse(data, {
+          _path: '1,0',
+          _type: 'timestamp,int256',
+          _times: ',1000',
+        })
+      ).toThrow('Parameter "_path" must be empty string or undefined when "_type" is "timestamp", but it was "1"');
+    });
+
+    it('throws if _times is present for non numberic types', () => {
+      const encodedString = ethers.utils.formatBytes32String('simplestring');
+      expect(() => extractAndEncodeResponse(encodedString, { _type: 'bytes32', _times: '1000' })).toThrow(
+        'Parameter "_times" can only be used with numeric types, but "_type" was "bytes32"'
+      );
+    });
+  });
 });

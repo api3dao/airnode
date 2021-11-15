@@ -97,4 +97,13 @@ contract TestDecoder {
     {
         (str, num, addr) = abi.decode(data, (string, uint256, address));
     }
+
+
+    function decodeTimestamp(bytes calldata data)
+        public
+        pure
+        returns (uint256 timestamp)
+    {
+        timestamp = abi.decode(data, (uint256));
+    }
 }
