@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import * as extraction from './extraction';
 import { ReservedParameters } from '../types';
 
@@ -53,9 +54,11 @@ describe('extractValue', () => {
 
 describe('extractAndEncodeValue', () => {
   it('returns a simple value with the encodedValue', () => {
-    const res = extraction.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
+    const encodedString = ethers.utils.formatBytes32String('simplestring');
+    const res = extraction.extractAndEncodeResponse(encodedString, { _type: 'bytes32' });
     expect(res).toEqual({
-      value: 'simplestring',
+      value: encodedString,
+      rawValue: encodedString,
       encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
     });
   });
@@ -65,6 +68,7 @@ describe('extractAndEncodeValue', () => {
     const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = extraction.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
+      rawValue: '750.51',
       value: '75051',
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });

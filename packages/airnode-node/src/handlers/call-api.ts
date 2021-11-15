@@ -55,6 +55,12 @@ function buildOptions(
   };
 }
 
+function createPrintableValue(value: adapter.ValueType): string {
+  if (Array.isArray(value)) return JSON.stringify(value);
+
+  return BigNumber.isBigNumber(value) ? adapter.bigNumberToString(value) : value.toString();
+}
+
 export async function callApi(
   config: Config,
   aggregatedApiCall: AggregatedApiCall,
@@ -106,7 +112,7 @@ export async function callApi(
   try {
     const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
     const value = encodeResponse ? extracted.encodedValue : extracted.value;
-    const printableValue = BigNumber.isBigNumber(value) ? adapter.bigNumberToString(value) : value;
+    const printableValue = createPrintableValue(value);
     return [[], { value: printableValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});

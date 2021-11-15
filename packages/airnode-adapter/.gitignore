@@ -5,3 +5,7 @@
 
 # Test files
 coverage/
+
+# Hardhat files
+cache
+artifacts
