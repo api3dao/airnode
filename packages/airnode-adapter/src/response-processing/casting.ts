@@ -86,6 +86,10 @@ function castString32(value: unknown) {
   return ethers.utils.formatBytes32String(strValue.length > 31 ? strValue.substring(0, 31) : strValue);
 }
 
+function createTimestamp() {
+  return new BigNumber(Math.floor(Date.now() / 1000)).toString();
+}
+
 function isValidType(type: ResponseType) {
   return baseResponseTypes.includes(type as any) || parseArrayType(type) !== null;
 }
@@ -122,6 +126,8 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
         return castBytesLike(value);
       case 'string32':
         return castString32(value);
+      case 'timestamp':
+        return createTimestamp();
     }
 
     // NOTE: Should not happen, we should throw on invalid type sooner

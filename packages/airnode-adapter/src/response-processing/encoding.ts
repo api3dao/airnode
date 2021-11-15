@@ -8,6 +8,7 @@ type ArtificialTypeMapping = {
 
 const artificialTypeToSolidityType: ArtificialTypeMapping = {
   string32: 'bytes32',
+  timestamp: 'uint256',
 };
 
 export function getSolidityType(type: ResponseType) {
