@@ -125,20 +125,27 @@ The contracts are under the `contracts/` directory.
     recent response for each template is stored and can be accessed by the whitelisted users where the whitelists are
     managed by a single account.
 
-  `rrp/authorizers/admin`: Houses the token locking and fee registry contacts
+  `rrp/authorizers/admin`: Houses the token locking, token payment and fee registry contacts
 
-  - `admin/AirnodeTokenLock.sol`: A contract that Requesters will use to get authorized by the RequesterAuthorizer by
-    locking in API3 tokens
   - `admin/AirnodeFeeRegistry.sol`: A contract that will specify the price of an endpoint for an airnode across
     different chains
-  - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract
-    that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeFeeRegistryClient.sol`: A contract to inherit for contracts that will be interacting with
+    AirnodeFeeRegistry
   - `admin/AirnodeFeeRegistryRolesWithManager.sol`: A contract that implements the roles for a AirnodeFeeRegistry
     contract that will be managed by a single account through an AccessControlRegistry
   - `admin/AirnodeRequesterAuthorizerRegistry.sol`: A contract that will store the RequesterAuthorizerWithManager
     contract address for different chains
   - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract to inherit for contracts that will be interacting
     with AirnodeRequesterAuthorizerRegistry
+  - `admin/AirnodeTokenLock.sol`: A contract that requesters will use to get authorized on the authorizer contract
+    stored in the AirnodeRequesterAuthorizerRegistry by locking in API3 tokens
+  - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract
+    that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeTokenPayment.sol`: A contract that requesters will use to get authorized on the authorizer contract
+    stored in the AirnodeRequesterAuthorizerRegistry by making payments in a specific ERC20 token. This contract needs
+    to be deployed per supported payment token
+  - `admin/AirnodeTokenPaymentRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenPayment
+    contract that will be managed by a single account through an AccessControlRegistry
 
 ## Unique patterns
 

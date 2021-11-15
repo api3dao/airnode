@@ -9,6 +9,8 @@ import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for
 /// the AirnodeTokenLock contract
+/// @notice The manager address here is expected to belong to a contract that
+// is owned by the DAO
 contract AirnodeTokenLockRolesWithManager is
     RoleDeriver,
     AccessControlClient,
@@ -78,7 +80,6 @@ contract AirnodeTokenLockRolesWithManager is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,

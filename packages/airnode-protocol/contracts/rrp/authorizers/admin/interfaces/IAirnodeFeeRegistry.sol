@@ -83,6 +83,9 @@ interface IAirnodeFeeRegistry {
     // solhint-disable-next-line func-name-mixedcase
     function DECIMALS() external view returns (uint8);
 
+    // solhint-disable-next-line func-name-mixedcase
+    function INTERVAL() external view returns (uint24);
+
     function chainIdToAirnodeToEndpointToPrice(
         uint256 chainId,
         address airnode,

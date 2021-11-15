@@ -2,18 +2,20 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./AirnodeTokenLockRolesWithManager.sol";
-import "./AirnodeRequesterAuthorizerRegistryClient.sol";
 import "../../../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
-import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
+import "./AirnodeRequesterAuthorizerRegistryClient.sol";
+import "./AirnodeFeeRegistryClient.sol";
+import "./AirnodeTokenLockRolesWithManager.sol";
 import "./interfaces/IAirnodeFeeRegistry.sol";
+import "./interfaces/IAirnodeRequesterAuthorizerRegistry.sol";
 import "./interfaces/IAirnodeTokenLock.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract AirnodeTokenLock is
     AirnodeTokenLockRolesWithManager,
-    IAirnodeTokenLock,
-    AirnodeRequesterAuthorizerRegistryClient
+    AirnodeRequesterAuthorizerRegistryClient,
+    AirnodeFeeRegistryClient,
+    IAirnodeTokenLock
 {
     string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
@@ -41,9 +43,6 @@ contract AirnodeTokenLock is
 
     /// @notice Address of Api3Token
     address public immutable api3Token;
-
-    /// @notice Address of AirnodeFeeRegistry
-    address public override airnodeFeeRegistry;
 
     /// @notice The price of API3 in terms of USD
     /// @dev The price has 18 decimal places
@@ -94,9 +93,9 @@ contract AirnodeTokenLock is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _api3Token,
+        address _airnodeRequesterAuthorizerRegistry,
         address _airnodeFeeRegistry,
-        address _airnodeRequesterAuthorizerRegistry
+        address _api3Token
     )
         AirnodeTokenLockRolesWithManager(
             _accessControlRegistry,
@@ -106,11 +105,10 @@ contract AirnodeTokenLock is
         AirnodeRequesterAuthorizerRegistryClient(
             _airnodeRequesterAuthorizerRegistry
         )
+        AirnodeFeeRegistryClient(_airnodeFeeRegistry)
     {
         require(_api3Token != address(0), ERROR_ZERO_ADDRESS);
-        require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         api3Token = _api3Token;
-        airnodeFeeRegistry = _airnodeFeeRegistry;
     }
 
     /// @notice Reverts if the requester is blocked globally(address(0)) or

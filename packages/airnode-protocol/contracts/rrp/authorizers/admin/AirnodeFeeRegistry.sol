@@ -44,7 +44,11 @@ contract AirnodeFeeRegistry is
         override prioritizeEndpointPriceOverChainPrice;
 
     /// @notice Prices will have upto 18 decimal places
-    uint8 public constant DECIMALS = 18;
+    uint8 public constant override DECIMALS = 18;
+
+    /// @notice Prices are represented in seconds for 30 day intervals
+    /// @dev interval will be counted in days
+    uint24 public constant override INTERVAL = 30 days;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
