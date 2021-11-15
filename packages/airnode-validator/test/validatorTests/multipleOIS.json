@@ -165,17 +165,17 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0xa77603cbb5a573fb4a238f8eb8d2a39a56225a3a08a0c9e4d53e9b8eb750802e",
         "oisTitle": "ois2",
         "endpointName": "endpt1"
       },
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0xe012277a23715fc8efa5552dae9bf52f642b88d3f014657bd36cb1ee07757981",
         "oisTitle": "ois3",
         "endpointName": "endpt1"
       },
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0xf5e5dbb51e72bc054caa5c0f9e490d7477e73b8f965d483ddbe2d9b0b078c802",
         "oisTitle": "ois2",
         "endpointName": "endpt2"
       }

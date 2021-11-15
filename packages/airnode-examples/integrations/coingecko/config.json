@@ -32,7 +32,7 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
         "oisTitle": "CoinGecko basic request",
         "endpointName": "coinMarketData"
       }
