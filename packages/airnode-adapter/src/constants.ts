@@ -3,4 +3,3 @@ export const artificialTypes = ['string32'] as const;
 export const baseResponseTypes = [...solidityBaseTypes, ...artificialTypes] as const;
 
 export const MULTIPLE_PARAMETERS_DELIMETER = ',';
-export const PATH_DELIMETER = ',';
