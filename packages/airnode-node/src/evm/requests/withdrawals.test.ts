@@ -20,7 +20,7 @@ describe('initialize (Withdrawal)', () => {
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
-      id: '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
+      id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
@@ -89,7 +89,7 @@ describe('mapRequests (Withdrawal)', () => {
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
-        id: '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
+        id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
