@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@master
       - name: Check hyperlinks
         uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: .github/workflows/mlc_config.json
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
