@@ -15,7 +15,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have the exact same attributes', () => {
-    const endpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
+    const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId }),
       fixtures.requests.buildApiCall({ endpointId }),
@@ -29,7 +29,7 @@ describe('aggregate (API calls)', () => {
         requesterAddress: 'requesterAddress',
         sponsorWalletAddress: 'sponsorWalletAddress',
         chainId: '31337',
-        endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
+        endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',
@@ -39,7 +39,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have they different attributes unrelated to the API call', () => {
-    const endpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
+    const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x123' }),
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x456' }),
@@ -52,7 +52,7 @@ describe('aggregate (API calls)', () => {
         requesterAddress: 'requesterAddress',
         sponsorWalletAddress: 'sponsorWalletAddress',
         chainId: '31337',
-        endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
+        endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',

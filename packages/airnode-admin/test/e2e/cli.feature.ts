@@ -350,7 +350,7 @@ describe('CLI', () => {
     const out = execCommand('derive-endpoint-id', ['--ois-title', oisTitle], ['--endpoint-name', endpointName]);
 
     const expected = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
+      ethers.utils.defaultAbiCoder.encode(['string', 'string'], [`${oisTitle}`, `${endpointName}`])
     );
     expect(out).toBe(`Endpoint ID: ${expected}`);
   });
@@ -386,7 +386,7 @@ describe('CLI', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';
     const endpointId = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
+      ethers.utils.defaultAbiCoder.encode(['string', 'string'], [`${oisTitle}`, `${endpointName}`])
     );
     const expirationTimestamp = new Date('2031-09-23T13:04:13Z');
     let accessControlRegistry: AccessControlRegistry;
