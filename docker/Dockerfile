@@ -3,11 +3,6 @@ ARG build=local
 # Environment
 FROM node:14.17-alpine3.14 AS environment
 
-# Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# The binary filename is taken from: https://github.com/ethereum/solc-bin/tree/gh-pages/linux-amd64
-RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
-  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a
-
 ENV buildDir="/build" \
     dependenciesDir="/dependencies" \
     packagesDir="/packages"
@@ -34,6 +29,11 @@ RUN git clone ${repository} ${buildDir} -b ${branch}
 
 # Production dependencies
 FROM source${build} AS deps
+
+# Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
+# The binary filename is taken from: https://github.com/ethereum/solc-bin/tree/gh-pages/linux-amd64
+RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
+  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a
 
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
