@@ -1,8 +1,10 @@
-import { isArray, isPlainObject } from 'lodash';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
-import { ResponseType, ValueType, baseResponseTypes } from '../types';
+import { ResponseType, ValueType } from '../types';
+import { baseResponseTypes } from '../constants';
 
 interface SpecialNumber {
   readonly result: number;

@@ -2,6 +2,7 @@
 
 import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
+import { baseResponseTypes } from './constants';
 
 export interface ApiCredentials {
   readonly securitySchemeName: string;
@@ -49,18 +50,21 @@ export interface Config {
 
 export type ValueType = string | BigNumber | boolean | Array<ValueType>;
 
-export const solidityBaseTypes = ['uint256', 'int256', 'bool', 'bytes32', 'address', 'bytes', 'string'] as const;
-export const artificialTypes = ['string32'] as const;
-export const baseResponseTypes = [...solidityBaseTypes, ...artificialTypes] as const;
 export type BaseResponseType = typeof baseResponseTypes[number];
 // Use might pass a complex type (e.g. int256[3][]) which we cannot type
 export type ResponseType = string;
 
 export interface ReservedParameters {
-  readonly _path?: string;
-  readonly _times?: string | BigNumber;
-  readonly _type: ResponseType;
-  readonly _relay_metadata?: string;
+  _path?: string;
+  _times?: string;
+  _type: ResponseType;
+  _relay_metadata?: string;
+}
+
+export interface ExtractedAndEncodedResponse {
+  rawValue: unknown;
+  values: ValueType[];
+  encodedValue: string;
 }
 
 export type MetadataParameterKeysV1 =

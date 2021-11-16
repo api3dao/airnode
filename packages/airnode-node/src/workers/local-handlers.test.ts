@@ -60,7 +60,7 @@ describe('callApi', () => {
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall();
     const logOptions = fixtures.buildLogOptions();
-    const res = await local.callApi({ aggregatedApiCall, logOptions });
+    const res = await local.callApi({ aggregatedApiCall, logOptions, apiCallOptions: {} });
     expect(res).toEqual({ ok: true, data: callResponse });
   });
 });

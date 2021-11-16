@@ -30,8 +30,8 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions, encodeResponse } = event;
-  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall, encodeResponse);
+  const { aggregatedApiCall, logOptions, apiCallOptions } = event;
+  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, apiCallOptions, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
@@ -61,5 +61,6 @@ export async function testApi(event: any) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
 
-  return { statusCode: 200, body: JSON.stringify(result) };
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
+  return { statusCode: 200, body: result!.value };
 }
