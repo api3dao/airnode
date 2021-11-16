@@ -294,8 +294,9 @@ contract AirnodeTokenPayment is
         view
         returns (uint64 maximumWhitelistDuration)
     {
-        WhitelistDuration
-            storage whitelistDuration = airnodeToWhitelistDuration[_airnode];
+        WhitelistDuration memory whitelistDuration = airnodeToWhitelistDuration[
+            _airnode
+        ];
         maximumWhitelistDuration = whitelistDuration.maximum != 0
             ? whitelistDuration.maximum
             : DEFAULT_MAXIMUM_WHITELIST_DURATION;
@@ -310,8 +311,9 @@ contract AirnodeTokenPayment is
         view
         returns (uint64 minimumWhitelistDuration)
     {
-        WhitelistDuration
-            storage whitelistDuration = airnodeToWhitelistDuration[_airnode];
+        WhitelistDuration memory whitelistDuration = airnodeToWhitelistDuration[
+            _airnode
+        ];
         minimumWhitelistDuration = whitelistDuration.minimum != 0
             ? whitelistDuration.minimum
             : DEFAULT_MINIMUM_WHITELIST_DURATION;
