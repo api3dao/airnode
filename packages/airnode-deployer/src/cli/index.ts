@@ -2,8 +2,6 @@ import yargs from 'yargs';
 import intersection from 'lodash/intersection';
 import difference from 'lodash/difference';
 import keys from 'lodash/keys';
-import join from 'lodash/join';
-import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
@@ -11,6 +9,7 @@ import { CloudProvider, version as nodeVersion } from '@api3/airnode-node';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';
+import { longArguments, printableArguments } from '../utils/cli';
 
 function drawHeader() {
   console.log(
@@ -32,17 +31,6 @@ async function runCommand(command: () => Promise<void>) {
     console.error(err);
     process.exitCode = 1;
   }
-}
-
-function longArguments(args: Record<string, any>) {
-  return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
-}
-
-function printableArguments(args: string[]) {
-  return join(
-    args.map((arg) => `--${arg}`),
-    ', '
-  );
 }
 
 drawHeader();

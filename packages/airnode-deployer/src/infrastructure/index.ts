@@ -4,11 +4,11 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
-import isArray from 'lodash/isArray';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider } from '@api3/airnode-node';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
+import { formatTerraformArguments } from '../utils/infrastructure';
 
 type TerraformAirnodeOutput = {
   http_gateway_url?: {
@@ -48,20 +48,7 @@ async function runCommand(command: string, options: child.ExecOptions) {
 type CommandArg = string | [string, string] | [string, string, string];
 
 async function execTerraform(execOptions: child.ExecOptions, command: string, ...args: CommandArg[]) {
-  const formattedArgs = args
-    .map((arg) => {
-      if (!isArray(arg)) {
-        return arg;
-      }
-
-      if (arg.length === 2) {
-        return `${arg[0]}=${arg[1]}`;
-      }
-
-      return `${arg[0]}="${arg[1]}=${arg[2]}"`;
-    })
-    .map((arg) => `-${arg}`);
-
+  const formattedArgs = formatTerraformArguments(args);
   const fullCommand = `terraform ${command} ${formattedArgs.join(' ')}`;
   return await runCommand(fullCommand, execOptions);
 }
