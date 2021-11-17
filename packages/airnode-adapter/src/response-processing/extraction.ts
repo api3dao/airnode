@@ -3,8 +3,33 @@ import range from 'lodash/range';
 import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
 import { encodeMultipleValues, encodeValue } from './encoding';
-import { MULTIPLE_PARAMETERS_DELIMETER } from '../constants';
-import { ReservedParameters, ValueType, ExtractedAndEncodedResponse } from '../types';
+import { ESCAPE_CHARACTER, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from '../constants';
+import { ReservedParameters, ValueType, ExtractedAndEncodedResponse, ReservedParametersDelimeter } from '../types';
+
+export function unescape(value: string, delimeter: ReservedParametersDelimeter) {
+  const escapedEscapeCharacter = ESCAPE_CHARACTER.repeat(2);
+  // We need to escape the delimeter, because it can be a '.'
+  const escapedDelimeter = `${ESCAPE_CHARACTER}${delimeter}`;
+  return value.replace(new RegExp(`${escapedEscapeCharacter}(${escapedDelimeter})`, 'g'), '$1');
+}
+
+export function escapeAwareSplit(value: string, delimeter: ReservedParametersDelimeter) {
+  const escapedEscapeCharacter = ESCAPE_CHARACTER.repeat(2);
+  // We need to escape the delimeter, because it can be a '.'
+  const escapedDelimeter = `${ESCAPE_CHARACTER}${delimeter}`;
+  // Inspired by: https://stackoverflow.com/a/14334054
+  const matchResult = value.match(new RegExp(`(${escapedEscapeCharacter}.|[^${escapedDelimeter}])*`, 'g'));
+
+  if (!matchResult) return [value].map((val) => unescape(val, delimeter));
+  return matchResult
+    .filter((token, index, result) => {
+      const previousNotEmpty = index !== 0 && result[index - 1].length > 0;
+      const shouldBeRemoved = token.length === 0 && previousNotEmpty;
+
+      return !shouldBeRemoved;
+    })
+    .map((val) => unescape(val, delimeter));
+}
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // Some APIs return a simple value not in an object or array, like
@@ -15,9 +40,7 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
     return data;
   }
 
-  // We could use lodash#get, but it's slow and we want to control the
-  // exact behaviour ourselves.
-  return path.split('.').reduce((acc, segment) => {
+  return escapeAwareSplit(path, PATH_DELIMETER).reduce((acc, segment) => {
     // eslint-disable-next-line functional/no-try-statement
     try {
       const nextValue = acc[segment];
@@ -42,7 +65,7 @@ export function splitReservedParameters(parameters: ReservedParameters): Reserve
   const splitByDelimeter = (name: keyof ReservedParameters) => {
     return {
       name,
-      splitResult: parameters[name] ? parameters[name]!.split(MULTIPLE_PARAMETERS_DELIMETER) : undefined,
+      splitResult: parameters[name] ? escapeAwareSplit(parameters[name]!, MULTIPLE_PARAMETERS_DELIMETER) : undefined,
     };
   };
 
