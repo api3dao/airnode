@@ -270,6 +270,15 @@ describe('castValue', () => {
       '0x61207265616c6c79206c6f6e6720737472696e672077697468206d6f72652000'
     );
   });
+
+  it('allows requester to return timestamp', () => {
+    const time = new Date('2020-01-01').getTime();
+    // eslint-disable-next-line functional/immutable-data
+    Date.now = jest.spyOn(Date, 'now').mockImplementation(() => time) as any;
+    expect(time).toEqual(1577836800000);
+
+    expect(castValue('this value will not be used', 'timestamp')).toEqual(new BigNumber(time / 1000).toString());
+  });
 });
 
 describe('multiplyValue', () => {

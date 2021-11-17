@@ -224,6 +224,15 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     expect(decoded).to.equal(apiResponse.string);
   });
 
+  it('decodes timestamp encoded by the adapter package', async () => {
+    const nowSeconds = ethers.BigNumber.from(Math.floor(new Date().getTime() / 1000));
+    const decoded = await testDecoder.decodeTimestamp(extractAndEncode({ _type: 'timestamp', _path: '' }));
+
+    expect(nowSeconds.lte(decoded)).to.equal(true);
+    const futureSeconds = nowSeconds.add(10 * 1000); // Add 10 seconds
+    expect(futureSeconds.gte(decoded)).to.equal(true);
+  });
+
   it('decodes multiple params encoded by the adapter package', async () => {
     const decoded = await testDecoder.decodeMultipleParameters(
       extractAndEncode({ _type: 'string,uint256,address', _path: 'big.string,float,address', _times: ',10000,' })
