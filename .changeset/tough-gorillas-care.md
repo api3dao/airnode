@@ -4,4 +4,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Change format of `config.json` to better support multiple cloud providers
+Change format of `config.json` for better support of multiple cloud providers
