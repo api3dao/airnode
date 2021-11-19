@@ -63,15 +63,6 @@ const questions: PromptObject[] = [
       return '';
     },
   },
-  {
-    // skip for all integrations other than coinmarketcap
-    type: (_prev, values) => (values.integration === 'coinmarketcap' ? 'text' : null),
-    name: 'cmcApiKey',
-    message: [
-      'The CoinMarketCap example requires an API key, which can be acquired with a free, Basic account.',
-      'Please enter your CoinMarketCap API key',
-    ].join('\n'),
-  },
 ];
 
 /**
