@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../../access-control-registry/RoleDeriver.sol";
-import "../../../access-control-registry/AccessControlClient.sol";
+import "../../access-control-registry/RoleDeriver.sol";
+import "../../access-control-registry/AccessControlClient.sol";
 import "./AirnodeRequesterAuthorizerRegistryClient.sol";
-import "../../../access-control-registry/interfaces/IAccessControlRegistry.sol";
+import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for
