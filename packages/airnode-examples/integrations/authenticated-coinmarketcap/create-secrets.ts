@@ -1,6 +1,5 @@
 import prompts, { PromptObject } from 'prompts';
 import { getCommonSecrets, writeSecrets } from '../utils';
-import { runAndHandleErrors } from '../../src';
 
 const questions: PromptObject[] = [
   {
@@ -21,5 +20,3 @@ const createSecrets = async () => {
 };
 
 export default createSecrets;
-
-runAndHandleErrors(createSecrets);
