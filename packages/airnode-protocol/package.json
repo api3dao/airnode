@@ -24,11 +24,9 @@
     "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol",
     "flatten:delete-license-lines": "node dev-scripts/delete-flattened-licenses.js",
     "pack": "yarn pack",
-    "test": "hardhat test",
+    "test": "ts-node scripts/run-hardhat-tests.ts",
     "test:coverage": "hardhat coverage",
-    "test:coverage-extended": "EXTENDED_TEST=TRUE hardhat coverage",
-    "test:extended": "EXTENDED_TEST=TRUE hardhat test",
-    "test:gas": "REPORT_GAS=TRUE hardhat test"
+    "test:gas": "yarn test --report-gas"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -45,6 +43,7 @@
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
+    "ts-node": "^10.4.0",
     "typechain": "^5.1.2",
     "typescript": "^4.3.5"
   },

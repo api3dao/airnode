@@ -16,7 +16,7 @@
     "test": "yarn test:ts && yarn test:hardhat",
     "test:ts": "SILENCE_LOGGER=true jest --coverage",
     "test:hardhat": "hardhat test",
-    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
+    "test:watch": "yarn test:ts --watch"
   },
   "dependencies": {
     "@api3/airnode-ois": "^0.2.2",
