@@ -20,7 +20,7 @@ const args = yargs(hideBin(process.argv))
     type: 'string',
     demandOption: true,
   })
-  .option('interpolate', {
+  .option('secrets', {
     description: 'Path to .env file that will be interpolated with specification',
     alias: 'i',
     type: 'string',
@@ -40,7 +40,7 @@ if (templates[templatePath.toLowerCase() as keyof typeof templates]) {
 let res: Log[] | Result;
 
 if (templatePath) {
-  res = validate(args.specification, templatePath, args.interpolate);
+  res = validate(args.specification, templatePath, args.secrets);
   res.messages.push(...messages);
 } else {
   res = messages;
