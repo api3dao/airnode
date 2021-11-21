@@ -32,7 +32,7 @@ export function validateJsonWithTemplate(
 
   let template;
 
-  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+  if (!(template = utils.readJson(templatePath, messages))) {
     return { valid: false, messages };
   }
 
@@ -61,12 +61,12 @@ export function validateWithTemplate(
   let specs, env;
   const messages: Log[] = [];
 
-  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+  if (!(specs = utils.readJson(specsPath, messages))) {
     return { valid: false, messages };
   }
 
   if (interpolatePath) {
-    if ((env = utils.parseEnv(path.resolve(interpolatePath), messages)) === undefined) {
+    if (!(env = utils.parseEnv(path.resolve(interpolatePath), messages))) {
       return { valid: false, messages };
     }
   }
@@ -95,16 +95,16 @@ export function validate(
   let template, specs, env;
   const messages: Log[] = [];
 
-  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+  if (!(template = utils.readJson(templatePath, messages))) {
     return { valid: false, messages };
   }
 
-  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+  if (!(specs = utils.readJson(specsPath, messages))) {
     return { valid: false, messages };
   }
 
   if (interpolatePath) {
-    if ((env = utils.parseEnv(path.resolve(interpolatePath), messages)) === undefined) {
+    if (!(env = utils.parseEnv(path.resolve(interpolatePath), messages))) {
       return { valid: false, messages };
     }
   }
@@ -134,7 +134,7 @@ export function validateJson(
   let interpolated: object | undefined = specs;
 
   if (interpolate) {
-    if ((interpolated = utils.interpolate(specs, interpolate, messages)) === undefined) {
+    if (!(interpolated = utils.interpolate(specs, interpolate, messages))) {
       return { valid: false, messages };
     }
   }

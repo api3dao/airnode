@@ -22,18 +22,18 @@ export function convert(
   let template, specs;
   const messages: Log[] = [];
 
-  if ((template = utils.readJson(templatePath, messages)) === undefined) {
+  if (!(template = utils.readJson(templatePath, messages))) {
     return { valid: false, messages };
   }
 
-  if ((specs = utils.readJson(specsPath, messages)) === undefined) {
+  if (!(specs = utils.readJson(specsPath, messages))) {
     return { valid: false, messages };
   }
 
   let env = undefined;
 
   if (interpolatePath) {
-    if ((env = utils.parseEnv(interpolatePath, messages)) === undefined) {
+    if (!(env = utils.parseEnv(interpolatePath, messages))) {
       return { valid: false, messages };
     }
   }
@@ -63,7 +63,7 @@ export function convertJson(
   let interpolated: object | undefined = specs;
 
   if (interpolate) {
-    if ((interpolated = utils.interpolate(specs, interpolate, messages)) === undefined) {
+    if (!(interpolated = utils.interpolate(specs, interpolate, messages))) {
       return { valid: false, messages };
     }
   }
