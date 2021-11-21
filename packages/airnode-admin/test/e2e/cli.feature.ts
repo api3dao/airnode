@@ -350,7 +350,7 @@ describe('CLI', () => {
     const out = execCommand('derive-endpoint-id', ['--ois-title', oisTitle], ['--endpoint-name', endpointName]);
 
     const expected = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
+      ethers.utils.defaultAbiCoder.encode(['string', 'string'], [`${oisTitle}`, `${endpointName}`])
     );
     expect(out).toBe(`Endpoint ID: ${expected}`);
   });
@@ -379,14 +379,27 @@ describe('CLI', () => {
   it('generates mnemonic', () => {
     const out = execCommand('generate-mnemonic');
 
-    expect(out).toMatch(/Generated mnemonic: [\w+ ]+/);
+    const explanationInfo = [
+      'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
+      'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
+      '',
+    ]
+      .map((str) => `${str}\n`)
+      .join('');
+
+    expect(out.startsWith(explanationInfo)).toBe(true);
+    const mnemonic = out.split(explanationInfo)[1];
+
+    const words = mnemonic.split(' ');
+    expect(words).toHaveLength(12);
+    words.forEach((word) => expect(word).toMatch(/\w+/));
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';
     const endpointId = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
+      ethers.utils.defaultAbiCoder.encode(['string', 'string'], [`${oisTitle}`, `${endpointName}`])
     );
     const expirationTimestamp = new Date('2031-09-23T13:04:13Z');
     let accessControlRegistry: AccessControlRegistry;

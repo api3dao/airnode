@@ -1,8 +1,10 @@
-import { isArray, isPlainObject } from 'lodash';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
-import { ResponseType, ValueType, baseResponseTypes } from '../types';
+import { ResponseType, ValueType } from '../types';
+import { baseResponseTypes } from '../constants';
 
 interface SpecialNumber {
   readonly result: number;
@@ -85,6 +87,10 @@ function castString32(value: unknown) {
   return ethers.utils.formatBytes32String(strValue.length > 31 ? strValue.substring(0, 31) : strValue);
 }
 
+function createTimestamp() {
+  return new BigNumber(Math.floor(Date.now() / 1000)).toString();
+}
+
 function isValidType(type: ResponseType) {
   return baseResponseTypes.includes(type as any) || parseArrayType(type) !== null;
 }
@@ -121,6 +127,8 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
         return castBytesLike(value);
       case 'string32':
         return castString32(value);
+      case 'timestamp':
+        return createTimestamp();
     }
 
     // NOTE: Should not happen, we should throw on invalid type sooner

@@ -1,4 +1,5 @@
-import { ResponseType, BaseResponseType, baseResponseTypes } from '../types';
+import { baseResponseTypes } from '../constants';
+import { ResponseType, BaseResponseType } from '../types';
 
 // Numeric types could be multiplied by the "_times" reserved parameter
 export function isNumericType(type: ResponseType): type is 'uint256' | 'int256' {

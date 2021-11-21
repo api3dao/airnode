@@ -28,7 +28,7 @@ describe('initialize (ApiCall)', () => {
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xbb7a523ebcb9c151457d6ea26ced6bbc0fab1aa7f170156bd0f63a295e5f8e16',
+      id: '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
@@ -39,7 +39,7 @@ describe('initialize (ApiCall)', () => {
       parameters: {},
       requestCount: '1',
       status: RequestStatus.Pending,
-      templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
+      templateId: '0x441afbe66277833474b7b55975a5bb9d51fa8fb48a856dc1dbf1ce018e1638a9',
       type: 'template',
     });
   });
@@ -194,7 +194,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: '0x7c1de7e1',
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0xbb7a523ebcb9c151457d6ea26ced6bbc0fab1aa7f170156bd0f63a295e5f8e16',
+        id: '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
@@ -205,7 +205,7 @@ describe('mapRequests (ApiCall)', () => {
         parameters: { from: 'ETH' },
         requestCount: '1',
         status: RequestStatus.Pending,
-        templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
+        templateId: '0x441afbe66277833474b7b55975a5bb9d51fa8fb48a856dc1dbf1ce018e1638a9',
         type: 'template',
       },
     ]);

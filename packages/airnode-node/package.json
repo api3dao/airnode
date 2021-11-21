@@ -16,10 +16,10 @@
     "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
-    "test:e2e:debug": "jest \"requester-fulfill.feature\" --selectProjects e2e",
-    "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
-    "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
-    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit"
+    "test:e2e:debug": "jest \"test-api.feature\" --selectProjects e2e",
+    "test:e2e:watch": "yarn test:e2e --watch",
+    "test": "SILENCE_LOGGER=true jest --selectProjects unit",
+    "test:watch": "yarn test --watch"
   },
   "dependencies": {
     "@api3/airnode-adapter": "^0.2.2",
@@ -28,7 +28,7 @@
     "@api3/airnode-protocol": "^0.2.2",
     "@api3/airnode-validator": "^0.2.2",
     "@lifeomic/attempt": "^3.0.0",
-    "aws-sdk": "^2.753.0",
+    "aws-sdk": "^2.814.0",
     "date-fns": "^2.16.1",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.5",

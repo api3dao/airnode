@@ -89,4 +89,21 @@ contract TestDecoder {
     {
         decodedData = abi.decode(data, (bytes32));
     }
+
+    function decodeMultipleParameters(bytes calldata data)
+        public
+        pure
+        returns (string memory str, uint256 num, address addr)
+    {
+        (str, num, addr) = abi.decode(data, (string, uint256, address));
+    }
+
+
+    function decodeTimestamp(bytes calldata data)
+        public
+        pure
+        returns (uint256 timestamp)
+    {
+        timestamp = abi.decode(data, (uint256));
+    }
 }

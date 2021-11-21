@@ -156,6 +156,7 @@ describe('Encoding array values', () => {
 
 it('tests getSolidityType', () => {
   expect(getSolidityType('string32')).toEqual('bytes32');
+  expect(getSolidityType('timestamp')).toEqual('uint256');
   expect(getSolidityType('string32[][7]')).toEqual('bytes32[][7]');
 
   expect(getSolidityType('address[7][][3]')).toEqual('address[7][][3]');

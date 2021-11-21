@@ -3,7 +3,7 @@ import { testApi } from './test-api';
 import * as worker from '../adapters/http/worker';
 import * as fixtures from '../../test/fixtures';
 
-const ENDPOINT_ID = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
+const ENDPOINT_ID = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
 function buildConfigWithEndpoint(endpoint?: Endpoint) {
   const endpoints = endpoint ? [endpoint] : [];
@@ -76,6 +76,6 @@ describe('testApi', () => {
     expect(err).toBeNull();
     expect(res).toEqual({ value: '1000' });
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, false);
+    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, { forTestingGateway: true });
   });
 });

@@ -1,6 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
 import { OIS } from '@api3/airnode-ois';
-import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
@@ -55,17 +54,19 @@ function buildOptions(
   };
 }
 
-function createPrintableValue(value: adapter.ValueType): string {
-  if (Array.isArray(value)) return JSON.stringify(value);
-
-  return BigNumber.isBigNumber(value) ? adapter.bigNumberToString(value) : value.toString();
+export interface ApiCallOptions {
+  readonly forTestingGateway?: boolean;
 }
 
-export async function callApi(
-  config: Config,
-  aggregatedApiCall: AggregatedApiCall,
-  encodeResponse = true
-): Promise<LogsData<ApiCallResponse>> {
+export interface CallApiPayload {
+  readonly config: Config;
+  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly apiCallOptions: ApiCallOptions;
+}
+
+export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
+  const { config, aggregatedApiCall, apiCallOptions } = payload;
+
   const { chainId, endpointName, oisTitle } = aggregatedApiCall;
   const chain = config.chains.find((c) => c.id === chainId)!;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
@@ -110,10 +111,9 @@ export async function callApi(
 
   // eslint-disable-next-line functional/no-try-statement
   try {
-    const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
-    const value = encodeResponse ? extracted.encodedValue : extracted.value;
-    const printableValue = createPrintableValue(value);
-    return [[], { value: printableValue }];
+    const response = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
+    const value = apiCallOptions?.forTestingGateway ? JSON.stringify(response) : response.encodedValue;
+    return [[], { value }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);

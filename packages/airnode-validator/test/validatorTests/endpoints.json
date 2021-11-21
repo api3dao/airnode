@@ -223,22 +223,22 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0x49d5f00e6bd2ebbf59c57c1e02255cbed121d7c5be5bccee92a8b1d3b8f03853",
         "oisTitle": "myOisTitle",
         "endpointName": "endpt1"
       },
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0x6f1c150246d8934c04d6ef1ce940b530689b8449cc8e6924a11fa7776784db35",
         "oisTitle": "myOisTitle",
         "endpointName": "endpt2"
       },
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0xd5786a182805c9d2db287fbd8e3b9f2689ae5cb3058a9063577e9cbbff01c829",
         "oisTitle": "anotherOis",
         "endpointName": "endpt3"
       },
       {
-        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "endpointId": "0x9c7441258622ce228c1fed4e3bb26fc782b3a990a6ad794c1d6975c3162bcb76",
         "oisTitle": "myOisTitle",
         "endpointName": "endpt4"
       }

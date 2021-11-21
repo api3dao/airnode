@@ -12,9 +12,15 @@ it('makes a call to test the API', async () => {
   };
 
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
-  const endpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
+  const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
   // Value is returned by the mock server from the operation package
-  const expected = { value: '72339202' };
+  const expected = {
+    value: JSON.stringify({
+      rawValue: { success: true, result: '723.392028' },
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
+      values: ['72339202'],
+    }),
+  };
 
   const result = await testApi(endpointId, parameters);
   expect(result).toEqual(expected);
