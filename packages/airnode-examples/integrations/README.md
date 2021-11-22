@@ -29,6 +29,7 @@ When adding an integration you need to do a few things:
    the data received by the Airnode
 3. Create all the necessary files (see the section above) for your integration. Some of the files are explained more in
    depth below
+4. Run `yarn build` from the top-level `airnode` directory to build the contract artifacts.
 
 Tip: You can get inspired by the existing integrations.
 
