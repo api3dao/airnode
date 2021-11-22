@@ -5,6 +5,8 @@ import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider } from '@api3/airnode-node';
+import compact from 'lodash/compact';
+import isEmpty from 'lodash/isEmpty';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
@@ -30,7 +32,11 @@ const terraformAirnodeDir = `${terraformDir}/airnode`;
 
 let spinner: Ora;
 
-async function runCommand(command: string, options: child.ExecOptions) {
+interface CommandOptions extends child.ExecOptions {
+  ignoreError?: boolean;
+}
+
+async function runCommand(command: string, options: CommandOptions) {
   const stringifiedOptions = JSON.stringify(options);
   const commandSpinner = logger.debugSpinner(`Running command '${command}' with options ${stringifiedOptions}`);
   try {
@@ -38,6 +44,13 @@ async function runCommand(command: string, options: child.ExecOptions) {
     commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
     return stdout;
   } catch (err) {
+    if (options.ignoreError) {
+      spinner.info();
+      commandSpinner.warn(`Command '${command}' with options ${stringifiedOptions} failed`);
+      logger.warn((err as Error).toString());
+      return '';
+    }
+
     spinner.info();
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
     logger.fail((err as Error).toString());
@@ -47,9 +60,9 @@ async function runCommand(command: string, options: child.ExecOptions) {
 
 type CommandArg = string | [string, string] | [string, string, string];
 
-async function execTerraform(execOptions: child.ExecOptions, command: string, ...args: CommandArg[]) {
+async function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
   const formattedArgs = formatTerraformArguments(args);
-  const fullCommand = `terraform ${command} ${formattedArgs.join(' ')}`;
+  const fullCommand = compact(['terraform', command, formattedArgs.join(' '), options?.join(' ')]).join(' ');
   return await runCommand(fullCommand, execOptions);
 }
 
@@ -76,6 +89,14 @@ function gcpAirnodeInitArguments(_cloudProvider: GcpCloudProvider, bucket: strin
   return [['backend-config', 'bucket', bucket]];
 }
 
+function awsAirnodeImportOptions(_cloudProvider: AwsCloudProvider): string[] {
+  return [];
+}
+
+function gcpAirnodeImportOptions(cloudProvider: GcpCloudProvider): string[] {
+  return ['module.startCoordinator.google_app_engine_application.app', cloudProvider.projectId!];
+}
+
 const cloudProviderLib = {
   aws: aws,
   gcp: gcp,
@@ -89,6 +110,11 @@ const cloudProviderAirnodeManageArguments = {
 const cloudProviderAirnodeInitArguments = {
   aws: awsAirnodeInitArguments,
   gcp: gcpAirnodeInitArguments,
+};
+
+const cloudProviderAirnodeImportOptions = {
+  aws: awsAirnodeImportOptions,
+  gcp: gcpAirnodeImportOptions,
 };
 
 interface AirnodeVariables {
@@ -118,7 +144,7 @@ async function terraformAirnodeManage(
   const { airnodeAddressShort, stage, configPath, secretsPath, httpGatewayApiKey } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
-  await execTerraform(execOptions, 'init', ...prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
+  await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
 
   commonArguments = [
     ['var', 'airnode_address_short', airnodeAddressShort],
@@ -128,14 +154,29 @@ async function terraformAirnodeManage(
     ['var', 'handler_dir', handlerDir],
     ['input', 'false'],
     'no-color',
-    'auto-approve',
   ];
 
   if (httpGatewayApiKey) {
     commonArguments.push(['var', 'api_key', httpGatewayApiKey]);
   }
 
-  await execTerraform(execOptions, command, ...prepareAirnodeManageArguments(cloudProvider, commonArguments));
+  // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
+  if (command === 'apply') {
+    const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.name](cloudProvider as any);
+
+    if (!isEmpty(importOptions)) {
+      await execTerraform(
+        { ...execOptions, ignoreError: true },
+        'import',
+        prepareAirnodeManageArguments(cloudProvider, commonArguments),
+        cloudProviderAirnodeImportOptions[cloudProvider.name](cloudProvider as any)
+      );
+    }
+  }
+
+  commonArguments.push('auto-approve');
+
+  await execTerraform(execOptions, command, prepareAirnodeManageArguments(cloudProvider, commonArguments));
 }
 
 export async function deployAirnode(
@@ -180,7 +221,7 @@ async function deploy(
     const stateTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
 
     const execOptions = { cwd: stateTmpDir };
-    await execTerraform(execOptions, 'init', ['from-module', terraformStateCloudProviderDir]);
+    await execTerraform(execOptions, 'init', [['from-module', terraformStateCloudProviderDir]]);
 
     const commonArguments: CommandArg[] = [
       ['var', 'airnode_address_short', airnodeAddressShort],
@@ -189,7 +230,7 @@ async function deploy(
       'no-color',
       'auto-approve',
     ];
-    await execTerraform(execOptions, 'apply', ...prepareAirnodeManageArguments(cloudProvider, commonArguments));
+    await execTerraform(execOptions, 'apply', prepareAirnodeManageArguments(cloudProvider, commonArguments));
   }
 
   // Run airnode recipes
@@ -203,7 +244,7 @@ async function deploy(
     secretsPath,
     httpGatewayApiKey,
   });
-  const output = await execTerraform(execOptions, 'output', 'json', 'no-color');
+  const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;
   return parsedOutput.http_gateway_url ? { httpGatewayUrl: parsedOutput.http_gateway_url.value } : {};
 }

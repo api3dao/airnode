@@ -1289,6 +1289,18 @@
     retry-request "^4.2.2"
     teeny-request "^7.0.0"
 
+"@google-cloud/functions-framework@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-2.0.0.tgz#9dd73ce7ee971c59e71267e7545177749c758fab"
+  integrity sha512-ekimQYvTFjVLZiSGXWOGMj56DU2mXzQdaK57x20EPeDdG6BxwLuCCBxIC/N5EYX+y/2SbvGs0K9hBaFYHP9n2A==
+  dependencies:
+    body-parser "^1.18.3"
+    express "^4.16.4"
+    minimist "^1.2.5"
+    on-finished "^2.3.0"
+    read-pkg-up "^7.0.1"
+    semver "^7.3.5"
+
 "@google-cloud/paginator@^3.0.0":
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/@google-cloud/paginator/-/paginator-3.0.6.tgz#02a59dccd348d515069779a4f77a4a4fd15594da"
@@ -4999,7 +5011,7 @@ bodec@^0.1.0:
   resolved "https://registry.yarnpkg.com/bodec/-/bodec-0.1.0.tgz#bc851555430f23c9f7650a75ef64c6a94c3418cc"
   integrity sha1-vIUVVUMPI8n3ZQp172TGqUw0GMw=
 
-body-parser@1.19.0, body-parser@^1.16.0:
+body-parser@1.19.0, body-parser@^1.16.0, body-parser@^1.18.3:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.19.0.tgz#96b2709e57c9c4e09a6fd66a8fd979844f69f08a"
   integrity sha512-dhEPs72UPbDnAQJ9ZKMNTP6ptJaionhP5cBb541nXPlW60Jepo9RV/a4fX4XWW9CuFNK22krhrj1+rgzifNCsw==
@@ -7917,7 +7929,7 @@ expect@^27.2.5:
     jest-message-util "^27.2.5"
     jest-regex-util "^27.0.6"
 
-express@^4.14.0, express@^4.17.1:
+express@^4.14.0, express@^4.16.4, express@^4.17.1:
   version "4.17.1"
   resolved "https://registry.yarnpkg.com/express/-/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
   integrity sha512-mHJ9O79RqluphRrcw2X/GTh3k9tVv8YcoyY4Kkh4WDMUYKRZUq0h1o0w2rrrxBqM7VoeUVqgb27xlEMXTnYt4g==
@@ -12990,7 +13002,7 @@ oboe@2.1.5:
   dependencies:
     http-https "^1.0.0"
 
-on-finished@~2.3.0:
+on-finished@^2.3.0, on-finished@~2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"
   integrity sha1-IPEzZIGwg811M3mSoWlxqi2QaUc=
@@ -17278,6 +17290,11 @@ webpack-cli@^4.8.0:
     interpret "^2.2.0"
     rechoir "^0.7.0"
     webpack-merge "^5.7.3"
+
+webpack-ignore-dynamic-require@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/webpack-ignore-dynamic-require/-/webpack-ignore-dynamic-require-1.0.0.tgz#b8629d67c881fe0ff3f09cc21c40474b488b13d2"
+  integrity sha512-WeGFPgwDochKPwizAu5XsHcPq3aaQLl2E+n1piD/VPGNUo5HIwrtURWNMfrPDfkHVOx+flkAihXbUiILAv5x4Q==
 
 webpack-merge@^5.7.3:
   version "5.8.0"
