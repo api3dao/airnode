@@ -31,9 +31,7 @@ RUN git clone ${repository} ${buildDir} -b ${branch}
 FROM source${build} AS deps
 
 # Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# The binary filename is taken from: https://github.com/ethereum/solc-bin/tree/gh-pages/linux-amd64
-RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
-  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a
+# list.json is a croped version of https://github.com/ethereum/solc-bin/blob/gh-pages/linux-amd64/list.json
 
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
@@ -45,6 +43,13 @@ RUN yarn global add lerna && \
 
 # Build
 FROM source${build} AS build
+
+# Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
+# The sequencing of this command in this file is important.
+RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
+  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a \
+  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
+#COPY docker/solidity/list.json /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json
 
 RUN yarn bootstrap && \
     yarn build && \
