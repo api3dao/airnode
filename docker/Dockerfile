@@ -30,9 +30,6 @@ RUN git clone ${repository} ${buildDir} -b ${branch}
 # Production dependencies
 FROM source${build} AS deps
 
-# Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# list.json is a croped version of https://github.com/ethereum/solc-bin/blob/gh-pages/linux-amd64/list.json
-
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
     rm -rf node_modules/@api3 && \
@@ -45,11 +42,17 @@ RUN yarn global add lerna && \
 FROM source${build} AS build
 
 # Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# The sequencing of this command in this file is important.
 RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
-  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a \
-  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
-#COPY docker/solidity/list.json /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json
+  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a \
+  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json \
+  && chmod +x /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a
+
+# Download glibc libraries for solc-linux-amd64
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+  && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.34-r0/glibc-2.34-r0.apk \
+  && apk add glibc-2.34-r0.apk \
+  && rm -rf glibc-2.34-r0.apk /etc/apk/keys/sgerrand.rsa.pub
+
 
 RUN yarn bootstrap && \
     yarn build && \
