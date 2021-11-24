@@ -53,7 +53,6 @@ RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/s
   && apk add glibc-2.34-r0.apk \
   && rm -rf glibc-2.34-r0.apk /etc/apk/keys/sgerrand.rsa.pub
 
-
 RUN yarn bootstrap && \
     yarn build && \
     yarn run pack && \
