@@ -1,10 +1,9 @@
-export * as handlers from './handlers';
+export * as adapters from './adapters';
 export * as config from './config';
-export * as providerState from './providers/state';
-export * as logger from './logger';
-export * as promiseUtils from './utils/promise-utils';
 export * as evm from './evm';
-export * as adapterHttpParameters from './adapters/http/parameters';
+export * as handlers from './handlers';
+export * as logger from './logger';
+export * as providers from './providers';
 export * as utils from './utils';
-export * from './version';
 export * from './types';
+export * from './version';
