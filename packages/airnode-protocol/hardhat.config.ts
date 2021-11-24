@@ -12,7 +12,7 @@ import { customCompiler } from '@api3/airnode-adapter/hardhat.config';
  * This overrides the standard compiler version to use a custom compiled version.
  */
 if (fs.existsSync('/.dockerenv')) {
-// @ts-ignore
+  // @ts-ignore
   subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
 }
 

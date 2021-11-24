@@ -13,8 +13,10 @@ export const customCompiler = async (
   next: RunSuperFunction<{ readonly solcVersion: string }>
 ) => {
   if (args.solcVersion === '0.8.9') {
-    const compilerPath =
-      path.join(os.homedir(), '.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js');
+    const compilerPath = path.join(
+      os.homedir(),
+      '.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js'
+    );
 
     return {
       compilerPath,
