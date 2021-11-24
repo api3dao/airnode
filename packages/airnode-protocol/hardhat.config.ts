@@ -1,8 +1,17 @@
-require('@nomiclabs/hardhat-waffle');
-require('@nomiclabs/hardhat-etherscan');
-require('solidity-coverage');
-require('hardhat-deploy');
-require('hardhat-gas-reporter');
+import { subtask } from 'hardhat/config';
+import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from 'hardhat/builtin-tasks/task-names';
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import 'solidity-coverage';
+import 'hardhat-deploy';
+import 'hardhat-gas-reporter';
+import { customCompiler } from '@api3/airnode-adapter/hardhat.config';
+
+/**
+ * This overrides the standard compiler version to use a custom compiled version.
+ */
+// @ts-ignore
+subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
 
 const fs = require('fs');
 let credentials = require('./credentials.example.json');
@@ -15,7 +24,7 @@ module.exports = {
     apiKey: credentials.etherscanApiKey,
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS ? true : false,
+    enabled: !!process.env.REPORT_GAS,
     outputFile: 'gas_report',
     noColors: true,
   },

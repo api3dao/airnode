@@ -42,10 +42,10 @@ RUN yarn global add lerna && \
 FROM source${build} AS build
 
 # Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# The sequencing of this command in this file is important.
-RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
-  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a \
-  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
+# This path is hard-coded in hardhat.config.ts in airnode-adapter and airnode-protocol.
+RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/wasm \
+  &&  wget -O /root/.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js https://solc-bin.ethereum.org/wasm/soljson-v0.8.9+commit.e5eed63a.js \
+  &&  wget -O /root/.cache/hardhat-nodejs/compilers/wasm/list.json https://solc-bin.ethereum.org/wasm/list.json
 
 RUN yarn bootstrap && \
     yarn build && \
