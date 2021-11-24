@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import { HardhatUserConfig, subtask } from 'hardhat/config';
 import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from 'hardhat/builtin-tasks/task-names';
 import '@nomiclabs/hardhat-waffle';
@@ -10,7 +13,8 @@ export const customCompiler = async (
   next: RunSuperFunction<{ readonly solcVersion: string }>
 ) => {
   if (args.solcVersion === '0.8.9') {
-    const compilerPath = '/root/.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js';
+    const compilerPath =
+      path.join(os.homedir(), '.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js');
 
     return {
       compilerPath,
@@ -26,7 +30,9 @@ export const customCompiler = async (
 /**
  * This overrides the standard compiler version to use a custom compiled version.
  */
-subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
+if (fs.existsSync('/.dockerenv')) {
+  subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
+}
 
 const config: HardhatUserConfig = {
   solidity: '0.8.9',

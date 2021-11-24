@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { subtask } from 'hardhat/config';
 import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from 'hardhat/builtin-tasks/task-names';
 import '@nomiclabs/hardhat-waffle';
@@ -10,10 +11,11 @@ import { customCompiler } from '@api3/airnode-adapter/hardhat.config';
 /**
  * This overrides the standard compiler version to use a custom compiled version.
  */
+if (fs.existsSync('/.dockerenv')) {
 // @ts-ignore
-subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
+  subtask<{ readonly solcVersion: string }>(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, customCompiler);
+}
 
-const fs = require('fs');
 let credentials = require('./credentials.example.json');
 if (fs.existsSync('./credentials.json')) {
   credentials = require('./credentials.json');
