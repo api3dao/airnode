@@ -746,7 +746,12 @@ describe('readBeacon', function () {
           { gasLimit: 500000 }
         );
       // Read the beacon again
-      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      let currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      expect(currentBeacon.value).to.be.equal(decodedData);
+      expect(currentBeacon.timestamp).to.be.equal(nextBlockTimestamp);
+      // Read beacon with address(0)
+      const voidSigner = new hre.ethers.VoidSigner(hre.ethers.constants.AddressZero, hre.ethers.provider);
+      currentBeacon = await rrpBeaconServer.connect(voidSigner).readBeacon(templateId);
       expect(currentBeacon.value).to.be.equal(decodedData);
       expect(currentBeacon.timestamp).to.be.equal(nextBlockTimestamp);
     });
@@ -782,6 +787,9 @@ describe('readerCanReadBeacon', function () {
           .connect(roles.indefiniteWhitelister)
           .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
         expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+        // VoidSigner of address(0) is considered whitelisted
+        const voidSigner = new hre.ethers.VoidSigner(hre.ethers.constants.AddressZero, hre.ethers.provider);
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, voidSigner.address)).to.equal(true);
       });
     });
     context('User not whitelisted', function () {
