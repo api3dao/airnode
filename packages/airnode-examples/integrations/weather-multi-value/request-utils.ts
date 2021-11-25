@@ -2,9 +2,10 @@ import { encode } from '@api3/airnode-abi';
 import { cliPrint, getDeployedContract, readIntegrationInfo } from '../../src';
 
 // OpenWeather historical API allows free access only to the last 5 days
-// Use date for yesterday, excluding milliseconds
+// Use timestamp for 24 hours ago, excluding milliseconds
 const dt = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
 
+// Default coordinates are for London, England
 export const getEncodedParameters = () => {
   return encode([
     { name: 'lat', type: 'string', value: '51.507222' },
