@@ -8,6 +8,7 @@
 **/.build/**
 **/.serverless/**
 **/coverage/**
+coverage.json
 **/dist/**
 **/.webpack/**
 

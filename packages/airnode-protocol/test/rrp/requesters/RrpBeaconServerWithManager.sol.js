@@ -731,8 +731,10 @@ describe('fulfill', function () {
               await rrpBeaconServer
                 .connect(roles.updateRequester)
                 .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+              await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
-              const encodedTimestamp = Math.floor(Date.now() / 1000);
+              const encodedTimestamp = now;
               const data = hre.ethers.utils.defaultAbiCoder.encode(
                 ['int256', 'uint256'],
                 [encodedData, encodedTimestamp]
@@ -798,8 +800,10 @@ describe('fulfill', function () {
               await rrpBeaconServer
                 .connect(roles.updateRequester)
                 .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+              await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+              const encodedTimestamp = now - 4000;
               const encodedData = 123;
-              const encodedTimestamp = Math.floor(Date.now() / 1000) - 4000;
               const data = hre.ethers.utils.defaultAbiCoder.encode(
                 ['int256', 'uint256'],
                 [encodedData, encodedTimestamp]
@@ -863,8 +867,10 @@ describe('fulfill', function () {
               await rrpBeaconServer
                 .connect(roles.updateRequester)
                 .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+              await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
-              const encodedTimestamp = Math.floor(Date.now() / 1000) + 4000;
+              const encodedTimestamp = now + 4000;
               const data = hre.ethers.utils.defaultAbiCoder.encode(
                 ['int256', 'uint256'],
                 [encodedData, encodedTimestamp]
@@ -929,8 +935,9 @@ describe('fulfill', function () {
               .connect(roles.updateRequester)
               .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
             // Prepare the first response
+            const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
             let encodedData = 123;
-            let encodedTimestamp = Math.floor(Date.now() / 1000);
+            let encodedTimestamp = now;
             const firstData = hre.ethers.utils.defaultAbiCoder.encode(
               ['int256', 'uint256'],
               [encodedData, encodedTimestamp]
@@ -973,12 +980,13 @@ describe('fulfill', function () {
               )
             );
             // Request the second beacon update
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
             await rrpBeaconServer
               .connect(roles.updateRequester)
               .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
             // Prepare the second response
             encodedData = 123;
-            encodedTimestamp = Math.floor(Date.now() / 1000) + 1;
+            encodedTimestamp = now + 1;
             const secondData = hre.ethers.utils.defaultAbiCoder.encode(
               ['int256', 'uint256'],
               [encodedData, encodedTimestamp]
@@ -991,6 +999,7 @@ describe('fulfill', function () {
               )
             );
             // Fulfill the second beacon update
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 2]);
             await airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
@@ -1003,6 +1012,7 @@ describe('fulfill', function () {
                 { gasLimit: 500000 }
               );
             // Attempt to fulfill the first beacon update
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 3]);
             const staticCallResult = await airnodeRrp
               .connect(sponsorWallet)
               .callStatic.fulfill(
@@ -1230,8 +1240,10 @@ describe('readBeacon', function () {
         .connect(roles.updateRequester)
         .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
       // Fulfill
+      const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+      await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
       const encodedData = 123;
-      const encodedTimestamp = Math.floor(Date.now() / 1000);
+      const encodedTimestamp = now;
       const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
       const signature = await airnodeWallet.signMessage(
         hre.ethers.utils.arrayify(
