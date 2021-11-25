@@ -3,7 +3,7 @@ import { cliPrint, getDeployedContract, readIntegrationInfo } from '../../src';
 
 // OpenWeather historical API allows free access only to the last 5 days
 // Use date for yesterday, excluding milliseconds
-const dt = Math.floor((Date.now() - 86400000) / 1000);
+const dt = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
 
 export const getEncodedParameters = () => {
   return encode([
