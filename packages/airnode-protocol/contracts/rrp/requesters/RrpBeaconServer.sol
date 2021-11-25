@@ -195,8 +195,10 @@ contract RrpBeaconServer is
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
     /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
-    /// `int256` to be returned because this is what `fulfill()` expects.
-    /// This point of data must be castable to `int224`.
+    /// `int256` and an additional timestamp of type `uint256` to be returned
+    /// because this is what `fulfill()` expects.
+    /// This point of data must be castable to `int224` and the timestamp must
+    /// be castable to `uint32`.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
@@ -231,9 +233,11 @@ contract RrpBeaconServer is
 
     /// @notice Called by AirnodeRrp to fulfill the request
     /// @dev It is assumed that the fulfillment will be made with a single
-    /// point of data of type `int256`
+    /// point of data of type `int256` and an additional timestamp of type
+    /// `uint256`
     /// @param requestId ID of the request being fulfilled
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (a single `int256` and an additional
+    /// timestamp of type `uint256` encoded as `bytes`)
     function fulfill(bytes32 requestId, bytes calldata data)
         external
         override
@@ -242,24 +246,39 @@ contract RrpBeaconServer is
         bytes32 templateId = requestIdToTemplateId[requestId];
         require(templateId != bytes32(0), "No such request made");
         delete requestIdToTemplateId[requestId];
-        int256 decodedData = abi.decode(data, (int256));
+        (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
+            data,
+            (int256, uint256)
+        );
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
         );
         require(
-            block.timestamp <= type(uint32).max,
+            decodedTimestamp <= type(uint32).max,
             "Timestamp typecasting error"
+        );
+        require(
+            decodedTimestamp > templateIdToBeacon[templateId].timestamp,
+            "Fulfillment older than beacon"
+        );
+        require(
+            decodedTimestamp + 1 hours > block.timestamp,
+            "Fulfillment stale"
+        );
+        require(
+            decodedTimestamp - 1 hours < block.timestamp,
+            "Fulfillment from future"
         );
         templateIdToBeacon[templateId] = Beacon({
             value: int224(decodedData),
-            timestamp: uint32(block.timestamp)
+            timestamp: uint32(decodedTimestamp)
         });
         emit UpdatedBeacon(
             templateId,
             requestId,
             int224(decodedData),
-            uint32(block.timestamp)
+            uint32(decodedTimestamp)
         );
     }
 
