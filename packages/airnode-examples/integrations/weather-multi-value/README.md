@@ -4,8 +4,15 @@ This authenticated OpenWeather historical weather data example builds upon the f
 CoinMarketCap example by incorporating the encoding of multiple reserved parameters, which Airnode extracts and converts
 separately.
 
-As this is an authenticated example, you will need to sign up with OpenWeather in order to get a free API key. Like the
-CoinMarketCap example, the `yarn create-airnode-secrets` step will request this key and store it in `secrets.env`.
+As this is an authenticated example, you will need to sign up with [OpenWeather](https://openweathermap.org/api) in
+order to get a free API key. The `yarn create-airnode-secrets` step will request this key and store it in `secrets.env`.
+
+Before proceeding with this example, use the curl command below to confirm the API key is active. Note you need to
+replace `MYKEY` with your API key. Also note the quotes surrounding the URL are required.
+
+```sh
+curl "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51.507222&lon=-0.1275&dt=1637545002&appid=MYKEY"
+```
 
 New to this example is the encoding of reserved parameters with multiple values of different types. In `config.json`,
 the `_type` reserved parameter is a comma-separated string with the following "split values":
@@ -17,8 +24,8 @@ the `_type` reserved parameter is a comma-separated string with the following "s
 
 Note the comma-separated `_path` reserved parameter only has three "split values" as `timestamp` should not include a
 `_path` value. Lastly, the comma-separated `_times` reserved parameter illustrates that only the temperature (the second
-"split value") is multiplied by a value, which is necessary in order to handle the floating point temperature returned by
-OpenWeather. Each of these reserved parameters has a corresponding mapping in the
+"split value") is multiplied by a value, which is necessary in order to handle the floating point temperature returned
+by OpenWeather. Each of these reserved parameters has a corresponding mapping in the
 `../../contracts/weather-multi-value/Requester.sol` requester contract.
 
 Refer to the docs for more information on
