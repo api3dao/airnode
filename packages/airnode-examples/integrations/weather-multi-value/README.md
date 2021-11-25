@@ -17,7 +17,7 @@ the `_type` reserved parameter is a comma-separated string with the following "s
 
 Note the comma-separated `_path` reserved parameter only has three "split values" as `timestamp` should not include a
 `_path` value. Lastly, the comma-separated `_times` reserved parameter illustrates that only the temperature (the second
-"split value") is multiple by a value, which is necessary in order to handle the floating point temperature returned by
+"split value") is multiplied by a value, which is necessary in order to handle the floating point temperature returned by
 OpenWeather. Each of these reserved parameters has a corresponding mapping in the
 `../../contracts/weather-multi-value/Requester.sol` requester contract.
 
