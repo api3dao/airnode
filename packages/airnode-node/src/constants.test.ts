@@ -18,7 +18,7 @@ describe('constants', () => {
     expect(constants.DEFAULT_RETRY_TIMEOUT_MS).toEqual(5_000);
     expect(constants.EVM_PROVIDER_TIMEOUT).toEqual(10_000);
     expect(constants.WORKER_CALL_API_TIMEOUT).toEqual(29_500);
-    expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(19_500);
-    expect(constants.WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT).toEqual(9_500);
+    expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(11_500);
+    expect(constants.WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT).toEqual(19_500);
   });
 });

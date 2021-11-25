@@ -46,6 +46,7 @@ resource "aws_lambda_function" "lambda" {
   source_code_hash               = data.archive_file.lambda_zip.output_base64sha256
   function_name                  = var.name
   handler                        = var.handler
+  memory_size                    = var.memory_size
   runtime                        = "nodejs14.x"
   role                           = aws_iam_role.lambda_role.arn
   timeout                        = var.timeout
