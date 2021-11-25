@@ -15,7 +15,7 @@
     "clean": "rimraf -rf ./dist ./.webpack *.tgz",
     "cli": "ts-node bin/deployer.ts",
     "compile": "tsc -p tsconfig.build.json",
-    "copy:terraform": "copyfiles terraform/**/**/*.tf terraform/**/**/*.tpl  dist/",
+    "copy:terraform": "copyfiles terraform/**/**/**/*.tf terraform/**/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/*.js .webpack/templates/**/*.json .webpack/conversions/**/*.json dist/",
     "pack": "yarn pack",
     "test": "jest --coverage",
