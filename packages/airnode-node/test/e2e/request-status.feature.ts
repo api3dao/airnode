@@ -14,7 +14,6 @@ it('sets the correct status code for both successful and failed requests', async
     { type: 'bytes32', name: ReservedParameterName.Type, value: 'int256' },
     { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
     { type: 'bytes32', name: ReservedParameterName.Times, value: '1000000' },
-    { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
   ];
   // Returns a 404
   const invalidParameters = [...baseParameters, { type: 'bytes32', name: 'from', value: 'UNKNOWN_COIN' }];

@@ -25,8 +25,6 @@ export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: Parameters;
-  // TODO: remove
-  readonly metadataParameters: Parameters;
   readonly apiCredentials: ApiCredentials[];
   readonly metadata: RequestMetadata;
 }
@@ -72,7 +70,6 @@ export interface ReservedParameters {
   _path?: string;
   _times?: string;
   _type: ResponseType;
-  _relay_metadata?: string;
 }
 
 export interface ExtractedAndEncodedResponse {
@@ -80,20 +77,5 @@ export interface ExtractedAndEncodedResponse {
   values: ValueType[];
   encodedValue: string;
 }
-
-export type MetadataParameterKeysV1 =
-  | '_airnode_airnode_address'
-  | '_airnode_requester_address'
-  | '_airnode_sponsor_wallet_address'
-  | '_airnode_endpoint_id'
-  | '_airnode_sponsor_address'
-  | '_airnode_request_id'
-  | '_airnode_chain_id'
-  | '_airnode_chain_type'
-  | '_airnode_airnode_rrp';
-
-export type MetadataParametersV1 = {
-  readonly [key in MetadataParameterKeysV1]: string;
-};
 
 export type ReservedParametersDelimeter = typeof MULTIPLE_PARAMETERS_DELIMETER | typeof PATH_DELIMETER;

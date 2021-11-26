@@ -77,7 +77,6 @@ export enum ReservedParameterName {
   Path = '_path',
   Times = '_times',
   Type = '_type',
-  RelayMetadata = '_relay_metadata',
 }
 
 export interface ReservedParameter {

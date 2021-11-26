@@ -9,7 +9,6 @@ export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): B
     ois,
     endpointName: 'convertToUSD',
     parameters: { f: 'ETH', amount: '1' },
-    metadataParameters: {},
     apiCredentials: buildCredentials(),
     metadata: {
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
