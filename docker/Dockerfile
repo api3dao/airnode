@@ -1,7 +1,7 @@
 ARG build=local
 
 # Environment
-FROM node:14.17-alpine3.14 AS environment
+FROM node:14.17-bullseye AS environment
 
 ENV buildDir="/build" \
     dependenciesDir="/dependencies" \
@@ -12,7 +12,9 @@ WORKDIR ${buildDir}
 # Build preparation
 FROM environment AS preparation
 
-RUN apk add --update --no-cache git
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean
 
 # Source preparation - local
 FROM preparation as sourcelocal
@@ -41,11 +43,9 @@ RUN yarn global add lerna && \
 # Build
 FROM source${build} AS build
 
-# Download solidity compiler as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-# The sequencing of this command in this file is important.
-RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 \
-  &&  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a \
-  && wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
+RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 && \
+  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a && \
+  wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
 
 RUN yarn bootstrap && \
     yarn build && \
