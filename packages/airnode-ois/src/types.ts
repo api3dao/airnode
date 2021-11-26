@@ -26,17 +26,42 @@ export interface Path {
   [key: string]: Operation;
 }
 
-export type SecuritySchemeName = 'bearer' | 'basic';
-// OAS supports also "oauth2" and "openIdConnect", but we don't
-export type SecuritySchemeType = 'apiKey' | 'http' | 'relayRequesterAddress' | 'relayChainId' | 'relayChainType';
-export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
-
-export interface ApiSecurityScheme {
-  in?: SecuritySchemeTarget;
-  name?: string;
-  scheme?: SecuritySchemeName;
-  type: SecuritySchemeType;
+export interface HttpSecurityScheme {
+  scheme: 'bearer' | 'basic';
+  type: 'http';
 }
+
+export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
+export interface ConfigurableSecurityScheme {
+  in: SecuritySchemeTarget;
+  name: string;
+}
+
+export interface ApiKeySecurityScheme extends ConfigurableSecurityScheme {
+  type: 'apiKey';
+}
+
+export interface RelayChainIdSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayChainId';
+}
+
+export interface RelayChainTypeSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayChainType';
+}
+
+export interface RelayRequesterAddressSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayRequesterAddress';
+}
+
+export type ApiSecurityScheme =
+  | ApiKeySecurityScheme
+  | HttpSecurityScheme
+  | RelayChainIdSecurityScheme
+  | RelayChainTypeSecurityScheme
+  | RelayRequesterAddressSecurityScheme;
+
+// OAS supports also "oauth2" and "openIdConnect", but we don't
+export type SecuritySchemeType = ApiSecurityScheme['type'];
 
 export interface ApiComponents {
   securitySchemes: {

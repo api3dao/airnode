@@ -1,4 +1,9 @@
-import { ApiSecurityScheme } from '@api3/airnode-ois';
+import {
+  ApiKeySecurityScheme,
+  ApiSecurityScheme,
+  ConfigurableSecurityScheme,
+  HttpSecurityScheme,
+} from '@api3/airnode-ois';
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
 import merge from 'lodash/merge';
@@ -26,7 +31,7 @@ function createSchemeAuthentication(
   return { [authSection]: { [name]: value } };
 }
 
-function getAuthenticationSection(apiSecurityScheme: ApiSecurityScheme): keyof Authentication | null {
+function getAuthenticationSection(apiSecurityScheme: ConfigurableSecurityScheme): keyof Authentication {
   switch (apiSecurityScheme.in) {
     case 'query':
       return 'query';
@@ -34,12 +39,10 @@ function getAuthenticationSection(apiSecurityScheme: ApiSecurityScheme): keyof A
       return 'headers';
     case 'cookie':
       return 'cookies';
-    default:
-      return null;
   }
 }
 
-function getApiKeyAuth(apiSecurityScheme: ApiSecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
+function getApiKeyAuth(apiSecurityScheme: ApiKeySecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
   const { name } = apiSecurityScheme;
   const value = credentials.securitySchemeValue;
   const authSection = getAuthenticationSection(apiSecurityScheme);
@@ -48,10 +51,10 @@ function getApiKeyAuth(apiSecurityScheme: ApiSecurityScheme, credentials: ApiCre
   return createSchemeAuthentication(authSection, name, value);
 }
 
-function getHttpAuth(apiSecurityScheme: ApiSecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
+function getHttpAuth(httpSecurityScheme: HttpSecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
   const value = credentials.securitySchemeValue;
 
-  switch (apiSecurityScheme.scheme) {
+  switch (httpSecurityScheme.scheme) {
     // The value for basic auth should be the base64 encoded value from
     // <username>:<password>
     case 'basic':
@@ -69,22 +72,29 @@ function getSchemeAuthentication(
   credential: ApiCredentials,
   options: CachedBuildRequestOptions
 ): Partial<Authentication> {
-  const authSection = getAuthenticationSection(apiSecurityScheme);
-
   switch (apiSecurityScheme.type) {
     case 'apiKey':
       return getApiKeyAuth(apiSecurityScheme, credential);
     case 'http':
       return getHttpAuth(apiSecurityScheme, credential);
     case 'relayChainId':
-      if (!authSection) return {};
-      return createSchemeAuthentication(authSection, credential.securitySchemeName, options.metadata.chainId);
+      return createSchemeAuthentication(
+        getAuthenticationSection(apiSecurityScheme),
+        apiSecurityScheme.name,
+        options.metadata.chainId
+      );
     case 'relayChainType':
-      if (!authSection) return {};
-      return createSchemeAuthentication(authSection, credential.securitySchemeName, options.metadata.chainType);
+      return createSchemeAuthentication(
+        getAuthenticationSection(apiSecurityScheme),
+        apiSecurityScheme.name,
+        options.metadata.chainType
+      );
     case 'relayRequesterAddress':
-      if (!authSection) return {};
-      return createSchemeAuthentication(authSection, credential.securitySchemeName, options.metadata.requesterAddress);
+      return createSchemeAuthentication(
+        getAuthenticationSection(apiSecurityScheme),
+        apiSecurityScheme.name,
+        options.metadata.requesterAddress
+      );
     default:
       return {};
   }
