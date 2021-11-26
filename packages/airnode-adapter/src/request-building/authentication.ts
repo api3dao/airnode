@@ -42,7 +42,11 @@ function getAuthenticationSection(apiSecurityScheme: ConfigurableSecurityScheme)
   }
 }
 
-function getApiKeyAuth(apiSecurityScheme: ApiKeySecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
+function getApiKeyAuth(
+  apiSecurityScheme: ApiKeySecurityScheme,
+  credentials: ApiCredentials | null
+): Partial<Authentication> {
+  if (!credentials) return {};
   const { name } = apiSecurityScheme;
   const value = credentials.securitySchemeValue;
   const authSection = getAuthenticationSection(apiSecurityScheme);
@@ -51,7 +55,11 @@ function getApiKeyAuth(apiSecurityScheme: ApiKeySecurityScheme, credentials: Api
   return createSchemeAuthentication(authSection, name, value);
 }
 
-function getHttpAuth(httpSecurityScheme: HttpSecurityScheme, credentials: ApiCredentials): Partial<Authentication> {
+function getHttpAuth(
+  httpSecurityScheme: HttpSecurityScheme,
+  credentials: ApiCredentials | null
+): Partial<Authentication> {
+  if (!credentials) return {};
   const value = credentials.securitySchemeValue;
 
   switch (httpSecurityScheme.scheme) {
@@ -69,14 +77,14 @@ function getHttpAuth(httpSecurityScheme: HttpSecurityScheme, credentials: ApiCre
 
 function getSchemeAuthentication(
   apiSecurityScheme: ApiSecurityScheme,
-  credential: ApiCredentials,
+  credentials: ApiCredentials | null,
   options: CachedBuildRequestOptions
 ): Partial<Authentication> {
   switch (apiSecurityScheme.type) {
     case 'apiKey':
-      return getApiKeyAuth(apiSecurityScheme, credential);
+      return getApiKeyAuth(apiSecurityScheme, credentials);
     case 'http':
-      return getHttpAuth(apiSecurityScheme, credential);
+      return getHttpAuth(apiSecurityScheme, credentials);
     case 'relayChainId':
       return createSchemeAuthentication(
         getAuthenticationSection(apiSecurityScheme),
@@ -110,13 +118,8 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
         return authentication;
       }
 
-      const apiCredential = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]);
-      // If there are no credentials available, ignore the scheme
-      if (!apiCredential) {
-        return authentication;
-      }
-
-      return merge(authentication, getSchemeAuthentication(apiSecurityScheme, apiCredential, options));
+      const apiCredentials = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]) ?? null;
+      return merge(authentication, getSchemeAuthentication(apiSecurityScheme, apiCredentials, options));
     },
     createEmptyAuthentication()
   );
