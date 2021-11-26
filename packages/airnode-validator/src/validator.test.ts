@@ -356,4 +356,10 @@ describe('validator', () => {
       ],
     });
   });
+
+  it('interpolation', () => {
+    expect(
+      validator.validate('exampleSpecs/secrets.config.json', 'templates/0.2/config.json', 'exampleSpecs/secrets.env')
+    ).toEqual({ valid: true, messages: [] });
+  });
 });

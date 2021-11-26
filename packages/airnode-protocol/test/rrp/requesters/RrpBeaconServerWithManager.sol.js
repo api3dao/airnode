@@ -9,6 +9,7 @@ let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServer admin';
 let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
 let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress, sponsorWallet;
+let voidSignerAddressZero;
 let endpointId, parameters, templateId;
 
 beforeEach(async () => {
@@ -74,6 +75,7 @@ beforeEach(async () => {
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  voidSignerAddressZero = new hre.ethers.VoidSigner(hre.ethers.constants.AddressZero, hre.ethers.provider);
   await roles.deployer.sendTransaction({
     to: sponsorWalletAddress,
     value: hre.ethers.utils.parseEther('1'),
@@ -687,6 +689,184 @@ describe('requestBeaconUpdate', function () {
   });
 });
 
+describe('readBeacon', function () {
+  context('Caller whitelisted', function () {
+    it('reads beacon', async function () {
+      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+      await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+      // Whitelist the beacon reader
+      await rrpBeaconServer
+        .connect(roles.indefiniteWhitelister)
+        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+      // Confirm that the beacon is empty
+      const initialBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      expect(initialBeacon.value).to.be.equal(0);
+      expect(initialBeacon.timestamp).to.be.equal(0);
+      // Compute the expected request ID
+      const requestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+          [
+            (await hre.ethers.provider.getNetwork()).chainId,
+            airnodeRrp.address,
+            rrpBeaconServer.address,
+            await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+            templateId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpBeaconServer.address,
+            rrpBeaconServer.interface.getSighash('fulfill'),
+            '0x',
+          ]
+        )
+      );
+      // Request the beacon update
+      await rrpBeaconServer
+        .connect(roles.updateRequester)
+        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+      // Fulfill with 0 status code
+      const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+      await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+      const encodedData = 123;
+      const encodedTimestamp = now;
+      const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
+      const signature = await airnodeWallet.signMessage(
+        hre.ethers.utils.arrayify(
+          hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+        )
+      );
+      await airnodeRrp
+        .connect(sponsorWallet)
+        .fulfill(
+          requestId,
+          airnodeAddress,
+          rrpBeaconServer.address,
+          rrpBeaconServer.interface.getSighash('fulfill'),
+          data,
+          signature,
+          { gasLimit: 500000 }
+        );
+      // Read the beacon again
+      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      expect(currentBeacon.value).to.be.equal(encodedData);
+      expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
+    });
+  });
+  context('Caller address zero', function () {
+    it('reads beacon', async function () {
+      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+      await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+      // Confirm that the beacon is empty
+      const initialBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(templateId);
+      expect(initialBeacon.value).to.be.equal(0);
+      expect(initialBeacon.timestamp).to.be.equal(0);
+      // Compute the expected request ID
+      const requestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+          [
+            (await hre.ethers.provider.getNetwork()).chainId,
+            airnodeRrp.address,
+            rrpBeaconServer.address,
+            await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+            templateId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpBeaconServer.address,
+            rrpBeaconServer.interface.getSighash('fulfill'),
+            '0x',
+          ]
+        )
+      );
+      // Request the beacon update
+      await rrpBeaconServer
+        .connect(roles.updateRequester)
+        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+      // Fulfill with 0 status code
+      const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+      await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+      const encodedData = 123;
+      const encodedTimestamp = now;
+      const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
+      const signature = await airnodeWallet.signMessage(
+        hre.ethers.utils.arrayify(
+          hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+        )
+      );
+      await airnodeRrp
+        .connect(sponsorWallet)
+        .fulfill(
+          requestId,
+          airnodeAddress,
+          rrpBeaconServer.address,
+          rrpBeaconServer.interface.getSighash('fulfill'),
+          data,
+          signature,
+          { gasLimit: 500000 }
+        );
+      // Read the beacon again
+      const currentBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(templateId);
+      expect(currentBeacon.value).to.be.equal(encodedData);
+      expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
+    });
+  });
+  context('Caller not whitelisted', function () {
+    it('reverts', async function () {
+      await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId)).to.be.revertedWith(
+        'Caller not whitelisted'
+      );
+    });
+  });
+});
+
+describe('readerCanReadBeacon', function () {
+  context('Template exists', function () {
+    context('User whitelisted', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+        const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+        await rrpBeaconServer
+          .connect(roles.whitelistExpirationSetter)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        await rrpBeaconServer
+          .connect(roles.indefiniteWhitelister)
+          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        await rrpBeaconServer
+          .connect(roles.whitelistExpirationSetter)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        await rrpBeaconServer
+          .connect(roles.indefiniteWhitelister)
+          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      });
+    });
+    context('User zero address', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, hre.ethers.constants.AddressZero)).to.equal(true);
+      });
+    });
+    context('User not whitelisted', function () {
+      it('returns false', async function () {
+        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
+      });
+    });
+  });
+  context('Template does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        rrpBeaconServer.readerCanReadBeacon(utils.generateRandomBytes32(), roles.randomPerson.address)
+      ).to.be.revertedWith('Template does not exist');
+    });
+  });
+});
+
+// Tests for `fulfill()` should come last because the line below causes all following `fulfill()`
+// calls to revert
+// await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
+// This can be solved by adding a `hardhat_reset` call to beforeEach, but that breaks solcover.
 describe('fulfill', function () {
   context('Caller Airnode RRP', function () {
     context('requestId has been registered', function () {

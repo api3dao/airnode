@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { config, handlers, logger, promiseUtils, providerState, WorkerResponse } from '@api3/airnode-node';
+import { config, handlers, logger, utils, providers, WorkerResponse } from '@api3/airnode-node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = config.parseConfig(configFile, process.env);
@@ -17,7 +17,7 @@ export async function startCoordinator() {
 export async function initializeProvider(event: any) {
   const stateWithConfig = { ...event.state, config: parsedConfig };
 
-  const [err, initializedState] = await promiseUtils.go(() => handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -25,7 +25,7 @@ export async function initializeProvider(event: any) {
     return { statusCode: 500, body };
   }
 
-  const body = encodeBody({ ok: true, data: providerState.scrub(initializedState) });
+  const body = encodeBody({ ok: true, data: providers.scrub(initializedState) });
   return { statusCode: 200, body };
 }
 
@@ -40,7 +40,7 @@ export async function callApi(event: any) {
 export async function processProviderRequests(event: any) {
   const stateWithConfig = { ...event.state, config: parsedConfig };
 
-  const [err, updatedState] = await promiseUtils.go(() => handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -48,7 +48,7 @@ export async function processProviderRequests(event: any) {
     return { statusCode: 500, body };
   }
 
-  const body = encodeBody({ ok: true, data: providerState.scrub(updatedState) });
+  const body = encodeBody({ ok: true, data: providers.scrub(updatedState) });
   return { statusCode: 200, body };
 }
 

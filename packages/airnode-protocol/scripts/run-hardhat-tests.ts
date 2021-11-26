@@ -25,16 +25,10 @@ async function walk(directory: string) {
 
 async function main() {
   // NOTE: Hardhat tests are extremely slow when there are too many of them
-  const args = process.argv;
-
-  const reportGasOption = args[2];
-  if (reportGasOption && reportGasOption !== '--report-gas') {
-    throw new Error('Only "--report-gas" option is allowed');
-  }
 
   const files = await walk('test');
   files.forEach((file) => {
-    const command = `${reportGasOption ? 'REPORT_GAS=TRUE ' : ''}hardhat test ${file}`;
+    const command = `hardhat test ${file}`;
     spawnSync(command, {
       shell: true,
       stdio: 'inherit',

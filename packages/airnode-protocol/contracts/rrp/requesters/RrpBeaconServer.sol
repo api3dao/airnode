@@ -316,7 +316,7 @@ contract RrpBeaconServer is
         onlyIfTemplateExists(templateId)
         returns (bool)
     {
-        return userIsWhitelisted(templateId, reader);
+        return userIsWhitelisted(templateId, reader) || reader == address(0);
     }
 
     /// @notice Called to get the detailed whitelist status of the reader for
