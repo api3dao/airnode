@@ -19,7 +19,9 @@ export const printResponse = async (requestId: string) => {
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
 
   const r1 = await requester.sunsetData(requestId);
-  cliPrint.info(`Timestamp of sunset: ${r1}`);
+  // Multiply by 1000 to go from seconds to milliseconds
+  const sunsetDate = new Date(r1 * 1000).toUTCString();
+  cliPrint.info(`Timestamp of sunset: ${r1} (${sunsetDate})`);
 
   // Temp is first divided by 1e2, because the response value is multiplied with 1e2 by Airnode
   // Temp is then converted from Kelvin to Celsius
@@ -30,5 +32,6 @@ export const printResponse = async (requestId: string) => {
   cliPrint.info(`Weather: ${r3}`);
 
   const r4 = await requester.timestampData(requestId);
-  cliPrint.info(`Timestamp of encoded transaction: ${r4}`);
+  const transactionDate = new Date(r4 * 1000).toUTCString();
+  cliPrint.info(`Timestamp of encoded transaction: ${r4} (${transactionDate})`);
 };
