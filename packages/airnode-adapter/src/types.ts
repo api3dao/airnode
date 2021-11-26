@@ -9,12 +9,26 @@ export interface ApiCredentials {
   readonly securitySchemeValue: string;
 }
 
+export interface RequestMetadata {
+  airnodeAddress: string;
+  requesterAddress: string;
+  sponsorWalletAddress: string;
+  endpointId: string;
+  sponsorAddress: string;
+  requestId: string;
+  chainId: string;
+  chainType: string;
+  airnodeRrpAddress: string;
+}
+
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: Parameters;
+  // TODO: remove
   readonly metadataParameters: Parameters;
   readonly apiCredentials: ApiCredentials[];
+  readonly metadata: RequestMetadata;
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {

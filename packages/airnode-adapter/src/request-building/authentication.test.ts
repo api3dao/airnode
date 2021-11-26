@@ -153,3 +153,44 @@ describe('building HTTP authentication parameters', () => {
     });
   });
 });
+
+describe('relay metadata', () => {
+  it('relays chain id', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'header', type: 'relayChainId' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: {},
+      headers: { myapiApiScheme: '31337' },
+      cookies: {},
+    });
+  });
+
+  it('relays chain type', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'cookie', type: 'relayChainType' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: {},
+      headers: {},
+      cookies: { myapiApiScheme: 'evm' },
+    });
+  });
+
+  it('relays requester address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'query', type: 'relayRequesterAddress' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { myapiApiScheme: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' },
+      headers: {},
+      cookies: {},
+    });
+  });
+});

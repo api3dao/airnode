@@ -51,6 +51,17 @@ function buildOptions(
     metadataParameters,
     ois,
     apiCredentials,
+    metadata: {
+      airnodeAddress: aggregatedApiCall.airnodeAddress,
+      requesterAddress: aggregatedApiCall.requesterAddress,
+      sponsorAddress: aggregatedApiCall.sponsorAddress,
+      sponsorWalletAddress: aggregatedApiCall.sponsorWalletAddress,
+      endpointId: aggregatedApiCall.endpointId,
+      requestId: aggregatedApiCall.id,
+      chainId: aggregatedApiCall.chainId,
+      chainType: chain.type,
+      airnodeRrpAddress: chain.contracts.AirnodeRrp,
+    },
   };
 }
 

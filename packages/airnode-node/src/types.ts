@@ -158,6 +158,7 @@ export interface CoordinatorState {
 // EVM specific
 // ===========================================
 export interface EVMContracts {
+  // TODO: Rename to airnodeRrp for consistency
   readonly AirnodeRrp: string;
 }
 

@@ -27,7 +27,8 @@ export interface Path {
 }
 
 export type SecuritySchemeName = 'bearer' | 'basic';
-export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
+// OAS supports also "oauth2" and "openIdConnect", but we don't
+export type SecuritySchemeType = 'apiKey' | 'http' | 'relayRequesterAddress' | 'relayChainId' | 'relayChainType';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
 export interface ApiSecurityScheme {
