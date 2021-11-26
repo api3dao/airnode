@@ -27,6 +27,11 @@ const args = yargs(hideBin(process.argv))
     type: 'string',
     demandOption: true,
   })
+  .option('secrets', {
+    description: 'Path to .env file that will be interpolated with specification',
+    alias: 'i',
+    type: 'string',
+  })
   .option('specs-only', {
     description: 'Instead of standard validator output, only the result of conversion will be returned',
     type: 'boolean',
@@ -42,7 +47,7 @@ const args = yargs(hideBin(process.argv))
   .parseSync();
 
 if (args.template) {
-  console.log(JSON.stringify(convert(args.specification, args.template), null, 2));
+  console.log(JSON.stringify(convert(args.specification, args.template, args.secrets), null, 2));
   process.exit();
 }
 
@@ -53,7 +58,7 @@ const [to, toVersion] = args.to!.toLowerCase().split('@');
 const templatePath = utils.getConversionPath(from, to, messages, fromVersion, toVersion);
 
 if (templatePath) {
-  const res = convert(args.specification, templatePath);
+  const res = convert(args.specification, templatePath, args.secrets);
   res.messages.push(...messages);
   console.log(JSON.stringify(args['specs-only'] ? res.output : res, null, 2));
 } else {
