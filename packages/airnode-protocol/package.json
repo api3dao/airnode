@@ -25,8 +25,9 @@
     "flatten:delete-license-lines": "node dev-scripts/delete-flattened-licenses.js",
     "pack": "yarn pack",
     "test": "ts-node scripts/run-hardhat-tests.ts",
+    "test:hardhat": "hardhat test",
     "test:coverage": "hardhat coverage",
-    "test:gas": "yarn test --report-gas"
+    "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
