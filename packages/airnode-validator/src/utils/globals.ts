@@ -5,6 +5,7 @@ export const regexList = {
   noEscapeApostrophe: /(?<!\\)[']/g, // only non escaped apostrophes
   parameterValuePath: /(?<=\[)\[.+?\](?=\])/g, // parameter path to value that is being retrieved from specification - [[ 'param', 'path' ]]
   parameterNameIndex: /\{\{([0-9]+?)\}\}/g, // number surrounded by {{}}
+  patchVersion: /(?<=([0-9]+\.[0-9]+))\.[0-9]+$/g, // matches third group of numbers separated by .
   regexTokens: /[\.\\\[\]\(\)]/g, // characters used in regular expressions and should be escaped before creating regex
 };
 

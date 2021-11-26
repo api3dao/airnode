@@ -2,6 +2,7 @@
 
 import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
+import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
 export interface ApiCredentials {
   readonly securitySchemeName: string;
@@ -47,15 +48,23 @@ export interface Config {
   readonly timeout?: number;
 }
 
-export type ValueType = string | BigNumber | boolean;
+export type ValueType = string | BigNumber | boolean | Array<ValueType>;
 
-export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32';
+export type BaseResponseType = typeof baseResponseTypes[number];
+// Use might pass a complex type (e.g. int256[3][]) which we cannot type
+export type ResponseType = string;
 
 export interface ReservedParameters {
-  readonly _path?: string;
-  readonly _times?: string | BigNumber;
-  readonly _type: ResponseType;
-  readonly _relay_metadata?: string;
+  _path?: string;
+  _times?: string;
+  _type: ResponseType;
+  _relay_metadata?: string;
+}
+
+export interface ExtractedAndEncodedResponse {
+  rawValue: unknown;
+  values: ValueType[];
+  encodedValue: string;
 }
 
 export type MetadataParameterKeysV1 =
@@ -72,3 +81,5 @@ export type MetadataParameterKeysV1 =
 export type MetadataParametersV1 = {
   readonly [key in MetadataParameterKeysV1]: string;
 };
+
+export type ReservedParametersDelimeter = typeof MULTIPLE_PARAMETERS_DELIMETER | typeof PATH_DELIMETER;

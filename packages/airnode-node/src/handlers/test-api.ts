@@ -52,9 +52,12 @@ export async function testApi(
     parameters,
   };
 
-  const [err, logData] = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts, false), {
-    timeoutMs: WORKER_CALL_API_TIMEOUT,
-  });
+  const [err, logData] = await go(
+    () => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts, { forTestingGateway: true }),
+    {
+      timeoutMs: WORKER_CALL_API_TIMEOUT,
+    }
+  );
 
   const resLogs = logData ? logData[0] : [];
   logger.logPending(resLogs, logOptions);

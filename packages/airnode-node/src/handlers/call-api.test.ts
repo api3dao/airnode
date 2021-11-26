@@ -20,8 +20,12 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
-    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const [logs, res] = await callApi({
+      config: fixtures.buildConfig(),
+      aggregatedApiCall,
+      apiCallOptions: {},
+    });
     expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
     expect(spy).toHaveBeenCalledTimes(1);
@@ -67,8 +71,8 @@ describe('callApi', () => {
         });
         const config = fixtures.buildConfig({ ois: [ois] });
         const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata };
-        const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters } as any);
-        const [logs, res] = await callApi(config, aggregatedCall);
+        const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters } as any);
+        const [logs, res] = await callApi({ config, aggregatedApiCall, apiCallOptions: {} });
         expect(logs).toEqual([]);
         expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
         expect(spy).toHaveBeenCalledTimes(1);
@@ -77,13 +81,13 @@ describe('callApi', () => {
             endpointName: 'convertToUSD',
             metadataParameters: {
               ...(expectMetadata && {
-                _airnode_airnode_address: aggregatedCall.airnodeAddress,
-                _airnode_requester_address: aggregatedCall.requesterAddress,
-                _airnode_sponsor_wallet_address: aggregatedCall.sponsorWalletAddress,
-                _airnode_endpoint_id: aggregatedCall.endpointId,
-                _airnode_sponsor_address: aggregatedCall.sponsorAddress,
-                _airnode_request_id: aggregatedCall.id,
-                _airnode_chain_id: aggregatedCall.chainId,
+                _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
+                _airnode_requester_address: aggregatedApiCall.requesterAddress,
+                _airnode_sponsor_wallet_address: aggregatedApiCall.sponsorWalletAddress,
+                _airnode_endpoint_id: aggregatedApiCall.endpointId,
+                _airnode_sponsor_address: aggregatedApiCall.sponsorAddress,
+                _airnode_request_id: aggregatedApiCall.id,
+                _airnode_chain_id: aggregatedApiCall.chainId,
                 _airnode_chain_type: config.chains[0].type,
                 _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
               }),
@@ -106,8 +110,8 @@ describe('callApi', () => {
   });
 
   it('returns an error if no _type parameter is found', async () => {
-    const aggregatedCall = fixtures.buildAggregatedApiCall();
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       {
         level: 'ERROR',
@@ -124,8 +128,8 @@ describe('callApi', () => {
     spy.mockRejectedValueOnce(new Error('Network is down'));
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
@@ -138,8 +142,8 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
     ]);

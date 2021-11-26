@@ -9,17 +9,19 @@ import {
   WorkerFunctionName,
   WorkerOptions,
 } from '../../types';
+import { CallApiArgs } from '../../workers/local-handlers';
+import type { ApiCallOptions } from '../../handlers/call-api';
 
 export async function spawnNewApiCall(
   aggregatedApiCall: AggregatedApiCall,
   logOptions: LogOptions,
   workerOpts: WorkerOptions,
-  encodeResponse = true
+  apiCallOptions?: ApiCallOptions
 ): Promise<LogsData<ApiCallResponse | null>> {
   const options = {
     ...workerOpts,
     functionName: 'callApi' as WorkerFunctionName,
-    payload: { aggregatedApiCall, logOptions, encodeResponse },
+    payload: { aggregatedApiCall, logOptions, apiCallOptions } as CallApiArgs,
   };
 
   const [err, res] = await go(() => workers.spawn(options));

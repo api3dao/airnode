@@ -20,22 +20,27 @@ const args = yargs(hideBin(process.argv))
     type: 'string',
     demandOption: true,
   })
+  .option('secrets', {
+    description: 'Path to .env file that will be interpolated with specification',
+    alias: 'i',
+    type: 'string',
+  })
   .parseSync();
 
-let template: string | null, version: string;
+let templatePath: string | null, version: string;
 // eslint-disable-next-line prefer-const
-[template, version] = args.template.split('@');
+[templatePath, version] = args.template.split('@');
 
-if (templates[template.toLowerCase() as keyof typeof templates]) {
-  template = utils.getPath(templates[template.toLowerCase() as keyof typeof templates], messages, version);
+if (templates[templatePath.toLowerCase() as keyof typeof templates]) {
+  templatePath = utils.getPath(templates[templatePath.toLowerCase() as keyof typeof templates], messages, version);
 } else if (version) {
   messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
 }
 
 let res: Log[] | Result;
 
-if (template) {
-  res = validate(args.specification, template);
+if (templatePath) {
+  res = validate(args.specification, templatePath, args.secrets);
   res.messages.push(...messages);
 } else {
   res = messages;

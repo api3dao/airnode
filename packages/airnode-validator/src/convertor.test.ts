@@ -51,7 +51,7 @@ const generatedConfig = [
 
 describe('convertor', () => {
   it('Converts from OAS to OIS', () => {
-    expect(convert('exampleSpecs/OAS.specs.json', 'conversions/oas@3.0.0------ois@pre-alpha.json')).toEqual({
+    expect(convert('exampleSpecs/OAS.specs.json', 'conversions/oas@3.0------ois@pre-alpha.json')).toEqual({
       valid: false,
       messages: [
         formattingMessage(['components', 'securitySchemes', 'petstore_auth', 'type']),

@@ -1,8 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as logger from '../utils/logger';
+import template from 'lodash/template';
+import dotenv from 'dotenv';
 import { Log } from '../types';
+import * as logger from '../utils/logger';
 import { unknownConversion } from '../utils/messages';
+import { regexList } from '../utils/globals';
 
 const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
 const conversionsPath = path.resolve(__dirname, '../../conversions');
@@ -44,6 +47,13 @@ conversionTemplates.forEach((file) => {
   conversions[fromName][fromVersion][toName].push(toVersion);
 });
 
+// Regular expression that does not match anything, ensuring no escaping or interpolation happens
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
+const NO_MATCH_REGEXP = /($^)/;
+// Regular expression matching ES template literal delimiter (${}) with escaping
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
+const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+
 /**
  * Finds path to latest version of template
  * @param template
@@ -66,8 +76,9 @@ function getLatestPath(template: string): string | null {
  */
 export function getPath(template: string, messages: Log[], version = ''): string | null {
   if (version) {
-    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
-      return path.resolve(validatorTemplatesPath, version, template);
+    const parsedVersion = version.replace(regexList.patchVersion, '');
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, parsedVersion, template))) {
+      return path.resolve(validatorTemplatesPath, parsedVersion, template);
     } else {
       messages.push({
         level: 'warning',
@@ -139,12 +150,14 @@ export function getConversionPath(
     fromVersion = fromLatest;
   }
 
-  if (!conversions[from][fromVersion]) {
+  const parsedFromVersion = fromVersion.replace(regexList.patchVersion, '');
+
+  if (!conversions[from][parsedFromVersion]) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, to));
     return null;
   }
 
-  if (!conversions[from][fromVersion][to]) {
+  if (!conversions[from][parsedFromVersion][to]) {
     messages.push(unknownConversion(from, to));
     return null;
   }
@@ -152,7 +165,7 @@ export function getConversionPath(
   if (!toVersion) {
     let toLatest;
 
-    for (const version of conversions[from][fromVersion][to]) {
+    for (const version of conversions[from][parsedFromVersion][to]) {
       toLatest = !toLatest || (toLatest < version && version.match(/^[0-9\.]+$/)) ? version : toLatest;
     }
 
@@ -164,10 +177,75 @@ export function getConversionPath(
     toVersion = toLatest;
   }
 
-  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`))) {
+  const parsedToVersion = toVersion.replace(regexList.patchVersion, '');
+
+  if (
+    !fs.existsSync(path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`))
+  ) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return null;
   }
 
-  return path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`);
+  return path.resolve(conversionsPath, `${from}@${parsedFromVersion}------${to}@${parsedToVersion}.json`);
+}
+
+export function parseEnv(envPath: string, messages: Log[]): Record<string, string | undefined> | undefined {
+  let env;
+
+  try {
+    env = fs.readFileSync(envPath);
+
+    try {
+      return dotenv.parse(env);
+    } catch (e) {
+      messages.push(logger.error(`${envPath} is not valid env file`));
+      return undefined;
+    }
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${envPath}`));
+    return undefined;
+  }
+}
+
+export function interpolate(
+  specs: object,
+  env: Record<string, string | undefined>,
+  messages: Log[]
+): object | undefined {
+  let interpolated;
+
+  try {
+    interpolated = JSON.parse(
+      template(JSON.stringify(specs), {
+        escape: NO_MATCH_REGEXP,
+        evaluate: NO_MATCH_REGEXP,
+        interpolate: ES_MATCH_REGEXP,
+      })(env)
+    );
+  } catch (e) {
+    messages.push(logger.error('Unable to interpolate provided specification'));
+    return undefined;
+  }
+
+  return interpolated;
+}
+
+export function readJson(filePath: string, messages: Log[]): object | undefined {
+  let res;
+
+  try {
+    res = fs.readFileSync(path.resolve(filePath), 'utf-8');
+  } catch (e) {
+    messages.push(logger.error(`Unable to read file ${path.resolve(filePath)}`));
+    return undefined;
+  }
+
+  try {
+    res = JSON.parse(res);
+  } catch (e) {
+    messages.push(logger.error(`${path.resolve(filePath)} is not valid JSON: ${e}`));
+    return undefined;
+  }
+
+  return res;
 }

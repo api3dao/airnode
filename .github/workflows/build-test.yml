@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@master
       - name: Check hyperlinks
         uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: .github/workflows/mlc_config.json
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
@@ -39,6 +41,14 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.17.1'
+      - name: restore lerna
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install Dependencies
         run: yarn run bootstrap
       - name: Prepare config

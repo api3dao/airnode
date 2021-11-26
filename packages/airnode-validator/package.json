@@ -6,8 +6,8 @@
   "main": "./dist/src/index.js",
   "types": "./dist/src/index",
   "bin": {
-    "api3-validator": "./dist/bin/validator.js",
-    "api3-convertor": "./dist/bin/convertor.js"
+    "airnode-validator": "./dist/bin/validator.js",
+    "airnode-convertor": "./dist/bin/convertor.js"
   },
   "files": [
     "dist"
@@ -23,6 +23,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
+    "lodash": "^4.17.21",
     "yargs": "^17.1.0"
   },
   "devDependencies": {

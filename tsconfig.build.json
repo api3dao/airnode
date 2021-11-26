@@ -9,7 +9,9 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es5"
+    "target": "es5",
+    // This check doesn't work well in monorepos: https://github.com/microsoft/TypeScript/issues/38538
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"]
 }

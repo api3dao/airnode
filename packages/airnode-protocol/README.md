@@ -125,6 +125,28 @@ The contracts are under the `contracts/` directory.
     recent response for each template is stored and can be accessed by the whitelisted users where the whitelists are
     managed by a single account.
 
+  `rrp/authorizers/admin`: Houses the token locking, token payment and fee registry contacts
+
+  - `admin/AirnodeFeeRegistry.sol`: A contract that will specify the price of an endpoint for an airnode across
+    different chains
+  - `admin/AirnodeFeeRegistryClient.sol`: A contract to inherit for contracts that will be interacting with
+    AirnodeFeeRegistry
+  - `admin/AirnodeFeeRegistryRolesWithManager.sol`: A contract that implements the roles for a AirnodeFeeRegistry
+    contract that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeRequesterAuthorizerRegistry.sol`: A contract that will store the RequesterAuthorizerWithManager
+    contract address for different chains
+  - `admin/AirnodeRequesterAuthorizerRegistryClient.sol`: A contract to inherit for contracts that will be interacting
+    with AirnodeRequesterAuthorizerRegistry
+  - `admin/AirnodeTokenLock.sol`: A contract that requesters will use to get authorized on the authorizer contract
+    stored in the AirnodeRequesterAuthorizerRegistry by locking in API3 tokens
+  - `admin/AirnodeTokenLockRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenLock contract
+    that will be managed by a single account through an AccessControlRegistry
+  - `admin/AirnodeTokenPayment.sol`: A contract that requesters will use to get authorized on the authorizer contract
+    stored in the AirnodeRequesterAuthorizerRegistry by making payments in a specific ERC20 token. This contract needs
+    to be deployed per supported payment token
+  - `admin/AirnodeTokenPaymentRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenPayment
+    contract that will be managed by a single account through an AccessControlRegistry
+
 ## Unique patterns
 
 Airnode protocols follow some patterns that you may be unfamiliar with even if you are familiar with existing oracle
@@ -289,3 +311,17 @@ Requesters may not want to use up all the ETH deposited in their sponsor wallet.
 request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
 Before serving this request, the Airnode must verify that the specified sponsor wallet address belongs to the maker of
 the request by deriving the sponsor wallet address itself.
+
+## Token Locking
+
+For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the
+`RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all
+airnodes and the latter is managed by each airnode individually. The token locking contract `AirnodeTokenLock.sol` has
+the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinently
+whitelist a requester. Requesters who want to be whitelisted need to lock in API3 tokens for each endpoint they wish to
+access. Unlocking these locked tokens revokes the whitelisting.
+
+The amount of tokens to be locked is calculated based on the `AirnodeFeeRegistry` contract which specifies the price of
+each airnode endpoint across chains in USD. The price is derived based on
+[this](https://user-images.githubusercontent.com/31223740/140074846-530b899a-f744-43be-a10c-5638c47044f2.png) selection
+scheme.

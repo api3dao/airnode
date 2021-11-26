@@ -4,7 +4,7 @@ import { Config, RrpTrigger, ApiCredentials } from '../../../src/types';
 
 export function buildRrpTrigger(overrides?: Partial<RrpTrigger>): RrpTrigger {
   return {
-    endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
+    endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
     endpointName: 'convertToUSD',
     oisTitle: 'Currency Converter API',
     ...overrides,

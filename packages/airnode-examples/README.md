@@ -112,7 +112,7 @@ yarn create-airnode-secrets
 
 > If you are not using docker for linux and you want to connect to your local hardhat network, you will need to modify
 > the generated `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL with the
-> following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitaton. See:
+> following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitation. See:
 > https://stackoverflow.com/a/24326540
 
 Refer to the

@@ -118,7 +118,7 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string', 'string'], [oisTitle, endpointName]));
 }
 
 export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requesterAddress: string) {
@@ -275,4 +275,9 @@ export async function isRequesterWhitelisted(
   requesterAddress: string
 ) {
   return requesterAuthorizerWithAirnode.requesterIsWhitelisted(airnodeAddress, endpointId, requesterAddress);
+}
+
+export async function generateMnemonic() {
+  const wallet = ethers.Wallet.createRandom();
+  return wallet.mnemonic.phrase;
 }

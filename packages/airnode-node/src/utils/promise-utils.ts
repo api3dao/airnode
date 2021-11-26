@@ -19,15 +19,15 @@ export interface RetryOptions extends PromiseOptions {
   readonly retries: number;
 }
 
+function successFn<T>(value: T): [null, T] {
+  return [null, value];
+}
+function errorFn(err: Error): [Error, null] {
+  return [err, null];
+}
+
 // Go style async handling
 export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<GoResult<T>> {
-  function successFn(value: T): [null, T] {
-    return [null, value];
-  }
-  function errorFn(err: Error): [Error, null] {
-    return [err, null];
-  }
-
   if (options?.retries) {
     const optionsWithRetries = { ...options, retries: options.retries! };
     return retryOperation(fn, optionsWithRetries).then(successFn).catch(errorFn);
@@ -38,6 +38,15 @@ export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<G
   }
 
   return fn().then(successFn).catch(errorFn);
+}
+
+export function goSync<T>(fn: () => T): GoResult<T> {
+  // eslint-disable-next-line functional/no-try-statement
+  try {
+    return successFn(fn());
+  } catch (err) {
+    return errorFn(err as unknown as Error);
+  }
 }
 
 export async function retryOperation<T>(operation: () => Promise<T>, options: RetryOptions): Promise<T> {
