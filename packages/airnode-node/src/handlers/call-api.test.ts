@@ -42,7 +42,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 20000 }
+      { timeout: 10000 }
     );
   });
 
@@ -103,7 +103,7 @@ describe('callApi', () => {
               },
             ],
           },
-          { timeout: 20000 }
+          { timeout: 10000 }
         );
       }
     );

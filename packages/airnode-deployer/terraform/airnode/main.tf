@@ -9,7 +9,7 @@ module "initializeProvider" {
   handler            = "handlers/aws/index.initializeProvider"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 12
+  timeout            = 17
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
@@ -23,7 +23,7 @@ module "callApi" {
   name               = "${local.name_prefix}-callApi"
   handler            = "handlers/aws/index.callApi"
   source_dir         = var.handler_dir
-  timeout            = 30
+  timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   memory_size        = 256
@@ -39,7 +39,7 @@ module "processProviderRequests" {
   handler            = "handlers/aws/index.processProviderRequests"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 20
+  timeout            = 32
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
@@ -54,7 +54,7 @@ module "startCoordinator" {
   handler            = "handlers/aws/index.startCoordinator"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 60
+  timeout            = 65
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
