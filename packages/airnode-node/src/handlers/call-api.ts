@@ -11,8 +11,8 @@ function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   aggregatedApiCall: AggregatedApiCall,
-  reservedParameters: adapter.ReservedParameters,
-  apiCredentials: adapter.ApiCredentials[]
+  apiCredentials: adapter.ApiCredentials[],
+  apiCallOptions: ApiCallOptions
 ): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const sanitizedParameters: adapter.Parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
@@ -22,17 +22,19 @@ function buildOptions(
     parameters: sanitizedParameters,
     ois,
     apiCredentials,
-    metadata: {
-      airnodeAddress: aggregatedApiCall.airnodeAddress,
-      requesterAddress: aggregatedApiCall.requesterAddress,
-      sponsorAddress: aggregatedApiCall.sponsorAddress,
-      sponsorWalletAddress: aggregatedApiCall.sponsorWalletAddress,
-      endpointId: aggregatedApiCall.endpointId,
-      requestId: aggregatedApiCall.id,
-      chainId: aggregatedApiCall.chainId,
-      chainType: chain.type,
-      airnodeRrpAddress: chain.contracts.AirnodeRrp,
-    },
+    metadata: apiCallOptions.forTestingGateway
+      ? null
+      : {
+          airnodeAddress: aggregatedApiCall.airnodeAddress,
+          requesterAddress: aggregatedApiCall.requesterAddress,
+          sponsorAddress: aggregatedApiCall.sponsorAddress,
+          sponsorWalletAddress: aggregatedApiCall.sponsorWalletAddress,
+          endpointId: aggregatedApiCall.endpointId,
+          requestId: aggregatedApiCall.id,
+          chainId: aggregatedApiCall.chainId,
+          chainType: chain.type,
+          airnodeRrpAddress: chain.contracts.AirnodeRrp,
+        },
   };
 }
 
@@ -73,8 +75,8 @@ export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCall
     chain,
     ois,
     aggregatedApiCall,
-    reservedParameters as adapter.ReservedParameters,
-    apiCredentials as adapter.ApiCredentials[]
+    apiCredentials as adapter.ApiCredentials[],
+    apiCallOptions
   );
 
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the

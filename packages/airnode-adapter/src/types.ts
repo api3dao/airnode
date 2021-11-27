@@ -26,7 +26,8 @@ export interface BuildRequestOptions {
   readonly endpointName: string;
   readonly parameters: Parameters;
   readonly apiCredentials: ApiCredentials[];
-  readonly metadata: RequestMetadata;
+  // NOTE: Metadata is "null" in case the request was triggered by testing gateway
+  readonly metadata: RequestMetadata | null;
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {

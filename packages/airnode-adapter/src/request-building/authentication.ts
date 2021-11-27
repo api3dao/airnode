@@ -75,6 +75,19 @@ function getHttpAuth(
   }
 }
 
+function getRelayAuthSchemeFromMetadata(
+  apiSecurityScheme: ConfigurableSecurityScheme,
+  options: CachedBuildRequestOptions,
+  metadataKey: keyof NonNullable<CachedBuildRequestOptions['metadata']>
+): Partial<Authentication> {
+  if (!options.metadata) return {};
+  return createSchemeAuthentication(
+    getAuthenticationSection(apiSecurityScheme),
+    apiSecurityScheme.name,
+    options.metadata[metadataKey]
+  );
+}
+
 function getSchemeAuthentication(
   apiSecurityScheme: ApiSecurityScheme,
   credentials: ApiCredentials | null,
@@ -86,23 +99,11 @@ function getSchemeAuthentication(
     case 'http':
       return getHttpAuth(apiSecurityScheme, credentials);
     case 'relayChainId':
-      return createSchemeAuthentication(
-        getAuthenticationSection(apiSecurityScheme),
-        apiSecurityScheme.name,
-        options.metadata.chainId
-      );
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'chainId');
     case 'relayChainType':
-      return createSchemeAuthentication(
-        getAuthenticationSection(apiSecurityScheme),
-        apiSecurityScheme.name,
-        options.metadata.chainType
-      );
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'chainType');
     case 'relayRequesterAddress':
-      return createSchemeAuthentication(
-        getAuthenticationSection(apiSecurityScheme),
-        apiSecurityScheme.name,
-        options.metadata.requesterAddress
-      );
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'requesterAddress');
     default:
       return {};
   }
