@@ -68,9 +68,9 @@
     "securitySchemes": {
       "__objectItem": {
         "type": {
-          "__regexp": "^(apiKey|http)$",
+          "__regexp": "^(apiKey|http|relayChainId|relayChainType|relayRequesterAddress)$",
           "__catch": {
-            "__message": "__fullPath: Allowed values are \"apiKey\" or \"http\""
+            "__message": "__fullPath: Allowed values are \"apiKey\", \"http\", \"relayChainId\", \"relayChainType\" or \"relayRequesterAddress\""
           }
         },
         "__conditions": [
@@ -84,6 +84,42 @@
             },
             "__catch": {
               "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
+            }
+          },
+          {
+            "__if": {
+              "type": "^relayChainId$"
+            },
+            "__then": {
+              "name": {},
+              "in": {}
+            },
+            "__catch": {
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayChainId\""
+            }
+          },
+          {
+            "__if": {
+              "type": "^relayChainType$"
+            },
+            "__then": {
+              "name": {},
+              "in": {}
+            },
+            "__catch": {
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayChainType\""
+            }
+          },
+          {
+            "__if": {
+              "type": "^relayRequesterAddress$"
+            },
+            "__then": {
+              "name": {},
+              "in": {}
+            },
+            "__catch": {
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayRequesterAddress\""
             }
           },
           {
