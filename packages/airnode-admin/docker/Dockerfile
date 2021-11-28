@@ -1,4 +1,4 @@
-FROM node:14.17-alpine3.14
+FROM node:14.17-bullseye
 
 ENV name="airnode-admin"
 ENV appDir="/app"
@@ -16,7 +16,7 @@ COPY --from=api3/airnode-artifacts /build/packages/airnode-admin/dist ${appDir}/
 # Make the binary available within PATH
 RUN ln -s ${appDir}/bin/admin.js "/usr/local/bin/airnode-admin" && chmod +x "/usr/local/bin/airnode-admin"
 # Create Airnode user
-RUN adduser -h ${appDir} -s /bin/false -S -D -H ${name}
+RUN useradd --home-dir ${appDir} --shell /bin/false --system --no-create-home ${name}
 USER ${name}
 
 ENTRYPOINT ["node", "/usr/local/bin/airnode-admin"]

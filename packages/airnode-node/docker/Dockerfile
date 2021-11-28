@@ -1,4 +1,4 @@
-FROM node:14.17-alpine3.14
+FROM node:14.17-bullseye
 
 ENV name="airnode-node"
 ENV appDir="/app" \
@@ -15,12 +15,22 @@ COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
 COPY --from=api3/airnode-artifacts /build/packages/airnode-node/dist ${appDir}/
 COPY packages/airnode-node/docker/airnode-crontab ${cronjob}
 
-    # Install Tini to pass signals correctly
-RUN apk add --update --no-cache tini && \
-    # Create Airnode user
-    adduser -h ${appDir} -s /bin/false -S -D -H ${name} && \
-    # Enable Airnode cronjob
-    chmod +x ${cronjob} && \
+# Install Tini to pass signals correctly
+# Install busybox for Alpine-like cron commands
+RUN apt-get update && \
+    apt-get install -y tini busybox-static && \
+    apt-get clean
+
+# Link busybox's cron functions and set up cron environment
+RUN ln -s /bin/busybox /bin/crond && \
+    ln -s /bin/busybox /bin/crontab && \
+    mkdir -p /var/spool/cron/crontabs
+
+# Create Airnode user
+RUN useradd --home-dir ${appDir} --shell /bin/false --system --no-create-home ${name}
+
+# Enable Airnode cronjob
+RUN chmod +x ${cronjob} && \
     crontab -u ${name} ${cronjob}
 
 # We need to run the cron daemon as root but the Airnode itself is run under the airnode user
