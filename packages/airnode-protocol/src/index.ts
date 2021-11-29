@@ -15,6 +15,7 @@ import {
   AirnodeRrp__factory as AirnodeRrpFactory,
   AccessControlRegistry__factory as AccessControlRegistryFactory,
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
+  RrpBeaconServer__factory as RrpBeaconServerFactory,
 } from './contracts';
 import AirnodeRrpDeploymentMainnet from '../deployments/mainnet/AirnodeRrp.json';
 import AccessControlRegistryDeploymentMainnet from '../deployments/mainnet/AccessControlRegistry.json';
@@ -66,11 +67,18 @@ export {
   RequesterAuthorizerWithAirnodeAddresses,
   AirnodeRrpFactory,
   AccessControlRegistryFactory,
+  RrpBeaconServerFactory,
   mocks,
   authorizers,
 };
 
-export type { AirnodeRrp, MockRrpRequester, AccessControlRegistry, RequesterAuthorizerWithAirnode } from './contracts';
+export type {
+  AirnodeRrp,
+  MockRrpRequester,
+  AccessControlRegistry,
+  RequesterAuthorizerWithAirnode,
+  RrpBeaconServer,
+} from './contracts';
 export {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,

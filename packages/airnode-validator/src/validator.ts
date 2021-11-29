@@ -1,5 +1,4 @@
-import * as path from 'path';
-import fs from 'fs';
+import path from 'path';
 import * as logger from './utils/logger';
 import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
@@ -7,55 +6,18 @@ import * as utils from './commands/utils';
 import { keywords } from './utils/globals';
 
 /**
- * Validates specification from provided file according to template file
- * @param specsPath - specification file to validate
- * @param templatePath - template json file
- * @param returnJson - parsed JSON specification will be returned
- * @returns array of error and warning messages
- */
-export function validate(specsPath: string | undefined, templatePath: string | undefined, returnJson = false): Result {
-  if (!specsPath || !templatePath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
-  }
-
-  let template, specs;
-
-  try {
-    template = fs.readFileSync(path.resolve(templatePath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(templatePath)}`)] };
-  }
-
-  try {
-    template = JSON.parse(template);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
-  }
-
-  try {
-    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
-  }
-
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
-  }
-
-  const split = templatePath.split('/');
-
-  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
-}
-
-/**
  * Validates JSON specification with known template
  * @param specs - specification to validate
  * @param templateName - name of the template (ois, config...)
+ * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
  */
-export function validateJsonWithTemplate(specs: object, templateName: string | undefined, returnJson = false): Result {
+export function validateJsonWithTemplate(
+  specs: object,
+  templateName: string | undefined,
+  interpolate?: Record<string, string | undefined>,
+  returnJson = false
+): Result {
   if (!templateName) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
@@ -70,53 +32,86 @@ export function validateJsonWithTemplate(specs: object, templateName: string | u
 
   let template;
 
-  try {
-    template = fs.readFileSync(templatePath, 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
-  }
-
-  try {
-    template = JSON.parse(template);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
+  if (!(template = utils.readJson(templatePath, messages))) {
+    return { valid: false, messages };
   }
 
   const split = templatePath.split('/');
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
+  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', interpolate, returnJson);
 }
 
 /**
  * Validates specification on provided path with known template
  * @param specsPath - path to specification that will be validated
  * @param templateName - name of the template (ois, config...)
+ * @param interpolatePath - path to env file that will be interpolated with specification file
  * @param returnJson - parsed JSON specification will be returned
  */
 export function validateWithTemplate(
   specsPath: string | undefined,
   templateName: string | undefined,
+  interpolatePath?: string | undefined,
   returnJson = false
 ) {
   if (!specsPath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
 
-  let specs;
+  let specs, env;
+  const messages: Log[] = [];
 
-  try {
-    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
+  if (!(specs = utils.readJson(specsPath, messages))) {
+    return { valid: false, messages };
   }
 
-  try {
-    specs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
+  if (interpolatePath) {
+    if (!(env = utils.parseEnv(path.resolve(interpolatePath), messages))) {
+      return { valid: false, messages };
+    }
   }
 
-  return validateJsonWithTemplate(specs, templateName, returnJson);
+  return validateJsonWithTemplate(specs, templateName, env, returnJson);
+}
+
+/**
+ * Validates specification from provided file according to template file
+ * @param specsPath - specification file to validate
+ * @param templatePath - template json file
+ * @param interpolatePath - path to env file that will be interpolated with specification file
+ * @param returnJson - parsed JSON specification will be returned
+ * @returns array of error and warning messages
+ */
+export function validate(
+  specsPath: string | undefined,
+  templatePath: string | undefined,
+  interpolatePath?: string,
+  returnJson = false
+): Result {
+  if (!specsPath || !templatePath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+  }
+
+  let template, specs, env;
+  const messages: Log[] = [];
+
+  if (!(template = utils.readJson(templatePath, messages))) {
+    return { valid: false, messages };
+  }
+
+  if (!(specs = utils.readJson(specsPath, messages))) {
+    return { valid: false, messages };
+  }
+
+  if (interpolatePath) {
+    if (!(env = utils.parseEnv(path.resolve(interpolatePath), messages))) {
+      return { valid: false, messages };
+    }
+  }
+
+  const split = templatePath.split('/');
+
+  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', env, returnJson);
 }
 
 /**
@@ -124,13 +119,29 @@ export function validateWithTemplate(
  * @param specs - specification to validate
  * @param template - template json
  * @param templatePath - path to current validator template file
+ * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
  * @returns array of error and warning messages
  */
-export function validateJson(specs: object, template: object, templatePath = '', returnJson = false): Result {
+export function validateJson(
+  specs: object,
+  template: object,
+  templatePath = '',
+  interpolate?: Record<string, string | undefined>,
+  returnJson = false
+): Result {
+  const messages: Log[] = [];
+  let interpolated: object | undefined = specs;
+
+  if (interpolate) {
+    if (!(interpolated = utils.interpolate(specs, interpolate, messages))) {
+      return { valid: false, messages };
+    }
+  }
+
   const nonRedundant = template[keywords.arrayItem as keyof typeof template] ? [] : {};
   const result = processSpecs(
-    specs,
+    interpolated,
     template,
     [],
     nonRedundant,
@@ -145,6 +156,6 @@ export function validateJson(specs: object, template: object, templatePath = '',
   return {
     valid: result.valid,
     messages: result.messages,
-    specs: returnJson ? specs : undefined,
+    specs: returnJson ? interpolated : undefined,
   };
 }
