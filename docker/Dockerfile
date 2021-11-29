@@ -41,6 +41,7 @@ RUN yarn global add lerna && \
 # Build
 FROM source${build} AS build
 
+# Download both solidity compilers as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
 RUN mkdir -p /root/.cache/hardhat-nodejs/compilers/wasm \
   && wget -O /root/.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js https://solc-bin.ethereum.org/wasm/soljson-v0.8.9+commit.e5eed63a.js \
   && wget -O /root/.cache/hardhat-nodejs/compilers/wasm/list.json https://solc-bin.ethereum.org/wasm/list.json \
