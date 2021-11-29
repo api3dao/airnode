@@ -38,6 +38,10 @@ variable "name" {
   description = "Lambda name"
 }
 
+variable "memory_size" {
+  description = "Lambda memory allocation"
+}
+
 variable "configuration_file" {
   description = "Airnode configuration file"
 }
