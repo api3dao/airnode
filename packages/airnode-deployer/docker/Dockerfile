@@ -24,6 +24,9 @@ RUN apk add --update --no-cache su-exec git && \
     ln -s ${appDir}/bin/deployer.js ${appBin} && \
     chmod +x ${appBin}
 
+# Default placement for GCP credentials
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcloud/application_default_credentials.json
+
 WORKDIR ${appDir}
 
 ENTRYPOINT ["/entrypoint.sh"]

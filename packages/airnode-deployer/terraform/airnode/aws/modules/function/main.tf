@@ -7,6 +7,9 @@ resource "null_resource" "fetch_lambda_files" {
 rm -rf ${local.tmp_dir}
 mkdir -p "${local.tmp_input_dir}" "${local.tmp_configuration_dir}"
 cp -r "${var.source_dir}/." "${local.tmp_input_dir}"
+rm -rf "${local.tmp_handlers_dir}"
+mkdir -p "${local.tmp_handlers_dir}"
+cp -r "${var.source_dir}/handlers/aws" "${local.tmp_handlers_dir}/aws"
 cp "${var.configuration_file}" "${local.tmp_configuration_dir}"
 EOC
   }
@@ -56,7 +59,7 @@ resource "aws_lambda_function" "lambda" {
   ]
 
   environment {
-    variables = merge(var.environment_variables, fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {})
+    variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {}), { AIRNODE_CLOUD_PROVIDER = "aws" })
   }
 }
 

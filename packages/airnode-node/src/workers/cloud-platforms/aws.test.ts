@@ -36,7 +36,6 @@ describe('spawn', () => {
   });
 
   it('throws an error if the lambda returns an error', async () => {
-    expect.assertions(3);
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));

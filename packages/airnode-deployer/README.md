@@ -16,12 +16,19 @@ the deployer for users is using the [deployer docker image](./docker/README.md).
 
 - Install [Terraform v0.15.x](https://www.terraform.io/downloads.html) and make sure that the `terraform` binary is
   available in your `PATH`
-- Make sure your AWS credentials are stored in the
+- AWS deployment - Make sure your AWS credentials are stored in the
   [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where)
   or exported as
   [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html#envvars-set). If
   you need help setting up an AWS IAM user you can follow
   [this video tutorial](https://www.youtube.com/watch?v=bT19B3IBWHE).
+- GCP deployment
+  - Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+  - Install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) and obtain your
+    [Application Default Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login)
+  - Enable [CloudFunction API](https://console.cloud.google.com/apis/library/cloudfunctions.googleapis.com),
+    [Cloud Build API](https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com) and
+    [Cloud Scheduler API](https://console.cloud.google.com/apis/library/cloudscheduler.googleapis.com) for your project
 
 ### Setup
 
@@ -67,7 +74,6 @@ Options:
   -c, --configuration, --config, --conf  Path to configuration file             [string] [default: "config/config.json"]
   -s, --secrets                          Path to secrets file                   [string] [default: "config/secrets.env"]
   -r, --receipt                          Output path for receipt file          [string] [default: "output/receipt.json"]
-      --interactive                      Run in interactive mode                               [boolean] [default: true]
 ```
 
 #### remove
@@ -76,12 +82,13 @@ Options:
 Removes a deployed Airnode instance
 
 Options:
-      --version             Show version number                                                                    [boolean]
-      --debug               Run in debug mode                                                     [boolean] [default: false]
-      --help                Show help                                                                              [boolean]
-  -r, --receipt             Path to receipt file                                                                    [string]
-  -a, --airnodeAddressShort Airnode address (short version)                                                         [string]
-  -s, --stage               Stage (environment)                                                                     [string]
-  -c, --cloudProvider       Cloud provider                                                                          [string]
-  -e, --region              Region                                                                                  [string]
+      --version                Show version number                                                             [boolean]
+      --debug                  Run in debug mode                                              [boolean] [default: false]
+      --help                   Show help                                                                       [boolean]
+  -r, --receipt                Path to receipt file                                                             [string]
+  -a, --airnode-address-short  Airnode Address (short version)                                                  [string]
+  -s, --stage                  Stage (environment)                                                              [string]
+  -c, --cloud-provider         Cloud provider                                                    [choices: "aws", "gcp"]
+  -e, --region                 Region                                                                           [string]
+  -p, --project-id             Project ID (GCP only)                                                            [string]
 ```

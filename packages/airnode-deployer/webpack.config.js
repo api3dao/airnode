@@ -1,12 +1,14 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const IgnoreDynamicRequire = require('webpack-ignore-dynamic-require');
 
 module.exports = {
   devtool: 'source-map',
   entry: {
+    index: './dist/src/entrypoint.js',
     'handlers/aws/index': './dist/src/handlers/aws/index.js',
+    'handlers/gcp/index': './dist/src/handlers/gcp/index.js',
   },
-  externals: '../../config-data/config.json',
   mode: 'production',
   output: {
     filename: '[name].js',
@@ -25,5 +27,6 @@ module.exports = {
         { from: '../airnode-validator/dist/conversions', to: 'conversions' },
       ],
     }),
+    new IgnoreDynamicRequire(),
   ],
 };

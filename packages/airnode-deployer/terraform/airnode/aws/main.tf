@@ -6,7 +6,7 @@ module "initializeProvider" {
   source = "./modules/function"
 
   name               = "${local.name_prefix}-initializeProvider"
-  handler            = "handlers/aws/index.initializeProvider"
+  handler            = "index.initializeProvider"
   source_dir         = var.handler_dir
   memory_size        = 768
   timeout            = 17
@@ -21,7 +21,7 @@ module "callApi" {
   source = "./modules/function"
 
   name               = "${local.name_prefix}-callApi"
-  handler            = "handlers/aws/index.callApi"
+  handler            = "index.callApi"
   source_dir         = var.handler_dir
   timeout            = 10
   configuration_file = var.configuration_file
@@ -36,7 +36,7 @@ module "processProviderRequests" {
   source = "./modules/function"
 
   name               = "${local.name_prefix}-processProviderRequests"
-  handler            = "handlers/aws/index.processProviderRequests"
+  handler            = "index.processProviderRequests"
   source_dir         = var.handler_dir
   memory_size        = 768
   timeout            = 32
@@ -51,7 +51,7 @@ module "startCoordinator" {
   source = "./modules/function"
 
   name               = "${local.name_prefix}-startCoordinator"
-  handler            = "handlers/aws/index.startCoordinator"
+  handler            = "index.startCoordinator"
   source_dir         = var.handler_dir
   memory_size        = 768
   timeout            = 65
@@ -73,7 +73,7 @@ module "testApi" {
   count  = var.api_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-testApi"
-  handler            = "handlers/aws/index.testApi"
+  handler            = "index.testApi"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 30
