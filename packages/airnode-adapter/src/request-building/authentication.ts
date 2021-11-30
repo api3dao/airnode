@@ -1,7 +1,13 @@
-import { ApiSecurityScheme } from '@api3/airnode-ois';
+import {
+  ApiKeySecurityScheme,
+  ApiSecurityScheme,
+  ConfigurableSecurityScheme,
+  HttpSecurityScheme,
+} from '@api3/airnode-ois';
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
-import { CachedBuildRequestOptions, Parameters } from '../types';
+import merge from 'lodash/merge';
+import { CachedBuildRequestOptions, Parameters, ApiCredentials } from '../types';
 
 interface Authentication {
   readonly query: Parameters;
@@ -9,72 +15,101 @@ interface Authentication {
   readonly cookies: Parameters;
 }
 
-function addApiKeyAuth(
-  authentication: Authentication,
-  apiSecurityScheme: ApiSecurityScheme,
-  value: string
-): Authentication {
-  const { name } = apiSecurityScheme;
-  if (!name) {
-    return authentication;
-  }
-
-  switch (apiSecurityScheme.in) {
-    case 'query':
-      return { ...authentication, query: { ...authentication.query, [name]: value } };
-
-    case 'header':
-      return { ...authentication, headers: { ...authentication.headers, [name]: value } };
-
-    case 'cookie':
-      return { ...authentication, cookies: { ...authentication.cookies, [name]: value } };
-
-    default:
-      return authentication;
-  }
-}
-
-function addHttpAuth(
-  authentication: Authentication,
-  apiSecurityScheme: ApiSecurityScheme,
-  value: string
-): Authentication {
-  switch (apiSecurityScheme.scheme) {
-    // The value for basic auth should be the base64 encoded value from
-    // <username>:<password>
-    case 'basic':
-      return { ...authentication, headers: { Authorization: `Basic ${value}` } };
-
-    // The value for bearer should be the encoded token
-    case 'bearer':
-      return { ...authentication, headers: { Authorization: `Bearer ${value}` } };
-
-    default:
-      return authentication;
-  }
-}
-
-function addSchemeAuthentication(
-  authentication: Authentication,
-  apiSecurityScheme: ApiSecurityScheme,
-  value: string
-): Authentication {
-  if (apiSecurityScheme.type === 'apiKey') {
-    return addApiKeyAuth(authentication, apiSecurityScheme, value);
-  }
-  if (apiSecurityScheme.type === 'http') {
-    return addHttpAuth(authentication, apiSecurityScheme, value);
-  }
-  return authentication;
-}
-
-export function buildParameters(options: CachedBuildRequestOptions): Authentication {
-  const initialParameters: Authentication = {
+function createEmptyAuthentication(): Authentication {
+  return {
     query: {},
     headers: {},
     cookies: {},
   };
+}
 
+function createSchemeAuthentication(
+  authSection: keyof Authentication,
+  name: string,
+  value: string
+): Partial<Authentication> {
+  return { [authSection]: { [name]: value } };
+}
+
+function getAuthenticationSection(apiSecurityScheme: ConfigurableSecurityScheme): keyof Authentication {
+  switch (apiSecurityScheme.in) {
+    case 'query':
+      return 'query';
+    case 'header':
+      return 'headers';
+    case 'cookie':
+      return 'cookies';
+  }
+}
+
+function getApiKeyAuth(
+  apiSecurityScheme: ApiKeySecurityScheme,
+  credentials: ApiCredentials | null
+): Partial<Authentication> {
+  if (!credentials) return {};
+  const { name } = apiSecurityScheme;
+  const value = credentials.securitySchemeValue;
+  const authSection = getAuthenticationSection(apiSecurityScheme);
+
+  if (!name || !authSection) return {};
+  return createSchemeAuthentication(authSection, name, value);
+}
+
+function getHttpAuth(
+  httpSecurityScheme: HttpSecurityScheme,
+  credentials: ApiCredentials | null
+): Partial<Authentication> {
+  if (!credentials) return {};
+  const value = credentials.securitySchemeValue;
+
+  switch (httpSecurityScheme.scheme) {
+    // The value for basic auth should be the base64 encoded value from
+    // <username>:<password>
+    case 'basic':
+      return createSchemeAuthentication('headers', 'Authorization', `Basic ${value}`);
+    // The value for bearer should be the encoded token
+    case 'bearer':
+      return createSchemeAuthentication('headers', 'Authorization', `Bearer ${value}`);
+    default:
+      return {};
+  }
+}
+
+function getRelayAuthSchemeFromMetadata(
+  apiSecurityScheme: ConfigurableSecurityScheme,
+  options: CachedBuildRequestOptions,
+  metadataKey: keyof NonNullable<CachedBuildRequestOptions['metadata']>
+): Partial<Authentication> {
+  if (!options.metadata) return {};
+  return createSchemeAuthentication(
+    getAuthenticationSection(apiSecurityScheme),
+    apiSecurityScheme.name,
+    options.metadata[metadataKey]
+  );
+}
+
+function getSchemeAuthentication(
+  apiSecurityScheme: ApiSecurityScheme,
+  credentials: ApiCredentials | null,
+  options: CachedBuildRequestOptions
+): Partial<Authentication> {
+  switch (apiSecurityScheme.type) {
+    case 'apiKey':
+      return getApiKeyAuth(apiSecurityScheme, credentials);
+    case 'http':
+      return getHttpAuth(apiSecurityScheme, credentials);
+    case 'relayChainId':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'chainId');
+    case 'relayChainType':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'chainType');
+    case 'relayRequesterAddress':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'requesterAddress');
+    default:
+      return {};
+  }
+}
+
+export function buildParameters(options: CachedBuildRequestOptions): Authentication {
   return reduce(
     options.ois.apiSpecifications.security,
     (authentication, _security, apiSecuritySchemeName) => {
@@ -84,14 +119,9 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
         return authentication;
       }
 
-      const apiCredential = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]);
-      // If there are no credentials available, ignore the scheme
-      if (!apiCredential) {
-        return authentication;
-      }
-
-      return addSchemeAuthentication(authentication, apiSecurityScheme, apiCredential.securitySchemeValue);
+      const apiCredentials = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]) ?? null;
+      return merge(authentication, getSchemeAuthentication(apiSecurityScheme, apiCredentials, options));
     },
-    initialParameters
+    createEmptyAuthentication()
   );
 }
