@@ -40,7 +40,6 @@ describe('spawn', () => {
   });
 
   it('throws an error if the cloud function returns an error', async () => {
-    expect.assertions(5);
     requestMock.mockRejectedValueOnce(new Error('Something went wrong'));
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
