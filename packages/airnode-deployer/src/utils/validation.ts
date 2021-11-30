@@ -10,7 +10,7 @@ export function validateConfig(config: Config, nodeVersion: string) {
     throw new Error("Node version specified in config.json does not match the deployer's version");
   }
 
-  if (config.nodeSettings.cloudProvider.name === 'local') {
+  if (config.nodeSettings.cloudProvider.type === 'local') {
     const message = "Deployer can't deploy to 'local' cloud provider";
     logger.fail(message);
     throw new Error(message);

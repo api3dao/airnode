@@ -8,7 +8,7 @@ import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
@@ -17,7 +17,7 @@ describe('spawnNewProvider', () => {
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       cloudProvider: {
-        name: 'aws',
+        type: 'aws',
         region: 'us-east-1',
       },
       functionName: 'initializeProvider',
@@ -30,7 +30,7 @@ describe('spawnNewProvider', () => {
 
 describe('spawnProviderRequestProcessor', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { name: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
@@ -39,7 +39,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       cloudProvider: {
-        name: 'aws',
+        type: 'aws',
         region: 'us-east-1',
       },
       functionName: 'processProviderRequests',

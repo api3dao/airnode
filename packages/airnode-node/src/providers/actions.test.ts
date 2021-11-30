@@ -95,7 +95,7 @@ describe('initialize', () => {
             minConfirmations: 0,
             name: 'Pocket Ethereum Mainnet',
             cloudProvider: {
-              name: 'local',
+              type: 'local',
             },
             stage: 'test',
             url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
@@ -131,7 +131,7 @@ describe('initialize', () => {
             minConfirmations: 0,
             name: 'Infura Ropsten',
             cloudProvider: {
-              name: 'local',
+              type: 'local',
             },
             stage: 'test',
             url: 'https://ropsten.infura.io/v3/<key>',

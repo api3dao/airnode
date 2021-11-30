@@ -144,7 +144,7 @@ yargs(hideBin(process.argv))
       if (isEmpty(descriptiveArgsMissing)) {
         await runCommand(() =>
           remove(args['airnode-address-short']!.toLowerCase(), args.stage!, {
-            name: args['cloud-provider']!,
+            type: args['cloud-provider']!,
             region: args.region!,
             projectId: args['project-id'],
           } as CloudProvider)

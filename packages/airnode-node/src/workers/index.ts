@@ -3,7 +3,7 @@ import * as localHandlers from './local-handlers';
 import { WorkerParameters, WorkerResponse } from '../types';
 
 export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
-  switch (params.cloudProvider.name) {
+  switch (params.cloudProvider.type) {
     case 'aws':
       return aws.spawn(params);
 

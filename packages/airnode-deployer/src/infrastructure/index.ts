@@ -100,11 +100,11 @@ interface AirnodeVariables {
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
-  return [...cloudProviderAirnodeInitArguments[cloudProvider.name](cloudProvider as any, bucket), ...commonArguments];
+  return [...cloudProviderAirnodeInitArguments[cloudProvider.type](cloudProvider as any, bucket), ...commonArguments];
 }
 
 function prepareAirnodeManageArguments(cloudProvider: CloudProvider, commonArguments: CommandArg[]) {
-  return [...cloudProviderAirnodeManageArguments[cloudProvider.name](cloudProvider as any), ...commonArguments];
+  return [...cloudProviderAirnodeManageArguments[cloudProvider.type](cloudProvider as any), ...commonArguments];
 }
 
 async function terraformAirnodeManage(
@@ -114,7 +114,7 @@ async function terraformAirnodeManage(
   bucket: string,
   variables: AirnodeVariables
 ) {
-  const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.name);
+  const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
   const { airnodeAddressShort, stage, configPath, secretsPath, httpGatewayApiKey } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
@@ -146,14 +146,14 @@ export async function deployAirnode(
   configPath: string,
   secretsPath: string
 ) {
-  const { name, region } = cloudProvider;
-  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${name} ${region}`);
+  const { type, region } = cloudProvider;
+  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
   try {
     const output = await deploy(airnodeAddressShort, stage, cloudProvider, httpGatewayApiKey, configPath, secretsPath);
-    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${name} ${region}`);
+    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
     return output;
   } catch (err) {
-    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${name} ${region}`);
+    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
     throw err;
   }
 }
@@ -170,11 +170,11 @@ async function deploy(
     spinner.info();
   }
 
-  const { name: cloudProviderName } = cloudProvider;
+  const { type: cloudProviderType } = cloudProvider;
   const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
-  const terraformStateCloudProviderDir = path.join(terraformStateDir, cloudProviderName);
+  const terraformStateCloudProviderDir = path.join(terraformStateDir, cloudProviderType);
 
-  if (!(await cloudProviderLib[cloudProviderName].stateExists(bucket, cloudProvider as any))) {
+  if (!(await cloudProviderLib[cloudProviderType].stateExists(bucket, cloudProvider as any))) {
     // Run state recipes
     logger.debug('Running state Terraform recipes');
     const stateTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
@@ -209,13 +209,13 @@ async function deploy(
 }
 
 export async function removeAirnode(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
-  const { name, region } = cloudProvider;
-  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${name} ${region}`);
+  const { type, region } = cloudProvider;
+  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
   try {
     await remove(airnodeAddressShort, stage, cloudProvider);
-    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${name} ${region}`);
+    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
   } catch (err) {
-    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${name} ${region}`);
+    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
     throw err;
   }
 }
@@ -225,7 +225,7 @@ async function remove(airnodeAddressShort: string, stage: string, cloudProvider:
     spinner.info();
   }
 
-  const { name: cloudProviderName } = cloudProvider;
+  const { type: cloudProviderType } = cloudProvider;
   const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
 
   // Remove airnode
@@ -233,5 +233,5 @@ async function remove(airnodeAddressShort: string, stage: string, cloudProvider:
   const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   const execOptions = { cwd: airnodeTmpDir };
   await terraformAirnodeManage('destroy', execOptions, cloudProvider, bucket, { airnodeAddressShort, stage });
-  await cloudProviderLib[cloudProviderName].removeState(bucket, cloudProvider as any);
+  await cloudProviderLib[cloudProviderType].removeState(bucket, cloudProvider as any);
 }

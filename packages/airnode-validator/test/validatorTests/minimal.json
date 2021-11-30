@@ -22,7 +22,7 @@
   "nodeSettings": {
     "nodeVersion": "0.3.0",
     "cloudProvider": {
-      "name": "aws",
+      "type": "aws",
       "region": "us-east-1"
     },
     "stage": "testnet",

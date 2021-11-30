@@ -3,7 +3,7 @@ import { NodeSettings } from '../../../src/types';
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
     cloudProvider: {
-      name: 'local',
+      type: 'local',
     },
     airnodeWalletMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
     httpGateway: {

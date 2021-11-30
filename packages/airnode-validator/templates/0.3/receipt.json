@@ -34,7 +34,7 @@
       ]
     },
     "cloudProvider": {
-      "name": {
+      "type": {
         "__regexp": "^(aws|gcp)$",
         "__catch": {
           "__message": "__fullPath: Available cloud providers are only aws or gcp"

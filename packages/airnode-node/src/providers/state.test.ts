@@ -41,7 +41,7 @@ describe('create', () => {
         minConfirmations: 0,
         name: 'Ganache test',
         cloudProvider: {
-          name: 'local',
+          type: 'local',
         },
         stage: 'test',
         url: 'http://localhost:4111',
@@ -101,7 +101,7 @@ describe('create', () => {
         minConfirmations: 3,
         name: 'Ganache test',
         cloudProvider: {
-          name: 'local',
+          type: 'local',
         },
         stage: 'test',
         url: 'http://localhost:4111',

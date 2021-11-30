@@ -370,16 +370,16 @@ export interface Heartbeat {
 }
 
 export interface LocalProvider {
-  readonly name: 'local';
+  readonly type: 'local';
 }
 
 export interface AwsCloudProvider {
-  readonly name: 'aws';
+  readonly type: 'aws';
   readonly region: string;
 }
 
 export interface GcpCloudProvider {
-  readonly name: 'gcp';
+  readonly type: 'gcp';
   readonly region: string;
   readonly projectId: string;
 }

@@ -68,7 +68,7 @@ describe('testApi', () => {
     };
     const workerOptions = {
       cloudProvider: {
-        name: 'local',
+        type: 'local',
       },
       airnodeAddressShort: expect.any(String),
       stage: 'test',
