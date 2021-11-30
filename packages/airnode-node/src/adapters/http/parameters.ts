@@ -9,8 +9,7 @@ export function getReservedParameterValue(
   requestParameters: ApiCallParameters
 ): string | undefined {
   const reservedParameter = endpoint.reservedParameters.find((rp) => rp.name === name);
-  // Reserved parameters must be whitelisted in order to be use, even if they have no
-  // fixed or default value
+  // Reserved parameters must be whitelisted in order to be used, even if they have no fixed or default value
   if (!reservedParameter) {
     return undefined;
   }
@@ -31,7 +30,6 @@ export function getReservedParameters(endpoint: Endpoint, requestParameters: Api
   const _path = getReservedParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
   const _times = getReservedParameterValue(ReservedParameterName.Times, endpoint, requestParameters);
   const _type = getReservedParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
-  const _relay_metadata = getReservedParameterValue(ReservedParameterName.RelayMetadata, endpoint, requestParameters);
 
-  return { _type, _path, _times, _relay_metadata };
+  return { _type, _path, _times };
 }

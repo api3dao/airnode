@@ -3,7 +3,7 @@ import * as parameters from './parameters';
 
 describe('RESERVED_PARAMETERS', () => {
   it('returns the list of reserved parameters', () => {
-    expect(parameters.RESERVED_PARAMETERS).toEqual(['_path', '_times', '_type', '_relay_metadata']);
+    expect(parameters.RESERVED_PARAMETERS).toEqual(['_path', '_times', '_type']);
   });
 });
 
@@ -68,7 +68,6 @@ describe('getReservedParameters', () => {
         { name: ReservedParameterName.Type, fixed: 'int256' },
         { name: ReservedParameterName.Path, default: 'prices.0.latest' },
         { name: ReservedParameterName.Times, default: '1000000' },
-        { name: ReservedParameterName.RelayMetadata, default: 'v1' },
       ],
     };
   });
@@ -77,8 +76,7 @@ describe('getReservedParameters', () => {
     const res = parameters.getReservedParameters(mutableBaseEndpoint, {
       _type: 'bytes32',
       _path: 'updated.path',
-      _relay_metadata: 'v2',
     });
-    expect(res).toEqual({ _type: 'int256', _path: 'updated.path', _times: '1000000', _relay_metadata: 'v2' });
+    expect(res).toEqual({ _type: 'int256', _path: 'updated.path', _times: '1000000' });
   });
 });

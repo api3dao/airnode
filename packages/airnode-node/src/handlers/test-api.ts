@@ -42,6 +42,8 @@ export async function testApi(
   const aggregatedApiCall: AggregatedApiCall = {
     id: testCallId,
     airnodeAddress,
+    // TODO: These values are technically incorrect and could cause troubles in the future
+    // because Airnode might expect valid values in these properties.
     requesterAddress: '',
     sponsorAddress: '',
     sponsorWalletAddress: '',

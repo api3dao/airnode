@@ -72,10 +72,9 @@ export function splitReservedParameters(parameters: ReservedParameters): Reserve
   const types = splitByDelimeter('_type');
   const paths = splitByDelimeter('_path');
   const timeses = splitByDelimeter('_times');
-  const relayMetadatas = splitByDelimeter('_relay_metadata');
 
   // Check that all of the parsed arrays have the same length or are undefined
-  const splitParams = [types, paths, timeses, relayMetadatas] as const;
+  const splitParams = [types, paths, timeses] as const;
   const typesLength = types.splitResult!.length;
   splitParams.forEach((split) => {
     if (split.splitResult && split.splitResult.length !== typesLength) {

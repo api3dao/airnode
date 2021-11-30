@@ -29,7 +29,6 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
       { type: 'bytes32', name: ReservedParameterName.Type, value: 'int256' },
       { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
       { type: 'bytes32', name: ReservedParameterName.Times, value: '100000' },
-      { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
     ],
     ...overrides,
   };
