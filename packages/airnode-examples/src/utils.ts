@@ -4,12 +4,13 @@ import { parse as parseEnvFile } from 'dotenv';
 
 export interface IntegrationInfo {
   integration: string;
-  airnodeType: 'aws' | 'local';
+  airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
   network: 'rinkeby' | 'localhost';
   mnemonic: string;
   providerUrl: string;
+  gcpProjectId?: string;
 }
 
 /**

@@ -15,7 +15,9 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "${CLOUD_PROVIDER_TYPE}",
+    "cloudProvider": {
+      "type": "local"
+    },
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false
@@ -27,7 +29,6 @@
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.2.2",
-    "region": "us-east-1",
     "stage": "dev"
   },
   "triggers": {

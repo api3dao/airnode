@@ -1,4 +1,4 @@
-import { getCommonSecrets, writeSecrets } from '../utils';
+import { getCommonSecrets, writeSecrets } from '../secrets-utils';
 
 const createSecrets = async () => {
   const secrets = await getCommonSecrets();

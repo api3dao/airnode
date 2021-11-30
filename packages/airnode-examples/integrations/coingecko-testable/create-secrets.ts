@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 
-import { getCommonSecrets, writeSecrets } from '../utils';
+import { getCommonSecrets, writeSecrets } from '../secrets-utils';
 
 const createSecrets = async () => {
   const commonSecrets = await getCommonSecrets();

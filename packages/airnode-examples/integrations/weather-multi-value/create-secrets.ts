@@ -1,5 +1,5 @@
 import prompts, { PromptObject } from 'prompts';
-import { getCommonSecrets, writeSecrets } from '../utils';
+import { getCommonSecrets, writeSecrets } from '../secrets-utils';
 
 const questions: PromptObject[] = [
   {
