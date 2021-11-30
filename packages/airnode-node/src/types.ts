@@ -17,6 +17,8 @@ export interface ApiCallParameters {
   readonly [key: string]: string;
 }
 
+// TODO: Replace these enums with string unions
+// https://stackoverflow.com/questions/40275832/typescript-has-unions-so-are-enums-redundant
 export enum RequestErrorMessage {
   RequestParameterDecodingFailed = 'Request parameter decoding failed',
   RequestIdInvalid = 'RequestId is invalid',

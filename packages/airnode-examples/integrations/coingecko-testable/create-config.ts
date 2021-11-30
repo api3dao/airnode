@@ -158,8 +158,7 @@ const config: Config = {
               name: '_times',
               fixed: '1000000',
             },
-            // TODO: These types need to be rewritten
-          ] as any,
+          ],
           parameters: [
             {
               name: 'coinId',

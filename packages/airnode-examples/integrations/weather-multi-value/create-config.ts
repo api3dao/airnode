@@ -106,8 +106,7 @@ const config: Config = {
               name: '_times',
               fixed: ',100,,',
             },
-            // TODO: These types need to be rewritten
-          ] as any,
+          ],
           parameters: [
             {
               name: 'lat',

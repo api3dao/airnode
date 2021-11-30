@@ -1,11 +1,5 @@
-import { Endpoint, ReservedParameterName } from '@api3/airnode-ois';
+import { Endpoint } from '@api3/airnode-ois';
 import * as parameters from './parameters';
-
-describe('RESERVED_PARAMETERS', () => {
-  it('returns the list of reserved parameters', () => {
-    expect(parameters.RESERVED_PARAMETERS).toEqual(['_path', '_times', '_type']);
-  });
-});
 
 describe('getResponseParameterValue', () => {
   let mutableBaseEndpoint: Endpoint;
@@ -17,8 +11,8 @@ describe('getResponseParameterValue', () => {
       operation: { method: 'get', path: '/prices/latest' },
       parameters: [],
       reservedParameters: [
-        { name: ReservedParameterName.Type, fixed: 'int256' },
-        { name: ReservedParameterName.Path, default: 'prices.0.latest' },
+        { name: '_type', fixed: 'int256' },
+        { name: '_path', default: 'prices.0.latest' },
       ],
     };
   });
@@ -26,31 +20,27 @@ describe('getResponseParameterValue', () => {
   it('returns the reserved parameter from the Endpoint first', () => {
     // This should be ignored
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getReservedParameterValue(
-      ReservedParameterName.Type,
-      mutableBaseEndpoint,
-      requestParameters
-    );
+    const res = parameters.getReservedParameterValue('_type', mutableBaseEndpoint, requestParameters);
     expect(res).toEqual('int256');
   });
 
   it('returns undefined if no reserved parameter exists', () => {
     const endpoint = { ...mutableBaseEndpoint, reservedParameters: [] };
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getReservedParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
+    const res = parameters.getReservedParameterValue('_type', endpoint, requestParameters);
     expect(res).toEqual(undefined);
   });
 
   it('returns the default if the request parameter does not exist', () => {
     const endpoint = { ...mutableBaseEndpoint };
-    const res = parameters.getReservedParameterValue(ReservedParameterName.Path, endpoint, {});
+    const res = parameters.getReservedParameterValue('_path', endpoint, {});
     expect(res).toEqual('prices.0.latest');
   });
 
   it('overrides the default if the request parameter exists', () => {
     const endpoint = { ...mutableBaseEndpoint };
     const requestParameters = { _path: 'new.path' };
-    const res = parameters.getReservedParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
+    const res = parameters.getReservedParameterValue('_path', endpoint, requestParameters);
     expect(res).toEqual('new.path');
   });
 });
@@ -65,9 +55,9 @@ describe('getReservedParameters', () => {
       operation: { method: 'get', path: '/prices/latest' },
       parameters: [],
       reservedParameters: [
-        { name: ReservedParameterName.Type, fixed: 'int256' },
-        { name: ReservedParameterName.Path, default: 'prices.0.latest' },
-        { name: ReservedParameterName.Times, default: '1000000' },
+        { name: '_type', fixed: 'int256' },
+        { name: '_path', default: 'prices.0.latest' },
+        { name: '_times', default: '1000000' },
       ],
     };
   });
