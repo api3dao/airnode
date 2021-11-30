@@ -12,7 +12,7 @@ function buildOptions(
   ois: OIS,
   aggregatedApiCall: AggregatedApiCall,
   apiCredentials: adapter.ApiCredentials[],
-  apiCallOptions: ApiCallOptions
+  apiCallOptions: ApiCallOptions | undefined
 ): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const sanitizedParameters: adapter.Parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
@@ -22,7 +22,7 @@ function buildOptions(
     parameters: sanitizedParameters,
     ois,
     apiCredentials,
-    metadata: apiCallOptions.forTestingGateway
+    metadata: apiCallOptions?.forTestingGateway
       ? null
       : {
           airnodeAddress: aggregatedApiCall.airnodeAddress,
