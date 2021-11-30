@@ -12,8 +12,8 @@ export function create(config: Config): CoordinatorState {
     airnodeAddressShort,
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
-    region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
+    cloudProvider: config.nodeSettings.cloudProvider,
   };
 
   return {

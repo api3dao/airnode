@@ -4,8 +4,11 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
-import { removeDeployment, stateExists } from './aws';
+import { AwsCloudProvider, CloudProvider, GcpCloudProvider } from '@api3/airnode-node';
+import * as aws from './aws';
+import * as gcp from './gcp';
 import * as logger from '../utils/logger';
+import { formatTerraformArguments } from '../utils/infrastructure';
 
 type TerraformAirnodeOutput = {
   http_gateway_url?: {
@@ -42,22 +45,115 @@ async function runCommand(command: string, options: child.ExecOptions) {
   }
 }
 
+type CommandArg = string | [string, string] | [string, string, string];
+
+async function execTerraform(execOptions: child.ExecOptions, command: string, ...args: CommandArg[]) {
+  const formattedArgs = formatTerraformArguments(args);
+  const fullCommand = `terraform ${command} ${formattedArgs.join(' ')}`;
+  return await runCommand(fullCommand, execOptions);
+}
+
+function awsApplyArguments(cloudProvider: AwsCloudProvider): CommandArg[] {
+  return [['var', 'aws_region', cloudProvider.region]];
+}
+
+function gcpApplyArguments(cloudProvider: GcpCloudProvider): CommandArg[] {
+  return [
+    ['var', 'gcp_region', cloudProvider.region],
+    ['var', 'gcp_project', cloudProvider.projectId],
+  ];
+}
+
+function awsAirnodeInitArguments(cloudProvider: AwsCloudProvider, bucket: string): CommandArg[] {
+  return [
+    ['backend-config', 'region', cloudProvider.region],
+    ['backend-config', 'bucket', bucket],
+    ['backend-config', 'dynamodb_table', aws.awsDynamodbTableFromBucket(bucket)],
+  ];
+}
+
+function gcpAirnodeInitArguments(_cloudProvider: GcpCloudProvider, bucket: string): CommandArg[] {
+  return [['backend-config', 'bucket', bucket]];
+}
+
+const cloudProviderLib = {
+  aws: aws,
+  gcp: gcp,
+};
+
+const cloudProviderAirnodeManageArguments = {
+  aws: awsApplyArguments,
+  gcp: gcpApplyArguments,
+};
+
+const cloudProviderAirnodeInitArguments = {
+  aws: awsAirnodeInitArguments,
+  gcp: gcpAirnodeInitArguments,
+};
+
+interface AirnodeVariables {
+  airnodeAddressShort: string;
+  stage: string;
+  configPath?: string;
+  secretsPath?: string;
+  httpGatewayApiKey?: string;
+}
+
+function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
+  return [...cloudProviderAirnodeInitArguments[cloudProvider.type](cloudProvider as any, bucket), ...commonArguments];
+}
+
+function prepareAirnodeManageArguments(cloudProvider: CloudProvider, commonArguments: CommandArg[]) {
+  return [...cloudProviderAirnodeManageArguments[cloudProvider.type](cloudProvider as any), ...commonArguments];
+}
+
+async function terraformAirnodeManage(
+  command: string,
+  execOptions: child.ExecOptions,
+  cloudProvider: CloudProvider,
+  bucket: string,
+  variables: AirnodeVariables
+) {
+  const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGatewayApiKey } = variables;
+
+  let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
+  await execTerraform(execOptions, 'init', ...prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
+
+  commonArguments = [
+    ['var', 'airnode_address_short', airnodeAddressShort],
+    ['var', 'stage', stage],
+    ['var', 'configuration_file', configPath ? path.resolve(configPath) : 'NULL'],
+    ['var', 'secrets_file', secretsPath ? path.resolve(secretsPath) : 'NULL'],
+    ['var', 'handler_dir', handlerDir],
+    ['input', 'false'],
+    'no-color',
+    'auto-approve',
+  ];
+
+  if (httpGatewayApiKey) {
+    commonArguments.push(['var', 'api_key', httpGatewayApiKey]);
+  }
+
+  await execTerraform(execOptions, command, ...prepareAirnodeManageArguments(cloudProvider, commonArguments));
+}
+
 export async function deployAirnode(
   airnodeAddressShort: string,
   stage: string,
-  cloudProvider: string,
-  region: string,
+  cloudProvider: CloudProvider,
   httpGatewayApiKey: string | undefined,
   configPath: string,
   secretsPath: string
 ) {
-  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
+  const { type, region } = cloudProvider;
+  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
   try {
-    const output = await deploy(airnodeAddressShort, stage, region, httpGatewayApiKey, configPath, secretsPath);
-    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
+    const output = await deploy(airnodeAddressShort, stage, cloudProvider, httpGatewayApiKey, configPath, secretsPath);
+    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
     return output;
   } catch (err) {
-    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
+    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
     throw err;
   }
 }
@@ -65,7 +161,7 @@ export async function deployAirnode(
 async function deploy(
   airnodeAddressShort: string,
   stage: string,
-  region: string,
+  cloudProvider: CloudProvider,
   httpGatewayApiKey: string | undefined,
   configPath: string,
   secretsPath: string
@@ -74,73 +170,68 @@ async function deploy(
     spinner.info();
   }
 
+  const { type: cloudProviderType } = cloudProvider;
   const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
-  const dynamodbTable = `${bucket}-lock`;
+  const terraformStateCloudProviderDir = path.join(terraformStateDir, cloudProviderType);
 
-  if (!(await stateExists(region, bucket, dynamodbTable))) {
+  if (!(await cloudProviderLib[cloudProviderType].stateExists(bucket, cloudProvider as any))) {
     // Run state recipes
     logger.debug('Running state Terraform recipes');
     const stateTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
 
-    let command = `terraform init -from-module=${terraformStateDir}`;
-    const options = { cwd: stateTmpDir };
-    await runCommand(command, options);
+    const execOptions = { cwd: stateTmpDir };
+    await execTerraform(execOptions, 'init', ['from-module', terraformStateCloudProviderDir]);
 
-    command = `terraform apply -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`;
-    await runCommand(command, options);
+    const commonArguments: CommandArg[] = [
+      ['var', 'airnode_address_short', airnodeAddressShort],
+      ['var', 'stage', stage],
+      ['input', 'false'],
+      'no-color',
+      'auto-approve',
+    ];
+    await execTerraform(execOptions, 'apply', ...prepareAirnodeManageArguments(cloudProvider, commonArguments));
   }
 
   // Run airnode recipes
   logger.debug('Running Airnode Terraform recipes');
   const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-
-  let command = `terraform init -from-module=${terraformAirnodeDir} -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`;
-  const options = { cwd: airnodeTmpDir };
-  await runCommand(command, options);
-
-  const httpGatewayApiKeyVar = httpGatewayApiKey ? `-var='api_key=${httpGatewayApiKey}'` : '';
-  command = `terraform apply -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
-    configPath
-  )}" -var="secrets_file=${path.resolve(
-    secretsPath
-  )}" -var="handler_dir=${handlerDir}" ${httpGatewayApiKeyVar} -auto-approve -input=false -no-color`;
-  await runCommand(command, options);
-
-  command = 'terraform output -json -no-color';
-  const output: TerraformAirnodeOutput = JSON.parse(await runCommand(command, options));
-  return output.http_gateway_url ? { httpGatewayUrl: output.http_gateway_url.value } : {};
+  const execOptions = { cwd: airnodeTmpDir };
+  await terraformAirnodeManage('apply', execOptions, cloudProvider, bucket, {
+    airnodeAddressShort,
+    stage,
+    configPath,
+    secretsPath,
+    httpGatewayApiKey,
+  });
+  const output = await execTerraform(execOptions, 'output', 'json', 'no-color');
+  const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;
+  return parsedOutput.http_gateway_url ? { httpGatewayUrl: parsedOutput.http_gateway_url.value } : {};
 }
 
-export async function removeAirnode(airnodeAddressShort: string, stage: string, cloudProvider: string, region: string) {
-  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
+export async function removeAirnode(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
+  const { type, region } = cloudProvider;
+  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
   try {
-    await remove(airnodeAddressShort, stage, region);
-    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
+    await remove(airnodeAddressShort, stage, cloudProvider);
+    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
   } catch (err) {
-    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
+    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
     throw err;
   }
 }
 
-async function remove(airnodeAddressShort: string, stage: string, region: string) {
+async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
+  const { type: cloudProviderType } = cloudProvider;
   const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
-  const dynamodbTable = `${bucket}-lock`;
 
   // Remove airnode
   logger.debug('Removing Airnode via Terraform recipes');
   const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-
-  let command = `terraform init -from-module=${terraformAirnodeDir} -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`;
-  const options = { cwd: airnodeTmpDir };
-  await runCommand(command, options);
-
-  command = `terraform destroy -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_dir=${handlerDir}" -auto-approve -input=false -no-color`;
-  await runCommand(command, options);
-
-  // Remove state
-  await removeDeployment(region, bucket, dynamodbTable);
+  const execOptions = { cwd: airnodeTmpDir };
+  await terraformAirnodeManage('destroy', execOptions, cloudProvider, bucket, { airnodeAddressShort, stage });
+  await cloudProviderLib[cloudProviderType].removeState(bucket, cloudProvider as any);
 }

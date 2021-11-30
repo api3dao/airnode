@@ -1,3 +1,5 @@
+import { CloudProvider } from '@api3/airnode-node';
+
 // ===========================================
 // Receipt file
 // ===========================================
@@ -11,9 +13,8 @@ export interface AirnodeWallet {
 export interface Deployment {
   nodeVersion: string;
   airnodeAddressShort: string;
-  cloudProvider: 'aws' | 'local';
-  region: string;
   stage: string;
+  cloudProvider: CloudProvider;
 }
 
 export interface Api {

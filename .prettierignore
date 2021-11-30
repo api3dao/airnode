@@ -22,3 +22,10 @@ packages/airnode-examples/integration-info.json
 # /* solhint-disable */ comment doesn't work either because this is a parser issue
 # Prettier uses this parser for formatting
 packages/airnode-adapter/contracts/TestDecoder.sol
+
+receipt.json
+config.json
+!packages/airnode-examples/integrations/**/config.json
+
+# Third party modules
+**/.terraform/**

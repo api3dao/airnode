@@ -36,7 +36,6 @@ export async function testApi(
     cloudProvider: config.nodeSettings.cloudProvider,
     airnodeAddressShort: wallet.getAirnodeAddressShort(airnodeAddress),
     stage: config.nodeSettings.stage,
-    region: config.nodeSettings.region,
   };
 
   const aggregatedApiCall: AggregatedApiCall = {

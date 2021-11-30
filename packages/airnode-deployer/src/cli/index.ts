@@ -2,14 +2,14 @@ import yargs from 'yargs';
 import intersection from 'lodash/intersection';
 import difference from 'lodash/difference';
 import keys from 'lodash/keys';
-import join from 'lodash/join';
-import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
+import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
-import { version as nodeVersion } from '@api3/airnode-node';
+import { CloudProvider, version as nodeVersion } from '@api3/airnode-node';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';
+import { longArguments, printableArguments } from '../utils/cli';
 
 function drawHeader() {
   console.log(
@@ -31,10 +31,6 @@ async function runCommand(command: () => Promise<void>) {
     console.error(err);
     process.exitCode = 1;
   }
-}
-
-function longArguments(args: Record<string, any>) {
-  return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
 }
 
 drawHeader();
@@ -95,11 +91,16 @@ yargs(hideBin(process.argv))
       'cloud-provider': {
         alias: 'c',
         description: 'Cloud provider',
-        type: 'string',
+        choices: ['aws', 'gcp'] as const,
       },
       region: {
         alias: 'e',
         description: 'Region',
+        type: 'string',
+      },
+      'project-id': {
+        alias: 'p',
+        description: 'Project ID (GCP only)',
         type: 'string',
       },
     },
@@ -107,9 +108,22 @@ yargs(hideBin(process.argv))
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       const receiptRemove = !!args.receipt;
-      const descriptiveArgs = ['airnodeAddressShort', 'stage', 'cloudProvider', 'region'];
-      const descriptiveArgsProvided = intersection(descriptiveArgs, keys(args));
-      const descriptiveArgsMissing = difference(descriptiveArgs, descriptiveArgsProvided);
+      const descriptiveArgsCommon = ['airnode-address-short', 'stage', 'cloud-provider', 'region'];
+      const descriptiveArgsCloud = {
+        aws: descriptiveArgsCommon,
+        gcp: [...descriptiveArgsCommon, 'project-id'],
+      };
+      const descriptiveArgsAll = uniq(
+        Object.values(descriptiveArgsCloud).reduce((result, array) => [...result, ...array])
+      );
+      const argsProvided = intersection([...descriptiveArgsAll, 'receipt'], keys(args));
+      const descriptiveArgsProvided = intersection(descriptiveArgsAll, keys(args));
+
+      if (isEmpty(argsProvided)) {
+        throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${printableArguments(
+          descriptiveArgsAll
+        )}.`;
+      }
 
       if (receiptRemove && !isEmpty(descriptiveArgsProvided)) {
         throw "Can't mix data from receipt and data from command line arguments.";
@@ -120,21 +134,27 @@ yargs(hideBin(process.argv))
         return;
       }
 
+      if (!args['cloud-provider']) {
+        throw "Missing argument, must provide '--cloud-provider";
+      }
+
+      const descriptiveArgsRequired = descriptiveArgsCloud[args['cloud-provider']];
+      const descriptiveArgsMissing = difference(descriptiveArgsRequired, descriptiveArgsProvided);
+
       if (isEmpty(descriptiveArgsMissing)) {
         await runCommand(() =>
-          remove(args['airnode-address-short']!.toLowerCase(), args.stage!, args['cloud-provider']!, args.region!)
+          remove(args['airnode-address-short']!.toLowerCase(), args.stage!, {
+            type: args['cloud-provider']!,
+            region: args.region!,
+            projectId: args['project-id'],
+          } as CloudProvider)
         );
         return;
       }
 
-      if (!isEmpty(descriptiveArgsProvided)) {
-        throw `Missing arguments: ${join(descriptiveArgsMissing, ', ')}.`;
+      if (!isEmpty(descriptiveArgsMissing)) {
+        throw `Missing arguments: ${printableArguments(descriptiveArgsMissing)}.`;
       }
-
-      throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${join(
-        descriptiveArgs,
-        ', '
-      )}.`;
     }
   )
   .help()

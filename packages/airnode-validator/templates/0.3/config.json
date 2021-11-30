@@ -82,20 +82,27 @@
   },
   "nodeSettings": {
     "nodeVersion": {
-      "__regexp": "^0\\.2\\.[0-9]+$",
+      "__regexp": "^0\\.3\\.[0-9]+$",
       "__catch": {
         "__level": "warning",
-        "__message": "__fullPath: nodeVersion should be set to 0.2.*"
+        "__message": "__fullPath: nodeVersion should be set to 0.3.*"
       }
     },
     "cloudProvider": {
-      "__regexp": "^(aws|local)$",
-      "__catch": {
-        "__message": "__fullPath: Allowed values are aws or local"
+      "type": {
+        "__regexp": "^(aws|gcp|local)$",
+        "__catch": {
+          "__message": "__fullPath: Available cloud providers are only aws, gcp or local"
+        }
+      },
+      "region": {
+        "__type": "string"
+      },
+      "__optional": {
+        "projectId": {
+          "__type": "string"
+        }
       }
-    },
-    "region": {
-      "__type": "string"
     },
     "stage": {
       "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
