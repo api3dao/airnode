@@ -1,4 +1,5 @@
-import prompts, { PromptObject } from 'prompts';
+import { PromptObject } from 'prompts';
+import { promptQuestions } from '../../src';
 import { getCommonSecrets, writeSecrets } from '../secrets-utils';
 
 const questions: PromptObject[] = [
@@ -14,7 +15,7 @@ const questions: PromptObject[] = [
 
 const createSecrets = async () => {
   const secrets = await getCommonSecrets();
-  const response = await prompts(questions);
+  const response = await promptQuestions(questions);
   secrets.push(`CMC_PRO_API_KEY=${response.apiKey}`);
   writeSecrets(secrets);
 };
