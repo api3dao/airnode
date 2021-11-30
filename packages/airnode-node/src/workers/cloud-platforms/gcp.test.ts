@@ -16,7 +16,7 @@ describe('spawn', () => {
   it('derives the function URL, authenticates, invokes and returns the response', async () => {
     requestMock.mockImplementationOnce(() => ({ data: { value: 7777 } }));
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { name: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
     });
     const parameters = {
       ...workerOpts,
@@ -43,7 +43,7 @@ describe('spawn', () => {
     expect.assertions(5);
     requestMock.mockRejectedValueOnce(new Error('Something went wrong'));
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { name: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
     });
     const parameters = {
       ...workerOpts,

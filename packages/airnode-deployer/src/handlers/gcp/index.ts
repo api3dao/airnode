@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
-import { config, handlers, logger, promiseUtils, providerState } from '@api3/airnode-node';
+import { config, handlers, logger, utils, providers } from '@api3/airnode-node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = config.parseConfig(configFile, process.env);
@@ -14,7 +14,7 @@ export async function startCoordinator(_req: Request, res: Response) {
 export async function initializeProvider(req: Request, res: Response) {
   const stateWithConfig = { ...req.body.state, config: parsedConfig };
 
-  const [err, initializedState] = await promiseUtils.go(() => handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     console.log(err!.toString());
@@ -24,7 +24,7 @@ export async function initializeProvider(req: Request, res: Response) {
     return;
   }
 
-  const body = { ok: true, data: providerState.scrub(initializedState) };
+  const body = { ok: true, data: providers.scrub(initializedState) };
   res.status(200).send(body);
 }
 
@@ -39,7 +39,7 @@ export async function callApi(req: Request, res: Response) {
 export async function processProviderRequests(req: Request, res: Response) {
   const stateWithConfig = { ...req.body.state, config: parsedConfig };
 
-  const [err, updatedState] = await promiseUtils.go(() => handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -48,6 +48,6 @@ export async function processProviderRequests(req: Request, res: Response) {
     return;
   }
 
-  const body = { ok: true, data: providerState.scrub(updatedState) };
+  const body = { ok: true, data: providers.scrub(updatedState) };
   res.status(200).send(body);
 }

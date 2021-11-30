@@ -162,14 +162,14 @@ async function terraformAirnodeManage(
 
   // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
   if (command === 'apply') {
-    const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.name](cloudProvider as any);
+    const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any);
 
     if (!isEmpty(importOptions)) {
       await execTerraform(
         { ...execOptions, ignoreError: true },
         'import',
         prepareAirnodeManageArguments(cloudProvider, commonArguments),
-        cloudProviderAirnodeImportOptions[cloudProvider.name](cloudProvider as any)
+        cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any)
       );
     }
   }
