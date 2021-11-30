@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Config } from '@api3/airnode-node';
 import { createCloudProviderConfiguration, createNodeVersion, generateConfigFile } from '../config-utils';
 
@@ -176,4 +175,8 @@ const config: Config = {
   apiCredentials: [],
 };
 
-generateConfigFile(join(__dirname, 'config.json'), config);
+const generateConfig = (generateExampleFile = false) => {
+  generateConfigFile(__dirname, config, generateExampleFile);
+};
+
+export default generateConfig;

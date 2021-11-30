@@ -13,6 +13,7 @@
     "deploy-requester": "ts-node scripts/deploy-requester.ts",
     "deploy-rrp": "ts-node scripts/deploy-rrp.ts",
     "derive-and-fund-sponsor-wallet": "ts-node scripts/derive-and-fund-sponsor-wallet.ts",
+    "dev:generate-example-files": "ts-node dev-scripts/generate-example-files.ts",
     "eth-node": "hardhat node",
     "make-request": "ts-node scripts/make-request.ts",
     "print-account-details": "ts-node scripts/print-account-details.ts",
@@ -23,6 +24,7 @@
     "run-airnode-locally": "ts-node scripts/run-airnode-locally.ts",
     "sponsor-requester": "ts-node scripts/sponsor-requester.ts",
     "test:coingecko-aws": "ts-node scripts/aws-test/coingecko-aws-test.ts",
+    "test:unit": "jest --selectProjects unit",
     "test:e2e": "jest --selectProjects e2e"
   },
   "dependencies": {

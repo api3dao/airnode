@@ -13,11 +13,17 @@ const questions: PromptObject[] = [
   },
 ];
 
-const createSecrets = async () => {
-  const secrets = await getCommonSecrets();
+const getCoinMarketCapApiKey = async (generateExampleFile: boolean) => {
+  if (generateExampleFile) return '6fc6292d-a355-4046-88fd-bfab6892baf1';
   const response = await promptQuestions(questions);
-  secrets.push(`CMC_PRO_API_KEY=${response.apiKey}`);
-  writeSecrets(secrets);
+  return response.apiKey;
+};
+
+const createSecrets = async (generateExampleFile = false) => {
+  const secrets = await getCommonSecrets(generateExampleFile);
+  secrets.push(`CMC_PRO_API_KEY=${await getCoinMarketCapApiKey(generateExampleFile)}`);
+
+  writeSecrets(__dirname, secrets, generateExampleFile);
 };
 
 export default createSecrets;
