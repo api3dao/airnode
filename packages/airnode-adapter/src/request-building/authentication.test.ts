@@ -1,5 +1,3 @@
-/* eslint-disable functional/immutable-data */
-
 import { ApiKeySecurityScheme, ApiSecurityScheme, ApiSpecification } from '@api3/airnode-ois';
 import * as authentication from './authentication';
 import * as fixtures from '../../test/fixtures';
