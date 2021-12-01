@@ -1,14 +1,20 @@
 import { Config } from '@api3/airnode-node';
-import { createCloudProviderConfiguration, createNodeVersion, generateConfigFile } from '../config-utils';
+import {
+  createCloudProviderConfiguration,
+  createNodeVersion,
+  generateConfigFile,
+  getAirnodeRrpAddress,
+  getChainId,
+} from '../config-utils';
 
-const config: Config = {
+const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   chains: [
     {
       authorizers: [],
       contracts: {
-        AirnodeRrp: '${AIRNODE_RRP_ADDRESS}',
+        AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile),
       },
-      id: '${CHAIN_ID}',
+      id: await getChainId(generateExampleFile),
       providers: {
         exampleProvider: {
           url: '${PROVIDER_URL}',
@@ -18,7 +24,7 @@ const config: Config = {
     },
   ],
   nodeSettings: {
-    cloudProvider: createCloudProviderConfiguration(),
+    cloudProvider: createCloudProviderConfiguration(generateExampleFile),
     airnodeWalletMnemonic: '${AIRNODE_WALLET_MNEMONIC}',
     heartbeat: {
       enabled: false,
@@ -171,9 +177,10 @@ const config: Config = {
     },
   ],
   apiCredentials: [],
-};
+});
 
-const generateConfig = (generateExampleFile = false) => {
+const generateConfig = async (generateExampleFile = false) => {
+  const config = await createConfig(generateExampleFile);
   generateConfigFile(__dirname, config, generateExampleFile);
 };
 

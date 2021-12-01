@@ -3,9 +3,9 @@
     {
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "${AIRNODE_RRP_ADDRESS}"
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
-      "id": "${CHAIN_ID}",
+      "id": "31337",
       "providers": {
         "exampleProvider": {
           "url": "${PROVIDER_URL}"

@@ -1,9 +1,15 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { Config, LocalOrCloudProvider } from '@api3/airnode-node';
-import { cliPrint, readIntegrationInfo } from '../src';
+import { cliPrint, getDeployedContract, readChainId, readIntegrationInfo } from '../src';
 
-export const createCloudProviderConfiguration = (): LocalOrCloudProvider => {
+export const createCloudProviderConfiguration = (generateExampleFile: boolean): LocalOrCloudProvider => {
+  if (generateExampleFile) {
+    return {
+      type: 'local',
+    };
+  }
+
   const integrationInfo = readIntegrationInfo();
   const airnodeType = integrationInfo.airnodeType;
 
@@ -26,6 +32,16 @@ export const createCloudProviderConfiguration = (): LocalOrCloudProvider => {
     }
   }
 };
+
+export const getAirnodeRrpAddress = async (generateExampleFile: boolean) => {
+  if (generateExampleFile) return '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  return airnodeRrp.address;
+};
+
+export const getChainId = async (generateExampleFile: boolean) =>
+  (generateExampleFile ? 31337 : await readChainId()).toString();
 
 export const createNodeVersion = () => {
   return '0.2.2';
