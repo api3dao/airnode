@@ -23,7 +23,6 @@ describe('reportHeartbeat', () => {
   heartbeatOptions.forEach((option) => {
     it(`does nothing if the ${option} option is not set`, async () => {
       const nodeSettings = fixtures.buildNodeSettings();
-      // eslint-disable-next-line functional/immutable-data
       delete nodeSettings.heartbeat[option];
       const config = fixtures.buildConfig({ nodeSettings });
       const state = coordinatorState.create(config);

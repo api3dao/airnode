@@ -30,7 +30,6 @@ interface RequestReceipt {
   readonly err?: Error | null;
 }
 
-// eslint-disable-next-line functional/no-mixed-type
 interface OrderedRequest {
   readonly nonce: number;
   readonly makeRequest: () => Promise<RequestReceipt>;
@@ -108,8 +107,6 @@ const submitSponsorRequestsSequentially = async (state: ProviderState<EVMProvide
 
   const receipts: RequestReceipt[] = [];
   // Perform the requests sequentially to in order to respect the nonce value
-  //
-  // eslint-disable-next-line functional/no-loop-statement
   for (const request of allRequests) {
     receipts.push(await request.makeRequest());
   }

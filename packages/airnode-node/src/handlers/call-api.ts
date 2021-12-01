@@ -93,7 +93,6 @@ export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCall
     return [[log], { errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: ${err.message}` }];
   }
 
-  // eslint-disable-next-line functional/no-try-statement
   try {
     const response = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
     const value = apiCallOptions?.forTestingGateway ? JSON.stringify(response) : response.encodedValue;

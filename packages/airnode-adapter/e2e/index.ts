@@ -21,7 +21,6 @@ it('shows the need for assertArrayEquals', () => {
   expect(ethers.BigNumber.from(123)).to.equal(123);
   expect(ethers.BigNumber.from(123)).to.equal('123');
 
-  // eslint-disable-next-line functional/no-try-statement
   try {
     expect(ethers.BigNumber.from([123])).to.equal(['123']);
     expect.fail();
@@ -77,7 +76,6 @@ function extractAndEncode(reservedParams: ReservedParameters) {
 }
 
 describe('Extraction, encoding and simple on chain decoding', () => {
-  // eslint-disable-next-line functional/no-let
   let testDecoder: Contract;
 
   before(async () => {
@@ -260,7 +258,6 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     });
 
     it('throws when parsing fixed array as non fixed one', async () => {
-      // eslint-disable-next-line functional/no-try-statement
       try {
         await testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }));
         expect.fail();

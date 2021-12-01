@@ -26,7 +26,6 @@ function castNumber(value: unknown): BigNumber {
   }
 
   // We can't use ethers.js BigNumber.from here as it cannot handle decimals
-  // eslint-disable-next-line functional/no-try-statement
   const bigNumberValue = new BigNumber(value as any);
 
   if (!bigNumberValue.isFinite()) throw new Error('Invalid number value');
@@ -107,7 +106,6 @@ function toHumanReadableString(value: unknown) {
 export function castValue(value: unknown, type: ResponseType): ValueType {
   if (!isValidType(type)) throw new Error(`Invalid type: ${type}`);
 
-  // eslint-disable-next-line functional/no-try-statement
   try {
     if (isNumericType(type)) return castNumber(value);
 
