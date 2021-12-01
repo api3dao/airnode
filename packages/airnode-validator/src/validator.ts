@@ -146,7 +146,7 @@ export function validateJson(
     [],
     nonRedundant,
     {
-      specs: specs,
+      specs: interpolated,
       nonRedundantParams: nonRedundant,
       output: {},
     },
