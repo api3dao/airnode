@@ -95,12 +95,83 @@
           "__message": "__fullPath: Available cloud providers are only aws, gcp or local"
         }
       },
-      "region": {
+      "name": {
         "__type": "string"
       },
+      "__conditions": [
+        {
+          "__if": {
+            "type": "^(aws|gcp)$"
+          },
+          "__then": {
+            "region": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.region"
+          }
+        },
+        {
+          "__if": {
+            "type": "^gcp$"
+          },
+          "__then": {
+            "projectId": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.projectId"
+          }
+        }
+      ],
       "__optional": {
+        "region": {
+          "__type": "string",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": ".*"
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
+        },
         "projectId": {
-          "__type": "string"
+          "__type": "string",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": ".*"
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^gcp$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
         }
       }
     },
