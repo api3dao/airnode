@@ -5,7 +5,7 @@ import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';
 
-export const increaseTestTimeout = (timeoutMs = 60_000) => jest.setTimeout(timeoutMs);
+export const increaseTestTimeout = (timeoutMs = 120_000) => jest.setTimeout(timeoutMs);
 
 export const deployAirnodeAndMakeRequests = async (filename: string, requests?: Request[]) => {
   const deployerIndex = getDeployerIndex(filename);

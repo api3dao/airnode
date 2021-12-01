@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { killBackgroundProcess, runCommand, runCommandInBackground } from './utils';
+import { killBackgroundProcess, runCommand, runCommandInBackground } from '../utils';
 
 const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
@@ -15,7 +15,7 @@ const chooseIntegration = () => {
     null,
     2
   );
-  writeFileSync(join(__dirname, '../integration-info.json'), content);
+  writeFileSync(join(__dirname, '../../integration-info.json'), content);
 };
 
 describe('Coingecko integration with containerized Airnode and hardhat', () => {

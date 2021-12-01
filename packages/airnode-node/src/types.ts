@@ -138,8 +138,8 @@ export interface CoordinatorSettings {
   readonly airnodeAddressShort: string;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
-  readonly region: string;
   readonly stage: string;
+  readonly cloudProvider: LocalOrCloudProvider;
 }
 
 export interface ProviderStates {
@@ -158,6 +158,7 @@ export interface CoordinatorState {
 // EVM specific
 // ===========================================
 export interface EVMContracts {
+  // TODO: Rename to airnodeRrp for consistency
   readonly AirnodeRrp: string;
 }
 
@@ -206,9 +207,8 @@ export interface AggregatedApiCall {
 // Workers
 // ===========================================
 export interface WorkerOptions {
-  readonly cloudProvider: NodeCloudProvider;
+  readonly cloudProvider: LocalOrCloudProvider;
   readonly airnodeAddressShort: string;
-  readonly region: string;
   readonly stage: string;
 }
 
@@ -357,8 +357,6 @@ export interface ChainConfig {
   readonly providers: Record<string, Provider>;
 }
 
-export type NodeCloudProvider = 'local' | 'aws';
-
 export interface HttpGateway {
   readonly enabled: boolean;
   readonly apiKey?: string;
@@ -371,17 +369,34 @@ export interface Heartbeat {
   readonly url?: string;
 }
 
+export interface LocalProvider {
+  readonly type: 'local';
+}
+
+export interface AwsCloudProvider {
+  readonly type: 'aws';
+  readonly region: string;
+}
+
+export interface GcpCloudProvider {
+  readonly type: 'gcp';
+  readonly region: string;
+  readonly projectId: string;
+}
+
+export type CloudProvider = AwsCloudProvider | GcpCloudProvider;
+export type LocalOrCloudProvider = LocalProvider | CloudProvider;
+
 export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
   readonly airnodeAddressShort?: string;
-  readonly cloudProvider: NodeCloudProvider;
+  readonly stage: string;
+  readonly cloudProvider: LocalOrCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly region: string;
-  readonly stage: string;
 }
 
 export interface ApiCredentials extends AdapterApiCredentials {

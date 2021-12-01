@@ -26,14 +26,16 @@ describe('callApis', () => {
 
   it('returns each API call with the response if successful', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValueOnce({ valid: true, messages: [] });
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
+
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('INFO');

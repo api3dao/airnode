@@ -1,4 +1,4 @@
-module "terraform_state_backend" {
+module "terraform_state_backend_aws" {
   source        = "cloudposse/tfstate-backend/aws"
   version       = "0.33.0"
   namespace     = var.infrastructure_name
@@ -6,5 +6,5 @@ module "terraform_state_backend" {
   stage         = var.stage
   name          = "terraform"
   delimiter     = "-"
-  force_destroy = false
+  force_destroy = true
 }

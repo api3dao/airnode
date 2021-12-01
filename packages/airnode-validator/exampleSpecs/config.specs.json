@@ -15,7 +15,6 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "aws",
     "airnodeWalletMnemonic": "<FILL_*>",
     "heartbeat": {
       "enabled": true,
@@ -29,8 +28,11 @@
     },
     "logFormat": "json",
     "logLevel": "INFO",
-    "nodeVersion": "0.2.0",
-    "region": "FILL",
+    "nodeVersion": "0.3.0",
+    "cloudProvider": {
+      "type": "aws",
+      "region": "FILL"
+    },
     "stage": "FILL"
   },
   "triggers": {
@@ -108,9 +110,6 @@
             {
               "name": "_times",
               "default": "<FILL_*>"
-            },
-            {
-              "name": "_relay_metadata"
             }
           ],
           "parameters": [

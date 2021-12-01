@@ -36,12 +36,13 @@ export async function testApi(
     cloudProvider: config.nodeSettings.cloudProvider,
     airnodeAddressShort: wallet.getAirnodeAddressShort(airnodeAddress),
     stage: config.nodeSettings.stage,
-    region: config.nodeSettings.region,
   };
 
   const aggregatedApiCall: AggregatedApiCall = {
     id: testCallId,
     airnodeAddress,
+    // TODO: These values are technically incorrect and could cause troubles in the future
+    // because Airnode might expect valid values in these properties.
     requesterAddress: '',
     sponsorAddress: '',
     sponsorWalletAddress: '',
