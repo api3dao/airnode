@@ -7,6 +7,7 @@
   "scripts": {
     "build": "hardhat compile",
     "choose-integration": "ts-node scripts/choose-integration.ts",
+    "create-airnode-config": "ts-node scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",
     "create-aws-secrets": "ts-node scripts/create-aws-secrets.ts",
     "deploy-airnode": "ts-node scripts/deploy-airnode.ts",
