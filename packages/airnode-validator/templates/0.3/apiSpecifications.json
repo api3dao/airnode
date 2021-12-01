@@ -76,50 +76,14 @@
         "__conditions": [
           {
             "__if": {
-              "type": "^apiKey$"
+              "type": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$"
             },
             "__then": {
               "name": {},
               "in": {}
             },
             "__catch": {
-              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
-            }
-          },
-          {
-            "__if": {
-              "type": "^relayChainId$"
-            },
-            "__then": {
-              "name": {},
-              "in": {}
-            },
-            "__catch": {
-              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayChainId\""
-            }
-          },
-          {
-            "__if": {
-              "type": "^relayChainType$"
-            },
-            "__then": {
-              "name": {},
-              "in": {}
-            },
-            "__catch": {
-              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayChainType\""
-            }
-          },
-          {
-            "__if": {
-              "type": "^relayRequesterAddress$"
-            },
-            "__then": {
-              "name": {},
-              "in": {}
-            },
-            "__catch": {
-              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"relayRequesterAddress\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"[[ 'type' ]]\""
             }
           },
           {
@@ -156,7 +120,7 @@
             },
             "__then": {
               "type": {
-                "__regexp": "^apiKey$",
+                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$",
                 "__catch": {
                   "__level": "error"
                 }
@@ -173,7 +137,7 @@
             },
             "__then": {
               "type": {
-                "__regexp": "^apiKey$",
+                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$",
                 "__catch": {
                   "__level": "error"
                 }
