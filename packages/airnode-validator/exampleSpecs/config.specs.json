@@ -31,7 +31,8 @@
     "nodeVersion": "0.3.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "FILL"
+      "name": "",
+      "region": ""
     },
     "stage": "FILL"
   },

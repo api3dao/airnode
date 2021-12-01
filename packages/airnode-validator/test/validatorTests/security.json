@@ -41,7 +41,8 @@
     "nodeVersion": "0.3.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "us-east-1"
+      "region": "us-east-1",
+      "name": "aws-us"
     },
     "stage": "testnet",
     "logFormat": "json",
