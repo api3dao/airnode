@@ -151,7 +151,6 @@ describe('applyFulfillments', () => {
   it('does nothing when receipts do not have a transaction hash', () => {
     const apiCall = fixtures.requests.buildApiCall({ id: '0xapicallId' });
     const receipt = fixtures.evm.receipts.buildTransactionReceipt({ id: '0xapicallId' });
-    // eslint-disable-next-line functional/immutable-data
     receipt.data!.hash = undefined;
     const res = fulfillments.applyFulfillments([apiCall], [receipt]);
     expect(res[0]).toEqual(apiCall);

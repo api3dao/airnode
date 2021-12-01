@@ -273,7 +273,6 @@ describe('castValue', () => {
 
   it('allows requester to return timestamp', () => {
     const time = new Date('2020-01-01').getTime();
-    // eslint-disable-next-line functional/immutable-data
     Date.now = jest.spyOn(Date, 'now').mockImplementation(() => time) as any;
     expect(time).toEqual(1577836800000);
 

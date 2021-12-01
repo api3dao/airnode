@@ -26,7 +26,6 @@ describe('testApi', () => {
 
   it('returns an error if endpoint testability is not specified', async () => {
     const unspecifiedEndpoint = fixtures.buildOIS().endpoints[0];
-    // eslint-disable-next-line functional/immutable-data
     delete unspecifiedEndpoint.testable;
 
     const [err, res] = await testApi(buildConfigWithEndpoint(unspecifiedEndpoint), ENDPOINT_ID, {});

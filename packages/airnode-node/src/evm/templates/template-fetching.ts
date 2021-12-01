@@ -87,7 +87,6 @@ export async function fetch(
   }
 
   // Requests are made for up to 10 templates at a time
-  // eslint-disable-next-line functional/prefer-readonly-type
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use

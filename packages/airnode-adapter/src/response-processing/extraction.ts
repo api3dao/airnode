@@ -41,7 +41,6 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
   }
 
   return escapeAwareSplit(path, PATH_DELIMETER).reduce((acc, segment) => {
-    // eslint-disable-next-line functional/no-try-statement
     try {
       const nextValue = acc[segment];
       return nextValue === undefined ? defaultValue : nextValue;

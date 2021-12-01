@@ -218,7 +218,6 @@ describe('extract and encode multiple values', () => {
   describe('throws if reserved parameter values are present in certain scenarios', () => {
     it('throws if _times and _path are non empty for timestamp type', () => {
       const time = new Date('2020-01-01').getTime();
-      // eslint-disable-next-line functional/immutable-data
       Date.now = jest.spyOn(Date, 'now').mockImplementation(() => time) as any;
       expect(time).toEqual(1577836800000);
 

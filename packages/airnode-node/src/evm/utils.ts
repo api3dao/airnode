@@ -19,7 +19,6 @@ export function sortBigNumbers(bigNumbers: ethers.BigNumber[]) {
 
 export function decodeRevertString(callData: string) {
   // Refer to https://ethereum.stackexchange.com/a/83577
-  // eslint-disable-next-line functional/no-try-statement
   try {
     // Skip the funciton selector from the returned encoded data
     // and only decode the revert reason string.
