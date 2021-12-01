@@ -38,7 +38,7 @@
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
     "@types/prompts": "^2.0.14",
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.0",
     "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.0",
