@@ -20,8 +20,9 @@ module.exports = {
     'plugin:import/recommended',
     'plugin:import/typescript',
     'plugin:jest/recommended',
+    '.eslintrc.fp.js',
   ],
-  plugins: ['@typescript-eslint', 'import', 'jest', 'functional'],
+  plugins: ['@typescript-eslint', 'import', 'jest'],
   rules: {
     // TypeScript
     '@typescript-eslint/ban-ts-comment': 'off',
@@ -50,9 +51,6 @@ module.exports = {
         pathGroups: [{ pattern: 'mock-utils', group: 'builtin', patternOptions: { matchBase: true, nocomment: true } }],
       },
     ],
-
-    // eslint-plugin-functional
-    'functional/prefer-tacit': ['error', { assumeTypes: { allowFixer: false } }],
 
     // ESLint
     'comma-dangle': ['error', 'only-multiline'],
