@@ -3,7 +3,7 @@ import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } fr
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
-  if (integrationInfo.airnodeType !== 'aws') {
+  if (integrationInfo.airnodeType === 'local') {
     cliPrint.error('You only need to run this script if you deploy on AWS');
     return;
   }
@@ -14,10 +14,13 @@ const main = async () => {
     `docker run -it --rm`,
     `--env-file ${secretsFilePath}`,
     `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
+    integrationInfo.airnodeType === 'gcp' && `-v "\${HOME}/.config/gcloud:/app/gcloud"`,
     `-v ${integrationPath}:/app/config`,
     `-v ${integrationPath}:/app/output`,
     `api3/airnode-deployer:latest deploy`,
-  ].join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   runShellCommand(deployCommand);
 };
