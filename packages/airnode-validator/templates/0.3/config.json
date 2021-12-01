@@ -95,9 +95,6 @@
           "__message": "__fullPath: Available cloud providers are only aws, gcp or local"
         }
       },
-      "name": {
-        "__type": "string"
-      },
       "__conditions": [
         {
           "__if": {

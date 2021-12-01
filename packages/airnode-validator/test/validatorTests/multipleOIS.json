@@ -200,8 +200,7 @@
     "nodeVersion": "0.3.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "us-east-1",
-      "name": "aws-us"
+      "region": "us-east-1"
     },
     "stage": "testnet",
     "logFormat": "json",
