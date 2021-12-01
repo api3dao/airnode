@@ -1,6 +1,9 @@
 module.exports = {
   extends: ['../../.eslintrc.js'],
   rules: {
+    // Protocol package doesn't need to be functional
+    'functional/immutable-data': 'off',
+    // We use mocha for tests instead of Jest
     'jest/consistent-test-it': 'off',
     'jest/expect-expect': 'off',
     'jest/lowercase-name': 'off',
