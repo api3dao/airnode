@@ -26,7 +26,7 @@ contract RrpBeaconServer is
     RrpRequester,
     IRrpBeaconServer
 {
-    struct Beacon {
+    struct BeaconContent {
         int224 value;
         uint32 timestamp;
     }
@@ -37,7 +37,7 @@ contract RrpBeaconServer is
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    mapping(bytes32 => Beacon) private beacons;
+    mapping(bytes32 => BeaconContent) private beaconContents;
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
@@ -253,7 +253,7 @@ contract RrpBeaconServer is
             "Timestamp typecasting error"
         );
         require(
-            decodedTimestamp > beacons[beaconId].timestamp,
+            decodedTimestamp > beaconContents[beaconId].timestamp,
             "Fulfillment older than beacon"
         );
         require(
@@ -264,7 +264,7 @@ contract RrpBeaconServer is
             decodedTimestamp - 1 hours < block.timestamp,
             "Fulfillment from future"
         );
-        beacons[beaconId] = Beacon({
+        beaconContents[beaconId] = BeaconContent({
             value: int224(decodedData),
             timestamp: uint32(decodedTimestamp)
         });
@@ -295,8 +295,8 @@ contract RrpBeaconServer is
             readerCanReadBeacon(beaconId, msg.sender),
             "Caller not whitelisted"
         );
-        Beacon storage beacon = beacons[beaconId];
-        return (beacon.value, beacon.timestamp);
+        BeaconContent storage beaconContent = beaconContents[beaconId];
+        return (beaconContent.value, beaconContent.timestamp);
     }
 
     /// @notice Called to check if a reader is whitelisted to read the beacon
