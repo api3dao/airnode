@@ -36,8 +36,7 @@
       "securitySchemes": {
         "coinlayerSecurityScheme": {
           "in": "query",
-          "type": "apiKey",
-          "name": "access_key"
+          "type": "relayChainId"
         }
       }
     },

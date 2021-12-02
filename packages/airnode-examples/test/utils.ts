@@ -1,15 +1,19 @@
 import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process';
 
-export const runCommand = (command: string) =>
-  spawnSync(command, {
+export const runCommand = (command: string) => {
+  console.log(`Running command:\n${command}`);
+  return spawnSync(command, {
     shell: true,
   }).stdout.toString();
+};
 
-export const runCommandInBackground = (command: string) =>
-  spawn(command, {
+export const runCommandInBackground = (command: string) => {
+  console.log(`Running background command:\n${command}`);
+  return spawn(command, {
     detached: true,
     shell: true,
   });
+};
 
 export const killBackgroundProcess = (processToKill: ChildProcessWithoutNullStreams) => {
   // Only the following reliably kills the Airnode process. See:

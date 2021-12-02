@@ -1,9 +1,15 @@
 import isUndefined from 'lodash/isUndefined';
 import range from 'lodash/range';
+import { ethers } from 'ethers';
 import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
 import { encodeMultipleValues, encodeValue } from './encoding';
-import { ESCAPE_CHARACTER, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from '../constants';
+import {
+  ESCAPE_CHARACTER,
+  MAX_ENCODED_RESPONSE_SIZE,
+  MULTIPLE_PARAMETERS_DELIMETER,
+  PATH_DELIMETER,
+} from '../constants';
 import { ReservedParameters, ValueType, ExtractedAndEncodedResponse, ReservedParametersDelimeter } from '../types';
 
 export function unescape(value: string, delimeter: ReservedParametersDelimeter) {
@@ -41,7 +47,6 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
   }
 
   return escapeAwareSplit(path, PATH_DELIMETER).reduce((acc, segment) => {
-    // eslint-disable-next-line functional/no-try-statement
     try {
       const nextValue = acc[segment];
       return nextValue === undefined ? defaultValue : nextValue;
@@ -72,10 +77,9 @@ export function splitReservedParameters(parameters: ReservedParameters): Reserve
   const types = splitByDelimeter('_type');
   const paths = splitByDelimeter('_path');
   const timeses = splitByDelimeter('_times');
-  const relayMetadatas = splitByDelimeter('_relay_metadata');
 
   // Check that all of the parsed arrays have the same length or are undefined
-  const splitParams = [types, paths, timeses, relayMetadatas] as const;
+  const splitParams = [types, paths, timeses] as const;
   const typesLength = types.splitResult!.length;
   splitParams.forEach((split) => {
     if (split.splitResult && split.splitResult.length !== typesLength) {
@@ -125,7 +129,11 @@ function extractSingleResponse(data: unknown, parameters: ReservedParameters) {
   return value;
 }
 
-// This function can throw an error in both extraction and encoding
+export function exceedsMaximumEncodedResponseSize(encodedValue: string) {
+  const encodedBytesLength = ethers.utils.arrayify(encodedValue).byteLength;
+  return encodedBytesLength > MAX_ENCODED_RESPONSE_SIZE;
+}
+
 export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters): ExtractedAndEncodedResponse {
   const reservedParameters = splitReservedParameters(parameters);
   if (reservedParameters.length > 1) {
@@ -139,5 +147,11 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
   }
 
   const extractedValue = extractSingleResponse(data, parameters);
-  return { rawValue: data, encodedValue: encodeValue(extractedValue, parameters._type), values: [extractedValue] };
+  const encodedValue = encodeValue(extractedValue, parameters._type);
+
+  if (exceedsMaximumEncodedResponseSize(encodedValue)) {
+    throw new Error(`Encoded value exceeds the maximum allowed size (${MAX_ENCODED_RESPONSE_SIZE} bytes)`);
+  }
+
+  return { rawValue: data, encodedValue, values: [extractedValue] };
 }

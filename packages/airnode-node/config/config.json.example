@@ -15,7 +15,6 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "local",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "httpGateway": {
       "enabled": false
@@ -25,8 +24,10 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.2.2",
-    "region": "us-east-1",
+    "nodeVersion": "0.3.0",
+    "cloudProvider": {
+      "type": "local"
+    },
     "stage": "dev"
   },
   "triggers": {
@@ -117,10 +118,6 @@
             {
               "name": "_times",
               "default": "1000000"
-            },
-            {
-              "name": "_relay_metadata",
-              "default": "v1"
             }
           ],
           "parameters": [

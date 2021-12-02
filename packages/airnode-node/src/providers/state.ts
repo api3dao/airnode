@@ -28,7 +28,7 @@ export function buildEVMState(
     logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     name: chainProviderName,
-    region: config.nodeSettings.region,
+    cloudProvider: config.nodeSettings.cloudProvider,
     stage: config.nodeSettings.stage,
     url: chainProviderUrl,
     xpub: evm.getExtendedPublicKey(masterHDNode),

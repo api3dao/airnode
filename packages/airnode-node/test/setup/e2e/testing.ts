@@ -5,7 +5,7 @@ import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';
 
-export const increaseTestTimeout = (timeoutMs = 60_000) => jest.setTimeout(timeoutMs);
+export const increaseTestTimeout = (timeoutMs = 120_000) => jest.setTimeout(timeoutMs);
 
 export const deployAirnodeAndMakeRequests = async (filename: string, requests?: Request[]) => {
   const deployerIndex = getDeployerIndex(filename);
@@ -19,9 +19,7 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
     chains: [chain],
   });
   // TODO: This is caused by duplicated mnemonic in Airnode state
-  // @ts-ignore
-  // eslint-disable-next-line functional/immutable-data
-  config.nodeSettings.airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
+  (config.nodeSettings as any).airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
   jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
 

@@ -1,4 +1,4 @@
-/* eslint-disable functional/prefer-readonly-type */
+import { RESERVED_PARAMETERS } from './constants';
 
 // ===========================================
 // General
@@ -26,16 +26,42 @@ export interface Path {
   [key: string]: Operation;
 }
 
-export type SecuritySchemeName = 'bearer' | 'basic';
-export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
-export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
-
-export interface ApiSecurityScheme {
-  in?: SecuritySchemeTarget;
-  name?: string;
-  scheme?: SecuritySchemeName;
-  type: SecuritySchemeType;
+export interface HttpSecurityScheme {
+  scheme: 'bearer' | 'basic';
+  type: 'http';
 }
+
+export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
+export interface ConfigurableSecurityScheme {
+  in: SecuritySchemeTarget;
+  name: string;
+}
+
+export interface ApiKeySecurityScheme extends ConfigurableSecurityScheme {
+  type: 'apiKey';
+}
+
+export interface RelayChainIdSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayChainId';
+}
+
+export interface RelayChainTypeSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayChainType';
+}
+
+export interface RelayRequesterAddressSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relayRequesterAddress';
+}
+
+export type ApiSecurityScheme =
+  | ApiKeySecurityScheme
+  | HttpSecurityScheme
+  | RelayChainIdSecurityScheme
+  | RelayChainTypeSecurityScheme
+  | RelayRequesterAddressSecurityScheme;
+
+// OAS supports also "oauth2" and "openIdConnect", but we don't
+export type SecuritySchemeType = ApiSecurityScheme['type'];
 
 export interface ApiComponents {
   securitySchemes: {
@@ -72,12 +98,7 @@ export interface FixedParameter {
   value: string;
 }
 
-export enum ReservedParameterName {
-  Path = '_path',
-  Times = '_times',
-  Type = '_type',
-  RelayMetadata = '_relay_metadata',
-}
+export type ReservedParameterName = typeof RESERVED_PARAMETERS[number];
 
 export interface ReservedParameter {
   default?: string;

@@ -1,6 +1,4 @@
-/* eslint-disable functional/immutable-data */
-
-import { ApiSecurityScheme, ApiSpecification } from '@api3/airnode-ois';
+import { ApiKeySecurityScheme, ApiSecurityScheme, ApiSpecification } from '@api3/airnode-ois';
 import * as authentication from './authentication';
 import * as fixtures from '../../test/fixtures';
 
@@ -64,7 +62,7 @@ describe('building API key authentication parameters', () => {
 
   it('returns the API key in the headers', () => {
     const ois = fixtures.buildOIS();
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'header';
+    (ois.apiSpecifications.components.securitySchemes.myapiApiScheme as ApiKeySecurityScheme).in = 'header';
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
@@ -76,37 +74,13 @@ describe('building API key authentication parameters', () => {
 
   it('returns the API key in the cookies', () => {
     const ois = fixtures.buildOIS();
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'cookie';
+    (ois.apiSpecifications.components.securitySchemes.myapiApiScheme as ApiKeySecurityScheme).in = 'cookie';
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},
       cookies: { access_key: 'super-secret-key' },
-    });
-  });
-
-  it('ignores undefined scheme names', () => {
-    const ois = fixtures.buildOIS();
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.name = undefined;
-    const options = fixtures.buildCacheRequestOptions({ ois });
-    const res = authentication.buildParameters(options);
-    expect(res).toEqual({
-      query: {},
-      headers: {},
-      cookies: {},
-    });
-  });
-
-  it('ignores undefined scheme targets', () => {
-    const ois = fixtures.buildOIS();
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = undefined;
-    const options = fixtures.buildCacheRequestOptions({ ois });
-    const res = authentication.buildParameters(options);
-    expect(res).toEqual({
-      query: {},
-      headers: {},
-      cookies: {},
     });
   });
 });
@@ -139,15 +113,43 @@ describe('building HTTP authentication parameters', () => {
       cookies: {},
     });
   });
+});
 
-  it('ignores unknown or undefined schemes', () => {
+describe('relay metadata', () => {
+  it('relays chain id', () => {
     const ois = fixtures.buildOIS();
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.type = 'http';
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.scheme = undefined;
+    const scheme: ApiSecurityScheme = { in: 'header', type: 'relayChainId', name: 'chainId' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
+      headers: { chainId: '31337' },
+      cookies: {},
+    });
+  });
+
+  it('relays chain type', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'cookie', type: 'relayChainType', name: 'chainType' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: {},
+      headers: {},
+      cookies: { chainType: 'evm' },
+    });
+  });
+
+  it('relays requester address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'query', type: 'relayRequesterAddress', name: 'requesterAddress' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' },
       headers: {},
       cookies: {},
     });

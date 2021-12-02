@@ -1,7 +1,7 @@
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import prompts, { PromptObject } from 'prompts';
-import { cliPrint, IntegrationInfo, runAndHandleErrors } from '../src';
+import { PromptObject } from 'prompts';
+import { cliPrint, IntegrationInfo, promptQuestions, runAndHandleErrors } from '../src';
 
 const createCliOption = (name: string) => ({
   title: name,
@@ -25,7 +25,15 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'airnodeType',
     message: 'Choose Airnode type',
-    choices: [createCliOption('local'), createCliOption('aws')],
+    choices: [createCliOption('local'), createCliOption('aws'), createCliOption('gcp')],
+  },
+  {
+    // Ask this option only if Airnode is to be deployed on GCP
+    type: (_prev, values) => {
+      return values.airnodeType === 'gcp' ? 'text' : null;
+    },
+    name: 'gcpProjectId',
+    message: 'Enter a GCP project ID',
   },
   {
     type: 'select',
@@ -69,7 +77,7 @@ const questions: PromptObject[] = [
  * Ask the user for the integration choice and return them as an object.
  */
 const chooseIntegration = async (): Promise<IntegrationInfo> => {
-  const response = await prompts(questions);
+  const response = await promptQuestions(questions);
   return response as IntegrationInfo;
 };
 

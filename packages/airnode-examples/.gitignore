@@ -15,3 +15,4 @@ aws.env
 secrets.env
 receipt.json
 coingecko-aws-secrets.env
+config.json

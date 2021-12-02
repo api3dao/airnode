@@ -41,7 +41,6 @@ export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<G
 }
 
 export function goSync<T>(fn: () => T): GoResult<T> {
-  // eslint-disable-next-line functional/no-try-statement
   try {
     return successFn(fn());
   } catch (err) {

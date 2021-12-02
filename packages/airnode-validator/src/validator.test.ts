@@ -57,7 +57,7 @@ const validAPISpecification = `{
         }
       ]
     }
-  }   
+  }
 },
 "components": {
     "securitySchemes": {
@@ -103,7 +103,7 @@ const invalidAPISpecification = `{
         }
       ]
     }
-  }   
+  }
 },
 "components": {
     "securitySchemes": {
@@ -240,7 +240,7 @@ describe('validator', () => {
         "operation": {
           "path": "/myPath",
           "method": "get"
-        }, 
+        },
         "fixedOperationParameters": [],
         "reservedParameters": [],
         "parameters": []
@@ -312,9 +312,7 @@ describe('validator', () => {
       messages: [
         missingParamMessage(['[0]', 'operation', 'path']),
         error('[0].operation.method can be either "get" or "post"'),
-        error(
-          '[0].reservedParameters.[0].name: Reserved parameter can be only "_type", "_path", "_times" or "_relay_metadata"'
-        ),
+        error('[0].reservedParameters.[0].name: Reserved parameter can be only "_type", "_path" or "_times"'),
         formattingMessage(['[0]', 'parameters', '[0]', 'name']),
         missingParamMessage(['[0]', 'parameters', '[0]', 'operationParameter']),
         missingParamMessage(['[1]', 'name']),
@@ -359,7 +357,7 @@ describe('validator', () => {
 
   it('interpolation', () => {
     expect(
-      validator.validate('exampleSpecs/secrets.config.json', 'templates/0.2/config.json', 'exampleSpecs/secrets.env')
+      validator.validate('exampleSpecs/secrets.config.json', 'templates/0.3/config.json', 'exampleSpecs/secrets.env')
     ).toEqual({ valid: true, messages: [] });
   });
 });

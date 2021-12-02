@@ -39,7 +39,6 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
     cloudProvider: config.nodeSettings.cloudProvider,
     airnodeAddressShort: state1.settings.airnodeAddressShort,
     stage: config.nodeSettings.stage,
-    region: config.nodeSettings.region,
   };
 
   // =================================================================

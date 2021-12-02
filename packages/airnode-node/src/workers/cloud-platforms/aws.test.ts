@@ -17,7 +17,7 @@ describe('spawn', () => {
     invoke.mockImplementationOnce((params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ value: 7777 }) }) })
     );
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const parameters = {
       ...workerOpts,
       functionName: 'some-function' as WorkerFunctionName,
@@ -36,11 +36,10 @@ describe('spawn', () => {
   });
 
   it('throws an error if the lambda returns an error', async () => {
-    expect.assertions(3);
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const parameters = {
       ...workerOpts,
       functionName: 'some-function' as WorkerFunctionName,
