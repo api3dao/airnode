@@ -1,8 +1,6 @@
 import { Endpoint, ReservedParameterName } from '@api3/airnode-ois';
 import { ApiCallParameters } from '../../types';
 
-export const RESERVED_PARAMETERS = Object.values(ReservedParameterName);
-
 export function getReservedParameterValue(
   name: ReservedParameterName,
   endpoint: Endpoint,
@@ -27,9 +25,9 @@ export function getReservedParameterValue(
 }
 
 export function getReservedParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
-  const _path = getReservedParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
-  const _times = getReservedParameterValue(ReservedParameterName.Times, endpoint, requestParameters);
-  const _type = getReservedParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
+  const _path = getReservedParameterValue('_path', endpoint, requestParameters);
+  const _times = getReservedParameterValue('_times', endpoint, requestParameters);
+  const _type = getReservedParameterValue('_type', endpoint, requestParameters);
 
   return { _type, _path, _times };
 }

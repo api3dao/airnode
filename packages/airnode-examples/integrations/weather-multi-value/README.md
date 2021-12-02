@@ -5,7 +5,9 @@ CoinMarketCap example by incorporating the encoding of multiple reserved paramet
 separately.
 
 As this is an authenticated example, you will need to sign up with [OpenWeather](https://openweathermap.org/api) in
-order to get a free API key. The `yarn create-airnode-secrets` step will request this key and store it in `secrets.env`.
+order to get a free API key. After creating the key, be sure to wait for some time until the API key becomes active. In
+our testing 1 hour was enough, but this might change in the future. The `yarn create-airnode-secrets` step will request
+this key and store it in `secrets.env`.
 
 Before proceeding with this example, use the curl command below to confirm the API key is active. Note you need to
 replace `MYKEY` with your API key. Also note the quotes surrounding the URL are required.
@@ -13,6 +15,8 @@ replace `MYKEY` with your API key. Also note the quotes surrounding the URL are 
 ```sh
 curl "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51.507222&lon=-0.1275&dt=1637545002&appid=MYKEY"
 ```
+
+_(Make sure the `dt` argument is fresh enough, not older then 5 days)._
 
 New to this example is the encoding of reserved parameters with multiple values of different types. In `config.json`,
 the `_type` reserved parameter is a comma-separated string with the following "split values":
