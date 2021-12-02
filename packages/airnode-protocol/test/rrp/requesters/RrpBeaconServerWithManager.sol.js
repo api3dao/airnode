@@ -10,7 +10,7 @@ let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, i
 let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress, sponsorWallet;
 let voidSignerAddressZero;
-let endpointId, parameters, templateId, beaconId;
+let endpointId, templateParameters, templateId, beaconParameters, beaconId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -82,12 +82,15 @@ beforeEach(async () => {
   });
   sponsorWallet = utils.deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address).connect(hre.ethers.provider);
   endpointId = utils.generateRandomBytes32();
-  parameters = utils.generateRandomBytes();
-  await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+  templateParameters = utils.generateRandomBytes();
+  await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, templateParameters);
   templateId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+    hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, templateParameters])
   );
-  beaconId = templateId;
+  beaconParameters = utils.generateRandomBytes();
+  beaconId = hre.ethers.utils.keccak256(
+    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+  );
 });
 
 describe('constructor', function () {
@@ -588,7 +591,7 @@ describe('requestBeaconUpdate', function () {
               sponsorWalletAddress,
               rrpBeaconServer.address,
               rrpBeaconServer.interface.getSighash('fulfill'),
-              '0x',
+              beaconParameters,
             ]
           )
         );
@@ -596,7 +599,7 @@ describe('requestBeaconUpdate', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
         )
           .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
           .withArgs(beaconId, roles.sponsor.address, roles.updateRequester.address, requestId, sponsorWalletAddress);
@@ -609,7 +612,7 @@ describe('requestBeaconUpdate', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
         ).to.be.revertedWith('Requester not sponsored');
       });
     });
@@ -620,7 +623,7 @@ describe('requestBeaconUpdate', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.updateRequester)
-          .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
+          .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
       ).to.be.revertedWith('Caller not permitted');
     });
   });
@@ -653,14 +656,14 @@ describe('readBeacon', function () {
             sponsorWalletAddress,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
-            '0x',
+            beaconParameters,
           ]
         )
       );
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
       // Fulfill with 0 status code
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -711,14 +714,14 @@ describe('readBeacon', function () {
             sponsorWalletAddress,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
-            '0x',
+            beaconParameters,
           ]
         )
       );
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
       // Fulfill with 0 status code
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -831,14 +834,14 @@ describe('fulfill', function () {
                     sponsorWalletAddress,
                     rrpBeaconServer.address,
                     rrpBeaconServer.interface.getSighash('fulfill'),
-                    '0x',
+                    beaconParameters,
                   ]
                 )
               );
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
@@ -900,14 +903,14 @@ describe('fulfill', function () {
                     sponsorWalletAddress,
                     rrpBeaconServer.address,
                     rrpBeaconServer.interface.getSighash('fulfill'),
-                    '0x',
+                    beaconParameters,
                   ]
                 )
               );
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedTimestamp = now - 4000;
@@ -980,14 +983,14 @@ describe('fulfill', function () {
                     sponsorWalletAddress,
                     rrpBeaconServer.address,
                     rrpBeaconServer.interface.getSighash('fulfill'),
-                    '0x',
+                    beaconParameters,
                   ]
                 )
               );
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
@@ -1060,14 +1063,14 @@ describe('fulfill', function () {
                   sponsorWalletAddress,
                   rrpBeaconServer.address,
                   rrpBeaconServer.interface.getSighash('fulfill'),
-                  '0x',
+                  beaconParameters,
                 ]
               )
             );
             // Request the first beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
             // Prepare the first response
             const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
             let encodedData = 123;
@@ -1109,7 +1112,7 @@ describe('fulfill', function () {
                   sponsorWalletAddress,
                   rrpBeaconServer.address,
                   rrpBeaconServer.interface.getSighash('fulfill'),
-                  '0x',
+                  beaconParameters,
                 ]
               )
             );
@@ -1117,7 +1120,7 @@ describe('fulfill', function () {
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
             // Prepare the second response
             encodedData = 123;
             encodedTimestamp = now + 1;
@@ -1206,14 +1209,14 @@ describe('fulfill', function () {
                   sponsorWalletAddress,
                   rrpBeaconServer.address,
                   rrpBeaconServer.interface.getSighash('fulfill'),
-                  '0x',
+                  beaconParameters,
                 ]
               )
             );
             // Request the beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
             // Fulfill with non-typecastable data
             // Data should not be too large
             const encodedData = hre.ethers.BigNumber.from(2).pow(223);
@@ -1284,14 +1287,14 @@ describe('fulfill', function () {
                   sponsorWalletAddress,
                   rrpBeaconServer.address,
                   rrpBeaconServer.interface.getSighash('fulfill'),
-                  '0x',
+                  beaconParameters,
                 ]
               )
             );
             // Request the beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
             // Fulfill with non-typecastable data
             // Data should not be too small
             const encodedData = hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1);
@@ -1363,14 +1366,14 @@ describe('fulfill', function () {
                 sponsorWalletAddress,
                 rrpBeaconServer.address,
                 rrpBeaconServer.interface.getSighash('fulfill'),
-                '0x',
+                beaconParameters,
               ]
             )
           );
           // Request the beacon update
           await rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
           // Year should not be 2106+
           const encodedData = 123;
           const encodedTimestamp = 2 ** 32;
@@ -1517,14 +1520,14 @@ describe('readBeacon', function () {
             sponsorWalletAddress,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
-            '0x',
+            beaconParameters,
           ]
         )
       );
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters);
       // Fulfill
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -1589,5 +1592,16 @@ describe('readerCanReadBeacon', function () {
     it('returns false', async function () {
       expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.randomPerson.address)).to.equal(false);
     });
+  });
+});
+
+describe('deriveBeaconId', function () {
+  it('derives beacon ID', async function () {
+    expect(await rrpBeaconServer.deriveBeaconId(templateId, beaconParameters)).to.equal(beaconId);
+    expect(await rrpBeaconServer.deriveBeaconId(templateId, '0x')).to.equal(
+      hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, '0x']))
+    );
+    // templateId != beaconId if `parameters` is empty
+    expect(await rrpBeaconServer.deriveBeaconId(templateId, '0x')).to.not.equal(templateId);
   });
 });

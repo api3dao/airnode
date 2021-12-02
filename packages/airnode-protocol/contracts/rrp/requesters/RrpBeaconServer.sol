@@ -197,23 +197,26 @@ contract RrpBeaconServer is
     /// request
     /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
     /// request
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
     function requestBeaconUpdate(
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet
+        address sponsorWallet,
+        bytes calldata parameters
     ) external override {
         require(
             sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Caller not permitted"
         );
-        bytes32 beaconId = templateId;
+        bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
             templateId,
             sponsor,
             sponsorWallet,
             address(this),
             this.fulfill.selector,
-            ""
+            parameters
         );
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedBeaconUpdate(
@@ -350,5 +353,20 @@ contract RrpBeaconServer is
         indefiniteWhitelistStatus = serviceIdToUserToSetterToIndefiniteWhitelistStatus[
             beaconId
         ][reader][setter];
+    }
+
+    /// @notice Derives the beacon ID from the respective template ID and
+    /// additional parameters
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @return beaconId Beacon ID
+    function deriveBeaconId(bytes32 templateId, bytes calldata parameters)
+        public
+        pure
+        override
+        returns (bytes32 beaconId)
+    {
+        beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 }

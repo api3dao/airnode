@@ -83,7 +83,8 @@ interface IRrpBeaconServer {
     function requestBeaconUpdate(
         bytes32 beaconId,
         address requester,
-        address designatedWallet
+        address designatedWallet,
+        bytes calldata parameters
     ) external;
 
     function fulfill(bytes32 requestId, bytes calldata data) external;
@@ -113,4 +114,9 @@ interface IRrpBeaconServer {
         address sponsor,
         address updateRequester
     ) external view returns (bool permissionStatus);
+
+    function deriveBeaconId(bytes32 templateId, bytes calldata parameters)
+        external
+        pure
+        returns (bytes32 beaconId);
 }
