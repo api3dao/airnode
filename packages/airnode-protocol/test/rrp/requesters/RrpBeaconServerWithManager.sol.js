@@ -820,45 +820,36 @@ describe('readBeacon', function () {
 });
 
 describe('readerCanReadBeacon', function () {
-  context('Template exists', function () {
-    context('User whitelisted', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-        const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
-        await rrpBeaconServer
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-      });
-    });
-    context('User zero address', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, hre.ethers.constants.AddressZero)).to.equal(true);
-      });
-    });
-    context('User not whitelisted', function () {
-      it('returns false', async function () {
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
-      });
+  context('User whitelisted', function () {
+    it('returns true', async function () {
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+      await rrpBeaconServer
+        .connect(roles.whitelistExpirationSetter)
+        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.indefiniteWhitelister)
+        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.whitelistExpirationSetter)
+        .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.indefiniteWhitelister)
+        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
     });
   });
-  context('Template does not exist', function () {
-    it('reverts', async function () {
-      await expect(
-        rrpBeaconServer.readerCanReadBeacon(utils.generateRandomBytes32(), roles.randomPerson.address)
-      ).to.be.revertedWith('Template does not exist');
+  context('User zero address', function () {
+    it('returns true', async function () {
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, hre.ethers.constants.AddressZero)).to.equal(true);
+    });
+  });
+  context('User not whitelisted', function () {
+    it('returns false', async function () {
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
     });
   });
 });
@@ -1635,40 +1626,31 @@ describe('readBeacon', function () {
 });
 
 describe('readerCanReadBeacon', function () {
-  context('Template exists', function () {
-    context('User whitelisted', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-        const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
-        await rrpBeaconServer
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-      });
-    });
-    context('User not whitelisted', function () {
-      it('returns false', async function () {
-        expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
-      });
+  context('User whitelisted', function () {
+    it('returns true', async function () {
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+      await rrpBeaconServer
+        .connect(roles.whitelistExpirationSetter)
+        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.indefiniteWhitelister)
+        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.whitelistExpirationSetter)
+        .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.indefiniteWhitelister)
+        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
     });
   });
-  context('Template does not exist', function () {
-    it('reverts', async function () {
-      await expect(
-        rrpBeaconServer.readerCanReadBeacon(utils.generateRandomBytes32(), roles.randomPerson.address)
-      ).to.be.revertedWith('Template does not exist');
+  context('User not whitelisted', function () {
+    it('returns false', async function () {
+      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
     });
   });
 });

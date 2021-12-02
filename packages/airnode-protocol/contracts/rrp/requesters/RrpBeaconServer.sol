@@ -39,14 +39,6 @@ contract RrpBeaconServer is
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
-    /// @dev Reverts if the template with the ID is not created
-    /// @param templateId Template ID
-    modifier onlyIfTemplateExists(bytes32 templateId) {
-        (address airnode, , ) = airnodeRrp.templates(templateId);
-        require(airnode != address(0), "Template does not exist");
-        _;
-    }
-
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
@@ -313,7 +305,6 @@ contract RrpBeaconServer is
         public
         view
         override
-        onlyIfTemplateExists(templateId)
         returns (bool)
     {
         return userIsWhitelisted(templateId, reader) || reader == address(0);
@@ -334,7 +325,6 @@ contract RrpBeaconServer is
         external
         view
         override
-        onlyIfTemplateExists(templateId)
         returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount)
     {
         WhitelistStatus
