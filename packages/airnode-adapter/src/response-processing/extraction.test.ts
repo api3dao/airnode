@@ -7,7 +7,9 @@ import {
   escapeAwareSplit,
   unescape,
 } from './extraction';
+import { MAX_ENCODED_RESPONSE_SIZE } from '../constants';
 import { ReservedParameters } from '../types';
+import { exceedsMaximumEncodedResponseSize } from '.';
 
 describe('getRawValue', () => {
   it('returns the data as is if no path is provided', () => {
@@ -243,6 +245,67 @@ describe('extract and encode multiple values', () => {
       expect(() => extractAndEncodeResponse(encodedString, { _type: 'bytes32', _times: '1000' })).toThrow(
         'Parameter "_times" can only be used with numeric types, but "_type" was "bytes32"'
       );
+    });
+  });
+});
+
+describe('respects maximum encoded size', () => {
+  const encodedSize = (type: string, value: any) =>
+    ethers.utils.arrayify(ethers.utils.defaultAbiCoder.encode([type], [value])).byteLength;
+
+  describe('edge cases', () => {
+    const createBytes = (length: number) => {
+      const { hexlify, toUtf8Bytes } = ethers.utils;
+      return hexlify(toUtf8Bytes('x'.repeat(length)));
+    };
+
+    it('values <= limit are accepted', () => {
+      expect(exceedsMaximumEncodedResponseSize(createBytes(MAX_ENCODED_RESPONSE_SIZE - 1))).toBe(false);
+      expect(exceedsMaximumEncodedResponseSize(createBytes(MAX_ENCODED_RESPONSE_SIZE))).toBe(false);
+    });
+
+    it('exceeds the limit', () => {
+      expect(exceedsMaximumEncodedResponseSize(createBytes(MAX_ENCODED_RESPONSE_SIZE + 1))).toBe(true);
+    });
+  });
+
+  describe('encoding strings', () => {
+    const maxStringLength = MAX_ENCODED_RESPONSE_SIZE - 64;
+
+    it('is under the limit', () => {
+      const str = 'x'.repeat(maxStringLength + 1);
+      expect(encodedSize('string', str)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
+
+      expect(() => extractAndEncodeResponse(str, { _type: 'string' })).toThrow(
+        'Encoded value exceeds the maximum allowed size (1024 bytes)'
+      );
+    });
+
+    it('exceeds the limit', () => {
+      const str = 'x'.repeat(maxStringLength);
+      expect(encodedSize('string', str)).toBe(MAX_ENCODED_RESPONSE_SIZE);
+
+      expect(() => extractAndEncodeResponse(str, { _type: 'string' })).not.toThrow();
+    });
+  });
+
+  describe('encoding int256 arrays', () => {
+    const maxInt256ArrayLength = 30;
+
+    it('is under the limit', () => {
+      const arr = Array.from(Array(maxInt256ArrayLength + 1).keys());
+      expect(encodedSize('int256[]', arr)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
+
+      expect(() => extractAndEncodeResponse(arr, { _type: 'int256[]' })).toThrow(
+        'Encoded value exceeds the maximum allowed size (1024 bytes)'
+      );
+    });
+
+    it('exceeds the limit', () => {
+      const arr = Array.from(Array(maxInt256ArrayLength).keys());
+      expect(encodedSize('int256[]', arr)).toBe(MAX_ENCODED_RESPONSE_SIZE);
+
+      expect(() => extractAndEncodeResponse(arr, { _type: 'int256[]' })).not.toThrow();
     });
   });
 });
