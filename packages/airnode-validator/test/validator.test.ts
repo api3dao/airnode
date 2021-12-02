@@ -1,23 +1,9 @@
 import * as fs from 'fs';
 import path from 'path';
-import { validateWithTemplate, validateJsonWithTemplate } from '../src';
+import { validateWithTemplate } from '../src';
 
 const tests = fs.readdirSync(path.resolve(__dirname, 'validatorTests'));
 const validOutput = { valid: true, messages: [] };
-
-const secretsEnv = {
-  PROVIDER_URL: 'http://127.0.0.1:8545',
-  AIRNODE_RRP_ADDRESS: '0x0000000000000000000000000000000000000000',
-  AIRNODE_WALLET_MNEMONIC: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  SS_CURRENCY_CONVERTER_API_KEY: '00000000-0000-0000-0000-000000000000',
-  CMC_PRO_API_KEY: '00000000-0000-0000-0000-000000000000',
-  HTTP_GATEWAY_API_KEY: '00000000-0000-0000-0000-000000000000',
-  HEARTBEAT_API_KEY: '00000000-0000-0000-0000-000000000000',
-  HEARTBEAT_ID: '',
-  HEARTBEAT_URL: '',
-  CHAIN_ID: '',
-  CLOUD_PROVIDER_TYPE: 'aws',
-};
 
 describe('validator tests', () => {
   for (const config of tests) {
@@ -44,21 +30,19 @@ describe('validator tests', () => {
 describe('fixture tests', () => {
   it('node (airnode-node/config/config.json.example)', () =>
     expect(
-      validateJsonWithTemplate(
-        JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../airnode-node/config/config.json.example'), 'utf-8')),
+      validateWithTemplate(
+        path.resolve(__dirname, '../../airnode-node/config/config.json.example'),
         'config',
-        secretsEnv
+        path.resolve(__dirname, '../../airnode-node/config/secrets.env.example')
       )
     ).toEqual(validOutput));
 
   it('deployer (airnode-deployer/config/config.json.example)', () =>
     expect(
-      validateJsonWithTemplate(
-        JSON.parse(
-          fs.readFileSync(path.resolve(__dirname, '../../airnode-deployer/config/config.json.example'), 'utf-8')
-        ),
+      validateWithTemplate(
+        path.resolve(__dirname, '../../airnode-deployer/config/config.json.example'),
         'config',
-        secretsEnv
+        path.resolve(__dirname, '../../airnode-deployer/config/secrets.env.example')
       )
     ).toEqual(validOutput));
 
@@ -72,7 +56,11 @@ describe('fixture tests', () => {
     for (const integration of integrations) {
       it(`${integration}`, () =>
         expect(
-          validateWithTemplate(path.resolve(integrationsPath, integration, 'config.json'), 'config', path.resolve(integrationsPath, integration, 'secrets.example.env'))
+          validateWithTemplate(
+            path.resolve(integrationsPath, integration, 'config.example.json'),
+            'config',
+            path.resolve(integrationsPath, integration, 'secrets.example.env')
+          )
         ).toEqual(validOutput));
     }
   });
