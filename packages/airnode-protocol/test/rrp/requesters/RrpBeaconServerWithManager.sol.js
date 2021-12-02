@@ -10,7 +10,7 @@ let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, i
 let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress, sponsorWallet;
 let voidSignerAddressZero;
-let endpointId, parameters, templateId;
+let endpointId, parameters, templateId, beaconId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -87,6 +87,7 @@ beforeEach(async () => {
   templateId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
   );
+  beaconId = templateId;
 });
 
 describe('constructor', function () {
@@ -125,29 +126,23 @@ describe('extendWhitelistExpiration', function () {
     context('Timestamp extends whitelist expiration', function () {
       it('extends whitelist expiration', async function () {
         let whitelistStatus;
-        whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
+        whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
         expect(whitelistStatus.expirationTimestamp).to.equal(0);
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         const expirationTimestamp = 1000;
         await expect(
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+            .extendWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp)
         )
           .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
           .withArgs(
-            templateId,
+            beaconId,
             roles.beaconReader.address,
             roles.whitelistExpirationExtender.address,
             expirationTimestamp
           );
-        whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
+        whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
         expect(whitelistStatus.expirationTimestamp).to.equal(1000);
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
@@ -157,7 +152,7 @@ describe('extendWhitelistExpiration', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+            .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
         ).to.be.revertedWith('Does not extend expiration');
       });
     });
@@ -169,24 +164,18 @@ describe('extendWhitelistExpiration', function () {
           .connect(roles.manager)
           .renounceRole(whitelistExpirationExtenderRole, roles.manager.address);
         let whitelistStatus;
-        whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
+        whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
         expect(whitelistStatus.expirationTimestamp).to.equal(0);
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         const expirationTimestamp = 1000;
         await expect(
           rrpBeaconServer
             .connect(roles.manager)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+            .extendWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp)
         )
           .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
-          .withArgs(templateId, roles.beaconReader.address, roles.manager.address, expirationTimestamp);
-        whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
+          .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, expirationTimestamp);
+        whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
         expect(whitelistStatus.expirationTimestamp).to.equal(1000);
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
@@ -197,7 +186,7 @@ describe('extendWhitelistExpiration', function () {
           .connect(roles.manager)
           .renounceRole(whitelistExpirationExtenderRole, roles.manager.address);
         await expect(
-          rrpBeaconServer.connect(roles.manager).extendWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+          rrpBeaconServer.connect(roles.manager).extendWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
         ).to.be.revertedWith('Does not extend expiration');
       });
     });
@@ -207,17 +196,17 @@ describe('extendWhitelistExpiration', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationSetter)
-          .extendWhitelistExpiration(templateId, roles.beaconReader.address, 1000)
+          .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
       ).to.be.revertedWith('Not expiration extender');
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .extendWhitelistExpiration(templateId, roles.beaconReader.address, 1000)
+          .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
       ).to.be.revertedWith('Not expiration extender');
       await expect(
         rrpBeaconServer
           .connect(roles.randomPerson)
-          .extendWhitelistExpiration(templateId, roles.beaconReader.address, 1000)
+          .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
       ).to.be.revertedWith('Not expiration extender');
     });
   });
@@ -231,27 +220,21 @@ describe('setWhitelistExpiration', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+          .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp)
       )
         .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.whitelistExpirationSetter.address, expirationTimestamp);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.whitelistExpirationSetter.address, expirationTimestamp);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+          .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
       )
         .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.whitelistExpirationSetter.address, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.whitelistExpirationSetter.address, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
     });
@@ -266,25 +249,19 @@ describe('setWhitelistExpiration', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.manager)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+          .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp)
       )
         .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, expirationTimestamp);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, expirationTimestamp);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       await expect(
-        rrpBeaconServer.connect(roles.manager).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+        rrpBeaconServer.connect(roles.manager).setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
       )
         .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
     });
@@ -294,15 +271,15 @@ describe('setWhitelistExpiration', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationExtender)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+          .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
       ).to.be.revertedWith('Not expiration setter');
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+          .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
       ).to.be.revertedWith('Not expiration setter');
       await expect(
-        rrpBeaconServer.connect(roles.randomPerson).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+        rrpBeaconServer.connect(roles.randomPerson).setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
       ).to.be.revertedWith('Not expiration setter');
     });
   });
@@ -316,20 +293,17 @@ describe('setIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.indefiniteWhitelister.address, true, 1);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address, true, 1);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.indefiniteWhitelister.address
         )
@@ -338,20 +312,17 @@ describe('setIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.indefiniteWhitelister.address, true, 1);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address, true, 1);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.indefiniteWhitelister.address
         )
@@ -360,20 +331,17 @@ describe('setIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.indefiniteWhitelister.address, false, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address, false, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.indefiniteWhitelister.address
         )
@@ -382,20 +350,17 @@ describe('setIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.indefiniteWhitelister.address, false, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address, false, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.indefiniteWhitelister.address
         )
@@ -408,88 +373,68 @@ describe('setIndefiniteWhitelistStatus', function () {
       let whitelistStatus;
       // Whitelist indefinitely
       await expect(
-        rrpBeaconServer
-          .connect(roles.manager)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+        rrpBeaconServer.connect(roles.manager).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, true, 1);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, true, 1);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.manager.address
         )
       ).to.equal(true);
       // Whitelisting indefinitely again should have no effect
       await expect(
-        rrpBeaconServer
-          .connect(roles.manager)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+        rrpBeaconServer.connect(roles.manager).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, true, 1);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, true, 1);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.manager.address
         )
       ).to.equal(true);
       // Revoke indefinite whitelisting
       await expect(
-        rrpBeaconServer
-          .connect(roles.manager)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false)
+        rrpBeaconServer.connect(roles.manager).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, false, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, false, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.manager.address
         )
       ).to.equal(false);
       // Revoking indefinite whitelisting again should have no effect
       await expect(
-        rrpBeaconServer
-          .connect(roles.manager)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false)
+        rrpBeaconServer.connect(roles.manager).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false)
       )
         .to.emit(rrpBeaconServer, 'SetIndefiniteWhitelistStatus')
-        .withArgs(templateId, roles.beaconReader.address, roles.manager.address, false, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-        templateId,
-        roles.beaconReader.address
-      );
+        .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, false, 0);
+      whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(beaconId, roles.beaconReader.address);
       expect(whitelistStatus.expirationTimestamp).to.equal(0);
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       expect(
-        await rrpBeaconServer.templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-          templateId,
+        await rrpBeaconServer.beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+          beaconId,
           roles.beaconReader.address,
           roles.manager.address
         )
@@ -501,17 +446,17 @@ describe('setIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationExtender)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       ).to.be.revertedWith('Not indefinite whitelister');
       await expect(
         rrpBeaconServer
           .connect(roles.whitelistExpirationSetter)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       ).to.be.revertedWith('Not indefinite whitelister');
       await expect(
         rrpBeaconServer
           .connect(roles.randomPerson)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
       ).to.be.revertedWith('Not indefinite whitelister');
     });
   });
@@ -524,7 +469,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
         // Grant indefinite whitelist status
         await rrpBeaconServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
         // Revoke the indefinite whitelister role
         await accessControlRegistry
           .connect(roles.manager)
@@ -533,22 +478,18 @@ describe('revokeIndefiniteWhitelistStatus', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
-            .revokeIndefiniteWhitelistStatus(
-              templateId,
-              roles.beaconReader.address,
-              roles.indefiniteWhitelister.address
-            )
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
         )
           .to.emit(rrpBeaconServer, 'RevokedIndefiniteWhitelistStatus')
           .withArgs(
-            templateId,
+            beaconId,
             roles.beaconReader.address,
             roles.indefiniteWhitelister.address,
             roles.randomPerson.address,
             0
           );
-        const whitelistStatus = await rrpBeaconServer.templateIdToReaderToWhitelistStatus(
-          templateId,
+        const whitelistStatus = await rrpBeaconServer.beaconIdToReaderToWhitelistStatus(
+          beaconId,
           roles.beaconReader.address
         );
         expect(whitelistStatus.expirationTimestamp).to.equal(0);
@@ -557,11 +498,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
-            .revokeIndefiniteWhitelistStatus(
-              templateId,
-              roles.beaconReader.address,
-              roles.indefiniteWhitelister.address
-            )
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
         ).to.not.emit(rrpBeaconServer, 'RevokedIndefiniteWhitelistStatus');
       });
     });
@@ -573,7 +510,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
-            .revokeIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, roles.manager.address)
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.manager.address)
         ).to.be.revertedWith('setter is indefinite whitelister');
       });
     });
@@ -583,7 +520,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.randomPerson)
-          .revokeIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
+          .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
       ).to.be.revertedWith('setter is indefinite whitelister');
     });
   });
@@ -659,10 +596,10 @@ describe('requestBeaconUpdate', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
         )
           .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
-          .withArgs(templateId, roles.sponsor.address, roles.updateRequester.address, requestId, sponsorWalletAddress);
+          .withArgs(beaconId, roles.sponsor.address, roles.updateRequester.address, requestId, sponsorWalletAddress);
       });
     });
     context('RRP beacon server not sponsored', function () {
@@ -672,7 +609,7 @@ describe('requestBeaconUpdate', function () {
         await expect(
           rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
         ).to.be.revertedWith('Requester not sponsored');
       });
     });
@@ -683,7 +620,7 @@ describe('requestBeaconUpdate', function () {
       await expect(
         rrpBeaconServer
           .connect(roles.updateRequester)
-          .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+          .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress)
       ).to.be.revertedWith('Caller not permitted');
     });
   });
@@ -697,9 +634,9 @@ describe('readBeacon', function () {
       // Whitelist the beacon reader
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
       // Confirm that the beacon is empty
-      const initialBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      const initialBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId);
       expect(initialBeacon.value).to.be.equal(0);
       expect(initialBeacon.timestamp).to.be.equal(0);
       // Compute the expected request ID
@@ -723,7 +660,7 @@ describe('readBeacon', function () {
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
       // Fulfill with 0 status code
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -747,7 +684,7 @@ describe('readBeacon', function () {
           { gasLimit: 500000 }
         );
       // Read the beacon again
-      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId);
       expect(currentBeacon.value).to.be.equal(encodedData);
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
@@ -757,7 +694,7 @@ describe('readBeacon', function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
       await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
       // Confirm that the beacon is empty
-      const initialBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(templateId);
+      const initialBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(beaconId);
       expect(initialBeacon.value).to.be.equal(0);
       expect(initialBeacon.timestamp).to.be.equal(0);
       // Compute the expected request ID
@@ -781,7 +718,7 @@ describe('readBeacon', function () {
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
       // Fulfill with 0 status code
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -805,14 +742,14 @@ describe('readBeacon', function () {
           { gasLimit: 500000 }
         );
       // Read the beacon again
-      const currentBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(templateId);
+      const currentBeacon = await rrpBeaconServer.connect(voidSignerAddressZero).readBeacon(beaconId);
       expect(currentBeacon.value).to.be.equal(encodedData);
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
   });
   context('Caller not whitelisted', function () {
     it('reverts', async function () {
-      await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId)).to.be.revertedWith(
+      await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId)).to.be.revertedWith(
         'Caller not whitelisted'
       );
     });
@@ -822,34 +759,34 @@ describe('readBeacon', function () {
 describe('readerCanReadBeacon', function () {
   context('User whitelisted', function () {
     it('returns true', async function () {
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
-        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
-        .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
     });
   });
   context('User zero address', function () {
     it('returns true', async function () {
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, hre.ethers.constants.AddressZero)).to.equal(true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, hre.ethers.constants.AddressZero)).to.equal(true);
     });
   });
   context('User not whitelisted', function () {
     it('returns false', async function () {
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.randomPerson.address)).to.equal(false);
     });
   });
 });
@@ -901,7 +838,7 @@ describe('fulfill', function () {
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
@@ -929,7 +866,7 @@ describe('fulfill', function () {
                   )
               )
                 .to.emit(rrpBeaconServer, 'UpdatedBeacon')
-                .withArgs(templateId, requestId, encodedData, encodedTimestamp);
+                .withArgs(beaconId, requestId, encodedData, encodedTimestamp);
             });
           });
           context('Data older than 1 hour', function () {
@@ -970,7 +907,7 @@ describe('fulfill', function () {
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedTimestamp = now - 4000;
@@ -1050,7 +987,7 @@ describe('fulfill', function () {
               // Request the beacon update
               await rrpBeaconServer
                 .connect(roles.updateRequester)
-                .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+                .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
               const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
               const encodedData = 123;
@@ -1130,7 +1067,7 @@ describe('fulfill', function () {
             // Request the first beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
             // Prepare the first response
             const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
             let encodedData = 123;
@@ -1180,7 +1117,7 @@ describe('fulfill', function () {
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
             // Prepare the second response
             encodedData = 123;
             encodedTimestamp = now + 1;
@@ -1276,7 +1213,7 @@ describe('fulfill', function () {
             // Request the beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
             // Fulfill with non-typecastable data
             // Data should not be too large
             const encodedData = hre.ethers.BigNumber.from(2).pow(223);
@@ -1354,7 +1291,7 @@ describe('fulfill', function () {
             // Request the beacon update
             await rrpBeaconServer
               .connect(roles.updateRequester)
-              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+              .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
             // Fulfill with non-typecastable data
             // Data should not be too small
             const encodedData = hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1);
@@ -1433,7 +1370,7 @@ describe('fulfill', function () {
           // Request the beacon update
           await rrpBeaconServer
             .connect(roles.updateRequester)
-            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+            .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
           // Year should not be 2106+
           const encodedData = 123;
           const encodedTimestamp = 2 ** 32;
@@ -1561,9 +1498,9 @@ describe('readBeacon', function () {
       // Whitelist the beacon reader
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
       // Confirm that the beacon is empty
-      const initialBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      const initialBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId);
       expect(initialBeacon.value).to.be.equal(0);
       expect(initialBeacon.timestamp).to.be.equal(0);
       // Compute the expected request ID
@@ -1587,7 +1524,7 @@ describe('readBeacon', function () {
       // Request the beacon update
       await rrpBeaconServer
         .connect(roles.updateRequester)
-        .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+        .requestBeaconUpdate(beaconId, roles.sponsor.address, sponsorWalletAddress);
       // Fulfill
       const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
       await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -1611,14 +1548,14 @@ describe('readBeacon', function () {
           { gasLimit: 500000 }
         );
       // Read the beacon again
-      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId);
+      const currentBeacon = await rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId);
       expect(currentBeacon.value).to.be.equal(encodedData);
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
   });
   context('Caller not whitelisted', function () {
     it('reverts', async function () {
-      await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(templateId)).to.be.revertedWith(
+      await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId)).to.be.revertedWith(
         'Caller not whitelisted'
       );
     });
@@ -1628,29 +1565,29 @@ describe('readBeacon', function () {
 describe('readerCanReadBeacon', function () {
   context('User whitelisted', function () {
     it('returns true', async function () {
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
       const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
-        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
-        .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+        .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(true);
       await rrpBeaconServer
         .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, false);
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+        .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
     });
   });
   context('User not whitelisted', function () {
     it('returns false', async function () {
-      expect(await rrpBeaconServer.readerCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
+      expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.randomPerson.address)).to.equal(false);
     });
   });
 });
