@@ -37,7 +37,7 @@ describe('validators integration test', () => {
                 }
               ]
             }
-          }   
+          }
       },
       "components": {
           "securitySchemes": {

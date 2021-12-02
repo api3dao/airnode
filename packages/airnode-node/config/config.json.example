@@ -8,7 +8,7 @@
       "id": "31337",
       "providers": {
         "local": {
-          "url": "${LOCAL_PROVIDER_URL}"
+          "url": "${PROVIDER_URL}"
         }
       },
       "type": "evm"
@@ -45,9 +45,6 @@
       "version": "1.2.3",
       "title": "Currency Converter API",
       "apiSpecifications": {
-        "info": {
-          "title": "Currency Converter API"
-        },
         "servers": [
           {
             "url": "http://localhost:5000"
