@@ -21,7 +21,7 @@ const getOpenWeatherApiKey = async (generateExampleFile: boolean) => {
 
 const createSecrets = async (generateExampleFile = false) => {
   const secrets = await getCommonSecrets(generateExampleFile);
-  secrets.push(`OPENWEATHER_API_KEY=${getOpenWeatherApiKey(generateExampleFile)}`);
+  secrets.push(`OPENWEATHER_API_KEY=${await getOpenWeatherApiKey(generateExampleFile)}`);
 
   writeSecrets(__dirname, secrets, generateExampleFile);
 };

@@ -90,7 +90,8 @@ yarn deploy-rrp
 
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
 [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
-these or how to create an AWS account, follow [this video](https://www.youtube.com/watch?v=KngM5bfpttA).
+these or how to create an AWS account, see
+[the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#aws).
 
 After you know the secrets, run the following script to specify them:
 
@@ -100,7 +101,11 @@ yarn create-aws-secrets
 
 ### 6. (Only if deploying to GCP) Create GCP credentials
 
-TODO: Link to docs
+If you intend to deploy Airnode on GCP, you will need to sign in using the GCP CLI tool. If you are not sure how to do
+this or how to create a GCP account, see
+[the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
+
+No credentials file is required - signing through the GCP CLI is all there is needed.
 
 ### 7. Create Airnode configuration
 
@@ -143,7 +148,7 @@ by running:
 yarn rebuild-artifacts-container
 ```
 
-### 10. (Only if deploying to AWS) Build deployer container
+### 10. (Only if deploying to a cloud provider) Build deployer container
 
 ```sh
 yarn rebuild-deployer-container
@@ -151,9 +156,9 @@ yarn rebuild-deployer-container
 
 This command will facilitate the previously built artifacts container to build the deployer.
 
-### 11. (Only if deploying to AWS) Deploy Airnode
+### 11. (Only if deploying to a cloud provider) Deploy Airnode
 
-Now you're ready to deploy Airnode on AWS. Just run:
+Now you're ready to deploy Airnode on the cloud provider. Just run:
 
 ```sh
 yarn deploy-airnode
@@ -182,9 +187,9 @@ triggers every minute - this means that Airnode logs won't start appearing immed
 
 ### 14. Deploy a requester
 
-At this point, you have a RRP contract deployed. You also either have a docker running locally or deployed on AWS.
-Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is making a
-request to it.
+At this point, you have a RRP contract deployed. You also either have a docker running locally or deployed on a cloud
+provider. Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is
+making a request to it.
 
 The first step is to deploy a requester contract. Run:
 
@@ -230,15 +235,15 @@ yarn make-request
 When there is an blockchain event received by Airnode, it will immediately perform the API call and submit the response
 back on chain. This command will wait for all of this to happen and you should see the final output in the CLI.
 
-### 18. (Only if deploying to AWS) Remove Airnode from AWS
+### 18. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
 
-If you want to tear down the Airnode from AWS run:
+If you want to tear down the Airnode from the cloud provider run:
 
 ```sh
 yarn remove-airnode
 ```
 
-This will use the deployer to remove the Airnode lambdas from AWS.
+This will use the deployer to remove the Airnode lambdas from the cloud provider.
 
 ## For developers
 

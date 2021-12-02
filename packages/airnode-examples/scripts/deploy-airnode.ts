@@ -4,7 +4,7 @@ import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } fr
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType === 'local') {
-    cliPrint.error('You only need to run this script if you deploy on AWS');
+    cliPrint.error('You only need to run this script if you deploy on a cloud provider');
     return;
   }
 
