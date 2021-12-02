@@ -45,15 +45,17 @@ async function runCommand(command: string, options: CommandOptions) {
     return stdout;
   } catch (err) {
     if (options.ignoreError) {
-      spinner.info();
+      if (logger.inDebugMode()) {
+        spinner.info();
+        logger.warn(`Warning: ${(err as Error).message}`);
+      }
       commandSpinner.warn(`Command '${command}' with options ${stringifiedOptions} failed`);
-      logger.warn((err as Error).toString());
       return '';
     }
 
     spinner.info();
-    commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
     logger.fail((err as Error).toString());
+    commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
     throw new Error(`Command failed: ${(err as any).cmd}`);
   }
 }
