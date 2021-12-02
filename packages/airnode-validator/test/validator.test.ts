@@ -72,11 +72,7 @@ describe('fixture tests', () => {
     for (const integration of integrations) {
       it(`${integration}`, () =>
         expect(
-          validateJsonWithTemplate(
-            JSON.parse(fs.readFileSync(path.resolve(integrationsPath, integration, 'config.json'), 'utf-8')),
-            'config',
-            secretsEnv
-          )
+          validateWithTemplate(path.resolve(integrationsPath, integration, 'config.json'), 'config', path.resolve(integrationsPath, integration, 'secrets.example.env'))
         ).toEqual(validOutput));
     }
   });
