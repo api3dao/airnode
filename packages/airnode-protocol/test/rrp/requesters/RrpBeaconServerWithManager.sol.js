@@ -602,7 +602,15 @@ describe('requestBeaconUpdate', function () {
             .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
         )
           .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
-          .withArgs(beaconId, roles.sponsor.address, roles.updateRequester.address, requestId, sponsorWalletAddress);
+          .withArgs(
+            beaconId,
+            roles.sponsor.address,
+            roles.updateRequester.address,
+            requestId,
+            templateId,
+            sponsorWalletAddress,
+            beaconParameters
+          );
       });
     });
     context('RRP beacon server not sponsored', function () {

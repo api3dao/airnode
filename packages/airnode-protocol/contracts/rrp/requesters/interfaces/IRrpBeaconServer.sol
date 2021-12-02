@@ -43,7 +43,9 @@ interface IRrpBeaconServer {
         address indexed sponsor,
         address indexed requester,
         bytes32 requestId,
-        address sponsorWallet
+        bytes32 templateId,
+        address sponsorWallet,
+        bytes parameters
     );
 
     event UpdatedBeacon(

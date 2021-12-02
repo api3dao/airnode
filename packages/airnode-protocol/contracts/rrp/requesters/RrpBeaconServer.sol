@@ -224,7 +224,9 @@ contract RrpBeaconServer is
             sponsor,
             msg.sender,
             requestId,
-            sponsorWallet
+            templateId,
+            sponsorWallet,
+            parameters
         );
     }
 
