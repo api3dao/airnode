@@ -44,7 +44,7 @@ export const getChainId = async (generateExampleFile: boolean) =>
   (generateExampleFile ? 31337 : await readChainId()).toString();
 
 export const createNodeVersion = () => {
-  return '0.2.2';
+  return '0.3.0';
 };
 
 export const generateConfigFile = (dirname: string, config: Config, generateExampleFile: boolean) => {

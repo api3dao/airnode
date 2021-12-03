@@ -26,3 +26,42 @@ describe('validator tests', () => {
     });
   }
 });
+
+describe('fixture tests', () => {
+  it('node (airnode-node/config/config.json.example)', () =>
+    expect(
+      validateWithTemplate(
+        path.resolve(__dirname, '../../airnode-node/config/config.json.example'),
+        'config',
+        path.resolve(__dirname, '../../airnode-node/config/secrets.env.example')
+      )
+    ).toEqual(validOutput));
+
+  it('deployer (airnode-deployer/config/config.json.example)', () =>
+    expect(
+      validateWithTemplate(
+        path.resolve(__dirname, '../../airnode-deployer/config/config.json.example'),
+        'config',
+        path.resolve(__dirname, '../../airnode-deployer/config/secrets.env.example')
+      )
+    ).toEqual(validOutput));
+
+  describe('airnode examples', () => {
+    const integrationsPath = path.resolve(__dirname, '../../airnode-examples/integrations');
+    const integrations = fs
+      .readdirSync(integrationsPath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+
+    for (const integration of integrations) {
+      it(`${integration}`, () =>
+        expect(
+          validateWithTemplate(
+            path.resolve(integrationsPath, integration, 'config.example.json'),
+            'config',
+            path.resolve(integrationsPath, integration, 'secrets.example.env')
+          )
+        ).toEqual(validOutput));
+    }
+  });
+});
