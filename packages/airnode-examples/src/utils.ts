@@ -1,15 +1,17 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
+import prompts, { PromptObject } from 'prompts';
 
 export interface IntegrationInfo {
   integration: string;
-  airnodeType: 'aws' | 'local';
+  airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
   network: 'rinkeby' | 'localhost';
   mnemonic: string;
   providerUrl: string;
+  gcpProjectId?: string;
 }
 
 /**
@@ -55,3 +57,11 @@ export const formatSecrets = (secrets: string[]) => secrets.join('\n') + '\n';
  * @returns The "filename" with the last extension removed
  */
 export const removeExtension = (filename: string) => filename.split('.')[0];
+
+export const promptQuestions = (questions: PromptObject[]) =>
+  prompts(questions, {
+    // https://github.com/terkelg/prompts/issues/27#issuecomment-527693302
+    onCancel: () => {
+      throw new Error('Aborted by the user');
+    },
+  });

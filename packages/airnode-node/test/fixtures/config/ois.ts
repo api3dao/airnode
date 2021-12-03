@@ -1,4 +1,4 @@
-import { OIS, ReservedParameterName } from '@api3/airnode-ois';
+import { OIS } from '@api3/airnode-ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
@@ -65,10 +65,10 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
           },
         ],
         reservedParameters: [
-          { name: ReservedParameterName.Type },
-          { name: ReservedParameterName.Path },
+          { name: '_type' },
+          { name: '_path' },
           {
-            name: ReservedParameterName.Times,
+            name: '_times',
             default: '100000',
           },
         ],
