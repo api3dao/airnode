@@ -8,7 +8,7 @@
       "id": "4",
       "providers": {
         "rinkeby": {
-          "url": "${RINKEBY_PROVIDER_URL}"
+          "url": "${PROVIDER_URL}"
         }
       },
       "type": "evm"
