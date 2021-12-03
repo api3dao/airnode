@@ -17,6 +17,7 @@ import * as logger from '../utils/logger';
 export async function deploy(configFile: string, secretsFile: string, receiptFile: string, nodeVersion: string) {
   const secrets = parseSecretsFile(secretsFile);
   const config = nodeConfig.parseConfig(configFile, secrets);
+  console.log(nodeVersion);
   validateConfig(config, nodeVersion);
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
@@ -51,7 +52,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
       config.nodeSettings.cloudProvider as CloudProvider,
       httpGatewayApiKey,
       configFile,
-      tmpSecretsFile
+      tmpSecretsFile,
     );
   } catch (err) {
     logger.warn(`Failed deploying configuration, skipping`);

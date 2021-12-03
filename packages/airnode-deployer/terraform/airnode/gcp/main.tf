@@ -4,7 +4,8 @@ module "initializeProvider" {
   name               = "${local.name_prefix}-initializeProvider"
   entry_point        = "initializeProvider"
   source_dir         = var.handler_dir
-  timeout            = 20
+  memory_size        = 1024
+  timeout            = 17
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
@@ -16,7 +17,8 @@ module "callApi" {
   name               = "${local.name_prefix}-callApi"
   entry_point        = "callApi"
   source_dir         = var.handler_dir
-  timeout            = 30
+  memory_size        = 256
+  timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
@@ -28,7 +30,8 @@ module "processProviderRequests" {
   name               = "${local.name_prefix}-processProviderRequests"
   entry_point        = "processProviderRequests"
   source_dir         = var.handler_dir
-  timeout            = 10
+  memory_size        = 1024
+  timeout            = 32
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
@@ -40,7 +43,8 @@ module "startCoordinator" {
   name               = "${local.name_prefix}-startCoordinator"
   entry_point        = "startCoordinator"
   source_dir         = var.handler_dir
-  timeout            = 60
+  memory_size        = 256
+  timeout            = 65
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
