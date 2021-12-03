@@ -37,6 +37,7 @@ export enum RequestErrorMessage {
   ReservedParametersInvalid = 'Reserved parameters are invalid',
   ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
+  SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
 export enum RequestStatus {

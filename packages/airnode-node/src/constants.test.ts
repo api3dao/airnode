@@ -6,7 +6,7 @@ describe('constants', () => {
 
     // Ensure all constant values are checked
     expect.assertions(constCount + 1);
-    expect(Object.keys(constants).length).toEqual(14);
+    expect(Object.keys(constants).length).toEqual(15);
 
     expect(constants.API_CALL_TIMEOUT).toEqual(10_000);
     expect(constants.API_CALL_TOTAL_TIMEOUT).toEqual(10_000);
@@ -22,5 +22,6 @@ describe('constants', () => {
     expect(constants.WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT).toEqual(32_000);
     expect(constants.PRIORITY_FEE).toEqual('3120000000');
     expect(constants.BASE_FEE_MULTIPLIER).toEqual(2);
+    expect(constants.MAXIMUM_SPONSOR_WALLET_REQUESTS).toBe(5);
   });
 });
