@@ -51,6 +51,7 @@
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
+    "plug:dev": "(cd packages/airnode-plug && yarn run dev)",
     "postinstall": "husky install && lerna link",
     "prettier:check": "prettier --check \"./**/*.{js,sol,ts,md,yml,json}\"",
     "prettier:write": "prettier --write \"./**/*.{js,sol,ts,md,yml,json}\" --loglevel silent",
