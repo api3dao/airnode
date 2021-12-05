@@ -7,11 +7,12 @@ import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
-/// @notice A beacon is a live data point associated with a template ID. This
-/// is suitable where the more recent data point is always more favorable,
-/// e.g., in the context of an asset price data feed. Another definition of
-/// beacons are one-Airnode data feeds that can be used individually or
-/// combined to build decentralized data feeds.
+/// @notice A beacon is a live data point associated with a beacon ID, which is
+/// derived from a template ID and additional parameters. This is suitable
+/// where the more recent data point is always more favorable, e.g., in the
+/// context of an asset price data feed. Another definition of beacons are
+/// one-Airnode data feeds that can be used individually or combined to build
+/// decentralized data feeds.
 /// @dev This contract casts the reported data point to `int224`. If this is
 /// a problem (because the reported data may not fit into 224 bits or it is of
 /// a completely different type such as `bytes32`), do not use this contract
@@ -36,16 +37,8 @@ contract RrpBeaconServer is
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    mapping(bytes32 => Beacon) private templateIdToBeacon;
-    mapping(bytes32 => bytes32) private requestIdToTemplateId;
-
-    /// @dev Reverts if the template with the ID is not created
-    /// @param templateId Template ID
-    modifier onlyIfTemplateExists(bytes32 templateId) {
-        (address airnode, , ) = airnodeRrp.templates(templateId);
-        require(airnode != address(0), "Template does not exist");
-        _;
-    }
+    mapping(bytes32 => Beacon) private beacons;
+    mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
@@ -66,14 +59,14 @@ contract RrpBeaconServer is
     {}
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
-    /// to be able to read the beacon with `templateId` if the sender has the
+    /// to be able to read the beacon with `beaconId` if the sender has the
     /// whitelist expiration extender role
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
     function extendWhitelistExpiration(
-        bytes32 templateId,
+        bytes32 beaconId,
         address reader,
         uint64 expirationTimestamp
     ) external override {
@@ -81,9 +74,9 @@ contract RrpBeaconServer is
             hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
             "Not expiration extender"
         );
-        _extendWhitelistExpiration(templateId, reader, expirationTimestamp);
+        _extendWhitelistExpiration(beaconId, reader, expirationTimestamp);
         emit ExtendedWhitelistExpiration(
-            templateId,
+            beaconId,
             reader,
             msg.sender,
             expirationTimestamp
@@ -91,14 +84,14 @@ contract RrpBeaconServer is
     }
 
     /// @notice Sets the expiration of the temporary whitelist of `reader` to
-    /// be able to read the beacon with `templateId` if the sender has the
+    /// be able to read the beacon with `beaconId` if the sender has the
     /// whitelist expiration setter role
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
     function setWhitelistExpiration(
-        bytes32 templateId,
+        bytes32 beaconId,
         address reader,
         uint64 expirationTimestamp
     ) external override {
@@ -106,9 +99,9 @@ contract RrpBeaconServer is
             hasWhitelistExpirationSetterRoleOrIsManager(msg.sender),
             "Not expiration setter"
         );
-        _setWhitelistExpiration(templateId, reader, expirationTimestamp);
+        _setWhitelistExpiration(beaconId, reader, expirationTimestamp);
         emit SetWhitelistExpiration(
-            templateId,
+            beaconId,
             reader,
             msg.sender,
             expirationTimestamp
@@ -116,13 +109,13 @@ contract RrpBeaconServer is
     }
 
     /// @notice Sets the indefinite whitelist status of `reader` to be able to
-    /// read the beacon with `templateId` if the sender has the indefinite
+    /// read the beacon with `beaconId` if the sender has the indefinite
     /// whitelister role
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @param status Indefinite whitelist status
     function setIndefiniteWhitelistStatus(
-        bytes32 templateId,
+        bytes32 beaconId,
         address reader,
         bool status
     ) external override {
@@ -131,12 +124,12 @@ contract RrpBeaconServer is
             "Not indefinite whitelister"
         );
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
-            templateId,
+            beaconId,
             reader,
             status
         );
         emit SetIndefiniteWhitelistStatus(
-            templateId,
+            beaconId,
             reader,
             msg.sender,
             status,
@@ -146,11 +139,11 @@ contract RrpBeaconServer is
 
     /// @notice Revokes the indefinite whitelist status granted by a specific
     /// account that no longer has the indefinite whitelister role
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @param setter Setter of the indefinite whitelist status
     function revokeIndefiniteWhitelistStatus(
-        bytes32 templateId,
+        bytes32 beaconId,
         address reader,
         address setter
     ) external override {
@@ -161,10 +154,10 @@ contract RrpBeaconServer is
         (
             bool revoked,
             uint192 indefiniteWhitelistCount
-        ) = _revokeIndefiniteWhitelistStatus(templateId, reader, setter);
+        ) = _revokeIndefiniteWhitelistStatus(beaconId, reader, setter);
         if (revoked) {
             emit RevokedIndefiniteWhitelistStatus(
-                templateId,
+                beaconId,
                 reader,
                 setter,
                 msg.sender,
@@ -194,9 +187,9 @@ contract RrpBeaconServer is
     /// this RrpBeaconServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
     /// request update permission to the caller of this method.
-    /// The template used here must specify a single point of data of type
-    /// `int256` and an additional timestamp of type `uint256` to be returned
-    /// because this is what `fulfill()` expects.
+    /// The template and additional parameters used here must specify a single
+    /// point of data of type `int256` and an additional timestamp of type
+    /// `uint256` to be returned because this is what `fulfill()` expects.
     /// This point of data must be castable to `int224` and the timestamp must
     /// be castable to `uint32`.
     /// @param templateId Template ID of the beacon to be updated
@@ -204,30 +197,36 @@ contract RrpBeaconServer is
     /// request
     /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
     /// request
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
     function requestBeaconUpdate(
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet
+        address sponsorWallet,
+        bytes calldata parameters
     ) external override {
         require(
             sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Caller not permitted"
         );
+        bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
             templateId,
             sponsor,
             sponsorWallet,
             address(this),
             this.fulfill.selector,
-            ""
+            parameters
         );
-        requestIdToTemplateId[requestId] = templateId;
+        requestIdToBeaconId[requestId] = beaconId;
         emit RequestedBeaconUpdate(
-            templateId,
+            beaconId,
             sponsor,
             msg.sender,
             requestId,
-            sponsorWallet
+            templateId,
+            sponsorWallet,
+            parameters
         );
     }
 
@@ -243,9 +242,9 @@ contract RrpBeaconServer is
         override
         onlyAirnodeRrp
     {
-        bytes32 templateId = requestIdToTemplateId[requestId];
-        require(templateId != bytes32(0), "No such request made");
-        delete requestIdToTemplateId[requestId];
+        bytes32 beaconId = requestIdToBeaconId[requestId];
+        require(beaconId != bytes32(0), "No such request made");
+        delete requestIdToBeaconId[requestId];
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
             (int256, uint256)
@@ -259,7 +258,7 @@ contract RrpBeaconServer is
             "Timestamp typecasting error"
         );
         require(
-            decodedTimestamp > templateIdToBeacon[templateId].timestamp,
+            decodedTimestamp > beacons[beaconId].timestamp,
             "Fulfillment older than beacon"
         );
         require(
@@ -270,12 +269,12 @@ contract RrpBeaconServer is
             decodedTimestamp - 1 hours < block.timestamp,
             "Fulfillment from future"
         );
-        templateIdToBeacon[templateId] = Beacon({
+        beacons[beaconId] = Beacon({
             value: int224(decodedData),
             timestamp: uint32(decodedTimestamp)
         });
         emit UpdatedBeacon(
-            templateId,
+            beaconId,
             requestId,
             int224(decodedData),
             uint32(decodedTimestamp)
@@ -288,58 +287,53 @@ contract RrpBeaconServer is
     /// written to before, and the zero value in the `value` field is not
     /// valid. In general, make sure to check if the timestamp of the beacon is
     /// fresh enough, and definitely disregard beacons with zero `timestamp`.
-    /// @param templateId Template ID of the beacon that will be returned
+    /// @param beaconId ID of the beacon that will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
-    function readBeacon(bytes32 templateId)
+    function readBeacon(bytes32 beaconId)
         external
         view
         override
         returns (int224 value, uint32 timestamp)
     {
         require(
-            readerCanReadBeacon(templateId, msg.sender),
+            readerCanReadBeacon(beaconId, msg.sender),
             "Caller not whitelisted"
         );
-        Beacon storage beacon = templateIdToBeacon[templateId];
+        Beacon storage beacon = beacons[beaconId];
         return (beacon.value, beacon.timestamp);
     }
 
     /// @notice Called to check if a reader is whitelisted to read the beacon
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @return isWhitelisted If the reader is whitelisted
-    function readerCanReadBeacon(bytes32 templateId, address reader)
+    function readerCanReadBeacon(bytes32 beaconId, address reader)
         public
         view
         override
-        onlyIfTemplateExists(templateId)
         returns (bool)
     {
-        return userIsWhitelisted(templateId, reader) || reader == address(0);
+        return userIsWhitelisted(beaconId, reader) || reader == address(0);
     }
 
     /// @notice Called to get the detailed whitelist status of the reader for
     /// the beacon
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
     /// reader will expire
     /// @return indefiniteWhitelistCount Number of times `reader` was
     /// whitelisted indefinitely for `templateId`
-    function templateIdToReaderToWhitelistStatus(
-        bytes32 templateId,
-        address reader
-    )
+    function beaconIdToReaderToWhitelistStatus(bytes32 beaconId, address reader)
         external
         view
         override
-        onlyIfTemplateExists(templateId)
         returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount)
     {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
-                templateId
+                beaconId
             ][reader];
         expirationTimestamp = whitelistStatus.expirationTimestamp;
         indefiniteWhitelistCount = whitelistStatus.indefiniteWhitelistCount;
@@ -347,19 +341,34 @@ contract RrpBeaconServer is
 
     /// @notice Returns if an account has indefinitely whitelisted the reader
     /// for the beacon
-    /// @param templateId Template ID
+    /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @param setter Address of the account that has potentially whitelisted
     /// the reader for the beacon indefinitely
     /// @return indefiniteWhitelistStatus If `setter` has indefinitely
     /// whitelisted reader for the beacon
-    function templateIdToReaderToSetterToIndefiniteWhitelistStatus(
-        bytes32 templateId,
+    function beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
+        bytes32 beaconId,
         address reader,
         address setter
     ) external view override returns (bool indefiniteWhitelistStatus) {
         indefiniteWhitelistStatus = serviceIdToUserToSetterToIndefiniteWhitelistStatus[
-            templateId
+            beaconId
         ][reader][setter];
+    }
+
+    /// @notice Derives the beacon ID from the respective template ID and
+    /// additional parameters
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @return beaconId Beacon ID
+    function deriveBeaconId(bytes32 templateId, bytes calldata parameters)
+        public
+        pure
+        override
+        returns (bytes32 beaconId)
+    {
+        beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 }
