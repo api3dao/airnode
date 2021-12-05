@@ -163,10 +163,22 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
-  it('processes requests for each EVM providers', async () => {
-    const gasPrice = ethers.BigNumber.from(1000);
+  test.each([
+    {
+      getBlock: { baseFeePerGas: undefined },
+      getGasPrice: ethers.BigNumber.from(1000),
+    },
+    {
+      getBlock: { baseFeePerGas: ethers.BigNumber.from(1000) },
+      getGasPrice: ethers.BigNumber.from(1000),
+    },
+  ])('processes requests for each EVM provider - $#', async ({ getBlock: getBlock, getGasPrice }) => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-    gasPriceSpy.mockResolvedValue(gasPrice);
+    gasPriceSpy.mockResolvedValue(getGasPrice);
+
+    const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
+    // @ts-ignore
+    blockSpy.mockResolvedValue(getBlock);
 
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     staticFulfillMock.mockResolvedValue({ callSuccess: true });

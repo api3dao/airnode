@@ -51,7 +51,7 @@ describe('submit', () => {
         }),
       ],
     };
-    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 
@@ -101,7 +101,7 @@ describe('submit', () => {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 
@@ -123,7 +123,7 @@ describe('submit', () => {
       apiCalls: [],
       withdrawals: [withdrawal],
     };
-    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 

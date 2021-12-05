@@ -41,8 +41,18 @@ export async function processTransactions(
     return state2;
   }
 
-  const gweiPrice = utils.weiToGwei(gasPrice);
-  logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
+  if (gasPrice.maxFeePerGas && gasPrice.maxPriorityFeePerGas) {
+    const gweiMaxFee = utils.weiToGwei(gasPrice.maxFeePerGas);
+    const gweiPriorityFee = utils.weiToGwei(gasPrice.maxPriorityFeePerGas);
+    logger.info(
+      `Gas price (EIP-1559) set to a Max Fee of ${gweiMaxFee} Gwei and ` + ` Priority Fee of ${gweiPriorityFee} Gwei`,
+      baseLogOptions
+    );
+  } else {
+    const gweiPrice = utils.weiToGwei(gasPrice.gasPrice!);
+    logger.info(`Gas price (non EIP-1559) set to ${gweiPrice} Gwei`, baseLogOptions);
+  }
+
   const state3 = state.update(state2, { gasPrice });
 
   // =================================================================

@@ -78,7 +78,9 @@ export async function submitWithdrawal(
   // We set aside some ETH to pay for the gas of the following transaction,
   // send all the rest along with the transaction. The contract will direct
   // these funds back to the sponsor wallet.
-  const txCost = paddedGasLimit.mul(options.gasPrice);
+  const txCost = paddedGasLimit.mul(
+    options.gasPrice.gasPrice ? options.gasPrice.gasPrice : options.gasPrice.maxFeePerGas!
+  );
   const fundsToSend = currentBalance.sub(txCost);
 
   // We can't submit a withdrawal with a negative amount
@@ -97,7 +99,7 @@ export async function submitWithdrawal(
   const withdrawalTx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
       gasLimit: paddedGasLimit,
-      gasPrice: options.gasPrice!,
+      ...options.gasPrice,
       nonce: request.nonce!,
       value: fundsToSend,
     });

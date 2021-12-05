@@ -67,7 +67,7 @@ async function testFulfill(
       request.signature,
       {
         gasLimit: GAS_LIMIT,
-        gasPrice: options.gasPrice,
+        ...options.gasPrice,
         nonce: request.nonce!,
       }
     );
@@ -96,7 +96,7 @@ async function submitFulfill(
       request.signature,
       {
         gasLimit: GAS_LIMIT,
-        gasPrice: options.gasPrice,
+        ...options.gasPrice,
         nonce: request.nonce!,
       }
     );
@@ -186,7 +186,7 @@ async function submitFail(
       errorMessage,
       {
         gasLimit: GAS_LIMIT,
-        gasPrice: options.gasPrice,
+        ...options.gasPrice,
         nonce: request.nonce!,
       }
     );

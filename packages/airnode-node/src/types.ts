@@ -1,6 +1,6 @@
 import { OIS } from '@api3/airnode-ois';
 import { ApiCredentials as AdapterApiCredentials } from '@api3/airnode-adapter';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
@@ -164,16 +164,22 @@ export interface EVMContracts {
 
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
-  readonly gasPrice: ethers.BigNumber | null;
+  readonly gasPrice: GasTarget | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
-  readonly gasPrice: number | ethers.BigNumber;
+  readonly gasPrice: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
+}
+
+export interface GasTarget {
+  readonly maxPriorityFeePerGas?: BigNumber;
+  readonly maxFeePerGas?: BigNumber;
+  readonly gasPrice?: BigNumber;
 }
 
 // ===========================================
