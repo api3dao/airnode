@@ -2,26 +2,27 @@ import { ethers } from 'ethers';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE, WEI_PER_GWEI } from '../constants';
-import { GasTarget, LogsData } from '../types';
+import { GasTarget, LogsData, PendingLog } from '../types';
 
 interface FetchOptions {
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
-export async function getGasPrice(options: FetchOptions): Promise<LogsData<GasTarget | null>> {
+export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider } = options;
-  const logs = [];
-  {
+  const [logs, getBlockGas] = await (async (): Promise<[PendingLog[], GasTarget | undefined]> => {
     const operation = () => provider.getBlock('latest');
     const [err, blockHeader] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
     if (err || !blockHeader?.baseFeePerGas) {
       const log = logger.pend('INFO', 'Failed to get EIP-1559 gas pricing from provider - trying fallback', err);
-      logs.push(log);
+
+      return [[log], undefined];
     } else {
       const maxPriorityFeePerGas = ethers.utils
         .parseEther(PRIORITY_FEE)
         .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
       const maxFeePerGas = blockHeader.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas);
+
       return [
         [],
         {
@@ -30,6 +31,10 @@ export async function getGasPrice(options: FetchOptions): Promise<LogsData<GasTa
         } as GasTarget,
       ];
     }
+  })();
+
+  if (getBlockGas) {
+    return [logs, getBlockGas];
   }
 
   // Fallback to pre-EIP-1559
@@ -37,9 +42,8 @@ export async function getGasPrice(options: FetchOptions): Promise<LogsData<GasTa
   const [err, gasPrice] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !gasPrice) {
     const log = logger.pend('ERROR', 'Failed to get fallback gas price from provider', err);
-    logs.push(log);
-    return [logs, null];
+    return [[...logs, log], null];
   }
 
-  return [logs, { gasPrice }];
-}
+  return [[...logs], { gasPrice }];
+};
