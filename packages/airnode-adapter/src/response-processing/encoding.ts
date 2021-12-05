@@ -26,7 +26,7 @@ export function encodeValue(value: ValueType, type: ResponseType): string {
 }
 
 export function encodeMultipleValues(values: ValueType[], types: ResponseType[]): string {
-  const solidityTypes = types.map((type) => getSolidityType(type));
+  const solidityTypes = types.map(getSolidityType);
 
   return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
 }

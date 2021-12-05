@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['../../.eslintrc.fp.js', '../../.eslintrc.js'],
+  extends: ['../../.eslintrc.js'],
   overrides: [
     {
       env: {

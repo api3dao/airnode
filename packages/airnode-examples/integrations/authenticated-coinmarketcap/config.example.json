@@ -3,9 +3,9 @@
     {
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "${AIRNODE_RRP_ADDRESS}"
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
-      "id": "${CHAIN_ID}",
+      "id": "31337",
       "providers": {
         "exampleProvider": {
           "url": "${PROVIDER_URL}"
@@ -15,7 +15,9 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "${CLOUD_PROVIDER_TYPE}",
+    "cloudProvider": {
+      "type": "local"
+    },
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false
@@ -25,120 +27,99 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.2.2",
-    "region": "us-east-1",
+    "nodeVersion": "0.3.0",
     "stage": "dev"
   },
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
-        "oisTitle": "CoinGecko basic request",
-        "endpointName": "coinMarketData"
+        "endpointId": "0xbe74f8e5e89e096379ffd218a1c357c32fa10da7c131d75c639f99bc8eaeb9c7",
+        "oisTitle": "CoinMarketCap Basic Authenticated Request",
+        "endpointName": "coinMarketCapData"
       }
     ]
   },
   "ois": [
     {
       "oisFormat": "1.0.0",
-      "title": "CoinGecko basic request",
+      "title": "CoinMarketCap Basic Authenticated Request",
       "version": "1.0.0",
       "apiSpecifications": {
         "servers": [
           {
-            "url": "https://api.coingecko.com/api/v3"
+            "url": "https://pro-api.coinmarketcap.com"
           }
         ],
         "paths": {
-          "/coins/{id}": {
+          "/v1/cryptocurrency/quotes/latest": {
             "get": {
               "parameters": [
                 {
-                  "in": "path",
+                  "in": "query",
                   "name": "id"
                 },
                 {
                   "in": "query",
-                  "name": "localization"
+                  "name": "slug"
                 },
                 {
                   "in": "query",
-                  "name": "tickers"
+                  "name": "symbol"
                 },
                 {
                   "in": "query",
-                  "name": "market_data"
+                  "name": "convert"
                 },
                 {
                   "in": "query",
-                  "name": "community_data"
+                  "name": "convert_id"
                 },
                 {
                   "in": "query",
-                  "name": "developer_data"
+                  "name": "aux"
                 },
                 {
                   "in": "query",
-                  "name": "sparkline"
+                  "name": "skip_invalid"
                 }
               ]
             }
           }
         },
         "components": {
-          "securitySchemes": {}
+          "securitySchemes": {
+            "cmcSecurityScheme": {
+              "in": "header",
+              "type": "apiKey",
+              "name": "X-CMC_PRO_API_KEY"
+            }
+          }
         },
-        "security": {}
+        "security": {
+          "cmcSecurityScheme": []
+        }
       },
       "endpoints": [
         {
-          "name": "coinMarketData",
+          "name": "coinMarketCapData",
           "operation": {
             "method": "get",
-            "path": "/coins/{id}"
+            "path": "/v1/cryptocurrency/quotes/latest"
           },
           "fixedOperationParameters": [
             {
               "operationParameter": {
                 "in": "query",
-                "name": "localization"
+                "name": "skip_invalid"
               },
               "value": "false"
             },
             {
               "operationParameter": {
                 "in": "query",
-                "name": "tickers"
+                "name": "symbol"
               },
-              "value": "false"
-            },
-            {
-              "operationParameter": {
-                "in": "query",
-                "name": "market_data"
-              },
-              "value": "true"
-            },
-            {
-              "operationParameter": {
-                "in": "query",
-                "name": "community_data"
-              },
-              "value": "false"
-            },
-            {
-              "operationParameter": {
-                "in": "query",
-                "name": "developer_data"
-              },
-              "value": "false"
-            },
-            {
-              "operationParameter": {
-                "in": "query",
-                "name": "sparkline"
-              },
-              "value": "false"
+              "value": "ETH"
             }
           ],
           "reservedParameters": [
@@ -148,25 +129,23 @@
             },
             {
               "name": "_path",
-              "fixed": "market_data.current_price.usd"
+              "fixed": "data.ETH.quote.USD.price"
             },
             {
               "name": "_times",
               "fixed": "1000000"
             }
           ],
-          "parameters": [
-            {
-              "name": "coinId",
-              "operationParameter": {
-                "in": "path",
-                "name": "id"
-              }
-            }
-          ]
+          "parameters": []
         }
       ]
     }
   ],
-  "apiCredentials": []
+  "apiCredentials": [
+    {
+      "oisTitle": "CoinMarketCap Basic Authenticated Request",
+      "securitySchemeName": "cmcSecurityScheme",
+      "securitySchemeValue": "${CMC_PRO_API_KEY}"
+    }
+  ]
 }

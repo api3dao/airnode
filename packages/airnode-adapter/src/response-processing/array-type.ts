@@ -18,11 +18,8 @@ export function parseArrayType(type: ResponseType): ParsedArrayType | null {
   if (!typeMatch || !baseResponseTypes.includes(typeMatch[1] as any)) return null;
   const baseType = typeMatch[1] as BaseResponseType;
 
-  // eslint-disable-next-line functional/no-let
   let dimensionsString = typeMatch[2];
-  // eslint-disable-next-line functional/no-let
   let dimensions = 0;
-  // eslint-disable-next-line functional/no-loop-statement
   while (dimensionsString) {
     const match = dimensionsString.match(/^\[(\d*)\](.*)$/);
     if (!match) return null;

@@ -1,9 +1,3 @@
-const config = require('../../jest.config.base');
-
 module.exports = {
-  ...config,
-  // Add custom settings below
-  name: 'e2e',
-  displayName: 'e2e',
-  testMatch: ['**/?(*.)+(feature).[tj]s?(x)'],
+  projects: ['<rootDir>/jest-e2e.config.js', '<rootDir>/jest-unit.config.js'],
 };

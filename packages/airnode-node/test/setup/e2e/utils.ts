@@ -34,7 +34,7 @@ export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, a
     address,
   };
   const rawLogs = await provider.getLogs(filter);
-  return rawLogs.map((log) => parseAirnodeRrpLog(log));
+  return rawLogs.map(parseAirnodeRrpLog);
 }
 
 export async function fetchAllLogNames(provider: ethers.providers.JsonRpcProvider, address: string) {

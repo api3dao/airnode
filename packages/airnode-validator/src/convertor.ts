@@ -74,7 +74,7 @@ export function convertJson(
     [],
     nonRedundant,
     {
-      specs: specs,
+      specs: interpolated,
       nonRedundantParams: nonRedundant,
       output,
     },

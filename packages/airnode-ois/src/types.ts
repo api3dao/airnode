@@ -1,4 +1,4 @@
-/* eslint-disable functional/prefer-readonly-type */
+import { RESERVED_PARAMETERS } from './constants';
 
 // ===========================================
 // General
@@ -98,11 +98,7 @@ export interface FixedParameter {
   value: string;
 }
 
-export enum ReservedParameterName {
-  Path = '_path',
-  Times = '_times',
-  Type = '_type',
-}
+export type ReservedParameterName = typeof RESERVED_PARAMETERS[number];
 
 export interface ReservedParameter {
   default?: string;

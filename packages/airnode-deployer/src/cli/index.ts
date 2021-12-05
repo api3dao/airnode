@@ -29,6 +29,7 @@ async function runCommand(command: () => Promise<void>) {
     await command();
   } catch (err) {
     console.error(err);
+    // eslint-disable-next-line functional/immutable-data
     process.exitCode = 1;
   }
 }
