@@ -356,6 +356,7 @@ contract RrpBeaconServer is
         override
         returns (bool)
     {
+        require(msg.sender == address(0), "Sender address not zero");
         (bytes32 templateId, , , , , , bytes memory parameters) = IAirnodePsp(
             airnodePsp
         ).subscriptions(subscriptionId);
