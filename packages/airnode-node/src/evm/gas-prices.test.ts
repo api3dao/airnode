@@ -29,8 +29,7 @@ describe('getGasPrice', () => {
   const baseFeePerGas = ethers.BigNumber.from('93000000000');
   const maxPriorityFeePerGas = ethers.utils
     .parseEther(PRIORITY_FEE)
-    .div(ethers.constants.WeiPerEther)
-    .div(WEI_PER_GWEI);
+    .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
 

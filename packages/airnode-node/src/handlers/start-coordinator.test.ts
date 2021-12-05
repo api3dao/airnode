@@ -87,8 +87,7 @@ describe('startCoordinator', () => {
     const targetGasPrice = (() => {
       const maxPriorityFeePerGas = ethers.utils
         .parseEther(PRIORITY_FEE)
-        .div(ethers.constants.WeiPerEther)
-        .div(WEI_PER_GWEI);
+        .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
       const maxFeePerGas = getBlock.baseFeePerGas
         ? getBlock.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas)
         : undefined;

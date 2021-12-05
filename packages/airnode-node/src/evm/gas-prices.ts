@@ -20,8 +20,7 @@ export async function getGasPrice(options: FetchOptions): Promise<LogsData<GasTa
     } else {
       const maxPriorityFeePerGas = ethers.utils
         .parseEther(PRIORITY_FEE)
-        .div(ethers.constants.WeiPerEther)
-        .div(WEI_PER_GWEI);
+        .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
       const maxFeePerGas = blockHeader.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas);
       return [
         [],

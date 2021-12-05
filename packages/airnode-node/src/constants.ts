@@ -1,6 +1,4 @@
 // The maximum TOTAL time an API call has before it is timed out (including retries).
-import { BigNumber } from 'ethers';
-
 export const API_CALL_TOTAL_TIMEOUT = 10_000;
 
 // The maximum time an API call has before it is timed out (and retried).
@@ -45,7 +43,7 @@ export const WORKER_CALL_API_TIMEOUT = 10_000;
 export const PRIORITY_FEE = '3.12';
 
 // The Base Fee to Max Fee multiplier with two decimal places : 2.56 * 100 = 256
-export const BASE_FEE_MULTIPLIER = 266;
+export const BASE_FEE_MULTIPLIER = '266';
 
 // The number of Wei in a Gwei
-export const WEI_PER_GWEI = BigNumber.from(1000000000);
+export const WEI_PER_GWEI = '1000000000';

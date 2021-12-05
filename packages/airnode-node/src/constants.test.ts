@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import * as constants from './constants';
 
 describe('constants', () => {
@@ -22,7 +21,7 @@ describe('constants', () => {
     expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(17_000);
     expect(constants.WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT).toEqual(32_000);
     expect(constants.PRIORITY_FEE).toEqual('3.12');
-    expect(constants.BASE_FEE_MULTIPLIER).toEqual(266);
-    expect(constants.WEI_PER_GWEI).toEqual(BigNumber.from(1000000000));
+    expect(constants.BASE_FEE_MULTIPLIER).toEqual('266');
+    expect(constants.WEI_PER_GWEI).toEqual('1000000000');
   });
 });
