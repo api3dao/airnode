@@ -44,6 +44,7 @@ export enum RequestStatus {
   Pending = 'Pending',
   Fulfilled = 'Fulfilled',
   Submitted = 'Submitted',
+  // TODO: Merge Blocked and Ignored status together, since it's confusing which one to use
   Ignored = 'Ignored',
   Blocked = 'Blocked',
   Errored = 'Errored',

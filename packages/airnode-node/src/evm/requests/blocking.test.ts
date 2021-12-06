@@ -3,6 +3,7 @@ import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, RequestStatus } from '../../types';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
+import { RequestErrorMessage } from '../..';
 
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
   range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
@@ -24,7 +25,9 @@ describe('blockRequestsWithWithdrawals', () => {
         message: `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
       },
     ]);
-    expect(res.apiCalls.length).toEqual(0);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
+    expect(res.apiCalls[0].errorMessage).toEqual(`${RequestErrorMessage.PendingWithdrawal}: ${withdrawal.id}`);
     expect(res.withdrawals.length).toEqual(1);
     expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
@@ -108,13 +111,13 @@ describe('applySponsorRequestLimit', () => {
           'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it exceeded sponsor wallet request limit.',
       },
     ]);
-    expect(res.apiCalls.length).toEqual(14);
-    expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0])).toHaveLength(
-      MAXIMUM_SPONSOR_WALLET_REQUESTS
-    );
-    expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1])).toHaveLength(
-      MAXIMUM_SPONSOR_WALLET_REQUESTS
-    );
+    expect(res.apiCalls.length).toEqual(17);
+    expect(
+      res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
+    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
+    expect(
+      res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1] && !apiCall.errorMessage)
+    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
     expect(res.withdrawals).toEqual([]);
   });
 });
@@ -186,10 +189,10 @@ describe('blockRequests', () => {
           'Ignoring Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor wallet request limit.',
       },
     ]);
-    expect(res.apiCalls.length).toEqual(9);
-    expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0])).toHaveLength(
-      MAXIMUM_SPONSOR_WALLET_REQUESTS
-    );
+    expect(res.apiCalls.length).toEqual(11);
+    expect(
+      res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
+    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
     expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1])).toHaveLength(0);
     expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[2])).toHaveLength(4);
     expect(res.withdrawals.length).toEqual(1);
