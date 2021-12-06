@@ -17,9 +17,9 @@ mockEthers({
   },
 });
 
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE, WEI_PER_GWEI } from '../constants';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 
 describe('getGasPrice', () => {
   const baseOptions = {
@@ -27,10 +27,8 @@ describe('getGasPrice', () => {
   };
 
   const baseFeePerGas = ethers.BigNumber.from('93000000000');
-  const maxPriorityFeePerGas = ethers.utils
-    .parseEther(PRIORITY_FEE)
-    .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
-  const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas);
+  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+  const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
 
   it('returns the gas price from an EIP-1559 provider', async () => {

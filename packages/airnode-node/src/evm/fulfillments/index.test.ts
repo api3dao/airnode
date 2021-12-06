@@ -51,9 +51,9 @@ describe('submit', () => {
         }),
       ],
     };
-    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
@@ -101,9 +101,9 @@ describe('submit', () => {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
@@ -123,9 +123,9 @@ describe('submit', () => {
       apiCalls: [],
       withdrawals: [withdrawal],
     };
-    const gasPrice = { gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget = { gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValue(ethers.BigNumber.from(250_000_000));

@@ -166,14 +166,14 @@ export interface EVMContracts {
 
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
-  readonly gasPrice: GasTarget | null;
+  readonly gasTarget: GasTarget | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
-  readonly gasPrice: GasTarget;
+  readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
 }

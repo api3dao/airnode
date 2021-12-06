@@ -1,7 +1,7 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
-import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE, WEI_PER_GWEI } from '../constants';
+import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
 import { GasTarget, LogsData, PendingLog } from '../types';
 
 interface FetchOptions {
@@ -10,31 +10,29 @@ interface FetchOptions {
 
 export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider } = options;
-  const [logs, getBlockGas] = await (async (): Promise<[PendingLog[], GasTarget | undefined]> => {
+  const [logs, blockGas] = await (async (): Promise<[PendingLog[], GasTarget | null]> => {
     const operation = () => provider.getBlock('latest');
     const [err, blockHeader] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
     if (err || !blockHeader?.baseFeePerGas) {
       const log = logger.pend('INFO', 'Failed to get EIP-1559 gas pricing from provider - trying fallback', err);
 
-      return [[log], undefined];
-    } else {
-      const maxPriorityFeePerGas = ethers.utils
-        .parseEther(PRIORITY_FEE)
-        .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
-      const maxFeePerGas = blockHeader.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas);
-
-      return [
-        [],
-        {
-          maxPriorityFeePerGas,
-          maxFeePerGas,
-        } as GasTarget,
-      ];
+      return [[log], null];
     }
+
+    const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+    const maxFeePerGas = blockHeader.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
+
+    return [
+      [],
+      {
+        maxPriorityFeePerGas,
+        maxFeePerGas,
+      } as GasTarget,
+    ];
   })();
 
-  if (getBlockGas) {
-    return [logs, getBlockGas];
+  if (blockGas) {
+    return [logs, blockGas];
   }
 
   // Fallback to pre-EIP-1559

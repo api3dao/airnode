@@ -79,7 +79,7 @@ export async function submitWithdrawal(
   // send all the rest along with the transaction. The contract will direct
   // these funds back to the sponsor wallet.
   const txCost = paddedGasLimit.mul(
-    options.gasPrice.gasPrice ? options.gasPrice.gasPrice : options.gasPrice.maxFeePerGas!
+    options.gasTarget.gasPrice ? options.gasTarget.gasPrice : options.gasTarget.maxFeePerGas!
   );
   const fundsToSend = currentBalance.sub(txCost);
 
@@ -99,7 +99,7 @@ export async function submitWithdrawal(
   const withdrawalTx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
       gasLimit: paddedGasLimit,
-      ...options.gasPrice,
+      ...options.gasTarget,
       nonce: request.nonce!,
       value: fundsToSend,
     });

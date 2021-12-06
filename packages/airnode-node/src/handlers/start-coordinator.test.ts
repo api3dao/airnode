@@ -24,12 +24,12 @@ mockEthers({
 });
 
 import fs from 'fs';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE, WEI_PER_GWEI } from '../constants';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 
 describe('startCoordinator', () => {
   test.each([
@@ -85,11 +85,9 @@ describe('startCoordinator', () => {
     await startCoordinator(config);
 
     const targetGasPrice = (() => {
-      const maxPriorityFeePerGas = ethers.utils
-        .parseEther(PRIORITY_FEE)
-        .div(ethers.constants.WeiPerEther.div(WEI_PER_GWEI));
+      const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
       const maxFeePerGas = getBlock.baseFeePerGas
-        ? getBlock.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).div(100).add(maxPriorityFeePerGas)
+        ? getBlock.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas)
         : undefined;
 
       if (maxFeePerGas) {
