@@ -213,6 +213,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId) {
+        require(templates[templateId].airnode != address(0), "Template does not exist");
         subscriptionId = keccak256(
             abi.encodePacked(
                 templateId,
@@ -254,6 +255,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData) {
         Subscription storage subscription = subscriptions[subscriptionId];
+        require(subscription.templateId != bytes32(0), "Subscription does not exist");
         require(
             (
                 keccak256(abi.encodePacked(subscriptionId, data))
