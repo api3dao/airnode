@@ -29,6 +29,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes32 endpointId,
         bytes calldata parameters
     ) external returns (bytes32 templateId) {
+        require(airnode != address(0), "Airnode address zero");
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
@@ -61,6 +62,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (bytes32 requestId) {
+        require(templates[templateId].airnode != address(0), "Template does not exist");
         require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
