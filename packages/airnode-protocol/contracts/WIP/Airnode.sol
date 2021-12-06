@@ -246,7 +246,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         );
     }
 
-    function fulfill(
+    function fulfillSubscription(
         bytes32 subscriptionId,
         bytes calldata data,
         bytes calldata signature
