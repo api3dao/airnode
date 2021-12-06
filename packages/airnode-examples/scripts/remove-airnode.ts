@@ -12,12 +12,14 @@ const main = async () => {
   const secretsFilePath = join(__dirname, '../aws.env');
   const deployCommand = [
     `docker run -it --rm`,
-    `--env-file ${secretsFilePath}`,
     `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
+    integrationInfo.airnodeType === 'aws' && `--env-file ${secretsFilePath}`,
     integrationInfo.airnodeType === 'gcp' && `-v "\${HOME}/.config/gcloud:/app/gcloud"`,
     `-v ${integrationPath}:/app/output`,
     `api3/airnode-deployer:latest remove -r output/receipt.json`,
-  ].join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   runShellCommand(deployCommand);
 };

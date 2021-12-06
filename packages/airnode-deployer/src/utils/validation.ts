@@ -2,8 +2,8 @@ import { Config } from '@api3/airnode-node';
 import { validateJsonWithTemplate } from '@api3/airnode-validator';
 import * as logger from '../utils/logger';
 
-export function validateConfig(config: Config, nodeVersion: string) {
-  if (nodeVersion !== config.nodeSettings.nodeVersion) {
+export function validateConfig(config: Config, nodeVersion: string, skipVersionCheck: boolean) {
+  if (!skipVersionCheck && nodeVersion !== config.nodeSettings.nodeVersion) {
     logger.fail(
       `nodeVersion under nodeSettings in config.json is ${config.nodeSettings.nodeVersion} while the deployer node version is ${nodeVersion}`
     );
@@ -18,6 +18,6 @@ export function validateConfig(config: Config, nodeVersion: string) {
 }
 
 export function validateReceipt(supposedReceipt: any) {
-  // TODO: receipt version
+  // TODO: Validate receipt version https://api3dao.atlassian.net/browse/AN-423
   return validateJsonWithTemplate(supposedReceipt, 'receipt');
 }
