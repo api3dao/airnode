@@ -5,7 +5,7 @@ import keys from 'lodash/keys';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
-import { CloudProvider, version as nodeVersion } from '@api3/airnode-node';
+import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';
@@ -20,7 +20,7 @@ function drawHeader() {
       '| | | | | |  | | | | (_) | (_| |  __/\n' +
       '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|\n'
   );
-  console.log(`\n          Airnode v${nodeVersion()}`);
+  console.log(`\n          Airnode v${getNodeVersion()}`);
   console.log(`        Deployer CLI v${packageVersion}\n`);
 }
 
@@ -38,6 +38,11 @@ drawHeader();
 yargs(hideBin(process.argv))
   .option('debug', {
     description: 'Run in debug mode',
+    default: false,
+    type: 'boolean',
+  })
+  .option('skip-version-check', {
+    description: 'Allow deployments even if the nodeVersion in config.json does not match the deployer version',
     default: false,
     type: 'boolean',
   })
@@ -67,7 +72,9 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, nodeVersion()));
+      await runCommand(() =>
+        deploy(args.configuration, args.secrets, args.receipt, args['skip-version-check'] as boolean)
+      );
     }
   )
   .command(
