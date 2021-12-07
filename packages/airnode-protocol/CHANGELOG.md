@@ -1,5 +1,19 @@
 # @api3/airnode-protocol
 
+## 0.3.0
+
+### Minor Changes
+
+- [#685](https://github.com/api3dao/airnode/pull/685) [`281a5014`](https://github.com/api3dao/airnode/commit/281a501404f6f53a0c62bbd18920af660de66cd1) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Add Certik audit report
+
+* [#695](https://github.com/api3dao/airnode/pull/695) [`cc452301`](https://github.com/api3dao/airnode/commit/cc4523012d6983f8bdec9aa8ef0e4f1dffd63b62) Thanks [@bbenligiray](https://github.com/bbenligiray)! - RrpBeaconServer now expects fulfillments that include a data point and a timestamp
+
+- [#684](https://github.com/api3dao/airnode/pull/684) [`44d65077`](https://github.com/api3dao/airnode/commit/44d65077d97be2b98448b3ddd3093a3e99e64e66) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Add WIP token lock and payment contracts (note, these are not audited yet)
+
+* Release new version
+
+- [#720](https://github.com/api3dao/airnode/pull/720) [`62471f4c`](https://github.com/api3dao/airnode/commit/62471f4caed6ab3caf2d948f0ad15e6d8318367c) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Allow beacons to be parameterized in RrpBeaconServer
+
 ## 0.2.2
 
 ### Patch Changes

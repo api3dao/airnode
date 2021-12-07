@@ -1,5 +1,13 @@
 # @api3/airnode-ois
 
+## 0.3.0
+
+### Minor Changes
+
+- [#697](https://github.com/api3dao/airnode/pull/697) [`83222d2d`](https://github.com/api3dao/airnode/commit/83222d2dac841dc71404933555894f24aefa432a) Thanks [@Siegrift](https://github.com/Siegrift)! - Replace relay metadata for relay security schemes
+
+* Release new version
+
 ## 0.2.2
 
 ### Patch Changes

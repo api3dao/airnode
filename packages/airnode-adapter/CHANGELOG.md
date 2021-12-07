@@ -1,5 +1,26 @@
 # @api3/airnode-adapter
 
+## 0.3.0
+
+### Minor Changes
+
+- [#697](https://github.com/api3dao/airnode/pull/697) [`83222d2d`](https://github.com/api3dao/airnode/commit/83222d2dac841dc71404933555894f24aefa432a) Thanks [@Siegrift](https://github.com/Siegrift)! - Replace relay metadata for relay security schemes
+
+* [#620](https://github.com/api3dao/airnode/pull/620) [`606b6e0f`](https://github.com/api3dao/airnode/commit/606b6e0f293958e0bf1168927e3f81a7c2dbb5a3) Thanks [@Siegrift](https://github.com/Siegrift)! - Implement new values for "\_type" reserved parameter (address, bytes, string, string32 and arrays)
+
+- [#673](https://github.com/api3dao/airnode/pull/673) [`a27a42f5`](https://github.com/api3dao/airnode/commit/a27a42f5d72ef30c0ef87d64ba338732f3d0ef4b) Thanks [@Siegrift](https://github.com/Siegrift)! - Implement reserved parameter escaping
+
+* Release new version
+
+- [#669](https://github.com/api3dao/airnode/pull/669) [`da698d19`](https://github.com/api3dao/airnode/commit/da698d194038cb4c6b5b9c1b35316b9870146d15) Thanks [@Siegrift](https://github.com/Siegrift)! - Support multiple values for Airnode responses
+
+* [#674](https://github.com/api3dao/airnode/pull/674) [`1b7e116f`](https://github.com/api3dao/airnode/commit/1b7e116f68240857f572eb328f4417fdb0d07b47) Thanks [@Siegrift](https://github.com/Siegrift)! - Support "timestamp" value in "\_type" parameter
+
+### Patch Changes
+
+- Updated dependencies [[`83222d2d`](https://github.com/api3dao/airnode/commit/83222d2dac841dc71404933555894f24aefa432a)]:
+  - @api3/airnode-ois@0.3.0
+
 ## 0.2.2
 
 ### Patch Changes

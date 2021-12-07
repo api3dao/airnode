@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.3.0
+
+### Minor Changes
+
+- Release new version
+
 ## 0.2.2
 
 ### Patch Changes

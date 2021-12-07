@@ -1,5 +1,29 @@
 # @api3/airnode-deployer
 
+## 0.3.0
+
+### Minor Changes
+
+- [#688](https://github.com/api3dao/airnode/pull/688) [`77e70bdf`](https://github.com/api3dao/airnode/commit/77e70bdfee67e41b30f066ab70f746a20f578cc6) Thanks [@amarthadan](https://github.com/amarthadan)! - Add support for GCP cloud provider (except for HTTP gateway)
+
+* Release new version
+
+- [#667](https://github.com/api3dao/airnode/pull/667) [`9fd03aa7`](https://github.com/api3dao/airnode/commit/9fd03aa736d5b1a77c3950783135320c649e7f2d) Thanks [@amarthadan](https://github.com/amarthadan)! - Change format of `config.json` for better support of multiple cloud providers
+
+* [#669](https://github.com/api3dao/airnode/pull/669) [`da698d19`](https://github.com/api3dao/airnode/commit/da698d194038cb4c6b5b9c1b35316b9870146d15) Thanks [@Siegrift](https://github.com/Siegrift)! - Support multiple values for Airnode responses
+
+### Patch Changes
+
+- [#723](https://github.com/api3dao/airnode/pull/723) [`354b2740`](https://github.com/api3dao/airnode/commit/354b2740ec13e0057017cc4b35415f42bba6ae77) Thanks [@Siegrift](https://github.com/Siegrift)! - Add skip-version-check option to deployer and fix small bug in airnode-examples
+
+* [#722](https://github.com/api3dao/airnode/pull/722) [`c0a99269`](https://github.com/api3dao/airnode/commit/c0a99269b3b3ee583da0d16e7778bc227416bd60) Thanks [@aquarat](https://github.com/aquarat)! - Apply timeouts for GCP based on stress tester results
+
+* Updated dependencies [[`281a5014`](https://github.com/api3dao/airnode/commit/281a501404f6f53a0c62bbd18920af660de66cd1), [`83222d2d`](https://github.com/api3dao/airnode/commit/83222d2dac841dc71404933555894f24aefa432a), [`cc452301`](https://github.com/api3dao/airnode/commit/cc4523012d6983f8bdec9aa8ef0e4f1dffd63b62), [`606b6e0f`](https://github.com/api3dao/airnode/commit/606b6e0f293958e0bf1168927e3f81a7c2dbb5a3), [`77e70bdf`](https://github.com/api3dao/airnode/commit/77e70bdfee67e41b30f066ab70f746a20f578cc6), [`44d65077`](https://github.com/api3dao/airnode/commit/44d65077d97be2b98448b3ddd3093a3e99e64e66), [`62471f4c`](https://github.com/api3dao/airnode/commit/62471f4caed6ab3caf2d948f0ad15e6d8318367c), [`8015decf`](https://github.com/api3dao/airnode/commit/8015decfb985f404b360488d89d8b7e097090b39), [`9fd03aa7`](https://github.com/api3dao/airnode/commit/9fd03aa736d5b1a77c3950783135320c649e7f2d), [`da698d19`](https://github.com/api3dao/airnode/commit/da698d194038cb4c6b5b9c1b35316b9870146d15), [`c0a99269`](https://github.com/api3dao/airnode/commit/c0a99269b3b3ee583da0d16e7778bc227416bd60)]:
+  - @api3/airnode-protocol@0.3.0
+  - @api3/airnode-node@0.3.0
+  - @api3/airnode-ois@0.3.0
+  - @api3/airnode-validator@0.3.0
+
 ## 0.2.2
 
 ### Patch Changes
