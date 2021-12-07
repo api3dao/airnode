@@ -56,3 +56,7 @@ variable "environment_variables" {
 variable "region" {
   description = "GCP region"
 }
+
+variable "memory_size" {
+  description = "GCP memory allocation"
+}
