@@ -110,6 +110,7 @@ export interface ApiCall {
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
   readonly responseValue?: string;
+  readonly signature?: string;
   readonly type: ApiCallType;
 }
 
@@ -210,7 +211,8 @@ export interface AuthorizationByRequestId {
 }
 
 export interface ApiCallResponse {
-  readonly value?: string | boolean;
+  readonly value?: string;
+  readonly signature?: string;
   readonly errorMessage?: string;
 }
 
@@ -227,6 +229,7 @@ export interface AggregatedApiCall {
   readonly parameters: ApiCallParameters;
   readonly errorMessage?: string;
   readonly responseValue?: string;
+  readonly signature?: string;
 }
 
 // ===========================================

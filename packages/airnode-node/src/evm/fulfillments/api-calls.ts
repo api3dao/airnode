@@ -14,20 +14,8 @@ type StaticResponse = { readonly callSuccess: boolean; readonly callData: string
 
 type SubmitResponse = ethers.Transaction | null;
 
-interface ApiCallWithSignature extends ApiCall {
-  readonly signature: string;
-}
-
-async function signResponseMessage(request: Request<ApiCall>, masterHDNode: ethers.utils.HDNode) {
-  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
-  return await airnodeWallet.signMessage(
-    ethers.utils.arrayify(
-      ethers.utils.keccak256(
-        ethers.utils.solidityPack(['bytes32', 'bytes'], [request.id, request.responseValue || '0x'])
-      )
-    )
-  );
-}
+// TODO: Improve TS types so that it's clear that request object in
+// `testFulfill` and `submitFulfill` contains `responseValue` and `signature` fields
 
 // NOTE:
 // This module attempts to fulfill a given API call requests through a series of checks
@@ -52,7 +40,7 @@ async function signResponseMessage(request: Request<ApiCall>, masterHDNode: ethe
 // =================================================================
 async function testFulfill(
   airnodeRrp: AirnodeRrp,
-  request: Request<ApiCallWithSignature>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
@@ -63,8 +51,8 @@ async function testFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue || '0x',
-      request.signature,
+      request.responseValue!,
+      request.signature!,
       {
         gasLimit: GAS_LIMIT,
         ...options.gasTarget,
@@ -81,7 +69,7 @@ async function testFulfill(
 
 async function submitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: Request<ApiCallWithSignature>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
@@ -92,8 +80,8 @@ async function submitFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue || '0x',
-      request.signature,
+      request.responseValue!,
+      request.signature!,
       {
         gasLimit: GAS_LIMIT,
         ...options.gasTarget,
@@ -123,12 +111,8 @@ async function testAndSubmitFulfill(
     return [submitLogs, submitErr, submitData];
   }
 
-  // Compute signature once.
-  // Not computing this beforehand because it might be a very computational expensive operation
-  const signature = await signResponseMessage(request, options.masterHDNode);
-
   // Should not throw
-  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, { ...request, signature }, options);
+  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, { ...request }, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest: Request<ApiCall> = {
@@ -149,7 +133,7 @@ async function testAndSubmitFulfill(
 
   // We expect the transaction to be successful if submitted
   if (testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, { ...request, signature }, options);
+    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, { ...request }, options);
 
     // The transaction was submitted successfully
     if (submitData) {
