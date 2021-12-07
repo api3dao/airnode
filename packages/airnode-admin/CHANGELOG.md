@@ -1,16 +1,34 @@
 # @api3/airnode-admin
 
+## 0.3.1
+
+### Patch Changes
+
+- [`f7d66930`](https://github.com/api3dao/airnode/commit/f7d66930c04cc16a25fe4d982f740d2c9f4a483c) Thanks
+  [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies
+  [[`f7d66930`](https://github.com/api3dao/airnode/commit/f7d66930c04cc16a25fe4d982f740d2c9f4a483c)]:
+  - @api3/airnode-abi@0.3.1
+  - @api3/airnode-protocol@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
 
 - Release new version
 
-* [#658](https://github.com/api3dao/airnode/pull/658) [`f1bbc6e3`](https://github.com/api3dao/airnode/commit/f1bbc6e3046e8673ee72508700ae6d6f0006f37b) Thanks [@Siegrift](https://github.com/Siegrift)! - Implement mnemonic generation in Admin CLI and dockerize the package
+* [#658](https://github.com/api3dao/airnode/pull/658)
+  [`f1bbc6e3`](https://github.com/api3dao/airnode/commit/f1bbc6e3046e8673ee72508700ae6d6f0006f37b) Thanks
+  [@Siegrift](https://github.com/Siegrift)! - Implement mnemonic generation in Admin CLI and dockerize the package
 
 ### Patch Changes
 
-- Updated dependencies [[`281a5014`](https://github.com/api3dao/airnode/commit/281a501404f6f53a0c62bbd18920af660de66cd1), [`cc452301`](https://github.com/api3dao/airnode/commit/cc4523012d6983f8bdec9aa8ef0e4f1dffd63b62), [`44d65077`](https://github.com/api3dao/airnode/commit/44d65077d97be2b98448b3ddd3093a3e99e64e66), [`62471f4c`](https://github.com/api3dao/airnode/commit/62471f4caed6ab3caf2d948f0ad15e6d8318367c)]:
+- Updated dependencies
+  [[`281a5014`](https://github.com/api3dao/airnode/commit/281a501404f6f53a0c62bbd18920af660de66cd1),
+  [`cc452301`](https://github.com/api3dao/airnode/commit/cc4523012d6983f8bdec9aa8ef0e4f1dffd63b62),
+  [`44d65077`](https://github.com/api3dao/airnode/commit/44d65077d97be2b98448b3ddd3093a3e99e64e66),
+  [`62471f4c`](https://github.com/api3dao/airnode/commit/62471f4caed6ab3caf2d948f0ad15e6d8318367c)]:
   - @api3/airnode-protocol@0.3.0
   - @api3/airnode-abi@0.3.0
 
