@@ -1,9 +1,16 @@
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
-import { RequestErrorMessage } from '../..';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 import * as logger from '../../logger';
-import { ApiCall, Request, GroupedRequests, LogsData, PendingLog, RequestStatus } from '../../types';
+import {
+  ApiCall,
+  Request,
+  GroupedRequests,
+  LogsData,
+  PendingLog,
+  RequestStatus,
+  RequestErrorMessage,
+} from '../../types';
 
 interface ApiCallsWithLogs {
   readonly apiCalls: Request<ApiCall>[];
@@ -21,28 +28,26 @@ export function blockRequestsWithWithdrawals([
 
   const { logs, apiCalls } = requests.apiCalls.reduce((acc, apiCall) => {
     const pendingWithdrawal = withdrawalsBySponsorAddress[apiCall.sponsorAddress];
-
-    if (apiCall.status === RequestStatus.Pending && pendingWithdrawal) {
-      const warningLog = logger.pend(
-        'WARN',
-        `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
-      );
-      const blockedCall: Request<ApiCall> = {
-        ...apiCall,
-        status: RequestStatus.Ignored,
-        // TODO: These error messages should be functions accepting id parameter and creating the error string
-        errorMessage: `${RequestErrorMessage.PendingWithdrawal}: ${pendingWithdrawal.id}`,
-      };
-
-      // TODO: Drop the ignored requests right away (this needs to be done in thw whole codebase)
-      return {
-        ...acc,
-        logs: [...acc.logs, warningLog],
-        apiCalls: [...acc.apiCalls, blockedCall],
-      };
+    if (apiCall.status !== RequestStatus.Pending || !pendingWithdrawal) {
+      return { ...acc, apiCalls: [...acc.apiCalls, apiCall] };
     }
 
-    return { ...acc, apiCalls: [...acc.apiCalls, apiCall] };
+    const warningLog = logger.pend(
+      'WARN',
+      `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
+    );
+    const blockedCall: Request<ApiCall> = {
+      ...apiCall,
+      status: RequestStatus.Ignored,
+      // TODO: These error messages should be functions accepting id parameter and creating the error string
+      errorMessage: `${RequestErrorMessage.PendingWithdrawal}: ${pendingWithdrawal.id}`,
+    };
+
+    return {
+      ...acc,
+      logs: [...acc.logs, warningLog],
+      apiCalls: [...acc.apiCalls, blockedCall],
+    };
   }, initialState);
 
   return [[...prevLogs, ...logs], { ...requests, apiCalls }];
@@ -53,6 +58,7 @@ export function applySponsorRequestLimit([prevLogs, requests]: LogsData<GroupedR
   const allowedApiCalls: Request<ApiCall>[] = [];
   const logs: PendingLog[] = [];
 
+  // TODO: Consider reduce or map for as functional approach
   requests.apiCalls.forEach((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) return;
 
@@ -64,15 +70,16 @@ export function applySponsorRequestLimit([prevLogs, requests]: LogsData<GroupedR
     if (sponsorRequests < MAXIMUM_SPONSOR_WALLET_REQUESTS) {
       requestCountPerSponsor.set(apiCall.sponsorAddress, sponsorRequests + 1);
       allowedApiCalls.push(apiCall);
-    } else {
-      logs.push(logger.pend('WARN', `Ignoring Request ID:${apiCall.id} as it exceeded sponsor wallet request limit.`));
-      const blockedCall: Request<ApiCall> = {
-        ...apiCall,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorRequestLimitExceeded}: ${apiCall.id}`,
-      };
-      allowedApiCalls.push(blockedCall);
+      return;
     }
+
+    logs.push(logger.pend('WARN', `Blocking Request ID:${apiCall.id} as it exceeded sponsor wallet request limit.`));
+    const blockedCall: Request<ApiCall> = {
+      ...apiCall,
+      status: RequestStatus.Blocked,
+      errorMessage: `${RequestErrorMessage.SponsorRequestLimitExceeded}: ${apiCall.id}`,
+    };
+    allowedApiCalls.push(blockedCall);
   });
 
   return [[...prevLogs, ...logs], { ...requests, apiCalls: allowedApiCalls }];

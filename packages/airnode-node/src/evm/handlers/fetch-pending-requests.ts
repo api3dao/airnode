@@ -46,6 +46,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   };
 
   // Block (filter out) any requests that cannot be processed
+  // TODO: Better naming
   const [blockRequestsLogs, allowedRequests] = blocking.blockRequests(groupedRequests);
   logger.logPending(blockRequestsLogs, baseLogOptions);
 

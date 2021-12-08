@@ -1,9 +1,8 @@
-import { range } from 'lodash';
+import range from 'lodash/range';
 import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests, RequestStatus } from '../../types';
+import { GroupedRequests, RequestStatus, RequestErrorMessage } from '../../types';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
-import { RequestErrorMessage } from '../..';
 
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
   range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
