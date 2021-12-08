@@ -15,6 +15,7 @@ import {
   TransactionReceipt,
 } from '../../types';
 import { AirnodeRrpFactory } from '../contracts';
+import * as verification from '../verification';
 
 export interface Receipt {
   readonly id: string;
@@ -84,8 +85,15 @@ const submitSponsorRequestsSequentially = async (state: ProviderState<EVMProvide
     };
   });
 
+  // Verify sponsor wallets for withdrawals
+  const [verifyWithdrawalLogs, verifiedWithdrawals] = verification.verifySponsorWallets(
+    requests.withdrawals,
+    txOptions.masterHDNode
+  );
+  logger.logPending(verifyWithdrawalLogs, baseLogOptions);
+
   // Submit transactions for withdrawals
-  const submittedWithdrawals = requests.withdrawals.map((withdrawal): OrderedRequest => {
+  const submittedWithdrawals = verifiedWithdrawals.map((withdrawal): OrderedRequest => {
     const makeRequest = async () => {
       const [logs, err, data] = await submitWithdrawal(contract, withdrawal, txOptions);
       logger.logPending(logs, baseLogOptions);
