@@ -56,4 +56,28 @@ interface IAirnode is IWithdrawalUtils {
     );
 
     event FulfilledSubscription(bytes32 indexed subscriptionId, bytes data);
+
+    function makeRequest(
+        bytes32 templateId,
+        address reporter,
+        address sponsor,
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external returns (bytes32 requestId);
+
+    function subscriptions(bytes32 subscriptionId)
+        external
+        view
+        returns (
+            bytes32 templateId,
+            address reporter,
+            address sponsor,
+            address conditionAddress,
+            bytes4 conditionFunctionId,
+            address fulfillAddress,
+            bytes4 fulfillFunctionId,
+            bytes memory parameters
+        );
 }

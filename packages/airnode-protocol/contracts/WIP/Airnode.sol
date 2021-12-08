@@ -61,7 +61,7 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         bytes calldata parameters
-    ) external returns (bytes32 requestId) {
+    ) external override returns (bytes32 requestId) {
         require(
             templates[templateId].airnode != address(0),
             "Template does not exist"
