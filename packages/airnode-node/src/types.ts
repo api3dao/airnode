@@ -298,16 +298,6 @@ export type EVMEventLog =
   | EVMFulfilledWithdrawalLog;
 
 // ===========================================
-// Transactions
-// ===========================================
-export interface TransactionReceipt {
-  readonly id: string;
-  readonly data?: ethers.Transaction;
-  readonly error?: Error;
-  readonly type: RequestType;
-}
-
-// ===========================================
 // Triggers
 // ===========================================
 export interface RrpTrigger {
@@ -360,7 +350,7 @@ export interface PendingLog {
 // are purposefully tuples (over an object with 'logs' and 'error' properties) for
 // this reason.
 export type LogsData<T> = readonly [PendingLog[], T];
-export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T];
+export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T | null];
 
 // ===========================================
 // Config

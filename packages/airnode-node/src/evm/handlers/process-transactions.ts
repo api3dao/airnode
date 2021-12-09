@@ -4,7 +4,7 @@ import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as utils from '../utils';
-import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState } from '../../types';
 
 export async function processTransactions(
   initialState: ProviderState<EVMProviderState>
@@ -58,16 +58,7 @@ export async function processTransactions(
   // =================================================================
   // STEP 4: Submit transactions for each wallet
   // =================================================================
-  const receipts = await fulfillments.submit(state3);
-  const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
-  successfulReceipts.forEach((receipt) => {
-    logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
-  });
-
-  const requestsWithFulfillments: GroupedRequests = {
-    apiCalls: fulfillments.applyFulfillments(state3.requests.apiCalls, successfulReceipts),
-    withdrawals: fulfillments.applyFulfillments(state3.requests.withdrawals, successfulReceipts),
-  };
+  const requestsWithFulfillments = await fulfillments.submit(state3);
   const state4 = state.update(state3, { requests: requestsWithFulfillments });
 
   return state4;
