@@ -28,7 +28,7 @@ export async function testApi(
   if (!endpoint) {
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
-  if (!endpoint.testable) {
+  if (!rrpTrigger.testable) {
     return [new Error(`Endpoint with ID '${endpointId}' can't be tested`), null];
   }
 

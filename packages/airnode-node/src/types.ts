@@ -330,6 +330,9 @@ export interface RrpTrigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
+  // For now the attribute is optional, because testing is supported on AWS.
+  // TODO: Make this required once it is supported everywhere.
+  testable?: boolean;
 }
 
 export interface Triggers {

@@ -25,18 +25,21 @@ describe('testApi', () => {
   });
 
   it('returns an error if endpoint testability is not specified', async () => {
-    const unspecifiedEndpoint = fixtures.buildOIS().endpoints[0];
-    delete unspecifiedEndpoint.testable;
+    const endpoint = fixtures.buildOIS().endpoints[0];
+    const config = buildConfigWithEndpoint(endpoint);
+    delete config.triggers.rrp[0].testable;
 
-    const [err, res] = await testApi(buildConfigWithEndpoint(unspecifiedEndpoint), ENDPOINT_ID, {});
+    const [err, res] = await testApi(config, ENDPOINT_ID, {});
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Endpoint with ID '${ENDPOINT_ID}' can't be tested`));
   });
 
   it('returns an error if endpoint testability is turned off', async () => {
-    const offEndpoint = { ...fixtures.buildOIS().endpoints[0], testable: false };
+    const endpoint = fixtures.buildOIS().endpoints[0];
+    const config = buildConfigWithEndpoint(endpoint);
+    config.triggers.rrp[0].testable = false;
 
-    const [err, res] = await testApi(buildConfigWithEndpoint(offEndpoint), ENDPOINT_ID, {});
+    const [err, res] = await testApi(buildConfigWithEndpoint(endpoint), ENDPOINT_ID, {});
     expect(res).toBeNull();
     expect(err).not.toBeNull();
   });
