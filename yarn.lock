@@ -3250,12 +3250,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/prettier@^2.0.0", "@types/prettier@^2.1.1":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.3.2.tgz#fc8c2825e4ed2142473b4a81064e6e081463d1b3"
-  integrity sha512-eI5Yrz3Qv4KPUa/nSIAi0h+qX0XyewOliug5F2QAtuRg6Kjg6jfmxe1GIwoIRhZspD1A0RP8ANrPwvEXXtRFog==
-
-"@types/prettier@^2.1.5":
+"@types/prettier@^2.0.0", "@types/prettier@^2.1.1", "@types/prettier@^2.1.5":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.4.1.tgz#e1303048d5389563e130f5bdd89d37a99acb75eb"
   integrity sha512-Fo79ojj3vdEZOHg3wR9ksAMRz4P3S5fDB5e/YWZiFnyFQI1WY2Vftu9XoXVVtJfxB7Bpce/QTqWSSntkz2Znrw==
@@ -8780,10 +8775,10 @@ glob@^5.0.15:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.0.0, glob@^7.0.5, glob@^7.1.1, glob@^7.1.4, glob@^7.1.6, glob@~7.1.7:
-  version "7.1.7"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.7.tgz#3b193e9233f01d42d0b3f78294bbeeb418f94a90"
-  integrity sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==
+glob@^7.0.0, glob@^7.0.5, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.0.tgz#d15535af7732e02e948f4c41628bd910293f6023"
+  integrity sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==
   dependencies:
     fs.realpath "^1.0.0"
     inflight "^1.0.4"
@@ -8792,10 +8787,10 @@ glob@^7.0.0, glob@^7.0.5, glob@^7.1.1, glob@^7.1.4, glob@^7.1.6, glob@~7.1.7:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.1.2, glob@^7.1.3:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.0.tgz#d15535af7732e02e948f4c41628bd910293f6023"
-  integrity sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==
+glob@~7.1.7:
+  version "7.1.7"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.7.tgz#3b193e9233f01d42d0b3f78294bbeeb418f94a90"
+  integrity sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==
   dependencies:
     fs.realpath "^1.0.0"
     inflight "^1.0.4"
@@ -16345,9 +16340,9 @@ typechain@^3.0.0:
     ts-generator "^0.1.1"
 
 typechain@^5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/typechain/-/typechain-5.1.2.tgz#c8784d6155a8e69397ca47f438a3b4fb2aa939da"
-  integrity sha512-FuaCxJd7BD3ZAjVJoO+D6TnqKey3pQdsqOBsC83RKYWKli5BDhdf0TPkwfyjt20TUlZvOzJifz+lDwXsRkiSKA==
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/typechain/-/typechain-5.2.0.tgz#10525a44773a34547eb2eed8978cb72c0a39a0f4"
+  integrity sha512-0INirvQ+P+MwJOeMct+WLkUE4zov06QxC96D+i3uGFEHoiSkZN70MKDQsaj8zkL86wQwByJReI2e7fOUwECFuw==
   dependencies:
     "@types/prettier" "^2.1.1"
     command-line-args "^4.0.7"
