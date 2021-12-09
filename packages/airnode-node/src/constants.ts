@@ -44,3 +44,6 @@ export const PRIORITY_FEE = '3120000000';
 
 // The Base Fee to Max Fee multiplier
 export const BASE_FEE_MULTIPLIER = 2;
+
+// The maximum number of requests for a single sponsor wallet in a single Airnode run cycle
+export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
