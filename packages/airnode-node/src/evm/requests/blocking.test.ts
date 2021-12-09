@@ -73,47 +73,51 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 });
 
-describe('applySponsorRequestLimit', () => {
-  it('ensures a request limit on requests per sponsor', () => {
+describe('applySponsorAndSponsorWalletRequestLimit', () => {
+  it('ensures a request limit on requests per sponsor and sponsor wallet pair', () => {
     const sponsorAddresses = [
       '0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6',
       '0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9',
       '0x26B3dA8C6B45b1e917a7670C8E091D032f31538E',
     ];
     const apiCalls = [
-      ...buildApiCallsWithSponsor(7, sponsorAddresses[0]),
+      ...buildApiCallsWithSponsor(9, sponsorAddresses[0]),
       ...buildApiCallsWithSponsor(6, sponsorAddresses[1]),
       ...buildApiCallsWithSponsor(4, sponsorAddresses[2]),
     ];
+    // Change the sponsor wallet for first two requests
+    (apiCalls[0] as any).sponsorWalletAddress = '0xCff5E39025c27dE44CE7900bCe9eeaA85b73a5eD';
+    (apiCalls[1] as any).sponsorWalletAddress = '0xCff5E39025c27dE44CE7900bCe9eeaA85b73a5eD';
     const requests: GroupedRequests = {
       apiCalls: apiCalls,
       withdrawals: [],
     };
 
-    const [logs, res] = blocking.applySponsorRequestLimit([[], requests]);
+    const [logs, res] = blocking.applySponsorAndSponsorWalletRequestLimit([[], requests]);
 
     expect(logs).toHaveLength(3);
     expect(logs).toEqual([
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-5 as it exceeded sponsor wallet request limit.',
+          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-7 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor wallet request limit.',
+          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-8 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it exceeded sponsor wallet request limit.',
+          'Blocking Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it exceeded sponsor request limit.',
       },
     ]);
-    expect(res.apiCalls.length).toEqual(17);
+    expect(res.apiCalls.length).toEqual(19);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
-    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
+      // +2 because we changed the sponsorWallet for the first two requests
+    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS + 2);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1] && !apiCall.errorMessage)
     ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
@@ -180,12 +184,12 @@ describe('blockRequests', () => {
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-5 as it exceeded sponsor wallet request limit.',
+          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-5 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor wallet request limit.',
+          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor request limit.',
       },
     ]);
     expect(res.apiCalls.length).toEqual(11);

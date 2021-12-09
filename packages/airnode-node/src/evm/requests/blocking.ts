@@ -1,3 +1,4 @@
+import omit from 'lodash/omit';
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
@@ -53,27 +54,43 @@ export function blockRequestsWithWithdrawals([
   return [[...prevLogs, ...logs], { ...requests, apiCalls }];
 }
 
-export function applySponsorRequestLimit([prevLogs, requests]: LogsData<GroupedRequests>): LogsData<GroupedRequests> {
-  const requestCountPerSponsor = new Map<string, number>();
+/**
+ * We need to limit the requests from the same sponsor because they are performed in parallel. However, we cannot just
+ * filter based on sponsor or sponsor wallet only, because we have not yet validated which is the correct sponsor wallet
+ * for a given sponsor.
+ *
+ * Instead we need to limit the request based on (sponsor, sponsor wallet) pair.
+ */
+export function applySponsorAndSponsorWalletRequestLimit([
+  prevLogs,
+  requests,
+]: LogsData<GroupedRequests>): LogsData<GroupedRequests> {
+  const apiCallsWithSponsorId = requests.apiCalls.map((apiCall) => ({
+    ...apiCall,
+    // The "sponsor id" is a unique combination of sponsor and sponsor wallet
+    sponsorId: `${apiCall.sponsorAddress}-${apiCall.sponsorWalletAddress}`,
+  }));
+  const requestCountPerSponsorId = new Map<string, number>();
   const allowedApiCalls: Request<ApiCall>[] = [];
   const logs: PendingLog[] = [];
 
-  // TODO: Consider reduce or map for as functional approach
-  requests.apiCalls.forEach((apiCall) => {
+  // TODO: Consider reduce or map for this as a functional approach
+  apiCallsWithSponsorId.forEach((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) return;
+    const sponsorId = apiCall.sponsorId;
 
-    if (!requestCountPerSponsor.has(apiCall.sponsorAddress)) {
-      requestCountPerSponsor.set(apiCall.sponsorAddress, 0);
+    if (!requestCountPerSponsorId.has(sponsorId)) {
+      requestCountPerSponsorId.set(sponsorId, 0);
     }
-    const sponsorRequests = requestCountPerSponsor.get(apiCall.sponsorAddress)!;
+    const sponsorRequests = requestCountPerSponsorId.get(sponsorId)!;
 
     if (sponsorRequests < MAXIMUM_SPONSOR_WALLET_REQUESTS) {
-      requestCountPerSponsor.set(apiCall.sponsorAddress, sponsorRequests + 1);
+      requestCountPerSponsorId.set(sponsorId, sponsorRequests + 1);
       allowedApiCalls.push(apiCall);
       return;
     }
 
-    logs.push(logger.pend('WARN', `Blocking Request ID:${apiCall.id} as it exceeded sponsor wallet request limit.`));
+    logs.push(logger.pend('WARN', `Blocking Request ID:${apiCall.id} as it exceeded sponsor request limit.`));
     const blockedCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Blocked,
@@ -82,11 +99,14 @@ export function applySponsorRequestLimit([prevLogs, requests]: LogsData<GroupedR
     allowedApiCalls.push(blockedCall);
   });
 
-  return [[...prevLogs, ...logs], { ...requests, apiCalls: allowedApiCalls }];
+  return [
+    [...prevLogs, ...logs],
+    { ...requests, apiCalls: allowedApiCalls.map((apiCall) => omit(apiCall, 'sponsorId')) },
+  ];
 }
 
 // TODO: Merge with verification/api-call-verification.ts
 export const blockRequests = (requests: GroupedRequests): LogsData<GroupedRequests> => {
-  const filterRequests = flow(blockRequestsWithWithdrawals, applySponsorRequestLimit);
+  const filterRequests = flow(blockRequestsWithWithdrawals, applySponsorAndSponsorWalletRequestLimit);
   return filterRequests([[], requests]);
 };
