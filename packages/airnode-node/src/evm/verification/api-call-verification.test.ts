@@ -26,7 +26,7 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73', // Invalid sponsor wallet address
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
@@ -46,7 +46,7 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73', // Invalid sponsor wallet address
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
@@ -67,7 +67,7 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73', // Invalid sponsor wallet address
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
@@ -92,7 +92,7 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73', // Invalid sponsor wallet address
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',

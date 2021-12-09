@@ -46,7 +46,7 @@ describe('callApi', () => {
           requestId: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
           requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
           sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-          sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+          sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
         },
         apiCredentials: [
           {
