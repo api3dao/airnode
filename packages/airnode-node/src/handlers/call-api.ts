@@ -4,7 +4,6 @@ import { ethers } from 'ethers';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
-import { getMasterHDNode } from '../evm';
 import { isValidSponsorWallet } from '../evm/verification';
 import * as logger from '../logger';
 import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorMessage } from '../types';
