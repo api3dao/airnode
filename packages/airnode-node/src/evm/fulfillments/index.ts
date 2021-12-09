@@ -62,7 +62,7 @@ const submitSponsorRequestsSequentially = async (state: ProviderState<EVMProvide
   const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
 
   const txOptions: TransactionOptions = {
-    gasPrice: state.gasPrice!,
+    gasTarget: state.gasTarget!,
     masterHDNode: state.masterHDNode,
     provider: state.provider,
   };

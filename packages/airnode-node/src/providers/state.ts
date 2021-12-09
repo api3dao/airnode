@@ -43,7 +43,7 @@ export function buildEVMState(
     currentBlock: null,
     provider,
     settings: providerSettings,
-    gasPrice: null,
+    gasTarget: null,
     requests: {
       apiCalls: [],
       withdrawals: [],
