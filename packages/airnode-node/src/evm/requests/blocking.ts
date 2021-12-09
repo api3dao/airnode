@@ -1,4 +1,3 @@
-import omit from 'lodash/omit';
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
@@ -65,19 +64,14 @@ export function applySponsorAndSponsorWalletRequestLimit([
   prevLogs,
   requests,
 ]: LogsData<GroupedRequests>): LogsData<GroupedRequests> {
-  const apiCallsWithSponsorId = requests.apiCalls.map((apiCall) => ({
-    ...apiCall,
-    // The "sponsor id" is a unique combination of sponsor and sponsor wallet
-    sponsorId: `${apiCall.sponsorAddress}-${apiCall.sponsorWalletAddress}`,
-  }));
   const requestCountPerSponsorId = new Map<string, number>();
   const allowedApiCalls: Request<ApiCall>[] = [];
   const logs: PendingLog[] = [];
 
-  // TODO: Consider reduce or map for this as a functional approach
-  apiCallsWithSponsorId.forEach((apiCall) => {
+  requests.apiCalls.forEach((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) return;
-    const sponsorId = apiCall.sponsorId;
+    // The "sponsor id" is a unique combination of sponsor and sponsor wallet
+    const sponsorId = `${apiCall.sponsorAddress}-${apiCall.sponsorWalletAddress}`;
 
     if (!requestCountPerSponsorId.has(sponsorId)) {
       requestCountPerSponsorId.set(sponsorId, 0);
@@ -99,10 +93,7 @@ export function applySponsorAndSponsorWalletRequestLimit([
     allowedApiCalls.push(blockedCall);
   });
 
-  return [
-    [...prevLogs, ...logs],
-    { ...requests, apiCalls: allowedApiCalls.map((apiCall) => omit(apiCall, 'sponsorId')) },
-  ];
+  return [[...prevLogs, ...logs], { ...requests, apiCalls: allowedApiCalls }];
 }
 
 // TODO: Merge with verification/api-call-verification.ts
