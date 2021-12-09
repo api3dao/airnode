@@ -4,6 +4,8 @@ import { ethers } from 'ethers';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
+import { getMasterHDNode } from '../evm';
+import { isValidSponsorWallet } from '../evm/verification';
 import * as logger from '../logger';
 import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorMessage } from '../types';
 import { removeKeys, removeKey } from '../utils/object-utils';
@@ -63,8 +65,20 @@ export interface CallApiPayload {
 
 export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
   const { config, aggregatedApiCall, apiCallOptions } = payload;
+  const { sponsorAddress, sponsorWalletAddress, chainId, endpointName, oisTitle, id, parameters } = aggregatedApiCall;
 
-  const { chainId, endpointName, oisTitle } = aggregatedApiCall;
+  const hdNode = getMasterHDNode(config);
+  if (!isValidSponsorWallet(hdNode, sponsorAddress, sponsorWalletAddress)) {
+    const message = `${RequestErrorMessage.SponsorWalletInvalid}, Request ID:${id}`;
+    const log = logger.pend('ERROR', message);
+    return [
+      [log],
+      {
+        errorMessage: message,
+      },
+    ];
+  }
+
   const chain = config.chains.find((c) => c.id === chainId)!;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
@@ -73,8 +87,9 @@ export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCall
     .map((c) => removeKey(c, 'oisTitle'));
 
   // Check before making the API call in case the parameters are missing
-  const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
+  const reservedParameters = getReservedParameters(endpoint, parameters || {});
   if (!reservedParameters._type) {
+    // TODO: Why don't we use the same error message as in the return statement below? (Using RequestErrorMessage)
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
     return [
       [log],

@@ -18,7 +18,7 @@
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
     "test:e2e:debug": "jest \"test-api.feature\" --selectProjects e2e",
     "test:e2e:watch": "yarn test:e2e --watch",
-    "test": "SILENCE_LOGGER=true jest --selectProjects unit",
+    "test": "SILENCE_LOGGER=true jest \"coordinated-execution.test.ts\" --selectProjects unit",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
