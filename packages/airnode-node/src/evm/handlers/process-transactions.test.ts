@@ -73,7 +73,7 @@ describe('processTransactions', () => {
       fulfillment: { hash: '0xcbb3f9dc6a24e8b6f5427dcf960b1da01c3df0636cb25a292f8dcaad78755c8d' },
       status: RequestStatus.Submitted,
     });
-    expect(res.gasPrice).toEqual(ethers.BigNumber.from('1000'));
+    expect(res.gasTarget).toEqual({ gasPrice: ethers.BigNumber.from('1000') });
 
     // Withdrawal was submitted
     expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
@@ -123,7 +123,7 @@ describe('processTransactions', () => {
 
     const res = await processTransactions(state);
     expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });
-    expect(res.gasPrice).toEqual(null);
+    expect(res.gasTarget).toEqual(null);
 
     // API call was NOT submitted
     expect(contract.fulfill).not.toHaveBeenCalled();

@@ -38,3 +38,9 @@ export const WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT = 32_000;
 
 // The maximum amount of time the "call API" worker is allowed before being timed out
 export const WORKER_CALL_API_TIMEOUT = 10_000;
+
+// The Priority Fee in Wei
+export const PRIORITY_FEE = '3120000000';
+
+// The Base Fee to Max Fee multiplier
+export const BASE_FEE_MULTIPLIER = 2;
