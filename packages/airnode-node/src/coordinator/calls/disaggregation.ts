@@ -46,7 +46,7 @@ function updateApiCallResponse(
     return [[], { ...apiCall, status: RequestStatus.Errored, errorMessage: aggregatedApiCall.errorMessage }];
   }
 
-  return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue! }];
+  return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue, signature: aggregatedApiCall.signature }];
 }
 
 function mapEVMProviderState(

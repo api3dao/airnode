@@ -1,5 +1,7 @@
 import * as adapter from '@api3/airnode-adapter';
 import { OIS, RESERVED_PARAMETERS } from '@api3/airnode-ois';
+import { ethers } from 'ethers';
+import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
@@ -36,6 +38,17 @@ function buildOptions(
           airnodeRrpAddress: chain.contracts.AirnodeRrp,
         },
   };
+}
+
+async function signResponseMessage(requestId: string, responseValue: string, config: Config) {
+  const masterHDNode = getMasterHDNode(config);
+  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
+
+  return await airnodeWallet.signMessage(
+    ethers.utils.arrayify(
+      ethers.utils.keccak256(ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, responseValue || '0x']))
+    )
+  );
 }
 
 export interface ApiCallOptions {
@@ -95,8 +108,14 @@ export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCall
 
   try {
     const response = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
-    const value = apiCallOptions?.forTestingGateway ? JSON.stringify(response) : response.encodedValue;
-    return [[], { value }];
+
+    if (apiCallOptions?.forTestingGateway) {
+      return [[], { value: JSON.stringify(response) }];
+    }
+
+    const value = response.encodedValue;
+    const signature = await signResponseMessage(aggregatedApiCall.id, value, config);
+    return [[], { value, signature }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);

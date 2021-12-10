@@ -50,7 +50,11 @@ async function execute(
   const completeLog = logger.pend('INFO', `${baseLogMsg} responded successfully in ${durationMs}ms`);
 
   // We can assume that the request was successful at this point
-  const updatedApiCall: AggregatedApiCall = { ...aggregatedApiCall, responseValue: res.value as string };
+  const updatedApiCall: AggregatedApiCall = {
+    ...aggregatedApiCall,
+    responseValue: res.value,
+    signature: res.signature,
+  };
   return [[...resLogs, completeLog], updatedApiCall];
 }
 

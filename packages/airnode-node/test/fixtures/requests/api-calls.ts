@@ -33,6 +33,8 @@ export function buildSubmittableApiCall(params?: Partial<Request<ApiCall>>): Req
     // Decodes to: '75051'
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
     responseValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+    signature:
+      '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
     ...params,
   };
 }
