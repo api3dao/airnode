@@ -21,6 +21,11 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         },
       },
       type: 'evm',
+      chainOptions: {
+        txType: '2',
+        baseFeeMultiplier: '2',
+        priorityFeeGWei: '3.12',
+      },
     },
   ],
   nodeSettings: {

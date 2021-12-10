@@ -21,6 +21,11 @@ describe('create', () => {
         },
       },
       type: chainType,
+      chainOptions: {
+        txType: '2',
+        baseFeeMultiplier: '2',
+        priorityFeeGWei: '3.12',
+      },
     };
     const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
@@ -35,6 +40,11 @@ describe('create', () => {
         blockHistoryLimit: 300,
         chainId: '1337',
         chainType: 'evm',
+        chainOptions: {
+          txType: '2',
+          baseFeeMultiplier: '2',
+          priorityFeeGWei: '3.12',
+        },
         ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
         logLevel: 'DEBUG',
@@ -81,6 +91,11 @@ describe('create', () => {
         },
       },
       type: chainType,
+      chainOptions: {
+        txType: '2',
+        baseFeeMultiplier: '2',
+        priorityFeeGWei: '3.12',
+      },
     };
     const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
@@ -94,6 +109,11 @@ describe('create', () => {
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
         chainId: '1337',
+        chainOptions: {
+          txType: '2',
+          baseFeeMultiplier: '2',
+          priorityFeeGWei: '3.12',
+        },
         chainType: 'evm',
         ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',

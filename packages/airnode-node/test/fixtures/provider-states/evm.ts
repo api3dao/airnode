@@ -16,6 +16,8 @@ export function buildEVMProviderState(
     },
     id: chainId,
     type: chainType,
+    // @ts-ignore
+    chainOptions: {},
     providers: {
       [chainProviderName]: {
         url: 'http://localhost:4111',
