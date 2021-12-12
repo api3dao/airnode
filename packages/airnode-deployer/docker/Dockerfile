@@ -15,10 +15,10 @@ COPY --from=api3/airnode-artifacts /build/packages/airnode-deployer/dist ${appDi
 COPY packages/airnode-deployer/docker/entrypoint.sh /entrypoint.sh
 
     # Install external dependencies
-RUN if [ "$(arch)" == 'aarch64' ]; then export URL="${terraformURL}arm64.zip"; else export URL="${terraformURL}amd64.zip"; fi && \
+RUN export ARCH=$([ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64") && \
     apk add --update --no-cache su-exec git && \
     # Download Terraform binary
-    wget ${URL} && \
+    wget ${terraformURL}${ARCH}.zip && \
     unzip *.zip -d /bin && \
     rm -rf *.zip && \
     # Make the binary available within PATH
@@ -31,3 +31,5 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcloud/application_default_credentials.j
 WORKDIR ${appDir}
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+#if [ "$(arch)" == 'aarch64' ]; then export URL="${terraformURL}arm64.zip"; else export URL="${terraformURL}amd64.zip"; fi && \
