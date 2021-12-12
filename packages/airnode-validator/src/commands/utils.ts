@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import template from 'lodash/template';
 import dotenv from 'dotenv';
-import { Log } from '../types';
+import { Log, templates } from '../types';
 import * as logger from '../utils/logger';
 import { unknownConversion } from '../utils/messages';
 import { regexList } from '../utils/globals';
@@ -248,4 +248,20 @@ export function readJson(filePath: string, messages: Log[]): object | undefined 
   }
 
   return res;
+}
+
+export function parseTemplateName(templateName: string, messages: Log[]): [name: string, version?: string] | undefined {
+  const [name, version] = templateName.split('@');
+
+  if (!templates[name.toLowerCase() as keyof typeof templates]) {
+    messages.push(logger.error(`${name} is not a valid template name`));
+    return undefined;
+  }
+
+  if (version && !version.match(regexList.templateVersion)) {
+    messages.push(logger.error(`${version} is not a valid version`));
+    return undefined;
+  }
+
+  return [templates[name.toLowerCase() as keyof typeof templates], version];
 }

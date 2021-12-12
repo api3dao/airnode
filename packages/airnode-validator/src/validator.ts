@@ -1,6 +1,6 @@
 import path from 'path';
 import * as logger from './utils/logger';
-import { Log, Result, templates } from './types';
+import { Log, Result } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
 import { keywords } from './utils/globals';
@@ -22,9 +22,17 @@ export function validateJsonWithTemplate(
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
 
-  const messages: Log[] = [];
+  const messages: Log[] = [],
+    parsed = utils.parseTemplateName(templateName, messages);
+  let version: string | undefined;
 
-  const templatePath = utils.getPath(templates[templateName.toLowerCase() as keyof typeof templates], messages);
+  if (!parsed) {
+    return { valid: false, messages };
+  }
+
+  [templateName, version] = parsed;
+
+  const templatePath = utils.getPath(templateName, messages, version);
 
   if (messages.length || !templatePath) {
     return { valid: false, messages };
