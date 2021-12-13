@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../whitelist/Whitelist.sol";
-import "../../whitelist/WhitelistRolesWithManager.sol";
+import "../whitelist/Whitelist.sol";
+import "../whitelist/WhitelistRolesWithManager.sol";
 import "../interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IBeaconServer.sol";
 
