@@ -296,9 +296,16 @@ contract RrpBeaconServer is
     {
         require(msg.sender == airnodeProtocol, "Sender not Airnode protocol");
         require(data.length == 64, "Incorrect data length");
-        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnodeProtocol(
-            airnodeProtocol
-        ).subscriptions(subscriptionId);
+        (
+            bytes32 templateId,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            bytes memory parameters
+        ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
@@ -340,9 +347,8 @@ contract RrpBeaconServer is
         bytes32 subscriptionId,
         uint256 updatePercentageThreshold
     ) external override {
-        (, address sponsor, , , , , , ) = IAirnodeProtocol(airnodeProtocol).subscriptions(
-            subscriptionId
-        );
+        (, address sponsor, , , , , , ) = IAirnodeProtocol(airnodeProtocol)
+            .subscriptions(subscriptionId);
         require(msg.sender == sponsor, "Sender not sponsor");
         subscriptionIdToUpdatePercentageThreshold[
             subscriptionId
@@ -356,9 +362,16 @@ contract RrpBeaconServer is
         returns (bool)
     {
         require(msg.sender == address(0), "Sender address not zero");
-        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnodeProtocol(
-            airnodeProtocol
-        ).subscriptions(subscriptionId);
+        (
+            bytes32 templateId,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            bytes memory parameters
+        ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         (int256 decodedData, ) = abi.decode(data, (int256, uint256));
         require(
