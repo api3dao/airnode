@@ -13,6 +13,9 @@ contract WithdrawalUtils is IWithdrawalUtils {
         uint256 protocolId,
         address sponsorWallet
     ) external {
+        require(reporter != address(0), "Reporter address zero");
+        require(protocolId != 0, "Protocol ID zero");
+        require(sponsorWallet != address(0), "Sponsor wallet address zero");
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 block.chainid,
