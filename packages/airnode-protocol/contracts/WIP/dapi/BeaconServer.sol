@@ -253,6 +253,7 @@ contract RrpBeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
+        require(data.length == 64, "Incorrect data length");
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
             (int256, uint256)
@@ -294,6 +295,7 @@ contract RrpBeaconServer is
         override
     {
         require(msg.sender == airnode, "Sender not Airnode");
+        require(data.length == 64, "Incorrect data length");
         (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnode(
             airnode
         ).subscriptions(subscriptionId);
