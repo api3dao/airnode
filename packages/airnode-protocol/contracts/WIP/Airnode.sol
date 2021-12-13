@@ -9,6 +9,8 @@ import "./interfaces/IAirnode.sol";
 contract Airnode is Multicall, WithdrawalUtils, IAirnode {
     using ECDSA for bytes32;
 
+    uint256 private constant MAXIMUM_PARAMETER_LENGTH = 1024;
+
     struct Template {
         address airnode;
         bytes32 endpointId;
@@ -30,6 +32,10 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes calldata parameters
     ) external returns (bytes32 templateId) {
         require(airnode != address(0), "Airnode address zero");
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
+        );
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
@@ -67,6 +73,10 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
             "Template does not exist"
         );
         require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
+        );
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -216,6 +226,10 @@ contract Airnode is Multicall, WithdrawalUtils, IAirnode {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId) {
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
+        );
         require(
             templates[templateId].airnode != address(0),
             "Template does not exist"
