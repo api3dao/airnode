@@ -1,6 +1,6 @@
 import { OIS } from '@api3/airnode-ois';
 import { ApiCredentials as AdapterApiCredentials } from '@api3/airnode-adapter';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
@@ -37,14 +37,32 @@ export enum RequestErrorMessage {
   ReservedParametersInvalid = 'Reserved parameters are invalid',
   ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
+  SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
 export enum RequestStatus {
+  // Request is valid and ready to be processed
   Pending = 'Pending',
+  // Request was already processed by previous Airnode run (fulfilled or failed)
+  // TODO: We should just have "Processed" status or just drop these immediately
   Fulfilled = 'Fulfilled',
+  // The fulfillment for this request was submitted on chain during the current Airnode run
+  // TODO: Not really needed for anything
   Submitted = 'Submitted',
+  // Request is not valid and should be ignored (e.g. sponsor and sponsorWallet do not match).
+  // Any request after the ignored request is processed as if this request didn't exist at all
+  // TODO: We should just drop these requests immediately
   Ignored = 'Ignored',
+  // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
+  // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
+  // becomes unblocked
   Blocked = 'Blocked',
+  // A request is errorred if it is valid, but cannot be fulfilled on chain
+  // and thus should result in "fail" method called on AirnodeRrp.
+  //
+  // This can happen by multiple ways - request is unauthorized, API call fails, static call to fulfill fails
+  // TODO: The problem with this status is that we use errorMessage to distinguish errored requests
+  // and keeping this in sync is fragile - we can just drop this
   Errored = 'Errored',
 }
 
@@ -92,6 +110,7 @@ export interface ApiCall {
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
   readonly responseValue?: string;
+  readonly signature?: string;
   readonly type: ApiCallType;
 }
 
@@ -166,16 +185,22 @@ export interface EVMContracts {
 
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
-  readonly gasPrice: ethers.BigNumber | null;
+  readonly gasTarget: GasTarget | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
-  readonly gasPrice: number | ethers.BigNumber;
+  readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
+}
+
+export interface GasTarget {
+  readonly maxPriorityFeePerGas?: BigNumber;
+  readonly maxFeePerGas?: BigNumber;
+  readonly gasPrice?: BigNumber;
 }
 
 // ===========================================
@@ -186,7 +211,8 @@ export interface AuthorizationByRequestId {
 }
 
 export interface ApiCallResponse {
-  readonly value?: string | boolean;
+  readonly value?: string;
+  readonly signature?: string;
   readonly errorMessage?: string;
 }
 
@@ -203,6 +229,7 @@ export interface AggregatedApiCall {
   readonly parameters: ApiCallParameters;
   readonly errorMessage?: string;
   readonly responseValue?: string;
+  readonly signature?: string;
 }
 
 // ===========================================

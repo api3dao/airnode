@@ -26,7 +26,11 @@ describe('callApi', () => {
       apiCallOptions: {},
     });
     expect(logs).toEqual([]);
-    expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
+    expect(res).toEqual({
+      value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+      signature:
+        '0x4d7f431100977a335667c36d1a47b242707c958304bf218f2fbbfdd840eef50765fcf16b8230351fb2bb79dbb099040e617b5e9c72642033b61a83c403fa68a41b',
+    });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
       {

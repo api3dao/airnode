@@ -84,7 +84,7 @@ describe('fetchPendingRequests', () => {
     const withdrawal = fixtures.evm.logs.buildMadeFullRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([fullRequest, withdrawal]);
-    const blockingSpy = jest.spyOn(blocking, 'blockRequestsWithWithdrawals');
+    const blockingSpy = jest.spyOn(blocking, 'blockRequests');
     const state = fixtures.buildEVMProviderState();
     await fetchPendingRequests(state);
     expect(blockingSpy).toHaveBeenCalledTimes(1);
