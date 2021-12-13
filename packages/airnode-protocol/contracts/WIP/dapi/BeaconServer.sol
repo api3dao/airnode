@@ -61,6 +61,7 @@ contract RrpBeaconServer is
             _manager
         )
     {
+        require(_airnodeProtocol != address(0), "Airnode protocol address zero");
         airnodeProtocol = _airnodeProtocol;
     }
 
