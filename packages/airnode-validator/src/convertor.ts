@@ -1,3 +1,4 @@
+import path from 'path';
 import { Log, Result } from './types';
 import * as logger from './utils/logger';
 import { processSpecs } from './processor';
@@ -38,9 +39,9 @@ export function convert(
     }
   }
 
-  const split = templatePath.split('/');
+  const split = templatePath.split(path.sep);
 
-  return convertJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', env);
+  return convertJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, env);
 }
 
 /**

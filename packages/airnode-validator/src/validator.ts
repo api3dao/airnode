@@ -44,9 +44,9 @@ export function validateJsonWithTemplate(
     return { valid: false, messages };
   }
 
-  const split = templatePath.split('/');
+  const split = templatePath.split(path.sep);
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', interpolate, returnJson);
+  return validateJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, interpolate, returnJson);
 }
 
 /**
@@ -117,9 +117,9 @@ export function validate(
     }
   }
 
-  const split = templatePath.split('/');
+  const split = templatePath.split(path.sep);
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', env, returnJson);
+  return validateJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, env, returnJson);
 }
 
 /**
