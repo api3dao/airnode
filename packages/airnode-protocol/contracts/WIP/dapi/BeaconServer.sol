@@ -20,11 +20,7 @@ import "./interfaces/IBeaconServer.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is
-    Whitelist,
-    WhitelistRolesWithManager,
-    IBeaconServer
-{
+contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
     struct Beacon {
         int224 value;
         uint32 timestamp;
