@@ -101,16 +101,6 @@ interface IBeaconServer {
 
     function fulfillPsp(bytes32 subscriptionId, bytes calldata data) external;
 
-    function setUpdatePercentageThreshold(
-        bytes32 subscriptionId,
-        uint256 updatePercentageThreshold
-    ) external;
-
-    function condition(bytes32 subscriptionId, bytes calldata data)
-        external
-        view
-        returns (bool);
-
     function readBeacon(bytes32 beaconId)
         external
         view
