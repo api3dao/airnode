@@ -26,6 +26,10 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
         uint32 timestamp;
     }
 
+    string public constant override UNLIMITED_BEACON_READER_ROLE_DESCRIPTION =
+        "Unlimited beacon reader";
+    bytes32 public immutable override unlimitedBeaconReaderRole;
+
     address public immutable override airnodeProtocol;
 
     mapping(bytes32 => uint256)
@@ -57,7 +61,12 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
             _manager
         )
     {
-        require(_airnodeProtocol != address(0), "Airnode protocol address zero");
+        unlimitedBeaconReaderRole = _deriveRole(
+            _deriveAdminRole(manager),
+            keccak256(
+                abi.encodePacked(UNLIMITED_BEACON_READER_ROLE_DESCRIPTION)
+            )
+        );
         airnodeProtocol = _airnodeProtocol;
     }
 
@@ -423,7 +432,10 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
         override
         returns (bool)
     {
-        return userIsWhitelisted(beaconId, reader) || reader == address(0);
+        return
+            userIsWhitelisted(beaconId, reader) ||
+            userIsUnlimitedBeaconReader(reader) ||
+            reader == address(0);
     }
 
     /// @notice Called to get the detailed whitelist status of the reader for
@@ -479,5 +491,21 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
         returns (bytes32 beaconId)
     {
         beaconId = keccak256(abi.encodePacked(templateId, parameters));
+    }
+
+    /// @notice Returns if the user has the role unlimited beacon reader
+    /// @dev An unlimited beacon reader can read all beacons
+    /// @param user User address
+    /// @return If the user is unlimited beacon reader
+    function userIsUnlimitedBeaconReader(address user)
+        private
+        view
+        returns (bool)
+    {
+        return
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                unlimitedBeaconReaderRole,
+                user
+            );
     }
 }

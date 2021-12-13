@@ -142,10 +142,13 @@ interface IBeaconServer {
         pure
         returns (bytes32 beaconId);
 
-    function airnodeProtocol() external view returns (address);
-
-    function subscriptionIdToUpdatePercentageThreshold(bytes32 subscriptionId)
+    // solhint-disable-next-line func-name-mixedcase
+    function UNLIMITED_BEACON_READER_ROLE_DESCRIPTION()
         external
         view
-        returns (uint256);
+        returns (string memory);
+
+    function unlimitedBeaconReaderRole() external view returns (bytes32);
+
+    function airnodeProtocol() external view returns (address);
 }
