@@ -67,6 +67,10 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
                 abi.encodePacked(UNLIMITED_BEACON_READER_ROLE_DESCRIPTION)
             )
         );
+        require(
+            _airnodeProtocol != address(0),
+            "Airnode protocol address zero"
+        );
         airnodeProtocol = _airnodeProtocol;
     }
 
