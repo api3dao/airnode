@@ -12,6 +12,15 @@ import "./interfaces/IOwnableCallForwarder.sol";
 /// with a single address, in which case the manager will interact with
 /// AccessControlRegistry directly.
 contract OwnableCallForwarder is Ownable, IOwnableCallForwarder {
+    /// @notice Forwards the calldata to the target address if the sender is
+    /// the owner and returns the data
+    /// @dev This function emits its event after an untrusted low-level call,
+    /// meaning that the order of these events within the transaction should
+    /// not be taken seriously, yet the content will be sound.
+    /// @param targetAddress Target address that the calldata will be forwarded
+    /// to
+    /// @param forwardedCalldata Calldata to be forwarded to the target address
+    /// @return returnedData Data returned by the forwarded call
     function forwardCall(
         address targetAddress,
         bytes calldata forwardedCalldata
