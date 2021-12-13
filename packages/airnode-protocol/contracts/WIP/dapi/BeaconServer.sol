@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "../../whitelist/Whitelist.sol";
 import "../../whitelist/WhitelistRolesWithManager.sol";
-import "../interfaces/IAirnode.sol";
+import "../interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -30,7 +30,7 @@ contract RrpBeaconServer is
         uint32 timestamp;
     }
 
-    address public immutable override airnode;
+    address public immutable override airnodeProtocol;
 
     mapping(bytes32 => uint256)
         public
@@ -48,12 +48,12 @@ contract RrpBeaconServer is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnode Airnode contract address
+    /// @param _airnodeProtocol Airnode protocol contract address
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _airnode
+        address _airnodeProtocol
     )
         WhitelistRolesWithManager(
             _accessControlRegistry,
@@ -61,7 +61,7 @@ contract RrpBeaconServer is
             _manager
         )
     {
-        airnode = _airnode;
+        airnodeProtocol = _airnodeProtocol;
     }
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
@@ -217,7 +217,7 @@ contract RrpBeaconServer is
             "Caller not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        bytes32 requestId = IAirnode(airnode).makeRequest(
+        bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
             templateId,
             reporter,
             sponsor,
@@ -249,7 +249,7 @@ contract RrpBeaconServer is
         external
         override
     {
-        require(msg.sender == airnode, "Sender not Airnode");
+        require(msg.sender == airnodeProtocol, "Sender not Airnode protocol");
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -294,10 +294,10 @@ contract RrpBeaconServer is
         external
         override
     {
-        require(msg.sender == airnode, "Sender not Airnode");
+        require(msg.sender == airnodeProtocol, "Sender not Airnode protocol");
         require(data.length == 64, "Incorrect data length");
-        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnode(
-            airnode
+        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnodeProtocol(
+            airnodeProtocol
         ).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
@@ -340,7 +340,7 @@ contract RrpBeaconServer is
         bytes32 subscriptionId,
         uint256 updatePercentageThreshold
     ) external override {
-        (, address sponsor, , , , , , ) = IAirnode(airnode).subscriptions(
+        (, address sponsor, , , , , , ) = IAirnodeProtocol(airnodeProtocol).subscriptions(
             subscriptionId
         );
         require(msg.sender == sponsor, "Sender not sponsor");
@@ -356,8 +356,8 @@ contract RrpBeaconServer is
         returns (bool)
     {
         require(msg.sender == address(0), "Sender address not zero");
-        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnode(
-            airnode
+        (bytes32 templateId, , , , , , , bytes memory parameters) = IAirnodeProtocol(
+            airnodeProtocol
         ).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         (int256 decodedData, ) = abi.decode(data, (int256, uint256));

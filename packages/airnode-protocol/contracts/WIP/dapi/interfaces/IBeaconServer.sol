@@ -142,7 +142,7 @@ interface IBeaconServer {
         pure
         returns (bytes32 beaconId);
 
-    function airnode() external view returns (address);
+    function airnodeProtocol() external view returns (address);
 
     function subscriptionIdToUpdatePercentageThreshold(bytes32 subscriptionId)
         external

@@ -4,9 +4,9 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./WithdrawalUtils.sol";
-import "./interfaces/IAirnode.sol";
+import "./interfaces/IAirnodeProtocol.sol";
 
-contract Airnode is Multicall, WithdrawalUtils, IAirnode {
+contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
 
     uint256 private constant MAXIMUM_PARAMETER_LENGTH = 1024;

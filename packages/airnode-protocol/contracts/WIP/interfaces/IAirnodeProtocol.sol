@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "./IWithdrawalUtils.sol";
 
-interface IAirnode is IWithdrawalUtils {
+interface IAirnodeProtocol is IWithdrawalUtils {
     event CreatedTemplate(
         bytes32 indexed templateId,
         address airnode,
