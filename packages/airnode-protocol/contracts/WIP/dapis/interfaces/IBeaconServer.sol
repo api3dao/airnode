@@ -133,12 +133,12 @@ interface IBeaconServer {
         returns (bytes32 beaconId);
 
     // solhint-disable-next-line func-name-mixedcase
-    function UNLIMITED_BEACON_READER_ROLE_DESCRIPTION()
+    function UNLIMITED_READER_ROLE_DESCRIPTION()
         external
         view
         returns (string memory);
 
-    function unlimitedBeaconReaderRole() external view returns (bytes32);
+    function unlimitedReaderRole() external view returns (bytes32);
 
     function airnodeProtocol() external view returns (address);
 }

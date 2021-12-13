@@ -26,9 +26,9 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
         uint32 timestamp;
     }
 
-    string public constant override UNLIMITED_BEACON_READER_ROLE_DESCRIPTION =
-        "Unlimited beacon reader";
-    bytes32 public immutable override unlimitedBeaconReaderRole;
+    string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
+        "Unlimited reader";
+    bytes32 public immutable override unlimitedReaderRole;
 
     address public immutable override airnodeProtocol;
 
@@ -57,11 +57,9 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
             _manager
         )
     {
-        unlimitedBeaconReaderRole = _deriveRole(
+        unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),
-            keccak256(
-                abi.encodePacked(UNLIMITED_BEACON_READER_ROLE_DESCRIPTION)
-            )
+            keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
         );
         require(
             _airnodeProtocol != address(0),
@@ -384,7 +382,7 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
     {
         return
             userIsWhitelisted(beaconId, reader) ||
-            userIsUnlimitedBeaconReader(reader) ||
+            userIsUnlimitedReader(reader) ||
             reader == address(0);
     }
 
@@ -443,18 +441,14 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
         beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 
-    /// @notice Returns if the user has the role unlimited beacon reader
-    /// @dev An unlimited beacon reader can read all beacons
+    /// @notice Returns if the user has the role unlimited reader
+    /// @dev An unlimited reader can read all resources
     /// @param user User address
-    /// @return If the user is unlimited beacon reader
-    function userIsUnlimitedBeaconReader(address user)
-        private
-        view
-        returns (bool)
-    {
+    /// @return If the user is unlimited reader
+    function userIsUnlimitedReader(address user) private view returns (bool) {
         return
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                unlimitedBeaconReaderRole,
+                unlimitedReaderRole,
                 user
             );
     }
