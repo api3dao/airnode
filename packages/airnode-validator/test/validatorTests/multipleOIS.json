@@ -197,7 +197,7 @@
     }
   ],
   "nodeSettings": {
-    "nodeVersion": "0.3.0",
+    "nodeVersion": "0.4.0",
     "cloudProvider": {
       "type": "aws",
       "region": "us-east-1"
