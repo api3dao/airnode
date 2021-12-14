@@ -23,7 +23,6 @@ describe('callApi', () => {
     const [logs, res] = await callApi({
       config: fixtures.buildConfig(),
       aggregatedApiCall,
-      apiCallOptions: {},
     });
     expect(logs).toEqual([]);
     expect(res).toEqual({
@@ -62,7 +61,7 @@ describe('callApi', () => {
 
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
       {
         level: 'ERROR',
@@ -81,7 +80,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
@@ -96,7 +95,7 @@ describe('callApi', () => {
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
+    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
     ]);

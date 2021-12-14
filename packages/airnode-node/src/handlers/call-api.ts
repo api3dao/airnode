@@ -76,15 +76,10 @@ async function signResponseMessage(requestId: string, responseValue: string, con
   );
 }
 
-export interface ApiCallOptions {
-  readonly forTestingGateway?: boolean;
-}
-
 export interface CallApiPayload {
   readonly config: Config;
   // TODO: Rename
   readonly aggregatedApiCall: AggregatedApiCall;
-  readonly apiCallOptions: ApiCallOptions;
 }
 
 interface VerificationFailure {

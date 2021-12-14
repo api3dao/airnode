@@ -30,8 +30,8 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions, apiCallOptions } = event;
-  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, apiCallOptions, aggregatedApiCall });
+  const { aggregatedApiCall, logOptions } = event;
+  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
