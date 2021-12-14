@@ -55,7 +55,11 @@ describe('callApi', () => {
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
 
-    const callResponse = { value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' };
+    const callResponse = {
+      success: true,
+      value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+      signature: 'not used',
+    } as const;
     jest.spyOn(handlers, 'callApi').mockResolvedValue([[], callResponse]);
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall();

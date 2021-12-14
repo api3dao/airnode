@@ -27,6 +27,7 @@ describe('callApi', () => {
     });
     expect(logs).toEqual([]);
     expect(res).toEqual({
+      success: true,
       value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
       signature:
         '0x4d7f431100977a335667c36d1a47b242707c958304bf218f2fbbfdd840eef50765fcf16b8230351fb2bb79dbb099040e617b5e9c72642033b61a83c403fa68a41b',
@@ -70,6 +71,7 @@ describe('callApi', () => {
     ]);
     expect(res).toEqual({
       errorMessage: `${RequestErrorMessage.ReservedParametersInvalid}: _type is missing for endpoint convertToUSD`,
+      success: false,
     });
   });
 
@@ -85,6 +87,7 @@ describe('callApi', () => {
     ]);
     expect(res).toEqual({
       errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Network is down`,
+      success: false,
     });
   });
 
@@ -99,6 +102,7 @@ describe('callApi', () => {
     ]);
     expect(res).toEqual({
       errorMessage: RequestErrorMessage.ResponseValueNotFound,
+      success: false,
     });
   });
 });

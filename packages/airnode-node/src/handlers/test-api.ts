@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import * as wallet from '../evm/wallet';
 import { randomString } from '../utils/string-utils';
-import { AggregatedApiCall, Config, WorkerOptions, ApiCallResponse } from '../types';
+import { AggregatedApiCall, Config, WorkerOptions, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
 import { go } from '../utils/promise-utils';
 import { spawnNewApiCall } from '../adapters/http/worker';
@@ -11,7 +11,7 @@ export async function testApi(
   config: Config,
   endpointId: string,
   parameters: Record<string, string>
-): Promise<[Error, null] | [null, ApiCallResponse]> {
+): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
   const testCallId = randomString(8);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
@@ -39,14 +39,9 @@ export async function testApi(
   };
 
   const aggregatedApiCall: AggregatedApiCall = {
+    type: 'testing-gateway',
     id: testCallId,
     airnodeAddress,
-    // TODO: These values are technically incorrect and could cause troubles in the future
-    // because Airnode might expect valid values in these properties.
-    requesterAddress: '',
-    sponsorAddress: '',
-    sponsorWalletAddress: '',
-    chainId: '',
     endpointId,
     endpointName: rrpTrigger.endpointName,
     oisTitle: rrpTrigger.oisTitle,
@@ -63,7 +58,7 @@ export async function testApi(
   const resLogs = logData ? logData[0] : [];
   logger.logPending(resLogs, logOptions);
 
-  if (err || !logData || !logData[1]) {
+  if (err || !logData || !logData[1]?.success) {
     return [err || new Error('An unknown error occurred'), null];
   }
 
