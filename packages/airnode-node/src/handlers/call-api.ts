@@ -105,39 +105,6 @@ function verifySponsorWallet(payload: CallApiPayload): VerificationFailure | nul
   };
 }
 
-// TODO: Remove this check. It should be the responsibility of validator
-function verifyReservedParameters(payload: CallApiPayload): VerificationFailure | null {
-  const { config, aggregatedApiCall } = payload;
-  const { endpointName, oisTitle, parameters } = aggregatedApiCall;
-  const ois = config.ois.find((o) => o.title === oisTitle)!;
-  const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  const reservedParameters = getReservedParameters(endpoint, parameters);
-
-  if (!reservedParameters._type) {
-    // TODO: Why don't we use the same error message as in the return statement below?
-    const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return {
-      log,
-      response: {
-        success: false,
-        errorMessage: `${RequestErrorMessage.ReservedParametersInvalid}: _type is missing for endpoint ${endpoint.name}`,
-      },
-    };
-  }
-
-  return null;
-}
-
-function verifyPayload(payload: CallApiPayload) {
-  let verificationResult: VerificationFailure | null = null;
-
-  verificationResult = verifySponsorWallet(payload);
-  if (verificationResult) return verificationResult;
-
-  verificationResult = verifyReservedParameters(payload);
-  if (verificationResult) return verificationResult;
-}
-
 interface PerformApiCallSuccess {
   data: unknown;
 }
@@ -200,7 +167,7 @@ async function processSuccessfulApiCall(
 }
 
 export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
-  const verificationResult = verifyPayload(payload);
+  const verificationResult = verifySponsorWallet(payload);
   if (verificationResult) return [[verificationResult.log], verificationResult.response];
 
   const [logs, response] = await performApiCall(payload);
