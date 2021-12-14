@@ -1,17 +1,9 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
-import template from 'lodash/template';
+import { version as getNodeVersion } from '@api3/airnode-node';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
-
-// TODO: These are duplicated in validator, write them in one place only
-// Regular expression that does not match anything, ensuring no escaping or interpolation happens
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
-const NO_MATCH_REGEXP = /($^)/;
-// Regular expression matching ES template literal delimiter (${}) with escaping
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
-const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
@@ -31,12 +23,7 @@ export function parseConfig(configPath: string, secrets: Record<string, string |
     throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationResult.messages)}`);
   }
 
-  const interpolatedConfig = template(config, {
-    escape: NO_MATCH_REGEXP,
-    evaluate: NO_MATCH_REGEXP,
-    interpolate: ES_MATCH_REGEXP,
-  })(secrets);
-  const parsedConfig = JSON.parse(interpolatedConfig);
+  const parsedConfig: Config = validationResult.specs as Config;
 
   const ois = parseOises(parsedConfig.ois);
   return { ...parsedConfig, ois };
@@ -56,6 +43,5 @@ export function getEnvValue(envName: string) {
 }
 
 function validateConfig(supposedConfig: any, secrets: Record<string, string | undefined>): Result {
-  // TODO: config version
-  return validateJsonWithTemplate(supposedConfig, 'config', secrets);
+  return validateJsonWithTemplate(supposedConfig, `config@${getNodeVersion()}`, secrets, true);
 }
