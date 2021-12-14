@@ -49,7 +49,7 @@ export function writeReceiptFile(
   logger.info(`Outputted ${receiptFilename}\n` + '  This file does not contain any sensitive information.');
 }
 
-export function parseReceiptFile(receiptFilename: string) {
+export function parseReceiptFile(receiptFilename: string, nodeVersion: string) {
   let receipt: any;
   logger.debug('Parsing receipt file');
 
@@ -60,7 +60,7 @@ export function parseReceiptFile(receiptFilename: string) {
     throw e;
   }
 
-  const validationResult = validateReceipt(receipt);
+  const validationResult = validateReceipt(receipt, nodeVersion);
   if (!validationResult.valid) {
     logger.fail('Failed to validate receipt file');
     throw new Error(`Invalid Airnode receipt file: ${JSON.stringify(validationResult.messages)}`);

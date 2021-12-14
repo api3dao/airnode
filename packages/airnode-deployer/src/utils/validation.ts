@@ -2,12 +2,10 @@ import { Config } from '@api3/airnode-node';
 import { validateJsonWithTemplate } from '@api3/airnode-validator';
 import * as logger from '../utils/logger';
 
-export function validateConfig(config: Config, nodeVersion: string, skipVersionCheck: boolean) {
-  if (!skipVersionCheck && nodeVersion !== config.nodeSettings.nodeVersion) {
-    logger.fail(
-      `nodeVersion under nodeSettings in config.json is ${config.nodeSettings.nodeVersion} while the deployer node version is ${nodeVersion}`
-    );
-    throw new Error("Node version specified in config.json does not match the deployer's version");
+export function validateConfig(config: Config, nodeVersion: string, skipValidation: boolean) {
+  if (skipValidation) {
+    logger.warn('Skipping the config validation');
+    return;
   }
 
   if (config.nodeSettings.cloudProvider.type === 'local') {
@@ -15,9 +13,20 @@ export function validateConfig(config: Config, nodeVersion: string, skipVersionC
     logger.fail(message);
     throw new Error(message);
   }
+
+  const result = validateJsonWithTemplate(config, `config@${nodeVersion}`);
+
+  if (!result.valid) {
+    logger.fail(JSON.stringify(result.messages, null, 2));
+    throw new Error('Validation of config failed');
+  }
+
+  if (result.messages.length) {
+    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(result.messages, null, 2)}`);
+  }
 }
 
-export function validateReceipt(supposedReceipt: any) {
+export function validateReceipt(supposedReceipt: any, nodeVersion: string) {
   // TODO: Validate receipt version https://api3dao.atlassian.net/browse/AN-423
-  return validateJsonWithTemplate(supposedReceipt, 'receipt');
+  return validateJsonWithTemplate(supposedReceipt, `receipt@${nodeVersion}`);
 }

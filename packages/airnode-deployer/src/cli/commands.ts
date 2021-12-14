@@ -14,10 +14,10 @@ import {
 } from '../utils';
 import * as logger from '../utils/logger';
 
-export async function deploy(configFile: string, secretsFile: string, receiptFile: string, skipVersionCheck: boolean) {
+export async function deploy(configFile: string, secretsFile: string, receiptFile: string, skipValidation: boolean) {
   const secrets = parseSecretsFile(secretsFile);
   const config = nodeConfig.parseConfig(configFile, secrets);
-  validateConfig(config, getNodeVersion(), skipVersionCheck);
+  validateConfig(config, getNodeVersion(), skipValidation);
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {
@@ -69,7 +69,7 @@ export async function remove(airnodeAddressShort: string, stage: string, cloudPr
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
-  const receipt = parseReceiptFile(receiptFilename);
+  const receipt = parseReceiptFile(receiptFilename, getNodeVersion());
   const { airnodeAddressShort, cloudProvider, stage } = receipt.deployment;
   try {
     await remove(airnodeAddressShort, stage, cloudProvider);

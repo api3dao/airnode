@@ -3,7 +3,12 @@ const removeAirnodeSpy = jest.fn();
 
 jest.mock('@api3/airnode-node', () => ({
   ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.1.0'),
+  version: jest
+    .fn()
+    .mockReturnValueOnce('0.3.0')
+    .mockReturnValueOnce('0.2.0')
+    .mockReturnValueOnce('0.2.0')
+    .mockReturnValue('0.3.0'),
 }));
 jest.mock('../infrastructure', () => ({
   deployAirnode: deployAirnodeSpy,
@@ -25,7 +30,7 @@ describe('deployer commands', () => {
       join(__dirname, '../../config/config.json.example'),
       join(__dirname, '../../config/secrets.env.example'),
       'mocked receipt filename',
-      true
+      false
     );
 
     expect(deployAirnodeSpy).toHaveBeenCalledTimes(1);
@@ -39,7 +44,18 @@ describe('deployer commands', () => {
         'mocked receipt filename',
         false
       )
-    ).rejects.toThrow(`Node version specified in config.json does not match the deployer's version`);
+    ).rejects.toThrow();
+  });
+
+  it('deploys incompatible version, when validation is disabled', async () => {
+    await deploy(
+      join(__dirname, '../../config/config.json.example'),
+      join(__dirname, '../../config/secrets.env.example'),
+      'mocked receipt filename',
+      true
+    );
+
+    expect(deployAirnodeSpy).toHaveBeenCalledTimes(1);
   });
 
   it('can remove Airnode', async () => {
