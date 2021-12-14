@@ -46,7 +46,13 @@ export function validateJsonWithTemplate(
 
   const split = templatePath.split(path.sep);
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, interpolate, returnJson);
+  return validateJson(
+    specs,
+    template,
+    split.slice(0, split.length - 1).join(path.sep) + path.sep,
+    interpolate,
+    returnJson
+  );
 }
 
 /**
