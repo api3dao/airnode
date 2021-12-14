@@ -229,6 +229,7 @@ export interface ApiCallErrorResponse {
 }
 
 export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+
 export interface BaseAggregatedApiCall {
   id: string;
   airnodeAddress: string;
@@ -236,7 +237,9 @@ export interface BaseAggregatedApiCall {
   endpointName: string;
   oisTitle: string;
   parameters: ApiCallParameters;
-  // TODO: Should these (response values) be here? Why?
+  // TODO: Remove these values from this interface. They are added only after the API call is made
+  // depending on the result. Current implementation causes ambiguity when these fields are
+  // optional and when not.
   responseValue?: string;
   signature?: string;
   errorMessage?: string;
