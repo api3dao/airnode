@@ -59,21 +59,6 @@ describe('callApi', () => {
     );
   });
 
-  it('returns an error if no _type parameter is found', async () => {
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:Currency Converter API",
-      },
-    ]);
-    expect(res).toEqual({
-      errorMessage: `${RequestErrorMessage.ReservedParametersInvalid}: _type is missing for endpoint convertToUSD`,
-      success: false,
-    });
-  });
-
   it('returns an error if the API call fails to execute', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockRejectedValueOnce(new Error('Network is down'));
