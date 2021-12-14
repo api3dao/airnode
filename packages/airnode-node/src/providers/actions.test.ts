@@ -51,7 +51,10 @@ const chains: ChainConfig[] = [
     options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFee: '3.12 gwei',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
     },
   },
   {
@@ -69,7 +72,10 @@ const chains: ChainConfig[] = [
     options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFee: '3.12 gwei',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
     },
   },
 ];
@@ -105,7 +111,10 @@ describe('initialize', () => {
             chainOptions: {
               txType: '2',
               baseFeeMultiplier: '2',
-              priorityFee: '3.12 gwei',
+              priorityFee: {
+                value: '3.12',
+                unit: 'gwei',
+              },
             },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',
@@ -146,7 +155,10 @@ describe('initialize', () => {
             chainOptions: {
               txType: '2',
               baseFeeMultiplier: '2',
-              priorityFee: '3.12 gwei',
+              priorityFee: {
+                value: '3.12',
+                unit: 'gwei',
+              },
             },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',

@@ -6,6 +6,6 @@
     // Enable at root tsconfig.json once all packages have been fixed
     "strict": true
   },
-  "include": ["./src/**/*", "./test/**/*"],
+  "include": ["./src/**/*", "./test/**/*", "../../node_modules/@types/jest/index.d.ts"],
   "exclude": ["dist/**/*", "node_modules/**/*"]
 }

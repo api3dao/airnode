@@ -12,11 +12,14 @@
         }
       },
       "type": "evm",
-            "chainOptions": {
-              "txType": "2",
-              "baseFeeMultiplier": "2",
-              "priorityFeeGwei": "3.12"
-            }
+      "options": {
+        "txType": "2",
+        "baseFeeMultiplier": "2",
+        "priorityFee": {
+          "value": "3.12",
+          "unit": "gwei"
+        }
+      }
     }
   ],
   "nodeSettings": {

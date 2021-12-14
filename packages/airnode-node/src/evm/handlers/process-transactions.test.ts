@@ -21,6 +21,7 @@ mockEthers({
 
 import fs from 'fs';
 import { BigNumber, ethers } from 'ethers';
+import { parseEther } from 'ethers/lib/utils';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import {
@@ -39,14 +40,14 @@ describe('processTransactions', () => {
     'fetches the gas price, assigns nonces and submits transactions - txType: %d',
     async (txType: string) => {
       const initialConfig = fixtures.buildConfig();
-      const options = { txType } as ChainOptions;
-      const chains = initialConfig.chains.map((chain) => ({
-        ...chain,
-        options,
-      }));
       const config = {
         ...initialConfig,
-        chains,
+        chains: initialConfig.chains.map((chain) => ({
+          ...chain,
+          options: {
+            txType,
+          },
+        })),
       } as Config;
       jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
@@ -68,7 +69,7 @@ describe('processTransactions', () => {
       })();
 
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
-      const balance = ethers.BigNumber.from('5000000000000000000');
+      const balance = parseEther('1000');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(balance));
 
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -104,7 +105,9 @@ describe('processTransactions', () => {
         config,
         settings: {
           ...initialState.settings,
-          options,
+          chainOptions: {
+            txType,
+          },
         },
       } as ProviderState<EVMProviderState>;
 
@@ -160,6 +163,7 @@ describe('processTransactions', () => {
     `does not submit transactions if a gas price cannot be fetched - txType: %d`,
     async (txType: string) => {
       const contract = new ethers.Contract('address', ['ABI']);
+      const fulfillMock = jest.spyOn(contract, 'fulfill');
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
       if (txType === '1') {
@@ -196,7 +200,7 @@ describe('processTransactions', () => {
       expect(res.gasTarget).toEqual(null);
 
       // API call was NOT submitted
-      expect(contract.fulfill).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
     }
   );
 });

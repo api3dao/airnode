@@ -19,7 +19,10 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFee: '3.12 gwei',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
     },
     providers: {
       'EVM local': {

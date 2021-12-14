@@ -21,16 +21,15 @@ import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
 import { FetchOptions } from './gas-prices';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
-import { ChainOptions } from '../types';
 
-const makeLegacyBaseOptions = () => ({
+const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
   chainOptions: {
     txType: '1',
-  } as ChainOptions,
+  },
 });
 
-const makeEip1559BaseOptions = () => {
+const createEip1559BaseOptions = () => {
   const provider = new ethers.providers.JsonRpcProvider();
 
   const eip1559ChainOptions = [
@@ -41,7 +40,7 @@ const makeEip1559BaseOptions = () => {
         value: '3.12',
         unit: 'gwei',
       },
-    } as ChainOptions,
+    },
     {
       txType: '2',
       baseFeeMultiplier: undefined,
@@ -49,18 +48,18 @@ const makeEip1559BaseOptions = () => {
         value: '3.12',
         unit: 'gwei',
       },
-    } as ChainOptions,
+    },
     {
       txType: '2',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER,
       priorityFee: undefined,
-    } as ChainOptions,
+    },
     {
       txType: '2',
       baseFeeMultiplier: undefined,
       priorityFee: undefined,
-    } as ChainOptions,
-  ];
+    },
+  ] as const;
 
   return eip1559ChainOptions.map((chainOptions) => ({ provider, chainOptions }));
 };
@@ -96,7 +95,7 @@ describe('getGasPrice', () => {
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
 
-  test.each(makeEip1559BaseOptions())(
+  test.each(createEip1559BaseOptions())(
     `returns the gas price from an EIP-1559 provider - test case: %#`,
     async (baseOptions: FetchOptions) => {
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
@@ -115,7 +114,7 @@ describe('getGasPrice', () => {
   );
 
   it('returns the gas price from a non-EIP-1559 provider', async () => {
-    const baseOptions = makeLegacyBaseOptions();
+    const baseOptions = createLegacyBaseOptions();
     const getBlock = baseOptions.provider.getBlock as jest.Mock;
 
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
@@ -130,7 +129,7 @@ describe('getGasPrice', () => {
   });
 
   it('retries once on failure for a non-EIP-1559 provider', async () => {
-    const baseOptions = makeLegacyBaseOptions();
+    const baseOptions = createLegacyBaseOptions();
     const getBlock = baseOptions.provider.getBlock as jest.Mock;
 
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
@@ -139,14 +138,20 @@ describe('getGasPrice', () => {
 
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
-    expect(logs.length).toEqual(0);
+    expect(logs).toEqual([
+      {
+        level: 'INFO',
+        message: 'Failed attempting to get legacy gasPrice from provider',
+        error: new Error('Server is down'),
+      },
+    ]);
     expect(gasPrice).toEqual({ gasPrice: testGasPrice });
     expect(getGasPrice).toHaveBeenCalledTimes(2);
     expect(getBlock).toHaveBeenCalledTimes(0);
   });
 
   it('retries a maximum of twice then returns null for non-EIP-1559 provider', async () => {
-    const baseOptions = makeLegacyBaseOptions();
+    const baseOptions = createLegacyBaseOptions();
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
@@ -155,9 +160,18 @@ describe('getGasPrice', () => {
 
     expect(logs).toEqual([
       {
-        level: 'ERROR',
-        message: 'Failed to get legacy gas price from provider',
+        level: 'INFO',
+        message: 'Failed attempting to get legacy gasPrice from provider',
         error: new Error('Server is down'),
+      },
+      {
+        level: 'INFO',
+        message: 'Failed attempting to get legacy gasPrice from provider',
+        error: new Error('Server is down'),
+      },
+      {
+        level: 'ERROR',
+        message: 'All attempts to get legacy gasPrice from provider failed',
       },
     ]);
     expect(gasPrice).toEqual(null);
@@ -165,7 +179,7 @@ describe('getGasPrice', () => {
     expect(baseOptions.provider.getBlock).toHaveBeenCalledTimes(0);
   });
 
-  test.each(makeEip1559BaseOptions())(
+  test.each(createEip1559BaseOptions())(
     `retries once on failure for an EIP-1559 provider - test case: %#`,
     async (baseOptions: FetchOptions) => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
@@ -178,7 +192,13 @@ describe('getGasPrice', () => {
 
       const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
-      expect(logs.length).toEqual(0);
+      expect(logs).toEqual([
+        {
+          level: 'INFO',
+          message: 'Failed attempting to get block metadata from provider',
+          error: new Error('Server is down'),
+        },
+      ]);
       expect(gasPrice?.maxPriorityFeePerGas).toEqual(maxPriorityFeePerGas);
       expect(gasPrice?.maxFeePerGas).toEqual(maxFeePerGas);
       expect(getGasPrice).toHaveBeenCalledTimes(0);
@@ -186,7 +206,7 @@ describe('getGasPrice', () => {
     }
   );
 
-  test.each(makeEip1559BaseOptions())(
+  test.each(createEip1559BaseOptions())(
     `retries a maximum of twice on failure of getBlock for an EIP-1559 provider and then returns null - test case: %#`,
     async (baseOptions: FetchOptions) => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
@@ -201,7 +221,16 @@ describe('getGasPrice', () => {
         {
           error: new Error('Server is down'),
           level: 'INFO',
-          message: 'Failed to get EIP-1559 gas pricing from provider',
+          message: 'Failed attempting to get block metadata from provider',
+        },
+        {
+          error: new Error('Server is down'),
+          level: 'INFO',
+          message: 'Failed attempting to get block metadata from provider',
+        },
+        {
+          level: 'ERROR',
+          message: 'All attempts to get EIP-1559 gas pricing from provider failed',
         },
       ]);
       expect(gasPrice).toEqual(null);

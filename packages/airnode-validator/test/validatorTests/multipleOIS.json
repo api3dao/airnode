@@ -194,10 +194,13 @@
         "AirnodeRrp": "0xF6d2675468989387e96127546e0CBC9A384fa418"
       },
       "authorizers": ["0x0000000000000000000000000000000000000000"],
-      "chainOptions": {
+      "options": {
         "txType": "2",
         "baseFeeMultiplier": "2",
-        "priorityFeeGwei": "3.12"
+        "priorityFee": {
+          "value": "3.12",
+          "unit": "gwei"
+        }
       }
     }
   ],

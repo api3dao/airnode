@@ -40,7 +40,7 @@ describe('startCoordinator', () => {
       ...initialConfig,
       chains: initialConfig.chains.map((chain) => ({
         ...chain,
-        chainOptions: {
+        options: {
           txType,
         },
       })),

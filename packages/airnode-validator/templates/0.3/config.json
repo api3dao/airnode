@@ -61,52 +61,6 @@
           "__message": "__fullPath: Currently only \"evm\" is supported"
         }
       },
-      "chainOptions": {
-        "txType": {
-          "__type": "string",
-          "__regexp": "^(1|2)$",
-          "__catch": {
-            "__message": "__fullPath: Available transaction types are 1 (legacy) or 2 (EIP-1559)"
-          }
-        },
-        "__conditions": [
-          {
-            "__if": {
-              "txType": 1
-            },
-            "__then": {
-            },
-            "__catch": {
-              "__message": "EIP-1559-related fields are only valid when txType is 2: __fullPath"
-            }
-          },
-          {
-            "__if": {
-              "txType": 2
-            },
-            "__then": {
-              "baseFeeMultiplier": {},
-              "priorityFeeGwei": {}
-            }
-          }
-        ],
-        "__optional": {
-          "baseFeeMultiplier": {
-            "__type": "string",
-            "__regexp": "^[0-9]$",
-            "__catch": {
-              "__message": "__fullPath: Max Fee multiplier must be a whole number"
-            }
-          },
-          "priorityFeeGwei": {
-            "__type": "string",
-            "__regexp": "^\\d*\\.?\\d*$",
-            "__catch": {
-              "__message": "__fullPath: Priority Fee must be a whole or decimal number"
-            }
-          }
-        }
-      },
       "providers": {
         "__objectItem": {
           "url": {

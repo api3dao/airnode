@@ -50,7 +50,7 @@ export async function processTransactions(
     );
   } else {
     const gweiPrice = utils.weiToGwei(gasTarget.gasPrice!);
-    logger.info(`Gas price (non EIP-1559) set to ${gweiPrice} Gwei`, baseLogOptions);
+    logger.info(`Gas price (legacy) set to ${gweiPrice} Gwei`, baseLogOptions);
   }
 
   const state3 = state.update(state2, { gasTarget });
