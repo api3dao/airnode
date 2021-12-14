@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { applyFulfillment } from './requests';
+import { applyTransactionResult } from './requests';
 import * as fixtures from '../../../test/fixtures';
 import { RequestStatus } from '../../types';
 
-describe('applyFulfillment', () => {
+describe('applyTransactionResult', () => {
   const hash = '0xtransactionId';
   const invalidData01: ethers.Transaction = {
     chainId: 31337,
@@ -23,7 +23,7 @@ describe('applyFulfillment', () => {
     const request = fixtures.requests.buildApiCall();
 
     it('populates request with valid transaction data', () => {
-      const fulfilledRequest = applyFulfillment(request, validData);
+      const fulfilledRequest = applyTransactionResult(request, validData);
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
@@ -32,9 +32,9 @@ describe('applyFulfillment', () => {
     });
 
     it('returns the same request for invalid transaction data', () => {
-      const unfulfilledRequest01 = applyFulfillment(request, invalidData01);
+      const unfulfilledRequest01 = applyTransactionResult(request, invalidData01);
       expect(unfulfilledRequest01).toEqual(request);
-      const unfulfilledRequest02 = applyFulfillment(request, invalidData02);
+      const unfulfilledRequest02 = applyTransactionResult(request, invalidData02);
       expect(unfulfilledRequest02).toEqual(request);
     });
   });
@@ -43,7 +43,7 @@ describe('applyFulfillment', () => {
     const request = fixtures.requests.buildWithdrawal();
 
     it('populates request with valid transaction data', () => {
-      const fulfilledRequest = applyFulfillment(request, validData);
+      const fulfilledRequest = applyTransactionResult(request, validData);
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
@@ -52,9 +52,9 @@ describe('applyFulfillment', () => {
     });
 
     it('returns the same request for invalid transaction data', () => {
-      const unfulfilledRequest01 = applyFulfillment(request, invalidData01);
+      const unfulfilledRequest01 = applyTransactionResult(request, invalidData01);
       expect(unfulfilledRequest01).toEqual(request);
-      const unfulfilledRequest02 = applyFulfillment(request, invalidData02);
+      const unfulfilledRequest02 = applyTransactionResult(request, invalidData02);
       expect(unfulfilledRequest02).toEqual(request);
     });
   });

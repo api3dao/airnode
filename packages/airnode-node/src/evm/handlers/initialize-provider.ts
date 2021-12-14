@@ -112,9 +112,8 @@ export async function initializeProvider(
 
   const state5 = state.update(state4, {
     requests: {
-      ...state3.requests,
+      ...state4.requests,
       apiCalls: verifiedApiCallsForRrpTriggers,
-      withdrawals: state4.requests.withdrawals,
     },
   });
 
@@ -150,7 +149,7 @@ export async function initializeProvider(
   logger.logPending(authLogs, baseLogOptions);
 
   const state7 = state.update(state6, {
-    requests: { ...state5.requests, apiCalls: authorizedApiCalls },
+    requests: { ...state6.requests, apiCalls: authorizedApiCalls },
   });
 
   return state7;

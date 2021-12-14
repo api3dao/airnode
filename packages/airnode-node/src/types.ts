@@ -9,6 +9,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
 // State
@@ -127,6 +128,10 @@ export interface ApiCallTemplate {
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
   readonly withdrawals: Request<Withdrawal>[];
+}
+
+export interface SubmitRequest<T> {
+  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
 }
 
 export interface ProviderSettings extends CoordinatorSettings {

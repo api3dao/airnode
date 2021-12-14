@@ -89,7 +89,7 @@ describe('submit', () => {
     ]);
   });
 
-  it('does not sumbit failed API calls', async () => {
+  it('does not submit failed API calls', async () => {
     const apiCall = fixtures.requests.buildApiCall({
       id: '0xd211ecb4fbf347cabfb32e25d8485338abc28d54bd4735022ade13854d13cad8',
       nonce: 5,
@@ -112,7 +112,7 @@ describe('submit', () => {
     expect(res.apiCalls).toEqual([apiCall]);
   });
 
-  it('does not sumbit failed withdrawals', async () => {
+  it('does not submit failed withdrawals', async () => {
     const withdrawal = fixtures.requests.buildWithdrawal({
       id: '0x6671f6224054806905bbe20cce2f3a8271f5b877bffc480edb9bc71fe616466e',
       nonce: 3,

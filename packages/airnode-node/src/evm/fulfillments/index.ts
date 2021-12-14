@@ -8,11 +8,10 @@ import {
   EVMProviderState,
   ProviderState,
   RequestType,
-  TransactionOptions,
-  LogsErrorData,
   GroupedRequests,
   ApiCall,
   Withdrawal,
+  SubmitRequest,
 } from '../../types';
 import { AirnodeRrpFactory, AirnodeRrp } from '../contracts';
 import * as verification from '../verification';
@@ -23,7 +22,7 @@ interface OrderedRequest<T> {
   readonly makeRequest: () => Promise<Request<T>>;
 }
 
-function baseLogOptions(state: ProviderState<EVMProviderState>) {
+function getBaseLogOptions(state: ProviderState<EVMProviderState>) {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;
 
@@ -34,7 +33,7 @@ function baseLogOptions(state: ProviderState<EVMProviderState>) {
   };
 }
 
-function transactionOptions(state: ProviderState<EVMProviderState>) {
+function getTransactionOptions(state: ProviderState<EVMProviderState>) {
   return {
     gasTarget: state.gasTarget!,
     masterHDNode: state.masterHDNode,
@@ -42,22 +41,18 @@ function transactionOptions(state: ProviderState<EVMProviderState>) {
   };
 }
 
-function submitRequests<T>(
+function prepareRequestSubmissions<T>(
   state: ProviderState<EVMProviderState>,
   requests: Request<T>[],
   type: RequestType,
-  submitFunction: (
-    airnodeRrp: AirnodeRrp,
-    request: Request<T>,
-    options: TransactionOptions
-  ) => Promise<LogsErrorData<Request<T>>>,
+  submitFunction: SubmitRequest<T>,
   contract: AirnodeRrp
 ): OrderedRequest<T>[] {
   return requests.map((request) => {
     const makeRequest = async () => {
       // NOTE: This err was not actually handled anywhere before, what should we do with it?
-      const [logs, _err, submittedRequest] = await submitFunction(contract, request, transactionOptions(state));
-      logger.logPending(logs, baseLogOptions(state));
+      const [logs, _err, submittedRequest] = await submitFunction(contract, request, getTransactionOptions(state));
+      logger.logPending(logs, getBaseLogOptions(state));
 
       return submittedRequest || request;
     };
@@ -74,7 +69,7 @@ function submitRequests<T>(
  * Sponsor requests are performed from the sponsor wallet. Each transaction has a fixed nonce and blochchain rejects out
  * of order transactions.
  *
- * This function makes all the sponsor requests sequentially (ordered by transaction nonce increasingly).
+ * This function performs the requests of a particular sponsor sequentially, ordered by transaction nonce increasingly.
  *
  * There is a concept of batched requests, but that doesn't work with transactions. See:
  * https://github.com/ethers-io/ethers.js/issues/892#issuecomment-828897859
@@ -91,17 +86,23 @@ async function submitSponsorRequestsSequentially(
   const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
 
   // Submit transactions for API calls
-  const submittedApiCalls = submitRequests(state, requests.apiCalls, RequestType.ApiCall, submitApiCall, contract);
+  const preparedApiCallSubmissions = prepareRequestSubmissions(
+    state,
+    requests.apiCalls,
+    RequestType.ApiCall,
+    submitApiCall,
+    contract
+  );
 
   // Verify sponsor wallets for withdrawals
   const [verifyWithdrawalLogs, verifiedWithdrawals] = verification.verifySponsorWallets(
     requests.withdrawals,
     state.masterHDNode
   );
-  logger.logPending(verifyWithdrawalLogs, baseLogOptions(state));
+  logger.logPending(verifyWithdrawalLogs, getBaseLogOptions(state));
 
   // Submit transactions for withdrawals
-  const submittedWithdrawals = submitRequests(
+  const preparedWithdrawalSubmissions = prepareRequestSubmissions(
     state,
     verifiedWithdrawals,
     RequestType.Withdrawal,
@@ -109,7 +110,7 @@ async function submitSponsorRequestsSequentially(
     contract
   );
 
-  const allRequests = [...submittedApiCalls, ...submittedWithdrawals];
+  const allRequests = [...preparedApiCallSubmissions, ...preparedWithdrawalSubmissions];
   // Sort by the nonce value increasingly
   allRequests.sort((a, b) => a.nonce - b.nonce);
 
@@ -121,7 +122,7 @@ async function submitSponsorRequestsSequentially(
     if (submittedRequest.fulfillment?.hash) {
       logger.info(
         `Transaction:${submittedRequest.fulfillment.hash} submitted for Request:${submittedRequest.id}`,
-        baseLogOptions(state)
+        getBaseLogOptions(state)
       );
     }
 
