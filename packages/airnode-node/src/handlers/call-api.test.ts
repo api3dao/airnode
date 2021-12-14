@@ -19,7 +19,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({
       config: fixtures.buildConfig(),
       aggregatedApiCall,
@@ -61,7 +61,7 @@ describe('callApi', () => {
   });
 
   it('returns an error if no _type parameter is found', async () => {
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       {
@@ -80,7 +80,7 @@ describe('callApi', () => {
     spy.mockRejectedValueOnce(new Error('Network is down'));
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
@@ -95,7 +95,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall, apiCallOptions: {} });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },

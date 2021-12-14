@@ -1,7 +1,6 @@
 import { AggregatedApiCall, TestingGatewayAggregatedApiCall } from '../../src/types';
 
-// TODO: Rename
-export function buildAggregatedApiCall(params?: Partial<AggregatedApiCall>): AggregatedApiCall {
+export function buildAggregatedRegularApiCall(params?: Partial<AggregatedApiCall>): AggregatedApiCall {
   return {
     type: 'regular',
     sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
