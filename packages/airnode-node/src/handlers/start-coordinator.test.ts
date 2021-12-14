@@ -33,7 +33,7 @@ import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 import { Config, GasTarget } from '../types';
 
 describe('startCoordinator', () => {
-  test.each(['1', '2'])(`fetches and processes requests - txType: %d`, async (txType) => {
+  test.each(['1', '2'])(`fetches and processes requests - txType: %d`, async (txType: string) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
     const config = {

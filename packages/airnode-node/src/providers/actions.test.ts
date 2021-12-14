@@ -48,10 +48,10 @@ const chains: ChainConfig[] = [
       },
     },
     type: 'evm',
-    chainOptions: {
+    options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFeeGWei: '3.12',
+      priorityFee: '3.12 gwei',
     },
   },
   {
@@ -66,10 +66,10 @@ const chains: ChainConfig[] = [
       },
     },
     type: 'evm',
-    chainOptions: {
+    options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFeeGWei: '3.12',
+      priorityFee: '3.12 gwei',
     },
   },
 ];
@@ -105,7 +105,7 @@ describe('initialize', () => {
             chainOptions: {
               txType: '2',
               baseFeeMultiplier: '2',
-              priorityFeeGWei: '3.12',
+              priorityFee: '3.12 gwei',
             },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',
@@ -146,7 +146,7 @@ describe('initialize', () => {
             chainOptions: {
               txType: '2',
               baseFeeMultiplier: '2',
-              priorityFeeGWei: '3.12',
+              priorityFee: '3.12 gwei',
             },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',
@@ -186,7 +186,7 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
-  test.each(['1', '2'])('processes requests for each EVM provider - txType: %d', async (txType) => {
+  test.each(['1', '2'])('processes requests for each EVM provider - txType: %d', async (txType: string) => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
 

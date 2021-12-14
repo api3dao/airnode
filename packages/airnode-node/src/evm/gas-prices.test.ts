@@ -19,6 +19,7 @@ mockEthers({
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
+import { FetchOptions } from './gas-prices';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 import { ChainOptions } from '../types';
 
@@ -36,27 +37,58 @@ const makeEip1559BaseOptions = () => {
     {
       txType: '2',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER,
-      priorityFeeGWei: '3.12',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
     } as ChainOptions,
     {
       txType: '2',
       baseFeeMultiplier: undefined,
-      priorityFeeGWei: '3.12',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
     } as ChainOptions,
     {
       txType: '2',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER,
-      priorityFeeGWei: undefined,
+      priorityFee: undefined,
     } as ChainOptions,
     {
       txType: '2',
       baseFeeMultiplier: undefined,
-      priorityFeeGWei: undefined,
+      priorityFee: undefined,
     } as ChainOptions,
   ];
 
   return eip1559ChainOptions.map((chainOptions) => ({ provider, chainOptions }));
 };
+
+describe('parsePriorityFee', () => {
+  test.each([
+    [{ value: '123', unit: 'wei' }, BigNumber.from('123')],
+    [{ value: '123' }, BigNumber.from('123')],
+    [{ value: '123.4', unit: 'kwei' }, BigNumber.from('123400')],
+    [{ value: '123.4', unit: 'mwei' }, BigNumber.from('123400000')],
+    [{ value: '123.4', unit: 'gwei' }, BigNumber.from('123400000000')],
+    [{ value: '123.4', unit: 'szabo' }, BigNumber.from('123400000000000')],
+    [{ value: '123.4', unit: 'finney' }, BigNumber.from('123400000000000000')],
+    [{ value: '123.4', unit: 'ether' }, BigNumber.from('123400000000000000000')],
+  ])('returns parsed wei from decimal denominated string - %#', (input: any, result: BigNumber) => {
+    const priorityFeeInWei = gasPrices.parsePriorityFee(input);
+    expect(priorityFeeInWei).toEqual(result);
+  });
+
+  test.each([
+    { value: '3.12', unit: 'pence' },
+    { value: '3.1p', unit: 'gwei' },
+    { value: '3.12', unit: 'wei' },
+  ])('throws an error for an invalid decimal denominated string - %#', (input: any) => {
+    const throwingFunction = () => gasPrices.parsePriorityFee(input);
+    expect(throwingFunction).toThrow();
+  });
+});
 
 describe('getGasPrice', () => {
   const baseFeePerGas = ethers.BigNumber.from('93000000000');
@@ -66,7 +98,7 @@ describe('getGasPrice', () => {
 
   test.each(makeEip1559BaseOptions())(
     `returns the gas price from an EIP-1559 provider - test case: %#`,
-    async (baseOptions) => {
+    async (baseOptions: FetchOptions) => {
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
       getBlock.mockResolvedValueOnce({
         baseFeePerGas,
@@ -122,7 +154,11 @@ describe('getGasPrice', () => {
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to get legacy gas price from provider', error: new Error('Server is down') },
+      {
+        level: 'ERROR',
+        message: 'Failed to get legacy gas price from provider',
+        error: new Error('Server is down'),
+      },
     ]);
     expect(gasPrice).toEqual(null);
     expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
@@ -131,7 +167,7 @@ describe('getGasPrice', () => {
 
   test.each(makeEip1559BaseOptions())(
     `retries once on failure for an EIP-1559 provider - test case: %#`,
-    async (baseOptions) => {
+    async (baseOptions: FetchOptions) => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
 
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
@@ -152,7 +188,7 @@ describe('getGasPrice', () => {
 
   test.each(makeEip1559BaseOptions())(
     `retries a maximum of twice on failure of getBlock for an EIP-1559 provider and then returns null - test case: %#`,
-    async (baseOptions) => {
+    async (baseOptions: FetchOptions) => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
 
       const getBlock = baseOptions.provider.getBlock as jest.Mock;

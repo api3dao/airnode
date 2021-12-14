@@ -376,10 +376,15 @@ export interface Provider {
   readonly url: string;
 }
 
+export interface PriorityFee {
+  readonly value: string;
+  readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
+}
+
 export interface ChainOptions {
   readonly txType: '1' | '2';
   readonly baseFeeMultiplier?: string;
-  readonly priorityFeeGWei?: string;
+  readonly priorityFee?: PriorityFee;
 }
 
 export interface ChainConfig {
@@ -390,7 +395,7 @@ export interface ChainConfig {
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
   readonly type: ChainType;
-  readonly chainOptions: ChainOptions;
+  readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
 }
 

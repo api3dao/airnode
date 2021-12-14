@@ -47,6 +47,3 @@ export const PRIORITY_FEE = '3120000000';
 
 // The Base Fee to Max Fee multiplier
 export const BASE_FEE_MULTIPLIER = '2';
-
-// The number of Wei in a Gwei
-export const WEI_PER_GWEI = '1000000000';

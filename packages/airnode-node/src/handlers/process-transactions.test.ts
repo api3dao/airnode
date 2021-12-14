@@ -4,7 +4,7 @@ import * as fixtures from '../../test/fixtures';
 import { ChainOptions } from '../types';
 
 describe('processTransactions', () => {
-  test.each(['1', '2'])('processes EVM providers', (txType) => {
+  test.each(['1', '2'])('processes EVM providers', (txType: string) => {
     const processSpy = jest.spyOn(evmHandler, 'processTransactions');
     const initialState = fixtures.buildEVMProviderState();
     const chainOptions = { txType } as ChainOptions;

@@ -21,10 +21,10 @@ describe('create', () => {
         },
       },
       type: chainType,
-      chainOptions: {
+      options: {
         txType: '2',
         baseFeeMultiplier: '2',
-        priorityFeeGWei: '3.12',
+        priorityFee: '3.12 gwei',
       },
     };
     const config = fixtures.buildConfig();
@@ -43,7 +43,7 @@ describe('create', () => {
         chainOptions: {
           txType: '2',
           baseFeeMultiplier: '2',
-          priorityFeeGWei: '3.12',
+          priorityFee: '3.12 gwei',
         },
         ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
@@ -91,10 +91,10 @@ describe('create', () => {
         },
       },
       type: chainType,
-      chainOptions: {
+      options: {
         txType: '2',
         baseFeeMultiplier: '2',
-        priorityFeeGWei: '3.12',
+        priorityFee: '3.12 gwei',
       },
     };
     const config = fixtures.buildConfig();
@@ -112,7 +112,7 @@ describe('create', () => {
         chainOptions: {
           txType: '2',
           baseFeeMultiplier: '2',
-          priorityFeeGWei: '3.12',
+          priorityFee: '3.12 gwei',
         },
         chainType: 'evm',
         ignoreBlockedRequestsAfterBlocks: 20,

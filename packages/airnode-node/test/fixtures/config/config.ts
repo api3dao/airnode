@@ -30,9 +30,9 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
         id: '31337',
         type: 'evm',
-        // We set an invalid chainOptions value to keep us honest in the use of both txType cases in downstream tests.
+        // We set an invalid options value to keep us honest in the use of both txType cases in downstream tests.
         // @ts-ignore
-        chainOptions: {},
+        options: {},
         providers: {
           ['EVM local']: {
             url: 'http://localhost:4111',

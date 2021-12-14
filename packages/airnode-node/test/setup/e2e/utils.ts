@@ -16,10 +16,10 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     authorizers: [],
     id: '31337',
     type: 'evm',
-    chainOptions: {
+    options: {
       txType: '2',
       baseFeeMultiplier: '2',
-      priorityFeeGWei: '3.12',
+      priorityFee: '3.12 gwei',
     },
     providers: {
       'EVM local': {

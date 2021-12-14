@@ -1,14 +1,15 @@
 import { BigNumber, ethers } from 'ethers';
-import { parseEther } from 'ethers/lib/utils';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
-import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE, WEI_PER_GWEI } from '../constants';
-import { ChainOptions, GasTarget, LogsData } from '../types';
+import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
+import { ChainOptions, GasTarget, LogsData, PriorityFee } from '../types';
 
-interface FetchOptions {
+export interface FetchOptions {
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly chainOptions: ChainOptions;
 }
+
+export const parsePriorityFee = ({ value, unit }: PriorityFee) => ethers.utils.parseUnits(value, unit ? unit : 'wei');
 
 export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider, chainOptions } = options;
@@ -33,8 +34,8 @@ export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTa
         return [[log], null];
       }
 
-      const maxPriorityFeePerGas = chainOptions.priorityFeeGWei
-        ? parseEther(chainOptions.priorityFeeGWei).mul(WEI_PER_GWEI).div(ethers.constants.WeiPerEther)
+      const maxPriorityFeePerGas = chainOptions.priorityFee
+        ? parsePriorityFee(chainOptions.priorityFee)
         : BigNumber.from(PRIORITY_FEE);
       const baseFeeMultiplier = chainOptions.baseFeeMultiplier ? chainOptions.baseFeeMultiplier : BASE_FEE_MULTIPLIER;
       const maxFeePerGas = blockHeader.baseFeePerGas.mul(BigNumber.from(baseFeeMultiplier)).add(maxPriorityFeePerGas!);

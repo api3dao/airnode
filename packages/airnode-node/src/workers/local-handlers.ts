@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as fs from 'fs';
 import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import { ApiCallOptions } from '../handlers';
@@ -49,15 +48,6 @@ export async function callApi({ aggregatedApiCall, logOptions, apiCallOptions }:
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }
-
-export const logMe = (obj: any) => {
-  const logger = fs.createWriteStream('/tmp/log.txt', {
-    flags: 'a', // 'a' means appending (old data will be preserved)
-  });
-  logger.write(JSON.stringify(obj, null, 2));
-  logger.write('\n');
-  logger.close();
-};
 
 export async function processProviderRequests({ state: providerState }: ProviderArgs): Promise<WorkerResponse> {
   const config = loadConfig();

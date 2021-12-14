@@ -37,12 +37,12 @@ import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../../constants';
 describe('processTransactions', () => {
   test.each(['1', '2'])(
     'fetches the gas price, assigns nonces and submits transactions - txType: %d',
-    async (txType) => {
+    async (txType: string) => {
       const initialConfig = fixtures.buildConfig();
-      const chainOptions = { txType } as ChainOptions;
+      const options = { txType } as ChainOptions;
       const chains = initialConfig.chains.map((chain) => ({
         ...chain,
-        chainOptions,
+        options,
       }));
       const config = {
         ...initialConfig,
@@ -104,7 +104,7 @@ describe('processTransactions', () => {
         config,
         settings: {
           ...initialState.settings,
-          chainOptions,
+          options,
         },
       } as ProviderState<EVMProviderState>;
 
@@ -158,7 +158,7 @@ describe('processTransactions', () => {
 
   test.each(['1', '2'])(
     `does not submit transactions if a gas price cannot be fetched - txType: %d`,
-    async (txType) => {
+    async (txType: string) => {
       const contract = new ethers.Contract('address', ['ABI']);
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
@@ -181,13 +181,13 @@ describe('processTransactions', () => {
         transactionCountsBySponsorAddress,
       });
 
-      const chainOptions = { txType } as ChainOptions;
+      const options = { txType } as ChainOptions;
 
       const state = {
         ...initialState,
         settings: {
           ...initialState.settings,
-          chainOptions,
+          options,
         },
       };
 
