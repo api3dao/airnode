@@ -78,7 +78,6 @@ async function signResponseMessage(requestId: string, responseValue: string, con
 
 export interface CallApiPayload {
   readonly config: Config;
-  // TODO: Rename
   readonly aggregatedApiCall: AggregatedApiCall;
 }
 
