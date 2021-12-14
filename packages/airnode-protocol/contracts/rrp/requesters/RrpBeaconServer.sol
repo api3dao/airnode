@@ -206,7 +206,8 @@ contract RrpBeaconServer is
         bytes calldata parameters
     ) external override {
         require(
-            sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+            msg.sender == sponsor ||
+                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Caller not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
