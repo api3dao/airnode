@@ -1,8 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import * as utils from './utils';
-import { convert } from '../convertor';
-import { Log } from '../types';
+import { convert, convertWithTemplate } from '../convertor';
 
 const args = yargs(hideBin(process.argv))
   .option('from', {
@@ -51,16 +49,4 @@ if (args.template) {
   process.exit();
 }
 
-const messages: Log[] = [];
-const [from, fromVersion] = args.from!.toLowerCase().split('@');
-const [to, toVersion] = args.to!.toLowerCase().split('@');
-
-const templatePath = utils.getConversionPath(from, to, messages, fromVersion, toVersion);
-
-if (templatePath) {
-  const res = convert(args.specification, templatePath, args.secrets);
-  res.messages.push(...messages);
-  console.log(JSON.stringify(args['specs-only'] ? res.output : res, null, 2));
-} else {
-  console.log(JSON.stringify(messages, null, 2));
-}
+console.log(JSON.stringify(convertWithTemplate(args.specification, args.from, args.to, args.secrets), null, 2));
