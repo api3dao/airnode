@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
  * 3 - Ethereum Ropsten
  * 4 - Ethereum Rinkeby
  * 5 - Ethereum goerli
- * 42 - Ethereum kovan
+ * 42 - Ethereum Kovan
  * 31337 - Local Hardhat (development)
  *
  */
