@@ -46,6 +46,7 @@ describe('processTransactions', () => {
     });
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
+      sponsorWalletAddress: '0xfD63156337539030025B0D3f57479a346553172c',
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
