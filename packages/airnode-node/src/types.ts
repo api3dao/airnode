@@ -9,6 +9,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
 // State
@@ -127,6 +128,10 @@ export interface ApiCallTemplate {
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
   readonly withdrawals: Request<Withdrawal>[];
+}
+
+export interface SubmitRequest<T> {
+  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
@@ -299,16 +304,6 @@ export type EVMEventLog =
   | EVMFulfilledWithdrawalLog;
 
 // ===========================================
-// Transactions
-// ===========================================
-export interface TransactionReceipt {
-  readonly id: string;
-  readonly data?: ethers.Transaction;
-  readonly error?: Error;
-  readonly type: RequestType;
-}
-
-// ===========================================
 // Triggers
 // ===========================================
 export interface RrpTrigger {
@@ -361,7 +356,7 @@ export interface PendingLog {
 // are purposefully tuples (over an object with 'logs' and 'error' properties) for
 // this reason.
 export type LogsData<T> = readonly [PendingLog[], T];
-export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T];
+export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T | null];
 
 // ===========================================
 // Config
