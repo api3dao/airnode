@@ -4,4 +4,4 @@
 '@api3/airnode-validator': patch
 ---
 
-Extended EIP-1559 implementation to be user-configurable
+Extended EIP-1559 implementation to be user configurable
