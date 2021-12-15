@@ -17,19 +17,16 @@ export async function testApi(
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 
-  const rrpTrigger = find(config.triggers.rrp, ['endpointId', endpointId]);
-  if (!rrpTrigger) {
+  const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
+  if (!httpTrigger) {
     return [new Error(`No such endpoint with ID '${endpointId}'`), null];
   }
 
-  const endpoints = find(config.ois, ['title', rrpTrigger.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', rrpTrigger.endpointName]);
+  const endpoints = find(config.ois, ['title', httpTrigger.oisTitle])?.endpoints;
+  const endpoint = find(endpoints, ['name', httpTrigger.endpointName]);
 
   if (!endpoint) {
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
-  }
-  if (!rrpTrigger.testable) {
-    return [new Error(`Endpoint with ID '${endpointId}' can't be tested`), null];
   }
 
   const workerOpts: WorkerOptions = {
@@ -43,8 +40,8 @@ export async function testApi(
     id: testCallId,
     airnodeAddress,
     endpointId,
-    endpointName: rrpTrigger.endpointName,
-    oisTitle: rrpTrigger.oisTitle,
+    endpointName: httpTrigger.endpointName,
+    oisTitle: httpTrigger.oisTitle,
     parameters,
   };
 

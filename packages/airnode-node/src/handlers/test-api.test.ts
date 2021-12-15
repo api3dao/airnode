@@ -27,7 +27,7 @@ describe('testApi', () => {
   it('returns an error if endpoint testability is not specified', async () => {
     const endpoint = fixtures.buildOIS().endpoints[0];
     const config = buildConfigWithEndpoint(endpoint);
-    delete config.triggers.rrp[0].testable;
+    config.triggers.http = [];
 
     const [err, res] = await testApi(config, ENDPOINT_ID, {});
     expect(res).toBeNull();
@@ -37,7 +37,7 @@ describe('testApi', () => {
   it('returns an error if endpoint testability is turned off', async () => {
     const endpoint = fixtures.buildOIS().endpoints[0];
     const config = buildConfigWithEndpoint(endpoint);
-    config.triggers.rrp[0].testable = false;
+    config.triggers.http = [];
 
     const [err, res] = await testApi(buildConfigWithEndpoint(endpoint), ENDPOINT_ID, {});
     expect(res).toBeNull();
