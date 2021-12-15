@@ -215,26 +215,46 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export interface ApiCallResponse {
-  readonly value?: string;
-  readonly signature?: string;
-  readonly errorMessage?: string;
+export type ApiCallResponse = ApiCallSuccessResponse | ApiCallErrorResponse;
+
+export interface ApiCallSuccessResponse {
+  success: true;
+  value: string;
+  signature: string;
 }
 
-export interface AggregatedApiCall {
-  readonly id: string;
-  readonly sponsorAddress: string;
-  readonly airnodeAddress: string;
-  readonly requesterAddress: string;
-  readonly sponsorWalletAddress: string;
-  readonly chainId: string;
-  readonly endpointId: string;
-  readonly endpointName?: string;
-  readonly oisTitle?: string;
-  readonly parameters: ApiCallParameters;
-  readonly errorMessage?: string;
-  readonly responseValue?: string;
-  readonly signature?: string;
+export interface ApiCallErrorResponse {
+  success: false;
+  errorMessage: string;
+}
+
+export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+
+export interface BaseAggregatedApiCall {
+  id: string;
+  airnodeAddress: string;
+  endpointId: string;
+  endpointName: string;
+  oisTitle: string;
+  parameters: ApiCallParameters;
+  // TODO: Remove these values from this interface. They are added only after the API call is made
+  // depending on the result. Current implementation causes ambiguity when these fields are
+  // optional and when not.
+  responseValue?: string;
+  signature?: string;
+  errorMessage?: string;
+}
+
+export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'regular';
+  sponsorAddress: string;
+  requesterAddress: string;
+  sponsorWalletAddress: string;
+  chainId: string;
+}
+
+export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'testing-gateway';
 }
 
 // ===========================================
