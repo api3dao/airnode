@@ -572,6 +572,57 @@ describe('setUpdatePermissionStatus', function () {
 });
 
 describe('requestBeaconUpdate', function () {
+  context('Request updater is the sponsor', function () {
+    context('RRP beacon server sponsored', function () {
+      it('requests beacon update', async function () {
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+        // Compute the expected request ID
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            [
+              (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
+              rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
+              beaconParameters,
+            ]
+          )
+        );
+        // Request the beacon update
+        await expect(
+          rrpBeaconServer
+            .connect(roles.sponsor)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
+        )
+          .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
+          .withArgs(
+            beaconId,
+            roles.sponsor.address,
+            roles.sponsor.address,
+            requestId,
+            templateId,
+            sponsorWalletAddress,
+            beaconParameters
+          );
+      });
+    });
+    context('RRP beacon server not sponsored', function () {
+      it('reverts', async function () {
+        // Attempt to request beacon update
+        await expect(
+          rrpBeaconServer
+            .connect(roles.sponsor)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
+        ).to.be.revertedWith('Requester not sponsored');
+      });
+    });
+  });
   context('Request updater permitted', function () {
     context('RRP beacon server sponsored', function () {
       it('requests beacon update', async function () {
