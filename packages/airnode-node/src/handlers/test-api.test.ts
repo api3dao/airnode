@@ -43,17 +43,13 @@ describe('testApi', () => {
 
   it('calls the API with given parameters', async () => {
     const spy = jest.spyOn(worker, 'spawnNewApiCall');
-    spy.mockResolvedValueOnce([[], { value: '1000' }]);
+    spy.mockResolvedValueOnce([[], { success: true, value: '1000', signature: 'not used' }]);
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const [err, res] = await testApi(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedTestingGatewayApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorAddress: '',
-      requesterAddress: '',
-      sponsorWalletAddress: '',
-      chainId: '',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),
       parameters,
@@ -74,8 +70,8 @@ describe('testApi', () => {
     };
 
     expect(err).toBeNull();
-    expect(res).toEqual({ value: '1000' });
+    expect(res).toEqual({ value: '1000', signature: 'not used', success: true });
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, { forTestingGateway: true });
+    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions);
   });
 });
