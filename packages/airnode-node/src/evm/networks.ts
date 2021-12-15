@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-// Documentation link: https://docs.api3.org/airnode/v0.2/reference/airnode-addresses.html
+// https://docs.api3.org/airnode/latest/reference/airnode-addresses.html
 
 /*
  * Networks:
