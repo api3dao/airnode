@@ -7,6 +7,7 @@ export const regexList = {
   parameterNameIndex: /\{\{([0-9]+?)\}\}/g, // number surrounded by {{}}
   patchVersion: /(?<=([0-9]+\.[0-9]+))\.[0-9]+$/g, // matches third group of numbers separated by .
   regexTokens: /[\.\\\[\]\(\)]/g, // characters used in regular expressions and should be escaped before creating regex
+  templateVersion: /^[0-9]+\.[0-9]+(\.[0-9]+)?$/, // format of validator template versions
 };
 
 export const keywords = {

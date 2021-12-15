@@ -1,9 +1,8 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as utils from './utils';
-import * as logger from '../utils/logger';
-import { validate } from '../validator';
-import { Log, Result, templates } from '../types';
+import { validate, validateWithTemplate } from '../validator';
+import { Log, Result } from '../types';
 
 const messages: Log[] = [];
 
@@ -27,23 +26,12 @@ const args = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-let templatePath: string | null, version: string;
-// eslint-disable-next-line prefer-const
-[templatePath, version] = args.template.split('@');
+let res: Result;
 
-if (templates[templatePath.toLowerCase() as keyof typeof templates]) {
-  templatePath = utils.getPath(templates[templatePath.toLowerCase() as keyof typeof templates], messages, version);
-} else if (version) {
-  messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
-}
-
-let res: Log[] | Result;
-
-if (templatePath) {
-  res = validate(args.specification, templatePath, args.secrets);
-  res.messages.push(...messages);
+if (utils.parseTemplateName(args.template, messages)) {
+  res = validateWithTemplate(args.specification, args.template, args.secrets);
 } else {
-  res = messages;
+  res = validate(args.specification, args.template, args.secrets);
 }
 
 console.log(JSON.stringify(res, null, 2));

@@ -206,7 +206,8 @@ contract RrpBeaconServer is
         bytes calldata parameters
     ) external override {
         require(
-            sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+            msg.sender == sponsor ||
+                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Caller not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
@@ -245,6 +246,7 @@ contract RrpBeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
+        require(data.length == 64, "Incorrect data length");
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
             (int256, uint256)

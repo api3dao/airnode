@@ -1,5 +1,6 @@
 import fs from 'fs';
 
+import path from 'path';
 import { Roots, Log } from '../types';
 import * as logger from '../utils/logger';
 import { processSpecs } from '../processor';
@@ -30,8 +31,8 @@ export function validateTemplate(
   }
 
   const roots: Roots = { specs, nonRedundantParams: keywords.arrayItem in template ? [] : {}, output: {} };
-  const split = nestedTemplatePath.split('/');
-  nestedTemplatePath = split.slice(0, split.length - 1).join('/');
+  const split = nestedTemplatePath.split(path.sep);
+  nestedTemplatePath = split.slice(0, split.length - 1).join(path.sep);
 
   const result = processSpecs(
     specs,
@@ -39,7 +40,7 @@ export function validateTemplate(
     [],
     roots.nonRedundantParams,
     roots,
-    `${templatePath}${nestedTemplatePath}${nestedTemplatePath ? '/' : ''}`,
+    `${templatePath}${nestedTemplatePath}${nestedTemplatePath ? path.sep : ''}`,
     [...paramPathPrefix, ...paramPath]
   );
 
