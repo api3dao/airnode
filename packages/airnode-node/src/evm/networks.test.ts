@@ -6,6 +6,8 @@ describe('NETWORKS', () => {
       1: { chainId: 1, name: 'homestead' },
       3: { chainId: 3, name: 'ropsten' },
       4: { chainId: 4, name: 'rinkeby' },
+      5: { chainId: 5, name: 'goerli' },
+      42: { chainId: 42, name: 'kovan' },
     });
   });
 });
