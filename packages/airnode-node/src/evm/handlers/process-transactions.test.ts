@@ -19,26 +19,29 @@ mockEthers({
   },
 });
 
-import fs from 'fs';
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, RequestStatus } from '../../types';
 
+const createConfig = (txType: '1' | '2') => {
+  const initialConfig = fixtures.buildConfig();
+  return {
+    ...initialConfig,
+    chains: initialConfig.chains.map((chain) => ({
+      ...chain,
+      options: {
+        txType,
+      },
+    })),
+  };
+};
+
 describe('processTransactions', () => {
   test.each(['1', '2'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %d',
     async (txType) => {
-      const initialConfig = fixtures.buildConfig();
-      const config = {
-        ...initialConfig,
-        chains: initialConfig.chains.map((chain) => ({
-          ...chain,
-          options: {
-            txType,
-          },
-        })),
-      };
+      const config = createConfig(txType);
       const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
@@ -84,7 +87,6 @@ describe('processTransactions', () => {
         },
       };
 
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
       const res = await processTransactions(state);
 
       expect(txType === '1' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
@@ -139,6 +141,7 @@ describe('processTransactions', () => {
   test.each(['1', '2'] as const)(
     `does not submit transactions if a gas price cannot be fetched - txType: %d`,
     async (txType) => {
+      const config = createConfig(txType);
       const contract = new ethers.Contract('address', ['ABI']);
       const fulfillMock = jest.spyOn(contract, 'fulfill');
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
@@ -162,13 +165,14 @@ describe('processTransactions', () => {
         transactionCountsBySponsorAddress,
       });
 
-      const options = { txType };
-
       const state = {
         ...initialState,
+        config,
         settings: {
           ...initialState.settings,
-          options,
+          chainOptions: {
+            txType,
+          },
         },
       };
 

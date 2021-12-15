@@ -60,7 +60,5 @@ export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTa
       return getLegacyGasPrice(options);
     case '2':
       return getEip1559GasPricing(options);
-    default:
-      return [[], null];
   }
 };
