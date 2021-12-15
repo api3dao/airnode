@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
-import { isValidSponsorWallet } from '../evm/verification';
+import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
 import * as logger from '../logger';
 import {
   AggregatedApiCall,
@@ -12,7 +12,6 @@ import {
   Config,
   LogsData,
   RequestErrorMessage,
-  PendingLog,
   ApiCallErrorResponse,
 } from '../types';
 import { removeKeys, removeKey } from '../utils/object-utils';
@@ -81,12 +80,7 @@ export interface CallApiPayload {
   readonly aggregatedApiCall: AggregatedApiCall;
 }
 
-interface VerificationFailure {
-  log: PendingLog;
-  response: ApiCallErrorResponse;
-}
-
-function verifySponsorWallet(payload: CallApiPayload): VerificationFailure | null {
+function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
   if (aggregatedApiCall.type === 'testing-gateway') return null;
 
@@ -94,15 +88,42 @@ function verifySponsorWallet(payload: CallApiPayload): VerificationFailure | nul
   const hdNode = getMasterHDNode(config);
   if (isValidSponsorWallet(hdNode, sponsorAddress, sponsorWalletAddress)) return null;
 
+  // TODO: Abstract this to a logging utils file
   const message = `${RequestErrorMessage.SponsorWalletInvalid}, Request ID:${id}`;
   const log = logger.pend('ERROR', message);
-  return {
-    log,
-    response: {
+  return [
+    [log],
+    {
       success: false,
       errorMessage: message,
     },
-  };
+  ];
+}
+
+function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+  const { aggregatedApiCall } = payload;
+  if (aggregatedApiCall.type === 'testing-gateway') return null;
+
+  if (isValidRequestId(aggregatedApiCall)) return null;
+
+  const message = `${RequestErrorMessage.RequestIdInvalid}. Request ID:${aggregatedApiCall.id}`;
+  const log = logger.pend('ERROR', message);
+  return [
+    [log],
+    {
+      success: false,
+      errorMessage: message,
+    },
+  ];
+}
+
+function verifyCallApiPayload(payload: CallApiPayload) {
+  const verifications = [verifySponsorWallet, verifyRequestId];
+
+  return verifications.reduce((result, verifierFn) => {
+    if (result) return result;
+    return verifierFn(payload);
+  }, null as LogsData<ApiCallErrorResponse> | null);
 }
 
 interface PerformApiCallSuccess {
@@ -167,8 +188,8 @@ async function processSuccessfulApiCall(
 }
 
 export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
-  const verificationResult = verifySponsorWallet(payload);
-  if (verificationResult) return [[verificationResult.log], verificationResult.response];
+  const verificationResult = verifyCallApiPayload(payload);
+  if (verificationResult) return verificationResult;
 
   const [logs, response] = await performApiCall(payload);
   if (isPerformApiCallFailure(response)) {

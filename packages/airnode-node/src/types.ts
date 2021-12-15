@@ -252,6 +252,14 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   requesterAddress: string;
   sponsorWalletAddress: string;
   chainId: string;
+  requestType: ApiCallType;
+  // TODO: This has way too many common properties with ApiCall
+  metadata: RequestMetadata;
+  requestCount: string;
+  templateId: string | null;
+  fulfillAddress: string;
+  fulfillFunctionId: string;
+  encodedParameters: string;
 }
 
 export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
