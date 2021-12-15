@@ -16,12 +16,26 @@ but you may adapt the configuration to work for your target chain.
 
 ## Request-Response protocol (RRP)
 
-Currently, all of the examples facilitate the RRP protocol. The example RRP flow consists of two high level parts:
+Currently, all of the examples utilize the RRP protocol. The example RRP flow consists of two high level parts:
 
-1. Deploy an `AirnodeRrp` contract and a `RrpRequester` on a supported chain
-2. Deploy Airnode on a cloud provider (or run locally in a docker) and make a request using the deployed requester
+1. Deploy an `AirnodeRrp` contract and a `RrpRequester` contract on a supported chain
+2. Deploy Airnode on a cloud provider, or run locally in a docker container, and make a request using the deployed
+   requester
 
-If you would like to know more about RRP, read the [API3 docs](https://docs.api3.org/airnode/v0.2/concepts/).
+If you would like to know more about RRP, read the [API3 docs](https://docs.api3.org/airnode/v0.3/concepts/).
+
+## Available examples
+
+We call examples "integrations" because they are integrated with some API. With each integration you are offered a
+choice of how you want to run the Airnode and which network to use, as mentioned above. The integrations have been
+designed to highlight various Airnode functionality and use cases, from simple price requests to more complex
+authenticated requests encoding multiple reserved parameters. The following list orders integrations by increasing
+complexity, but you are welcome to explore as you see fit.
+
+1. CoinGecko - unauthenticated cryptocurrency price request
+2. CoinMarketCap - authenticated cryptocurrency price request
+3. OpenWeather - authenticated weather request encoding multiple parameters including the transaction timestamp, time of
+   sunset, temperature, and a description of the weather.
 
 ## Setup
 
@@ -36,8 +50,7 @@ run the example with Rinkeby.
 
 ### 1. Choose an example
 
-First, you need to choose what example you want to run. We call these examples "integrations" because they are
-integrated with some API. You will also need to choose how you want to run the Airnode and which network to use.
+The first step is to choose an integration and network.
 
 If you intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and
 trigger an Airnode request. For hardhat network you can use the account derived by hardhat default mnemonic which is
@@ -217,8 +230,8 @@ This script will first derive the sponsor wallet and afterwards fund it with 0.1
 
 ### 16. Allow the sponsor to pay for requests made by the requester
 
-In order to prevent misuse, each sponsor has to explicitely approve a requester. Once the requester is approved, his
-requests can be paid by this sponsor.
+In order to prevent misuse, each sponsor has to explicitly approve a requester. Once the requester is approved, requests
+can be paid by this sponsor.
 
 ```sh
 yarn sponsor-requester
@@ -268,7 +281,7 @@ The examples package is also a nice fit for an end to end test of the whole Airn
 
 1. An integration using Airnode docker on localhost - This test also builds the necessary docker images and runs on as
    part of end to end test suite on CI.
-2. An integration using the Airnode deployed on AWS with rinkeby network - This is intended to be run by a developer
+2. An integration using the Airnode deployed on AWS with Rinkeby network - This is intended to be run by a developer
    before making a release. This test is located in the `scripts` directory, because it should not be run on CI because
    if its performance and complexity.
 
