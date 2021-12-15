@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers } from '../../../test/mock-utils';
 
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
@@ -20,25 +20,15 @@ mockEthers({
 });
 
 import fs from 'fs';
-import { BigNumber, ethers } from 'ethers';
-import { parseEther } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
-import {
-  ChainOptions,
-  Config,
-  EVMProviderState,
-  GasTarget,
-  GroupedRequests,
-  ProviderState,
-  RequestStatus,
-} from '../../types';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../../constants';
+import { GroupedRequests, RequestStatus } from '../../types';
 
 describe('processTransactions', () => {
-  test.each(['1', '2'])(
+  test.each(['1', '2'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %d',
-    async (txType: string) => {
+    async (txType) => {
       const initialConfig = fixtures.buildConfig();
       const config = {
         ...initialConfig,
@@ -48,28 +38,11 @@ describe('processTransactions', () => {
             txType,
           },
         })),
-      } as Config;
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-
-      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-      const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-      const gasTarget = (() => {
-        if (txType === '1') {
-          const gasPrice = ethers.BigNumber.from(1000);
-          gasPriceSpy.mockResolvedValue(gasPrice);
-          return { gasPrice };
-        }
-
-        const baseFeePerGas = ethers.BigNumber.from(1000);
-        blockSpy.mockResolvedValue({ baseFeePerGas } as ethers.providers.Block);
-        const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
-        const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
-
-        return { maxPriorityFeePerGas, maxFeePerGas } as GasTarget;
-      })();
+      };
+      const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
-      const balance = parseEther('1000');
+      const balance = ethers.utils.parseEther('1000');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(balance));
 
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -109,9 +82,13 @@ describe('processTransactions', () => {
             txType,
           },
         },
-      } as ProviderState<EVMProviderState>;
+      };
 
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
       const res = await processTransactions(state);
+
+      expect(txType === '1' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+      expect(txType === '2' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
       expect(res.requests.apiCalls[0]).toEqual({
         ...apiCall,
         nonce: 79,
@@ -159,9 +136,9 @@ describe('processTransactions', () => {
     }
   );
 
-  test.each(['1', '2'])(
+  test.each(['1', '2'] as const)(
     `does not submit transactions if a gas price cannot be fetched - txType: %d`,
-    async (txType: string) => {
+    async (txType) => {
       const contract = new ethers.Contract('address', ['ABI']);
       const fulfillMock = jest.spyOn(contract, 'fulfill');
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
@@ -185,7 +162,7 @@ describe('processTransactions', () => {
         transactionCountsBySponsorAddress,
       });
 
-      const options = { txType } as ChainOptions;
+      const options = { txType };
 
       const state = {
         ...initialState,
@@ -196,6 +173,7 @@ describe('processTransactions', () => {
       };
 
       const res = await processTransactions(state);
+
       expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });
       expect(res.gasTarget).toEqual(null);
 

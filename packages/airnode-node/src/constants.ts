@@ -43,7 +43,7 @@ export const WORKER_CALL_API_TIMEOUT = 10_000;
 export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
 
 // The Priority Fee in Wei
-export const PRIORITY_FEE = '3120000000';
+export const PRIORITY_FEE = 3120000000;
 
 // The Base Fee to Max Fee multiplier
-export const BASE_FEE_MULTIPLIER = '2';
+export const BASE_FEE_MULTIPLIER = 2;

@@ -35,7 +35,7 @@ const createEip1559BaseOptions = () => {
   const eip1559ChainOptions = [
     {
       txType: '2',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: {
         value: '3.12',
         unit: 'gwei',
@@ -51,7 +51,7 @@ const createEip1559BaseOptions = () => {
     },
     {
       txType: '2',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: undefined,
     },
     {
@@ -138,13 +138,7 @@ describe('getGasPrice', () => {
 
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
-    expect(logs).toEqual([
-      {
-        level: 'INFO',
-        message: 'Failed attempting to get legacy gasPrice from provider',
-        error: new Error('Server is down'),
-      },
-    ]);
+    expect(logs).toEqual([]);
     expect(gasPrice).toEqual({ gasPrice: testGasPrice });
     expect(getGasPrice).toHaveBeenCalledTimes(2);
     expect(getBlock).toHaveBeenCalledTimes(0);
@@ -159,16 +153,6 @@ describe('getGasPrice', () => {
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
     expect(logs).toEqual([
-      {
-        level: 'INFO',
-        message: 'Failed attempting to get legacy gasPrice from provider',
-        error: new Error('Server is down'),
-      },
-      {
-        level: 'INFO',
-        message: 'Failed attempting to get legacy gasPrice from provider',
-        error: new Error('Server is down'),
-      },
       {
         level: 'ERROR',
         message: 'All attempts to get legacy gasPrice from provider failed',
@@ -192,13 +176,7 @@ describe('getGasPrice', () => {
 
       const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
-      expect(logs).toEqual([
-        {
-          level: 'INFO',
-          message: 'Failed attempting to get block metadata from provider',
-          error: new Error('Server is down'),
-        },
-      ]);
+      expect(logs).toEqual([]);
       expect(gasPrice?.maxPriorityFeePerGas).toEqual(maxPriorityFeePerGas);
       expect(gasPrice?.maxFeePerGas).toEqual(maxFeePerGas);
       expect(getGasPrice).toHaveBeenCalledTimes(0);
@@ -218,16 +196,6 @@ describe('getGasPrice', () => {
       const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
       expect(logs).toEqual([
-        {
-          error: new Error('Server is down'),
-          level: 'INFO',
-          message: 'Failed attempting to get block metadata from provider',
-        },
-        {
-          error: new Error('Server is down'),
-          level: 'INFO',
-          message: 'Failed attempting to get block metadata from provider',
-        },
         {
           level: 'ERROR',
           message: 'All attempts to get EIP-1559 gas pricing from provider failed',

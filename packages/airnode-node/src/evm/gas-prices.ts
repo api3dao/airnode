@@ -1,4 +1,4 @@
-import { BigNumber, ethers, providers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
@@ -13,48 +13,24 @@ export const parsePriorityFee = ({ value, unit }: PriorityFee) => ethers.utils.p
 
 const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider } = options;
-  const logs = Array<PendingLog>();
 
-  const operation = (): Promise<BigNumber> =>
-    new Promise((resolve, reject) => {
-      provider
-        .getGasPrice()
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((err) => {
-          logs.push(logger.pend('INFO', 'Failed attempting to get legacy gasPrice from provider', err));
-          reject(err);
-        });
-    });
-
-  const [err, gasPrice] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const [err, gasPrice] = await go(provider.getGasPrice, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !gasPrice) {
-    logs.push(logger.pend('ERROR', 'All attempts to get legacy gasPrice from provider failed'));
-    return [logs, null];
+    const log = logger.pend('ERROR', 'All attempts to get legacy gasPrice from provider failed');
+    return [[log], null];
   }
 
-  return [logs, { gasPrice }];
+  return [[], { gasPrice }];
 };
 
 const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider, chainOptions } = options;
   const logs = Array<PendingLog>();
 
-  const operation = (): Promise<providers.Block> =>
-    new Promise((resolve, reject) => {
-      provider
-        .getBlock('latest')
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((err) => {
-          logs.push(logger.pend('INFO', 'Failed attempting to get block metadata from provider', err));
-          reject(err);
-        });
-    });
-
-  const [err, blockHeader] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const [err, blockHeader] = await go(() => provider.getBlock('latest'), {
+    retries: 1,
+    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+  });
   if (err || !blockHeader?.baseFeePerGas) {
     logs.push(logger.pend('ERROR', 'All attempts to get EIP-1559 gas pricing from provider failed'));
 
@@ -72,7 +48,7 @@ const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<Gas
     {
       maxPriorityFeePerGas,
       maxFeePerGas,
-    } as GasTarget,
+    },
   ];
 };
 
