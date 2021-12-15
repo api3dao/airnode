@@ -22,6 +22,7 @@ export function buildEVMState(
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
+    chainOptions: chain.options,
     // If this number of blocks has passed, then ignore requests instead of blocking them
     ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,

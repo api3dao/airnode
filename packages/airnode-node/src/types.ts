@@ -139,6 +139,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: string;
   readonly chainType: ChainType;
+  readonly chainOptions: ChainOptions;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
@@ -390,6 +391,17 @@ export interface Provider {
   readonly url: string;
 }
 
+export interface PriorityFee {
+  readonly value: string;
+  readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
+}
+
+export interface ChainOptions {
+  readonly txType: 'legacy' | 'eip1559';
+  readonly baseFeeMultiplier?: string;
+  readonly priorityFee?: PriorityFee;
+}
+
 export interface ChainConfig {
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
@@ -398,6 +410,7 @@ export interface ChainConfig {
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
   readonly type: ChainType;
+  readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
 }
 

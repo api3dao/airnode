@@ -9,7 +9,7 @@ import { EVMProviderState, ProviderState } from '../../types';
 export async function processTransactions(
   initialState: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
-  const { chainId, chainType, name: providerName } = initialState.settings;
+  const { chainId, chainType, chainOptions, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
   const baseLogOptions = {
@@ -32,7 +32,7 @@ export async function processTransactions(
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
-  const gasPriceOptions = { provider: state2.provider };
+  const gasPriceOptions = { provider: state2.provider, chainOptions };
   const [gasPriceLogs, gasTarget] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
 
@@ -41,16 +41,16 @@ export async function processTransactions(
     return state2;
   }
 
-  if (gasTarget.maxFeePerGas && gasTarget.maxPriorityFeePerGas) {
-    const gweiMaxFee = utils.weiToGwei(gasTarget.maxFeePerGas);
-    const gweiPriorityFee = utils.weiToGwei(gasTarget.maxPriorityFeePerGas);
+  if (chainOptions.txType === 'eip1559') {
+    const gweiMaxFee = utils.weiToGwei(gasTarget.maxFeePerGas!);
+    const gweiPriorityFee = utils.weiToGwei(gasTarget.maxPriorityFeePerGas!);
     logger.info(
       `Gas price (EIP-1559) set to a Max Fee of ${gweiMaxFee} Gwei and a Priority Fee of ${gweiPriorityFee} Gwei`,
       baseLogOptions
     );
   } else {
     const gweiPrice = utils.weiToGwei(gasTarget.gasPrice!);
-    logger.info(`Gas price (non EIP-1559) set to ${gweiPrice} Gwei`, baseLogOptions);
+    logger.info(`Gas price (legacy) set to ${gweiPrice} Gwei`, baseLogOptions);
   }
 
   const state3 = state.update(state2, { gasTarget });

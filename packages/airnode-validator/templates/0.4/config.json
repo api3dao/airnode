@@ -61,6 +61,61 @@
           "__message": "__fullPath: Currently only \"evm\" is supported"
         }
       },
+      "options": {
+        "txType": {
+          "__type": "string",
+          "__regexp": "^(legacy|eip1559)$",
+          "__catch": {
+            "__message": "__fullPath: Available transaction types are 'legacy' and 'eip1559'"
+          }
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "txType": "legacy"
+            },
+            "__then": {
+            },
+            "__catch": {
+              "__message": "EIP-1559-related fields are only valid when txType is eip1559: __fullPath"
+            }
+          },
+          {
+            "__if": {
+              "txType": "eip1559"
+            },
+            "__then": {
+              "baseFeeMultiplier": {},
+              "priorityFee": {}
+            }
+          }
+        ],
+        "__optional": {
+          "baseFeeMultiplier": {
+            "__type": "string",
+            "__regexp": "^[0-9]$",
+            "__catch": {
+              "__message": "__fullPath: Base Fee multiplier must be a whole number"
+            }
+          },
+          "priorityFee": {
+            "value": {
+              "__type": "string",
+              "__regexp": "^\\d*\\.?\\d*$",
+              "__catch": {
+                "__message": "__fullPath: Priority Fee must be a whole or decimal number"
+              }
+            },
+            "unit": {
+              "__type": "string",
+              "__regexp": "^(wei|kwei|mwei|gwei|szabo|finney|ether)$",
+              "__catch": {
+                "__message": "__fullPath: The unit must be one of: wei, kwei, mwei, gwei, szabo, finney and ether"
+              }
+            }
+          }
+        }
+      },
       "providers": {
         "__objectItem": {
           "url": {
