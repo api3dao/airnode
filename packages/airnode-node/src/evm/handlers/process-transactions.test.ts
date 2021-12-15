@@ -24,7 +24,7 @@ import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, RequestStatus } from '../../types';
 
-const createConfig = (txType: '1' | '2') => {
+const createConfig = (txType: 'legacy' | 'eip1559') => {
   const initialConfig = fixtures.buildConfig();
   return {
     ...initialConfig,
@@ -38,7 +38,7 @@ const createConfig = (txType: '1' | '2') => {
 };
 
 describe('processTransactions', () => {
-  test.each(['1', '2'] as const)(
+  test.each(['legacy', 'eip1559'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %d',
     async (txType) => {
       const config = createConfig(txType);
@@ -89,8 +89,8 @@ describe('processTransactions', () => {
 
       const res = await processTransactions(state);
 
-      expect(txType === '1' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-      expect(txType === '2' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+      expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+      expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
       expect(res.requests.apiCalls[0]).toEqual({
         ...apiCall,
         nonce: 79,
@@ -138,7 +138,7 @@ describe('processTransactions', () => {
     }
   );
 
-  test.each(['1', '2'] as const)(
+  test.each(['legacy', 'eip1559'] as const)(
     `does not submit transactions if a gas price cannot be fetched - txType: %d`,
     async (txType) => {
       const config = createConfig(txType);
@@ -146,7 +146,7 @@ describe('processTransactions', () => {
       const fulfillMock = jest.spyOn(contract, 'fulfill');
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-      if (txType === '1') {
+      if (txType === 'legacy') {
         gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
       } else {
         blockSpy.mockRejectedValue(new Error('Block header cannot be fetched'));

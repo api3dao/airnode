@@ -195,7 +195,7 @@
       },
       "authorizers": ["0x0000000000000000000000000000000000000000"],
       "options": {
-        "txType": "2",
+        "txType": "eip1559",
         "baseFeeMultiplier": "2",
         "priorityFee": {
           "value": "3.12",

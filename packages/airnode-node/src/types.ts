@@ -382,7 +382,7 @@ export interface PriorityFee {
 }
 
 export interface ChainOptions {
-  readonly txType: '1' | '2';
+  readonly txType: 'legacy' | 'eip1559';
   readonly baseFeeMultiplier?: string;
   readonly priorityFee?: PriorityFee;
 }

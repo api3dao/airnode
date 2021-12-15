@@ -25,7 +25,7 @@ import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
   chainOptions: {
-    txType: '1',
+    txType: 'legacy',
   },
 });
 
@@ -34,7 +34,7 @@ const createEip1559BaseOptions = () => {
 
   const eip1559ChainOptions = [
     {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: {
         value: '3.12',
@@ -42,7 +42,7 @@ const createEip1559BaseOptions = () => {
       },
     },
     {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: {
         value: '3.12',
@@ -50,12 +50,12 @@ const createEip1559BaseOptions = () => {
       },
     },
     {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: undefined,
     },
     {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: undefined,
     },

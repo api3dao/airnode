@@ -48,7 +48,7 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: '2',
       priorityFee: {
         value: '3.12',
@@ -69,7 +69,7 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: '2',
+      txType: 'eip1559',
       baseFeeMultiplier: '2',
       priorityFee: {
         value: '3.12',
@@ -108,7 +108,7 @@ describe('initialize', () => {
             chainId: '1',
             chainType: 'evm',
             chainOptions: {
-              txType: '2',
+              txType: 'eip1559',
               baseFeeMultiplier: '2',
               priorityFee: {
                 value: '3.12',
@@ -152,7 +152,7 @@ describe('initialize', () => {
             chainId: '3',
             chainType: 'evm',
             chainOptions: {
-              txType: '2',
+              txType: 'eip1559',
               baseFeeMultiplier: '2',
               priorityFee: {
                 value: '3.12',
@@ -197,7 +197,7 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
-  test.each(['1', '2'] as const)('processes requests for each EVM provider - txType: %d', async (txType) => {
+  test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %d', async (txType) => {
     const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -231,8 +231,8 @@ describe('processRequests', () => {
     const [logs, res] = await providers.processRequests(allProviders, workerOpts);
     expect(logs).toEqual([]);
 
-    expect(txType === '1' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === '2' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
 
     expect(res.evm.map((evm) => evm.requests.apiCalls[0])).toEqual(
       range(allProviders.evm.length).map(() => ({

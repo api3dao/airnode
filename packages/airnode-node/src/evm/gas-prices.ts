@@ -56,9 +56,9 @@ export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTa
   const { chainOptions } = options;
 
   switch (chainOptions.txType) {
-    case '1':
+    case 'legacy':
       return getLegacyGasPrice(options);
-    case '2':
+    case 'eip1559':
       return getEip1559GasPricing(options);
   }
 };

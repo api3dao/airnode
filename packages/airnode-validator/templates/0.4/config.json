@@ -64,25 +64,25 @@
       "options": {
         "txType": {
           "__type": "string",
-          "__regexp": "^(1|2)$",
+          "__regexp": "^(legacy|eip1559)$",
           "__catch": {
-            "__message": "__fullPath: Available transaction types are 1 (legacy) or 2 (EIP-1559)"
+            "__message": "__fullPath: Available transaction types are 'legacy' and 'eip1559'"
           }
         },
         "__conditions": [
           {
             "__if": {
-              "txType": "1"
+              "txType": "legacy"
             },
             "__then": {
             },
             "__catch": {
-              "__message": "EIP-1559-related fields are only valid when txType is 2: __fullPath"
+              "__message": "EIP-1559-related fields are only valid when txType is eip1559: __fullPath"
             }
           },
           {
             "__if": {
-              "txType": "2"
+              "txType": "eip1559"
             },
             "__then": {
               "baseFeeMultiplier": {},

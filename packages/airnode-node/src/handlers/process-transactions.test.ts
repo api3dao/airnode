@@ -3,7 +3,7 @@ import * as evmHandler from '../evm/handlers/process-transactions';
 import * as fixtures from '../../test/fixtures';
 
 describe('processTransactions', () => {
-  test.each(['1', '2'] as const)('processes EVM providers', (txType) => {
+  test.each(['legacy', 'eip1559'] as const)('processes EVM providers', (txType) => {
     const processSpy = jest.spyOn(evmHandler, 'processTransactions');
     const initialState = fixtures.buildEVMProviderState();
     const chainOptions = { txType };

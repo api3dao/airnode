@@ -22,7 +22,7 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: '2',
+        txType: 'eip1559',
         baseFeeMultiplier: '2',
         priorityFee: {
           value: '3.12',
@@ -44,7 +44,7 @@ describe('create', () => {
         chainId: '1337',
         chainType: 'evm',
         chainOptions: {
-          txType: '2',
+          txType: 'eip1559',
           baseFeeMultiplier: '2',
           priorityFee: {
             value: '3.12',
@@ -98,7 +98,7 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: '2',
+        txType: 'eip1559',
         baseFeeMultiplier: '2',
         priorityFee: {
           value: '3.12',
@@ -119,7 +119,7 @@ describe('create', () => {
         blockHistoryLimit: 150,
         chainId: '1337',
         chainOptions: {
-          txType: '2',
+          txType: 'eip1559',
           baseFeeMultiplier: '2',
           priorityFee: {
             value: '3.12',

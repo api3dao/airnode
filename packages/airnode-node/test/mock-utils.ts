@@ -45,10 +45,10 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
 /**
  * Creates and mocks gas pricing-related resources based on txType.
  */
-export const createAndMockGasTarget = (txType: '1' | '2') => {
+export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
   const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-  if (txType === '1') {
+  if (txType === 'legacy') {
     const gasPrice = ethers.BigNumber.from(1000);
     gasPriceSpy.mockResolvedValue(gasPrice);
     return { gasTarget: { gasPrice }, blockSpy, gasPriceSpy };
