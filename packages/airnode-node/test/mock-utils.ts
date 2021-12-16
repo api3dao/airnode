@@ -1,6 +1,8 @@
 // NOTE: This file is referenced as a pathGroup pattern in .eslintrc (import/order)
 
 import { AirnodeRrp } from '@api3/airnode-protocol';
+import { BigNumber, ethers } from 'ethers';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../src/constants';
 
 type AirnodeRrpMocks = { readonly [key in keyof InstanceType<typeof AirnodeRrp>['functions']]: jest.Mock };
 type MockProps = {
@@ -39,3 +41,23 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
     };
   });
 }
+
+/**
+ * Creates and mocks gas pricing-related resources based on txType.
+ */
+export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
+  const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+  const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
+  if (txType === 'legacy') {
+    const gasPrice = ethers.BigNumber.from(1000);
+    gasPriceSpy.mockResolvedValue(gasPrice);
+    return { gasTarget: { gasPrice }, blockSpy, gasPriceSpy };
+  }
+
+  const baseFeePerGas = ethers.BigNumber.from(1000);
+  blockSpy.mockResolvedValue({ baseFeePerGas } as ethers.providers.Block);
+  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+  const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
+
+  return { gasTarget: { maxPriorityFeePerGas, maxFeePerGas }, blockSpy, gasPriceSpy };
+};

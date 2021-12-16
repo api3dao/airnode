@@ -47,7 +47,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
+      airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -95,7 +95,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
+      airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 30,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -123,7 +123,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
+      airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -137,7 +137,7 @@ describe('EVM event logs - fetch', () => {
     getLogs.mockResolvedValueOnce([]);
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
+      airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,

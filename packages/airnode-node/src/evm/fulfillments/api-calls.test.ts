@@ -132,7 +132,11 @@ describe('submitApiCall', () => {
           { level: 'INFO', message: `Submitting API call fulfillment for Request:${apiCall.id}...` },
         ]);
         expect(err).toEqual(null);
-        expect(data).toEqual({ hash: '0xtransactionId' });
+        expect(data).toEqual({
+          ...apiCall,
+          fulfillment: { hash: '0xtransactionId' },
+          status: RequestStatus.Submitted,
+        });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
         expect(staticFulfillMock).toHaveBeenCalledWith(
           apiCall.id,
@@ -238,7 +242,12 @@ describe('submitApiCall', () => {
           { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
         ]);
         expect(err).toEqual(null);
-        expect(data).toEqual({ hash: '0xfailtransaction' });
+        expect(data).toEqual({
+          ...apiCall,
+          fulfillment: { hash: '0xfailtransaction' },
+          status: RequestStatus.Submitted,
+          errorMessage: 'Fulfill transaction failed',
+        });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
         expect(staticFulfillMock).toHaveBeenCalledWith(
           apiCall.id,
@@ -290,7 +299,12 @@ describe('submitApiCall', () => {
           { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
         ]);
         expect(err).toEqual(null);
-        expect(data).toEqual({ hash: '0xfailtransaction' });
+        expect(data).toEqual({
+          ...apiCall,
+          fulfillment: { hash: '0xfailtransaction' },
+          status: RequestStatus.Submitted,
+          errorMessage: 'Fulfill transaction failed',
+        });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
         expect(staticFulfillMock).toHaveBeenCalledWith(
           apiCall.id,
@@ -443,7 +457,12 @@ describe('submitApiCall', () => {
           },
         ]);
         expect(err).toEqual(null);
-        expect(data).toEqual({ hash: '0xfailtransaction' });
+        expect(data).toEqual({
+          ...apiCall,
+          fulfillment: { hash: '0xfailtransaction' },
+          status: RequestStatus.Submitted,
+          errorMessage: 'API call failed',
+        });
         expect(failMock).toHaveBeenCalledTimes(1);
         expect(failMock).toHaveBeenCalledWith(
           apiCall.id,

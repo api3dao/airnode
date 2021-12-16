@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
 
 const checkAuthorizationStatusesMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -24,26 +24,25 @@ mockEthers({
 });
 
 import fs from 'fs';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
 
 describe('startCoordinator', () => {
-  test.each([
-    {
-      getBlock: { baseFeePerGas: undefined },
-      getGasPrice: ethers.BigNumber.from(1000),
-    },
-    {
-      getBlock: { baseFeePerGas: ethers.BigNumber.from(1000) },
-      getGasPrice: ethers.BigNumber.from(1000),
-    },
-  ])(`fetches and processes requests - %#`, async ({ getBlock, getGasPrice }) => {
+  test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %d`, async (txType) => {
     jest.setTimeout(30000);
-    const config = fixtures.buildConfig();
+    const initialConfig = fixtures.buildConfig();
+    const config = {
+      ...initialConfig,
+      chains: initialConfig.chains.map((chain) => ({
+        ...chain,
+        options: {
+          txType,
+        },
+      })),
+    };
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
 
@@ -63,12 +62,7 @@ describe('startCoordinator', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-    gasPriceSpy.mockResolvedValue(getGasPrice);
-
-    const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-    // @ts-ignore
-    blockSpy.mockResolvedValue(getBlock);
+    const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
     const txCountSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getTransactionCount');
     txCountSpy.mockResolvedValueOnce(212);
@@ -84,23 +78,8 @@ describe('startCoordinator', () => {
 
     await startCoordinator(config);
 
-    const targetGasPrice = (() => {
-      const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
-      const maxFeePerGas = getBlock.baseFeePerGas
-        ? getBlock.baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas)
-        : undefined;
-
-      if (maxFeePerGas) {
-        return {
-          maxFeePerGas,
-          maxPriorityFeePerGas,
-        };
-      }
-
-      return {
-        gasPrice: getGasPrice,
-      };
-    })();
+    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
 
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
@@ -111,7 +90,7 @@ describe('startCoordinator', () => {
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0x1e84aa4b6cae3e6c4e7132d47034db4fa3613ecf96b795c2cbb3676ddc77460d7be268236312701ccc1f2a0408171c9cfaf62606b8cfa2e5441caa991e4d49aa1b',
-      { gasLimit: 500_000, ...targetGasPrice, nonce: 212 }
+      { gasLimit: 500_000, ...gasTarget, nonce: 212 }
     );
   });
 
