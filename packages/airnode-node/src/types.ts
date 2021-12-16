@@ -326,14 +326,17 @@ export type EVMEventLog =
 // ===========================================
 // Triggers
 // ===========================================
-export interface RrpTrigger {
+export interface Trigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
 }
 
 export interface Triggers {
-  readonly rrp: RrpTrigger[];
+  readonly rrp: Trigger[];
+  // For now the attribute is optional, because http gateway is supported only on AWS.
+  // TODO: Make this required once it is supported everywhere.
+  http?: Trigger[];
 }
 
 // ===========================================

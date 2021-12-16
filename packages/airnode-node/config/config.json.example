@@ -45,6 +45,13 @@
         "oisTitle": "Currency Converter API",
         "endpointName": "convertToUSD"
       }
+    ],
+    "http": [
+      {
+        "endpointId": "0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6",
+        "oisTitle": "Currency Converter API",
+        "endpointName": "convertToUSD"
+      }
     ]
   },
   "ois": [
@@ -142,8 +149,7 @@
                 "in": "query"
               }
             }
-          ],
-          "testable": true
+          ]
         }
       ]
     }

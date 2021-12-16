@@ -48,6 +48,47 @@
           }
         ]
       }
+    },
+    "__optional": {
+      "http": {
+        "__arrayItem": {
+          "endpointId": {
+            "__regexp": "^0x[a-fA-F0-9]{64}$"
+          },
+          "oisTitle": {
+            "__type": "string"
+          },
+          "endpointName": {
+            "__type": "string"
+          },
+          "__conditions": [
+            {
+              "__if": {
+                "oisTitle": ".*"
+              },
+              "__rootThen": {
+                "ois": {
+                  "__any": {
+                    "title": {
+                      "__regexp": "^__match$"
+                    },
+                    "endpoints": {
+                      "__any": {
+                        "name": {
+                          "__regexp": "[['endpointName']]"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in {{0}}.{{1}}.{{2}}.{{3}}"
+              }
+            }
+          ]
+        }
+      }
     }
   },
   "chains": {

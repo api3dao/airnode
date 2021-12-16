@@ -3,7 +3,7 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, RrpTrigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, Trigger } from '../../types';
 
 export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
   const derivedSponsorWallet = wallet.deriveSponsorWallet(hdNode, sponsor);
@@ -46,7 +46,7 @@ export function verifySponsorWallets<T>(
 
 export function verifyRrpTriggers(
   apiCalls: Request<ApiCall>[],
-  rrpTriggers: RrpTrigger[],
+  rrpTriggers: Trigger[],
   oises: OIS[]
 ): LogsData<Request<ApiCall>[]> {
   const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
