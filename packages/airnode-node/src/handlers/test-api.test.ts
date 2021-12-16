@@ -15,7 +15,7 @@ describe('testApi', () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
     const [err, res] = await testApi(fixtures.buildConfig(), nonExistentEndpointId, {});
     expect(res).toBeNull();
-    expect(err).toEqual(new Error(`No such endpoint with ID '${nonExistentEndpointId}'`));
+    expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${nonExistentEndpointId}'`));
   });
 
   it('returns an error if no endpoint with given ID is found', async () => {
@@ -31,7 +31,7 @@ describe('testApi', () => {
 
     const [err, res] = await testApi(config, ENDPOINT_ID, {});
     expect(res).toBeNull();
-    expect(err).toEqual(new Error(`No such endpoint with ID '${ENDPOINT_ID}'`));
+    expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${ENDPOINT_ID}'`));
   });
 
   it('returns an error if endpoint testability is turned off', async () => {

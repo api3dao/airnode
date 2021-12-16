@@ -326,17 +326,17 @@ export type EVMEventLog =
 // ===========================================
 // Triggers
 // ===========================================
-export interface BasicTrigger {
+export interface Trigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
 }
 
 export interface Triggers {
-  readonly rrp: BasicTrigger[];
+  readonly rrp: Trigger[];
   // For now the attribute is optional, because http gateway is supported only on AWS.
   // TODO: Make this required once it is supported everywhere.
-  http?: BasicTrigger[];
+  http?: Trigger[];
 }
 
 // ===========================================

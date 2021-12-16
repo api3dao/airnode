@@ -19,7 +19,7 @@ export async function testApi(
 
   const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!httpTrigger) {
-    return [new Error(`No such endpoint with ID '${endpointId}'`), null];
+    return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }
 
   const endpoints = find(config.ois, ['title', httpTrigger.oisTitle])?.endpoints;

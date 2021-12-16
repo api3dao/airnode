@@ -1,8 +1,8 @@
 import * as ois from './ois';
 import * as settings from './node-settings';
-import { Config, BasicTrigger, ApiCredentials } from '../../../src/types';
+import { Config, Trigger, ApiCredentials } from '../../../src/types';
 
-export function buildBasicTrigger(overrides?: Partial<BasicTrigger>): BasicTrigger {
+export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
   return {
     endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
     endpointName: 'convertToUSD',
@@ -41,8 +41,8 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     ],
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
-      rrp: [buildBasicTrigger()],
-      http: [buildBasicTrigger()],
+      rrp: [buildTrigger()],
+      http: [buildTrigger()],
     },
     ois: [ois.buildOIS()],
     apiCredentials: [buildApiCredentials()],
