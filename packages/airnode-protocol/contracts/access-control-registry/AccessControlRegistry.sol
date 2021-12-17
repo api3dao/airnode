@@ -27,6 +27,7 @@ contract AccessControlRegistry is
     /// effect.
     /// @param manager Manager address to be initialized
     function initializeManager(address manager) public override {
+        require(manager != address(0), "Manager address zero");
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
             _setupRole(rootRole, manager);

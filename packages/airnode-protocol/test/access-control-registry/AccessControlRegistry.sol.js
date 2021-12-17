@@ -22,21 +22,30 @@ beforeEach(async () => {
 });
 
 describe('initializeManager', function () {
-  context('Manager is not initialized', function () {
-    it('initializes manager', async function () {
-      const manager = roles.manager.address;
-      expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(false);
-      await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager))
-        .to.emit(accessControlRegistry, 'InitializedManager')
-        .withArgs(managerRootRole, manager);
-      expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(true);
+  context('Manager address not zero', function () {
+    context('Manager is not initialized', function () {
+      it('initializes manager', async function () {
+        const manager = roles.manager.address;
+        expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(false);
+        await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager))
+          .to.emit(accessControlRegistry, 'InitializedManager')
+          .withArgs(managerRootRole, manager);
+        expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(true);
+      });
+    });
+    context('Manager initialized', function () {
+      it('does nothing', async function () {
+        const manager = roles.manager.address;
+        await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
+        await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager)).to.not.be.reverted;
+      });
     });
   });
-  context('Manager initialized', function () {
-    it('does nothing', async function () {
-      const manager = roles.manager.address;
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-      await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager)).to.not.be.reverted;
+  context('Manager address zero', function () {
+    it('reverts', async function () {
+      await expect(
+        accessControlRegistry.connect(roles.randomPerson).initializeManager(hre.ethers.constants.AddressZero)
+      ).to.be.revertedWith('Manager address zero');
     });
   });
 });
