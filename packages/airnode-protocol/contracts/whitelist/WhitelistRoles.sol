@@ -27,7 +27,7 @@ contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
         "Whitelist expiration setter";
     string public constant override INDEFINITE_WHITELISTER_ROLE_DESCRIPTION =
         "Indefinite whitelister";
-    bytes32 internal adminRoleDescriptionHash;
+    bytes32 internal immutable adminRoleDescriptionHash;
     bytes32
         internal constant WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH =
         keccak256(
