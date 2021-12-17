@@ -29,13 +29,15 @@ If you would like to know more about RRP, read the [API3 docs](https://docs.api3
 We call examples "integrations" because they are integrated with some API. With each integration you are offered a
 choice of how you want to run the Airnode and which network to use, as mentioned above. The integrations have been
 designed to highlight various Airnode functionality and use cases, from simple price requests to more complex
-authenticated requests encoding multiple reserved parameters. The following list orders integrations by increasing
-complexity, but you are welcome to explore as you see fit.
+authenticated requests encoding multiple reserved parameters. The following list orders integrations alphabetically:
 
-1. CoinGecko - unauthenticated cryptocurrency price request
-2. CoinMarketCap - authenticated cryptocurrency price request
-3. OpenWeather - authenticated weather request encoding multiple parameters including the transaction timestamp, time of
-   sunset, temperature, and a description of the weather.
+- [CoinGecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
+  unauthenticated cryptocurrency price request
+- [CoinMarketCap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
+  authenticated cryptocurrency price request
+- [OpenWeather](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
+  authenticated weather request encoding multiple parameters including the transaction timestamp, time of sunset,
+  temperature, and a description of the weather.
 
 ## Setup
 
