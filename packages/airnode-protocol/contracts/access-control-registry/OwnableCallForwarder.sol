@@ -2,6 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/IOwnableCallForwarder.sol";
 
 /// @title Contract that forwards the calls that its owner sends
@@ -17,24 +18,18 @@ contract OwnableCallForwarder is Ownable, IOwnableCallForwarder {
     /// @dev This function emits its event after an untrusted low-level call,
     /// meaning that the order of these events within the transaction should
     /// not be taken seriously, yet the content will be sound.
-    /// @param targetAddress Target address that the calldata will be forwarded
+    /// @param forwardTarget Target address that the calldata will be forwarded
     /// to
     /// @param forwardedCalldata Calldata to be forwarded to the target address
     /// @return returnedData Data returned by the forwarded call
     function forwardCall(
-        address targetAddress,
+        address forwardTarget,
         bytes calldata forwardedCalldata
     ) external payable override onlyOwner returns (bytes memory returnedData) {
-        bool callSuccess;
-        (callSuccess, returnedData) = targetAddress.call{value: msg.value}( // solhint-disable-line avoid-low-level-calls
-            forwardedCalldata
-        );
-        require(callSuccess, "Call unsuccessful");
-        emit ForwardedCall(
-            targetAddress,
-            msg.value,
+        returnedData = Address.functionCallWithValue(
+            forwardTarget,
             forwardedCalldata,
-            returnedData
+            msg.value
         );
     }
 }

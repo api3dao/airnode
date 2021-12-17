@@ -204,27 +204,48 @@ describe('renounceRole', function () {
 describe('MockCallForwarderTarget', function () {
   context('Target function does not revert', function () {
     it('forwards value', async function () {
-      const calldata = mockCallForwarderTarget.interface.encodeFunctionData('targetFunction', ['input1', 123]);
+      const input1 = 'input1';
+      const input2 = 123;
       const value = 456;
+      const calldata = mockCallForwarderTarget.interface.encodeFunctionData('targetFunction', [input1, input2]);
       const returnedData = await ownableCallForwarder
         .connect(roles.forwarderOwner)
-        .callStatic.forwardCall(mockCallForwarderTarget.address, calldata, { value: value, gasLimit: 500000 });
+        .callStatic.forwardCall(mockCallForwarderTarget.address, calldata, { value: value });
       const expectedReturnedData = hre.ethers.utils.defaultAbiCoder.encode(['bytes', 'bool'], ['0x12345678', true]);
       expect(returnedData).to.equal(expectedReturnedData);
+      await ownableCallForwarder
+        .connect(roles.forwarderOwner)
+        .forwardCall(mockCallForwarderTarget.address, calldata, { value: value });
+      expect(await mockCallForwarderTarget.storage1()).to.equal(input1);
+      expect(await mockCallForwarderTarget.storage2()).to.equal(input2);
+      expect(await hre.ethers.provider.getBalance(mockCallForwarderTarget.address)).to.equal(value);
+    });
+  });
+  context('Target is not contract', function () {
+    it('reverts', async function () {
       await expect(
-        ownableCallForwarder
-          .connect(roles.forwarderOwner)
-          .forwardCall(mockCallForwarderTarget.address, calldata, { value: value })
-      )
-        .to.emit(ownableCallForwarder, 'ForwardedCall')
-        .withArgs(mockCallForwarderTarget.address, value, calldata, expectedReturnedData);
+        ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(hre.ethers.constants.AddressZero, '0x')
+      ).to.be.revertedWith('Address: call to non-contract');
+    });
+  });
+  context('Target function does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(mockCallForwarderTarget.address, '0xabcd')
+      ).to.be.revertedWith('Address: low-level call with value failed');
     });
   });
   context('Target function reverts', function () {
     it('reverts', async function () {
+      const input1 = 'this will make the call revert';
+      const input2 = 123;
+      const value = 456;
+      const calldata = mockCallForwarderTarget.interface.encodeFunctionData('targetFunction', [input1, input2]);
       await expect(
-        ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(mockCallForwarderTarget.address, '0xabcd')
-      ).to.be.revertedWith('Call unsuccessful');
+        ownableCallForwarder
+          .connect(roles.forwarderOwner)
+          .forwardCall(mockCallForwarderTarget.address, calldata, { value: value })
+      ).to.be.revertedWith('Incorrect input');
     });
   });
 });
