@@ -58,7 +58,8 @@ contract AccessControlRegistry is
     /// explicitly renounce it after initializing it.
     /// Once a role is initialized, subsequent initialization have no effect,
     /// other than granting the role to the sender.
-    /// The sender must be a member of `adminRole`.
+    /// The sender must be a member of `adminRole`. `adminRole` value is not
+    /// validated because the sender cannot have the `bytes32(0)` role.
     /// If the sender is an uninitialized manager that is initializing a role
     /// directly under their root role, manager initialization will happen
     /// automatically, which will grant the sender `adminRole` and allow them
@@ -71,6 +72,7 @@ contract AccessControlRegistry is
         override
         returns (bytes32 role)
     {
+        require(bytes(description).length > 0, "Role description empty");
         role = deriveRole(adminRole, description);
         // AccessControl roles have `DEFAULT_ADMIN_ROLE` (i.e., `bytes32(0)`)
         // as their `adminRole` by default. No account in AccessControlRegistry
