@@ -3,8 +3,14 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, RrpTrigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, Trigger } from '../../types';
 
+export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
+  const derivedSponsorWallet = wallet.deriveSponsorWallet(hdNode, sponsor);
+  return derivedSponsorWallet.address === sponsorWallet;
+};
+
+// TODO: Remove this once https://api3dao.atlassian.net/browse/AN-400 is done
 export function verifySponsorWallets<T>(
   requests: Request<T>[],
   masterHDNode: ethers.utils.HDNode
@@ -40,11 +46,13 @@ export function verifySponsorWallets<T>(
 
 export function verifyRrpTriggers(
   apiCalls: Request<ApiCall>[],
-  rrpTriggers: RrpTrigger[],
+  rrpTriggers: Trigger[],
   oises: OIS[]
 ): LogsData<Request<ApiCall>[]> {
   const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) {
+      // TODO: Do we need to log this? We do not follow the same practice in applySponsorAndSponsorWalletRequestLimit
+      // (once the request is ignored it is not further mentioned in future logs)
       const message = `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`;
       const log = logger.pend('DEBUG', message);
       return [[log], apiCall];

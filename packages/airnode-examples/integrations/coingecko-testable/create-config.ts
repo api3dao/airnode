@@ -21,6 +21,14 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         },
       },
       type: 'evm',
+      options: {
+        txType: 'eip1559',
+        baseFeeMultiplier: '2',
+        priorityFee: {
+          value: '3.12',
+          unit: 'gwei',
+        },
+      },
     },
   ],
   nodeSettings: {
@@ -40,6 +48,13 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   },
   triggers: {
     rrp: [
+      {
+        endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
+      },
+    ],
+    http: [
       {
         endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
         oisTitle: 'CoinGecko basic request',
@@ -173,7 +188,6 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               },
             },
           ],
-          testable: true,
         },
       ],
     },

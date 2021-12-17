@@ -48,7 +48,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     expect(requests).toEqual([
       {
         airnodeAddress: 'airnodeAddress',
-        sponsorWalletAddress: 'sponsorWalletAddress',
+        sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
         id,
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',

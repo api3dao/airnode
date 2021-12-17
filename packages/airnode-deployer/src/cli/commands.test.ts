@@ -65,7 +65,7 @@ describe('deployer commands', () => {
           region: 'us-east1',
           projectId: 'airnode-4',
         },
-        nodeVersion: '0.3.0',
+        nodeVersion: '0.4.0',
         stage: 'stage',
       },
     };

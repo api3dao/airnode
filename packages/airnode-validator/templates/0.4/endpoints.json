@@ -73,14 +73,6 @@
           "example": {}
         }
       }
-    },
-    "__optional": {
-      "summary": {},
-      "description": {},
-      "externalDocs": {},
-      "testable": {
-        "__type": "boolean"
-      }
     }
   }
 }
