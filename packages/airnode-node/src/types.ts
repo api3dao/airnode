@@ -457,6 +457,7 @@ export interface NodeSettings {
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly nodeVersion: string;
+  readonly skipValidation?: boolean;
 }
 
 export interface ApiCredentials extends AdapterApiCredentials {

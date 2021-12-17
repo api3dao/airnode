@@ -2,8 +2,8 @@ import { Config } from '@api3/airnode-node';
 import { validateJsonWithTemplate } from '@api3/airnode-validator';
 import * as logger from '../utils/logger';
 
-export function validateConfig(config: Config, nodeVersion: string, skipValidation: boolean) {
-  if (skipValidation) {
+export function validateConfig(config: Config, nodeVersion: string) {
+  if (config.nodeSettings.skipValidation) {
     logger.warn('Skipping the config validation');
     return;
   }

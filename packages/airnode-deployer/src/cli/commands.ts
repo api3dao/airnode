@@ -14,10 +14,10 @@ import {
 } from '../utils';
 import * as logger from '../utils/logger';
 
-export async function deploy(configFile: string, secretsFile: string, receiptFile: string, skipValidation: boolean) {
+export async function deploy(configFile: string, secretsFile: string, receiptFile: string) {
   const secrets = parseSecretsFile(secretsFile);
   const config = nodeConfig.parseConfig(configFile, secrets);
-  validateConfig(config, getNodeVersion(), skipValidation);
+  validateConfig(config, getNodeVersion());
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {

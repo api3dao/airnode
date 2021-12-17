@@ -41,11 +41,6 @@ yargs(hideBin(process.argv))
     default: false,
     type: 'boolean',
   })
-  .option('skip-validation', {
-    description: 'Config file of the deployment will not be validated',
-    default: false,
-    type: 'boolean',
-  })
   .command(
     'deploy',
     'Executes Airnode deployments specified in the config file',
@@ -72,9 +67,7 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() =>
-        deploy(args.configuration, args.secrets, args.receipt, args['skip-validation'] as boolean)
-      );
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt));
     }
   )
   .command(

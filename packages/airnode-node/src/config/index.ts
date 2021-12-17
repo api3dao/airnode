@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
-import { version as getNodeVersion } from '@api3/airnode-node';
+import { version as getNodeVersion } from '../index';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 
@@ -19,11 +19,11 @@ export function parseConfig(configPath: string, secrets: Record<string, string |
   const config = fs.readFileSync(configPath, 'utf8');
 
   const validationResult = validateConfig(JSON.parse(config), secrets);
-  if (!validationResult.valid) {
+  const parsedConfig: Config = validationResult.specs as Config;
+
+  if (!validationResult.valid && !parsedConfig.nodeSettings.skipValidation) {
     throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationResult.messages)}`);
   }
-
-  const parsedConfig: Config = validationResult.specs as Config;
 
   const ois = parseOises(parsedConfig.ois);
   return { ...parsedConfig, ois };
