@@ -33,27 +33,36 @@ beforeEach(async () => {
 });
 
 describe('setSponsorshipStatus', function () {
-  it('sets sponsorship status', async function () {
-    expect(
-      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
-    ).to.equal(false);
-    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
-    // Set sponsorship status as true
-    await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true))
-      .to.emit(airnodeRrp, 'SetSponsorshipStatus')
-      .withArgs(roles.sponsor.address, rrpRequester.address, true);
-    expect(
-      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
-    ).to.equal(true);
-    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
-    // Reset sponsorship status back as false
-    await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, false))
-      .to.emit(airnodeRrp, 'SetSponsorshipStatus')
-      .withArgs(roles.sponsor.address, rrpRequester.address, false);
-    expect(
-      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
-    ).to.equal(false);
-    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+  context('Requester address not zero', function () {
+    it('sets sponsorship status', async function () {
+      expect(
+        await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+      ).to.equal(false);
+      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+      // Set sponsorship status as true
+      await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true))
+        .to.emit(airnodeRrp, 'SetSponsorshipStatus')
+        .withArgs(roles.sponsor.address, rrpRequester.address, true);
+      expect(
+        await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+      ).to.equal(true);
+      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+      // Reset sponsorship status back as false
+      await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, false))
+        .to.emit(airnodeRrp, 'SetSponsorshipStatus')
+        .withArgs(roles.sponsor.address, rrpRequester.address, false);
+      expect(
+        await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+      ).to.equal(false);
+      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+    });
+  });
+  context('Requester address zero', function () {
+    it('reverts', async function () {
+      await expect(
+        airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(hre.ethers.constants.AddressZero, true)
+      ).to.be.revertedWith('Requester address zero');
+    });
   });
 });
 

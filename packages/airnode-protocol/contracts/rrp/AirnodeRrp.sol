@@ -45,6 +45,7 @@ contract AirnodeRrp is
         external
         override
     {
+        require(requester != address(0), "Requester address zero");
         // Initialize the requester request count for consistent request gas
         // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
