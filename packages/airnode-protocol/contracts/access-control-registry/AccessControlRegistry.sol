@@ -118,7 +118,9 @@ contract AccessControlRegistry is
         roles = new bytes32[](argumentLength);
         for (uint256 ind = 0; ind < argumentLength; ind++) {
             roles[ind] = initializeRole(adminRoles[ind], descriptions[ind]);
-            grantRole(roles[ind], accounts[ind]);
+            address account = accounts[ind];
+            require(account != address(0), "Account address zero");
+            grantRole(roles[ind], account);
         }
     }
 
