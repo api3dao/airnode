@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let airnodeRrp, rrpRequester;
@@ -19,8 +19,8 @@ beforeEach(async () => {
   airnodeRrp = await airnodeRrpFactory.deploy();
   const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
   rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
-  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
-  sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = testUtils.generateRandomAirnodeWallet());
+  sponsorWalletAddress = testUtils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: sponsorWalletAddress,
     value: hre.ethers.utils.parseEther('1'),
@@ -82,7 +82,7 @@ describe('fulfillWithdrawal', function () {
       );
       // Calculate the amount to be withdrawn
       const sponsorBalance = await hre.ethers.provider.getBalance(roles.sponsor.address);
-      const sponsorWallet = utils
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       const gasEstimate = await airnodeRrp
@@ -113,7 +113,7 @@ describe('fulfillWithdrawal', function () {
       // Make the withdrawal request
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       // Attempt to fulfill the withdrawal request
-      const sponsorWallet = utils
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       await expect(
@@ -140,7 +140,7 @@ describe('fulfillWithdrawal', function () {
         )
       );
       // Attempt to fulfill the withdrawal request
-      const sponsorWallet = utils
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       await expect(
@@ -167,7 +167,7 @@ describe('fulfillWithdrawal', function () {
         )
       );
       // Attempt to fulfill the withdrawal request
-      const sponsorWallet = utils
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       await expect(
@@ -194,7 +194,7 @@ describe('fulfillWithdrawal', function () {
         )
       );
       // Attempt to fulfill the withdrawal request
-      const sponsorWallet = utils
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       // Transfer will fail because `rrpRequester` has no default `payable` method

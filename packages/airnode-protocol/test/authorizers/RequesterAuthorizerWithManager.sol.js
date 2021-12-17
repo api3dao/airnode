@@ -1,14 +1,14 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let accessControlRegistry, requesterAuthorizerWithManager;
 let requesterAuthorizerWithManagerAdminRoleDescription = 'RequesterAuthorizerWithManager admin';
 let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
-let airnodeAddress = utils.generateRandomAddress();
-let endpointId = utils.generateRandomBytes32();
+let airnodeAddress = testUtils.generateRandomAddress();
+let endpointId = testUtils.generateRandomBytes32();
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -749,10 +749,10 @@ describe('isAuthorized', function () {
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
         expect(
           await requesterAuthorizerWithManager.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -765,10 +765,10 @@ describe('isAuthorized', function () {
           .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
         expect(
           await requesterAuthorizerWithManager.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -783,10 +783,10 @@ describe('isAuthorized', function () {
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
         expect(
           await requesterAuthorizerWithManager.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -796,10 +796,10 @@ describe('isAuthorized', function () {
       it('returns false', async function () {
         expect(
           await requesterAuthorizerWithManager.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(false);
