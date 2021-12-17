@@ -128,46 +128,63 @@ describe('constructor', function () {
 
 describe('extendWhitelistExpiration', function () {
   context('Sender has whitelist expiration extender role', function () {
-    context('Timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+    context('Requester address not zero', function () {
+      context('Timestamp extends whitelist expiration', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+          const expirationTimestamp = 1000;
+          await expect(
+            requesterAuthorizerWithAirnode
+              .connect(roles.whitelistExpirationExtender)
+              .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+          )
+            .to.emit(requesterAuthorizerWithAirnode, 'ExtendedWhitelistExpiration')
+            .withArgs(
+              airnodeAddress,
+              endpointId,
+              roles.requester.address,
+              roles.whitelistExpirationExtender.address,
+              expirationTimestamp
+            );
+          whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        });
+      });
+      context('Timestamp does not extend whitelist expiration', function () {
+        it('reverts', async function () {
+          await expect(
+            requesterAuthorizerWithAirnode
+              .connect(roles.whitelistExpirationExtender)
+              .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+          ).to.be.revertedWith('Does not extend expiration');
+        });
+      });
+    });
+    context('Requester address zero', function () {
+      it('reverts', async function () {
         const expirationTimestamp = 1000;
         await expect(
           requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationExtender)
-            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-        )
-          .to.emit(requesterAuthorizerWithAirnode, 'ExtendedWhitelistExpiration')
-          .withArgs(
-            airnodeAddress,
-            endpointId,
-            roles.requester.address,
-            roles.whitelistExpirationExtender.address,
-            expirationTimestamp
-          );
-        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      });
-    });
-    context('Timestamp does not extend whitelist expiration', function () {
-      it('reverts', async function () {
-        await expect(
-          requesterAuthorizerWithAirnode
-            .connect(roles.whitelistExpirationExtender)
-            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-        ).to.be.revertedWith('Does not extend expiration');
+            .extendWhitelistExpiration(
+              airnodeAddress,
+              endpointId,
+              hre.ethers.constants.AddressZero,
+              expirationTimestamp
+            )
+        ).to.be.revertedWith('Requester address zero');
       });
     });
   });
@@ -240,43 +257,54 @@ describe('extendWhitelistExpiration', function () {
 
 describe('setWhitelistExpiration', function () {
   context('Sender has whitelist expiration setter role', function () {
-    it('sets whitelist expiration', async function () {
-      let whitelistStatus;
-      const expirationTimestamp = 1000;
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetWhitelistExpiration')
-        .withArgs(
+    context('Requester address not zero', function () {
+      it('sets whitelist expiration', async function () {
+        let whitelistStatus;
+        const expirationTimestamp = 1000;
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.whitelistExpirationSetter)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+        )
+          .to.emit(requesterAuthorizerWithAirnode, 'SetWhitelistExpiration')
+          .withArgs(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address,
+            roles.whitelistExpirationSetter.address,
+            expirationTimestamp
+          );
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.whitelistExpirationSetter.address,
-          expirationTimestamp
+          roles.requester.address
         );
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.whitelistExpirationSetter)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetWhitelistExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.whitelistExpirationSetter.address, 0);
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.whitelistExpirationSetter)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+        )
+          .to.emit(requesterAuthorizerWithAirnode, 'SetWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.whitelistExpirationSetter.address, 0);
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+      });
+    });
+    context('Requester address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.whitelistExpirationSetter)
+            .setWhitelistExpiration(airnodeAddress, endpointId, hre.ethers.constants.AddressZero, 0)
+        ).to.be.revertedWith('Requester address zero');
+      });
     });
   });
   context('Sender is the Airnode address', function () {
@@ -341,100 +369,111 @@ describe('setWhitelistExpiration', function () {
 
 describe('setIndefiniteWhitelistStatus', function () {
   context('Sender has indefinite whitelister role', function () {
-    it('sets indefinite whitelist status', async function () {
-      let whitelistStatus;
-      // Whitelist indefinitely
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, true, 1);
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(
-        await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+    context('Requester address not zero', function () {
+      it('sets indefinite whitelist status', async function () {
+        let whitelistStatus;
+        // Whitelist indefinitely
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
+        )
+          .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, true, 1);
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.indefiniteWhitelister.address
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+        expect(
+          await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address,
+            roles.indefiniteWhitelister.address
+          )
+        ).to.equal(true);
+        // Whitelisting indefinitely again should have no effect
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
         )
-      ).to.equal(true);
-      // Whitelisting indefinitely again should have no effect
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, true, 1);
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-      expect(
-        await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, true, 1);
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.indefiniteWhitelister.address
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+        expect(
+          await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address,
+            roles.indefiniteWhitelister.address
+          )
+        ).to.equal(true);
+        // Revoke indefinite whitelisting
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
         )
-      ).to.equal(true);
-      // Revoke indefinite whitelisting
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, false, 0);
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(
-        await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, false, 0);
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.indefiniteWhitelister.address
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        expect(
+          await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address,
+            roles.indefiniteWhitelister.address
+          )
+        ).to.equal(false);
+        // Revoking indefinite whitelisting again should have no effect
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
         )
-      ).to.equal(false);
-      // Revoking indefinite whitelisting again should have no effect
-      await expect(
-        requesterAuthorizerWithAirnode
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
-      )
-        .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, false, 0);
-      whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      expect(
-        await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          .to.emit(requesterAuthorizerWithAirnode, 'SetIndefiniteWhitelistStatus')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.indefiniteWhitelister.address, false, 0);
+        whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.indefiniteWhitelister.address
-        )
-      ).to.equal(false);
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        expect(
+          await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address,
+            roles.indefiniteWhitelister.address
+          )
+        ).to.equal(false);
+      });
+    });
+    context('Requester address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          requesterAuthorizerWithAirnode
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, hre.ethers.constants.AddressZero, true)
+        ).to.be.revertedWith('Requester address zero');
+      });
     });
   });
   context('Sender is the Airnode address', function () {
@@ -569,53 +608,102 @@ describe('setIndefiniteWhitelistStatus', function () {
 describe('revokeIndefiniteWhitelistStatus', function () {
   context('setter does not have the indefinite whitelister role', function () {
     context('setter is not the Airnode address', function () {
-      it('revokes indefinite whitelist status', async function () {
-        // Grant indefinite whitelist status
-        await requesterAuthorizerWithAirnode
-          .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
-        // Revoke the indefinite whitelister role
-        await accessControlRegistry
-          .connect(airnodeWallet)
-          .revokeRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address, { gasLimit: 1000000 });
-        // Revoke the indefinite whitelist status
-        await expect(
-          requesterAuthorizerWithAirnode
-            .connect(roles.randomPerson)
-            .revokeIndefiniteWhitelistStatus(
-              airnodeAddress,
-              endpointId,
-              roles.requester.address,
-              roles.indefiniteWhitelister.address
-            )
-        )
-          .to.emit(requesterAuthorizerWithAirnode, 'RevokedIndefiniteWhitelistStatus')
-          .withArgs(
-            airnodeAddress,
-            endpointId,
-            roles.requester.address,
-            roles.indefiniteWhitelister.address,
-            roles.randomPerson.address,
-            0
-          );
-        const whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-        // Revoking twice should not emit an event
-        await expect(
-          requesterAuthorizerWithAirnode
-            .connect(roles.randomPerson)
-            .revokeIndefiniteWhitelistStatus(
-              airnodeAddress,
-              endpointId,
-              roles.requester.address,
-              roles.indefiniteWhitelister.address
-            )
-        ).to.not.emit(requesterAuthorizerWithAirnode, 'RevokedIndefiniteWhitelistStatus');
+      context('Airnode address not zero', function () {
+        context('Requester address not zero', function () {
+          context('Setter address not zero', function () {
+            it('revokes indefinite whitelist status', async function () {
+              // Grant indefinite whitelist status
+              await requesterAuthorizerWithAirnode
+                .connect(roles.indefiniteWhitelister)
+                .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
+              // Revoke the indefinite whitelister role
+              await accessControlRegistry
+                .connect(airnodeWallet)
+                .revokeRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address, { gasLimit: 1000000 });
+              // Revoke the indefinite whitelist status
+              await expect(
+                requesterAuthorizerWithAirnode
+                  .connect(roles.randomPerson)
+                  .revokeIndefiniteWhitelistStatus(
+                    airnodeAddress,
+                    endpointId,
+                    roles.requester.address,
+                    roles.indefiniteWhitelister.address
+                  )
+              )
+                .to.emit(requesterAuthorizerWithAirnode, 'RevokedIndefiniteWhitelistStatus')
+                .withArgs(
+                  airnodeAddress,
+                  endpointId,
+                  roles.requester.address,
+                  roles.indefiniteWhitelister.address,
+                  roles.randomPerson.address,
+                  0
+                );
+              const whitelistStatus =
+                await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
+                  airnodeAddress,
+                  endpointId,
+                  roles.requester.address
+                );
+              expect(whitelistStatus.expirationTimestamp).to.equal(0);
+              expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+              // Revoking twice should not emit an event
+              await expect(
+                requesterAuthorizerWithAirnode
+                  .connect(roles.randomPerson)
+                  .revokeIndefiniteWhitelistStatus(
+                    airnodeAddress,
+                    endpointId,
+                    roles.requester.address,
+                    roles.indefiniteWhitelister.address
+                  )
+              ).to.not.emit(requesterAuthorizerWithAirnode, 'RevokedIndefiniteWhitelistStatus');
+            });
+          });
+          context('Setter address zero', function () {
+            it('reverts', async function () {
+              await expect(
+                requesterAuthorizerWithAirnode
+                  .connect(roles.randomPerson)
+                  .revokeIndefiniteWhitelistStatus(
+                    airnodeAddress,
+                    endpointId,
+                    roles.requester.address,
+                    hre.ethers.constants.AddressZero
+                  )
+              ).to.be.revertedWith('Setter address zero');
+            });
+          });
+        });
+        context('Requester address zero', function () {
+          it('reverts', async function () {
+            await expect(
+              requesterAuthorizerWithAirnode
+                .connect(roles.randomPerson)
+                .revokeIndefiniteWhitelistStatus(
+                  airnodeAddress,
+                  endpointId,
+                  hre.ethers.constants.AddressZero,
+                  roles.randomPerson.address
+                )
+            ).to.be.revertedWith('Requester address zero');
+          });
+        });
+      });
+      context('Airnode address zero', function () {
+        it('reverts', async function () {
+          await expect(
+            requesterAuthorizerWithAirnode
+              .connect(roles.randomPerson)
+              .revokeIndefiniteWhitelistStatus(
+                hre.ethers.constants.AddressZero,
+                endpointId,
+                roles.requester.address,
+                roles.randomPerson.address
+              )
+          ).to.be.revertedWith('Airnode address zero');
+        });
       });
     });
     context('setter is the Airnode address', function () {
