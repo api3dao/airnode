@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../../utils');
+const testUtils = require('../../test-utils');
 
 let roles;
 let accessControlRegistry, airnodeRrp, rrpBeaconServer;
@@ -72,22 +72,22 @@ beforeEach(async () => {
       ],
       [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
     );
-  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = testUtils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
-  sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  sponsorWalletAddress = testUtils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   voidSignerAddressZero = new hre.ethers.VoidSigner(hre.ethers.constants.AddressZero, hre.ethers.provider);
   await roles.deployer.sendTransaction({
     to: sponsorWalletAddress,
     value: hre.ethers.utils.parseEther('1'),
   });
-  sponsorWallet = utils.deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address).connect(hre.ethers.provider);
-  endpointId = utils.generateRandomBytes32();
-  templateParameters = utils.generateRandomBytes();
+  sponsorWallet = testUtils.deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address).connect(hre.ethers.provider);
+  endpointId = testUtils.generateRandomBytes32();
+  templateParameters = testUtils.generateRandomBytes();
   await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, templateParameters);
   templateId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, templateParameters])
   );
-  beaconParameters = utils.generateRandomBytes();
+  beaconParameters = testUtils.generateRandomBytes();
   beaconId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
   );
@@ -572,6 +572,57 @@ describe('setUpdatePermissionStatus', function () {
 });
 
 describe('requestBeaconUpdate', function () {
+  context('Request updater is the sponsor', function () {
+    context('RRP beacon server sponsored', function () {
+      it('requests beacon update', async function () {
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+        // Compute the expected request ID
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            [
+              (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
+              rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
+              beaconParameters,
+            ]
+          )
+        );
+        // Request the beacon update
+        await expect(
+          rrpBeaconServer
+            .connect(roles.sponsor)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
+        )
+          .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
+          .withArgs(
+            beaconId,
+            roles.sponsor.address,
+            roles.sponsor.address,
+            requestId,
+            templateId,
+            sponsorWalletAddress,
+            beaconParameters
+          );
+      });
+    });
+    context('RRP beacon server not sponsored', function () {
+      it('reverts', async function () {
+        // Attempt to request beacon update
+        await expect(
+          rrpBeaconServer
+            .connect(roles.sponsor)
+            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
+        ).to.be.revertedWith('Requester not sponsored');
+      });
+    });
+  });
   context('Request updater permitted', function () {
     context('RRP beacon server sponsored', function () {
       it('requests beacon update', async function () {
@@ -771,7 +822,7 @@ describe('readerCanReadBeacon', function () {
   context('User whitelisted', function () {
     it('returns true', async function () {
       expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
-      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+      const expirationTimestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
         .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp);
@@ -945,7 +996,7 @@ describe('fulfill', function () {
                     { gasLimit: 500000 }
                   );
                 expect(staticCallResult.callSuccess).to.equal(false);
-                expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment stale');
+                expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment stale');
                 await expect(
                   airnodeRrp
                     .connect(sponsorWallet)
@@ -1025,7 +1076,7 @@ describe('fulfill', function () {
                     { gasLimit: 500000 }
                   );
                 expect(staticCallResult.callSuccess).to.equal(false);
-                expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment from future');
+                expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment from future');
                 await expect(
                   airnodeRrp
                     .connect(sponsorWallet)
@@ -1173,7 +1224,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment older than beacon');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Fulfillment older than beacon');
               await expect(
                 airnodeRrp
                   .connect(sponsorWallet)
@@ -1255,7 +1306,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Value typecasting error');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Value typecasting error');
               await expect(
                 airnodeRrp
                   .connect(sponsorWallet)
@@ -1335,7 +1386,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Value typecasting error');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Value typecasting error');
               await expect(
                 airnodeRrp
                   .connect(sponsorWallet)
@@ -1413,7 +1464,7 @@ describe('fulfill', function () {
                 { gasLimit: 500000 }
               );
             expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Timestamp typecasting error');
+            expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Timestamp typecasting error');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -1488,7 +1539,7 @@ describe('fulfill', function () {
               { gasLimit: 500000 }
             );
           expect(staticCallResult.callSuccess).to.equal(false);
-          expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Incorrect data length');
+          expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Incorrect data length');
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
@@ -1562,7 +1613,7 @@ describe('fulfill', function () {
               { gasLimit: 500000 }
             );
           expect(staticCallResult.callSuccess).to.equal(false);
-          expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Incorrect data length');
+          expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Incorrect data length');
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
@@ -1584,7 +1635,7 @@ describe('fulfill', function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
         // Make the request
-        const requestTimeParameters = utils.generateRandomBytes();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await airnodeRrp
           .connect(roles.randomPerson)
           .makeTemplateRequest(
@@ -1634,7 +1685,7 @@ describe('fulfill', function () {
             { gasLimit: 500000 }
           );
         expect(staticCallResult.callSuccess).to.equal(false);
-        expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
+        expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
         await expect(
           airnodeRrp
             .connect(sponsorWallet)
@@ -1736,7 +1787,7 @@ describe('readerCanReadBeacon', function () {
   context('User whitelisted', function () {
     it('returns true', async function () {
       expect(await rrpBeaconServer.readerCanReadBeacon(beaconId, roles.beaconReader.address)).to.equal(false);
-      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+      const expirationTimestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
       await rrpBeaconServer
         .connect(roles.whitelistExpirationSetter)
         .setWhitelistExpiration(beaconId, roles.beaconReader.address, expirationTimestamp);

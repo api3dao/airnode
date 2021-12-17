@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let airnodeRrp, rrpRequester;
@@ -19,9 +19,9 @@ beforeEach(async () => {
   airnodeRrp = await airnodeRrpFactory.deploy();
   const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
   rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
-  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = testUtils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
-  sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  sponsorWalletAddress = testUtils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: airnodeAddress,
     value: hre.ethers.utils.parseEther('1'),
@@ -65,8 +65,8 @@ describe('makeTemplateRequest', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
@@ -74,7 +74,7 @@ describe('makeTemplateRequest', function () {
           // Compute the expected request ID
           const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
           const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           const expectedRequestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
               [
@@ -140,13 +140,13 @@ describe('makeTemplateRequest', function () {
       context('Requester not sponsored', function () {
         it('reverts', async function () {
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await expect(
             rrpRequester
               .connect(roles.randomPerson)
@@ -165,13 +165,13 @@ describe('makeTemplateRequest', function () {
     context('Fulfill address AirnodeRrp', function () {
       it('reverts', async function () {
         // Create the template
-        const endpointId = utils.generateRandomBytes32();
-        const parameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const parameters = testUtils.generateRandomBytes();
         await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
         const templateId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
-        const requestTimeParameters = utils.generateRandomBytes();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await expect(
           rrpRequester
             .connect(roles.randomPerson)
@@ -189,8 +189,8 @@ describe('makeTemplateRequest', function () {
   });
   context('Template does not exist', function () {
     it('reverts', async function () {
-      const templateId = utils.generateRandomBytes32();
-      const requestTimeParameters = utils.generateRandomBytes();
+      const templateId = testUtils.generateRandomBytes32();
+      const requestTimeParameters = testUtils.generateRandomBytes();
       await expect(
         rrpRequester
           .connect(roles.randomPerson)
@@ -217,8 +217,8 @@ describe('makeFullRequest', function () {
           // Compute the expected request ID
           const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
           const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           const expectedRequestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
               [
@@ -286,8 +286,8 @@ describe('makeFullRequest', function () {
       });
       context('Requester not sponsored', function () {
         it('reverts', async function () {
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await expect(
             rrpRequester
               .connect(roles.randomPerson)
@@ -306,8 +306,8 @@ describe('makeFullRequest', function () {
     });
     context('Fulfill address AirnodeRrp', function () {
       it('reverts', async function () {
-        const endpointId = utils.generateRandomBytes32();
-        const requestTimeParameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await expect(
           rrpRequester
             .connect(roles.randomPerson)
@@ -328,8 +328,8 @@ describe('makeFullRequest', function () {
     it('reverts', async function () {
       // Endorse the requester
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      const endpointId = utils.generateRandomBytes32();
-      const requestTimeParameters = utils.generateRandomBytes();
+      const endpointId = testUtils.generateRandomBytes32();
+      const requestTimeParameters = testUtils.generateRandomBytes();
       // Make the request
       await expect(
         rrpRequester
@@ -358,14 +358,14 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Create the template
-              const endpointId = utils.generateRandomBytes32();
-              const parameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const parameters = testUtils.generateRandomBytes();
               await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
               const templateId = hre.ethers.utils.keccak256(
                 hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
               // Make the request
-              const requestTimeParameters = utils.generateRandomBytes();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeTemplateRequest(
@@ -405,7 +405,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -472,14 +472,14 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Create the template
-              const endpointId = utils.generateRandomBytes32();
-              const parameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const parameters = testUtils.generateRandomBytes();
               await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
               const templateId = hre.ethers.utils.keccak256(
                 hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
               // Make the request
-              const requestTimeParameters = utils.generateRandomBytes();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeTemplateRequest(
@@ -518,7 +518,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -545,7 +545,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -584,14 +584,14 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
               // Create the template
-              const endpointId = utils.generateRandomBytes32();
-              const parameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const parameters = testUtils.generateRandomBytes();
               await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
               const templateId = hre.ethers.utils.keccak256(
                 hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
               // Make the request
-              const requestTimeParameters = utils.generateRandomBytes();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await airnodeRrp
                 .connect(roles.randomPerson)
                 .makeTemplateRequest(
@@ -630,7 +630,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -657,7 +657,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -682,14 +682,14 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Create the template
-              const endpointId = utils.generateRandomBytes32();
-              const parameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const parameters = testUtils.generateRandomBytes();
               await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
               const templateId = hre.ethers.utils.keccak256(
                 hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
               // Make the request
-              const requestTimeParameters = utils.generateRandomBytes();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeTemplateRequest(
@@ -728,7 +728,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -755,7 +755,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -794,14 +794,14 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Create the template
-              const endpointId = utils.generateRandomBytes32();
-              const parameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const parameters = testUtils.generateRandomBytes();
               await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
               const templateId = hre.ethers.utils.keccak256(
                 hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
               // Make the request
-              const requestTimeParameters = utils.generateRandomBytes();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeTemplateRequest(
@@ -840,7 +840,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -867,7 +867,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -893,14 +893,14 @@ describe('fulfill', function () {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
+            const endpointId = testUtils.generateRandomBytes32();
+            const parameters = testUtils.generateRandomBytes();
             await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
             const templateId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
             );
             // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
+            const requestTimeParameters = testUtils.generateRandomBytes();
             await rrpRequester
               .connect(roles.randomPerson)
               .makeTemplateRequest(
@@ -940,7 +940,7 @@ describe('fulfill', function () {
               )
             );
             // Attempt to fulfill the request
-            const sponsorWallet = utils
+            const sponsorWallet = testUtils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
             const fulfillData = hre.ethers.utils.keccak256(
@@ -1006,14 +1006,14 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -1053,7 +1053,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -1084,14 +1084,14 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -1131,7 +1131,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -1162,14 +1162,14 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -1209,7 +1209,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -1240,14 +1240,14 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -1287,7 +1287,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -1313,14 +1313,14 @@ describe('fulfill', function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         // Create the template
-        const endpointId = utils.generateRandomBytes32();
-        const parameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const parameters = testUtils.generateRandomBytes();
         await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
         const templateId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
         // Make the request
-        const requestTimeParameters = utils.generateRandomBytes();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await rrpRequester
           .connect(roles.randomPerson)
           .makeTemplateRequest(
@@ -1382,8 +1382,8 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Make the request
-              const endpointId = utils.generateRandomBytes32();
-              const requestTimeParameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeFullRequest(
@@ -1425,7 +1425,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -1492,8 +1492,8 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Make the request
-              const endpointId = utils.generateRandomBytes32();
-              const requestTimeParameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeFullRequest(
@@ -1535,7 +1535,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -1562,7 +1562,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -1601,8 +1601,8 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
               // Make the request
-              const endpointId = utils.generateRandomBytes32();
-              const requestTimeParameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await airnodeRrp
                 .connect(roles.randomPerson)
                 .makeFullRequest(
@@ -1644,7 +1644,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -1671,7 +1671,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -1696,8 +1696,8 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Make the request
-              const endpointId = utils.generateRandomBytes32();
-              const requestTimeParameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeFullRequest(
@@ -1739,7 +1739,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -1766,7 +1766,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -1805,8 +1805,8 @@ describe('fulfill', function () {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Make the request
-              const endpointId = utils.generateRandomBytes32();
-              const requestTimeParameters = utils.generateRandomBytes();
+              const endpointId = testUtils.generateRandomBytes32();
+              const requestTimeParameters = testUtils.generateRandomBytes();
               await rrpRequester
                 .connect(roles.randomPerson)
                 .makeFullRequest(
@@ -1848,7 +1848,7 @@ describe('fulfill', function () {
                   ]
                 )
               );
-              const sponsorWallet = utils
+              const sponsorWallet = testUtils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
               const fulfillData = hre.ethers.utils.keccak256(
@@ -1875,7 +1875,7 @@ describe('fulfill', function () {
                   { gasLimit: 500000 }
                 );
               expect(staticCallResult.callSuccess).to.equal(false);
-              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              expect(testUtils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
               // Fulfill the request (which will emit a failed event)
               await expect(
                 airnodeRrp
@@ -1901,8 +1901,8 @@ describe('fulfill', function () {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
+            const endpointId = testUtils.generateRandomBytes32();
+            const requestTimeParameters = testUtils.generateRandomBytes();
             await rrpRequester
               .connect(roles.randomPerson)
               .makeFullRequest(
@@ -1945,7 +1945,7 @@ describe('fulfill', function () {
               )
             );
             // Attempt to fulfill the request
-            const sponsorWallet = utils
+            const sponsorWallet = testUtils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
             const fulfillData = hre.ethers.utils.keccak256(
@@ -2011,8 +2011,8 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2055,7 +2055,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -2086,8 +2086,8 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2130,7 +2130,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -2161,8 +2161,8 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2205,7 +2205,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -2236,8 +2236,8 @@ describe('fulfill', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2280,7 +2280,7 @@ describe('fulfill', function () {
             )
           );
           // Attempt to fulfill the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const fulfillData = hre.ethers.utils.keccak256(
@@ -2306,8 +2306,8 @@ describe('fulfill', function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         // Make the request
-        const endpointId = utils.generateRandomBytes32();
-        const requestTimeParameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await rrpRequester
           .connect(roles.randomPerson)
           .makeFullRequest(
@@ -2384,14 +2384,14 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -2431,7 +2431,7 @@ describe('fail', function () {
             )
           );
           // Fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2476,14 +2476,14 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -2495,7 +2495,7 @@ describe('fail', function () {
               requestTimeParameters
             );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2518,14 +2518,14 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -2565,7 +2565,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2588,14 +2588,14 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -2635,7 +2635,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2658,14 +2658,14 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
           await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
           const templateId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
           // Make the request
-          const requestTimeParameters = utils.generateRandomBytes();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeTemplateRequest(
@@ -2705,7 +2705,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2722,14 +2722,14 @@ describe('fail', function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         // Create the template
-        const endpointId = utils.generateRandomBytes32();
-        const parameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const parameters = testUtils.generateRandomBytes();
         await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
         const templateId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
         // Make the request
-        const requestTimeParameters = utils.generateRandomBytes();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await rrpRequester
           .connect(roles.randomPerson)
           .makeTemplateRequest(
@@ -2783,8 +2783,8 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2827,7 +2827,7 @@ describe('fail', function () {
             )
           );
           // Fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2872,8 +2872,8 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2886,7 +2886,7 @@ describe('fail', function () {
               requestTimeParameters
             );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2909,8 +2909,8 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -2953,7 +2953,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -2976,8 +2976,8 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -3020,7 +3020,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -3043,8 +3043,8 @@ describe('fail', function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          const endpointId = utils.generateRandomBytes32();
-          const requestTimeParameters = utils.generateRandomBytes();
+          const endpointId = testUtils.generateRandomBytes32();
+          const requestTimeParameters = testUtils.generateRandomBytes();
           await rrpRequester
             .connect(roles.randomPerson)
             .makeFullRequest(
@@ -3087,7 +3087,7 @@ describe('fail', function () {
             )
           );
           // Attempt to fail the request
-          const sponsorWallet = utils
+          const sponsorWallet = testUtils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
           const errorMessage = 'The revert string bubbled up from fulfill()';
@@ -3104,8 +3104,8 @@ describe('fail', function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         // Make the request
-        const endpointId = utils.generateRandomBytes32();
-        const requestTimeParameters = utils.generateRandomBytes();
+        const endpointId = testUtils.generateRandomBytes32();
+        const requestTimeParameters = testUtils.generateRandomBytes();
         await rrpRequester
           .connect(roles.randomPerson)
           .makeFullRequest(

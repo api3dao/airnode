@@ -16,6 +16,7 @@ export function buildEVMProviderState(
     },
     id: chainId,
     type: chainType,
+    options: {} as any,
     providers: {
       [chainProviderName]: {
         url: 'http://localhost:4111',

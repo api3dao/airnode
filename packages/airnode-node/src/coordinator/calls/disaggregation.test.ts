@@ -19,7 +19,7 @@ describe('disaggregate - Requests', () => {
     mutableProvider1 = providerState.update(mutableProvider1, { requests });
     mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
@@ -59,7 +59,7 @@ describe('disaggregate - Requests', () => {
     mutableProvider0 = providerState.update(mutableProvider0, { requests: requests0 });
     mutableProvider1 = providerState.update(mutableProvider1, { requests: requests1 });
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
       id: 'btcCall',
       parameters: { from: 'BTC' },
       responseValue: '0x123',
@@ -96,7 +96,7 @@ describe('disaggregate - Requests', () => {
     let mutableProvider0 = fixtures.buildEVMProviderState();
     mutableProvider0 = providerState.update(mutableProvider0, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
@@ -129,7 +129,9 @@ describe('disaggregate - Requests', () => {
     mutableProvider1 = providerState.update(mutableProvider1, { requests });
     mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorMessage: RequestErrorMessage.ApiCallFailed });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
+      errorMessage: RequestErrorMessage.ApiCallFailed,
+    });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();

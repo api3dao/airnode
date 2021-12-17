@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let accessControlRegistry;
@@ -175,7 +175,7 @@ describe('initializeAndGrantRoles', function () {
             .map(() => Math.random());
           const accounts = Array(32)
             .fill()
-            .map(() => utils.generateRandomAddress());
+            .map(() => testUtils.generateRandomAddress());
           for (let ind = 0; ind < descriptions.length; ind++) {
             const role = await accessControlRegistry.deriveRole(managerRootRole, descriptions[ind]);
             expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
@@ -199,13 +199,13 @@ describe('initializeAndGrantRoles', function () {
             const manager = roles.manager.address;
             const description1 = Math.random();
             const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
-            const account1 = utils.generateRandomAddress();
+            const account1 = testUtils.generateRandomAddress();
             const description11 = Math.random();
             const role11 = await accessControlRegistry.deriveRole(role1, description11);
-            const account11 = utils.generateRandomAddress();
+            const account11 = testUtils.generateRandomAddress();
             const description12 = Math.random();
             const role12 = await accessControlRegistry.deriveRole(role1, description12);
-            const account12 = utils.generateRandomAddress();
+            const account12 = testUtils.generateRandomAddress();
             expect(await accessControlRegistry.getRoleAdmin(role1)).to.equal(hre.ethers.constants.HashZero);
             expect(await accessControlRegistry.hasRole(role1, manager)).to.equal(false);
             expect(await accessControlRegistry.hasRole(role1, account1)).to.equal(false);
@@ -237,11 +237,11 @@ describe('initializeAndGrantRoles', function () {
           it('reverts', async function () {
             const description1 = Math.random();
             const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
-            const account1 = utils.generateRandomAddress();
+            const account1 = testUtils.generateRandomAddress();
             const description11 = Math.random();
-            const account11 = utils.generateRandomAddress();
+            const account11 = testUtils.generateRandomAddress();
             const description12 = Math.random();
-            const account12 = utils.generateRandomAddress();
+            const account12 = testUtils.generateRandomAddress();
             // role1 should be the first argument because it is of lower level
             await expect(
               accessControlRegistry
@@ -275,7 +275,7 @@ describe('initializeAndGrantRoles', function () {
               .map(() => Math.random()),
             Array(33)
               .fill()
-              .map(() => utils.generateRandomAddress())
+              .map(() => testUtils.generateRandomAddress())
           )
         ).to.be.revertedWith('Arguments too long');
       });
@@ -291,7 +291,7 @@ describe('initializeAndGrantRoles', function () {
             .map(() => Math.random()),
           Array(32)
             .fill()
-            .map(() => utils.generateRandomAddress())
+            .map(() => testUtils.generateRandomAddress())
         )
       ).to.be.revertedWith('Argument length mismatch');
     });

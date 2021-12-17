@@ -1,19 +1,13 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
+import { applyTransactionResult } from './requests';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { Request, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
-import { AirnodeRrp } from '../contracts';
+import { RequestStatus, Withdrawal, SubmitRequest } from '../../types';
 
-type SubmitResponse = ethers.Transaction | null;
-
-export async function submitWithdrawal(
-  airnodeRrp: AirnodeRrp,
-  request: Request<Withdrawal>,
-  options: TransactionOptions
-): Promise<LogsErrorData<SubmitResponse>> {
+export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, request, options) => {
   if (request.status !== RequestStatus.Pending) {
     const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
     const log = logger.pend(
@@ -115,5 +109,5 @@ export async function submitWithdrawal(
     return [logs, withdrawalErr, null];
   }
 
-  return [[estimateLog, noticeLog], null, withdrawalRes];
-}
+  return [[estimateLog, noticeLog], null, applyTransactionResult(request, withdrawalRes)];
+};

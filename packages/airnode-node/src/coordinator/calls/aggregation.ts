@@ -5,6 +5,7 @@ function buildAggregatedCall(config: Config, request: Request<ApiCall>): Aggrega
   const trigger = config.triggers.rrp.find((t) => t.endpointId === request.endpointId)!;
 
   return {
+    type: 'regular',
     id: request.id,
     sponsorAddress: request.sponsorAddress,
     airnodeAddress: request.airnodeAddress!,

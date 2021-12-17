@@ -29,8 +29,8 @@ export async function initializeProvider(req: Request, res: Response) {
 }
 
 export async function callApi(req: Request, res: Response) {
-  const { aggregatedApiCall, logOptions, apiCallOptions } = req.body;
-  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, apiCallOptions, aggregatedApiCall });
+  const { aggregatedApiCall, logOptions } = req.body;
+  const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
