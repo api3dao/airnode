@@ -1,14 +1,14 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let accessControlRegistry, requesterAuthorizerWithAirnode;
 let requesterAuthorizerWithAirnodeAdminRoleDescription = 'RequesterAuthorizerWithAirnode admin';
 let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
 let airnodeAddress, airnodeMnemonic, airnodeWallet;
-let endpointId = utils.generateRandomBytes32();
+let endpointId = testUtils.generateRandomBytes32();
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -31,7 +31,7 @@ beforeEach(async () => {
     accessControlRegistry.address,
     requesterAuthorizerWithAirnodeAdminRoleDescription
   );
-  ({ airnodeAddress: airnodeAddress, airnodeMnemonic: airnodeMnemonic } = utils.generateRandomAirnodeWallet());
+  ({ airnodeAddress: airnodeAddress, airnodeMnemonic: airnodeMnemonic } = testUtils.generateRandomAirnodeWallet());
   await roles.deployer.sendTransaction({
     to: airnodeAddress,
     value: hre.ethers.utils.parseEther('1'),
@@ -783,10 +783,10 @@ describe('isAuthorized', function () {
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
         expect(
           await requesterAuthorizerWithAirnode.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -799,10 +799,10 @@ describe('isAuthorized', function () {
           .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
         expect(
           await requesterAuthorizerWithAirnode.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -817,10 +817,10 @@ describe('isAuthorized', function () {
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
         expect(
           await requesterAuthorizerWithAirnode.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(true);
@@ -830,10 +830,10 @@ describe('isAuthorized', function () {
       it('returns false', async function () {
         expect(
           await requesterAuthorizerWithAirnode.isAuthorized(
-            utils.generateRandomBytes32(),
+            testUtils.generateRandomBytes32(),
             airnodeAddress,
             endpointId,
-            utils.generateRandomAddress(),
+            testUtils.generateRandomAddress(),
             roles.requester.address
           )
         ).to.equal(false);
