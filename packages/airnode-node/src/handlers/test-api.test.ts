@@ -12,10 +12,10 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
 
 describe('testApi', () => {
   it('returns an error if no endpoint trigger with given ID is found', async () => {
-    const nonexistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
-    const [err, res] = await testApi(fixtures.buildConfig(), nonexistentEndpointId, {});
+    const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
+    const [err, res] = await testApi(fixtures.buildConfig(), nonExistentEndpointId, {});
     expect(res).toBeNull();
-    expect(err).toEqual(new Error(`No such endpoint with ID '${nonexistentEndpointId}'`));
+    expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${nonExistentEndpointId}'`));
   });
 
   it('returns an error if no endpoint with given ID is found', async () => {
@@ -25,35 +25,34 @@ describe('testApi', () => {
   });
 
   it('returns an error if endpoint testability is not specified', async () => {
-    const unspecifiedEndpoint = fixtures.buildOIS().endpoints[0];
-    delete unspecifiedEndpoint.testable;
+    const endpoint = fixtures.buildOIS().endpoints[0];
+    const config = buildConfigWithEndpoint(endpoint);
+    config.triggers.http = [];
 
-    const [err, res] = await testApi(buildConfigWithEndpoint(unspecifiedEndpoint), ENDPOINT_ID, {});
+    const [err, res] = await testApi(config, ENDPOINT_ID, {});
     expect(res).toBeNull();
-    expect(err).toEqual(new Error(`Endpoint with ID '${ENDPOINT_ID}' can't be tested`));
+    expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${ENDPOINT_ID}'`));
   });
 
   it('returns an error if endpoint testability is turned off', async () => {
-    const offEndpoint = { ...fixtures.buildOIS().endpoints[0], testable: false };
+    const endpoint = fixtures.buildOIS().endpoints[0];
+    const config = buildConfigWithEndpoint(endpoint);
+    config.triggers.http = [];
 
-    const [err, res] = await testApi(buildConfigWithEndpoint(offEndpoint), ENDPOINT_ID, {});
+    const [err, res] = await testApi(buildConfigWithEndpoint(endpoint), ENDPOINT_ID, {});
     expect(res).toBeNull();
     expect(err).not.toBeNull();
   });
 
   it('calls the API with given parameters', async () => {
     const spy = jest.spyOn(worker, 'spawnNewApiCall');
-    spy.mockResolvedValueOnce([[], { value: '1000' }]);
+    spy.mockResolvedValueOnce([[], { success: true, value: '1000', signature: 'not used' }]);
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const [err, res] = await testApi(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedTestingGatewayApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorAddress: '',
-      requesterAddress: '',
-      sponsorWalletAddress: '',
-      chainId: '',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),
       parameters,
@@ -74,8 +73,8 @@ describe('testApi', () => {
     };
 
     expect(err).toBeNull();
-    expect(res).toEqual({ value: '1000' });
+    expect(res).toEqual({ value: '1000', signature: 'not used', success: true });
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions, { forTestingGateway: true });
+    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions);
   });
 });

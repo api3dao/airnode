@@ -96,15 +96,8 @@ export async function initializeProvider(
   // =================================================================
   // STEP 5: Verify requests
   // =================================================================
-  // NOTE: Withdrawal requests are verified in processTransactions handler
-  const [verifyApiCallLogs, verifiedApiCalls] = verification.verifySponsorWallets(
-    state4.requests.apiCalls,
-    state4.masterHDNode
-  );
-  logger.logPending(verifyApiCallLogs, baseLogOptions);
-
   const [verifyRrpTriggersLogs, verifiedApiCallsForRrpTriggers] = verification.verifyRrpTriggers(
-    verifiedApiCalls,
+    state4.requests.apiCalls,
     state4.config!.triggers.rrp,
     state4.config!.ois
   );

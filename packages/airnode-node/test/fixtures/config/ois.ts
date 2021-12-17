@@ -90,7 +90,6 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             },
           },
         ],
-        testable: true,
       },
     ],
     ...ois,

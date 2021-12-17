@@ -35,7 +35,7 @@ async function execute(
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.
-  if (res.errorMessage) {
+  if (!res.success) {
     const log = logger.pend(
       'ERROR',
       `${baseLogMsg} errored after ${durationMs}ms with error message:${res.errorMessage}`
