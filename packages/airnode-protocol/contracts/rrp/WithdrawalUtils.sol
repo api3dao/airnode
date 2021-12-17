@@ -28,6 +28,8 @@ contract WithdrawalUtils is IWithdrawalUtils {
         external
         override
     {
+        require(airnode != address(0), "Airnode address zero");
+        require(sponsorWallet != address(0), "Sponsor wallet address zero");
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 block.chainid,
