@@ -35,6 +35,8 @@ When adding an integration you need to do a few things:
 4. After creating the necessary files (generators), you need to generate the example files for configuration and
    secrets. Generate them by running `yarn dev:generate-example-files`
 5. Run `yarn build` from the top-level `airnode` directory to build the contract artifacts.
+6. Once tested, add a description of the integration to the
+   [airnode-examples README](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/README.md).
 
 It is best to start with an existing integration and just edit the relevant parts. Try to make your integration as
 simple and focused as possible and not include unnecessary features.
