@@ -62,10 +62,11 @@ contract TemplateUtils is ITemplateUtils {
             bytes[] memory parameters
         )
     {
-        airnodes = new address[](templateIds.length);
-        endpointIds = new bytes32[](templateIds.length);
-        parameters = new bytes[](templateIds.length);
-        for (uint256 ind = 0; ind < templateIds.length; ind++) {
+        uint256 templateIdsLength = templateIds.length;
+        airnodes = new address[](templateIdsLength);
+        endpointIds = new bytes32[](templateIdsLength);
+        parameters = new bytes[](templateIdsLength);
+        for (uint256 ind = 0; ind < templateIdsLength; ind++) {
             Template storage template = templates[templateIds[ind]];
             airnodes[ind] = template.airnode;
             endpointIds[ind] = template.endpointId;
