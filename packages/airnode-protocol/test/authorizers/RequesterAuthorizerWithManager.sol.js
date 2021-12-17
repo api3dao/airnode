@@ -61,7 +61,7 @@ beforeEach(async () => {
     .initializeAndGrantRoles(
       [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
       [
-        Math.random(),
+        Math.random().toString(),
         await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
         await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
         await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),

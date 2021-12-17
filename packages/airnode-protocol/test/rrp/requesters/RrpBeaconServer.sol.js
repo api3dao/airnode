@@ -65,7 +65,7 @@ beforeEach(async () => {
     .initializeAndGrantRoles(
       [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
       [
-        Math.random(),
+        Math.random().toString(),
         await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
         await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
         await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),

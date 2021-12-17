@@ -172,7 +172,7 @@ describe('initializeAndGrantRoles', function () {
           const manager = roles.manager.address;
           const descriptions = Array(32)
             .fill()
-            .map(() => Math.random());
+            .map(() => Math.random().toString());
           const accounts = Array(32)
             .fill()
             .map(() => testUtils.generateRandomAddress());
@@ -197,13 +197,13 @@ describe('initializeAndGrantRoles', function () {
         context('Arguments are ordered from lower levels to higher levels', function () {
           it('initializes and grants roles', async function () {
             const manager = roles.manager.address;
-            const description1 = Math.random();
+            const description1 = Math.random().toString();
             const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
             const account1 = testUtils.generateRandomAddress();
-            const description11 = Math.random();
+            const description11 = Math.random().toString();
             const role11 = await accessControlRegistry.deriveRole(role1, description11);
             const account11 = testUtils.generateRandomAddress();
-            const description12 = Math.random();
+            const description12 = Math.random().toString();
             const role12 = await accessControlRegistry.deriveRole(role1, description12);
             const account12 = testUtils.generateRandomAddress();
             expect(await accessControlRegistry.getRoleAdmin(role1)).to.equal(hre.ethers.constants.HashZero);
@@ -235,12 +235,12 @@ describe('initializeAndGrantRoles', function () {
         });
         context('Arguments are not ordered properly', function () {
           it('reverts', async function () {
-            const description1 = Math.random();
+            const description1 = Math.random().toString();
             const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
             const account1 = testUtils.generateRandomAddress();
-            const description11 = Math.random();
+            const description11 = Math.random().toString();
             const account11 = testUtils.generateRandomAddress();
-            const description12 = Math.random();
+            const description12 = Math.random().toString();
             const account12 = testUtils.generateRandomAddress();
             // role1 should be the first argument because it is of lower level
             await expect(
@@ -272,7 +272,7 @@ describe('initializeAndGrantRoles', function () {
             Array(33).fill(managerRootRole),
             Array(33)
               .fill()
-              .map(() => Math.random()),
+              .map(() => Math.random().toString()),
             Array(33)
               .fill()
               .map(() => testUtils.generateRandomAddress())
@@ -288,7 +288,7 @@ describe('initializeAndGrantRoles', function () {
           Array(31).fill(managerRootRole),
           Array(32)
             .fill()
-            .map(() => Math.random()),
+            .map(() => Math.random().toString()),
           Array(32)
             .fill()
             .map(() => testUtils.generateRandomAddress())

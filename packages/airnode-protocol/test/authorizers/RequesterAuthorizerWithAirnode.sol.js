@@ -70,7 +70,7 @@ beforeEach(async () => {
     .initializeAndGrantRoles(
       [airnodeRootRole, airnodeRootRole, airnodeRootRole, airnodeRootRole],
       [
-        Math.random(),
+        Math.random().toString(),
         await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
         await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
         await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
