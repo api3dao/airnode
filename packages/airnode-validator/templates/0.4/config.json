@@ -126,8 +126,10 @@
               "txType": "eip1559"
             },
             "__then": {
-              "baseFeeMultiplier": {},
-              "priorityFee": {}
+              "__optional": {
+                "baseFeeMultiplier": {},
+                "priorityFee": {}
+              }
             }
           }
         ],
