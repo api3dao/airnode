@@ -3,12 +3,6 @@ import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
 import { RequestErrorMessage, RequestStatus } from '../../types';
 
-describe('TEMPLATE_VALIDATION_FIELDS', () => {
-  it('returns the list of validated template fields', () => {
-    expect(verification.TEMPLATE_VALIDATION_FIELDS).toEqual(['airnodeAddress', 'endpointId', 'encodedParameters']);
-  });
-});
-
 describe('verify', () => {
   const validTemplateFiels = {
     airnodeAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -88,12 +82,6 @@ describe('verify', () => {
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
       encodedParameters: '0x1234',
     };
-
-    it('validates all template fields', () => {
-      // Copy the array to avoid mutating it through sort
-      const validatedFields = JSON.parse(JSON.stringify(verification.TEMPLATE_VALIDATION_FIELDS));
-      expect(Object.keys(invalidFields).sort()).toEqual(validatedFields.sort());
-    });
 
     Object.keys(invalidFields).forEach((field) => {
       it(`is invalid if ${field} has been changed`, () => {

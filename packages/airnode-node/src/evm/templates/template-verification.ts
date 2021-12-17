@@ -3,16 +3,32 @@ import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
 import { ApiCall, ApiCallTemplate, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 
-interface ApiCallTemplatesById {
-  readonly [id: string]: ApiCallTemplate;
+interface ValidatedField {
+  readonly type: string;
+  readonly value: any;
 }
 
-export const TEMPLATE_VALIDATION_FIELDS = ['airnodeAddress', 'endpointId', 'encodedParameters'];
+function getTemplateIdValidationFields(template: ApiCallTemplate): ValidatedField[] {
+  return [
+    { type: 'address', value: template.airnodeAddress },
+    { type: 'bytes32', value: template.endpointId },
+    { type: 'bytes', value: template.encodedParameters },
+  ];
+}
 
 export function getExpectedTemplateId(template: ApiCallTemplate): string {
-  const templateValues = TEMPLATE_VALIDATION_FIELDS.map((f) => template[f as keyof ApiCallTemplate]);
-  const encodedValues = ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], templateValues);
-  return ethers.utils.keccak256(encodedValues);
+  const validatedFields = getTemplateIdValidationFields(template);
+  const types = validatedFields.map((v) => v.type);
+  const values = validatedFields.map((v) => v.value);
+  const {
+    utils: { keccak256, solidityPack },
+  } = ethers;
+
+  return keccak256(solidityPack(types, values));
+}
+
+interface ApiCallTemplatesById {
+  readonly [id: string]: ApiCallTemplate;
 }
 
 export function verify(
