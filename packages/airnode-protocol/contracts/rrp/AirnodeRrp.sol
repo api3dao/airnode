@@ -58,9 +58,6 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a request that refers to a
     /// template for the Airnode address, endpoint ID and parameters
-    /// @dev `fulfillAddress` is not allowed to be the address of this
-    /// contract. This is not actually needed to protect users that use the
-    /// protocol as intended, but it is done for good measure.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -83,7 +80,6 @@ contract AirnodeRrp is
         // If the Airnode address of the template is zero the template does not
         // exist because template creation does not allow zero Airnode address
         require(airnode != address(0), "Template does not exist");
-        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -131,9 +127,6 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
-    /// @dev `fulfillAddress` is not allowed to be the address of this
-    /// contract. This is not actually needed to protect users that use the
-    /// protocol as intended, but it is done for good measure.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
@@ -154,7 +147,6 @@ contract AirnodeRrp is
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "Airnode address zero");
-        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
