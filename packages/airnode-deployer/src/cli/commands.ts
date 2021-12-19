@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { config as nodeConfig, CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
+import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
@@ -9,15 +9,14 @@ import {
   parseReceiptFile,
   parseSecretsFile,
   shortenAirnodeAddress,
-  validateConfig,
   validateMnemonic,
+  parseConfig,
 } from '../utils';
 import * as logger from '../utils/logger';
 
 export async function deploy(configFile: string, secretsFile: string, receiptFile: string) {
   const secrets = parseSecretsFile(secretsFile);
-  const config = nodeConfig.parseConfig(configFile, secrets);
-  validateConfig(config, getNodeVersion());
+  const config = parseConfig(configFile, secrets);
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {

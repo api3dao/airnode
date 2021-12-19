@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config } from '@api3/airnode-node';
+import { CloudProvider, Config, version as getNodeVersion } from '@api3/airnode-node';
+import { validateJsonWithTemplate } from '@api3/airnode-validator';
 import { validateReceipt } from './validation';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
@@ -67,4 +68,40 @@ export function parseReceiptFile(receiptFilename: string, nodeVersion: string) {
   }
 
   return receipt as Receipt;
+}
+
+export function parseConfig(configPath: string, secrets: Record<string, string>): Config {
+  let rawConfig;
+
+  try {
+    rawConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    logger.fail('Failed to parse config file');
+    throw e;
+  }
+
+  const result = validateJsonWithTemplate(rawConfig, `config@${getNodeVersion()}`, secrets, true);
+  const config = result.specs as Config;
+
+  if (config.nodeSettings.skipValidation) {
+    logger.warn('Skipping the config validation');
+    return config;
+  }
+
+  if (config.nodeSettings.cloudProvider.type === 'local') {
+    const message = "Deployer can't deploy to 'local' cloud provider";
+    logger.fail(message);
+    throw new Error(message);
+  }
+
+  if (!result.valid) {
+    logger.fail(JSON.stringify(result.messages, null, 2));
+    throw new Error('Validation of config failed');
+  }
+
+  if (result.messages.length) {
+    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(result.messages, null, 2)}`);
+  }
+
+  return config;
 }

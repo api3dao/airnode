@@ -16,9 +16,15 @@ function parseOises(oises: OIS[]): OIS[] {
 }
 
 export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
-  const config = fs.readFileSync(configPath, 'utf8');
+  let config;
 
-  const validationResult = validateConfig(JSON.parse(config), secrets);
+  try {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    throw new Error('Failed to parse config file');
+  }
+
+  const validationResult = validateConfig(config, secrets);
   const parsedConfig: Config = validationResult.specs as Config;
 
   if (!validationResult.valid && !parsedConfig.nodeSettings.skipValidation) {
