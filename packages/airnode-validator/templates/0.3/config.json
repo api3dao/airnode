@@ -84,7 +84,7 @@
     "nodeVersion": {
       "__regexp": "^0\\.3\\.[0-9]+$",
       "__catch": {
-        "__level": "warning",
+        "__level": "error",
         "__message": "__fullPath: nodeVersion should be set to 0.3.*"
       }
     },
