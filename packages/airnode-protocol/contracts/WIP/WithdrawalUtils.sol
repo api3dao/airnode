@@ -14,7 +14,7 @@ contract WithdrawalUtils is IWithdrawalUtils {
         address reporter,
         uint256 protocolId,
         address sponsorWallet
-    ) external {
+    ) external override {
         require(reporter != address(0), "Reporter address zero");
         require(protocolId != 0, "Protocol ID zero");
         require(sponsorWallet != address(0), "Sponsor wallet address zero");
@@ -43,7 +43,7 @@ contract WithdrawalUtils is IWithdrawalUtils {
         address reporter,
         address sponsor,
         uint256 protocolId
-    ) external payable {
+    ) external payable override {
         require(
             withdrawalRequestIdToParameters[withdrawalRequestId] ==
                 keccak256(
@@ -63,7 +63,7 @@ contract WithdrawalUtils is IWithdrawalUtils {
         );
     }
 
-    function withdrawBalance() external {
+    function withdrawBalance() external override {
         uint256 sponsorBalance = sponsorToBalance[msg.sender];
         require(sponsorBalance != 0, "Sender balance zero");
         sponsorToBalance[msg.sender] = 0;

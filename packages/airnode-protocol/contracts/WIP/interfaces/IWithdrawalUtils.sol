@@ -20,4 +20,19 @@ interface IWithdrawalUtils {
     );
 
     event ExecutedWithdrawal(address indexed sponsor, uint256 amount);
+
+    function requestWithdrawal(
+        address reporter,
+        uint256 protocolId,
+        address sponsorWallet
+    ) external;
+
+    function fulfillWithdrawal(
+        bytes32 withdrawalRequestId,
+        address reporter,
+        address sponsor,
+        uint256 protocolId
+    ) external payable;
+
+    function withdrawBalance() external;
 }
