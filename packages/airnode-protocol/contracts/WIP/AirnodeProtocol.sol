@@ -68,10 +68,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
-        require(
-            templates[templateId].airnode != address(0),
-            "Template does not exist"
-        );
+        address airnode = templates[templateId].airnode;
+        require(airnode != address(0), "Template does not exist");
         require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
@@ -81,15 +79,12 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
         );
-        uint256 requesterRequestCount = requesterToRequestCountPlusOne[
-            msg.sender
-        ];
         requestId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
                 msg.sender,
-                requesterRequestCount,
+                requesterToRequestCountPlusOne[msg.sender],
                 templateId,
                 reporter,
                 sponsor,
@@ -101,18 +96,17 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
-                templates[templateId].airnode,
+                airnode,
                 reporter,
                 sponsorWallet,
                 fulfillAddress,
                 fulfillFunctionId
             )
         );
-        requesterToRequestCountPlusOne[msg.sender]++;
         emit MadeRequest(
             reporter,
             requestId,
-            requesterRequestCount,
+            ++requesterToRequestCountPlusOne[msg.sender],
             block.chainid,
             msg.sender,
             templateId,
