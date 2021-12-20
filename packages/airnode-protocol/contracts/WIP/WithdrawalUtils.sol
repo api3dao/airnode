@@ -8,6 +8,8 @@ contract WithdrawalUtils is IWithdrawalUtils {
 
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
+    mapping(address => uint256) public sponsorToBalance;
+
     function requestWithdrawal(
         address reporter,
         uint256 protocolId,
@@ -50,6 +52,7 @@ contract WithdrawalUtils is IWithdrawalUtils {
             "Invalid withdrawal fulfillment"
         );
         delete withdrawalRequestIdToParameters[withdrawalRequestId];
+        sponsorToBalance[sponsor] += msg.value;
         emit FulfilledWithdrawal(
             reporter,
             sponsor,
@@ -58,7 +61,14 @@ contract WithdrawalUtils is IWithdrawalUtils {
             msg.sender,
             msg.value
         );
-        (bool success, ) = sponsor.call{value: msg.value}(""); // solhint-disable-line avoid-low-level-calls
+    }
+
+    function withdrawBalance() external {
+        uint256 sponsorBalance = sponsorToBalance[msg.sender];
+        require(sponsorBalance != 0, "Sender balance zero");
+        sponsorToBalance[msg.sender] = 0;
+        emit ExecutedWithdrawal(msg.sender, sponsorBalance);
+        (bool success, ) = msg.sender.call{value: sponsorBalance}(""); // solhint-disable-line avoid-low-level-calls
         require(success, "Transfer failed");
     }
 }

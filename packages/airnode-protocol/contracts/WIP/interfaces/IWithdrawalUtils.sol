@@ -18,4 +18,6 @@ interface IWithdrawalUtils {
         address sponsorWallet,
         uint256 amount
     );
+
+    event ExecutedWithdrawal(address indexed sponsor, uint256 amount);
 }
