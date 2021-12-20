@@ -70,7 +70,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
-        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
