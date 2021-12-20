@@ -9,7 +9,7 @@ import "./interfaces/IAirnodeProtocol.sol";
 contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
 
-    uint256 private constant MAXIMUM_PARAMETER_LENGTH = 1024;
+    uint256 public constant MAXIMUM_PARAMETER_LENGTH = 1024;
 
     struct Template {
         address airnode;
