@@ -50,6 +50,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external
     {
+        require(requester != address(0), "Requester address zero");
         if (requesterToRequestCountPlusOne[requester] == 0) {
             requesterToRequestCountPlusOne[requester] = 1;
         }
