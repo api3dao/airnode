@@ -59,8 +59,14 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a request that refers to a
     /// template for the Airnode address, endpoint ID and parameters
-    /// @dev Validation of `sponsor` and `sponsorWallet` are left to the node.
-    /// `fulfillAddress` does not have to belong to a contract.
+    /// @dev The node already must validate `sponsor` and `sponsorWallet`
+    /// according to protocol specifications, which would implicitly include
+    /// checking if they are `address(0)`. Because of this, validation of these
+    /// parameters are left to the node and omitted here.
+    /// The protocol does not require `fulfillAddress` to belong to a contract
+    /// or `fulfillFunctionId` to have been implemented in this contract at
+    /// request or fulfillment time. Therefore, neither of these parameters are
+    /// validated in any way.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -130,8 +136,14 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
-    /// @dev Validation of `sponsor` and `sponsorWallet` are left to the node.
-    /// `fulfillAddress` does not have to belong to a contract.
+    /// @dev The node already must validate `sponsor` and `sponsorWallet`
+    /// according to protocol specifications, which would implicitly include
+    /// checking if they are `address(0)`. Because of this, validation of these
+    /// parameters are left to the node and omitted here.
+    /// The protocol does not require `fulfillAddress` to belong to a contract
+    /// or `fulfillFunctionId` to have been implemented in this contract at
+    /// request or fulfillment time. Therefore, neither of these parameters are
+    /// validated in any way.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
