@@ -64,12 +64,6 @@ interface IRequesterAuthorizer {
         address setter
     ) external;
 
-    function requesterIsWhitelisted(
-        address airnode,
-        bytes32 endpointId,
-        address requester
-    ) external view returns (bool isWhitelisted);
-
     function airnodeToEndpointIdToRequesterToWhitelistStatus(
         address airnode,
         bytes32 endpointId,

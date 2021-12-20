@@ -134,24 +134,6 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         }
     }
 
-    /// @notice Returns if `requester` is whitelisted for the
-    /// `airnode`–`endpointId` pair
-    /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
-    /// @param requester Requester address
-    /// @return isWhitelisted If `requester` is whitelisted for the
-    /// `airnode`–`endpointId` pair
-    function requesterIsWhitelisted(
-        address airnode,
-        bytes32 endpointId,
-        address requester
-    ) public view override returns (bool isWhitelisted) {
-        isWhitelisted = userIsWhitelisted(
-            deriveServiceId(airnode, endpointId),
-            requester
-        );
-    }
-
     /// @notice Verifies the authorization status of a request
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
@@ -162,7 +144,8 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         bytes32 endpointId,
         address requester
     ) external view override returns (bool) {
-        return requesterIsWhitelisted(airnode, endpointId, requester);
+        return
+            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester);
     }
 
     /// @notice Returns the whitelist status of `requester` for the
