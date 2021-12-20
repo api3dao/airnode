@@ -80,4 +80,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             bytes4 fulfillFunctionId,
             bytes memory parameters
         );
+
+    // solhint-disable-next-line func-name-mixedcase
+    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
 }
