@@ -257,30 +257,9 @@ contract BeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
-        require(data.length == 64, "Incorrect data length");
-        (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
-            data,
-            (int256, uint256)
-        );
-        require(
-            decodedData >= type(int224).min && decodedData <= type(int224).max,
-            "Value typecasting error"
-        );
-        require(
-            decodedTimestamp <= type(uint32).max,
-            "Timestamp typecasting error"
-        );
-        require(
-            decodedTimestamp > beacons[beaconId].timestamp,
-            "Fulfillment older than beacon"
-        );
-        require(
-            decodedTimestamp + 1 hours > block.timestamp,
-            "Fulfillment stale"
-        );
-        require(
-            decodedTimestamp - 1 hours < block.timestamp,
-            "Fulfillment from future"
+        (int256 decodedData, uint256 decodedTimestamp) = decodeAndValidateData(
+            beaconId,
+            data
         );
         beacons[beaconId] = Beacon({
             value: int224(decodedData),
@@ -299,7 +278,6 @@ contract BeaconServer is
         override
         onlyAirnodeProtocol
     {
-        require(data.length == 64, "Incorrect data length");
         (
             bytes32 templateId,
             ,
@@ -311,10 +289,29 @@ contract BeaconServer is
             bytes memory parameters
         ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
-            data,
-            (int256, uint256)
+        (int256 decodedData, uint256 decodedTimestamp) = decodeAndValidateData(
+            beaconId,
+            data
         );
+        beacons[beaconId] = Beacon({
+            value: int224(decodedData),
+            timestamp: uint32(decodedTimestamp)
+        });
+        emit UpdatedBeaconWithPsp(
+            beaconId,
+            subscriptionId,
+            int224(decodedData),
+            uint32(decodedTimestamp)
+        );
+    }
+
+    function decodeAndValidateData(bytes32 beaconId, bytes calldata data)
+        private
+        view
+        returns (int256 decodedData, uint256 decodedTimestamp)
+    {
+        require(data.length == 64, "Incorrect data length");
+        (decodedData, decodedTimestamp) = abi.decode(data, (int256, uint256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
@@ -334,16 +331,6 @@ contract BeaconServer is
         require(
             decodedTimestamp - 1 hours < block.timestamp,
             "Fulfillment from future"
-        );
-        beacons[beaconId] = Beacon({
-            value: int224(decodedData),
-            timestamp: uint32(decodedTimestamp)
-        });
-        emit UpdatedBeaconWithPsp(
-            beaconId,
-            subscriptionId,
-            int224(decodedData),
-            uint32(decodedTimestamp)
         );
     }
 
