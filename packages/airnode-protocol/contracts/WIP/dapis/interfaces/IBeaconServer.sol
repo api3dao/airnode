@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface IBeaconServer {
+import "../../interfaces/IAirnodeUser.sol";
+
+interface IBeaconServer is IAirnodeUser {
     event ExtendedWhitelistExpiration(
         bytes32 indexed beaconId,
         address indexed reader,

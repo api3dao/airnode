@@ -4,14 +4,17 @@ pragma solidity 0.8.9;
 import "../whitelist/Whitelist.sol";
 import "../whitelist/WhitelistRolesWithManager.sol";
 import "./InPlaceMedian.sol";
-import "./interfaces/IBeaconServer.sol";
+import "./BeaconUser.sol";
 
-contract DapiServer is Whitelist, WhitelistRolesWithManager, InPlaceMedian {
+contract DapiServer is
+    Whitelist,
+    WhitelistRolesWithManager,
+    InPlaceMedian,
+    BeaconUser
+{
     string public constant UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
     bytes32 public immutable unlimitedReaderRole;
-
-    address public immutable beaconServer;
 
     constructor(
         address _accessControlRegistry,
@@ -24,13 +27,12 @@ contract DapiServer is Whitelist, WhitelistRolesWithManager, InPlaceMedian {
             _adminRoleDescription,
             _manager
         )
+        BeaconUser(_beaconServer)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),
             keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
         );
-        require(_beaconServer != address(0), "Beacon server address zero");
-        beaconServer = _beaconServer;
     }
 
     function readDapi(bytes32[] calldata beaconIds)
