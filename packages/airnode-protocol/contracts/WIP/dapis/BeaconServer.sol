@@ -192,10 +192,10 @@ contract BeaconServer is
 
     /// @notice Called to request a beacon to be updated
     /// @dev There are two requirements for this method to be called: (1) The
-    /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
-    /// this RrpBeaconServer contract, (2) The sponsor must call
-    /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
-    /// request update permission to the caller of this method.
+    /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
+    /// sponsor this BeaconServer contract, (2) The sponsor must call
+    /// `setUpdatePermissionStatus()` of this BeaconServer contract to give
+    /// request update permission to the user of this method.
     /// The template and additional parameters used here must specify a single
     /// point of data of type `int256` and an additional timestamp of type
     /// `uint256` to be returned because this is what `fulfill()` expects.
@@ -218,7 +218,7 @@ contract BeaconServer is
         require(
             msg.sender == sponsor ||
                 sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
-            "Caller not permitted"
+            "Sender not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
@@ -348,7 +348,7 @@ contract BeaconServer is
     }
 
     /// @notice Called to read the beacon
-    /// @dev The caller must be whitelisted.
+    /// @dev The sender must be whitelisted.
     /// If the `timestamp` of a beacon is zero, this means that it was never
     /// written to before, and the zero value in the `value` field is not
     /// valid. In general, make sure to check if the timestamp of the beacon is
@@ -364,7 +364,7 @@ contract BeaconServer is
     {
         require(
             readerCanReadBeacon(beaconId, msg.sender),
-            "Caller not whitelisted"
+            "Sender not whitelisted"
         );
         Beacon storage beacon = beacons[beaconId];
         return (beacon.value, beacon.timestamp);
