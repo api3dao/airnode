@@ -12,8 +12,6 @@ interface IPercentageDeviationCondition {
         view
         returns (bool);
 
-    function airnodeProtocol() external view returns (address);
-
     function beaconServer() external view returns (address);
 
     function subscriptionIdToUpdatePercentageThreshold(bytes32 subscriptionId)

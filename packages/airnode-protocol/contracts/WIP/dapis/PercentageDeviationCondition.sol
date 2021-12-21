@@ -1,26 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IBeaconServer.sol";
+import "../AirnodeUser.sol";
 import "./interfaces/IPercentageDeviationCondition.sol";
 
 /// @dev This contract should have the unlimited beacon reader role for the
 /// respective beacon server contract
-contract PercentageDeviationCondition is IPercentageDeviationCondition {
-    address public immutable override airnodeProtocol;
+contract PercentageDeviationCondition is
+    AirnodeUser,
+    IPercentageDeviationCondition
+{
     address public immutable override beaconServer;
 
     mapping(bytes32 => uint256)
         public
         override subscriptionIdToUpdatePercentageThreshold;
 
-    constructor(address _airnodeProtocol, address _beaconServer) {
-        require(
-            _airnodeProtocol != address(0),
-            "Airnode protocol address zero"
-        );
-        airnodeProtocol = _airnodeProtocol;
+    constructor(address _airnodeProtocol, address _beaconServer)
+        AirnodeUser(_airnodeProtocol)
+    {
         require(_beaconServer != address(0), "Beacon server address zero");
         beaconServer = _beaconServer;
     }
