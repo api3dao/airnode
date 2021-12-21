@@ -221,12 +221,12 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId) {
         require(
-            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
-            "Parameters too long"
-        );
-        require(
             templates[templateId].airnode != address(0),
             "Template does not exist"
+        );
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
         );
         subscriptionId = keccak256(
             abi.encodePacked(
