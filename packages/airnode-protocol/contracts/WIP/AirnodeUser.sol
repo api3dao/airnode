@@ -23,6 +23,7 @@ contract AirnodeUser is IAirnodeUser {
     /// requests, i.e., using this default sponsorship is optional.
     /// @param _airnodeProtocol Airnode RRP contract address
     constructor(address _airnodeProtocol) {
+        require(_airnodeProtocol != address(0), "Airnode protocol address zero");
         airnodeProtocol = _airnodeProtocol;
         IAirnodeProtocol(_airnodeProtocol).setSponsorshipStatus(
             address(this),
