@@ -17,12 +17,13 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes parameters;
     }
 
-    mapping(bytes32 => Template) public templates;
+    mapping(bytes32 => Template) public override templates;
 
     mapping(address => mapping(address => bool))
-        public sponsorToRequesterToSponsorshipStatus;
+        public
+        override sponsorToRequesterToSponsorshipStatus;
 
-    mapping(address => uint256) public requesterToRequestCountPlusOne;
+    mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -30,7 +31,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         address airnode,
         bytes32 endpointId,
         bytes calldata parameters
-    ) external returns (bytes32 templateId) {
+    ) external override returns (bytes32 templateId) {
         require(airnode != address(0), "Airnode address zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
@@ -49,6 +50,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external
+        override
     {
         require(requester != address(0), "Requester address zero");
         if (requesterToRequestCountPlusOne[requester] == 0) {
@@ -126,7 +128,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes4 fulfillFunctionId,
         bytes calldata data,
         bytes calldata signature
-    ) external returns (bool callSuccess, bytes memory callData) {
+    ) external override returns (bool callSuccess, bytes memory callData) {
         require(
             keccak256(
                 abi.encodePacked(
@@ -169,7 +171,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         string calldata errorMessage
-    ) external {
+    ) external override {
         require(
             keccak256(
                 abi.encodePacked(
@@ -219,7 +221,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         bytes calldata parameters
-    ) external returns (bytes32 subscriptionId) {
+    ) external override returns (bytes32 subscriptionId) {
         require(
             templates[templateId].airnode != address(0),
             "Template does not exist"
@@ -267,13 +269,10 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes32 subscriptionId,
         bytes calldata data,
         bytes calldata signature
-    ) external returns (bool callSuccess, bytes memory callData) {
+    ) external override returns (bool callSuccess, bytes memory callData) {
         Subscription storage subscription = subscriptions[subscriptionId];
         bytes32 templateId = subscription.templateId;
-        require(
-            templateId != bytes32(0),
-            "Subscription does not exist"
-        );
+        require(templateId != bytes32(0), "Subscription does not exist");
         require(
             (
                 keccak256(abi.encodePacked(subscriptionId, data))

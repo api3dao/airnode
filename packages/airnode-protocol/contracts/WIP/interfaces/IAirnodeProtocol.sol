@@ -57,6 +57,15 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     event FulfilledSubscription(bytes32 indexed subscriptionId, bytes data);
 
+    function createTemplate(
+        address airnode,
+        bytes32 endpointId,
+        bytes calldata parameters
+    ) external returns (bytes32 templateId);
+
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external;
+
     function makeRequest(
         bytes32 templateId,
         address reporter,
@@ -66,6 +75,66 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (bytes32 requestId);
+
+    function fulfillRequest(
+        bytes32 requestId,
+        address airnode,
+        address reporter,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata data,
+        bytes calldata signature
+    ) external returns (bool callSuccess, bytes memory callData);
+
+    function failRequest(
+        bytes32 requestId,
+        address airnode,
+        address reporter,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        string calldata errorMessage
+    ) external;
+
+    function createSubscription(
+        bytes32 templateId,
+        address reporter,
+        address sponsor,
+        address conditionAddress,
+        bytes4 conditionFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external returns (bytes32 subscriptionId);
+
+    function fulfillSubscription(
+        bytes32 subscriptionId,
+        bytes calldata data,
+        bytes calldata signature
+    ) external returns (bool callSuccess, bytes memory callData);
+
+    function requestIsAwaitingFulfillment(bytes32 requestId)
+        external
+        view
+        returns (bool isAwaitingFulfillment);
+
+    function templates(bytes32 templateId)
+        external
+        view
+        returns (
+            address airnode,
+            bytes32 endpointId,
+            bytes memory parameters
+        );
+
+    function sponsorToRequesterToSponsorshipStatus(
+        address sponsor,
+        address requester
+    ) external view returns (bool sponsorshipStatus);
+
+    function requesterToRequestCountPlusOne(address requester)
+        external
+        view
+        returns (uint256 requestCountPlusOne);
 
     function subscriptions(bytes32 subscriptionId)
         external

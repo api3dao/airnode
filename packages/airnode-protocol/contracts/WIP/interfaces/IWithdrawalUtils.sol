@@ -35,4 +35,11 @@ interface IWithdrawalUtils {
     ) external payable;
 
     function withdrawBalance() external;
+
+    function sponsorToWithdrawalRequestCount(address sponsor)
+        external
+        view
+        returns (uint256);
+
+    function sponsorToBalance(address sponsor) external view returns (uint256);
 }

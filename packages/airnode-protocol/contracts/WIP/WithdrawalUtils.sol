@@ -4,11 +4,11 @@ pragma solidity 0.8.9;
 import "./interfaces/IWithdrawalUtils.sol";
 
 contract WithdrawalUtils is IWithdrawalUtils {
-    mapping(address => uint256) public sponsorToWithdrawalRequestCount;
+    mapping(address => uint256) public override sponsorToWithdrawalRequestCount;
+
+    mapping(address => uint256) public override sponsorToBalance;
 
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
-
-    mapping(address => uint256) public sponsorToBalance;
 
     function requestWithdrawal(
         address reporter,
