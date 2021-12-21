@@ -106,7 +106,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit MadeRequest(
             reporter,
             requestId,
-            ++requesterToRequestCountPlusOne[msg.sender],
+            requesterToRequestCountPlusOne[msg.sender]++,
             block.chainid,
             msg.sender,
             templateId,
