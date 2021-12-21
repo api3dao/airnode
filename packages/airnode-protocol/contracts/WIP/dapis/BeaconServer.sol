@@ -242,7 +242,7 @@ contract BeaconServer is
         );
     }
 
-    /// @notice Called by AirnodeRrp to fulfill the request
+    /// @notice Called by the Airnode protocol to fulfill the request
     /// @dev It is assumed that the fulfillment will be made with a single
     /// point of data of type `int256` and an additional timestamp of type
     /// `uint256`
@@ -252,8 +252,8 @@ contract BeaconServer is
     function fulfillRrp(bytes32 requestId, bytes calldata data)
         external
         override
+        onlyAirnodeProtocol
     {
-        require(msg.sender == airnodeProtocol, "Sender not Airnode protocol");
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -297,8 +297,8 @@ contract BeaconServer is
     function fulfillPsp(bytes32 subscriptionId, bytes calldata data)
         external
         override
+        onlyAirnodeProtocol
     {
-        require(msg.sender == airnodeProtocol, "Sender not Airnode protocol");
         require(data.length == 64, "Incorrect data length");
         (
             bytes32 templateId,
