@@ -70,10 +70,15 @@ contract PercentageDeviationCondition is
                 ? decodedData - beaconValue
                 : beaconValue - decodedData
         );
-        uint256 absoluteBeaconValue = uint256(int256(beaconValue));
-        absoluteBeaconValue = absoluteBeaconValue == 0
-            ? 1
-            : absoluteBeaconValue;
+        uint256 absoluteBeaconValue;
+        if (beaconValue > 0) {
+            absoluteBeaconValue = uint256(int256(beaconValue));
+        } else if (beaconValue < 0) {
+            absoluteBeaconValue = uint256(-int256(beaconValue));
+        } else {
+            // Avoid division by 0
+            absoluteBeaconValue = 1;
+        }
         return
             (10**18 * absoluteDelta) / absoluteBeaconValue >
             subscriptionIdToUpdatePercentageThreshold[subscriptionId];
