@@ -139,6 +139,4 @@ interface IBeaconServer {
         returns (string memory);
 
     function unlimitedReaderRole() external view returns (bytes32);
-
-    function airnodeProtocol() external view returns (address);
 }

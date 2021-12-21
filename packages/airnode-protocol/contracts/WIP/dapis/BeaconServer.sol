@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "../whitelist/Whitelist.sol";
 import "../whitelist/WhitelistRolesWithManager.sol";
-import "../interfaces/IAirnodeProtocol.sol";
+import "../AirnodeUser.sol";
 import "./interfaces/IBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -20,7 +20,12 @@ import "./interfaces/IBeaconServer.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
+contract BeaconServer is
+    Whitelist,
+    WhitelistRolesWithManager,
+    AirnodeUser,
+    IBeaconServer
+{
     struct Beacon {
         int224 value;
         uint32 timestamp;
@@ -29,8 +34,6 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
     string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
     bytes32 public immutable override unlimitedReaderRole;
-
-    address public immutable override airnodeProtocol;
 
     /// @notice Returns if a sponsor has permitted an account to request
     /// updates at this contract
@@ -56,16 +59,12 @@ contract BeaconServer is Whitelist, WhitelistRolesWithManager, IBeaconServer {
             _adminRoleDescription,
             _manager
         )
+        AirnodeUser(_airnodeProtocol)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),
             keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
         );
-        require(
-            _airnodeProtocol != address(0),
-            "Airnode protocol address zero"
-        );
-        airnodeProtocol = _airnodeProtocol;
     }
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
