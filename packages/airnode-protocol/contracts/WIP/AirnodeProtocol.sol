@@ -269,15 +269,16 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData) {
         Subscription storage subscription = subscriptions[subscriptionId];
+        bytes32 templateId = subscription.templateId;
         require(
-            subscription.templateId != bytes32(0),
+            templateId != bytes32(0),
             "Subscription does not exist"
         );
         require(
             (
                 keccak256(abi.encodePacked(subscriptionId, data))
                     .toEthSignedMessageHash()
-            ).recover(signature) == templates[subscription.templateId].airnode,
+            ).recover(signature) == templates[templateId].airnode,
             "Invalid signature"
         );
         (callSuccess, callData) = subscription.fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
