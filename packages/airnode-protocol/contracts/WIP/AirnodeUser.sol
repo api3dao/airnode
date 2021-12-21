@@ -8,11 +8,11 @@ import "./interfaces/IAirnodeUser.sol";
 contract AirnodeUser is IAirnodeUser {
     address public immutable override airnodeProtocol;
 
-    /// @dev Reverts if the caller is not the Airnode protocol contract
+    /// @dev Reverts if the sender is not the Airnode protocol contract
     modifier onlyAirnodeProtocol() {
         require(
             msg.sender == address(airnodeProtocol),
-            "Caller not Airnode protocol"
+            "Sender not Airnode protocol"
         );
         _;
     }
