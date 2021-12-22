@@ -81,7 +81,7 @@ describe('requestWithdrawal', function () {
 });
 
 describe('fulfillWithdrawal', function () {
-  context('Caller is sponsor wallet', function () {
+  context('Sender is sponsor wallet', function () {
     it('fulfills withdrawal when parameters are correct', async function () {
       // Make the withdrawal request
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
@@ -222,7 +222,7 @@ describe('fulfillWithdrawal', function () {
       ).to.be.revertedWith('Transfer failed');
     });
   });
-  context('Caller is not sponsor wallet', function () {
+  context('Sender is not sponsor wallet', function () {
     it('reverts', async function () {
       // Make the withdrawal request
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);

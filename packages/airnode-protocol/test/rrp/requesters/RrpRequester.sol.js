@@ -44,7 +44,7 @@ describe('constructor', function () {
 });
 
 describe('onlyAirnodeRrp', function () {
-  context('Caller AirnodeRrp', function () {
+  context('Sender AirnodeRrp', function () {
     it('does not revert', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
       const endpointId = testUtils.generateRandomBytes32();
@@ -83,7 +83,7 @@ describe('onlyAirnodeRrp', function () {
           ]
         )
       );
-      // Fulfill the request by making sure the caller is the airnodeRrp
+      // Fulfill the request by making sure the sender is airnodeRrp
       const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
@@ -112,11 +112,11 @@ describe('onlyAirnodeRrp', function () {
       expect(staticCallResult.callSuccess).to.equal(true);
     });
   });
-  context('Caller not AirnodeRrp', function () {
+  context('Sender not AirnodeRrp', function () {
     it('reverts', async function () {
       await expect(
         rrpRequester.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, '0x')
-      ).to.be.revertedWith('Caller not Airnode RRP');
+      ).to.be.revertedWith('Sender not Airnode RRP');
     });
   });
 });

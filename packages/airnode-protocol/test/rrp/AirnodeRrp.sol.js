@@ -301,7 +301,7 @@ describe('makeFullRequest', function () {
 
 describe('fulfill', function () {
   context('Template request made', function () {
-    context('Caller is sponsor wallet', function () {
+    context('Sender is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
         context('Signature is valid', function () {
           context('Fulfill function does not revert', function () {
@@ -1259,7 +1259,7 @@ describe('fulfill', function () {
         });
       });
     });
-    context('Caller not sponsor wallet', function () {
+    context('Sender not sponsor wallet', function () {
       it('reverts', async function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
@@ -1325,7 +1325,7 @@ describe('fulfill', function () {
     });
   });
   context('Full request made', function () {
-    context('Caller is sponsor wallet', function () {
+    context('Sender is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
         context('Signature is valid', function () {
           context('Fulfill function does not revert', function () {
@@ -2252,7 +2252,7 @@ describe('fulfill', function () {
         });
       });
     });
-    context('Caller not sponsor wallet', function () {
+    context('Sender not sponsor wallet', function () {
       it('reverts', async function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
@@ -2329,7 +2329,7 @@ describe('fulfill', function () {
 
 describe('fail', function () {
   context('Template request made', function () {
-    context('Caller is sponsor wallet', function () {
+    context('Sender is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
         it('fails successfully', async function () {
           // Endorse the requester
@@ -2668,7 +2668,7 @@ describe('fail', function () {
         });
       });
     });
-    context('Caller not sponsor wallet', function () {
+    context('Sender not sponsor wallet', function () {
       it('reverts', async function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
@@ -2728,7 +2728,7 @@ describe('fail', function () {
     });
   });
   context('Full request made', function () {
-    context('Caller is sponsor wallet', function () {
+    context('Sender is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
         it('fails successfully', async function () {
           // Endorse the requester
@@ -3050,7 +3050,7 @@ describe('fail', function () {
         });
       });
     });
-    context('Caller not sponsor wallet', function () {
+    context('Sender not sponsor wallet', function () {
       it('reverts', async function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);

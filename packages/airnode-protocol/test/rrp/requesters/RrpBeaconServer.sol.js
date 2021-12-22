@@ -683,13 +683,13 @@ describe('requestBeaconUpdate', function () {
         rrpBeaconServer
           .connect(roles.updateRequester)
           .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress, beaconParameters)
-      ).to.be.revertedWith('Caller not permitted');
+      ).to.be.revertedWith('Sender not permitted');
     });
   });
 });
 
 describe('readBeacon', function () {
-  context('Caller whitelisted', function () {
+  context('Sender whitelisted', function () {
     it('reads beacon', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
       await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
@@ -751,7 +751,7 @@ describe('readBeacon', function () {
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
   });
-  context('Caller address zero', function () {
+  context('Sender address zero', function () {
     it('reads beacon', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
       await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
@@ -809,10 +809,10 @@ describe('readBeacon', function () {
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
   });
-  context('Caller not whitelisted', function () {
+  context('Sender not whitelisted', function () {
     it('reverts', async function () {
       await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId)).to.be.revertedWith(
-        'Caller not whitelisted'
+        'Sender not whitelisted'
       );
     });
   });
@@ -858,7 +858,7 @@ describe('readerCanReadBeacon', function () {
 // await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
 // This can be solved by adding a `hardhat_reset` call to beforeEach, but that breaks solcover.
 describe('fulfill', function () {
-  context('Caller Airnode RRP', function () {
+  context('Sender Airnode RRP', function () {
     context('requestId has been registered', function () {
       context('Encoded data length is correct', function () {
         context('Data typecast successfully', function () {
@@ -1702,17 +1702,17 @@ describe('fulfill', function () {
       });
     });
   });
-  context('Caller not Airnode RRP', function () {
+  context('Sender not Airnode RRP', function () {
     it('reverts', async function () {
       await expect(
         rrpBeaconServer.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, '0x')
-      ).to.be.revertedWith('Caller not Airnode RRP');
+      ).to.be.revertedWith('Sender not Airnode RRP');
     });
   });
 });
 
 describe('readBeacon', function () {
-  context('Caller whitelisted', function () {
+  context('Sender whitelisted', function () {
     it('reads beacon', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
       await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
@@ -1774,10 +1774,10 @@ describe('readBeacon', function () {
       expect(currentBeacon.timestamp).to.be.equal(encodedTimestamp);
     });
   });
-  context('Caller not whitelisted', function () {
+  context('Sender not whitelisted', function () {
     it('reverts', async function () {
       await expect(rrpBeaconServer.connect(roles.beaconReader).readBeacon(beaconId)).to.be.revertedWith(
-        'Caller not whitelisted'
+        'Sender not whitelisted'
       );
     });
   });
