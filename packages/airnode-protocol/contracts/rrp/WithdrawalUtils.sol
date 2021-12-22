@@ -28,6 +28,8 @@ contract WithdrawalUtils is IWithdrawalUtils {
         external
         override
     {
+        require(airnode != address(0), "Airnode address zero");
+        require(sponsorWallet != address(0), "Sponsor wallet address zero");
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 block.chainid,
@@ -51,7 +53,9 @@ contract WithdrawalUtils is IWithdrawalUtils {
     /// withdrawal request made by the sponsor
     /// @dev The Airnode sends the funds to the sponsor through this method
     /// to emit an event that indicates that the withdrawal request has been
-    /// fulfilled
+    /// fulfilled.
+    /// `airnode` value is not validated because this is implicitly done while
+    /// validating the withdrawal parameters.
     /// @param withdrawalRequestId Withdrawal request ID
     /// @param airnode Airnode address
     /// @param sponsor Sponsor address
