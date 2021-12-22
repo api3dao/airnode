@@ -7,11 +7,11 @@ import "../interfaces/IAirnodeRrp.sol";
 contract RrpRequester {
     IAirnodeRrp public immutable airnodeRrp;
 
-    /// @dev Reverts if the caller is not the Airnode RRP contract.
+    /// @dev Reverts if the sender is not the Airnode RRP contract.
     /// Use it as a modifier for fulfill and error callback methods, but also
     /// check `requestId`.
     modifier onlyAirnodeRrp() {
-        require(msg.sender == address(airnodeRrp), "Caller not Airnode RRP");
+        require(msg.sender == address(airnodeRrp), "Sender not Airnode RRP");
         _;
     }
 

@@ -45,6 +45,7 @@ contract AirnodeRrp is
         external
         override
     {
+        require(requester != address(0), "Requester address zero");
         // Initialize the requester request count for consistent request gas
         // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
@@ -58,9 +59,14 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a request that refers to a
     /// template for the Airnode address, endpoint ID and parameters
-    /// @dev `fulfillAddress` is not allowed to be the address of this
-    /// contract. This is not actually needed to protect users that use the
-    /// protocol as intended, but it is done for good measure.
+    /// @dev The node already must validate `sponsor` and `sponsorWallet`
+    /// according to protocol specifications, which would implicitly include
+    /// checking if they are `address(0)`. Because of this, validation of these
+    /// parameters are left to the node and omitted here.
+    /// The protocol does not require `fulfillAddress` to belong to a contract
+    /// or `fulfillFunctionId` to have been implemented in this contract at
+    /// request or fulfillment time. Therefore, neither of these parameters are
+    /// validated in any way.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -83,7 +89,6 @@ contract AirnodeRrp is
         // If the Airnode address of the template is zero the template does not
         // exist because template creation does not allow zero Airnode address
         require(airnode != address(0), "Template does not exist");
-        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -131,9 +136,14 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
-    /// @dev `fulfillAddress` is not allowed to be the address of this
-    /// contract. This is not actually needed to protect users that use the
-    /// protocol as intended, but it is done for good measure.
+    /// @dev The node already must validate `sponsor` and `sponsorWallet`
+    /// according to protocol specifications, which would implicitly include
+    /// checking if they are `address(0)`. Because of this, validation of these
+    /// parameters are left to the node and omitted here.
+    /// The protocol does not require `fulfillAddress` to belong to a contract
+    /// or `fulfillFunctionId` to have been implemented in this contract at
+    /// request or fulfillment time. Therefore, neither of these parameters are
+    /// validated in any way.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
@@ -154,7 +164,6 @@ contract AirnodeRrp is
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "Airnode address zero");
-        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
