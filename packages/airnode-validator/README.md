@@ -31,7 +31,7 @@ format name:
 ```sh
 yarn run cli:validator --template="templates/0.2/config.json" --specs="myProject/config/config.json"
 # OR
-yarn run cli:convertor --template="conversions/oas@3.0------ois@0.2.json" --specs="myProject/config/oas.json"
+yarn run cli:convertor --template="conversions/oas@3.0------ois@1.0.json" --specs="myProject/config/oas.json"
 ```
 
 ## Templates
