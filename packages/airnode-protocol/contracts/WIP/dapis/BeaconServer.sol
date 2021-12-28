@@ -284,8 +284,6 @@ contract BeaconServer is
             ,
             ,
             ,
-            ,
-            ,
             bytes memory parameters
         ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);

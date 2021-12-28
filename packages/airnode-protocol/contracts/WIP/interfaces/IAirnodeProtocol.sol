@@ -11,6 +11,16 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes parameters
     );
 
+    event CreatedSubscription(
+        bytes32 indexed subscriptionId,
+        bytes32 templateId,
+        address reporter,
+        address sponsor,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes parameters
+    );
+
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
@@ -43,18 +53,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         string errorMessage
     );
 
-    event CreatedSubscription(
-        bytes32 indexed subscriptionId,
-        bytes32 templateId,
-        address reporter,
-        address sponsor,
-        address conditionAddress,
-        bytes4 conditionFunctionId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes parameters
-    );
-
     event FulfilledSubscription(bytes32 indexed subscriptionId, bytes data);
 
     function createTemplate(
@@ -62,6 +60,15 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes32 endpointId,
         bytes calldata parameters
     ) external returns (bytes32 templateId);
+
+    function createSubscription(
+        bytes32 templateId,
+        address reporter,
+        address sponsor,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external returns (bytes32 subscriptionId);
 
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
@@ -95,17 +102,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         string calldata errorMessage
     ) external;
 
-    function createSubscription(
-        bytes32 templateId,
-        address reporter,
-        address sponsor,
-        address conditionAddress,
-        bytes4 conditionFunctionId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes calldata parameters
-    ) external returns (bytes32 subscriptionId);
-
     function fulfillSubscription(
         bytes32 subscriptionId,
         bytes calldata data,
@@ -117,6 +113,9 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         view
         returns (bool isAwaitingFulfillment);
 
+    // solhint-disable-next-line func-name-mixedcase
+    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
+
     function templates(bytes32 templateId)
         external
         view
@@ -126,16 +125,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             bytes memory parameters
         );
 
-    function sponsorToRequesterToSponsorshipStatus(
-        address sponsor,
-        address requester
-    ) external view returns (bool sponsorshipStatus);
-
-    function requesterToRequestCountPlusOne(address requester)
-        external
-        view
-        returns (uint256 requestCountPlusOne);
-
     function subscriptions(bytes32 subscriptionId)
         external
         view
@@ -143,13 +132,18 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             bytes32 templateId,
             address reporter,
             address sponsor,
-            address conditionAddress,
-            bytes4 conditionFunctionId,
             address fulfillAddress,
             bytes4 fulfillFunctionId,
             bytes memory parameters
         );
 
-    // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
+    function sponsorToRequesterToSponsorshipStatus(
+        address sponsor,
+        address requester
+    ) external view returns (bool);
+
+    function requesterToRequestCountPlusOne(address requester)
+        external
+        view
+        returns (uint256 requestCountPlusOne);
 }

@@ -25,7 +25,7 @@ contract PercentageDeviationCondition is
         bytes32 subscriptionId,
         uint256 updatePercentageThreshold
     ) external override {
-        (, address sponsor, , , , , , ) = IAirnodeProtocol(airnodeProtocol)
+        (, address sponsor, , , , ) = IAirnodeProtocol(airnodeProtocol)
             .subscriptions(subscriptionId);
         require(msg.sender == sponsor, "Sender not sponsor");
         subscriptionIdToUpdatePercentageThreshold[
@@ -42,8 +42,6 @@ contract PercentageDeviationCondition is
         require(msg.sender == address(0), "Sender address not zero");
         (
             bytes32 templateId,
-            ,
-            ,
             ,
             ,
             ,
