@@ -31,8 +31,11 @@ contract BeaconServer is
         uint32 timestamp;
     }
 
+    /// @notice Description of the unlimited reader role
     string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
+
+    /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
 
     /// @notice Returns if a sponsor has permitted an account to request
@@ -202,6 +205,7 @@ contract BeaconServer is
     /// This point of data must be castable to `int224` and the timestamp must
     /// be castable to `uint32`.
     /// @param templateId Template ID of the beacon to be updated
+    /// @param reporter Reporter address
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
     /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
@@ -273,6 +277,13 @@ contract BeaconServer is
         );
     }
 
+    /// @notice Called by the Airnode protocol to fulfill the subscription
+    /// @dev It is assumed that the fulfillment will be made with a single
+    /// point of data of type `int256` and an additional timestamp of type
+    /// `uint256`
+    /// @param subscriptionId ID of the subscription being fulfilled
+    /// @param data Fulfillment data (a single `int256` and an additional
+    /// timestamp of type `uint256` encoded as `bytes`)
     function fulfillPsp(bytes32 subscriptionId, bytes calldata data)
         external
         override
@@ -303,6 +314,13 @@ contract BeaconServer is
         );
     }
 
+    /// @notice Called by the fulfillment functions to decode and validate
+    /// fulfillment data
+    /// @param beaconId Beacon ID
+    /// @param data Fulfillment data (a single `int256` and an additional
+    /// timestamp of type `uint256` encoded as `bytes`)
+    /// @return decodedData Decoded value that will update the beacon
+    /// @return decodedTimestamp Decoded timestamp that will update the beacon
     function decodeAndValidateData(bytes32 beaconId, bytes calldata data)
         private
         view
@@ -367,8 +385,7 @@ contract BeaconServer is
     {
         return
             userIsWhitelisted(beaconId, reader) ||
-            userIsUnlimitedReader(reader) ||
-            reader == address(0);
+            userIsUnlimitedReader(reader);
     }
 
     /// @notice Called to get the detailed whitelist status of the reader for
@@ -427,7 +444,9 @@ contract BeaconServer is
     }
 
     /// @notice Returns if the user has the role unlimited reader
-    /// @dev An unlimited reader can read all resources
+    /// @dev An unlimited reader can read all resources. `address(0)` is
+    /// treated as an unlimited reader to provide an easy way for off-chain
+    /// agents to read beacon values without having to resort to logs.
     /// @param user User address
     /// @return If the user is unlimited reader
     function userIsUnlimitedReader(address user) private view returns (bool) {
@@ -435,6 +454,6 @@ contract BeaconServer is
             IAccessControlRegistry(accessControlRegistry).hasRole(
                 unlimitedReaderRole,
                 user
-            );
+            ) || user == address(0);
     }
 }
