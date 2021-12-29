@@ -202,7 +202,7 @@ contract AirnodeProtocol is
             "Parameters too long"
         );
         require(
-            hasRole(deriveSponsoredRequesterRole(sponsor), msg.sender),
+            requesterIsSponsoredOrIsSponsor(sponsor, msg.sender),
             "Requester not sponsored"
         );
         requestId = keccak256(
@@ -400,23 +400,37 @@ contract AirnodeProtocol is
         }
     }
 
+    /// @notice Called to check if the requester is sponsored by the sponsor or
+    /// is the sponsor
+    /// @param sponsor Sponsor address
+    /// @param requester Requester address
+    /// @return If requester is sponsored by the sponsor or is the sponsor
+    function requesterIsSponsoredOrIsSponsor(address sponsor, address requester)
+        public
+        view
+        override
+        returns (bool)
+    {
+        return
+            sponsor == requester ||
+            hasRole(deriveSponsoredRequesterRole(sponsor), requester);
+    }
+
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
     /// not hear back, it can call this method to check if the Airnode has
     /// called back `fail()` instead.
     /// @param requestId Request ID
-    /// @return isAwaitingFulfillment If the request is awaiting fulfillment
-    /// (i.e., `true` if `fulfill()` or `fail()` is not called back yet,
-    /// `false` otherwise)
+    /// @return If the request is awaiting fulfillment (i.e., `true` if
+    /// `fulfill()` or `fail()` is not called back yet, `false` otherwise)
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
         override
-        returns (bool isAwaitingFulfillment)
+        returns (bool)
     {
-        isAwaitingFulfillment =
-            requestIdToFulfillmentParameters[requestId] != bytes32(0);
+        return requestIdToFulfillmentParameters[requestId] != bytes32(0);
     }
 
     /// @notice Called to get the sponsored requester role for a specific

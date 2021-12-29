@@ -100,10 +100,15 @@ interface IAirnodeProtocol is IAccessControlRegistry, IWithdrawalUtils {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
+    function requesterIsSponsoredOrIsSponsor(address sponsor, address requester)
+        external
+        view
+        returns (bool);
+
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
-        returns (bool isAwaitingFulfillment);
+        returns (bool);
 
     function deriveSponsoredRequesterRole(address sponsor)
         external

@@ -18,9 +18,6 @@ contract AirnodeUser is IAirnodeUser {
         _;
     }
 
-    /// @dev AirnodeUser is made its own sponsor by default. AirnodeUser can
-    /// also be sponsored by others and use these sponsorships while making
-    /// requests, i.e., using this default sponsorship is optional.
     /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) {
         require(
@@ -28,10 +25,5 @@ contract AirnodeUser is IAirnodeUser {
             "Airnode protocol address zero"
         );
         airnodeProtocol = _airnodeProtocol;
-        IAirnodeProtocol(_airnodeProtocol).initializeRole(
-            IAirnodeProtocol(_airnodeProtocol).deriveRootRole(address(this)),
-            IAirnodeProtocol(_airnodeProtocol)
-                .SPONSORED_REQUESTER_ROLE_DESCRIPTION()
-        );
     }
 }
