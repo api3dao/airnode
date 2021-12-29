@@ -6,7 +6,7 @@ import "../whitelist/WhitelistRolesWithManager.sol";
 import "../AirnodeUser.sol";
 import "./interfaces/IBeaconServer.sol";
 
-/// @title The contract that serves beacons using Airnode RRP
+/// @title The contract that serves beacons using Airnode RRP and PSP
 /// @notice A beacon is a live data point associated with a beacon ID, which is
 /// derived from a template ID and additional parameters. This is suitable
 /// where the more recent data point is always more favorable, e.g., in the
