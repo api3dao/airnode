@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-// See the original by Sasa here:
-// https://gist.github.com/bbenligiray/739bed51ba744584252836614e03ee2f
-
+/// @title Contract that sorts an `int256` array in-place
+/// @dev See the original by Sasa here:
+/// https://gist.github.com/bbenligiray/739bed51ba744584252836614e03ee2f
 contract InPlaceSort {
+    // Consider exposing this value in the inheriting contract
     uint256 internal constant MAX_ARRAY_LENGTH = 13;
 
+    /// @notice Called to sort an array in-place
+    /// @param values Values to be sorted
     function sortValuesInPlace(int256[] memory values) internal pure {
         uint256 arrayLength = values.length;
         assert(arrayLength <= MAX_ARRAY_LENGTH);
-        // Do a sort of a binary search
+        // Do a sort of a binary search that still favors shorter array lengths
         if (arrayLength < 6) {
             // Possible lengths: 2, 3, 4, 5
             if (arrayLength < 4) {
@@ -310,11 +313,11 @@ contract InPlaceSort {
         }
     }
 
-    /// Swap two elements of an array if the first element
-    /// is greater than the second.
-    /// @param values an array of signed integers
-    /// @param i the first index
-    /// @param j the second index
+    /// @notice Called to swap two elements of an array if the first element is
+    /// greater than the second
+    /// @param values Array whose elements are to be swapped
+    /// @param i Index of the first element
+    /// @param j Index of the second element
     function swapIfFirstIsLarger(
         int256[] memory values,
         uint256 i,
