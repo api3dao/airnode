@@ -415,6 +415,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
+        override
         returns (bool isAwaitingFulfillment)
     {
         isAwaitingFulfillment =

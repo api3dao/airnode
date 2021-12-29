@@ -4,8 +4,9 @@ pragma solidity 0.8.9;
 import "./interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IAirnodeUser.sol";
 
-/// @title The contract to be inherited to interact with the Airnode protocol
+/// @title Contract to be inherited to interact with the Airnode protocol
 contract AirnodeUser is IAirnodeUser {
+    /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 
     /// @dev Reverts if the sender is not the Airnode protocol contract
@@ -17,11 +18,10 @@ contract AirnodeUser is IAirnodeUser {
         _;
     }
 
-    /// @dev Airnode protocol contract address is set at deployment and is
-    /// immutable. AirnodeUser is made its own sponsor by default. AirnodeUser
-    /// can also be sponsored by others and use these sponsorships while making
+    /// @dev AirnodeUser is made its own sponsor by default. AirnodeUser can
+    /// also be sponsored by others and use these sponsorships while making
     /// requests, i.e., using this default sponsorship is optional.
-    /// @param _airnodeProtocol Airnode RRP contract address
+    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) {
         require(
             _airnodeProtocol != address(0),

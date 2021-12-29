@@ -34,12 +34,17 @@ interface IWithdrawalUtils {
         uint256 protocolId
     ) external payable;
 
-    function withdrawBalance() external;
+    function claimBalance() external;
+
+    function withdrawalRequestIsAwaitingFulfillment(bytes32 requestId)
+        external
+        view
+        returns (bool isAwaitingFulfillment);
+
+    function sponsorToBalance(address sponsor) external view returns (uint256);
 
     function sponsorToWithdrawalRequestCount(address sponsor)
         external
         view
         returns (uint256);
-
-    function sponsorToBalance(address sponsor) external view returns (uint256);
 }
