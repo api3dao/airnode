@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./IWithdrawalUtils.sol";
+import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
+import "../utils/interfaces/IWithdrawalUtils.sol";
 
-interface IAirnodeProtocol is IWithdrawalUtils {
+interface IAirnodeProtocol is IAccessControlRegistry, IWithdrawalUtils {
     event CreatedTemplate(
         bytes32 indexed templateId,
         address airnode,
@@ -19,12 +20,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         bytes parameters
-    );
-
-    event SetSponsorshipStatus(
-        address indexed sponsor,
-        address indexed requester,
-        bool sponsorshipStatus
     );
 
     event MadeRequest(
@@ -70,9 +65,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId);
 
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external;
-
     function makeRequest(
         bytes32 templateId,
         address reporter,
@@ -113,8 +105,19 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         view
         returns (bool isAwaitingFulfillment);
 
+    function deriveSponsoredRequesterRole(address sponsor)
+        external
+        pure
+        returns (bytes32 sponsoredRequesterRole);
+
     // solhint-disable-next-line func-name-mixedcase
     function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function SPONSORED_REQUESTER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
 
     function templates(bytes32 templateId)
         external
@@ -137,13 +140,8 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             bytes memory parameters
         );
 
-    function sponsorToRequesterToSponsorshipStatus(
-        address sponsor,
-        address requester
-    ) external view returns (bool);
-
-    function requesterToRequestCountPlusOne(address requester)
+    function requesterToRequestCount(address requester)
         external
         view
-        returns (uint256 requestCountPlusOne);
+        returns (uint256 requestCount);
 }

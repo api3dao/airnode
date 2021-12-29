@@ -3,7 +3,8 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
-import "./WithdrawalUtils.sol";
+import "./access-control-registry/AccessControlRegistry.sol";
+import "./utils/WithdrawalUtils.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
 /// @title Airnode request–response protocol (RRP) and publish–subscribe
@@ -21,7 +22,12 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Templates and subscriptions are stored in storage in addition to logs to
 /// ensure their persistance. Requests are only stored in logs because they
 /// are inherently short-lived.
-contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
+contract AirnodeProtocol is
+    Multicall,
+    AccessControlRegistry,
+    WithdrawalUtils,
+    IAirnodeProtocol
+{
     using ECDSA for bytes32;
 
     struct Template {
@@ -43,21 +49,23 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// subscriptions
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 1024;
 
+    /// @notice Description hash of the sponsored requester role
+    string public constant override SPONSORED_REQUESTER_ROLE_DESCRIPTION =
+        "Sponsored requester";
+
+    bytes32 private constant SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(SPONSORED_REQUESTER_ROLE_DESCRIPTION));
+
     /// @notice Template with the ID
     mapping(bytes32 => Template) public override templates;
 
     /// @notice Subscription with the ID
     mapping(bytes32 => Subscription) public subscriptions;
 
-    /// @notice If the sponsor has sponsored the requester
-    mapping(address => mapping(address => bool))
-        public
-        override sponsorToRequesterToSponsorshipStatus;
-
-    /// @notice Request count of the requester plus one
+    /// @notice Request count of the requester
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
-    mapping(address => uint256) public override requesterToRequestCountPlusOne;
+    mapping(address => uint256) public override requesterToRequestCount;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -114,6 +122,10 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             "Template does not exist"
         );
         require(
+            fulfillAddress != address(this),
+            "Fulfill address AirnodeProtocol"
+        );
+        require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
@@ -148,27 +160,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         }
     }
 
-    /// @notice Called by the sponsor to set the sponsorship status of a
-    /// requester, i.e., allow or disallow a requester to make requests that
-    /// will be fulfilled by the sponsor wallet
-    /// @param requester Requester address
-    /// @param sponsorshipStatus Sponsorship status
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external
-        override
-    {
-        require(requester != address(0), "Requester address zero");
-        // Initialize the requester request count for consistent request gas
-        // cost
-        if (requesterToRequestCountPlusOne[requester] == 0) {
-            requesterToRequestCountPlusOne[requester] = 1;
-        }
-        sponsorToRequesterToSponsorshipStatus[msg.sender][
-            requester
-        ] = sponsorshipStatus;
-        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
-    }
-
     /// @notice Called by the requester to make a request
     /// @dev The response is requested to be signed by the Airnode referenced
     /// in the template. The response is requested to be fulfilled by the
@@ -178,6 +169,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// However, this is not a necessity, i.e., the requester may request the
     /// data to be signed by the data source Airnode, to be delivered by
     /// another party.
+    /// The first request a requester will make will cost slightly higher gas
+    /// than the rest due to how the request counter is implemented.
     /// @param templateId Template ID
     /// @param reporter Reporter address
     /// @param sponsor Sponsor address
@@ -201,11 +194,15 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
         require(
+            fulfillAddress != address(this),
+            "Fulfill address AirnodeProtocol"
+        );
+        require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
         require(
-            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            hasRole(deriveSponsoredRequesterRole(sponsor), msg.sender),
             "Requester not sponsored"
         );
         requestId = keccak256(
@@ -213,7 +210,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 block.chainid,
                 address(this),
                 msg.sender,
-                requesterToRequestCountPlusOne[msg.sender],
+                ++requesterToRequestCount[msg.sender],
                 templateId,
                 reporter,
                 sponsor,
@@ -235,7 +232,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit MadeRequest(
             reporter,
             requestId,
-            requesterToRequestCountPlusOne[msg.sender]++,
+            requesterToRequestCount[msg.sender],
             block.chainid,
             msg.sender,
             templateId,
@@ -420,5 +417,21 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     {
         isAwaitingFulfillment =
             requestIdToFulfillmentParameters[requestId] != bytes32(0);
+    }
+
+    /// @notice Called to get the sponsored requester role for a specific
+    /// sponsor
+    /// @param sponsor Sponsor address
+    /// @return sponsoredRequesterRole Sponsored requester role
+    function deriveSponsoredRequesterRole(address sponsor)
+        public
+        pure
+        override
+        returns (bytes32 sponsoredRequesterRole)
+    {
+        sponsoredRequesterRole = _deriveRole(
+            _deriveRootRole(sponsor),
+            SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH
+        );
     }
 }

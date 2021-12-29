@@ -28,9 +28,10 @@ contract AirnodeUser is IAirnodeUser {
             "Airnode protocol address zero"
         );
         airnodeProtocol = _airnodeProtocol;
-        IAirnodeProtocol(_airnodeProtocol).setSponsorshipStatus(
-            address(this),
-            true
+        IAirnodeProtocol(_airnodeProtocol).initializeRole(
+            IAirnodeProtocol(_airnodeProtocol).deriveRootRole(address(this)),
+            IAirnodeProtocol(_airnodeProtocol)
+                .SPONSORED_REQUESTER_ROLE_DESCRIPTION()
         );
     }
 }
