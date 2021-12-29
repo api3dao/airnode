@@ -3,7 +3,8 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
-import "./access-control-registry/AccessControlRegistry.sol";
+import "./access-control-registry/RoleDeriver.sol";
+import "./access-control-registry/AccessControlRegistryUser.sol";
 import "./utils/WithdrawalUtils.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
@@ -24,7 +25,8 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// are inherently short-lived.
 contract AirnodeProtocol is
     Multicall,
-    AccessControlRegistry,
+    RoleDeriver,
+    AccessControlRegistryUser,
     WithdrawalUtils,
     IAirnodeProtocol
 {
@@ -68,6 +70,11 @@ contract AirnodeProtocol is
     mapping(address => uint256) public override requesterToRequestCount;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
+
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    constructor(address _accessControlRegistry)
+        AccessControlRegistryUser(_accessControlRegistry)
+    {}
 
     /// @notice Creates a template record
     /// @dev Templates fully or partially define requests. By referencing a
@@ -413,7 +420,10 @@ contract AirnodeProtocol is
     {
         return
             sponsor == requester ||
-            hasRole(deriveSponsoredRequesterRole(sponsor), requester);
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveSponsoredRequesterRole(sponsor),
+                requester
+            );
     }
 
     /// @notice Called to check if the request with the ID is made but not

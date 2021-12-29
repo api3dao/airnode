@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./interfaces/IAccessControlClient.sol";
+import "./interfaces/IAccessControlRegistry.sol";
+import "./interfaces/IAccessControlRegistryUser.sol";
 
-contract AccessControlClient is IAccessControlClient {
+contract AccessControlRegistryUser is IAccessControlRegistryUser {
     /// @notice AccessControlRegistry contract address
     address public immutable override accessControlRegistry;
 

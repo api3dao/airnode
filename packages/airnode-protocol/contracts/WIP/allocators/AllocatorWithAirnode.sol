@@ -2,21 +2,21 @@
 pragma solidity 0.8.9;
 
 import "../access-control-registry/RoleDeriver.sol";
-import "../access-control-registry/AccessControlClient.sol";
+import "../access-control-registry/AccessControlRegistryUser.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./Allocator.sol";
 import "./interfaces/IAllocatorWithAirnode.sol";
 
 contract AllocatorWithAirnode is
     RoleDeriver,
-    AccessControlClient,
+    AccessControlRegistryUser,
     Allocator,
     IAllocatorWithAirnode
 {
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
-    ) AccessControlClient(_accessControlRegistry) {
+    ) AccessControlRegistryUser(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"

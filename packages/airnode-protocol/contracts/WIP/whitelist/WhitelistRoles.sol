@@ -2,12 +2,16 @@
 pragma solidity 0.8.9;
 
 import "../access-control-registry/RoleDeriver.sol";
-import "../access-control-registry/AccessControlClient.sol";
+import "../access-control-registry/AccessControlRegistryUser.sol";
 import "./interfaces/IWhitelistRoles.sol";
 
 /// @title Contract that implements generic AccessControlRegistry roles for a
 /// whitelist contract
-contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
+contract WhitelistRoles is
+    RoleDeriver,
+    AccessControlRegistryUser,
+    IWhitelistRoles
+{
     // There are four roles implemented in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
@@ -55,7 +59,7 @@ contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
-    ) AccessControlClient(_accessControlRegistry) {
+    ) AccessControlRegistryUser(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"

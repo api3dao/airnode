@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
+import "../access-control-registry/interfaces/IAccessControlRegistryUser.sol";
 import "../utils/interfaces/IWithdrawalUtils.sol";
 
-interface IAirnodeProtocol is IAccessControlRegistry, IWithdrawalUtils {
+interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
     event CreatedTemplate(
         bytes32 indexed templateId,
         address airnode,

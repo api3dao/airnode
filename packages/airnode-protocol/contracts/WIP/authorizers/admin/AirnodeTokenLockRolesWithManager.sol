@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../../access-control-registry/RoleDeriver.sol";
-import "../../access-control-registry/AccessControlClient.sol";
+import "../../access-control-registry/AccessControlRegistryUser.sol";
 import "./AirnodeRequesterAuthorizerRegistryClient.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
@@ -13,7 +13,7 @@ import "./interfaces/IAirnodeTokenLockRolesWithManager.sol";
 // is owned by the DAO
 contract AirnodeTokenLockRolesWithManager is
     RoleDeriver,
-    AccessControlClient,
+    AccessControlRegistryUser,
     IAirnodeTokenLockRolesWithManager
 {
     // There are Six roles implemented in this contract:
@@ -84,7 +84,7 @@ contract AirnodeTokenLockRolesWithManager is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager
-    ) AccessControlClient(_accessControlRegistry) {
+    ) AccessControlRegistryUser(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"

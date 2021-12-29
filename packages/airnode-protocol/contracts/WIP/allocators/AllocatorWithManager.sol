@@ -2,14 +2,14 @@
 pragma solidity 0.8.9;
 
 import "../access-control-registry/RoleDeriver.sol";
-import "../access-control-registry/AccessControlClient.sol";
+import "../access-control-registry/AccessControlRegistryUser.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./Allocator.sol";
 import "./interfaces/IAllocatorWithManager.sol";
 
 contract AllocatorWithManager is
     RoleDeriver,
-    AccessControlClient,
+    AccessControlRegistryUser,
     Allocator,
     IAllocatorWithManager
 {
@@ -21,7 +21,7 @@ contract AllocatorWithManager is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager
-    ) AccessControlClient(_accessControlRegistry) {
+    ) AccessControlRegistryUser(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"
