@@ -38,11 +38,12 @@ contract BeaconServer is
     /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
 
-    /// @notice Returns if a sponsor has permitted an account to request
-    /// updates at this contract
-    mapping(address => mapping(address => bool))
-        public
-        override sponsorToUpdateRequesterToPermissionStatus;
+    /// @notice Description of the update requester
+    string public constant override UPDATE_REQUESTER_ROLE_DESCRIPTION =
+        "Update requester";
+
+    bytes32 private constant UPDATE_REQUESTER_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(UPDATE_REQUESTER_ROLE_DESCRIPTION));
 
     mapping(bytes32 => Beacon) private beacons;
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
@@ -178,21 +179,6 @@ contract BeaconServer is
         }
     }
 
-    /// @notice Called by the sponsor to set the update request permission
-    /// status of an account
-    /// @param updateRequester Update requester address
-    /// @param status Update permission status of the update requester
-    function setUpdatePermissionStatus(address updateRequester, bool status)
-        external
-        override
-    {
-        require(updateRequester != address(0), "Update requester zero");
-        sponsorToUpdateRequesterToPermissionStatus[msg.sender][
-            updateRequester
-        ] = status;
-        emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
-    }
-
     /// @notice Called to request a beacon to be updated
     /// @dev There are two requirements for this method to be called: (1) The
     /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
@@ -220,8 +206,7 @@ contract BeaconServer is
         bytes calldata parameters
     ) external override {
         require(
-            msg.sender == sponsor ||
-                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+            requesterIsUpdateRequesterOrIsSponsor(sponsor, msg.sender),
             "Sender not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
@@ -455,5 +440,38 @@ contract BeaconServer is
                 unlimitedReaderRole,
                 user
             ) || user == address(0);
+    }
+
+    /// @notice Called to get the update requester role for a specific sponsor
+    /// for this BeaconServer contract
+    /// @param sponsor Sponsor address
+    /// @return updateRequesterRole Update requester role
+    function deriveUpdateRequesterRole(address sponsor)
+        public
+        view
+        override
+        returns (bytes32 updateRequesterRole)
+    {
+        updateRequesterRole = _deriveRole(
+            _deriveAdminRole(sponsor),
+            UPDATE_REQUESTER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Called to check if the requester is sponsored by the sponsor or
+    /// is the sponsor
+    /// @param sponsor Sponsor address
+    /// @param requester Requester address
+    /// @return If requester is sponsored by the sponsor or is the sponsor
+    function requesterIsUpdateRequesterOrIsSponsor(
+        address sponsor,
+        address requester
+    ) public view override returns (bool) {
+        return
+            sponsor == requester ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveUpdateRequesterRole(sponsor),
+                requester
+            );
     }
 }

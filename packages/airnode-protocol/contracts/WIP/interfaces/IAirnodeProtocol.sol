@@ -100,6 +100,11 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
+    function deriveSponsoredRequesterRole(address sponsor)
+        external
+        pure
+        returns (bytes32 sponsoredRequesterRole);
+
     function requesterIsSponsoredOrIsSponsor(address sponsor, address requester)
         external
         view
@@ -109,11 +114,6 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
         external
         view
         returns (bool);
-
-    function deriveSponsoredRequesterRole(address sponsor)
-        external
-        pure
-        returns (bytes32 sponsoredRequesterRole);
 
     // solhint-disable-next-line func-name-mixedcase
     function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);

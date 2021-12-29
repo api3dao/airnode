@@ -88,9 +88,6 @@ interface IBeaconServer is IAirnodeUser {
         address setter
     ) external;
 
-    function setUpdatePermissionStatus(address updateRequester, bool status)
-        external;
-
     function requestBeaconUpdate(
         bytes32 beaconId,
         address reporter,
@@ -124,15 +121,20 @@ interface IBeaconServer is IAirnodeUser {
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
 
-    function sponsorToUpdateRequesterToPermissionStatus(
-        address sponsor,
-        address updateRequester
-    ) external view returns (bool permissionStatus);
-
     function deriveBeaconId(bytes32 templateId, bytes memory parameters)
         external
         pure
         returns (bytes32 beaconId);
+
+    function deriveUpdateRequesterRole(address sponsor)
+        external
+        view
+        returns (bytes32 updateRequesterRole);
+
+    function requesterIsUpdateRequesterOrIsSponsor(
+        address sponsor,
+        address requester
+    ) external view returns (bool);
 
     // solhint-disable-next-line func-name-mixedcase
     function UNLIMITED_READER_ROLE_DESCRIPTION()
@@ -141,4 +143,10 @@ interface IBeaconServer is IAirnodeUser {
         returns (string memory);
 
     function unlimitedReaderRole() external view returns (bytes32);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function UPDATE_REQUESTER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
 }

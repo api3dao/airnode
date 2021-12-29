@@ -407,6 +407,22 @@ contract AirnodeProtocol is
         }
     }
 
+    /// @notice Called to get the sponsored requester role for a specific
+    /// sponsor
+    /// @param sponsor Sponsor address
+    /// @return sponsoredRequesterRole Sponsored requester role
+    function deriveSponsoredRequesterRole(address sponsor)
+        public
+        pure
+        override
+        returns (bytes32 sponsoredRequesterRole)
+    {
+        sponsoredRequesterRole = _deriveRole(
+            _deriveRootRole(sponsor),
+            SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
     /// @notice Called to check if the requester is sponsored by the sponsor or
     /// is the sponsor
     /// @param sponsor Sponsor address
@@ -441,21 +457,5 @@ contract AirnodeProtocol is
         returns (bool)
     {
         return requestIdToFulfillmentParameters[requestId] != bytes32(0);
-    }
-
-    /// @notice Called to get the sponsored requester role for a specific
-    /// sponsor
-    /// @param sponsor Sponsor address
-    /// @return sponsoredRequesterRole Sponsored requester role
-    function deriveSponsoredRequesterRole(address sponsor)
-        public
-        pure
-        override
-        returns (bytes32 sponsoredRequesterRole)
-    {
-        sponsoredRequesterRole = _deriveRole(
-            _deriveRootRole(sponsor),
-            SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH
-        );
     }
 }
