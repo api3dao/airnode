@@ -51,7 +51,7 @@ contract AirnodeProtocol is
     /// subscriptions
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 1024;
 
-    /// @notice Description hash of the sponsored requester role
+    /// @notice Description of the sponsored requester role
     string public constant override SPONSORED_REQUESTER_ROLE_DESCRIPTION =
         "Sponsored requester";
 
