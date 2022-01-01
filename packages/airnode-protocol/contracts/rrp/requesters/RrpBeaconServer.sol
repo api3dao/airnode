@@ -186,7 +186,7 @@ contract RrpBeaconServer is
     /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
     /// this RrpBeaconServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
-    /// request update permission to the caller of this method.
+    /// request update permission to the user of this method.
     /// The template and additional parameters used here must specify a single
     /// point of data of type `int256` and an additional timestamp of type
     /// `uint256` to be returned because this is what `fulfill()` expects.
@@ -206,8 +206,9 @@ contract RrpBeaconServer is
         bytes calldata parameters
     ) external override {
         require(
-            sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
-            "Caller not permitted"
+            msg.sender == sponsor ||
+                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+            "Sender not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
@@ -245,6 +246,7 @@ contract RrpBeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
+        require(data.length == 64, "Incorrect data length");
         (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
             (int256, uint256)
@@ -282,7 +284,7 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called to read the beacon
-    /// @dev The caller must be whitelisted.
+    /// @dev The sender must be whitelisted.
     /// If the `timestamp` of a beacon is zero, this means that it was never
     /// written to before, and the zero value in the `value` field is not
     /// valid. In general, make sure to check if the timestamp of the beacon is
@@ -298,7 +300,7 @@ contract RrpBeaconServer is
     {
         require(
             readerCanReadBeacon(beaconId, msg.sender),
-            "Caller not whitelisted"
+            "Sender not whitelisted"
         );
         Beacon storage beacon = beacons[beaconId];
         return (beacon.value, beacon.timestamp);

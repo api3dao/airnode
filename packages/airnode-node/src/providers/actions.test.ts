@@ -1,4 +1,5 @@
-import { mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -26,6 +27,7 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 import fs from 'fs';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
+import { range } from 'lodash';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
 import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
@@ -45,6 +47,14 @@ const chains: ChainConfig[] = [
       },
     },
     type: 'evm',
+    options: {
+      txType: 'eip1559',
+      baseFeeMultiplier: '2',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
+    },
   },
   {
     authorizers: [ethers.constants.AddressZero],
@@ -58,6 +68,14 @@ const chains: ChainConfig[] = [
       },
     },
     type: 'evm',
+    options: {
+      txType: 'eip1559',
+      baseFeeMultiplier: '2',
+      priorityFee: {
+        value: '3.12',
+        unit: 'gwei',
+      },
+    },
   },
 ];
 
@@ -89,6 +107,14 @@ describe('initialize', () => {
             blockHistoryLimit: 300,
             chainId: '1',
             chainType: 'evm',
+            chainOptions: {
+              txType: 'eip1559',
+              baseFeeMultiplier: '2',
+              priorityFee: {
+                value: '3.12',
+                unit: 'gwei',
+              },
+            },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -125,6 +151,14 @@ describe('initialize', () => {
             blockHistoryLimit: 300,
             chainId: '3',
             chainType: 'evm',
+            chainOptions: {
+              txType: 'eip1559',
+              baseFeeMultiplier: '2',
+              priorityFee: {
+                value: '3.12',
+                unit: 'gwei',
+              },
+            },
             ignoreBlockedRequestsAfterBlocks: 20,
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -163,22 +197,8 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
-  test.each([
-    {
-      getBlock: { baseFeePerGas: undefined },
-      getGasPrice: ethers.BigNumber.from(1000),
-    },
-    {
-      getBlock: { baseFeePerGas: ethers.BigNumber.from(1000) },
-      getGasPrice: ethers.BigNumber.from(1000),
-    },
-  ])('processes requests for each EVM provider - $#', async ({ getBlock: getBlock, getGasPrice }) => {
-    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-    gasPriceSpy.mockResolvedValue(getGasPrice);
-
-    const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-    // @ts-ignore
-    blockSpy.mockResolvedValue(getBlock);
+  test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %d', async (txType) => {
+    const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
@@ -195,24 +215,32 @@ describe('processRequests', () => {
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
     const transactionCountsBySponsorAddress = { [sponsorAddress]: 5 };
-    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
-    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
+    const allProviders = {
+      evm: range(2)
+        .map(() => fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress }))
+        .map((initialState) => ({
+          ...initialState,
+          settings: {
+            ...initialState.settings,
+            chainOptions: { txType },
+          },
+        })),
+    };
 
-    const allProviders = { evm: [provider0, provider1] };
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await providers.processRequests(allProviders, workerOpts);
     expect(logs).toEqual([]);
-    expect(res.evm[0].requests.apiCalls[0]).toEqual({
-      ...apiCall,
-      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
-      nonce: 5,
-      status: RequestStatus.Submitted,
-    });
-    expect(res.evm[1].requests.apiCalls[0]).toEqual({
-      ...apiCall,
-      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
-      nonce: 5,
-      status: RequestStatus.Submitted,
-    });
+
+    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+
+    expect(res.evm.map((evm) => evm.requests.apiCalls[0])).toEqual(
+      range(allProviders.evm.length).map(() => ({
+        ...apiCall,
+        fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
+        nonce: 5,
+        status: RequestStatus.Submitted,
+      }))
+    );
   });
 });

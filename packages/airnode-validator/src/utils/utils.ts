@@ -9,13 +9,16 @@ import { Log, Roots } from '../types';
  * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: any, template: any): any {
-  if (typeof match === 'string') {
-    match = match.replace(regexList.regexTokens, '\\$&');
-  } else {
+  if (typeof match !== 'string') {
     match = match.toString();
   }
 
-  const substitute = (toReplace: string) => {
+  const escapedMatch = match.replace(regexList.regexTokens, '\\$&');
+  const substitute = (toReplace: string, key?: string) => {
+    if (key === keywords.regexp || key === keywords.keyRegexp) {
+      return toReplace.replace(new RegExp(keywords.match, 'g'), escapedMatch);
+    }
+
     return toReplace.replace(new RegExp(keywords.match, 'g'), match);
   };
 
@@ -29,7 +32,7 @@ export function replaceConditionalMatch(match: any, template: any): any {
  * @param template - template in which paths will be replaced
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
-  const substitute = (toReplace: string) => {
+  const substitute = (toReplace: string, key?: string) => {
     const matches = toReplace.match(regexList.parameterValuePath);
 
     if (!matches) {
@@ -52,9 +55,13 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
         currentSpecs = rootSpecs;
       }
 
-      const value = getSpecsFromPath(pathArr, currentSpecs);
+      let value = getSpecsFromPath(pathArr, currentSpecs);
 
       if (value) {
+        if (key === keywords.regexp || key === keywords.keyRegexp) {
+          value = value.replace(regexList.regexTokens, '\\$&');
+        }
+
         toReplace = toReplace.replace(`[${pathStr}]`, value);
       }
     }
@@ -71,10 +78,19 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
  * @param paramPath - path that will be used to replace "{{index}}" with appropriate parameter names
  */
 export function replaceParamIndexWithName(specs: any, paramPath: string[]): any {
-  const substitute = (toReplace: string) => {
+  const substitute = (toReplace: string, key?: string) => {
     for (const match of toReplace.match(regexList.parameterNameIndex) || []) {
       const index = parseInt(match.match('[0-9]+')![0]);
-      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), paramPath[index]);
+
+      if (!paramPath[index]) {
+        continue;
+      }
+
+      const value =
+        key === keywords.regexp || key === keywords.keyRegexp
+          ? paramPath[index].replace(regexList.regexTokens, '\\$&')
+          : paramPath[index];
+      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), value);
     }
 
     return toReplace;
@@ -91,7 +107,7 @@ export function replaceParamIndexWithName(specs: any, paramPath: string[]): any 
  */
 export function recursiveSubstitute(
   specs: any,
-  substitute: (value: string) => string,
+  substitute: (value: string, key?: string) => string,
   ignoredKeys: string[] = []
 ): any {
   const filteredKeys = Object.keys(specs).filter((key) => !ignoredKeys.includes(key));
@@ -110,7 +126,7 @@ export function recursiveSubstitute(
     const newKey = substitute(key);
 
     if (typeof specs[key] === 'string') {
-      return { ...acc, [newKey]: substitute(specs[key]) };
+      return { ...acc, [newKey]: substitute(specs[key], key) };
     }
 
     const newValue = recursiveSubstitute(specs[key], substitute, ignoredKeys);

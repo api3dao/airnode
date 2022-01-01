@@ -1,18 +1,25 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
+import { applyTransactionResult } from './requests';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { ApiCall, Request, LogsErrorData, RequestErrorMessage, RequestStatus, TransactionOptions } from '../../types';
+import {
+  ApiCall,
+  Request,
+  LogsErrorData,
+  RequestErrorMessage,
+  RequestStatus,
+  TransactionOptions,
+  SubmitRequest,
+} from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { decodeRevertString } from '..';
 
 const GAS_LIMIT = 500_000;
 
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
-
-type SubmitResponse = ethers.Transaction | null;
 
 // TODO: Improve TS types so that it's clear that request object in
 // `testFulfill` and `submitFulfill` contains `responseValue` and `signature` fields
@@ -71,7 +78,7 @@ async function submitFulfill(
   airnodeRrp: AirnodeRrp,
   request: Request<ApiCall>,
   options: TransactionOptions
-): Promise<LogsErrorData<SubmitResponse>> {
+): Promise<LogsErrorData<Request<ApiCall>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
 
   const tx = (): Promise<ethers.ContractTransaction> =>
@@ -97,22 +104,21 @@ async function submitFulfill(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, applyTransactionResult(request, res)];
 }
 
 async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrp,
   request: Request<ApiCall>,
   options: TransactionOptions
-): Promise<LogsErrorData<SubmitResponse>> {
+): Promise<LogsErrorData<Request<ApiCall>>> {
   const errorMessage = requests.getErrorMessage(request);
   if (errorMessage) {
-    const [submitLogs, submitErr, submitData] = await submitFail(airnodeRrp, request, errorMessage, options);
-    return [submitLogs, submitErr, submitData];
+    return await submitFail(airnodeRrp, request, errorMessage, options);
   }
 
   // Should not throw
-  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, { ...request }, options);
+  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest: Request<ApiCall> = {
@@ -122,24 +128,19 @@ async function testAndSubmitFulfill(
         ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
         : RequestErrorMessage.FulfillTransactionFailed,
     };
-    const [submitLogs, submitErr, submitData] = await submitFail(
+    const [submitLogs, submitErr, submittedRequest] = await submitFail(
       airnodeRrp,
       updatedRequest,
       testErr?.message ?? decodeRevertString(testData?.callData || '0x'),
       options
     );
-    return [[...testLogs, ...submitLogs], submitErr, submitData];
+    return [[...testLogs, ...submitLogs], submitErr, submittedRequest];
   }
 
   // We expect the transaction to be successful if submitted
   if (testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, { ...request }, options);
-
-    // The transaction was submitted successfully
-    if (submitData) {
-      return [[...testLogs, ...submitLogs], null, submitData];
-    }
-    return [[...testLogs, ...submitLogs], submitErr, null];
+    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, options);
+    return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
   const errorLog = logger.pend(
@@ -158,7 +159,7 @@ async function submitFail(
   request: Request<ApiCall>,
   errorMessage: string,
   options: TransactionOptions
-): Promise<LogsErrorData<SubmitResponse>> {
+): Promise<LogsErrorData<Request<ApiCall>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = (): Promise<ethers.ContractTransaction> =>
@@ -180,17 +181,13 @@ async function submitFail(
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, applyTransactionResult(request, res)];
 }
 
 // =================================================================
 // Main functions
 // =================================================================
-export async function submitApiCall(
-  airnodeRrp: AirnodeRrp,
-  request: Request<ApiCall>,
-  options: TransactionOptions
-): Promise<LogsErrorData<SubmitResponse>> {
+export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
   if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
     const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
     const log = logger.pend(
@@ -209,6 +206,5 @@ export async function submitApiCall(
   }
 
   // Should not throw
-  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnodeRrp, request, options);
-  return [submitLogs, submitErr, submitData];
-}
+  return testAndSubmitFulfill(airnodeRrp, request, options);
+};

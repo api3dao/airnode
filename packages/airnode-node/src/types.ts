@@ -9,6 +9,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
 // State
@@ -129,11 +130,16 @@ export interface GroupedRequests {
   readonly withdrawals: Request<Withdrawal>[];
 }
 
+export interface SubmitRequest<T> {
+  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
+}
+
 export interface ProviderSettings extends CoordinatorSettings {
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: string;
   readonly chainType: ChainType;
+  readonly chainOptions: ChainOptions;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
@@ -210,26 +216,46 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export interface ApiCallResponse {
-  readonly value?: string;
-  readonly signature?: string;
-  readonly errorMessage?: string;
+export type ApiCallResponse = ApiCallSuccessResponse | ApiCallErrorResponse;
+
+export interface ApiCallSuccessResponse {
+  success: true;
+  value: string;
+  signature: string;
 }
 
-export interface AggregatedApiCall {
-  readonly id: string;
-  readonly sponsorAddress: string;
-  readonly airnodeAddress: string;
-  readonly requesterAddress: string;
-  readonly sponsorWalletAddress: string;
-  readonly chainId: string;
-  readonly endpointId: string;
-  readonly endpointName?: string;
-  readonly oisTitle?: string;
-  readonly parameters: ApiCallParameters;
-  readonly errorMessage?: string;
-  readonly responseValue?: string;
-  readonly signature?: string;
+export interface ApiCallErrorResponse {
+  success: false;
+  errorMessage: string;
+}
+
+export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+
+export interface BaseAggregatedApiCall {
+  id: string;
+  airnodeAddress: string;
+  endpointId: string;
+  endpointName: string;
+  oisTitle: string;
+  parameters: ApiCallParameters;
+  // TODO: Remove these values from this interface. They are added only after the API call is made
+  // depending on the result. Current implementation causes ambiguity when these fields are
+  // optional and when not.
+  responseValue?: string;
+  signature?: string;
+  errorMessage?: string;
+}
+
+export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'regular';
+  sponsorAddress: string;
+  requesterAddress: string;
+  sponsorWalletAddress: string;
+  chainId: string;
+}
+
+export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'testing-gateway';
 }
 
 // ===========================================
@@ -298,26 +324,19 @@ export type EVMEventLog =
   | EVMFulfilledWithdrawalLog;
 
 // ===========================================
-// Transactions
-// ===========================================
-export interface TransactionReceipt {
-  readonly id: string;
-  readonly data?: ethers.Transaction;
-  readonly error?: Error;
-  readonly type: RequestType;
-}
-
-// ===========================================
 // Triggers
 // ===========================================
-export interface RrpTrigger {
+export interface Trigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
 }
 
 export interface Triggers {
-  readonly rrp: RrpTrigger[];
+  readonly rrp: Trigger[];
+  // For now the attribute is optional, because http gateway is supported only on AWS.
+  // TODO: Make this required once it is supported everywhere.
+  http?: Trigger[];
 }
 
 // ===========================================
@@ -360,7 +379,7 @@ export interface PendingLog {
 // are purposefully tuples (over an object with 'logs' and 'error' properties) for
 // this reason.
 export type LogsData<T> = readonly [PendingLog[], T];
-export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T];
+export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T | null];
 
 // ===========================================
 // Config
@@ -375,6 +394,17 @@ export interface Provider {
   readonly url: string;
 }
 
+export interface PriorityFee {
+  readonly value: string;
+  readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
+}
+
+export interface ChainOptions {
+  readonly txType: 'legacy' | 'eip1559';
+  readonly baseFeeMultiplier?: string;
+  readonly priorityFee?: PriorityFee;
+}
+
 export interface ChainConfig {
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
@@ -383,6 +413,7 @@ export interface ChainConfig {
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
   readonly type: ChainType;
+  readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
 }
 

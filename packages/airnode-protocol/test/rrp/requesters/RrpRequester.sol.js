@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../../utils');
+const testUtils = require('../../test-utils');
 
 let roles;
 let rrpRequester, airnodeRrp;
@@ -19,9 +19,9 @@ beforeEach(async () => {
   airnodeRrp = await airnodeRrpFactory.deploy();
   const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
   rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
-  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = testUtils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
-  sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  sponsorWalletAddress = testUtils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: airnodeAddress,
     value: hre.ethers.utils.parseEther('1'),
@@ -44,17 +44,17 @@ describe('constructor', function () {
 });
 
 describe('onlyAirnodeRrp', function () {
-  context('Caller AirnodeRrp', function () {
+  context('Sender AirnodeRrp', function () {
     it('does not revert', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
+      const endpointId = testUtils.generateRandomBytes32();
+      const parameters = testUtils.generateRandomBytes();
       await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
       const templateId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
       );
       // Make the request
-      const requestTimeParameters = utils.generateRandomBytes();
+      const requestTimeParameters = testUtils.generateRandomBytes();
       await rrpRequester
         .connect(roles.randomPerson)
         .makeTemplateRequest(
@@ -83,8 +83,8 @@ describe('onlyAirnodeRrp', function () {
           ]
         )
       );
-      // Fulfill the request by making sure the caller is the airnodeRrp
-      const sponsorWallet = utils
+      // Fulfill the request by making sure the sender is airnodeRrp
+      const sponsorWallet = testUtils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
       const fulfillData = hre.ethers.utils.keccak256(
@@ -112,11 +112,11 @@ describe('onlyAirnodeRrp', function () {
       expect(staticCallResult.callSuccess).to.equal(true);
     });
   });
-  context('Caller not AirnodeRrp', function () {
+  context('Sender not AirnodeRrp', function () {
     it('reverts', async function () {
       await expect(
         rrpRequester.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, '0x')
-      ).to.be.revertedWith('Caller not Airnode RRP');
+      ).to.be.revertedWith('Sender not Airnode RRP');
     });
   });
 });

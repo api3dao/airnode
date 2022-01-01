@@ -10,7 +10,7 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
@@ -20,6 +20,8 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         uint64 expirationTimestamp
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         _extendWhitelistExpiration(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -39,7 +41,7 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// @dev Unlike `_extendWhitelistExpiration()`, this can hasten expiration.
     /// Emits the event even if it does not change the state.
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
@@ -49,6 +51,8 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         uint64 expirationTimestamp
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         _setWhitelistExpiration(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -67,7 +71,7 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// `airnode`–`endpointId` pair and emits an event
     /// @dev Emits the event even if it does not change the state.
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param status Indefinite whitelist status
     function _setIndefiniteWhitelistStatusAndEmit(
@@ -76,6 +80,8 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         bool status
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -96,7 +102,7 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// event
     /// @dev Only emits the event if it changes the state
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param setter Setter of the indefinite whitelist status
     function _revokeIndefiniteWhitelistStatusAndEmit(
@@ -105,6 +111,9 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         address setter
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
+        require(setter != address(0), "Setter address zero");
         (
             bool revoked,
             uint192 indefiniteWhitelistCount
