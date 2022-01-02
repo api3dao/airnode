@@ -7,12 +7,12 @@ them.
 ## Usage
 
 General usage of validator and convertor is described in the
-[API3 Documentation](https://docs.api3.org/airnode/latest/reference/packages/validator.html). 
+[API3 Documentation](https://docs.api3.org/airnode/latest/reference/packages/validator.html).
 
 ## Build Manually
 
-You can clone and build the Airnode monorepo then run the validator as a yarn
-script from inside the `packages/airnode-validator` directory.
+You can clone and build the Airnode monorepo then run the validator as a yarn script from inside the
+`packages/airnode-validator` directory.
 
 ```sh
 # download and build the airnode monorepo
@@ -32,8 +32,8 @@ yarn run cli:validator --template="config" --specs="exampleSpecs/config.json"
 }
 ```
 
-For debugging purposes it
-might be useful to run the validator with path to template file instead of providing the format name:
+For debugging purposes it might be useful to run the validator with path to template file instead of providing the
+format name:
 
 ```sh
 yarn run cli:validator --template="templates/0.2/config.json" --specs="myProject/config/config.json"
