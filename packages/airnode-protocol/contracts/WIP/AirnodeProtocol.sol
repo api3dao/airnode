@@ -445,7 +445,7 @@ contract AirnodeProtocol is
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
-    /// not hear back, it can call this method to check if the Airnode has
+    /// not hear back, it can call this method to check if the reporter has
     /// called back `fail()` instead.
     /// @param requestId Request ID
     /// @return If the request is awaiting fulfillment (i.e., `true` if
