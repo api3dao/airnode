@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "../access-control-registry/AccessControlRegistryAdminned.sol";
 import "./interfaces/IAllocator.sol";
 
-abstract contract Allocator is IAllocator {
+abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
         uint64 expirationTimestamp;
     }
-
-    string public override adminRoleDescription;
-    bytes32 internal adminRoleDescriptionHash;
 
     string public constant override SLOT_SETTER_ROLE_DESCRIPTION =
         "Slot setter";
@@ -21,6 +19,18 @@ abstract contract Allocator is IAllocator {
     mapping(address => mapping(uint256 => Slot))
         public
         override airnodeToSlotIndexToSlot;
+
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription
+    )
+        AccessControlRegistryAdminned(
+            _accessControlRegistry,
+            _adminRoleDescription
+        )
+    {}
 
     function _setSlot(
         address airnode,

@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../access-control-registry/RoleDeriver.sol";
-import "../access-control-registry/AccessControlRegistryUser.sol";
-import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./Allocator.sol";
 import "./interfaces/IAllocatorWithAirnode.sol";
 
@@ -13,19 +10,12 @@ contract AllocatorWithAirnode is
     Allocator,
     IAllocatorWithAirnode
 {
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
-    ) AccessControlRegistryUser(_accessControlRegistry) {
-        require(
-            bytes(_adminRoleDescription).length > 0,
-            "Admin role description empty"
-        );
-        adminRoleDescription = _adminRoleDescription;
-        adminRoleDescriptionHash = keccak256(
-            abi.encodePacked(_adminRoleDescription)
-        );
-    }
+    ) Allocator(_accessControlRegistry, _adminRoleDescription) {}
 
     function setSlot(
         address airnode,

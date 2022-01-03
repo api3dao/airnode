@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface IWhitelistRoles {
-    function adminRoleDescription() external view returns (string memory);
+import "../../access-control-registry/interfaces/IAccessControlRegistryAdminned.sol";
 
+interface IWhitelistRoles is IAccessControlRegistryAdminned {
     // solhint-disable-next-line func-name-mixedcase
     function WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
         external

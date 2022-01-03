@@ -17,20 +17,14 @@ contract AllocatorWithManager is
     bytes32 public immutable override adminRole;
     bytes32 public immutable override slotSetterRole;
 
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager
-    ) AccessControlRegistryUser(_accessControlRegistry) {
-        require(
-            bytes(_adminRoleDescription).length > 0,
-            "Admin role description empty"
-        );
+    ) Allocator(_accessControlRegistry, _adminRoleDescription) {
         manager = _manager;
-        adminRoleDescription = _adminRoleDescription;
-        adminRoleDescriptionHash = keccak256(
-            abi.encodePacked(_adminRoleDescription)
-        );
         adminRole = _deriveRole(
             _deriveRootRole(_manager),
             adminRoleDescriptionHash

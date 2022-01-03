@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import "../AirnodeUser.sol";
 import "./BeaconUser.sol";
+import "../access-control-registry/AccessControlRegistryAdminned.sol";
 import "./interfaces/IPercentageDeviationCondition.sol";
 
 /// @dev This contract should have the unlimited beacon reader role for the
@@ -10,15 +11,27 @@ import "./interfaces/IPercentageDeviationCondition.sol";
 contract PercentageDeviationCondition is
     AirnodeUser,
     BeaconUser,
+    AccessControlRegistryAdminned,
     IPercentageDeviationCondition
 {
     mapping(bytes32 => uint256)
         public
         override subscriptionIdToUpdatePercentageThreshold;
 
-    constructor(address _airnodeProtocol, address _beaconServer)
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
+    constructor(
+        address _airnodeProtocol,
+        address _beaconServer,
+        address _accessControlRegistry,
+        string memory _adminRoleDescription
+    )
         AirnodeUser(_airnodeProtocol)
         BeaconUser(_beaconServer)
+        AccessControlRegistryAdminned(
+            _accessControlRegistry,
+            _adminRoleDescription
+        )
     {}
 
     function setUpdatePercentageThreshold(
