@@ -129,10 +129,6 @@ contract AirnodeProtocol is
             "Template does not exist"
         );
         require(
-            fulfillAddress != address(this),
-            "Fulfill address AirnodeProtocol"
-        );
-        require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
@@ -200,10 +196,6 @@ contract AirnodeProtocol is
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
-        require(
-            fulfillAddress != address(this),
-            "Fulfill address AirnodeProtocol"
-        );
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
