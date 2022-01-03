@@ -32,14 +32,14 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
 
-    /// @notice Description of the update requester
-    string public constant override UPDATE_REQUESTER_ROLE_DESCRIPTION =
-        "Update requester";
-
-    bytes32 private constant UPDATE_REQUESTER_ROLE_DESCRIPTION_HASH =
-        keccak256(abi.encodePacked(UPDATE_REQUESTER_ROLE_DESCRIPTION));
+    /// @notice Returns if a sponsor has permitted an account to request
+    /// updates at this contract
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToUpdateRequesterToPermissionStatus;
 
     mapping(bytes32 => Beacon) private beacons;
+
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
@@ -63,6 +63,21 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
             _deriveAdminRole(manager),
             keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
         );
+    }
+
+    /// @notice Called by the sponsor to set the update request permission
+    /// status of an account
+    /// @param updateRequester Update requester address
+    /// @param status Update permission status of the update requester
+    function setUpdatePermissionStatus(address updateRequester, bool status)
+        external
+        override
+    {
+        require(updateRequester != address(0), "Update requester zero");
+        sponsorToUpdateRequesterToPermissionStatus[msg.sender][
+            updateRequester
+        ] = status;
+        emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
     }
 
     /// @notice Called to request a beacon to be updated
@@ -92,7 +107,8 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
         bytes calldata parameters
     ) external override {
         require(
-            requesterIsUpdateRequesterOrIsSponsor(sponsor, msg.sender),
+            sponsor == msg.sender ||
+                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Sender not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
@@ -326,38 +342,5 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
                 unlimitedReaderRole,
                 user
             ) || user == address(0);
-    }
-
-    /// @notice Called to get the update requester role for a specific sponsor
-    /// for this BeaconServer contract
-    /// @param sponsor Sponsor address
-    /// @return updateRequesterRole Update requester role
-    function deriveUpdateRequesterRole(address sponsor)
-        public
-        view
-        override
-        returns (bytes32 updateRequesterRole)
-    {
-        updateRequesterRole = _deriveRole(
-            _deriveAdminRole(sponsor),
-            UPDATE_REQUESTER_ROLE_DESCRIPTION_HASH
-        );
-    }
-
-    /// @notice Called to check if the requester is sponsored by the sponsor or
-    /// is the sponsor
-    /// @param sponsor Sponsor address
-    /// @param requester Requester address
-    /// @return If requester is sponsored by the sponsor or is the sponsor
-    function requesterIsUpdateRequesterOrIsSponsor(
-        address sponsor,
-        address requester
-    ) public view override returns (bool) {
-        return
-            sponsor == requester ||
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveUpdateRequesterRole(sponsor),
-                requester
-            );
     }
 }
