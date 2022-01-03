@@ -4,36 +4,6 @@ pragma solidity 0.8.9;
 import "../../interfaces/IAirnodeUser.sol";
 
 interface IBeaconServer is IAirnodeUser {
-    event ExtendedWhitelistExpiration(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        uint256 expiration
-    );
-
-    event SetWhitelistExpiration(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        uint256 expiration
-    );
-
-    event SetIndefiniteWhitelistStatus(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        bool status,
-        uint192 indefiniteWhitelistCount
-    );
-
-    event RevokedIndefiniteWhitelistStatus(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed setter,
-        address sender,
-        uint192 indefiniteWhitelistCount
-    );
-
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -63,30 +33,6 @@ interface IBeaconServer is IAirnodeUser {
         int224 value,
         uint32 timestamp
     );
-
-    function extendWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        bool status
-    ) external;
-
-    function revokeIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        address setter
-    ) external;
 
     function requestBeaconUpdate(
         bytes32 beaconId,

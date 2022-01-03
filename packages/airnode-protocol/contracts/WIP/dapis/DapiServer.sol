@@ -1,17 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../whitelist/Whitelist.sol";
-import "../whitelist/WhitelistRolesWithManager.sol";
+import "../whitelist/WhitelistWithManager.sol";
 import "./InPlaceMedian.sol";
 import "./BeaconUser.sol";
 
-contract DapiServer is
-    Whitelist,
-    WhitelistRolesWithManager,
-    InPlaceMedian,
-    BeaconUser
-{
+contract DapiServer is WhitelistWithManager, InPlaceMedian, BeaconUser {
     string public constant UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
     bytes32 public immutable unlimitedReaderRole;
@@ -22,7 +16,7 @@ contract DapiServer is
         address _manager,
         address _beaconServer
     )
-        WhitelistRolesWithManager(
+        WhitelistWithManager(
             _accessControlRegistry,
             _adminRoleDescription,
             _manager
