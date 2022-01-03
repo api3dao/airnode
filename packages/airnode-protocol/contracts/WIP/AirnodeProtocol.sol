@@ -64,10 +64,10 @@ contract AirnodeProtocol is
     /// @notice Subscription with the ID
     mapping(bytes32 => Subscription) public subscriptions;
 
-    /// @notice Request count of the requester
+    /// @notice Called to get the request count of the requester plus one
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
-    mapping(address => uint256) public override requesterToRequestCount;
+    mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -172,8 +172,6 @@ contract AirnodeProtocol is
     /// However, this is not a necessity, i.e., the requester may request the
     /// data to be signed by the data source Airnode, to be delivered by
     /// another party.
-    /// The first request a requester will make will cost slightly higher gas
-    /// than the rest due to how the request counter is implemented.
     /// @param templateId Template ID
     /// @param reporter Reporter address
     /// @param sponsor Sponsor address
@@ -209,7 +207,7 @@ contract AirnodeProtocol is
                 block.chainid,
                 address(this),
                 msg.sender,
-                ++requesterToRequestCount[msg.sender],
+                requesterToRequestCountPlusOne[msg.sender],
                 templateId,
                 reporter,
                 sponsor,
@@ -231,7 +229,7 @@ contract AirnodeProtocol is
         emit MadeRequest(
             reporter,
             requestId,
-            requesterToRequestCount[msg.sender],
+            requesterToRequestCountPlusOne[msg.sender]++,
             block.chainid,
             msg.sender,
             templateId,

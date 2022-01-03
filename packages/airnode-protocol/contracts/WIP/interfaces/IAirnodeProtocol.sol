@@ -145,7 +145,7 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
             bytes memory parameters
         );
 
-    function requesterToRequestCount(address requester)
+    function requesterToRequestCountPlusOne(address requester)
         external
         view
         returns (uint256 requestCount);
