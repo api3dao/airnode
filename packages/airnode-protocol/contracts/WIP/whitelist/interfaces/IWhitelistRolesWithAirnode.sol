@@ -2,8 +2,12 @@
 pragma solidity 0.8.9;
 
 import "./IWhitelistRoles.sol";
+import "../../access-control-registry/interfaces/IAccessControlRegistryAdminned.sol";
 
-interface IWhitelistRolesWithAirnode is IWhitelistRoles {
+interface IWhitelistRolesWithAirnode is
+    IWhitelistRoles,
+    IAccessControlRegistryAdminned
+{
     function deriveAdminRole(address airnode)
         external
         view
