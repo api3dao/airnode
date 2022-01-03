@@ -7,7 +7,7 @@ import "./InPlaceSort.sol";
 contract InPlaceMedian is InPlaceSort {
     /// @notice Called to sort an array in-place and return the median
     /// @dev This will revert if the array to be sorted exceeds the maximum
-    /// length.
+    /// length
     /// @param values Values to be sorted before returning the median
     /// @return Median of the values in the array
     function computeMedianInPlace(int256[] memory values)
@@ -21,7 +21,8 @@ contract InPlaceMedian is InPlaceSort {
         if (arrayLength % 2 == 1) {
             return values[arrayLength / 2];
         }
-        // The addition may potentially cause an overflow, which will revert
-        return (values[arrayLength / 2] + values[arrayLength / 2 + 1]) / 2;
+        // Divide by 2 first to avoid a potential overflow (at the cost of
+        // minimal precision)
+        return values[arrayLength / 2] / 2 + values[arrayLength / 2 + 1] / 2;
     }
 }
