@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../access-control-registry/interfaces/IAccessControlRegistryUser.sol";
 import "../utils/interfaces/IWithdrawalUtils.sol";
 
-interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
+interface IAirnodeProtocol is IWithdrawalUtils {
+    event SetSponsorshipStatus(
+        address indexed sponsor,
+        address indexed requester,
+        bool sponsorshipStatus
+    );
+
     event CreatedTemplate(
         bytes32 indexed templateId,
         address airnode,
@@ -49,6 +54,9 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
     );
 
     event FulfilledSubscription(bytes32 indexed subscriptionId, bytes data);
+
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external;
 
     function createTemplate(
         address airnode,
@@ -100,29 +108,15 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
-    function deriveSponsoredRequesterRole(address sponsor)
-        external
-        pure
-        returns (bytes32 sponsoredRequesterRole);
-
-    function requesterIsSponsoredOrIsSponsor(address sponsor, address requester)
-        external
-        view
-        returns (bool);
-
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
         returns (bool);
 
-    // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function SPONSORED_REQUESTER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
+    function sponsorToRequesterToSponsorshipStatus(
+        address sponsor,
+        address requester
+    ) external view returns (bool sponsorshipStatus);
 
     function templates(bytes32 templateId)
         external
@@ -144,6 +138,9 @@ interface IAirnodeProtocol is IAccessControlRegistryUser, IWithdrawalUtils {
             bytes4 fulfillFunctionId,
             bytes memory parameters
         );
+
+    // solhint-disable-next-line func-name-mixedcase
+    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
 
     function requesterToRequestCountPlusOne(address requester)
         external

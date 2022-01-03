@@ -3,8 +3,6 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
-import "./access-control-registry/RoleDeriver.sol";
-import "./access-control-registry/AccessControlRegistryUser.sol";
 import "./utils/WithdrawalUtils.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
@@ -23,13 +21,7 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Templates and subscriptions are stored in storage in addition to logs to
 /// ensure their persistance. Requests are only stored in logs because they
 /// are inherently short-lived.
-contract AirnodeProtocol is
-    Multicall,
-    RoleDeriver,
-    AccessControlRegistryUser,
-    WithdrawalUtils,
-    IAirnodeProtocol
-{
+contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
 
     struct Template {
@@ -51,12 +43,11 @@ contract AirnodeProtocol is
     /// subscriptions
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 1024;
 
-    /// @notice Description of the sponsored requester role
-    string public constant override SPONSORED_REQUESTER_ROLE_DESCRIPTION =
-        "Sponsored requester";
-
-    bytes32 private constant SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH =
-        keccak256(abi.encodePacked(SPONSORED_REQUESTER_ROLE_DESCRIPTION));
+    /// @notice Called to get the sponsorship status for a sponsor–requester
+    /// pair
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToRequesterToSponsorshipStatus;
 
     /// @notice Template with the ID
     mapping(bytes32 => Template) public override templates;
@@ -71,10 +62,28 @@ contract AirnodeProtocol is
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
-    /// @param _accessControlRegistry AccessControlRegistry contract address
-    constructor(address _accessControlRegistry)
-        AccessControlRegistryUser(_accessControlRegistry)
-    {}
+    /// @notice Called by the sponsor to set the sponsorship status of a
+    /// requester, i.e., allow or disallow a requester to make requests that
+    /// will be fulfilled by the sponsor wallet
+    /// @dev This is not reporter-specific, i.e., the sponsor allows the
+    /// requester's requests to be fulfilled through its sponsor wallets across
+    /// all reporters
+    /// @param requester Requester address
+    /// @param sponsorshipStatus Sponsorship status
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external
+        override
+    {
+        // Initialize the requester request count for consistent request gas
+        // cost
+        if (requesterToRequestCountPlusOne[requester] == 0) {
+            requesterToRequestCountPlusOne[requester] = 1;
+        }
+        sponsorToRequesterToSponsorshipStatus[msg.sender][
+            requester
+        ] = sponsorshipStatus;
+        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
+    }
 
     /// @notice Creates a template record
     /// @dev Templates fully or partially define requests. By referencing a
@@ -199,7 +208,8 @@ contract AirnodeProtocol is
             "Parameters too long"
         );
         require(
-            requesterIsSponsoredOrIsSponsor(sponsor, msg.sender),
+            sponsor == msg.sender ||
+                sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
         );
         requestId = keccak256(
@@ -395,41 +405,6 @@ contract AirnodeProtocol is
         if (callSuccess) {
             emit FulfilledSubscription(subscriptionId, data);
         }
-    }
-
-    /// @notice Called to get the sponsored requester role for a specific
-    /// sponsor
-    /// @param sponsor Sponsor address
-    /// @return sponsoredRequesterRole Sponsored requester role
-    function deriveSponsoredRequesterRole(address sponsor)
-        public
-        pure
-        override
-        returns (bytes32 sponsoredRequesterRole)
-    {
-        sponsoredRequesterRole = _deriveRole(
-            _deriveRootRole(sponsor),
-            SPONSORED_REQUESTER_ROLE_DESCRIPTION_HASH
-        );
-    }
-
-    /// @notice Called to check if the requester is sponsored by the sponsor or
-    /// is the sponsor
-    /// @param sponsor Sponsor address
-    /// @param requester Requester address
-    /// @return If requester is sponsored by the sponsor or is the sponsor
-    function requesterIsSponsoredOrIsSponsor(address sponsor, address requester)
-        public
-        view
-        override
-        returns (bool)
-    {
-        return
-            sponsor == requester ||
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveSponsoredRequesterRole(sponsor),
-                requester
-            );
     }
 
     /// @notice Called to check if the request with the ID is made but not
