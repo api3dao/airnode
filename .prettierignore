@@ -12,6 +12,9 @@ coverage.json
 **/dist/**
 **/.webpack/**
 
+# Changelog files are auto-generated using the @changesets package
+**/CHANGELOG.md
+
 packages/airnode-validator/test/fixtures
 packages/airnode-protocol/src/contracts
 packages/airnode-examples/deployments

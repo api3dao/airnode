@@ -1,5 +1,18 @@
 # @api3/airnode-abi
 
+## 0.3.1
+
+### Patch Changes
+
+- [`f7d66930`](https://github.com/api3dao/airnode/commit/f7d66930c04cc16a25fe4d982f740d2c9f4a483c) Thanks
+  [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+## 0.3.0
+
+### Minor Changes
+
+- Release new version
+
 ## 0.2.2
 
 ### Patch Changes
