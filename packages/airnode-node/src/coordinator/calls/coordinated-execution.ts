@@ -35,7 +35,7 @@ async function execute(
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.
-  if (res.errorMessage) {
+  if (!res.success) {
     const log = logger.pend(
       'ERROR',
       `${baseLogMsg} errored after ${durationMs}ms with error message:${res.errorMessage}`
@@ -50,7 +50,11 @@ async function execute(
   const completeLog = logger.pend('INFO', `${baseLogMsg} responded successfully in ${durationMs}ms`);
 
   // We can assume that the request was successful at this point
-  const updatedApiCall: AggregatedApiCall = { ...aggregatedApiCall, responseValue: res.value as string };
+  const updatedApiCall: AggregatedApiCall = {
+    ...aggregatedApiCall,
+    responseValue: res.value,
+    signature: res.signature,
+  };
   return [[...resLogs, completeLog], updatedApiCall];
 }
 

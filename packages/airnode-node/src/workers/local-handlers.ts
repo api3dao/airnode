@@ -1,7 +1,6 @@
 import * as path from 'path';
 import { parseConfig } from '../config';
 import * as handlers from '../handlers';
-import { ApiCallOptions } from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
 import { AggregatedApiCall, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
@@ -14,7 +13,6 @@ export interface ProviderArgs {
 export interface CallApiArgs {
   readonly aggregatedApiCall: AggregatedApiCall;
   readonly logOptions: LogOptions;
-  readonly apiCallOptions: ApiCallOptions;
 }
 
 function loadConfig() {
@@ -42,9 +40,9 @@ export async function initializeProvider({ state: providerState }: ProviderArgs)
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions, apiCallOptions }: CallApiArgs): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall, logOptions }: CallApiArgs): Promise<WorkerResponse> {
   const config = loadConfig();
-  const [logs, response] = await handlers.callApi({ config, aggregatedApiCall, apiCallOptions });
+  const [logs, response] = await handlers.callApi({ config, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }

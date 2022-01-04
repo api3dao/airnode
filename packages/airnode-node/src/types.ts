@@ -1,6 +1,6 @@
 import { OIS } from '@api3/airnode-ois';
 import { ApiCredentials as AdapterApiCredentials } from '@api3/airnode-adapter';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
@@ -9,6 +9,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
 // State
@@ -37,14 +38,32 @@ export enum RequestErrorMessage {
   ReservedParametersInvalid = 'Reserved parameters are invalid',
   ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
+  SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
 export enum RequestStatus {
+  // Request is valid and ready to be processed
   Pending = 'Pending',
+  // Request was already processed by previous Airnode run (fulfilled or failed)
+  // TODO: We should just have "Processed" status or just drop these immediately
   Fulfilled = 'Fulfilled',
+  // The fulfillment for this request was submitted on chain during the current Airnode run
+  // TODO: Not really needed for anything
   Submitted = 'Submitted',
+  // Request is not valid and should be ignored (e.g. sponsor and sponsorWallet do not match).
+  // Any request after the ignored request is processed as if this request didn't exist at all
+  // TODO: We should just drop these requests immediately
   Ignored = 'Ignored',
+  // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
+  // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
+  // becomes unblocked
   Blocked = 'Blocked',
+  // A request is errorred if it is valid, but cannot be fulfilled on chain
+  // and thus should result in "fail" method called on AirnodeRrp.
+  //
+  // This can happen by multiple ways - request is unauthorized, API call fails, static call to fulfill fails
+  // TODO: The problem with this status is that we use errorMessage to distinguish errored requests
+  // and keeping this in sync is fragile - we can just drop this
   Errored = 'Errored',
 }
 
@@ -92,6 +111,7 @@ export interface ApiCall {
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
   readonly responseValue?: string;
+  readonly signature?: string;
   readonly type: ApiCallType;
 }
 
@@ -110,11 +130,16 @@ export interface GroupedRequests {
   readonly withdrawals: Request<Withdrawal>[];
 }
 
+export interface SubmitRequest<T> {
+  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
+}
+
 export interface ProviderSettings extends CoordinatorSettings {
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: string;
   readonly chainType: ChainType;
+  readonly chainOptions: ChainOptions;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
@@ -166,16 +191,22 @@ export interface EVMContracts {
 
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
-  readonly gasPrice: ethers.BigNumber | null;
+  readonly gasTarget: GasTarget | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
-  readonly gasPrice: number | ethers.BigNumber;
+  readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
+}
+
+export interface GasTarget {
+  readonly maxPriorityFeePerGas?: BigNumber;
+  readonly maxFeePerGas?: BigNumber;
+  readonly gasPrice?: BigNumber;
 }
 
 // ===========================================
@@ -185,24 +216,46 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export interface ApiCallResponse {
-  readonly value?: string | boolean;
-  readonly errorMessage?: string;
+export type ApiCallResponse = ApiCallSuccessResponse | ApiCallErrorResponse;
+
+export interface ApiCallSuccessResponse {
+  success: true;
+  value: string;
+  signature: string;
 }
 
-export interface AggregatedApiCall {
-  readonly id: string;
-  readonly sponsorAddress: string;
-  readonly airnodeAddress: string;
-  readonly requesterAddress: string;
-  readonly sponsorWalletAddress: string;
-  readonly chainId: string;
-  readonly endpointId: string;
-  readonly endpointName?: string;
-  readonly oisTitle?: string;
-  readonly parameters: ApiCallParameters;
-  readonly errorMessage?: string;
-  readonly responseValue?: string;
+export interface ApiCallErrorResponse {
+  success: false;
+  errorMessage: string;
+}
+
+export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+
+export interface BaseAggregatedApiCall {
+  id: string;
+  airnodeAddress: string;
+  endpointId: string;
+  endpointName: string;
+  oisTitle: string;
+  parameters: ApiCallParameters;
+  // TODO: Remove these values from this interface. They are added only after the API call is made
+  // depending on the result. Current implementation causes ambiguity when these fields are
+  // optional and when not.
+  responseValue?: string;
+  signature?: string;
+  errorMessage?: string;
+}
+
+export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'regular';
+  sponsorAddress: string;
+  requesterAddress: string;
+  sponsorWalletAddress: string;
+  chainId: string;
+}
+
+export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'testing-gateway';
 }
 
 // ===========================================
@@ -271,26 +324,19 @@ export type EVMEventLog =
   | EVMFulfilledWithdrawalLog;
 
 // ===========================================
-// Transactions
-// ===========================================
-export interface TransactionReceipt {
-  readonly id: string;
-  readonly data?: ethers.Transaction;
-  readonly error?: Error;
-  readonly type: RequestType;
-}
-
-// ===========================================
 // Triggers
 // ===========================================
-export interface RrpTrigger {
+export interface Trigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
 }
 
 export interface Triggers {
-  readonly rrp: RrpTrigger[];
+  readonly rrp: Trigger[];
+  // For now the attribute is optional, because http gateway is supported only on AWS.
+  // TODO: Make this required once it is supported everywhere.
+  http?: Trigger[];
 }
 
 // ===========================================
@@ -333,7 +379,7 @@ export interface PendingLog {
 // are purposefully tuples (over an object with 'logs' and 'error' properties) for
 // this reason.
 export type LogsData<T> = readonly [PendingLog[], T];
-export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T];
+export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T | null];
 
 // ===========================================
 // Config
@@ -348,6 +394,17 @@ export interface Provider {
   readonly url: string;
 }
 
+export interface PriorityFee {
+  readonly value: string;
+  readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
+}
+
+export interface ChainOptions {
+  readonly txType: 'legacy' | 'eip1559';
+  readonly baseFeeMultiplier?: string;
+  readonly priorityFee?: PriorityFee;
+}
+
 export interface ChainConfig {
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
@@ -356,6 +413,7 @@ export interface ChainConfig {
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
   readonly type: ChainType;
+  readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
 }
 

@@ -2,7 +2,7 @@
 
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const testUtils = require('../test-utils');
 
 let roles;
 let airnodeRrp;
@@ -20,9 +20,9 @@ beforeEach(async () => {
 describe('createTemplate', function () {
   context('Airnode address not zero', function () {
     it('creates template', async function () {
-      const airnode = utils.generateRandomAddress();
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
+      const airnode = testUtils.generateRandomAddress();
+      const endpointId = testUtils.generateRandomBytes32();
+      const parameters = testUtils.generateRandomBytes();
       const templateId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnode, endpointId, parameters])
       );
@@ -42,8 +42,8 @@ describe('createTemplate', function () {
   context('Airnode address zero', function () {
     it('reverts', async function () {
       const airnode = hre.ethers.constants.AddressZero;
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
+      const endpointId = testUtils.generateRandomBytes32();
+      const parameters = testUtils.generateRandomBytes();
       const templateId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnode, endpointId, parameters])
       );
@@ -62,9 +62,9 @@ describe('getTemplates', function () {
   it('gets templates', async function () {
     // Create the templates
     const noTemplates = 10;
-    const airnodes = Array.from({ length: noTemplates }, () => utils.generateRandomAddress());
-    const endpointIds = Array.from({ length: noTemplates }, () => utils.generateRandomBytes32());
-    const parameters = Array.from({ length: noTemplates }, () => utils.generateRandomBytes32());
+    const airnodes = Array.from({ length: noTemplates }, () => testUtils.generateRandomAddress());
+    const endpointIds = Array.from({ length: noTemplates }, () => testUtils.generateRandomBytes32());
+    const parameters = Array.from({ length: noTemplates }, () => testUtils.generateRandomBytes32());
     const templateIds = [];
     for (let i = 0; i < noTemplates; i++) {
       await airnodeRrp.createTemplate(airnodes[i], endpointIds[i], parameters[i]);

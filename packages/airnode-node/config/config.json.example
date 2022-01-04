@@ -11,7 +11,15 @@
           "url": "${PROVIDER_URL}"
         }
       },
-      "type": "evm"
+      "type": "evm",
+      "options": {
+        "txType": "eip1559",
+        "baseFeeMultiplier": "2",
+        "priorityFee": {
+          "value": "3.12",
+          "unit": "gwei"
+        }
+      }
     }
   ],
   "nodeSettings": {
@@ -24,7 +32,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.3.0",
+    "nodeVersion": "0.4.0",
     "cloudProvider": {
       "type": "local"
     },
@@ -32,6 +40,13 @@
   },
   "triggers": {
     "rrp": [
+      {
+        "endpointId": "0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6",
+        "oisTitle": "Currency Converter API",
+        "endpointName": "convertToUSD"
+      }
+    ],
+    "http": [
       {
         "endpointId": "0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6",
         "oisTitle": "Currency Converter API",
@@ -134,8 +149,7 @@
                 "in": "query"
               }
             }
-          ],
-          "testable": true
+          ]
         }
       ]
     }

@@ -96,27 +96,18 @@ export async function initializeProvider(
   // =================================================================
   // STEP 5: Verify requests
   // =================================================================
-  const [verifyApiCallLogs, verifiedApiCalls] = verification.verifySponsorWallets(
-    state4.requests.apiCalls,
-    state4.masterHDNode
-  );
-  logger.logPending(verifyApiCallLogs, baseLogOptions);
-
   const [verifyRrpTriggersLogs, verifiedApiCallsForRrpTriggers] = verification.verifyRrpTriggers(
-    verifiedApiCalls,
+    state4.requests.apiCalls,
     state4.config!.triggers.rrp,
     state4.config!.ois
   );
   logger.logPending(verifyRrpTriggersLogs, baseLogOptions);
 
-  const [verifyWithdrawalLogs, verifiedWithdrawals] = verification.verifySponsorWallets(
-    state4.requests.withdrawals,
-    state4.masterHDNode
-  );
-  logger.logPending(verifyWithdrawalLogs, baseLogOptions);
-
   const state5 = state.update(state4, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCallsForRrpTriggers, withdrawals: verifiedWithdrawals },
+    requests: {
+      ...state4.requests,
+      apiCalls: verifiedApiCallsForRrpTriggers,
+    },
   });
 
   // =================================================================
@@ -151,7 +142,7 @@ export async function initializeProvider(
   logger.logPending(authLogs, baseLogOptions);
 
   const state7 = state.update(state6, {
-    requests: { ...state5.requests, apiCalls: authorizedApiCalls },
+    requests: { ...state6.requests, apiCalls: authorizedApiCalls },
   });
 
   return state7;

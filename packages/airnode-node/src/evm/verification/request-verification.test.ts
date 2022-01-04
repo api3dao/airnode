@@ -185,7 +185,7 @@ describe('verifyTriggers', () => {
   });
 
   it('errors API calls that are linked to a valid trigger but unknown OIS', () => {
-    const rrpTrigger = fixtures.buildRrpTrigger({ oisTitle: 'unknown' });
+    const rrpTrigger = fixtures.buildTrigger({ oisTitle: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
@@ -204,7 +204,7 @@ describe('verifyTriggers', () => {
   });
 
   it('errors API calls that are linked to a valid trigger but unknown endpoint', () => {
-    const rrpTrigger = fixtures.buildRrpTrigger({ endpointName: 'unknown' });
+    const rrpTrigger = fixtures.buildTrigger({ endpointName: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
@@ -223,7 +223,7 @@ describe('verifyTriggers', () => {
   });
 
   it('does nothing is the API call is linked to a valid trigger and OIS endpoint', () => {
-    const rrpTrigger = fixtures.buildRrpTrigger();
+    const rrpTrigger = fixtures.buildTrigger();
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);

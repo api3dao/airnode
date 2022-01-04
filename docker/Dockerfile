@@ -12,7 +12,7 @@ WORKDIR ${buildDir}
 # Build preparation
 FROM environment AS preparation
 
-RUN apk add --update --no-cache git
+RUN apk add --update --no-cache git $([ $(arch) == "aarch64" ] && echo "python3 make g++");
 
 # Source preparation - local
 FROM preparation as sourcelocal

@@ -16,7 +16,9 @@ describe('callApis', () => {
 
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorMessage: RequestErrorMessage.Unauthorized });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
+      errorMessage: RequestErrorMessage.Unauthorized,
+    });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping API calls...' }]);
@@ -31,7 +33,7 @@ describe('callApis', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
 
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
@@ -46,6 +48,8 @@ describe('callApis', () => {
       {
         ...aggregatedApiCall,
         responseValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
+        signature:
+          '0x642caa669d72d10d019ac535cd5e2a7b7a67604ffe3ac659b4bec796971d6a51746b637f7934c0b94099aa876df60ac81d17023dddec66e090ce9ef1c47218791c',
         errorMessage: undefined,
       },
     ]);
@@ -65,7 +69,7 @@ describe('callApis', () => {
       throw new Error('Unable to convert response');
     });
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(4);
@@ -93,7 +97,7 @@ describe('callApis', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('Unexpected error'));
     const parameters = { _type: 'int256', _path: 'prices.1' };
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(4);
@@ -116,7 +120,7 @@ describe('callApis', () => {
   it('returns an error if the worker crashes', async () => {
     const spy = jest.spyOn(workers, 'spawn');
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(5);

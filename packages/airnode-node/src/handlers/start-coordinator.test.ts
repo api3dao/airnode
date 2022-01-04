@@ -1,4 +1,5 @@
-import { mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+
 const checkAuthorizationStatusesMock = jest.fn();
 const getTemplatesMock = jest.fn();
 const estimateGasWithdrawalMock = jest.fn();
@@ -30,9 +31,18 @@ import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
-  it('fetches and processes requests', async () => {
+  test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %d`, async (txType) => {
     jest.setTimeout(30000);
-    const config = fixtures.buildConfig();
+    const initialConfig = fixtures.buildConfig();
+    const config = {
+      ...initialConfig,
+      chains: initialConfig.chains.map((chain) => ({
+        ...chain,
+        options: {
+          txType,
+        },
+      })),
+    };
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
 
@@ -52,9 +62,7 @@ describe('startCoordinator', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const gasPrice = ethers.BigNumber.from(1000);
-    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-    gasPriceSpy.mockResolvedValueOnce(gasPrice);
+    const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
     const txCountSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getTransactionCount');
     txCountSpy.mockResolvedValueOnce(212);
@@ -70,6 +78,9 @@ describe('startCoordinator', () => {
 
     await startCoordinator(config);
 
+    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
@@ -79,7 +90,7 @@ describe('startCoordinator', () => {
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0x1e84aa4b6cae3e6c4e7132d47034db4fa3613ecf96b795c2cbb3676ddc77460d7be268236312701ccc1f2a0408171c9cfaf62606b8cfa2e5441caa991e4d49aa1b',
-      { gasLimit: 500_000, gasPrice, nonce: 212 }
+      { gasLimit: 500_000, ...gasTarget, nonce: 212 }
     );
   });
 

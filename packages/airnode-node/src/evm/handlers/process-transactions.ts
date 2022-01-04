@@ -4,12 +4,12 @@ import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as utils from '../utils';
-import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState } from '../../types';
 
 export async function processTransactions(
   initialState: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
-  const { chainId, chainType, name: providerName } = initialState.settings;
+  const { chainId, chainType, chainOptions, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
   const baseLogOptions = {
@@ -32,32 +32,33 @@ export async function processTransactions(
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
-  const gasPriceOptions = { provider: state2.provider };
-  const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
+  const gasPriceOptions = { provider: state2.provider, chainOptions };
+  const [gasPriceLogs, gasTarget] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
 
-  if (!gasPrice) {
+  if (!gasTarget) {
     logger.error('Unable to submit transactions without gas price. Returning...', baseLogOptions);
     return state2;
   }
 
-  const gweiPrice = utils.weiToGwei(gasPrice);
-  logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
-  const state3 = state.update(state2, { gasPrice });
+  if (chainOptions.txType === 'eip1559') {
+    const gweiMaxFee = utils.weiToGwei(gasTarget.maxFeePerGas!);
+    const gweiPriorityFee = utils.weiToGwei(gasTarget.maxPriorityFeePerGas!);
+    logger.info(
+      `Gas price (EIP-1559) set to a Max Fee of ${gweiMaxFee} Gwei and a Priority Fee of ${gweiPriorityFee} Gwei`,
+      baseLogOptions
+    );
+  } else {
+    const gweiPrice = utils.weiToGwei(gasTarget.gasPrice!);
+    logger.info(`Gas price (legacy) set to ${gweiPrice} Gwei`, baseLogOptions);
+  }
+
+  const state3 = state.update(state2, { gasTarget });
 
   // =================================================================
   // STEP 4: Submit transactions for each wallet
   // =================================================================
-  const receipts = await fulfillments.submit(state3);
-  const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
-  successfulReceipts.forEach((receipt) => {
-    logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
-  });
-
-  const requestsWithFulfillments: GroupedRequests = {
-    apiCalls: fulfillments.applyFulfillments(state3.requests.apiCalls, successfulReceipts),
-    withdrawals: fulfillments.applyFulfillments(state3.requests.withdrawals, successfulReceipts),
-  };
+  const requestsWithFulfillments = await fulfillments.submit(state3);
   const state4 = state.update(state3, { requests: requestsWithFulfillments });
 
   return state4;

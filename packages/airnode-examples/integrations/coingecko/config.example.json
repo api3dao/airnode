@@ -11,7 +11,10 @@
           "url": "${PROVIDER_URL}"
         }
       },
-      "type": "evm"
+      "type": "evm",
+      "options": {
+        "txType": "eip1559"
+      }
     }
   ],
   "nodeSettings": {
@@ -27,7 +30,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.3.0",
+    "nodeVersion": "0.4.0",
     "stage": "dev"
   },
   "triggers": {

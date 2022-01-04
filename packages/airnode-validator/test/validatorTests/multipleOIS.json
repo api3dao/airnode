@@ -193,11 +193,19 @@
       "contracts": {
         "AirnodeRrp": "0xF6d2675468989387e96127546e0CBC9A384fa418"
       },
-      "authorizers": ["0x0000000000000000000000000000000000000000"]
+      "authorizers": ["0x0000000000000000000000000000000000000000"],
+      "options": {
+        "txType": "eip1559",
+        "baseFeeMultiplier": "2",
+        "priorityFee": {
+          "value": "3.12",
+          "unit": "gwei"
+        }
+      }
     }
   ],
   "nodeSettings": {
-    "nodeVersion": "0.3.0",
+    "nodeVersion": "0.4.0",
     "cloudProvider": {
       "type": "aws",
       "region": "us-east-1"

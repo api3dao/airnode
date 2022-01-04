@@ -7,13 +7,31 @@ them.
 ## Usage
 
 General usage of validator and convertor is described in the
-[API3 Documentation](https://docs.api3.org/airnode/latest/reference/packages/validator.html). For debugging purposes it
-might be useful to run the validator with path to template file instead of providing the format name:
+[API3 Documentation](https://docs.api3.org/airnode/latest/reference/packages/validator.html).
+
+## Build Manually
+
+You can clone and build the Airnode monorepo then run the validator as a yarn script from inside the
+`packages/airnode-validator` directory.
+
+```sh
+# execute the validator
+yarn run cli:validator --template="config" --specs="exampleSpecs/config.json"
+
+# validator output
+{
+  "valid": true,
+  "messages": []
+}
+```
+
+For debugging purposes it might be useful to run the validator with path to template file instead of providing the
+format name:
 
 ```sh
 yarn run cli:validator --template="templates/0.2/config.json" --specs="myProject/config/config.json"
 # OR
-yarn run cli:convertor --template="conversions/oas@3.0------ois@0.2.json" --specs="myProject/config/oas.json"
+yarn run cli:convertor --template="conversions/oas@3.0------ois@1.0.json" --specs="myProject/config/oas.json"
 ```
 
 ## Templates
@@ -32,7 +50,7 @@ specification conversion and validation. Usage of these keywords is described in
 - [optional parameters](docs/optional.md)
 - [nested templates](docs/template.md)
 
-## Documentation
+## Other Documentation
 
 Source documentation markdown files are located in `docs/src/` directory. All template related examples are located in
 `test/fixtures/` and injected into markdown using

@@ -1,7 +1,7 @@
 FROM node:14.17-alpine3.14
 
 ENV name="airnode-deployer"
-ENV terraformURL="https://releases.hashicorp.com/terraform/1.0.6/terraform_1.0.6_linux_amd64.zip" \
+ENV baseTerraformURL="https://releases.hashicorp.com/terraform/1.0.6/terraform_1.0.6_linux_" \
     appBin="/usr/local/bin/${name}" \
     appDir="/app"
 
@@ -15,9 +15,10 @@ COPY --from=api3/airnode-artifacts /build/packages/airnode-deployer/dist ${appDi
 COPY packages/airnode-deployer/docker/entrypoint.sh /entrypoint.sh
 
     # Install external dependencies
-RUN apk add --update --no-cache su-exec git && \
+RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
+    apk add --update --no-cache su-exec git && \
     # Download Terraform binary
-    wget ${terraformURL} && \
+    wget ${baseTerraformURL}${ARCH}.zip && \
     unzip *.zip -d /bin && \
     rm -rf *.zip && \
     # Make the binary available within PATH
