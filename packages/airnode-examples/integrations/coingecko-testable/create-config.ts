@@ -45,6 +45,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     logLevel: 'INFO',
     nodeVersion: createNodeVersion(),
     stage: 'dev',
+    skipValidation: true,
   },
   triggers: {
     rrp: [
