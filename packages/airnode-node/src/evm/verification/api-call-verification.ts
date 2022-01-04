@@ -1,6 +1,6 @@
 // TODO: Merge this file with request-verification.ts
 import { ethers } from 'ethers';
-import { RegularAggregatedApiCall } from '../..';
+import { RegularAggregatedApiCall } from '../../types';
 interface ValidatedField {
   readonly type: string;
   readonly value: any;
