@@ -1,12 +1,30 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config, version as getNodeVersion } from '@api3/airnode-node';
-import { validateJsonWithTemplate } from '@api3/airnode-validator';
+import { CloudProvider, Config, parseConfig, version as getNodeVersion } from '@api3/airnode-node';
 import { validateReceipt } from './validation';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
+
+export function loadConfig(configFile: string, secrets: Record<string, string | undefined>) {
+  const { shouldSkipValidation, config, validationOutput } = parseConfig(configFile, secrets);
+  const { messages, valid } = validationOutput;
+
+  if (shouldSkipValidation) {
+    logger.warn('Skipping the config validation');
+    return config;
+  }
+  if (!valid) {
+    logger.fail(JSON.stringify(messages, null, 2));
+    throw new Error('Validation of config failed');
+  }
+  if (messages.length) {
+    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(messages, null, 2)}`);
+  }
+
+  return config;
+}
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -50,7 +68,7 @@ export function writeReceiptFile(
   logger.info(`Outputted ${receiptFilename}\n` + '  This file does not contain any sensitive information.');
 }
 
-export function parseReceiptFile(receiptFilename: string, nodeVersion: string) {
+export function parseReceiptFile(receiptFilename: string) {
   let receipt: any;
   logger.debug('Parsing receipt file');
 
@@ -61,47 +79,11 @@ export function parseReceiptFile(receiptFilename: string, nodeVersion: string) {
     throw e;
   }
 
-  const validationResult = validateReceipt(receipt, nodeVersion);
+  const validationResult = validateReceipt(receipt, getNodeVersion());
   if (!validationResult.valid) {
     logger.fail('Failed to validate receipt file');
     throw new Error(`Invalid Airnode receipt file: ${JSON.stringify(validationResult.messages)}`);
   }
 
   return receipt as Receipt;
-}
-
-export function parseConfig(configPath: string, secrets: Record<string, string>): Config {
-  let rawConfig;
-
-  try {
-    rawConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch (e) {
-    logger.fail('Failed to parse config file');
-    throw e;
-  }
-
-  const result = validateJsonWithTemplate(rawConfig, `config@${getNodeVersion()}`, secrets, true);
-  const config = result.specs as Config;
-
-  if (config.nodeSettings.skipValidation) {
-    logger.warn('Skipping the config validation');
-    return config;
-  }
-
-  if (config.nodeSettings.cloudProvider.type === 'local') {
-    const message = "Deployer can't deploy to 'local' cloud provider";
-    logger.fail(message);
-    throw new Error(message);
-  }
-
-  if (!result.valid) {
-    logger.fail(JSON.stringify(result.messages, null, 2));
-    throw new Error('Validation of config failed');
-  }
-
-  if (result.messages.length) {
-    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(result.messages, null, 2)}`);
-  }
-
-  return config;
 }

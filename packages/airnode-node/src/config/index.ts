@@ -5,6 +5,7 @@ import { version as getNodeVersion } from '../index';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 
+// TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
   return oises.map((ois) => {
@@ -15,24 +16,31 @@ function parseOises(oises: OIS[]): OIS[] {
   });
 }
 
-export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
-  let config;
-
+const readConfig = (configPath: string): unknown => {
   try {
-    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
   } catch (e) {
     throw new Error('Failed to parse config file');
   }
+};
 
+export interface ParseConfigResult {
+  config: Config;
+  validationOutput: Result;
+  shouldSkipValidation: boolean;
+}
+
+export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): ParseConfigResult {
+  const config = readConfig(configPath);
   const validationResult = validateConfig(config, secrets);
   const parsedConfig: Config = validationResult.specs as Config;
-
-  if (!validationResult.valid && !parsedConfig.nodeSettings.skipValidation) {
-    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationResult.messages)}`);
-  }
-
   const ois = parseOises(parsedConfig.ois);
-  return { ...parsedConfig, ois };
+
+  return {
+    config: { ...parsedConfig, ois },
+    shouldSkipValidation: !!parsedConfig.nodeSettings.skipValidation,
+    validationOutput: validationResult,
+  };
 }
 
 export function getMasterKeyMnemonic(config: Config): string {
@@ -48,6 +56,7 @@ export function getEnvValue(envName: string) {
   return process.env[envName];
 }
 
-function validateConfig(supposedConfig: any, secrets: Record<string, string | undefined>): Result {
-  return validateJsonWithTemplate(supposedConfig, `config@${getNodeVersion()}`, secrets, true);
+function validateConfig(supposedConfig: unknown, secrets: Record<string, string | undefined>): Result {
+  // TODO: Improve TS types
+  return validateJsonWithTemplate(supposedConfig as object, `config@${getNodeVersion()}`, secrets, true);
 }

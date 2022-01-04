@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
+import { CloudProvider } from '@api3/airnode-node';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
@@ -10,13 +10,21 @@ import {
   parseSecretsFile,
   shortenAirnodeAddress,
   validateMnemonic,
-  parseConfig,
+  loadConfig,
 } from '../utils';
 import * as logger from '../utils/logger';
 
 export async function deploy(configFile: string, secretsFile: string, receiptFile: string) {
   const secrets = parseSecretsFile(secretsFile);
-  const config = parseConfig(configFile, secrets);
+  const config = loadConfig(configFile, secrets);
+
+  if (config.nodeSettings.cloudProvider.type === 'local') {
+    // We want to check cloud provider type regardless of "skipValidation" value.
+    // Skipping this check would always cause a deployer failure.
+    const message = "Deployer can't deploy to 'local' cloud provider";
+    logger.fail(message);
+    throw new Error(message);
+  }
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {
@@ -68,7 +76,7 @@ export async function remove(airnodeAddressShort: string, stage: string, cloudPr
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
-  const receipt = parseReceiptFile(receiptFilename, getNodeVersion());
+  const receipt = parseReceiptFile(receiptFilename);
   const { airnodeAddressShort, cloudProvider, stage } = receipt.deployment;
   try {
     await remove(airnodeAddressShort, stage, cloudProvider);
