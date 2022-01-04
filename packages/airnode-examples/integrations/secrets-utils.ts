@@ -11,11 +11,10 @@ const createAirnodeWalletMnemonic = (generateExampleFile: boolean) => {
 };
 
 export const getCommonSecrets = async (generateExampleFile: boolean) => {
-  const integrationInfo = readIntegrationInfo();
-
+  // NOTE: Avoid reading integrationInfo.json when generating example file
   return [
     `AIRNODE_WALLET_MNEMONIC=${createAirnodeWalletMnemonic(generateExampleFile)}`,
-    `PROVIDER_URL=${generateExampleFile ? 'http://127.0.0.1:8545/' : integrationInfo.providerUrl}`,
+    `PROVIDER_URL=${generateExampleFile ? 'http://127.0.0.1:8545/' : readIntegrationInfo().providerUrl}`,
   ];
 };
 
