@@ -1,7 +1,7 @@
 {
   "ois": {
     "__arrayItem": {
-      "__template": "ois.json"
+      "__template": "../1.0/ois.json"
     }
   },
   "triggers": {
