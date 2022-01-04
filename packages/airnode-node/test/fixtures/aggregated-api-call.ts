@@ -27,6 +27,7 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
       transactionHash: '0x02e30c77dadb360236b2b13c257ea938a904eb395b596807dfb890624476885b',
     },
     requestCount: '1',
+    template: undefined,
     ...params,
   };
 }

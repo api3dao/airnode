@@ -113,6 +113,7 @@ export interface ApiCall {
   readonly responseValue?: string;
   readonly signature?: string;
   readonly type: ApiCallType;
+  readonly template?: ApiCallTemplate;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -123,6 +124,10 @@ export interface ApiCallTemplate {
   readonly endpointId: string;
   readonly encodedParameters: string;
   readonly id: string;
+}
+
+export interface ApiCallTemplatesById {
+  readonly [id: string]: ApiCallTemplate;
 }
 
 export interface GroupedRequests {
@@ -260,6 +265,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   fulfillAddress: string;
   fulfillFunctionId: string;
   encodedParameters: string;
+  template?: ApiCallTemplate;
 }
 
 export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {

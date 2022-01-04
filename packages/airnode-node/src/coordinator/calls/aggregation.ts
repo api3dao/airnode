@@ -17,6 +17,7 @@ function buildAggregatedCall(config: Config, request: Request<ApiCall>): Aggrega
     fulfillFunctionId,
     requestCount,
     templateId,
+    template,
   } = request;
   // The trigger should already be verified to exist at this point
   const trigger = config.triggers.rrp.find((t) => t.endpointId === endpointId)!;
@@ -40,6 +41,7 @@ function buildAggregatedCall(config: Config, request: Request<ApiCall>): Aggrega
     fulfillFunctionId,
     requestCount,
     templateId,
+    template,
   };
 }
 

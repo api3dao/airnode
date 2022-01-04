@@ -5,6 +5,7 @@ import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
+import { getExpectedTemplateId } from '../evm/templates';
 import * as logger from '../logger';
 import {
   AggregatedApiCall,
@@ -117,8 +118,37 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
   ];
 }
 
+export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+  const { aggregatedApiCall } = payload;
+  if (aggregatedApiCall.type === 'testing-gateway') return null;
+
+  const { templateId, template, id } = aggregatedApiCall;
+  if (!templateId) {
+    return null;
+  }
+
+  if (!template) {
+    const message = `Ignoring Request:${id} as the template could not be found for verification`;
+    const log = logger.pend('ERROR', message);
+    return [
+      [log],
+      {
+        success: false,
+        errorMessage: message,
+      },
+    ];
+  }
+
+  const expectedTemplateId = getExpectedTemplateId(template);
+  if (templateId === expectedTemplateId) return null;
+
+  const message = `Invalid template ID:${templateId} found for Request:${id}. Expected template ID:${expectedTemplateId}`;
+  const log = logger.pend('ERROR', message);
+  return [[log], { success: false, errorMessage: message }];
+}
+
 function verifyCallApiPayload(payload: CallApiPayload) {
-  const verifications = [verifySponsorWallet, verifyRequestId];
+  const verifications = [verifySponsorWallet, verifyRequestId, verifyTemplateId];
 
   return verifications.reduce((result, verifierFn) => {
     if (result) return result;
