@@ -15,7 +15,7 @@ import {
   SubmitRequest,
 } from '../../types';
 import { AirnodeRrp } from '../contracts';
-import { decodeRevertString } from '..';
+import { decodeRevertString } from '../utils';
 
 const GAS_LIMIT = 500_000;
 

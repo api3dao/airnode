@@ -77,14 +77,11 @@ export async function initializeProvider(
     provider: state3.provider,
   };
   // This should not throw
-  const [templFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
-  logger.logPending(templFetchLogs, baseLogOptions);
-
-  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(state3.requests.apiCalls, templatesById);
-  logger.logPending(templVerificationLogs, baseLogOptions);
+  const [templateFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
+  logger.logPending(templateFetchLogs, baseLogOptions);
 
   const [templApplicationLogs, templatedApiCalls] = templates.mergeApiCallsWithTemplates(
-    templVerifiedApiCalls,
+    state3.requests.apiCalls,
     templatesById
   );
   logger.logPending(templApplicationLogs, baseLogOptions);
