@@ -7,3 +7,4 @@ export * as providers from './providers';
 export * as utils from './utils';
 export * from './types';
 export * from './version';
+export * from './config';

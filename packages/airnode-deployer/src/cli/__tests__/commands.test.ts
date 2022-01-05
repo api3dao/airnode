@@ -3,43 +3,31 @@ const removeAirnodeSpy = jest.fn();
 
 jest.mock('@api3/airnode-node', () => ({
   ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.1.0'),
+  version: jest.fn().mockReturnValue('0.4.0'),
 }));
-jest.mock('../infrastructure', () => ({
+jest.mock('../../infrastructure', () => ({
   deployAirnode: deployAirnodeSpy,
   removeAirnode: removeAirnodeSpy,
 }));
-jest.mock('../utils', () => ({
-  ...jest.requireActual('../utils'),
+jest.mock('../../utils', () => ({
+  ...jest.requireActual('../../utils'),
   writeReceiptFile: jest.fn(),
 }));
 
 import { join } from 'path';
 import fs from 'fs';
-import { deploy, remove, removeWithReceipt } from './commands';
-import { Receipt } from '../types';
+import { deploy, remove, removeWithReceipt } from '../commands';
+import { Receipt } from '../../types';
 
 describe('deployer commands', () => {
   it('can deploy Airnode', async () => {
     await deploy(
-      join(__dirname, '../../config/config.json.example'),
-      join(__dirname, '../../config/secrets.env.example'),
-      'mocked receipt filename',
-      true
+      join(__dirname, '../../../config/config.json.example'),
+      join(__dirname, '../../../config/secrets.env.example'),
+      'mocked receipt filename'
     );
 
     expect(deployAirnodeSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('fails deployment when the node version does not match the config version', async () => {
-    await expect(
-      deploy(
-        join(__dirname, '../../config/config.json.example'),
-        join(__dirname, '../../config/secrets.env.example'),
-        'mocked receipt filename',
-        false
-      )
-    ).rejects.toThrow(`Node version specified in config.json does not match the deployer's version`);
   });
 
   it('can remove Airnode', async () => {

@@ -208,7 +208,7 @@ export function parseEnv(envPath: string, messages: Log[]): Record<string, strin
 }
 
 export function interpolate(
-  specs: object,
+  specs: unknown,
   env: Record<string, string | undefined>,
   messages: Log[]
 ): object | undefined {

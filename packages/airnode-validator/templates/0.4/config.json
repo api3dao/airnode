@@ -182,7 +182,7 @@
     "nodeVersion": {
       "__regexp": "^0\\.4\\.[0-9]+$",
       "__catch": {
-        "__level": "warning",
+        "__level": "error",
         "__message": "__fullPath: nodeVersion should be set to 0.4.*"
       }
     },
@@ -346,6 +346,11 @@
             "__message": "__fullPath: The key must have a length of between 30 - 120 characters."
           }
         }
+      }
+    },
+    "__optional": {
+      "skipValidation": {
+        "__type": "boolean"
       }
     }
   },

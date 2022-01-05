@@ -41,11 +41,6 @@ yargs(hideBin(process.argv))
     default: false,
     type: 'boolean',
   })
-  .option('skip-version-check', {
-    description: 'Allow deployments even if the nodeVersion in config.json does not match the deployer version',
-    default: false,
-    type: 'boolean',
-  })
   .command(
     'deploy',
     'Executes Airnode deployments specified in the config file',
@@ -72,9 +67,7 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() =>
-        deploy(args.configuration, args.secrets, args.receipt, args['skip-version-check'] as boolean)
-      );
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt));
     }
   )
   .command(
