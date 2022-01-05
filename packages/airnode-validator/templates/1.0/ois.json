@@ -1,6 +1,10 @@
 {
   "oisFormat": {
-    "__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    "__regexp": "^1\\.0\\.0$",
+    "__catch": {
+      "__level": "error",
+      "__message": "__fullPath: OIS format should be 1.0.0"
+    }
   },
   "title": {
     "__regexp": "^[a-zA-Z0-9-_\\s]{1,64}$"
@@ -21,7 +25,7 @@
               "__any": {
                 "operation": {
                   "path": {
-                    "__regexp": "__match"
+                    "__regexp": "^__match$"
                   }
                 }
               }
@@ -31,52 +35,7 @@
             "__message": "Path \"__match\" from __fullPath must be included in endpoints array"
           }
         }
-      ],
-      "__objectItem": {
-        "__objectItem": {
-          "parameters": {
-            "__arrayItem": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "endpoints": {
-                      "__any": {
-                        "__ignore": {},
-                        "operation": {
-                          "path": {
-                            "__regexp": "^{{2}}$"
-                          },
-                          "method": {
-                            "__regexp": "^{{3}}$"
-                          }
-                        },
-                        "__any": {
-                          "__any": {
-                            "operationParameter": {
-                              "name": {
-                                "__regexp": "^__match$"
-                              },
-                              "in": {
-                                "__regexp": "^[['in']]$"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "__catch": {
-                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}.{{3}}\" must be included in \"__prefixendpoints\""
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
+      ]
     }
   },
   "endpoints": {

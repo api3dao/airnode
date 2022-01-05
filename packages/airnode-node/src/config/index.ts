@@ -1,18 +1,11 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
-import template from 'lodash/template';
+import { version as getNodeVersion } from '../index';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 
-// TODO: These are duplicated in validator, write them in one place only
-// Regular expression that does not match anything, ensuring no escaping or interpolation happens
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
-const NO_MATCH_REGEXP = /($^)/;
-// Regular expression matching ES template literal delimiter (${}) with escaping
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
-const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
-
+// TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
   return oises.map((ois) => {
@@ -23,23 +16,31 @@ function parseOises(oises: OIS[]): OIS[] {
   });
 }
 
-export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
-  const config = fs.readFileSync(configPath, 'utf8');
-
-  const validationResult = validateConfig(JSON.parse(config), secrets);
-  if (!validationResult.valid) {
-    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationResult.messages)}`);
+const readConfig = (configPath: string): unknown => {
+  try {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    throw new Error('Failed to parse config file');
   }
+};
 
-  const interpolatedConfig = template(config, {
-    escape: NO_MATCH_REGEXP,
-    evaluate: NO_MATCH_REGEXP,
-    interpolate: ES_MATCH_REGEXP,
-  })(secrets);
-  const parsedConfig = JSON.parse(interpolatedConfig);
+export interface ParseConfigResult {
+  config: Config;
+  validationOutput: Result;
+  shouldSkipValidation: boolean;
+}
 
+export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): ParseConfigResult {
+  const config = readConfig(configPath);
+  const validationResult = validateConfig(config, secrets);
+  const parsedConfig: Config = validationResult.specs as Config;
   const ois = parseOises(parsedConfig.ois);
-  return { ...parsedConfig, ois };
+
+  return {
+    config: { ...parsedConfig, ois },
+    shouldSkipValidation: !!parsedConfig.nodeSettings.skipValidation,
+    validationOutput: validationResult,
+  };
 }
 
 export function getMasterKeyMnemonic(config: Config): string {
@@ -55,7 +56,7 @@ export function getEnvValue(envName: string) {
   return process.env[envName];
 }
 
-function validateConfig(supposedConfig: any, secrets: Record<string, string | undefined>): Result {
-  // TODO: config version
-  return validateJsonWithTemplate(supposedConfig, 'config', secrets);
+function validateConfig(supposedConfig: unknown, secrets: Record<string, string | undefined>): Result {
+  // TODO: Improve TS types
+  return validateJsonWithTemplate(supposedConfig as object, `config@${getNodeVersion()}`, secrets, true);
 }

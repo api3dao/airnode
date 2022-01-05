@@ -12,7 +12,7 @@ import { getPath } from '../commands/utils';
 import { Log } from '../types';
 
 const messages: Log[] = [];
-const apiPath = getPath('apiSpecifications.json', messages, 'pre-alpha');
+const apiPath = getPath('apiSpecifications.json', messages, '1.0');
 let apiTemplate: object;
 
 if (apiPath) {
@@ -195,9 +195,7 @@ describe('validators integration test', () => {
         keyFormattingMessage('myPath', ['paths', 'myPath']),
         error('paths.myPath.get : allowed methods are only "get" or "post" not "get "'),
         error("Allowed values in paths.myPath.get .parameters.[0].in are: 'path', 'query', 'header' or 'cookie'"),
-        keyFormattingMessage('mySecurityScheme ', ['components', 'securitySchemes', 'mySecurityScheme ']),
         error('components.securitySchemes.mySecurityScheme .in: Allowed values are "query", "header" or "cookie"'),
-        keyFormattingMessage('mySecurityScheme ', ['security', 'mySecurityScheme ']),
       ],
     });
   });
@@ -256,7 +254,6 @@ describe('validators integration test', () => {
             },
             "mySecurityScheme2": {
               "type": "http",
-              "in": "header",
               "scheme": "basic"
             }
           }
@@ -362,11 +359,7 @@ describe('validators integration test', () => {
       messages: [
         missingParamMessage(['servers']),
         missingParamMessage(['paths', '/myPath', 'post', 'parameters']),
-        error(
-          'Expected security scheme "mySecurityScheme" from components.securitySchemes.mySecurityScheme to be present in security'
-        ),
         missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'type']),
-        missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'in']),
         missingParamMessage(['security']),
       ],
     });
@@ -425,7 +418,6 @@ describe('validators integration test', () => {
         missingParamMessage(['paths', '/myPath2', 'post', 'parameters', '[0]', 'name']),
         missingParamMessage(['paths', '/myPath2', 'post', 'parameters', '[2]', 'in']),
         missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'type']),
-        missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'in']),
       ],
     });
 
@@ -510,8 +502,7 @@ describe('validators integration test', () => {
       "components": {
           "securitySchemes": {
             "mySecurityScheme": {
-              "type": "invalid",
-              "in": "query"
+              "type": "invalid"
             },
             "mySecurityScheme2": {
               "type": "apiKey",
@@ -524,7 +515,6 @@ describe('validators integration test', () => {
             },
             "mySecurityScheme4": {
               "type": "http",
-              "in": "query",
               "scheme": "invalid"
             }
           }
@@ -540,16 +530,18 @@ describe('validators integration test', () => {
     expect(validator.validateJson(JSON.parse(invalidSecuritySchemesAPISpec), apiTemplate)).toEqual({
       valid: false,
       messages: [
-        error('components.securitySchemes.mySecurityScheme.type: Allowed values are "apiKey" or "http"'),
         error(
-          'components.securitySchemes.mySecurityScheme2.type must contain "name" since value of "type" is "apiKey"'
+          'components.securitySchemes.mySecurityScheme.type: Allowed values are "apiKey", "http", "relayChainId", "relayChainType" or "relayRequesterAddress"'
         ),
         error(
-          'components.securitySchemes.mySecurityScheme3.type must contain "name" since value of "type" is "apiKey"'
+          'components.securitySchemes.mySecurityScheme2 must contain "name" and "in" since value of "type" is "apiKey"'
+        ),
+        error(
+          'components.securitySchemes.mySecurityScheme3 must contain "name" and "in" since value of "type" is "apiKey"'
         ),
         extraFieldMessage(['components', 'securitySchemes', 'mySecurityScheme3', 'scheme']),
-        formattingMessage(['components', 'securitySchemes', 'mySecurityScheme3', 'scheme'], true),
-        formattingMessage(['components', 'securitySchemes', 'mySecurityScheme4', 'scheme'], true),
+        error('components.securitySchemes.mySecurityScheme3.scheme: Allowed values are "basic" or "bearer"'),
+        error('components.securitySchemes.mySecurityScheme4.scheme: Allowed values are "basic" or "bearer"'),
         error(
           'Expected security scheme "mySecurityScheme5" from security.mySecurityScheme5 to be present in components.securitySchemes'
         ),
@@ -643,15 +635,38 @@ describe('validators integration test', () => {
     expect(validator.validateJson(JSON.parse(invalidPathsAPISpec), apiTemplate)).toEqual({
       valid: false,
       messages: [
-        error('Parameter myParam from paths./{myParam} must be in parameters of path /{myParam}'),
         error(
-          'Parameter myParam2 from paths./{myParam}/myPath/{myParam2}/subPath must be in parameters of path /{myParam}/myPath/{myParam2}/subPath'
+          "Parameter myParam from paths./myPath/{myParam} must be in parameters of path /myPath/{myParam} and value of 'in' must be 'path'"
         ),
         error(
-          'Parameter myParam from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2}'
+          "Parameter myParam from paths./{myParam}/{myParam2} must be in parameters of path /{myParam}/{myParam2} and value of 'in' must be 'path'"
         ),
         error(
-          'Parameter myParam2 from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2}'
+          "Parameter myParam2 from paths./{myParam}/{myParam2} must be in parameters of path /{myParam}/{myParam2} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam from paths./{myParam} must be in parameters of path /{myParam} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam from paths./{myParam}/myPath/{myParam2}/subPath must be in parameters of path /{myParam}/myPath/{myParam2}/subPath and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam2 from paths./{myParam}/myPath/{myParam2}/subPath must be in parameters of path /{myParam}/myPath/{myParam2}/subPath and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam2 from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam from paths./{myParam}/{myParam2}/{myParam3} must be in parameters of path /{myParam}/{myParam2}/{myParam3} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam2 from paths./{myParam}/{myParam2}/{myParam3} must be in parameters of path /{myParam}/{myParam2}/{myParam3} and value of 'in' must be 'path'"
+        ),
+        error(
+          "Parameter myParam3 from paths./{myParam}/{myParam2}/{myParam3} must be in parameters of path /{myParam}/{myParam2}/{myParam3} and value of 'in' must be 'path'"
         ),
       ],
     });

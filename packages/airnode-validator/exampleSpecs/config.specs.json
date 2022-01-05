@@ -33,7 +33,8 @@
       "type": "aws",
       "region": ""
     },
-    "stage": "FILL"
+    "stage": "FILL",
+    "skipValidation": true
   },
   "triggers": {
     "rrp": [

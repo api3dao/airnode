@@ -10,7 +10,7 @@ describe('startCoordinator', () => {
   it('starts the coordinator', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     // @ts-ignore
     jest.spyOn(handlers, 'startCoordinator').mockResolvedValue({});
@@ -24,7 +24,7 @@ describe('initializeProvider', () => {
   it('returns the provider state', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
     jest.spyOn(handlers, 'initializeProvider').mockResolvedValue(state);
@@ -37,7 +37,7 @@ describe('initializeProvider', () => {
   it('handles initialize provider errors', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
     const error = new Error('Something went wrong!');
@@ -53,7 +53,7 @@ describe('callApi', () => {
   it('returns the API response', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const callResponse = {
       success: true,
@@ -73,7 +73,7 @@ describe('processProviderRequests', () => {
   it('processes provider requests', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
     jest.spyOn(handlers, 'processTransactions').mockResolvedValue(state);
@@ -86,7 +86,7 @@ describe('processProviderRequests', () => {
   it('handles process provider requests errors', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
     const error = new Error('Something went wrong!');

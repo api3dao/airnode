@@ -16,7 +16,19 @@ export interface CallApiArgs {
 }
 
 function loadConfig() {
-  return parseConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
+  const { config, shouldSkipValidation, validationOutput } = parseConfig(
+    path.resolve(`${__dirname}/../../config/config.json`),
+    process.env
+  );
+
+  // TODO: Log debug that validation is skipped
+  if (shouldSkipValidation) return config;
+  if (!validationOutput.valid) {
+    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationOutput.messages, null, 2)}`);
+  }
+  // TODO: Log validation warnings - currently not possible since we have troubles constructing logger options
+
+  return config;
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {
