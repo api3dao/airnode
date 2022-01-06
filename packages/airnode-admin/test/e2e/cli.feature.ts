@@ -113,6 +113,7 @@ describe('CLI', () => {
       'requester-to-request-count-plus-one',
       'sponsor-to-withdrawal-request-count',
       'templates',
+      'verify-signature',
     ].sort();
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
