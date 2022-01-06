@@ -280,7 +280,7 @@ by running:
 yarn rebuild-artifacts-container
 ```
 
-### 2. (Only if deploying to a cloud provider) Build deployer container
+#### 2. (Only if deploying to a cloud provider) Build deployer container
 
 ```sh
 yarn rebuild-deployer-container
@@ -288,7 +288,7 @@ yarn rebuild-deployer-container
 
 This command will facilitate the previously built artifacts container to build the deployer.
 
-### 3. (Only if running Airnode locally) Build Airnode docker container
+#### 3. (Only if running Airnode locally) Build Airnode docker container
 
 ```sh
 yarn rebuild-airnode-container
