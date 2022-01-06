@@ -225,10 +225,12 @@ contract AirnodeRrp is
     /// not be taken seriously, yet the content will be sound.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
+    /// @param data Fulfillment data
+    /// @param signature Request ID and fulfillment data signed by the Airnode
+    /// address
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -251,13 +253,7 @@ contract AirnodeRrp is
             ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
-        require(
-            (
-                keccak256(abi.encodePacked(requestId, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Invalid signature"
-        );
+        verifySignature(requestId, airnode, data, signature);
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
@@ -303,6 +299,32 @@ contract AirnodeRrp is
         );
         delete requestIdToFulfillmentParameters[requestId];
         emit FailedRequest(airnode, requestId, errorMessage);
+    }
+
+    /// @notice Called to verify the signature associated with a response,
+    /// reverts if it fails
+    /// @dev This method only enforces a convention regarding how a response
+    /// should be signed given `requestId` and `data`. It does not care about
+    /// how `requestId` is generated, meaning that it can support protocols
+    /// beyond RRP.
+    /// @param requestId Request ID
+    /// @param airnode Airnode address
+    /// @param data Fulfillment data
+    /// @param signature Request ID and fulfillment data signed by the Airnode
+    /// address
+    function verifySignature(
+        bytes32 requestId,
+        address airnode,
+        bytes calldata data,
+        bytes calldata signature
+    ) public pure override {
+        require(
+            (
+                keccak256(abi.encodePacked(requestId, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
     }
 
     /// @notice Called to check if the request with the ID is made but not

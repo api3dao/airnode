@@ -922,7 +922,7 @@ describe('fulfill', function () {
                   invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -935,7 +935,7 @@ describe('fulfill', function () {
                   invalidSignature2,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -1927,7 +1927,7 @@ describe('fulfill', function () {
                   invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -1940,7 +1940,7 @@ describe('fulfill', function () {
                   invalidSignature2,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -3115,6 +3115,98 @@ describe('fail', function () {
             )
         ).to.be.revertedWith('Invalid request fulfillment');
       });
+    });
+  });
+});
+
+describe('verifySignature', function () {
+  context('Signature valid', function () {
+    context('Signature correct', function () {
+      it('returns true', async function () {
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['string', 'uint256'], ['It does not matter how this is derived', '35710'])
+        );
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
+        await expect(airnodeRrp.verifySignature(requestId, airnodeAddress, fulfillData, signature)).to.not.be.reverted;
+      });
+    });
+    context('Request ID mismatch', function () {
+      it('reverts', async function () {
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['string', 'uint256'], ['It does not matter how this is derived', '35710'])
+        );
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
+        await expect(
+          airnodeRrp.verifySignature(testUtils.generateRandomBytes32(), airnodeAddress, fulfillData, signature)
+        ).to.be.revertedWith('Signature mismatch');
+      });
+    });
+    context('Airnode address mismatch', function () {
+      it('reverts', async function () {
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['string', 'uint256'], ['It does not matter how this is derived', '35710'])
+        );
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
+        await expect(
+          airnodeRrp.verifySignature(requestId, testUtils.generateRandomAddress(), fulfillData, signature)
+        ).to.be.revertedWith('Signature mismatch');
+      });
+    });
+    context('Fulfillment data mismatch', function () {
+      it('reverts', async function () {
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['string', 'uint256'], ['It does not matter how this is derived', '35710'])
+        );
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
+        await expect(
+          airnodeRrp.verifySignature(requestId, airnodeAddress, testUtils.generateRandomBytes(), signature)
+        ).to.be.revertedWith('Signature mismatch');
+      });
+    });
+  });
+  context('Signature invalid', function () {
+    it('reverts', async function () {
+      const requestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(['string', 'uint256'], ['It does not matter how this is derived', '35710'])
+      );
+      const fulfillData = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+      );
+      await expect(airnodeRrp.verifySignature(requestId, airnodeAddress, fulfillData, '0x12345678')).to.be.revertedWith(
+        'ECDSA: invalid signature length'
+      );
+      await expect(
+        airnodeRrp.verifySignature(requestId, airnodeAddress, fulfillData, `0x${'0'.repeat(65 * 2)}`)
+      ).to.be.revertedWith("ECDSA: invalid signature 'v' value");
+      // The point is that ECDSA.sol can revert in different ways, not checking them all
     });
   });
 });

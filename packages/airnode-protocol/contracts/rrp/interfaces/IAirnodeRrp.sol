@@ -91,6 +91,18 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         string calldata errorMessage
     ) external;
 
+    function verifySignature(
+        bytes32 requestId,
+        address airnode,
+        bytes calldata data,
+        bytes calldata signature
+    ) external pure;
+
+    function requestIsAwaitingFulfillment(bytes32 requestId)
+        external
+        view
+        returns (bool isAwaitingFulfillment);
+
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
         address requester
@@ -100,9 +112,4 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         external
         view
         returns (uint256 requestCountPlusOne);
-
-    function requestIsAwaitingFulfillment(bytes32 requestId)
-        external
-        view
-        returns (bool isAwaitingFulfillment);
 }
