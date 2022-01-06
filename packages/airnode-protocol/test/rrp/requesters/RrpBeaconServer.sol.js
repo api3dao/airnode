@@ -1221,10 +1221,6 @@ describe('readerCanReadBeacon', function () {
   });
 });
 
-// Tests for `fulfill()` should come last because the line below causes all following `fulfill()`
-// calls to revert
-// await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
-// This can be solved by adding a `hardhat_reset` call to beforeEach, but that breaks solcover.
 describe('fulfill', function () {
   context('Sender Airnode RRP', function () {
     context('requestId has been registered', function () {
