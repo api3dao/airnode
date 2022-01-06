@@ -10,7 +10,7 @@ const main = async () => {
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
   runShellCommand(
-    `docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode api3/airnode-client:latest`
+    `docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode api3/airnode-client:0.3.1`
   );
 };
 

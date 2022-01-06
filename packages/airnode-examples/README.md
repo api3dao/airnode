@@ -152,26 +152,7 @@ Refer to the
 [documentation](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
 more details.
 
-### 9. Build docker artifacts
-
-Our docker images are based on a common container which we call "artifacts". This intermediate container is then used by
-both [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) and
-[airnode](https://github.com/api3dao/airnode/tree/master/packages/airnode-node). You can build the artifacts container
-by running:
-
-```sh
-yarn rebuild-artifacts-container
-```
-
-### 10. (Only if deploying to a cloud provider) Build deployer container
-
-```sh
-yarn rebuild-deployer-container
-```
-
-This command will facilitate the previously built artifacts container to build the deployer.
-
-### 11. (Only if deploying to a cloud provider) Deploy Airnode
+### 9. (Only if deploying to a cloud provider) Deploy Airnode
 
 Now you're ready to deploy Airnode on the cloud provider. Just run:
 
@@ -182,16 +163,7 @@ yarn deploy-airnode
 This command will use the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) package
 to deploy your Airnode. Deployment may take some time so be patient.
 
-### 12. (Only if running Airnode locally) Build Airnode docker container
-
-```sh
-yarn rebuild-airnode-container
-```
-
-This command will facilitate the previously built artifacts container to build the containerized version of Airnode
-which you can run locally.
-
-### 13. (Only if running Airnode locally) Run the Airnode container
+### 10. (Only if running Airnode locally) Run the Airnode container
 
 ```sh
 yarn run-airnode-locally
@@ -200,7 +172,7 @@ yarn run-airnode-locally
 Runs the previously built version of Airnode container. Note that the containerized version runs a cron job which
 triggers every minute - this means that Airnode logs won't start appearing immediately.
 
-### 14. Deploy a requester
+### 11. Deploy a requester
 
 At this point, you have a RRP contract deployed. You also either have a docker running locally or deployed on a cloud
 provider. Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is
@@ -212,7 +184,7 @@ The first step is to deploy a requester contract. Run:
 yarn deploy-requester
 ```
 
-### 15. Derive and fund the sponsor wallet
+### 12. Derive and fund the sponsor wallet
 
 Airnode request requires a [sponsor](https://docs.api3.org/airnode/v0.2/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
@@ -230,7 +202,7 @@ yarn derive-and-fund-sponsor-wallet
 This script will first derive the sponsor wallet and afterwards fund it with 0.1 ETH. This means, that your account
 (derived from the mnemonic by `choose-integration` script) must have enough funds.
 
-### 16. Allow the sponsor to pay for requests made by the requester
+### 13. Allow the sponsor to pay for requests made by the requester
 
 In order to prevent misuse, each sponsor has to explicitly approve a requester. Once the requester is approved, requests
 can be paid by this sponsor.
@@ -239,7 +211,7 @@ can be paid by this sponsor.
 yarn sponsor-requester
 ```
 
-### 17. Make the request
+### 14. Make the request
 
 Finally, the last step is to trigger an Airnode request using the requester.
 
@@ -250,7 +222,7 @@ yarn make-request
 When there is an blockchain event received by Airnode, it will immediately perform the API call and submit the response
 back on chain. This command will wait for all of this to happen and you should see the final output in the CLI.
 
-### 18. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
+### 15. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
 
 If you want to tear down the Airnode from the cloud provider run:
 
@@ -288,3 +260,39 @@ The examples package is also a nice fit for an end to end test of the whole Airn
    if its performance and complexity.
 
    Be sure to define the necessary secrets before running this test.
+
+### Building containers
+
+The above flow uses the latest released version of either the deployer docker image for deploying airnode or the client
+docker image for running airnode locally. However, developers or those creating new integrations may be interested in
+using images built from source. In this case, the below steps can be used. Once the appropriate image is built, the
+container can be used by replacing the image version e.g. `0.3.1` with `latest` in the `runShellCommand` of either
+`scripts/run-airnode-locally.ts` or `scripts/deploy-airnode.ts` as appropriate.
+
+#### 1. Build docker artifacts
+
+Our docker images are based on a common container which we call "artifacts". This intermediate container is then used by
+both [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) and
+[airnode](https://github.com/api3dao/airnode/tree/master/packages/airnode-node). You can build the artifacts container
+by running:
+
+```sh
+yarn rebuild-artifacts-container
+```
+
+### 2. (Only if deploying to a cloud provider) Build deployer container
+
+```sh
+yarn rebuild-deployer-container
+```
+
+This command will facilitate the previously built artifacts container to build the deployer.
+
+### 3. (Only if running Airnode locally) Build Airnode docker container
+
+```sh
+yarn rebuild-airnode-container
+```
+
+This command will facilitate the previously built artifacts container to build the containerized version of Airnode
+which you can run locally.

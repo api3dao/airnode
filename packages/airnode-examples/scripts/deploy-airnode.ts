@@ -17,7 +17,7 @@ const main = async () => {
     integrationInfo.airnodeType === 'gcp' && `-v "\${HOME}/.config/gcloud:/app/gcloud"`,
     `-v ${integrationPath}:/app/config`,
     `-v ${integrationPath}:/app/output`,
-    `api3/airnode-deployer:latest deploy --skip-version-check`,
+    `api3/airnode-deployer:0.3.1 deploy --skip-version-check`,
   ]
     .filter(Boolean)
     .join(' ');
