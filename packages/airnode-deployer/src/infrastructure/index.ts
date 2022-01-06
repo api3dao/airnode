@@ -135,6 +135,10 @@ function prepareAirnodeManageArguments(cloudProvider: CloudProvider, commonArgum
   return [...cloudProviderAirnodeManageArguments[cloudProvider.type](cloudProvider as any), ...commonArguments];
 }
 
+function getBucketName(airnodeAddressShort: string, stage: string) {
+  return `airnode-${airnodeAddressShort}-${stage}-terraform`.toLowerCase();
+}
+
 async function terraformAirnodeManage(
   command: string,
   execOptions: child.ExecOptions,
@@ -214,7 +218,7 @@ async function deploy(
   }
 
   const { type: cloudProviderType } = cloudProvider;
-  const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
+  const bucket = getBucketName(airnodeAddressShort, stage);
   const terraformStateCloudProviderDir = path.join(terraformStateDir, cloudProviderType);
 
   if (!(await cloudProviderLib[cloudProviderType].stateExists(bucket, cloudProvider as any))) {
@@ -269,7 +273,7 @@ async function remove(airnodeAddressShort: string, stage: string, cloudProvider:
   }
 
   const { type: cloudProviderType } = cloudProvider;
-  const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
+  const bucket = getBucketName(airnodeAddressShort, stage);
 
   // Remove airnode
   logger.debug('Removing Airnode via Terraform recipes');
