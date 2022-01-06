@@ -271,7 +271,7 @@
       }
     },
     "stage": {
-      "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
+      "__regexp": "^[a-z0-9-_]{1,16}$",
       "__catch": {
         "__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
       }
