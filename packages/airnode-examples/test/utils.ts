@@ -2,9 +2,15 @@ import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process'
 
 export const runCommand = (command: string) => {
   console.log(`Running command:\n${command}`);
-  return spawnSync(command, {
+  const result = spawnSync(command, {
     shell: true,
-  }).stdout.toString();
+  });
+
+  if (result.status !== 0 || result.error) {
+    throw new Error(result.error?.message ?? 'Command failed with non-zero status code');
+  }
+
+  return result.stdout.toString();
 };
 
 export const runCommandInBackground = (command: string) => {
