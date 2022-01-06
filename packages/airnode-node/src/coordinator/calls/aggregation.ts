@@ -1,21 +1,47 @@
 import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request, Config, RequestStatus } from '../../types';
 
 function buildAggregatedCall(config: Config, request: Request<ApiCall>): AggregatedApiCall {
+  const {
+    id,
+    airnodeAddress,
+    sponsorAddress,
+    sponsorWalletAddress,
+    metadata,
+    endpointId,
+    encodedParameters,
+    requesterAddress,
+    chainId,
+    parameters,
+    type,
+    fulfillAddress,
+    fulfillFunctionId,
+    requestCount,
+    templateId,
+    template,
+  } = request;
   // The trigger should already be verified to exist at this point
-  const trigger = config.triggers.rrp.find((t) => t.endpointId === request.endpointId)!;
+  const trigger = config.triggers.rrp.find((t) => t.endpointId === endpointId)!;
 
   return {
     type: 'regular',
-    id: request.id,
-    sponsorAddress: request.sponsorAddress,
-    airnodeAddress: request.airnodeAddress!,
-    requesterAddress: request.requesterAddress,
-    sponsorWalletAddress: request.sponsorWalletAddress,
-    chainId: request.chainId,
-    endpointId: request.endpointId!,
-    parameters: request.parameters,
+    id: id,
+    sponsorAddress: sponsorAddress,
+    airnodeAddress: airnodeAddress!,
+    requesterAddress: requesterAddress,
+    sponsorWalletAddress: sponsorWalletAddress,
+    chainId: chainId,
+    endpointId: endpointId!,
+    parameters: parameters,
     endpointName: trigger.endpointName,
     oisTitle: trigger.oisTitle,
+    requestType: type,
+    metadata: metadata,
+    encodedParameters,
+    fulfillAddress,
+    fulfillFunctionId,
+    requestCount,
+    templateId,
+    template,
   };
 }
 

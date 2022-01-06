@@ -1,11 +1,7 @@
 import { ethers } from 'ethers';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as blocking from '../requests/blocking';
-import * as verification from '../verification';
-import { unfreezeImport } from '../../../test/helpers';
 import * as fixtures from '../../../test/fixtures';
-
-unfreezeImport(verification, 'verifyApiCallIds');
 
 describe('fetchPendingRequests', () => {
   it('maps and groups requests', async () => {
@@ -67,16 +63,6 @@ describe('fetchPendingRequests', () => {
         },
       ],
     });
-  });
-
-  it('verifies API calls', async () => {
-    const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
-    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([fullRequest]);
-    const verificationSpy = jest.spyOn(verification, 'verifyApiCallIds');
-    const state = fixtures.buildEVMProviderState();
-    await fetchPendingRequests(state);
-    expect(verificationSpy).toHaveBeenCalledTimes(1);
   });
 
   it('blocks API calls linked to withdrawals', async () => {

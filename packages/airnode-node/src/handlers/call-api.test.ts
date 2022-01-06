@@ -29,7 +29,7 @@ describe('callApi', () => {
       success: true,
       value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
       signature:
-        '0x4d7f431100977a335667c36d1a47b242707c958304bf218f2fbbfdd840eef50765fcf16b8230351fb2bb79dbb099040e617b5e9c72642033b61a83c403fa68a41b',
+        '0x8df4fee3530c2a918ca0f8a295c3ae3ab849b30547548da5b7df7a8b69b70a753326afb7784ff1d99b732ccc2caf9171db8fc6ce5372afffd4d47c69c1e5828b1b',
     });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
@@ -38,15 +38,15 @@ describe('callApi', () => {
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
         metadata: {
-          airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
+          airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
           airnodeRrpAddress: '0x197F3826040dF832481f835652c290aC7c41f073',
           chainId: '31337',
           chainType: 'evm',
-          endpointId: 'endpointId',
-          requestId: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
+          endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+          requestId: '0x1848c75378cb0f0c14c9255c6d7631aac3f1f236e502340b4a4dc0e184841153',
           requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-          sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-          sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
+          sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
+          sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
         },
         apiCredentials: [
           {
