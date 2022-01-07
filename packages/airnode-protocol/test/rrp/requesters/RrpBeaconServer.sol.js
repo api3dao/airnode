@@ -698,15 +698,7 @@ describe('updateBeaconWithoutRequest', function () {
               context('Data not older than 1 hour and not more than 1 hour from the future', function () {
                 it('updates beacon', async function () {
                   const requestId = hre.ethers.utils.keccak256(
-                    hre.ethers.utils.solidityPack(
-                      ['uint256', 'address', 'bytes32', 'bytes'],
-                      [
-                        (await hre.ethers.provider.getNetwork()).chainId,
-                        rrpBeaconServer.address,
-                        templateId,
-                        beaconParameters,
-                      ]
-                    )
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
                   );
                   const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
                     .timestamp;
@@ -734,15 +726,7 @@ describe('updateBeaconWithoutRequest', function () {
               context('Data more than 1 hour from the future', function () {
                 it('reverts', async function () {
                   const requestId = hre.ethers.utils.keccak256(
-                    hre.ethers.utils.solidityPack(
-                      ['uint256', 'address', 'bytes32', 'bytes'],
-                      [
-                        (await hre.ethers.provider.getNetwork()).chainId,
-                        rrpBeaconServer.address,
-                        templateId,
-                        beaconParameters,
-                      ]
-                    )
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
                   );
                   const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
                     .timestamp;
@@ -769,15 +753,7 @@ describe('updateBeaconWithoutRequest', function () {
             context('Data not fresher than beacon', function () {
               it('reverts', async function () {
                 const requestId = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(
-                    ['uint256', 'address', 'bytes32', 'bytes'],
-                    [
-                      (await hre.ethers.provider.getNetwork()).chainId,
-                      rrpBeaconServer.address,
-                      templateId,
-                      beaconParameters,
-                    ]
-                  )
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
                 );
                 const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -804,15 +780,7 @@ describe('updateBeaconWithoutRequest', function () {
             context('Data larger than maximum int224', function () {
               it('reverts', async function () {
                 const requestId = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(
-                    ['uint256', 'address', 'bytes32', 'bytes'],
-                    [
-                      (await hre.ethers.provider.getNetwork()).chainId,
-                      rrpBeaconServer.address,
-                      templateId,
-                      beaconParameters,
-                    ]
-                  )
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
                 );
                 const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -837,15 +805,7 @@ describe('updateBeaconWithoutRequest', function () {
             context('Data smaller than minimum int224', function () {
               it('reverts', async function () {
                 const requestId = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(
-                    ['uint256', 'address', 'bytes32', 'bytes'],
-                    [
-                      (await hre.ethers.provider.getNetwork()).chainId,
-                      rrpBeaconServer.address,
-                      templateId,
-                      beaconParameters,
-                    ]
-                  )
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
                 );
                 const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -872,15 +832,7 @@ describe('updateBeaconWithoutRequest', function () {
         context('Encoded data length is too long', function () {
           it('reverts', async function () {
             const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'address', 'bytes32', 'bytes'],
-                [
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpBeaconServer.address,
-                  templateId,
-                  beaconParameters,
-                ]
-              )
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
             );
             const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -906,15 +858,7 @@ describe('updateBeaconWithoutRequest', function () {
         context('Encoded data length is too short', function () {
           it('reverts', async function () {
             const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'address', 'bytes32', 'bytes'],
-                [
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpBeaconServer.address,
-                  templateId,
-                  beaconParameters,
-                ]
-              )
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
             );
             const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -972,15 +916,7 @@ describe('updateBeaconWithoutRequest', function () {
             )
           );
           const requestId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(
-              ['uint256', 'address', 'bytes32', 'bytes'],
-              [
-                (await hre.ethers.provider.getNetwork()).chainId,
-                rrpBeaconServer.address,
-                anotherTemplateId,
-                beaconParameters,
-              ]
-            )
+            hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [anotherTemplateId, beaconParameters])
           );
           const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
@@ -1002,10 +938,7 @@ describe('updateBeaconWithoutRequest', function () {
       context('Fulfillment data mismatch', function () {
         it('reverts', async function () {
           const requestId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(
-              ['uint256', 'address', 'bytes32', 'bytes'],
-              [(await hre.ethers.provider.getNetwork()).chainId, rrpBeaconServer.address, templateId, beaconParameters]
-            )
+            hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
           );
           const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);

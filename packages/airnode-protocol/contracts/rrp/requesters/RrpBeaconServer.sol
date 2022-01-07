@@ -255,9 +255,9 @@ contract RrpBeaconServer is
 
     /// @notice Called to update a beacon without a preceding RRP request using
     /// data signed by the respective Airnode
-    /// @dev The request ID used here is derived using a different scheme than
-    /// RRP. This means RRP responses cannot be used with this method, and vice
-    /// versa.
+    /// @dev The request hash used here is derived using a different scheme
+    /// than RRP. This means signed RRP responses cannot be used with this
+    /// method, and vice versa.
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
@@ -272,28 +272,13 @@ contract RrpBeaconServer is
     ) external override {
         (address airnode, , ) = IAirnodeRrp(airnodeRrp).templates(templateId);
         require(airnode != address(0), "Template does not exist");
-        // The "request ID" is derived from the chain ID, the address of this
-        // BeaconServer contract and the parameters that specify the oracle
-        // request. This ensures that `data` is indeed in response to the
-        // respective request, and provides the signing Airnode some
-        // information that they may want to be selective about (e.g., it may
-        // only want to sign responses that will be used in a specific contract
-        // deployed on a specific chain).
-        bytes32 requestId = keccak256(
-            abi.encodePacked(
-                block.chainid,
-                address(this),
-                templateId,
-                parameters
-            )
-        );
+        bytes32 beaconId = deriveBeaconId(templateId, parameters);
         IAirnodeRrp(airnodeRrp).verifySignature(
-            requestId,
+            beaconId,
             airnode,
             data,
             signature
         );
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
         (int256 decodedData, uint256 decodedTimestamp) = ingestData(
             beaconId,
             data
