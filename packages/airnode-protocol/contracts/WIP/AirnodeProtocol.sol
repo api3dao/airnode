@@ -37,6 +37,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     }
 
     struct Subscription {
+        bytes32 requestHash;
         bytes32 templateId;
         address sponsor;
         address fulfillAddress;
@@ -144,8 +145,15 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
+        // Pre-compute the request hash and add it as a field to the
+        // subscription so that it can be checked without having to read
+        // `parameters` from storage
+        bytes32 requestHash = keccak256(
+            abi.encodePacked(templateId, parameters)
+        );
         subscriptionId = keccak256(
             abi.encodePacked(
+                requestHash,
                 templateId,
                 sponsor,
                 fulfillAddress,
@@ -155,6 +163,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         if (subscriptions[subscriptionId].templateId == bytes32(0)) {
             subscriptions[subscriptionId] = Subscription({
+                requestHash: requestHash,
                 templateId: templateId,
                 sponsor: sponsor,
                 fulfillAddress: fulfillAddress,
@@ -163,6 +172,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             });
             emit CreatedSubscription(
                 subscriptionId,
+                requestHash,
                 templateId,
                 sponsor,
                 fulfillAddress,

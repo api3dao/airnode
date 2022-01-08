@@ -19,6 +19,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     event CreatedSubscription(
         bytes32 indexed subscriptionId,
+        bytes32 requestHash,
         bytes32 templateId,
         address sponsor,
         address fulfillAddress,
@@ -138,6 +139,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         external
         view
         returns (
+            bytes32 requestHash,
             bytes32 templateId,
             address sponsor,
             address fulfillAddress,
