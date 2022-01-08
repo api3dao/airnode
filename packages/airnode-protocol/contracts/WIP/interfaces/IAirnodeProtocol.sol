@@ -54,6 +54,12 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         string errorMessage
     );
 
+    event FulfilledSubscription(
+        bytes32 indexed subscriptionId,
+        uint256 timestamp,
+        bytes data
+    );
+
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
@@ -100,12 +106,14 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes calldata signature
     ) external;
 
-    function verifySignature(
+    function fulfillSubscription(
         address airnode,
-        address sponsorWallet,
+        address allocator,
+        uint256 slotIndex,
         uint256 timestamp,
+        bytes calldata data,
         bytes calldata signature
-    ) external;
+    ) external returns (bool callSuccess, bytes memory callData);
 
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external

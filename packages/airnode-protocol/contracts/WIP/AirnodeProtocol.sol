@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./utils/WithdrawalUtils.sol";
+import "./allocators/interfaces/IAllocator.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
 /// @title Airnode request–response protocol (RRP) and publish–subscribe
@@ -287,7 +288,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         require(
             (
-                keccak256(abi.encodePacked(msg.sender, timestamp))
+                keccak256(abi.encodePacked(requestId, msg.sender, timestamp))
                     .toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"
@@ -350,7 +351,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         require(
             (
-                keccak256(abi.encodePacked(msg.sender, timestamp))
+                keccak256(abi.encodePacked(requestId, msg.sender, timestamp))
                     .toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"
@@ -359,19 +360,62 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit FailedRequest(airnode, requestId, timestamp, errorMessage);
     }
 
-    function verifySignature(
+    /// @notice Called by the reporter to fulfill the subscription
+    /// @dev The data is ABI-encoded as a `bytes` type, with its format
+    /// depending on the request specifications.
+    /// The conditions under which a subscription should be fulfilled are
+    /// specified in its parameters, and the subscription will be fulfilled
+    /// continually as long as these conditions are met. In other words, a
+    /// subscription does not necessarily expire when this function is called.
+    /// The reporter will only call this function if the subsequent static call
+    /// returns `true` for `callSuccess`. If it does not in this static call or
+    /// the transaction following that, this will not be handled by the
+    /// reporter in any way.
+    /// This function emits its event after an untrusted low-level call,
+    /// meaning that the order of these events within the transaction should
+    /// not be taken seriously, yet the content will be sound.
+    /// @param data Fulfillment data
+    /// @param signature Request ID and fulfillment data signed by the Airnode
+    /// address
+    /// @return callSuccess If the fulfillment call succeeded
+    /// @return callData Data returned by the fulfillment call (if there is
+    /// any)
+    function fulfillSubscription(
         address airnode,
-        address sponsorWallet,
+        address allocator,
+        uint256 slotIndex,
         uint256 timestamp,
+        bytes calldata data,
         bytes calldata signature
-    ) external override {
+    ) external override returns (bool callSuccess, bytes memory callData) {
+        (bytes32 subscriptionId, , uint64 expirationTimestamp) = IAllocator(
+            allocator
+        ).airnodeToSlotIndexToSlot(airnode, slotIndex);
+        Subscription storage subscription = subscriptions[subscriptionId];
+        require(
+            subscription.templateId != bytes32(0),
+            "Subscription does not exist"
+        );
         require(
             (
-                keccak256(abi.encodePacked(sponsorWallet, timestamp))
-                    .toEthSignedMessageHash()
+                keccak256(
+                    abi.encodePacked(subscriptionId, msg.sender, timestamp)
+                ).toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"
         );
+        require(expirationTimestamp > block.timestamp, "Subscription expired");
+        (callSuccess, callData) = subscription.fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
+            abi.encodeWithSelector(
+                subscription.fulfillFunctionId,
+                subscriptionId,
+                timestamp,
+                data
+            )
+        );
+        if (callSuccess) {
+            emit FulfilledSubscription(subscriptionId, timestamp, data);
+        }
     }
 
     /// @notice Called to check if the request with the ID is made but not
