@@ -14,7 +14,22 @@ import {
 const waitForFulfillment = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
-  return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
+
+  const fulfilled = new Promise((resolve) =>
+    provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve)
+  );
+  const failed = new Promise((resolve) =>
+    provider.once(airnodeRrp.filters.FailedRequest(null, requestId), resolve)
+  ).then((rawRequestFailedLog) => {
+    const log = airnodeRrp.interface.parseLog(rawRequestFailedLog as ethers.Event);
+    throw new Error(`Request failed. Reason:\n${log.args.errorMessage}`);
+  });
+
+  // Airnode request can either:
+  // 1) be fulfilled - in that case this promise resolves
+  // 2) fail - in that case, this promise rejects and this function throws an error
+  // 3) never be processed - this means the request is invalid or a bug in Airnode. This should not happen.
+  await Promise.race([fulfilled, failed]);
 };
 
 const makeRequest = async (): Promise<string> => {
