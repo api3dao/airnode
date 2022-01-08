@@ -182,7 +182,7 @@ export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
   readonly providerStates: ProviderStates;
-  readonly id: string;
+  readonly coordinatorId: string;
   readonly settings: CoordinatorSettings;
 }
 

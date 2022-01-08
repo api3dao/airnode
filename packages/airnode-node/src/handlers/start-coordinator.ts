@@ -5,93 +5,112 @@ import * as logger from '../logger';
 import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
-import * as state from '../coordinator/state';
+import * as coordinatorState from '../coordinator/state';
 import { formatDateTime, go } from '../utils';
 import { Config, CoordinatorState, WorkerOptions } from '../types';
 
 export async function startCoordinator(config: Config) {
   const startedAt = new Date();
-
   const endState = await coordinator(config);
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId: endState.id });
-
   const completedAt = new Date();
+
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId: endState.coordinatorId });
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, logOptions);
 
+  // Heartbeat is not core part of coordinator because it may return early in case there are no actionable requests
   const [heartbeatError, _heartbeatRes] = await go(() => reportHeartbeat(endState));
   if (heartbeatError) {
     logger.error('Failed to send Airnode heartbeat', { ...logOptions, error: heartbeatError });
   }
 }
 
-async function coordinator(config: Config): Promise<CoordinatorState> {
-  // ======================================================================
-  // STEP 1: Create a blank coordinator state
-  // ======================================================================
-  const state1 = state.create(config);
-  const { id: coordinatorId } = state1;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId: state1.id });
+function createInitialCoordinatorState(config: Config) {
+  const state = coordinatorState.create(config);
+  const { coordinatorId } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
 
-  logger.info(`Coordinator starting...`, logOptions);
+  logger.info(`Created initial coordinator state`, logOptions);
+  return state;
+}
 
-  const workerOpts: WorkerOptions = {
+function getWorkerOptions(state: CoordinatorState): WorkerOptions {
+  const { config, settings } = state;
+
+  return {
     cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeAddressShort: state1.settings.airnodeAddressShort,
+    airnodeAddressShort: settings.airnodeAddressShort,
     stage: config.nodeSettings.stage,
   };
+}
 
-  // ======================================================================
-  // STEP 2: Get the initial state from each provider
-  // ======================================================================
-  // Should not throw
-  const [initializeLogs, initializedStates] = await providers.initialize(coordinatorId, config, workerOpts);
-  logger.logPending(initializeLogs, logOptions);
+async function initializeProviders(state: CoordinatorState) {
+  const { coordinatorId, config } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
 
-  const state2 = state.update(state1, { providerStates: { evm: initializedStates.evm } });
-  state2.providerStates.evm.forEach((evmProvider) => {
-    logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, logOptions);
-  });
+  logger.info('Forking to initialize providers', logOptions);
+  const [logs, providerStates] = await providers.initialize(coordinatorId, config, getWorkerOptions(state));
+  logger.logPending(logs, logOptions);
   logger.info('Forking to initialize providers complete', logOptions);
 
-  const hasNoRequests = state2.providerStates.evm.every((evmProvider) =>
-    hasNoActionableRequests(evmProvider!.requests)
+  const newState = coordinatorState.update(state, { providerStates });
+  newState.providerStates.evm.forEach((evmProvider) => {
+    logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, logOptions);
+  });
+  return newState;
+}
+
+function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
+  const { providerStates } = state;
+
+  return providerStates.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
+}
+
+function aggregateApiCalls(state: CoordinatorState) {
+  const { providerStates, config, coordinatorId } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+
+  const flatApiCalls = flatMap(providerStates.evm, (provider) => provider.requests.apiCalls);
+  const aggregatedApiCallsById = calls.aggregate(config, flatApiCalls);
+
+  logger.info('Aggregated API calls', logOptions);
+  return coordinatorState.update(state, { aggregatedApiCallsById });
+}
+
+async function executeApiCalls(state: CoordinatorState) {
+  const { aggregatedApiCallsById, config, coordinatorId } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+
+  const aggregatedApiCalls = Object.values(aggregatedApiCallsById);
+  const [logs, processedAggregatedApiCalls] = await calls.callApis(
+    aggregatedApiCalls,
+    logOptions,
+    getWorkerOptions(state)
   );
-  if (hasNoRequests) {
-    logger.info('No actionable requests detected. Returning...', logOptions);
-    return state2;
-  }
+  logger.logPending(logs, logOptions);
 
-  // ======================================================================
-  // STEP 3: Group API calls with respect to request IDs
-  // ======================================================================
-  const flatApiCalls = flatMap(state2.providerStates.evm, (provider) => provider.requests.apiCalls);
-  const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
-  const state3 = state.update(state2, { aggregatedApiCallsById });
-
-  // ======================================================================
-  // STEP 4: Execute API calls and save the responses
-  // ======================================================================
-  const aggregateCallIds = Object.keys(state3.aggregatedApiCallsById);
-  const flatAggregatedCalls = flatMap(aggregateCallIds, (id) => state3.aggregatedApiCallsById[id]);
-  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(flatAggregatedCalls, logOptions, workerOpts);
-  logger.logPending(callLogs, logOptions);
-
+  logger.info('Executed API calls', logOptions);
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
-  const state4 = state.update(state3, { aggregatedApiCallsById: processedAggregatedApiCallsById });
+  return coordinatorState.update(state, { aggregatedApiCallsById: processedAggregatedApiCallsById });
+}
 
-  // ======================================================================
-  // STEP 5: Map API responses back to each provider's API requests
-  // ======================================================================
-  const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
-  logger.logPending(disaggregationLogs, logOptions);
-  const state5 = state.update(state4, { providerStates: { evm: providersWithAPIResponses } });
+function disaggregateApiCalls(state: CoordinatorState) {
+  const { config, coordinatorId } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
 
-  // ======================================================================
-  // STEP 6: Initiate transactions for each provider, sponsor wallet pair
-  // ======================================================================
+  // TODO: Disaggregation should be chain agnostic - currently only updated EVM providers are returned
+  const [logs, evmProvidersWithApiResponses] = calls.disaggregate(state);
+  logger.logPending(logs, logOptions);
 
-  const sponsorProviderStates = providers.splitStatesBySponsorAddress(state5.providerStates);
+  logger.info('Disaggregated API calls', logOptions);
+  return coordinatorState.update(state, { providerStates: { evm: evmProvidersWithApiResponses } });
+}
+
+async function initiateTransactions(state: CoordinatorState) {
+  const { providerStates, config, coordinatorId } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+
+  const sponsorProviderStates = providers.splitStatesBySponsorAddress(providerStates);
   sponsorProviderStates.forEach((sponsorProviderState) => {
     logger.info(
       `Forking to submit transactions for EVM provider:${sponsorProviderState.settings.name} and sponsor wallet: ${sponsorProviderState.sponsorAddress}...`,
@@ -101,13 +120,56 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
 
   // NOTE: Not merging responses and logs back (based on the provider, regardless sponsor wallet)
   // as the data don't go anywhere from here but be aware if that changes in the future.
-
-  // NOTE: Should not throw
-  const [processedLogs, processedProviders] = await providers.processRequests(sponsorProviderStates, workerOpts);
+  const [processedLogs, processedProviders] = await providers.processRequests(
+    sponsorProviderStates,
+    getWorkerOptions(state)
+  );
   logger.logPending(processedLogs, logOptions);
 
-  const state6 = state.update(state5, { providerStates: processedProviders });
   logger.info('Forking to submit transactions complete', logOptions);
+  return coordinatorState.update(state, { providerStates: processedProviders });
+}
 
-  return state6;
+async function coordinator(config: Config): Promise<CoordinatorState> {
+  // =================================================================
+  // STEP 1: Create a blank coordinator state
+  // =================================================================
+  let state = createInitialCoordinatorState(config);
+
+  // =================================================================
+  // STEP 2: Create the initial state from each provider
+  // =================================================================
+  state = await initializeProviders(state);
+
+  // =================================================================
+  // STEP 3: Return early if there are no actionable requests
+  // =================================================================
+  if (hasCoordinatorNoActionableRequests(state)) {
+    const { coordinatorId } = state;
+    const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+    logger.info('No actionable requests detected. Returning', logOptions);
+    return state;
+  }
+
+  // =================================================================
+  // STEP 4: Group API calls with respect to request IDs
+  // =================================================================
+  state = aggregateApiCalls(state);
+
+  // =================================================================
+  // STEP 5: Execute API calls and save the responses
+  // =================================================================
+  state = await executeApiCalls(state);
+
+  // =================================================================
+  // STEP 6: Map API responses back to each provider's API requests
+  // =================================================================
+  state = disaggregateApiCalls(state);
+
+  // ======================================================================
+  // STEP 7: Initiate transactions for each provider, sponsor wallet pair
+  // ======================================================================
+  state = await initiateTransactions(state);
+
+  return state;
 }

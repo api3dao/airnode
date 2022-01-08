@@ -3,7 +3,7 @@ import { randomString } from '../utils/string-utils';
 import { Config, CoordinatorSettings, CoordinatorState } from '../types';
 
 export function create(config: Config): CoordinatorState {
-  const id = randomString(8);
+  const coordinatorId = randomString(8);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
@@ -17,7 +17,7 @@ export function create(config: Config): CoordinatorState {
   };
 
   return {
-    id,
+    coordinatorId,
     config,
     settings,
     aggregatedApiCallsById: {},
