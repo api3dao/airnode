@@ -65,3 +65,6 @@ export const promptQuestions = (questions: PromptObject[]) =>
       throw new Error('Aborted by the user');
     },
   });
+
+export const setMaxPromiseTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
+  Promise.race([promise, new Promise<never>((_, reject) => setTimeout(() => reject('Timeout exceeded!'), timeoutMs))]);

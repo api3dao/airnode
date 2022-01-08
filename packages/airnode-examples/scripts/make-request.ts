@@ -8,6 +8,7 @@ import {
   getAirnodeWallet,
   readConfig,
   cliPrint,
+  setMaxPromiseTimeout,
 } from '../src';
 
 const waitForFulfillment = async (requestId: string) => {
@@ -57,7 +58,7 @@ const main = async () => {
   cliPrint.info('Making request...');
   const requestId = await makeRequest();
   cliPrint.info('Waiting for fulfillment...');
-  await waitForFulfillment(requestId);
+  await setMaxPromiseTimeout(waitForFulfillment(requestId), 80 * 1000);
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();

@@ -7,6 +7,7 @@ import {
   runAndHandleErrors,
   getAirnodeWallet,
   cliPrint,
+  setMaxPromiseTimeout,
 } from '../src';
 
 const waitForFulfillment = async (withdrawalRequestId: string) => {
@@ -61,7 +62,7 @@ const printWalletBalances = async () => {
 const main = async () => {
   await printWalletBalances();
   cliPrint.info('Making withdrawal request...');
-  const requestId = await makeWithdrawalRequest();
+  const requestId = await setMaxPromiseTimeout(makeWithdrawalRequest(), 80 * 1000);
   cliPrint.info('Waiting for fulfillment...');
   await waitForFulfillment(requestId);
   cliPrint.info('Withdrawal request fulfilled');
