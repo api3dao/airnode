@@ -11,6 +11,7 @@ export class AdminSdk {
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
   static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
+  static useAirnodeRrp = evm.useAirnodeRrp;
 
   constructor(public airnodeRrp: AirnodeRrp, public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode) {}
 
@@ -99,4 +100,6 @@ export class AdminSdk {
     admin.isRequesterWhitelisted(this.requesterAuthorizerWithAirnode, airnodeAddress, endpointId, requesterAddress);
 
   generateMnemonic = () => admin.generateMnemonic();
+
+  deriveAirnodeAddress = (airnodeMnemonic: string) => admin.deriveAirnodeAddress(airnodeMnemonic);
 }

@@ -4,6 +4,7 @@ import {
   AirnodeRrpAddresses,
   RequesterAuthorizerWithAirnodeAddresses,
   authorizers,
+  AirnodeRrp,
 } from '@api3/airnode-protocol';
 
 async function getAirnodeRrpAddress(provider: ethers.providers.Provider) {
@@ -23,7 +24,10 @@ export async function getAirnodeRrp(
   let signerOrProvider: ethers.providers.Provider | ethers.Signer = new ethers.providers.JsonRpcProvider(providerUrl);
 
   const address = props?.airnodeRrpAddress || (await getAirnodeRrpAddress(signerOrProvider));
-  if (!address) throw new Error(`AirnodeRrp address is not provided`);
+  if (!address)
+    throw new Error(
+      `AirnodeRrp address is not provided. Please specify the address using "--airnode-rrp-address" parameter.`
+    );
 
   if (props?.signer) {
     signerOrProvider = ethers.Wallet.fromMnemonic(props.signer.mnemonic, props.signer.derivationPath).connect(
@@ -31,6 +35,10 @@ export async function getAirnodeRrp(
     );
   }
   return AirnodeRrpFactory.connect(address, signerOrProvider);
+}
+
+export function useAirnodeRrp(airnodeRrpContract: ethers.Contract) {
+  return airnodeRrpContract as AirnodeRrp;
 }
 
 export async function getRequesterAuthorizerWithAirnode(

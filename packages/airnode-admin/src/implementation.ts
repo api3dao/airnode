@@ -281,3 +281,7 @@ export async function generateMnemonic() {
   const wallet = ethers.Wallet.createRandom();
   return wallet.mnemonic.phrase;
 }
+
+export async function deriveAirnodeAddress(airnodeMnemonic: string) {
+  return ethers.Wallet.fromMnemonic(airnodeMnemonic).address;
+}

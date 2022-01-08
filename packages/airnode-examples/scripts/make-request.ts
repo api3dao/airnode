@@ -10,13 +10,13 @@ import {
   cliPrint,
 } from '../src';
 
-const fulfilled = async (requestId: string) => {
+const waitForFulfillment = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
   return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
 };
 
-export const makeRequest = async (): Promise<string> => {
+const makeRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
@@ -24,9 +24,9 @@ export const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' from the admin CLI package
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' from the
+  // admin CLI package
   const sponsorWalletAddress = await deriveSponsorWalletAddress(
-    // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' from the admin CLI package
     deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
     sponsor.address
@@ -57,7 +57,7 @@ const main = async () => {
   cliPrint.info('Making request...');
   const requestId = await makeRequest();
   cliPrint.info('Waiting for fulfillment...');
-  await fulfilled(requestId);
+  await waitForFulfillment(requestId);
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();

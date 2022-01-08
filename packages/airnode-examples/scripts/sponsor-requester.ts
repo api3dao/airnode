@@ -8,7 +8,7 @@ const main = async () => {
   const command = [
     `yarn airnode-admin sponsor-requester`,
     `--provider-url ${integrationInfo.providerUrl}`,
-    `--airnode-rrp ${airnodeRrp.address}`,
+    `--airnode-rrp-address ${airnodeRrp.address}`,
     `--requester-address ${requester.address}`,
     `--sponsor-mnemonic "${integrationInfo.mnemonic}"`,
   ].join(' ');

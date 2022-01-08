@@ -24,7 +24,9 @@ Commands:
                                           pair
   cli.js is-requester-whitelisted         Returns a boolean to indicate whether or not the requester is whitelisted to
                                           use the Airnode–endpoint pair
-  cli.js generate-mnemonic                Generates a random mnemonic. Uses \\"ethers.Wallet.createRandom\\" under the hood.
+  cli.js generate-mnemonic                Generates a random mnemonic. Uses \\"ethers.Wallet.createRandom\\" under the hood
+  cli.js derive-airnode-address           Derives the airnode address which is the identifier of the particular Airnode
+                                          on chain
 
 Options:
   --version  Show version number                                                                               [boolean]

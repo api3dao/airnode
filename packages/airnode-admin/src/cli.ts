@@ -11,7 +11,7 @@ const COMMON_COMMAND_ARGUMENTS = {
       demandOption: true,
       describe: 'URL of the blockchain provider',
     },
-    'airnode-rrp': {
+    'airnode-rrp-address': {
       type: 'string',
       describe: 'Address of the deployed AirnodeRrp contract',
     },
@@ -22,7 +22,7 @@ const COMMON_COMMAND_ARGUMENTS = {
       demandOption: true,
       describe: 'URL of the blockchain provider',
     },
-    'requester-authorizer-with-airnode': {
+    'requester-authorizer-with-airnode-address': {
       type: 'string',
       describe: 'Address of the deployed RequesterAuthorizerWithAirnode contract',
     },
@@ -179,7 +179,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
-        airnodeRrpAddress: args['airnode-rrp'],
+        airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address']);
@@ -196,7 +196,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
-        airnodeRrpAddress: args['airnode-rrp'],
+        airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address']);
@@ -214,7 +214,9 @@ yargs
       'requester-address': requesterAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], { airnodeRrpAddress: args['airnode-rrp'] });
+      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
+        airnodeRrpAddress: args['airnode-rrp-address'],
+      });
       const status = await admin.sponsorToRequesterToSponsorshipStatus(
         airnodeRrp,
         args['sponsor-address'],
@@ -238,7 +240,7 @@ yargs
     async (args) => {
       const template = JSON.parse(fs.readFileSync(args['template-file-path']).toString());
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
-        airnodeRrpAddress: args['airnode-rrp'],
+        airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       const templateId = await admin.createTemplate(airnodeRrp, template);
@@ -257,7 +259,9 @@ yargs
       },
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], { airnodeRrpAddress: args['airnode-rrp'] });
+      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
+        airnodeRrpAddress: args['airnode-rrp-address'],
+      });
       const parameters = await admin.getTemplate(airnodeRrp, args['template-id']);
       console.log(toJSON(parameters));
     }
@@ -273,7 +277,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
-        airnodeRrpAddress: args['airnode-rrp'],
+        airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
 
@@ -293,7 +297,9 @@ yargs
       'withdrawal-request-id': withdrawalRequestId,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], { airnodeRrpAddress: args['airnode-rrp'] });
+      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
+        airnodeRrpAddress: args['airnode-rrp-address'],
+      });
       const response = await admin.checkWithdrawalRequest(airnodeRrp, args['withdrawal-request-id']);
       if (response) {
         console.log(`Withdrawn amount: ${response.amount}`);
@@ -333,7 +339,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
 
@@ -362,7 +368,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       await admin.extendWhitelistExpiration(
@@ -390,7 +396,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       await admin.setIndefiniteWhitelistStatus(
@@ -412,7 +418,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
       });
       const whitelistStatus = await admin.getWhitelistStatus(
         requesterAuthorizerWithAirnode,
@@ -432,7 +438,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
       });
       const isRequesterWhitelisted = await admin.isRequesterWhitelisted(
         requesterAuthorizerWithAirnode,
@@ -445,7 +451,7 @@ yargs
   )
   .command(
     'generate-mnemonic',
-    'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood.',
+    'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
       const lines = [
@@ -455,6 +461,15 @@ yargs
         mnemonic,
       ];
       lines.forEach((line) => console.log(line));
+    }
+  )
+  .command(
+    'derive-airnode-address',
+    'Derives the airnode address which is the identifier of the particular Airnode on chain',
+    { 'airnode-mnemonic': airnodeMnemonic },
+    async (args) => {
+      const airnodeAddress = await admin.deriveAirnodeAddress(args['airnode-mnemonic']);
+      console.log(`Airnode address: ${airnodeAddress}`);
     }
   )
   .demandCommand(1)

@@ -30,5 +30,6 @@ it('provides same API', async () => {
     'deriveWalletPathFromSponsorAddress',
     'getAirnodeRrp',
     'getRequesterAuthorizerWithAirnode',
+    'useAirnodeRrp',
   ]);
 });
