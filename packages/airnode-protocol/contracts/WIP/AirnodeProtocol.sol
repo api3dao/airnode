@@ -22,6 +22,11 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Templates and subscriptions are stored in storage in addition to logs to
 /// ensure their persistance. Requests are only stored in logs because they
 /// are inherently short-lived.
+/// During fulfillment, the existence of requests and subscriptions are
+/// verified to protect against these being spoofed.
+/// Finally, Airnodes attest to controlling their respective sponsor wallets
+/// by signing a message with the address of the sponsor wallet. A timestamp is
+/// added to this signature so it acts like an expiring token.
 contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
 
@@ -168,14 +173,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     }
 
     /// @notice Called by the requester to make a request
-    /// @dev The response is requested to be signed by the Airnode referenced
-    /// in the template. The response is requested to be fulfilled by the
-    /// reporter using the sponsor wallet designated for the sponsor. In other
-    /// words, if `templates[templateId].airnode == reporter`, the Airnode
-    /// operated by the data source will post the reponse to the blockchain.
-    /// However, this is not a necessity, i.e., the requester may request the
-    /// data to be signed by the data source Airnode, to be delivered by
-    /// another party.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -260,9 +257,10 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
+    /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
-    /// @param signature Request ID and fulfillment data signed by the Airnode
-    /// address
+    /// @param signature Request ID, a timestamp and the sponsor wallet address
+    /// signed by the Airnode address
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -315,20 +313,19 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         }
     }
 
-    /// @notice Called by the reporter if the request cannot be fulfilled
-    /// @dev The reporter should fall back to this if a request cannot be
+    /// @notice Called by the Airnode if the request cannot be fulfilled
+    /// @dev The Airnode should fall back to this if a request cannot be
     /// fulfilled because of an error, including the static call to `fulfill()`
     /// returning `false` for `callSuccess`.
-    /// The requester must trust the reporter with only calling this in case of
-    /// an error and that the error message is true. In other words, even
-    /// though the reporter cannot tamper with the fulfillment data because of
-    /// the signature, they may falsely report that the request has failed.
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
+    /// @param timestamp Timestamp used in the signature
     /// @param errorMessage A message that explains why the request has failed
+    /// @param signature Request ID, a timestamp and the sponsor wallet address
+    /// signed by the Airnode address
     function failRequest(
         bytes32 requestId,
         address airnode,
@@ -360,23 +357,29 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit FailedRequest(airnode, requestId, timestamp, errorMessage);
     }
 
-    /// @notice Called by the reporter to fulfill the subscription
+    /// @notice Called by the Airnode to fulfill the subscription
     /// @dev The data is ABI-encoded as a `bytes` type, with its format
     /// depending on the request specifications.
+    /// We check the specified allocator to confirm that such a subscription
+    /// exists, i.e., it is not spoofed by the blockchain provider.
     /// The conditions under which a subscription should be fulfilled are
     /// specified in its parameters, and the subscription will be fulfilled
     /// continually as long as these conditions are met. In other words, a
     /// subscription does not necessarily expire when this function is called.
-    /// The reporter will only call this function if the subsequent static call
+    /// The Airnode will only call this function if the subsequent static call
     /// returns `true` for `callSuccess`. If it does not in this static call or
     /// the transaction following that, this will not be handled by the
-    /// reporter in any way.
+    /// Airnode in any way.
     /// This function emits its event after an untrusted low-level call,
     /// meaning that the order of these events within the transaction should
     /// not be taken seriously, yet the content will be sound.
+    /// @param airnode Airnode address
+    /// @param allocator Allocator address
+    /// @param slotIndex Allocator slot index
+    /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
-    /// @param signature Request ID and fulfillment data signed by the Airnode
-    /// address
+    /// @param signature Subscription ID, a timestamp and the sponsor wallet
+    /// address signed by the Airnode address
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
