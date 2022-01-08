@@ -24,7 +24,7 @@ describe('AirnodeRrp', () => {
       'sponsorToRequesterToSponsorshipStatus',
       'sponsorToWithdrawalRequestCount',
       'templates',
-      'verifySignature',
+      'verifyData',
     ]);
   });
 

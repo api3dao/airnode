@@ -91,12 +91,12 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         string calldata errorMessage
     ) external;
 
-    function verifySignature(
-        bytes32 requestId,
-        address airnode,
+    function verifyData(
+        bytes32 templateId,
+        bytes calldata parameters,
         bytes calldata data,
         bytes calldata signature
-    ) external pure;
+    ) external view returns (address airnode, bytes32 requestHash);
 
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external

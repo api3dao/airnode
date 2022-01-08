@@ -270,12 +270,9 @@ contract RrpBeaconServer is
         bytes calldata data,
         bytes calldata signature
     ) external override {
-        (address airnode, , ) = IAirnodeRrp(airnodeRrp).templates(templateId);
-        require(airnode != address(0), "Template does not exist");
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        IAirnodeRrp(airnodeRrp).verifySignature(
-            beaconId,
-            airnode,
+        (, bytes32 beaconId) = IAirnodeRrp(airnodeRrp).verifyData(
+            templateId,
+            parameters,
             data,
             signature
         );
@@ -405,6 +402,7 @@ contract RrpBeaconServer is
 
     /// @notice Derives the beacon ID from the respective template ID and
     /// additional parameters
+    /// @dev Beacon ID is referred to as the "request hash" in AirnodeRrp
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
