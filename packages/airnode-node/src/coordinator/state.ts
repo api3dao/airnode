@@ -1,9 +1,9 @@
 import * as wallet from '../evm/wallet';
-import { randomString } from '../utils/string-utils';
+import { randomHexString } from '../utils/string-utils';
 import { Config, CoordinatorSettings, CoordinatorState } from '../types';
 
 export function create(config: Config): CoordinatorState {
-  const coordinatorId = randomString(8);
+  const coordinatorId = randomHexString(16);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 

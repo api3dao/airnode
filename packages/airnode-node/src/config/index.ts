@@ -3,15 +3,15 @@ import { OIS } from '@api3/airnode-ois';
 import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
 import { version as getNodeVersion } from '../index';
 import { Config } from '../types';
-import { randomString } from '../utils/string-utils';
+import { randomHexString } from '../utils/string-utils';
 
 // TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
   return oises.map((ois) => {
-    const endpoints = ois.endpoints.map((endpoint) => ({ ...endpoint, id: randomString(16) }));
+    const endpoints = ois.endpoints.map((endpoint) => ({ ...endpoint, id: randomHexString(32) }));
 
-    const apiSpecifications = { ...ois.apiSpecifications, id: randomString(16) };
+    const apiSpecifications = { ...ois.apiSpecifications, id: randomHexString(32) };
     return { ...ois, apiSpecifications, endpoints };
   });
 }
