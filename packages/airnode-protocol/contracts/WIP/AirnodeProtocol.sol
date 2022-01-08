@@ -32,7 +32,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     struct Subscription {
         bytes32 templateId;
-        address reporter;
         address sponsor;
         address fulfillAddress;
         bytes4 fulfillFunctionId;
@@ -118,7 +117,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     /// @notice Creates a subscription record
     /// @param templateId Template ID
-    /// @param reporter Reporter address
     /// @param sponsor Sponsor address
     /// @param fulfillAddress Fulfill address
     /// @param fulfillFunctionId Fulfill function ID
@@ -127,7 +125,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @return subscriptionId Subscription ID
     function createSubscription(
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -144,7 +141,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         subscriptionId = keccak256(
             abi.encodePacked(
                 templateId,
-                reporter,
                 sponsor,
                 fulfillAddress,
                 fulfillFunctionId,
@@ -154,7 +150,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         if (subscriptions[subscriptionId].templateId == bytes32(0)) {
             subscriptions[subscriptionId] = Subscription({
                 templateId: templateId,
-                reporter: reporter,
                 sponsor: sponsor,
                 fulfillAddress: fulfillAddress,
                 fulfillFunctionId: fulfillFunctionId,
@@ -163,7 +158,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             emit CreatedSubscription(
                 subscriptionId,
                 templateId,
-                reporter,
                 sponsor,
                 fulfillAddress,
                 fulfillFunctionId,
@@ -182,7 +176,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// data to be signed by the data source Airnode, to be delivered by
     /// another party.
     /// @param templateId Template ID
-    /// @param reporter Reporter address
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
     /// request
@@ -194,7 +187,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address sponsorWallet,
         address fulfillAddress,
@@ -219,7 +211,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 msg.sender,
                 requesterToRequestCountPlusOne[msg.sender],
                 templateId,
-                reporter,
                 sponsor,
                 sponsorWallet,
                 fulfillAddress,
@@ -230,14 +221,13 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
                 airnode,
-                reporter,
                 sponsorWallet,
                 fulfillAddress,
                 fulfillFunctionId
             )
         );
         emit MadeRequest(
-            reporter,
+            airnode,
             requestId,
             requesterToRequestCountPlusOne[msg.sender]++,
             block.chainid,
@@ -266,7 +256,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// not be taken seriously, yet the content will be sound.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param reporter Reporter address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
@@ -279,9 +268,9 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     function fulfillRequest(
         bytes32 requestId,
         address airnode,
-        address reporter,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
+        uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
@@ -289,7 +278,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             keccak256(
                 abi.encodePacked(
                     airnode,
-                    reporter,
                     msg.sender,
                     fulfillAddress,
                     fulfillFunctionId
@@ -299,22 +287,28 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         require(
             (
-                keccak256(abi.encodePacked(requestId, data))
+                keccak256(abi.encodePacked(msg.sender, timestamp))
                     .toEthSignedMessageHash()
             ).recover(signature) == airnode,
-            "Invalid signature"
+            "Signature mismatch"
         );
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
+            abi.encodeWithSelector(
+                fulfillFunctionId,
+                requestId,
+                timestamp,
+                data
+            )
         );
         if (callSuccess) {
-            emit FulfilledRequest(reporter, requestId, data);
+            emit FulfilledRequest(airnode, requestId, timestamp, data);
         } else {
             // We do not bubble up the revert string from `callData`
             emit FailedRequest(
-                reporter,
+                airnode,
                 requestId,
+                timestamp,
                 "Fulfillment failed unexpectedly"
             );
         }
@@ -330,7 +324,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// the signature, they may falsely report that the request has failed.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param reporter Reporter address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
@@ -338,16 +331,16 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     function failRequest(
         bytes32 requestId,
         address airnode,
-        address reporter,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
-        string calldata errorMessage
+        uint256 timestamp,
+        string calldata errorMessage,
+        bytes calldata signature
     ) external override {
         require(
             keccak256(
                 abi.encodePacked(
                     airnode,
-                    reporter,
                     msg.sender,
                     fulfillAddress,
                     fulfillFunctionId
@@ -355,56 +348,30 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
-        delete requestIdToFulfillmentParameters[requestId];
-        emit FailedRequest(reporter, requestId, errorMessage);
-    }
-
-    /// @notice Called by the reporter to fulfill the subscription
-    /// @dev The data is ABI-encoded as a `bytes` type, with its format
-    /// depending on the request specifications.
-    /// The conditions under which a subscription should be fulfilled are
-    /// specified in its parameters, and the subscription will be fulfilled
-    /// continually as long as these conditions are met. In other words, a
-    /// subscription does not necessarily expire when this function is called.
-    /// The reporter will only call this function if the subsequent static call
-    /// returns `true` for `callSuccess`. If it does not in this static call or
-    /// the transaction following that, this will not be handled by the
-    /// reporter in any way.
-    /// This function emits its event after an untrusted low-level call,
-    /// meaning that the order of these events within the transaction should
-    /// not be taken seriously, yet the content will be sound.
-    /// @param subscriptionId Subcription ID
-    /// @param data Fulfillment data
-    /// @param signature Request ID and fulfillment data signed by the Airnode
-    /// address
-    /// @return callSuccess If the fulfillment call succeeded
-    /// @return callData Data returned by the fulfillment call (if there is
-    /// any)
-    function fulfillSubscription(
-        bytes32 subscriptionId,
-        bytes calldata data,
-        bytes calldata signature
-    ) external override returns (bool callSuccess, bytes memory callData) {
-        Subscription storage subscription = subscriptions[subscriptionId];
-        bytes32 templateId = subscription.templateId;
-        require(templateId != bytes32(0), "Subscription does not exist");
         require(
             (
-                keccak256(abi.encodePacked(subscriptionId, data))
+                keccak256(abi.encodePacked(msg.sender, timestamp))
                     .toEthSignedMessageHash()
-            ).recover(signature) == templates[templateId].airnode,
-            "Invalid signature"
+            ).recover(signature) == airnode,
+            "Signature mismatch"
         );
-        (callSuccess, callData) = subscription.fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSelector(
-                subscription.fulfillFunctionId,
-                subscriptionId,
-                data
-            )
+        delete requestIdToFulfillmentParameters[requestId];
+        emit FailedRequest(airnode, requestId, timestamp, errorMessage);
+    }
+
+    function verifySignature(
+        address airnode,
+        address sponsorWallet,
+        uint256 timestamp,
+        bytes calldata signature
+    ) external override {
+        require(
+            (
+                keccak256(abi.encodePacked(sponsorWallet, timestamp))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
         );
-        if (callSuccess) {
-            emit FulfilledSubscription(subscriptionId, data);
-        }
     }
 
     /// @notice Called to check if the request with the ID is made but not

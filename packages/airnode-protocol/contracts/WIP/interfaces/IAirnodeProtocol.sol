@@ -20,7 +20,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     event CreatedSubscription(
         bytes32 indexed subscriptionId,
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -28,7 +27,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     );
 
     event MadeRequest(
-        address indexed reporter,
+        address indexed airnode,
         bytes32 indexed requestId,
         uint256 requesterRequestCount,
         uint256 chainId,
@@ -42,18 +41,18 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     );
 
     event FulfilledRequest(
-        address indexed reporter,
+        address indexed airnode,
         bytes32 indexed requestId,
+        uint256 timestamp,
         bytes data
     );
 
     event FailedRequest(
-        address indexed reporter,
+        address indexed airnode,
         bytes32 indexed requestId,
+        uint256 timestamp,
         string errorMessage
     );
-
-    event FulfilledSubscription(bytes32 indexed subscriptionId, bytes data);
 
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
@@ -66,7 +65,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     function createSubscription(
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -75,7 +73,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     function makeRequest(
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address sponsorWallet,
         address fulfillAddress,
@@ -86,9 +83,9 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function fulfillRequest(
         bytes32 requestId,
         address airnode,
-        address reporter,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
+        uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
@@ -96,17 +93,19 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function failRequest(
         bytes32 requestId,
         address airnode,
-        address reporter,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
-        string calldata errorMessage
+        uint256 timestamp,
+        string calldata errorMessage,
+        bytes calldata signature
     ) external;
 
-    function fulfillSubscription(
-        bytes32 subscriptionId,
-        bytes calldata data,
+    function verifySignature(
+        address airnode,
+        address sponsorWallet,
+        uint256 timestamp,
         bytes calldata signature
-    ) external returns (bool callSuccess, bytes memory callData);
+    ) external;
 
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
@@ -132,7 +131,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         view
         returns (
             bytes32 templateId,
-            address reporter,
             address sponsor,
             address fulfillAddress,
             bytes4 fulfillFunctionId,
@@ -145,5 +143,5 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function requesterToRequestCountPlusOne(address requester)
         external
         view
-        returns (uint256 requestCount);
+        returns (uint256 requestCountPlusOne);
 }
