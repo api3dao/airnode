@@ -362,12 +362,11 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             airnode,
             slotIndex
         );
-        Subscription storage subscription = subscriptions[subscriptionId];
-        address requester = subscription.requester;
+        address requester = subscriptions[subscriptionId].requester;
+        address sponsor = subscriptions[subscriptionId].sponsor;
         require(
-            sponsorToRequesterToSponsorshipStatus[subscription.sponsor][
-                requester
-            ],
+            requester == sponsor ||
+                sponsorToRequesterToSponsorshipStatus[sponsor][requester],
             "Requester not sponsored"
         );
         require(
