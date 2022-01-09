@@ -92,7 +92,6 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// This point of data must be castable to `int224` and the timestamp must
     /// be castable to `uint32`.
     /// @param templateId Template ID of the beacon to be updated
-    /// @param reporter Reporter address
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
     /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
@@ -101,7 +100,6 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// the parameters in the template
     function requestBeaconUpdate(
         bytes32 templateId,
-        address reporter,
         address sponsor,
         address sponsorWallet,
         bytes calldata parameters
@@ -114,7 +112,6 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
             templateId,
-            reporter,
             sponsor,
             sponsorWallet,
             address(this),
@@ -140,27 +137,24 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// @param requestId ID of the request being fulfilled
     /// @param data Fulfillment data (a single `int256` and an additional
     /// timestamp of type `uint256` encoded as `bytes`)
-    function fulfillRrp(bytes32 requestId, bytes calldata data)
-        external
-        override
-        onlyAirnodeProtocol
-    {
+    function fulfillRrp(
+        bytes32 requestId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyValidAirnodeFulfillment(timestamp) {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
-        (int256 decodedData, uint256 decodedTimestamp) = decodeAndValidateData(
-            beaconId,
-            data
-        );
+        int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);
         beacons[beaconId] = Beacon({
             value: int224(decodedData),
-            timestamp: uint32(decodedTimestamp)
+            timestamp: uint32(timestamp)
         });
         emit UpdatedBeaconWithRrp(
             beaconId,
             requestId,
             int224(decodedData),
-            uint32(decodedTimestamp)
+            uint32(timestamp)
         );
     }
 
@@ -171,11 +165,11 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// @param subscriptionId ID of the subscription being fulfilled
     /// @param data Fulfillment data (a single `int256` and an additional
     /// timestamp of type `uint256` encoded as `bytes`)
-    function fulfillPsp(bytes32 subscriptionId, bytes calldata data)
-        external
-        override
-        onlyAirnodeProtocol
-    {
+    function fulfillPsp(
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyValidAirnodeFulfillment(timestamp) {
         (
             bytes32 templateId,
             ,
@@ -185,19 +179,16 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
             bytes memory parameters
         ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        (int256 decodedData, uint256 decodedTimestamp) = decodeAndValidateData(
-            beaconId,
-            data
-        );
+        int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);
         beacons[beaconId] = Beacon({
             value: int224(decodedData),
-            timestamp: uint32(decodedTimestamp)
+            timestamp: uint32(timestamp)
         });
         emit UpdatedBeaconWithPsp(
             beaconId,
             subscriptionId,
             int224(decodedData),
-            uint32(decodedTimestamp)
+            uint32(timestamp)
         );
     }
 
@@ -207,33 +198,21 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// @param data Fulfillment data (a single `int256` and an additional
     /// timestamp of type `uint256` encoded as `bytes`)
     /// @return decodedData Decoded value that will update the beacon
-    /// @return decodedTimestamp Decoded timestamp that will update the beacon
-    function decodeAndValidateData(bytes32 beaconId, bytes calldata data)
-        private
-        view
-        returns (int256 decodedData, uint256 decodedTimestamp)
-    {
-        require(data.length == 64, "Incorrect data length");
-        (decodedData, decodedTimestamp) = abi.decode(data, (int256, uint256));
+    function decodeAndValidateData(
+        bytes32 beaconId,
+        uint256 timestamp,
+        bytes calldata data
+    ) private view returns (int256 decodedData) {
+        require(data.length == 32, "Incorrect data length");
+        decodedData = abi.decode(data, (int256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
         );
+        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
         require(
-            decodedTimestamp <= type(uint32).max,
-            "Timestamp typecasting error"
-        );
-        require(
-            decodedTimestamp > beacons[beaconId].timestamp,
+            timestamp > beacons[beaconId].timestamp,
             "Fulfillment older than beacon"
-        );
-        require(
-            decodedTimestamp + 1 hours > block.timestamp,
-            "Fulfillment stale"
-        );
-        require(
-            decodedTimestamp - 1 hours < block.timestamp,
-            "Fulfillment from future"
         );
     }
 

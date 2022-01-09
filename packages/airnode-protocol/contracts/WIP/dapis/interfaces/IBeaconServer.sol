@@ -38,16 +38,23 @@ interface IBeaconServer is IAirnodeUser {
         external;
 
     function requestBeaconUpdate(
-        bytes32 beaconId,
-        address reporter,
+        bytes32 templateId,
         address sponsor,
         address sponsorWallet,
         bytes calldata parameters
     ) external;
 
-    function fulfillRrp(bytes32 requestId, bytes calldata data) external;
+    function fulfillRrp(
+        bytes32 requestId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external;
 
-    function fulfillPsp(bytes32 subscriptionId, bytes calldata data) external;
+    function fulfillPsp(
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external;
 
     function readBeacon(bytes32 beaconId)
         external
