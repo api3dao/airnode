@@ -371,10 +371,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             "Requester not sponsored"
         );
         require(
-            subscription.templateId != bytes32(0),
-            "Subscription does not exist"
-        );
-        require(
             (
                 keccak256(
                     abi.encodePacked(subscriptionId, msg.sender, timestamp)

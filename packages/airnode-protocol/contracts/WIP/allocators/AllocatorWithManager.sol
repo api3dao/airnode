@@ -19,11 +19,20 @@ contract AllocatorWithManager is
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
+    /// @param _airnodeProtocol AirnodeProtocol contract address
+    /// @param _manager Manager address
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
+        address _airnodeProtocol,
         address _manager
-    ) Allocator(_accessControlRegistry, _adminRoleDescription) {
+    )
+        Allocator(
+            _accessControlRegistry,
+            _adminRoleDescription,
+            _airnodeProtocol
+        )
+    {
         manager = _manager;
         adminRole = _deriveRole(
             _deriveRootRole(_manager),

@@ -2,9 +2,14 @@
 pragma solidity 0.8.9;
 
 import "../access-control-registry/AccessControlRegistryAdminned.sol";
+import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
-abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
+abstract contract Allocator is
+    AccessControlRegistryAdminned,
+    AirnodeUser,
+    IAllocator
+{
     struct Slot {
         bytes32 subscriptionId;
         address setter;
@@ -22,14 +27,17 @@ abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
+    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription
+        string memory _adminRoleDescription,
+        address _airnodeProtocol
     )
         AccessControlRegistryAdminned(
             _accessControlRegistry,
             _adminRoleDescription
         )
+        AirnodeUser(_airnodeProtocol)
     {}
 
     function _setSlot(
@@ -40,6 +48,9 @@ abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
     ) internal {
         require(airnode != address(0), "Zero Airnode address");
         require(subscriptionId != bytes32(0), "Zero subscription ID");
+        (, bytes32 templateId, , , ) = IAirnodeProtocol(airnodeProtocol)
+            .subscriptions(subscriptionId);
+        require(templateId != bytes32(0), "Subscription does not exist");
         require(
             expirationTimestamp > block.timestamp,
             "Expiration is in the past"
@@ -73,6 +84,7 @@ abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
             "Subscription expired"
         );
         subscriptionId = slot.subscriptionId;
+        require(subscriptionId != bytes32(0), "Slot is empty");
     }
 
     function slotIsVacatable(address airnode, uint256 slotIndex)

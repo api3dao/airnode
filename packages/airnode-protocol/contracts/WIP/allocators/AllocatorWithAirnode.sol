@@ -12,10 +12,18 @@ contract AllocatorWithAirnode is
 {
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
+    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription
-    ) Allocator(_accessControlRegistry, _adminRoleDescription) {}
+        string memory _adminRoleDescription,
+        address _airnodeProtocol
+    )
+        Allocator(
+            _accessControlRegistry,
+            _adminRoleDescription,
+            _airnodeProtocol
+        )
+    {}
 
     function setSlot(
         address airnode,
