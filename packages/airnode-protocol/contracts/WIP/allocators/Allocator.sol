@@ -61,6 +61,20 @@ abstract contract Allocator is AccessControlRegistryAdminned, IAllocator {
         delete airnodeToSlotIndexToSlot[airnode][slotIndex];
     }
 
+    function getActiveSubscriptionId(address airnode, uint256 slotIndex)
+        external
+        view
+        override
+        returns (bytes32 subscriptionId)
+    {
+        Slot storage slot = airnodeToSlotIndexToSlot[airnode][slotIndex];
+        require(
+            slot.expirationTimestamp > block.timestamp,
+            "Subscription expired"
+        );
+        subscriptionId = slot.subscriptionId;
+    }
+
     function slotIsVacatable(address airnode, uint256 slotIndex)
         public
         view

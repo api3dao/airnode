@@ -358,9 +358,10 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
-        (bytes32 subscriptionId, , uint64 expirationTimestamp) = IAllocator(
-            allocator
-        ).airnodeToSlotIndexToSlot(airnode, slotIndex);
+        bytes32 subscriptionId = IAllocator(allocator).getActiveSubscriptionId(
+            airnode,
+            slotIndex
+        );
         Subscription storage subscription = subscriptions[subscriptionId];
         require(
             subscription.templateId != bytes32(0),
@@ -374,7 +375,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             ).recover(signature) == airnode,
             "Signature mismatch"
         );
-        require(expirationTimestamp > block.timestamp, "Subscription expired");
         (callSuccess, callData) = subscription.requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSignature(
                 "fulfillPsp(bytes32,uint256,bytes)",
