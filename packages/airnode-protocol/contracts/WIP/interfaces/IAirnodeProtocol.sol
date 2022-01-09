@@ -29,12 +29,12 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     event MadeRequest(
         address indexed airnode,
         bytes32 indexed requestId,
-        uint256 requesterRequestCount,
         uint256 chainId,
         address requester,
+        uint256 requesterRequestCount,
         bytes32 templateId,
-        address sponsor,
-        bytes parameters
+        bytes parameters,
+        address sponsor
     );
 
     event FulfilledRequest(
@@ -75,8 +75,8 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     function makeRequest(
         bytes32 templateId,
-        address sponsor,
-        bytes calldata parameters
+        bytes calldata parameters,
+        address sponsor
     ) external returns (bytes32 requestId);
 
     function fulfillRequest(

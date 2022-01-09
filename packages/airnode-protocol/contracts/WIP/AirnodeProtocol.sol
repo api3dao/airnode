@@ -178,14 +178,14 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     /// @notice Called by the requester to make a request
     /// @param templateId Template ID
-    /// @param sponsor Sponsor address
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
+    /// @param sponsor Sponsor address
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
-        address sponsor,
-        bytes calldata parameters
+        bytes calldata parameters,
+        address sponsor
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
@@ -205,8 +205,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 msg.sender,
                 requesterToRequestCountPlusOne[msg.sender],
                 templateId,
-                sponsor,
-                parameters
+                parameters,
+                sponsor
             )
         );
         requestIdToFulfillmentParameters[requestId] = keccak256(
@@ -215,12 +215,12 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit MadeRequest(
             airnode,
             requestId,
-            requesterToRequestCountPlusOne[msg.sender]++,
             block.chainid,
             msg.sender,
+            requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
-            sponsor,
-            parameters
+            parameters,
+            sponsor
         );
     }
 

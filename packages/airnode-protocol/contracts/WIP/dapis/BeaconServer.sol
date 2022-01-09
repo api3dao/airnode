@@ -109,8 +109,8 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
             templateId,
-            sponsor,
-            parameters
+            parameters,
+            sponsor
         );
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedBeaconUpdate(
