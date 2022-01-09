@@ -163,15 +163,8 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
         uint256 timestamp,
         bytes calldata data
     ) external override onlyValidAirnodeFulfillment(timestamp) {
-        (
-            bytes32 templateId,
-            ,
-            ,
-            ,
-            ,
-            bytes memory parameters
-        ) = IAirnodeProtocol(airnodeProtocol).subscriptions(subscriptionId);
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
+        (bytes32 beaconId, , , , ) = IAirnodeProtocol(airnodeProtocol)
+            .subscriptions(subscriptionId);
         int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);
         beacons[beaconId] = Beacon({
             value: int224(decodedData),

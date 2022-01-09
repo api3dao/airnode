@@ -22,8 +22,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes32 requestHash,
         bytes32 templateId,
         address sponsor,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
+        address requester,
         bytes parameters
     );
 
@@ -70,8 +69,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function createSubscription(
         bytes32 templateId,
         address sponsor,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
+        address requester,
         bytes calldata parameters
     ) external returns (bytes32 subscriptionId);
 
@@ -142,8 +140,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             bytes32 requestHash,
             bytes32 templateId,
             address sponsor,
-            address fulfillAddress,
-            bytes4 fulfillFunctionId,
+            address requester,
             bytes memory parameters
         );
 

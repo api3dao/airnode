@@ -40,8 +40,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         bytes32 requestHash;
         bytes32 templateId;
         address sponsor;
-        address fulfillAddress;
-        bytes4 fulfillFunctionId;
+        address requester;
         bytes parameters;
     }
 
@@ -125,16 +124,14 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @notice Creates a subscription record
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
-    /// @param fulfillAddress Fulfill address
-    /// @param fulfillFunctionId Fulfill function ID
+    /// @param requester Requester address
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the request template
     /// @return subscriptionId Subscription ID
     function createSubscription(
         bytes32 templateId,
         address sponsor,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
+        address requester,
         bytes calldata parameters
     ) external override returns (bytes32 subscriptionId) {
         require(
@@ -156,8 +153,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 requestHash,
                 templateId,
                 sponsor,
-                fulfillAddress,
-                fulfillFunctionId,
+                requester,
                 parameters
             )
         );
@@ -166,8 +162,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 requestHash: requestHash,
                 templateId: templateId,
                 sponsor: sponsor,
-                fulfillAddress: fulfillAddress,
-                fulfillFunctionId: fulfillFunctionId,
+                requester: requester,
                 parameters: parameters
             });
             emit CreatedSubscription(
@@ -175,8 +170,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
                 requestHash,
                 templateId,
                 sponsor,
-                fulfillAddress,
-                fulfillFunctionId,
+                requester,
                 parameters
             );
         }
@@ -381,9 +375,9 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             "Signature mismatch"
         );
         require(expirationTimestamp > block.timestamp, "Subscription expired");
-        (callSuccess, callData) = subscription.fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSelector(
-                subscription.fulfillFunctionId,
+        (callSuccess, callData) = subscription.requester.call( // solhint-disable-line avoid-low-level-calls
+            abi.encodeWithSignature(
+                "fulfillPsp(bytes32,uint256,bytes)",
                 subscriptionId,
                 timestamp,
                 data
