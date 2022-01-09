@@ -363,6 +363,13 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             slotIndex
         );
         Subscription storage subscription = subscriptions[subscriptionId];
+        address requester = subscription.requester;
+        require(
+            sponsorToRequesterToSponsorshipStatus[subscription.sponsor][
+                requester
+            ],
+            "Requester not sponsored"
+        );
         require(
             subscription.templateId != bytes32(0),
             "Subscription does not exist"
@@ -375,7 +382,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             ).recover(signature) == airnode,
             "Signature mismatch"
         );
-        (callSuccess, callData) = subscription.requester.call( // solhint-disable-line avoid-low-level-calls
+        (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSignature(
                 "fulfillPsp(bytes32,uint256,bytes)",
                 subscriptionId,
