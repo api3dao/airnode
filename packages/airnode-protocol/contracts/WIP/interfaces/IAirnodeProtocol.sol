@@ -35,9 +35,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         address requester,
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes parameters
     );
 
@@ -81,17 +78,13 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function makeRequest(
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external returns (bytes32 requestId);
 
     function fulfillRequest(
         bytes32 requestId,
         address airnode,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
+        address requester,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
@@ -100,8 +93,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function failRequest(
         bytes32 requestId,
         address airnode,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
+        address requester,
         uint256 timestamp,
         string calldata errorMessage,
         bytes calldata signature
@@ -161,5 +153,5 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     function requesterToRequestCountPlusOne(address requester)
         external
         view
-        returns (uint256 requestCountPlusOne);
+        returns (uint256);
 }

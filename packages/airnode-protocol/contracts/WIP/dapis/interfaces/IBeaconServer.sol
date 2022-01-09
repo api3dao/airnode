@@ -16,7 +16,6 @@ interface IBeaconServer is IAirnodeUser {
         address indexed requester,
         bytes32 requestId,
         bytes32 templateId,
-        address sponsorWallet,
         bytes parameters
     );
 
@@ -40,7 +39,6 @@ interface IBeaconServer is IAirnodeUser {
     function requestBeaconUpdate(
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet,
         bytes calldata parameters
     ) external;
 

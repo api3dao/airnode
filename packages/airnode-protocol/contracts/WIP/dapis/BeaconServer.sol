@@ -94,14 +94,11 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
-    /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
-    /// request
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     function requestBeaconUpdate(
         bytes32 templateId,
         address sponsor,
-        address sponsorWallet,
         bytes calldata parameters
     ) external override {
         require(
@@ -113,9 +110,6 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
         bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
             templateId,
             sponsor,
-            sponsorWallet,
-            address(this),
-            this.fulfillRrp.selector,
             parameters
         );
         requestIdToBeaconId[requestId] = beaconId;
@@ -125,7 +119,6 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
             msg.sender,
             requestId,
             templateId,
-            sponsorWallet,
             parameters
         );
     }
