@@ -116,6 +116,14 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
+    function verifyData(
+        bytes32 templateId,
+        bytes calldata parameters,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) external view returns (address airnode, bytes32 requestHash);
+
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view

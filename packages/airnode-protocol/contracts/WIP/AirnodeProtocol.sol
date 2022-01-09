@@ -431,6 +431,34 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         }
     }
 
+    /// @notice Called to verify the fulfillment data associated with a
+    /// request, reverts if it fails
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param timestamp Timestamp used in the signature
+    /// @param data Fulfillment data
+    /// @param signature Request hash and fulfillment data signed by the
+    /// Airnode address
+    function verifyData(
+        bytes32 templateId,
+        bytes calldata parameters,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) external view override returns (address airnode, bytes32 requestHash) {
+        airnode = templates[templateId].airnode;
+        require(airnode != address(0), "Template does not exist");
+        requestHash = keccak256(abi.encodePacked(templateId, parameters));
+        require(
+            (
+                keccak256(abi.encodePacked(requestHash, timestamp, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
+    }
+
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did

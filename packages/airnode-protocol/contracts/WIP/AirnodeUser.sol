@@ -26,6 +26,23 @@ contract AirnodeUser is IAirnodeUser {
         _;
     }
 
+    modifier onlyValidRelayFulfillment(
+        bytes32 templateId,
+        bytes calldata parameters,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) {
+        IAirnodeProtocol(airnodeProtocol).verifyData(
+            templateId,
+            parameters,
+            timestamp,
+            data,
+            signature
+        );
+        _;
+    }
+
     /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) {
         require(
