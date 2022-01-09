@@ -433,6 +433,7 @@ export interface ChainConfig {
   readonly type: ChainType;
   readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
+  readonly maxConcurrentTransactions: number;
 }
 
 export interface HttpGateway {

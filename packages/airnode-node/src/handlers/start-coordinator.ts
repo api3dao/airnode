@@ -120,13 +120,22 @@ async function initiateTransactions(state: CoordinatorState) {
 
   // NOTE: Not merging responses and logs back (based on the provider, regardless sponsor wallet)
   // as the data don't go anywhere from here but be aware if that changes in the future.
-  const [processedLogs, processedProviders] = await providers.processRequests(
-    sponsorProviderStates,
-    getWorkerOptions(state)
-  );
-  logger.logPending(processedLogs, logOptions);
+  const [logs, processedProviders] = await providers.processRequests(sponsorProviderStates, getWorkerOptions(state));
+  logger.logPending(logs, logOptions);
 
   logger.info('Forking to submit transactions complete', logOptions);
+  return coordinatorState.update(state, { providerStates: processedProviders });
+}
+
+function applyChainRequestLimits(state: CoordinatorState) {
+  const { config, coordinatorId, providerStates } = state;
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+
+  logger.info('Applying chain request limits', logOptions);
+  const [logs, processedProviders] = calls.applyChainLimits(config, providerStates);
+  logger.logPending(logs, logOptions);
+
+  logger.info('Applied chain request limits', logOptions);
   return coordinatorState.update(state, { providerStates: processedProviders });
 }
 
@@ -150,6 +159,9 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
     logger.info('No actionable requests detected. Returning', logOptions);
     return state;
   }
+
+  // TODO: apply chain request limits
+  state = applyChainRequestLimits(state);
 
   // =================================================================
   // STEP 4: Group API calls with respect to request IDs
