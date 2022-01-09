@@ -21,9 +21,9 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes32 indexed subscriptionId,
         bytes32 requestHash,
         bytes32 templateId,
+        bytes parameters,
         address sponsor,
-        address requester,
-        bytes parameters
+        address requester
     );
 
     event MadeRequest(
@@ -68,9 +68,9 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     function createSubscription(
         bytes32 templateId,
+        bytes calldata parameters,
         address sponsor,
-        address requester,
-        bytes calldata parameters
+        address requester
     ) external returns (bytes32 subscriptionId);
 
     function makeRequest(
@@ -139,9 +139,9 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         returns (
             bytes32 requestHash,
             bytes32 templateId,
+            bytes memory parameters,
             address sponsor,
-            address requester,
-            bytes memory parameters
+            address requester
         );
 
     // solhint-disable-next-line func-name-mixedcase

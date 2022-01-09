@@ -39,9 +39,9 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     struct Subscription {
         bytes32 requestHash;
         bytes32 templateId;
+        bytes parameters;
         address sponsor;
         address requester;
-        bytes parameters;
     }
 
     /// @notice Maximum parameter length for templates, requests and
@@ -123,16 +123,16 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     /// @notice Creates a subscription record
     /// @param templateId Template ID
-    /// @param sponsor Sponsor address
-    /// @param requester Requester address
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the request template
+    /// @param sponsor Sponsor address
+    /// @param requester Requester address
     /// @return subscriptionId Subscription ID
     function createSubscription(
         bytes32 templateId,
+        bytes calldata parameters,
         address sponsor,
-        address requester,
-        bytes calldata parameters
+        address requester
     ) external override returns (bytes32 subscriptionId) {
         require(
             templates[templateId].airnode != address(0),
@@ -152,26 +152,26 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             abi.encodePacked(
                 requestHash,
                 templateId,
+                parameters,
                 sponsor,
-                requester,
-                parameters
+                requester
             )
         );
         if (subscriptions[subscriptionId].templateId == bytes32(0)) {
             subscriptions[subscriptionId] = Subscription({
                 requestHash: requestHash,
                 templateId: templateId,
+                parameters: parameters,
                 sponsor: sponsor,
-                requester: requester,
-                parameters: parameters
+                requester: requester
             });
             emit CreatedSubscription(
                 subscriptionId,
                 requestHash,
                 templateId,
+                parameters,
                 sponsor,
-                requester,
-                parameters
+                requester
             );
         }
     }
