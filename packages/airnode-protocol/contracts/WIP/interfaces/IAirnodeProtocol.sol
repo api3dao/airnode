@@ -98,9 +98,8 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     ) external;
 
     function fulfillSubscription(
+        bytes32 subscriptionId,
         address airnode,
-        address allocator,
-        uint256 slotIndex,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature

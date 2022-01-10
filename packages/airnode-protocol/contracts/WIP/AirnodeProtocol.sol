@@ -4,7 +4,6 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./utils/WithdrawalUtils.sol";
-import "./allocators/interfaces/IAllocator.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
 /// @title Airnode request–response protocol (RRP) and publish–subscribe
@@ -22,10 +21,8 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Templates and subscriptions are stored in storage in addition to logs to
 /// ensure their persistance. Requests are only stored in logs because they
 /// are inherently short-lived.
-/// During fulfillment, the existence of requests and subscriptions are
-/// verified to protect against these being spoofed.
-/// Finally, Airnodes attest to controlling their respective sponsor wallets
-/// by signing a message with the address of the sponsor wallet. A timestamp is
+/// Airnodes attest to controlling their respective sponsor wallets by signing
+/// a message with the address of the sponsor wallet. A timestamp is added to
 /// added to this signature so it acts like an expiring token.
 contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
@@ -327,8 +324,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @notice Called by the Airnode to fulfill the subscription
     /// @dev The data is ABI-encoded as a `bytes` type, with its format
     /// depending on the request specifications.
-    /// We check the specified allocator to confirm that such a subscription
-    /// exists, i.e., it is not spoofed by the blockchain provider.
     /// The conditions under which a subscription should be fulfilled are
     /// specified in its parameters, and the subscription will be fulfilled
     /// continually as long as these conditions are met. In other words, a
@@ -340,9 +335,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// This function emits its event after an untrusted low-level call,
     /// meaning that the order of these events within the transaction should
     /// not be taken seriously, yet the content will be sound.
+    /// @param subscriptionId Subscription ID
     /// @param airnode Airnode address
-    /// @param allocator Allocator address
-    /// @param slotIndex Allocator slot index
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
     /// @param signature Subscription ID, a timestamp and the sponsor wallet
@@ -351,19 +345,15 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfillSubscription(
+        bytes32 subscriptionId,
         address airnode,
-        address allocator,
-        uint256 slotIndex,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
-        bytes32 subscriptionId = IAllocator(allocator).getActiveSubscriptionId(
-            airnode,
-            slotIndex
-        );
-        address requester = subscriptions[subscriptionId].requester;
-        address sponsor = subscriptions[subscriptionId].sponsor;
+        Subscription storage subscription = subscriptions[subscriptionId];
+        address requester = subscription.requester;
+        address sponsor = subscription.sponsor;
         require(
             requester == sponsor ||
                 sponsorToRequesterToSponsorshipStatus[sponsor][requester],
