@@ -253,7 +253,15 @@ describe('validator', () => {
         },
         "fixedOperationParameters": [],
         "reservedParameters": [],
-        "parameters": []
+        "parameters": [
+          {
+            "name": "correct",
+            "operationParameter": {
+              "name": "project_type",
+              "in": "header"
+            }
+          }
+        ]
       }
     ]`;
     expect(validator.validateJson(JSON.parse(validEndpointSpec), endpointsTemplate)).toEqual({
@@ -287,6 +295,13 @@ describe('validator', () => {
             "example": ""
           },
           {
+            "name": "_incorrect",
+            "operationParameter": {
+              "name": "_type",
+              "in": "header"
+            }
+          },
+          {
             "name": "correct",
             "operationParameter": {
               "name": "operation",
@@ -315,6 +330,8 @@ describe('validator', () => {
         error('[0].reservedParameters.[0].name: Reserved parameter can be only "_type", "_path" or "_times"'),
         formattingMessage(['[0]', 'parameters', '[0]', 'name']),
         missingParamMessage(['[0]', 'parameters', '[0]', 'operationParameter']),
+        formattingMessage(['[0]', 'parameters', '[1]', 'name']),
+        error("[0].parameters.[1].operationParameter.name: Can't have a name of reserved parameter"),
         missingParamMessage(['[1]', 'name']),
         missingParamMessage(['[1]', 'operation']),
         missingParamMessage(['[1]', 'fixedOperationParameters', '[0]', 'operationParameter', 'name']),

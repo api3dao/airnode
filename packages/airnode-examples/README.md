@@ -33,6 +33,9 @@ authenticated requests encoding multiple reserved parameters. The following list
 
 - [CoinGecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
   unauthenticated cryptocurrency price request
+- [CoinGecko Testable](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-testable) -
+  same price request as the CoinGecko example above. However, the endpoint is allowed to be tested using the
+  [HTTP gateway](https://docs.api3.org/airnode/v0.4/grp-providers/guides/build-an-airnode/http-gateway.html).
 - [CoinMarketCap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
   authenticated cryptocurrency price request
 - [OpenWeather](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
@@ -143,9 +146,9 @@ step. The latter, `secrets.env` can be generated it using:
 yarn create-airnode-secrets
 ```
 
-> If you are not using docker for linux and you want to connect to your local hardhat network, you will need to modify
-> the generated `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL with the
-> following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitation. See:
+> If you are using docker for Windows/WSL or docker for mac and you want to connect to your local hardhat network, you
+> will need to modify the generated `secrets.env` file found in `integrations/<integration-name>/` by replacing the
+> provider URL with the following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitation. See:
 > https://stackoverflow.com/a/24326540
 
 Refer to the

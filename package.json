@@ -65,6 +65,7 @@
     "test:airnode-abi:watch": "(cd packages/airnode-abi && yarn run test:watch)",
     "test:e2e": "lerna run test:e2e --stream",
     "test:e2e-admin": "cd packages/airnode-admin && yarn run test:e2e",
+    "test:e2e-examples": "cd packages/airnode-examples && yarn run test:e2e",
     "test:e2e-node": "cd packages/airnode-node && yarn run test:e2e",
     "test:e2e-node:debug": "cd packages/airnode-node && yarn run test:e2e:debug",
     "test:protocol": "cd packages/airnode-protocol && yarn run test",

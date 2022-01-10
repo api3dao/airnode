@@ -37,7 +37,8 @@
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.4.0",
-    "stage": "dev"
+    "stage": "dev",
+    "skipValidation": true
   },
   "triggers": {
     "rrp": [

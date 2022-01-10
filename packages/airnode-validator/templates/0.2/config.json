@@ -84,8 +84,7 @@
     "nodeVersion": {
       "__regexp": "^0\\.2\\.[0-9]+$",
       "__catch": {
-        "__level": "warning",
-        "__message": "__fullPath: nodeVersion should be set to 0.2.*"
+        "__level": "warning"
       }
     },
     "cloudProvider": {
@@ -98,7 +97,7 @@
       "__type": "string"
     },
     "stage": {
-      "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
+      "__regexp": "^[a-z0-9-_]{1,16}$",
       "__catch": {
         "__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
       }

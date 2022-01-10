@@ -29,7 +29,7 @@ describe('callApis', () => {
   it('returns each API call with the response if successful', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValueOnce({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValueOnce({ valid: true, messages: [], specs: config });
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
@@ -49,7 +49,7 @@ describe('callApis', () => {
         ...aggregatedApiCall,
         responseValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
         signature:
-          '0x642caa669d72d10d019ac535cd5e2a7b7a67604ffe3ac659b4bec796971d6a51746b637f7934c0b94099aa876df60ac81d17023dddec66e090ce9ef1c47218791c',
+          '0xa41f09c91624f5e44013313a58266152168ce1cd5f4d0f49c1d36896d6942e712e08dc2312bf5a768f323dfdc7cfea080fcf0e6aa333ed5808f1711d681ebf631b',
         errorMessage: undefined,
       },
     ]);
@@ -61,7 +61,7 @@ describe('callApis', () => {
   it('returns an error if the adapter fails to extract and encode the response value', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const extractSpy = jest.spyOn(adapter, 'extractAndEncodeResponse') as jest.SpyInstance;
@@ -93,7 +93,7 @@ describe('callApis', () => {
   it('returns an error if the API call fails', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('Unexpected error'));
     const parameters = { _type: 'int256', _path: 'prices.1' };
@@ -103,8 +103,10 @@ describe('callApis', () => {
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
-    expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error: Unexpected error`);
+    // TODO: Change this error message since it does not read nice
+    expect(logs[1].message).toMatch(
+      /API call to Endpoint:convertToUSD errored after \d+ms with error message:API call failed with error: Unexpected error/
+    );
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([

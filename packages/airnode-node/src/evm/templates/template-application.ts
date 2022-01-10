@@ -9,11 +9,8 @@ import {
   LogsData,
   RequestErrorMessage,
   RequestStatus,
+  ApiCallTemplatesById,
 } from '../../types';
-
-interface ApiCallTemplatesById {
-  readonly [id: string]: ApiCallTemplate;
-}
 
 function applyTemplate(
   request: Request<ApiCall>,
@@ -33,9 +30,11 @@ function applyTemplate(
     //
     //   result: { From: 'USDC', from: 'ETH }
     parameters: { ...templateParameters, ...request.parameters },
+    template,
   };
 }
 
+// TODO: This could also be done in call-api
 function updateApiCallWithTemplate(
   apiCall: Request<ApiCall>,
   templatesById: ApiCallTemplatesById
