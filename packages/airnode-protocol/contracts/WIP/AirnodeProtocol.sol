@@ -341,7 +341,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// meaning that the order of these events within the transaction should
     /// not be taken seriously, yet the content will be sound.
     /// @param subscriptionId Subscription ID
-    /// @param airnode Airnode address
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
     /// @param signature Subscription ID, a timestamp and the sponsor wallet
@@ -351,17 +350,19 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// any)
     function fulfillSubscription(
         bytes32 subscriptionId,
-        address airnode,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
         Subscription storage subscription = subscriptions[subscriptionId];
+        address airnode = templates[subscription.templateId].airnode;
+        require(airnode != address(0), "Subscription does not exist");
         address requester = subscription.requester;
-        address sponsor = subscription.sponsor;
         require(
-            requester == sponsor ||
-                sponsorToRequesterToSponsorshipStatus[sponsor][requester],
+            requester == subscription.sponsor ||
+                sponsorToRequesterToSponsorshipStatus[subscription.sponsor][
+                    requester
+                ],
             "Requester not sponsored"
         );
         require(
@@ -381,7 +382,12 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             )
         );
         if (callSuccess) {
-            emit FulfilledSubscription(subscriptionId, timestamp, data);
+            emit FulfilledSubscription(
+                airnode,
+                subscriptionId,
+                timestamp,
+                data
+            );
         }
     }
 

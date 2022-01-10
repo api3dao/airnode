@@ -51,6 +51,7 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     );
 
     event FulfilledSubscription(
+        address indexed airnode,
         bytes32 indexed subscriptionId,
         uint256 timestamp,
         bytes data
@@ -98,7 +99,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
 
     function fulfillSubscription(
         bytes32 subscriptionId,
-        address airnode,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
