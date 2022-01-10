@@ -43,7 +43,7 @@ abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
         uint64 expirationTimestamp
     ) internal {
         require(airnode != address(0), "Zero Airnode address");
-        (, bytes32 templateId, , , ) = IAirnodeProtocol(airnodeProtocol)
+        (, bytes32 templateId, , , ) = IAirnodeProtocolV1(airnodeProtocol)
             .subscriptions(subscriptionId);
         require(templateId != bytes32(0), "Subscription does not exist");
         require(

@@ -107,7 +107,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
             "Sender not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        bytes32 requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
+        bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol).makeRequest(
             templateId,
             parameters,
             sponsor
@@ -163,7 +163,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
-        (bytes32 beaconId, , , , ) = IAirnodeProtocol(airnodeProtocol)
+        (bytes32 beaconId, , , , ) = IAirnodeProtocolV1(airnodeProtocol)
             .subscriptions(subscriptionId);
         int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);
         beacons[beaconId] = Beacon({

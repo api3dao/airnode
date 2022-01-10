@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "../utils/interfaces/IWithdrawalUtils.sol";
 
-interface IAirnodeProtocol is IWithdrawalUtils {
+interface IAirnodeRrp is IWithdrawalUtils {
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
@@ -15,15 +15,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         address airnode,
         bytes32 endpointId,
         bytes parameters
-    );
-
-    event CreatedSubscription(
-        bytes32 indexed subscriptionId,
-        bytes32 requestHash,
-        bytes32 templateId,
-        bytes parameters,
-        address sponsor,
-        address requester
     );
 
     event MadeRequest(
@@ -50,13 +41,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         string errorMessage
     );
 
-    event FulfilledSubscription(
-        address indexed airnode,
-        bytes32 indexed subscriptionId,
-        uint256 timestamp,
-        bytes data
-    );
-
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
@@ -65,13 +49,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes32 endpointId,
         bytes calldata parameters
     ) external returns (bytes32 templateId);
-
-    function createSubscription(
-        bytes32 templateId,
-        bytes calldata parameters,
-        address sponsor,
-        address requester
-    ) external returns (bytes32 subscriptionId);
 
     function makeRequest(
         bytes32 templateId,
@@ -97,21 +74,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
         bytes calldata signature
     ) external;
 
-    function fulfillSubscription(
-        bytes32 subscriptionId,
-        uint256 timestamp,
-        bytes calldata data,
-        bytes calldata signature
-    ) external returns (bool callSuccess, bytes memory callData);
-
-    function verifyData(
-        bytes32 templateId,
-        bytes calldata parameters,
-        uint256 timestamp,
-        bytes calldata data,
-        bytes calldata signature
-    ) external view returns (address airnode, bytes32 requestHash);
-
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
@@ -129,17 +91,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
             address airnode,
             bytes32 endpointId,
             bytes memory parameters
-        );
-
-    function subscriptions(bytes32 subscriptionId)
-        external
-        view
-        returns (
-            bytes32 requestHash,
-            bytes32 templateId,
-            bytes memory parameters,
-            address sponsor,
-            address requester
         );
 
     // solhint-disable-next-line func-name-mixedcase

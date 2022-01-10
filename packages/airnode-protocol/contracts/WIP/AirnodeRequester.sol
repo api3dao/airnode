@@ -26,7 +26,7 @@ contract AirnodeRequester is AirnodeUser, IAirnodeRequester {
         bytes calldata data,
         bytes calldata signature
     ) {
-        IAirnodeProtocol(airnodeProtocol).verifyData(
+        IAirnodeProtocolV1(airnodeProtocol).verifySignature(
             templateId,
             parameters,
             timestamp,
