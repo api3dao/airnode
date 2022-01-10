@@ -39,16 +39,17 @@ contract AllocatorWithAirnode is
         _setSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    function slotIsVacatable(address airnode, uint256 slotIndex)
+    function setterOfSlotNoLongerHasTheRole(address airnode, uint256 slotIndex)
         public
         view
         override(Allocator, IAllocator)
         returns (bool)
     {
-        Slot storage slot = airnodeToSlotIndexToSlot[airnode][slotIndex];
         return
-            slot.expirationTimestamp < block.timestamp ||
-            !hasSlotSetterRoleOrIsAirnode(airnode, slot.setter);
+            !hasSlotSetterRoleOrIsAirnode(
+                airnode,
+                airnodeToSlotIndexToSlot[airnode][slotIndex].setter
+            );
     }
 
     function hasSlotSetterRoleOrIsAirnode(address airnode, address account)

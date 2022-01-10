@@ -4,6 +4,8 @@ pragma solidity 0.8.9;
 import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
+/// @title Abstract contract that can be used to build Allocators that
+/// temporarily allocate subscription slots for Airnodes
 abstract contract Allocator is AirnodeUser, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
@@ -11,11 +13,13 @@ abstract contract Allocator is AirnodeUser, IAllocator {
         uint64 expirationTimestamp;
     }
 
+    /// @notice Description of the slot setter role
     string public constant override SLOT_SETTER_ROLE_DESCRIPTION =
         "Slot setter";
     bytes32 internal constant SLOT_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(SLOT_SETTER_ROLE_DESCRIPTION));
 
+    /// @notice Subscription slot of an Airnode with the index
     mapping(address => mapping(uint256 => Slot))
         public
         override airnodeToSlotIndexToSlot;
@@ -23,6 +27,8 @@ abstract contract Allocator is AirnodeUser, IAllocator {
     /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
 
+    /// @notice Called internally to set a slot with the given parameters
+    /// @dev The slot can be
     function _setSlot(
         address airnode,
         uint256 slotIndex,
@@ -46,15 +52,17 @@ abstract contract Allocator is AirnodeUser, IAllocator {
     }
 
     function vacateSlot(address airnode, uint256 slotIndex) public override {
+        Slot storage slot = airnodeToSlotIndexToSlot[airnode][slotIndex];
         require(
-            airnodeToSlotIndexToSlot[airnode][slotIndex].setter == msg.sender ||
-                slotIsVacatable(airnode, slotIndex),
+            slot.setter == msg.sender ||
+                slot.expirationTimestamp < block.timestamp ||
+                setterOfSlotNoLongerHasTheRole(airnode, slotIndex),
             "Slot occuppied"
         );
         delete airnodeToSlotIndexToSlot[airnode][slotIndex];
     }
 
-    function slotIsVacatable(address airnode, uint256 slotIndex)
+    function setterOfSlotNoLongerHasTheRole(address airnode, uint256 slotIndex)
         public
         view
         virtual

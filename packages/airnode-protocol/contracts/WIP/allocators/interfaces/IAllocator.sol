@@ -13,7 +13,7 @@ interface IAllocator is IAirnodeUser {
 
     function vacateSlot(address airnode, uint256 slotIndex) external;
 
-    function slotIsVacatable(address airnode, uint256 slotIndex)
+    function setterOfSlotNoLongerHasTheRole(address airnode, uint256 slotIndex)
         external
         view
         returns (bool);
