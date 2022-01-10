@@ -270,7 +270,7 @@ contract RrpBeaconServer is
         bytes calldata data,
         bytes calldata signature
     ) external override {
-        (, bytes32 beaconId) = IAirnodeRrp(airnodeRrp).verifyData(
+        (, bytes32 beaconId) = IAirnodeRrp(airnodeRrp).verifySignature(
             templateId,
             parameters,
             data,

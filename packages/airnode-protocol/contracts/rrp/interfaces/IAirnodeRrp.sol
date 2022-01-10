@@ -91,7 +91,7 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         string calldata errorMessage
     ) external;
 
-    function verifyData(
+    function verifySignature(
         bytes32 templateId,
         bytes calldata parameters,
         bytes calldata data,

@@ -317,7 +317,7 @@ contract AirnodeRrp is
     /// @param data Fulfillment data
     /// @param signature Request hash and fulfillment data signed by the
     /// Airnode address
-    function verifyData(
+    function verifySignature(
         bytes32 templateId,
         bytes calldata parameters,
         bytes calldata data,
