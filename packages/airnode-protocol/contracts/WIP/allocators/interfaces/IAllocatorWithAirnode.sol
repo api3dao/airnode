@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "../../access-control-registry/interfaces/IAccessControlRegistryAdminned.sol";
 import "./IAllocator.sol";
 
-interface IAllocatorWithAirnode is IAllocator {
+interface IAllocatorWithAirnode is IAccessControlRegistryAdminned, IAllocator {
     function hasSlotSetterRoleOrIsAirnode(address airnode, address account)
         external
         view

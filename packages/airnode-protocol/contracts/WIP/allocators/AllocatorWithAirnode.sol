@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "../access-control-registry/AccessControlRegistryAdminned.sol";
 import "./Allocator.sol";
 import "./interfaces/IAllocatorWithAirnode.sol";
 
 contract AllocatorWithAirnode is
     RoleDeriver,
-    AccessControlRegistryUser,
+    AccessControlRegistryAdminned,
     Allocator,
     IAllocatorWithAirnode
 {
@@ -18,11 +19,11 @@ contract AllocatorWithAirnode is
         string memory _adminRoleDescription,
         address _airnodeProtocol
     )
-        Allocator(
+        AccessControlRegistryAdminned(
             _accessControlRegistry,
-            _adminRoleDescription,
-            _airnodeProtocol
+            _adminRoleDescription
         )
+        Allocator(_airnodeProtocol)
     {}
 
     function setSlot(

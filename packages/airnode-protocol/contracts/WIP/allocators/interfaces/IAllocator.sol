@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../access-control-registry/interfaces/IAccessControlRegistryAdminned.sol";
+import "../../interfaces/IAirnodeUser.sol";
 
-interface IAllocator is IAccessControlRegistryAdminned {
+interface IAllocator is IAirnodeUser {
     function setSlot(
         address airnode,
         uint256 slotIndex,

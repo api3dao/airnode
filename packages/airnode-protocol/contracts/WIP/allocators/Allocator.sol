@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../access-control-registry/AccessControlRegistryAdminned.sol";
-import "../AirnodeRequester.sol";
+import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
-abstract contract Allocator is
-    AccessControlRegistryAdminned,
-    AirnodeRequester,
-    IAllocator
-{
+abstract contract Allocator is AirnodeUser, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
@@ -25,20 +20,8 @@ abstract contract Allocator is
         public
         override airnodeToSlotIndexToSlot;
 
-    /// @param _accessControlRegistry AccessControlRegistry contract address
-    /// @param _adminRoleDescription Admin role description
     /// @param _airnodeProtocol AirnodeProtocol contract address
-    constructor(
-        address _accessControlRegistry,
-        string memory _adminRoleDescription,
-        address _airnodeProtocol
-    )
-        AccessControlRegistryAdminned(
-            _accessControlRegistry,
-            _adminRoleDescription
-        )
-        AirnodeRequester(_airnodeProtocol)
-    {}
+    constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
 
     function _setSlot(
         address airnode,
@@ -47,7 +30,6 @@ abstract contract Allocator is
         uint64 expirationTimestamp
     ) internal {
         require(airnode != address(0), "Zero Airnode address");
-        require(subscriptionId != bytes32(0), "Zero subscription ID");
         (, bytes32 templateId, , , ) = IAirnodeProtocol(airnodeProtocol)
             .subscriptions(subscriptionId);
         require(templateId != bytes32(0), "Subscription does not exist");
