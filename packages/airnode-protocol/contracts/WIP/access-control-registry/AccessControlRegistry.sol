@@ -2,6 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./RoleDeriver.sol";
 import "./interfaces/IAccessControlRegistry.sol";
 
@@ -16,6 +17,7 @@ import "./interfaces/IAccessControlRegistry.sol";
 /// adminned by the same role cannot have the same description.
 contract AccessControlRegistry is
     AccessControl,
+    Multicall,
     RoleDeriver,
     IAccessControlRegistry
 {
@@ -67,11 +69,10 @@ contract AccessControlRegistry is
     /// @param adminRole Admin role to be assigned to the initialized role
     /// @param description Human-readable description of the initialized role
     /// @return role Initialized role
-    function initializeRole(bytes32 adminRole, string calldata description)
-        public
-        override
-        returns (bytes32 role)
-    {
+    function initializeRoleAndGrantToSender(
+        bytes32 adminRole,
+        string calldata description
+    ) public override returns (bytes32 role) {
         require(bytes(description).length > 0, "Role description empty");
         role = deriveRole(adminRole, description);
         // AccessControl roles have `DEFAULT_ADMIN_ROLE` (i.e., `bytes32(0)`)
@@ -90,38 +91,6 @@ contract AccessControlRegistry is
             emit InitializedRole(role, adminRole, description, _msgSender());
         }
         grantRole(role, _msgSender());
-    }
-
-    /// @notice Initializes roles and grants them to the respective accounts
-    /// @dev Each initialized role is granted to the respective account. If you
-    /// do not want to grant the role to an additional account, you can pass
-    /// the sender address here (as the sender will already be granted the
-    /// role so this would have no effect).
-    /// Lengths of the arguments must be equal, and less than 33
-    /// @param adminRoles Admin roles to be assigned to the initialized roles
-    /// @param descriptions Human-readable descriptions of the initialized
-    /// roles
-    /// @param accounts Accounts the initialized roles will be granted to
-    /// @return roles Initialized roles
-    function initializeAndGrantRoles(
-        bytes32[] calldata adminRoles,
-        string[] calldata descriptions,
-        address[] calldata accounts
-    ) external override returns (bytes32[] memory roles) {
-        uint256 argumentLength = adminRoles.length;
-        require(
-            argumentLength == descriptions.length &&
-                argumentLength == accounts.length,
-            "Argument length mismatch"
-        );
-        require(argumentLength <= 32, "Arguments too long");
-        roles = new bytes32[](argumentLength);
-        for (uint256 ind = 0; ind < argumentLength; ind++) {
-            roles[ind] = initializeRole(adminRoles[ind], descriptions[ind]);
-            address account = accounts[ind];
-            require(account != address(0), "Account address zero");
-            grantRole(roles[ind], account);
-        }
     }
 
     /// @notice Derives the root role of the manager

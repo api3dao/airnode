@@ -15,15 +15,10 @@ interface IAccessControlRegistry is IAccessControl {
 
     function initializeManager(address manager) external;
 
-    function initializeRole(bytes32 adminRole, string calldata description)
-        external
-        returns (bytes32 role);
-
-    function initializeAndGrantRoles(
-        bytes32[] calldata adminRoles,
-        string[] calldata descriptions,
-        address[] calldata accounts
-    ) external returns (bytes32[] memory roles);
+    function initializeRoleAndGrantToSender(
+        bytes32 adminRole,
+        string calldata description
+    ) external returns (bytes32 role);
 
     function deriveRootRole(address manager)
         external

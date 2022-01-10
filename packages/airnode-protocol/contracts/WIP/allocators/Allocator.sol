@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/utils/Multicall.sol";
 import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
 /// @title Abstract contract that can be used to build Allocators that
 /// temporarily allocate subscription slots for Airnodes
-abstract contract Allocator is AirnodeUser, IAllocator {
+abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
