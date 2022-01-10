@@ -147,6 +147,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
         subscriptionId = keccak256(
             abi.encodePacked(
+                block.chainid,
+                address(this),
                 requestHash,
                 templateId,
                 parameters,
