@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../AirnodeUser.sol";
+import "../AirnodeRequester.sol";
 import "./BeaconUser.sol";
 import "../access-control-registry/AccessControlRegistryAdminned.sol";
 import "./interfaces/IPercentageDeviationCondition.sol";
@@ -9,7 +9,7 @@ import "./interfaces/IPercentageDeviationCondition.sol";
 /// @dev This contract should have the unlimited beacon reader role for the
 /// respective beacon server contract
 contract PercentageDeviationCondition is
-    AirnodeUser,
+    AirnodeRequester,
     BeaconUser,
     AccessControlRegistryAdminned,
     IPercentageDeviationCondition
@@ -26,7 +26,7 @@ contract PercentageDeviationCondition is
         address _accessControlRegistry,
         string memory _adminRoleDescription
     )
-        AirnodeUser(_airnodeProtocol)
+        AirnodeRequester(_airnodeProtocol)
         BeaconUser(_beaconServer)
         AccessControlRegistryAdminned(
             _accessControlRegistry,

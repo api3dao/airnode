@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
-import "../AirnodeUser.sol";
+import "../AirnodeRequester.sol";
 import "./interfaces/IBeaconServer.sol";
 
 /// @title Contract that serves beacons using Airnode RRP and PSP
@@ -19,7 +19,7 @@ import "./interfaces/IBeaconServer.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
+contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     struct Beacon {
         int224 value;
         uint32 timestamp;
@@ -57,7 +57,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeUser, IBeaconServer {
             _adminRoleDescription,
             _manager
         )
-        AirnodeUser(_airnodeProtocol)
+        AirnodeRequester(_airnodeProtocol)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),

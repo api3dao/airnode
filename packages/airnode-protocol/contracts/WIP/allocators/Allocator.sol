@@ -2,12 +2,12 @@
 pragma solidity 0.8.9;
 
 import "../access-control-registry/AccessControlRegistryAdminned.sol";
-import "../AirnodeUser.sol";
+import "../AirnodeRequester.sol";
 import "./interfaces/IAllocator.sol";
 
 abstract contract Allocator is
     AccessControlRegistryAdminned,
-    AirnodeUser,
+    AirnodeRequester,
     IAllocator
 {
     struct Slot {
@@ -37,7 +37,7 @@ abstract contract Allocator is
             _accessControlRegistry,
             _adminRoleDescription
         )
-        AirnodeUser(_airnodeProtocol)
+        AirnodeRequester(_airnodeProtocol)
     {}
 
     function _setSlot(
@@ -70,21 +70,6 @@ abstract contract Allocator is
             "Slot occuppied"
         );
         delete airnodeToSlotIndexToSlot[airnode][slotIndex];
-    }
-
-    function getActiveSubscriptionId(address airnode, uint256 slotIndex)
-        external
-        view
-        override
-        returns (bytes32 subscriptionId)
-    {
-        Slot storage slot = airnodeToSlotIndexToSlot[airnode][slotIndex];
-        require(
-            slot.expirationTimestamp > block.timestamp,
-            "Subscription expired"
-        );
-        subscriptionId = slot.subscriptionId;
-        require(subscriptionId != bytes32(0), "Slot is empty");
     }
 
     function slotIsVacatable(address airnode, uint256 slotIndex)

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../interfaces/IAirnodeUser.sol";
+import "../../interfaces/IAirnodeRequester.sol";
 
-interface IBeaconServer is IAirnodeUser {
+interface IBeaconServer is IAirnodeRequester {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
