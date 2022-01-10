@@ -43,7 +43,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
 
     /// @notice Maximum parameter length for templates, requests and
     /// subscriptions
-    uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 1024;
+    uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 4096;
 
     /// @notice Called to get the sponsorship status for a sponsor–requester
     /// pair
@@ -76,6 +76,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         external
         override
     {
+        require(requester != address(0), "Requester address zero");
         // Initialize the requester request count for consistent request gas
         // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
@@ -139,6 +140,8 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
+        require(sponsor != address(0), "Sponsor address zero");
+        require(requester != address(0), "Requester address zero");
         // Pre-compute the request hash and add it as a field to the
         // subscription so that it can be checked without having to read
         // `parameters` from storage
