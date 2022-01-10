@@ -9,24 +9,20 @@ contract AirnodeRequester is IAirnodeRequester {
     /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 
-    /// @dev Reverts if the sender is not the Airnode protocol contract or if
-    /// the signature is not at most 1 hour old. Use this modifier with methods
+    /// @dev Reverts if the sender is not the Airnode protocol contract. Use
+    /// this modifier with `fulfillRrp()` and `fulfillPsp()` implementations.
     /// that are meant to receive Airnode request or subscription fulfillments.
-    /// The signature age is checked to confirm that:
-    /// (1) The fulfillment was confirmed in less than an hour
-    /// (2) The sponsor wallet address was attested to less than an hour ago
-    /// @param timestamp Timestamp used in the signature
-    modifier onlyValidAirnodeFulfillment(uint256 timestamp) {
+    modifier onlyAirnodeProtocol() {
         require(
             msg.sender == address(airnodeProtocol),
             "Sender not Airnode protocol"
         );
-        require(timestamp + 1 hours > block.timestamp, "Fulfillment stale");
-        require(timestamp < block.timestamp, "Fulfillment from future");
         _;
     }
 
-    modifier onlyValidRelayFulfillment(
+    /// @dev Reverts if the signature is not valid for the given `templateId`,
+    /// `parameters`, `timestamp` and `data`
+    modifier onlyValidSignature(
         bytes32 templateId,
         bytes calldata parameters,
         uint256 timestamp,
@@ -40,6 +36,14 @@ contract AirnodeRequester is IAirnodeRequester {
             data,
             signature
         );
+        _;
+    }
+
+    /// @dev Reverts if the timestamp is not at most 1 hour old
+    /// @param timestamp Timestamp used in the signature
+    modifier onlyFreshTimestamp(uint256 timestamp) {
+        require(timestamp + 1 hours > block.timestamp, "Timestamp stale");
+        require(timestamp < block.timestamp, "Timestamp from future");
         _;
     }
 

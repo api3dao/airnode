@@ -134,7 +134,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 requestId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyValidAirnodeFulfillment(timestamp) {
+    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -162,7 +162,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 subscriptionId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyValidAirnodeFulfillment(timestamp) {
+    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
         (bytes32 beaconId, , , , ) = IAirnodeProtocol(airnodeProtocol)
             .subscriptions(subscriptionId);
         int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);

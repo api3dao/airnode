@@ -29,7 +29,6 @@ interface IAirnodeProtocol is IWithdrawalUtils {
     event MadeRequest(
         address indexed airnode,
         bytes32 indexed requestId,
-        uint256 chainId,
         address requester,
         uint256 requesterRequestCount,
         bytes32 templateId,

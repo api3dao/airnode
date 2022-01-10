@@ -11,19 +11,7 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// @notice This contract is used by requester contracts to request services
 /// from Airnodes and Airnodes to fulfill these requests
 /// @dev This contract inherits Multicall for Airnodes to be able to make batch
-/// static calls to read the contract state without requiring an external
-/// dependency in the form of a separate contract deployment.
-/// Template, subscription and request IDs are hashes of their parameters. This
-/// means:
-/// (1) You can compute their expected IDs without creating them.
-/// (2) After querying their parameters with the respective ID, you can verify
-/// the integrity of the returned data by checking if they match the ID.
-/// Templates and subscriptions are stored in storage in addition to logs to
-/// ensure their persistance. Requests are only stored in logs because they
-/// are inherently short-lived.
-/// Airnodes attest to controlling their respective sponsor wallets by signing
-/// a message with the address of the sponsor wallet. A timestamp is added to
-/// added to this signature so it acts like an expiring token.
+/// static calls to read the contract state
 contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     using ECDSA for bytes32;
 
@@ -52,6 +40,9 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         override sponsorToRequesterToSponsorshipStatus;
 
     /// @notice Template with the ID
+    /// @dev Templates and subscriptions are stored in storage in addition to
+    /// logs to ensure their persistance. Requests are only stored in logs
+    /// because they are inherently short-lived.
     mapping(bytes32 => Template) public override templates;
 
     /// @notice Subscription with the ID
@@ -67,9 +58,9 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @notice Called by the sponsor to set the sponsorship status of a
     /// requester, i.e., allow or disallow a requester to make requests that
     /// will be fulfilled by the sponsor wallet
-    /// @dev This is not reporter-specific, i.e., the sponsor allows the
+    /// @dev This is not Airnode-specific, i.e., the sponsor allows the
     /// requester's requests to be fulfilled through its sponsor wallets across
-    /// all reporters
+    /// all Airnodes
     /// @param requester Requester address
     /// @param sponsorshipStatus Sponsorship status
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
@@ -92,6 +83,12 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @dev Templates fully or partially define requests. By referencing a
     /// template, requesters can omit specifying the "boilerplate" sections of
     /// requests.
+    /// Template, subscription and request IDs are hashes of their parameters.
+    /// This means:
+    /// (1) You can compute their expected IDs without creating them.
+    /// (2) After querying their parameters with the respective ID, you can
+    /// verify the integrity of the returned data by checking if they match the
+    /// ID.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param parameters Template parameters
@@ -217,7 +214,6 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         emit MadeRequest(
             airnode,
             requestId,
-            block.chainid,
             msg.sender,
             requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
@@ -226,9 +222,13 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
         );
     }
 
-    /// @notice Called by the reporter to fulfill the request
+    /// @notice Called by the Airnode to fulfill the request
     /// @dev The data is ABI-encoded as a `bytes` type, with its format
     /// depending on the request specifications.
+    /// Airnodes attest to controlling their respective sponsor wallets by
+    /// signing a message with the address of the sponsor wallet. A timestamp
+    /// is added to this signature so it acts like an expiring token if the
+    /// requester contract checks for freshness.
     /// This will not revert depending on the external call. However, it will
     /// return `false` if the external call reverts or if there is no function
     /// with a matching signature at `fulfillAddress`. On the other hand, it
@@ -416,7 +416,7 @@ contract AirnodeProtocol is Multicall, WithdrawalUtils, IAirnodeProtocol {
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
-    /// not hear back, it can call this method to check if the reporter has
+    /// not hear back, it can call this method to check if the Airnode has
     /// called back `fail()` instead.
     /// @param requestId Request ID
     /// @return If the request is awaiting fulfillment (i.e., `true` if
