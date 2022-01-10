@@ -3,14 +3,14 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "../whitelist/Whitelist.sol";
-import "./interfaces/IRequesterAuthorizer.sol";
+import "./interfaces/IRequesterAuthorizerV1.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
-abstract contract RequesterAuthorizer is
+abstract contract RequesterAuthorizerV1 is
     Multicall,
     Whitelist,
-    IRequesterAuthorizer
+    IRequesterAuthorizerV1
 {
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event

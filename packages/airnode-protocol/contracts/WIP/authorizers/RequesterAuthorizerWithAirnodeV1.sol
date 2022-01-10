@@ -2,15 +2,15 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistRolesWithAirnode.sol";
-import "./RequesterAuthorizer.sol";
-import "./interfaces/IRequesterAuthorizerWithAirnode.sol";
+import "./RequesterAuthorizerV1.sol";
+import "./interfaces/IRequesterAuthorizerWithAirnodeV1.sol";
 
 /// @title Authorizer contract that Airnode operators can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
-contract RequesterAuthorizerWithAirnode is
+contract RequesterAuthorizerWithAirnodeV1 is
     WhitelistRolesWithAirnode,
-    RequesterAuthorizer,
-    IRequesterAuthorizerWithAirnode
+    RequesterAuthorizerV1,
+    IRequesterAuthorizerWithAirnodeV1
 {
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description

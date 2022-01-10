@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./AirnodePspRelayed.sol";
+import "./AirnodePspRelayedV1.sol";
 import "./interfaces/IAirnodeProtocolV1.sol";
 
-contract AirnodeProtocolV1 is AirnodePspRelayed, IAirnodeProtocolV1 {
+contract AirnodeProtocolV1 is AirnodePspRelayedV1, IAirnodeProtocolV1 {
     using ECDSA for bytes32;
 
     /// @notice Called to verify the signature associated with a request and

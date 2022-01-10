@@ -2,17 +2,17 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistRolesWithManager.sol";
-import "./RequesterAuthorizer.sol";
-import "./interfaces/IRequesterAuthorizerWithManager.sol";
+import "./RequesterAuthorizerV1.sol";
+import "./interfaces/IRequesterAuthorizerWithManagerV1.sol";
 
 /// @title Authorizer contract that a manager can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 /// @notice The manager address here is expected to belong to an
 /// AccessControlRegistry user that is controlled by the DAO
-contract RequesterAuthorizerWithManager is
+contract RequesterAuthorizerWithManagerV1 is
     WhitelistRolesWithManager,
-    RequesterAuthorizer,
-    IRequesterAuthorizerWithManager
+    RequesterAuthorizerV1,
+    IRequesterAuthorizerWithManagerV1
 {
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description

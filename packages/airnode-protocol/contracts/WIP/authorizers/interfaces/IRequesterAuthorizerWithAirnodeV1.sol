@@ -2,9 +2,9 @@
 pragma solidity 0.8.9;
 
 import "../../whitelist/interfaces/IWhitelistRolesWithAirnode.sol";
-import "./IRequesterAuthorizer.sol";
+import "./IRequesterAuthorizerV1.sol";
 
-interface IRequesterAuthorizerWithAirnode is
+interface IRequesterAuthorizerWithAirnodeV1 is
     IWhitelistRolesWithAirnode,
-    IRequesterAuthorizer
+    IRequesterAuthorizerV1
 {}

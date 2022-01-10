@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "../utils/interfaces/IWithdrawalUtils.sol";
 
-interface IAirnodeRrp is IWithdrawalUtils {
+interface IAirnodeRrpV1 is IWithdrawalUtils {
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,

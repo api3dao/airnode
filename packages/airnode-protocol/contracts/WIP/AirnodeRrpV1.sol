@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./utils/WithdrawalUtils.sol";
-import "./interfaces/IAirnodeRrp.sol";
+import "./interfaces/IAirnodeRrpV1.sol";
 
 /// @title Airnode request–response protocol (RRP) and publish–subscribe
 /// protocol (PSP)
@@ -12,7 +12,7 @@ import "./interfaces/IAirnodeRrp.sol";
 /// from Airnodes and Airnodes to fulfill these requests
 /// @dev This contract inherits Multicall for Airnodes to be able to make batch
 /// static calls to read the contract state
-contract AirnodeRrp is Multicall, WithdrawalUtils, IAirnodeRrp {
+contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     using ECDSA for bytes32;
 
     struct Template {

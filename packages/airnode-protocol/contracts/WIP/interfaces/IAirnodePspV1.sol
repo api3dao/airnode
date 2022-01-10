@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./IAirnodeRrpRelayed.sol";
+import "./IAirnodeRrpRelayedV1.sol";
 
-interface IAirnodePsp is IAirnodeRrpRelayed {
+interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
     event CreatedSubscription(
         bytes32 indexed subscriptionId,
         bytes32 requestHash,

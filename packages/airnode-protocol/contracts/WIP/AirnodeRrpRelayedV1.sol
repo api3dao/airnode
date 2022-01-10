@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./AirnodeRrp.sol";
-import "./interfaces/IAirnodeRrpRelayed.sol";
+import "./AirnodeRrpV1.sol";
+import "./interfaces/IAirnodeRrpRelayedV1.sol";
 
-contract AirnodeRrpRelayed is AirnodeRrp, IAirnodeRrpRelayed {
+contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
     using ECDSA for bytes32;
 
     function makeRequestRelayed(
