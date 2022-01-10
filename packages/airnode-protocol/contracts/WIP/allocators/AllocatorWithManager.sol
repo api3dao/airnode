@@ -7,12 +7,17 @@ import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./Allocator.sol";
 import "./interfaces/IAllocatorWithManager.sol";
 
+/// @title Contract that the manager can used to temporarily allocate
+/// subscription slots for Airnodes
+/// @notice The manager address here is expected to belong to an
+/// AccessControlRegistry user that is controlled by the DAO
 contract AllocatorWithManager is
     RoleDeriver,
     AccessControlRegistryAdminnedWithManager,
     Allocator,
     IAllocatorWithManager
 {
+    /// @notice Slot setter role
     bytes32 public immutable override slotSetterRole;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
@@ -38,6 +43,12 @@ contract AllocatorWithManager is
         );
     }
 
+    /// @notice Called to set a slot with the given parameters
+    /// @param airnode Airnode address
+    /// @param slotIndex Index of the subscription slot to be set
+    /// @param subscriptionId Subscription ID
+    /// @param expirationTimestamp Timestamp at which the slot allocation will
+    /// expire
     function setSlot(
         address airnode,
         uint256 slotIndex,
@@ -48,18 +59,26 @@ contract AllocatorWithManager is
         _setSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    function setterOfSlotNoLongerHasTheRole(address airnode, uint256 slotIndex)
+    /// @notice Called to check if the setter of the slot is still authorized
+    /// to set slots
+    /// @param airnode Airnode address
+    /// @param slotIndex Index of the subscription slot to be set
+    /// @return If the setter of the slot is still authorized to set slots
+    function setterOfSlotIsStillAuthorized(address airnode, uint256 slotIndex)
         public
         view
         override(Allocator, IAllocator)
         returns (bool)
     {
         return
-            !hasSlotSetterRoleOrIsManager(
+            hasSlotSetterRoleOrIsManager(
                 airnodeToSlotIndexToSlot[airnode][slotIndex].setter
             );
     }
 
+    /// @notice Called to check if the account has the slot setter role or is
+    /// the manager
+    /// @param account Account address
     function hasSlotSetterRoleOrIsManager(address account)
         public
         view

@@ -5,7 +5,7 @@ import "../whitelist/WhitelistRolesWithAirnode.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithAirnode.sol";
 
-/// @title Authorizer contract that Airnodes can use to temporarily or
+/// @title Authorizer contract that Airnode operators can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 contract RequesterAuthorizerWithAirnode is
     WhitelistRolesWithAirnode,

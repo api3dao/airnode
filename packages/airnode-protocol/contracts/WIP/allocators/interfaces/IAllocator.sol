@@ -4,6 +4,15 @@ pragma solidity 0.8.9;
 import "../../interfaces/IAirnodeUser.sol";
 
 interface IAllocator is IAirnodeUser {
+    event SetSlot(
+        address indexed airnode,
+        uint256 slotIndex,
+        bytes32 subscriptionId,
+        uint64 expirationTimestamp
+    );
+
+    event ResetSlot(address indexed airnode, uint256 slotIndex);
+
     function setSlot(
         address airnode,
         uint256 slotIndex,
@@ -11,9 +20,9 @@ interface IAllocator is IAirnodeUser {
         uint64 expirationTimestamp
     ) external;
 
-    function vacateSlot(address airnode, uint256 slotIndex) external;
+    function resetSlot(address airnode, uint256 slotIndex) external;
 
-    function setterOfSlotNoLongerHasTheRole(address airnode, uint256 slotIndex)
+    function setterOfSlotIsStillAuthorized(address airnode, uint256 slotIndex)
         external
         view
         returns (bool);

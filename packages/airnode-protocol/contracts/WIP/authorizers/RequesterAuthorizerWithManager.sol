@@ -8,7 +8,7 @@ import "./interfaces/IRequesterAuthorizerWithManager.sol";
 /// @title Authorizer contract that a manager can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 /// @notice The manager address here is expected to belong to an
-/// AccessControlAgent contract that is owned by the DAO
+/// AccessControlRegistry user that is controlled by the DAO
 contract RequesterAuthorizerWithManager is
     WhitelistRolesWithManager,
     RequesterAuthorizer,
