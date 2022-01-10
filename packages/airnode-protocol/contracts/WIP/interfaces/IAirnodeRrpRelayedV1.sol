@@ -11,8 +11,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
         uint256 requesterRequestCount,
         bytes32 templateId,
         bytes parameters,
-        address sponsor,
-        address sponsorWallet
+        address sponsor
     );
 
     event FulfilledRequestRelayed(
@@ -33,8 +32,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
         bytes32 templateId,
         bytes calldata parameters,
         address relayer,
-        address sponsor,
-        address sponsorWallet
+        address sponsor
     ) external returns (bytes32 requestId);
 
     function fulfillRequestRelayed(
@@ -53,6 +51,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
         address requester,
         address relayer,
         uint256 timestamp,
-        string calldata errorMessage
+        string calldata errorMessage,
+        bytes calldata signature
     ) external;
 }
