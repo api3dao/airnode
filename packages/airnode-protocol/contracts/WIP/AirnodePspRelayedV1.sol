@@ -39,7 +39,7 @@ contract AirnodePspRelayedV1 is AirnodePspV1, IAirnodePspRelayedV1 {
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSignature(
-                "fulfillPspRelayed(bytes32,uint256,bytes)",
+                "fulfillPsp(bytes32,uint256,bytes)",
                 subscriptionId,
                 timestamp,
                 data
