@@ -30,9 +30,13 @@ export interface ParseConfigResult {
   shouldSkipValidation: boolean;
 }
 
-export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): ParseConfigResult {
+export function parseConfig(
+  configPath: string,
+  secrets: Record<string, string | undefined>,
+  shouldValidate = false
+): ParseConfigResult {
   const config = readConfig(configPath);
-  const validationResult = validateConfig(config, secrets);
+  const validationResult = validateConfig(config, secrets, shouldValidate);
   const parsedConfig: Config = validationResult.specs as Config;
   const ois = parseOises(parsedConfig.ois);
 
@@ -56,7 +60,17 @@ export function getEnvValue(envName: string) {
   return process.env[envName];
 }
 
-function validateConfig(supposedConfig: unknown, secrets: Record<string, string | undefined>): Result {
+function validateConfig(
+  supposedConfig: unknown,
+  secrets: Record<string, string | undefined>,
+  shouldValidate = true
+): Result {
   // TODO: Improve TS types
-  return validateJsonWithTemplate(supposedConfig as object, `config@${getNodeVersion()}`, secrets, true);
+  return validateJsonWithTemplate(
+    supposedConfig as object,
+    `config@${getNodeVersion()}`,
+    secrets,
+    true,
+    shouldValidate
+  );
 }

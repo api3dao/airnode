@@ -17,3 +17,8 @@ export function formatTerraformArguments(args: CommandArg[]) {
     })
     .map((arg) => `-${arg}`);
 }
+
+/**
+ * Checks if the environment is a GCP or AWS cloud function
+ */
+export const isCloudFunction = () => process.env.LAMBDA_TASK_ROOT || process.env.FUNCTION_TARGET;

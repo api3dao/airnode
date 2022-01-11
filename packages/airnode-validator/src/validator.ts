@@ -11,12 +11,14 @@ import { keywords } from './utils/globals';
  * @param templateName - name of the template (ois, config...)
  * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - if the validator should run the validation
  */
 export function validateJsonWithTemplate(
   specs: object,
   templateName: string | undefined,
   interpolate?: Record<string, string | undefined>,
-  returnJson = false
+  returnJson = false,
+  shouldValidate = true
 ): Result {
   if (!templateName) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
@@ -51,7 +53,8 @@ export function validateJsonWithTemplate(
     template,
     split.slice(0, split.length - 1).join(path.sep) + path.sep,
     interpolate,
-    returnJson
+    returnJson,
+    shouldValidate
   );
 }
 
@@ -142,7 +145,8 @@ export function validateJson(
   template: object,
   templatePath = '',
   interpolate?: Record<string, string | undefined>,
-  returnJson = false
+  returnJson = false,
+  shouldValidate = true
 ): Result {
   const messages: Log[] = [];
   let interpolated: object | undefined = specs;
@@ -154,6 +158,14 @@ export function validateJson(
   }
 
   const nonRedundant = template[keywords.arrayItem as keyof typeof template] ? [] : {};
+  if (!shouldValidate) {
+    return {
+      valid: true,
+      messages: [],
+      specs: returnJson ? interpolated : undefined,
+    };
+  }
+
   const result = processSpecs(
     interpolated,
     template,
