@@ -10,6 +10,7 @@ import {
 const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   chains: [
     {
+      maxConcurrentTransactions: 100,
       authorizers: [],
       contracts: {
         AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile),

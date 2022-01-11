@@ -119,6 +119,8 @@ export interface ApiCall {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Withdrawal {}
 
+export type AnyRequest = ApiCall | Withdrawal;
+
 export interface ApiCallTemplate {
   readonly airnodeAddress: string;
   readonly endpointId: string;

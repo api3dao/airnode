@@ -10,6 +10,7 @@ export interface Contracts {
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
+    maxConcurrentTransactions: 100,
     contracts: {
       AirnodeRrp: contracts.AirnodeRrp,
     },

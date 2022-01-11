@@ -3,28 +3,12 @@ import groupBy from 'lodash/groupBy';
 import map from 'lodash/map';
 import zip from 'lodash/zip';
 import * as logger from '../../logger';
-import { sortRequests } from '../../requests';
-import {
-  Config,
-  ProviderStates,
-  Request,
-  GroupedRequests,
-  RequestType,
-  ApiCall,
-  Withdrawal,
-  PendingLog,
-} from '../../types';
+import { Config, ProviderStates, PendingLog, GroupedRequests } from '../../types';
+import { flattenRequests, groupRequests } from '../../requests/grouping';
+import { sortRequests } from '../../requests/sorting';
 
-function groupRequests(flatRequests: Request<any>[]): GroupedRequests {
-  const apiCalls = flatRequests
-    .filter((request) => request.__type === RequestType.ApiCall)
-    .map((request) => request as Request<ApiCall>);
-
-  const withdrawals = flatRequests
-    .filter((request) => request.__type === RequestType.Withdrawal)
-    .map((request) => request as Request<Withdrawal>);
-
-  return { apiCalls, withdrawals };
+function flattenAndSortRequests(grouped: GroupedRequests) {
+  return sortRequests(flattenRequests(grouped));
 }
 
 export function applyChainLimits(config: Config, providerStates: ProviderStates) {
@@ -32,8 +16,7 @@ export function applyChainLimits(config: Config, providerStates: ProviderStates)
 
   const providerRequests = providerStates.evm
     .map((evmState, index) => {
-      const { apiCalls, withdrawals } = evmState.requests;
-      return { index, chainId: evmState.settings.chainId, requests: sortRequests([...apiCalls, ...withdrawals]) };
+      return { index, chainId: evmState.settings.chainId, requests: flattenAndSortRequests(evmState.requests) };
     })
     // Sort by number of request ascendingly
     .sort((p1, p2) => p1.requests.length - p2.requests.length);
