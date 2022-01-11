@@ -922,7 +922,7 @@ describe('fulfill', function () {
                   invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -935,7 +935,7 @@ describe('fulfill', function () {
                   invalidSignature2,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -1927,7 +1927,7 @@ describe('fulfill', function () {
                   invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -1940,7 +1940,7 @@ describe('fulfill', function () {
                   invalidSignature2,
                   { gasLimit: 500000 }
                 )
-            ).to.be.revertedWith('Invalid signature');
+            ).to.be.revertedWith('Signature mismatch');
             await expect(
               airnodeRrp
                 .connect(sponsorWallet)
@@ -3115,6 +3115,175 @@ describe('fail', function () {
             )
         ).to.be.revertedWith('Invalid request fulfillment');
       });
+    });
+  });
+});
+
+describe('verifySignature', function () {
+  context('Template exists', function () {
+    context('Signature valid', function () {
+      context('Signature correct', function () {
+        it('returns request hash and Airnode address', async function () {
+          // Create the template
+          const endpointId = testUtils.generateRandomBytes32();
+          const parameters = testUtils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          const requestTimeParameters = testUtils.generateRandomBytes();
+          const requestHash = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, requestTimeParameters])
+          );
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, fulfillData])
+              )
+            )
+          );
+          const staticCallResponse = await airnodeRrp.verifySignature(
+            templateId,
+            requestTimeParameters,
+            fulfillData,
+            signature
+          );
+          expect(staticCallResponse.airnode).to.equal(airnodeAddress);
+          expect(staticCallResponse.requestHash).to.equal(requestHash);
+        });
+      });
+      context('Signature incorrect', function () {
+        context('Template ID mismatch', function () {
+          it('reverts', async function () {
+            // Create the template
+            const endpointId = testUtils.generateRandomBytes32();
+            const parameters = testUtils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            const requestTimeParameters = testUtils.generateRandomBytes();
+            const requestHash = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['bytes32', 'bytes'],
+                [testUtils.generateRandomBytes32(), requestTimeParameters]
+              )
+            );
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            const signature = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, fulfillData])
+                )
+              )
+            );
+            await expect(
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, fulfillData, signature)
+            ).to.be.revertedWith('Signature mismatch');
+          });
+        });
+        context('Request time parameters mismatch', function () {
+          it('reverts', async function () {
+            // Create the template
+            const endpointId = testUtils.generateRandomBytes32();
+            const parameters = testUtils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            const requestTimeParameters = testUtils.generateRandomBytes();
+            const requestHash = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, testUtils.generateRandomBytes()])
+            );
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            const signature = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, fulfillData])
+                )
+              )
+            );
+            await expect(
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, fulfillData, signature)
+            ).to.be.revertedWith('Signature mismatch');
+          });
+        });
+        context('Fulfillment data mismatch', function () {
+          it('reverts', async function () {
+            // Create the template
+            const endpointId = testUtils.generateRandomBytes32();
+            const parameters = testUtils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            const requestTimeParameters = testUtils.generateRandomBytes();
+            const requestHash = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, requestTimeParameters])
+            );
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            const signature = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestHash, fulfillData])
+                )
+              )
+            );
+            await expect(
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, testUtils.generateRandomBytes(), signature)
+            ).to.be.revertedWith('Signature mismatch');
+          });
+        });
+      });
+    });
+    context('Signature invalid', function () {
+      it('reverts', async function () {
+        // Create the template
+        const endpointId = testUtils.generateRandomBytes32();
+        const parameters = testUtils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+        );
+        await expect(
+          airnodeRrp.verifySignature(
+            templateId,
+            testUtils.generateRandomBytes(),
+            testUtils.generateRandomBytes(),
+            '0x12345678'
+          )
+        ).to.be.revertedWith('ECDSA: invalid signature length');
+        await expect(
+          airnodeRrp.verifySignature(
+            templateId,
+            testUtils.generateRandomBytes(),
+            testUtils.generateRandomBytes(),
+            `0x${'0'.repeat(65 * 2)}`
+          )
+        ).to.be.revertedWith("ECDSA: invalid signature 'v' value");
+        // The point is that ECDSA.sol can revert in different ways, not checking them all
+      });
+    });
+  });
+  context('Template does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        airnodeRrp.verifySignature(
+          testUtils.generateRandomBytes32(),
+          testUtils.generateRandomBytes(),
+          testUtils.generateRandomBytes(),
+          testUtils.generateRandomBytes()
+        )
+      ).to.be.revertedWith('Template does not exist');
     });
   });
 });

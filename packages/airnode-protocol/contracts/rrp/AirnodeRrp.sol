@@ -225,10 +225,12 @@ contract AirnodeRrp is
     /// not be taken seriously, yet the content will be sound.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
+    /// @param data Fulfillment data
+    /// @param signature Request ID and fulfillment data signed by the Airnode
+    /// address
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -251,13 +253,7 @@ contract AirnodeRrp is
             ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
-        require(
-            (
-                keccak256(abi.encodePacked(requestId, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Invalid signature"
-        );
+        verifySignature(airnode, requestId, data, signature);
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
@@ -305,6 +301,28 @@ contract AirnodeRrp is
         emit FailedRequest(airnode, requestId, errorMessage);
     }
 
+    /// @notice Called to verify the fulfillment data associated with a
+    /// request, reverts if it fails
+    /// @dev This is exposed as a utility function to implement other
+    /// protocols. It is not used in RRP.
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param data Fulfillment data
+    /// @param signature Request hash and fulfillment data signed by the
+    /// Airnode address
+    function verifySignature(
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata data,
+        bytes calldata signature
+    ) external view override returns (address airnode, bytes32 requestHash) {
+        airnode = templates[templateId].airnode;
+        require(airnode != address(0), "Template does not exist");
+        requestHash = keccak256(abi.encodePacked(templateId, parameters));
+        verifySignature(airnode, requestHash, data, signature);
+    }
+
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
@@ -322,5 +340,30 @@ contract AirnodeRrp is
     {
         isAwaitingFulfillment =
             requestIdToFulfillmentParameters[requestId] != bytes32(0);
+    }
+
+    /// @notice Called privately to verify the fulfillment data associated with
+    /// a request, reverts if it fails
+    /// @dev The request hash will either be a request ID generated for RRP or
+    /// the hash of the template ID and the additional parameters
+    /// @param airnode Airnode address
+    /// @param requestHash A hash that represents the request whose response is
+    /// signed
+    /// @param data Fulfillment data
+    /// @param signature Request hash and fulfillment data signed by the
+    /// Airnode address
+    function verifySignature(
+        address airnode,
+        bytes32 requestHash,
+        bytes calldata data,
+        bytes calldata signature
+    ) private pure {
+        require(
+            (
+                keccak256(abi.encodePacked(requestHash, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
     }
 }
