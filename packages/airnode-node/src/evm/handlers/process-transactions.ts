@@ -4,11 +4,11 @@ import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as utils from '../utils';
-import { EVMProviderState, ProviderState } from '../../types';
+import { EVMProviderSponsorState, ProviderState } from '../../types';
 
 export async function processTransactions(
-  initialState: ProviderState<EVMProviderState>
-): Promise<ProviderState<EVMProviderState>> {
+  initialState: ProviderState<EVMProviderSponsorState>
+): Promise<ProviderState<EVMProviderSponsorState>> {
   const { chainId, chainType, chainOptions, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
@@ -21,7 +21,9 @@ export async function processTransactions(
   // =================================================================
   // STEP 1: Re-instantiate any classes
   // =================================================================
-  const state1 = state.refresh(initialState);
+
+  // TODO: Improve TS for refresh function
+  const state1 = state.refresh(initialState) as ProviderState<EVMProviderSponsorState>;
 
   // =================================================================
   // STEP 2: Assign nonces to processable requests

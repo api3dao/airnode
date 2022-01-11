@@ -1,7 +1,7 @@
 import * as evm from '../evm/handlers';
-import { EVMProviderState, ProviderState } from '../types';
+import { EVMProviderSponsorState, ProviderState } from '../types';
 
-export function processTransactions(state: ProviderState<EVMProviderState>) {
+export function processTransactions(state: ProviderState<EVMProviderSponsorState>) {
   if (state.settings.chainType === 'evm') {
     return evm.processTransactions(state);
   }

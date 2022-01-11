@@ -1,7 +1,19 @@
+import flatMap from 'lodash/flatMap';
+import map from 'lodash/map';
 import * as evm from '../evm';
 import { randomString, removeKeys } from '../utils';
-import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
+import {
+  ChainConfig,
+  ChainType,
+  EVMProviderState,
+  Config,
+  ProviderSettings,
+  ProviderState,
+  ProviderStates,
+  EVMProviderSponsorState,
+} from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
+import { groupRequestsBySponsorAddress } from '../requests/grouping';
 
 export function buildEVMState(
   coordinatorId: string,
@@ -67,14 +79,22 @@ export function scrub<T>(state: ProviderState<T>): ProviderState<T> {
   return removeKeys(state, ['config', 'masterHDNode', 'provider']) as ProviderState<T>;
 }
 
-export function refresh(state: ProviderState<any>) {
+export function refresh<T extends EVMProviderState>(state: ProviderState<T>) {
   if (state.settings.chainType === 'evm') {
     // The serverless function does not return an instance of an Ethereum
     // provider, so we create a new one before returning the state
-    const masterHDNode = evm.getMasterHDNode(state.config);
+    const masterHDNode = evm.getMasterHDNode(state.config!);
     const provider = evm.buildEVMProvider(state.settings.url, state.settings.chainId);
-    return update(state, { masterHDNode, provider }) as ProviderState<EVMProviderState>;
+    return update(state, { masterHDNode, provider } as Partial<ProviderState<T>>);
   }
 
   throw new Error(`Unknown chain type: ${state.settings.chainType}`);
+}
+
+// TODO: Test
+export function splitStatesBySponsorAddress(providerStates: ProviderStates): ProviderState<EVMProviderSponsorState>[] {
+  return flatMap(providerStates.evm, (providerState) => {
+    const groupedRequests = groupRequestsBySponsorAddress(providerState.requests);
+    return map(groupedRequests, (requests, sponsorAddress) => ({ ...providerState, requests, sponsorAddress }));
+  });
 }

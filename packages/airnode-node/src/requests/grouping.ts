@@ -28,7 +28,7 @@ export function groupRequestsBySponsorAddress(requests: GroupedRequests): Reques
     };
 
     return { ...acc, [sponsorAddress]: requests };
-  }, {});
+  }, {} as RequestsBySponsorAddress);
 
   return groupedRequests;
 }

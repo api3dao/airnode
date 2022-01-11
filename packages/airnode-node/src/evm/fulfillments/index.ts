@@ -1,11 +1,10 @@
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
-import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import {
   Request,
-  EVMProviderState,
+  EVMProviderSponsorState,
   ProviderState,
   RequestType,
   GroupedRequests,
@@ -22,7 +21,7 @@ interface OrderedRequest<T> {
   readonly makeRequest: () => Promise<Request<T>>;
 }
 
-function getBaseLogOptions(state: ProviderState<EVMProviderState>) {
+function getBaseLogOptions(state: ProviderState<EVMProviderSponsorState>) {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;
 
@@ -33,7 +32,7 @@ function getBaseLogOptions(state: ProviderState<EVMProviderState>) {
   };
 }
 
-function getTransactionOptions(state: ProviderState<EVMProviderState>) {
+function getTransactionOptions(state: ProviderState<EVMProviderSponsorState>) {
   return {
     gasTarget: state.gasTarget!,
     masterHDNode: state.masterHDNode,
@@ -42,7 +41,7 @@ function getTransactionOptions(state: ProviderState<EVMProviderState>) {
 }
 
 function prepareRequestSubmissions<T>(
-  state: ProviderState<EVMProviderState>,
+  state: ProviderState<EVMProviderSponsorState>,
   requests: Request<T>[],
   type: RequestType,
   submitFunction: SubmitRequest<T>,
@@ -74,18 +73,14 @@ function prepareRequestSubmissions<T>(
  * There is a concept of batched requests, but that doesn't work with transactions. See:
  * https://github.com/ethers-io/ethers.js/issues/892#issuecomment-828897859
  */
-async function submitSponsorRequestsSequentially(
-  state: ProviderState<EVMProviderState>,
-  sponsorAddress: string
-): Promise<GroupedRequests> {
+export async function submit(state: ProviderState<EVMProviderSponsorState>): Promise<GroupedRequests> {
   const { AirnodeRrp } = state.contracts;
-  const requestsBySponsorAddress = grouping.groupRequestsBySponsorAddress(state.requests);
-  const requests = requestsBySponsorAddress[sponsorAddress];
-  const sponsorWallet = wallet.deriveSponsorWallet(state.masterHDNode, sponsorAddress);
+  const { requests } = state;
+  const sponsorWallet = wallet.deriveSponsorWallet(state.masterHDNode, state.sponsorAddress);
   const signer = sponsorWallet.connect(state.provider);
   const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
 
-  // Submit transactions for API calls
+  // Prepare transactions for API calls
   const preparedApiCallSubmissions = prepareRequestSubmissions(
     state,
     requests.apiCalls,
@@ -101,7 +96,7 @@ async function submitSponsorRequestsSequentially(
   );
   logger.logPending(verifyWithdrawalLogs, getBaseLogOptions(state));
 
-  // Submit transactions for withdrawals
+  // Prepare transactions for withdrawals
   const preparedWithdrawalSubmissions = prepareRequestSubmissions(
     state,
     verifiedWithdrawals,
@@ -139,16 +134,4 @@ async function submitSponsorRequestsSequentially(
     apiCalls,
     withdrawals,
   };
-}
-
-export async function submit(state: ProviderState<EVMProviderState>) {
-  const requestsBySponsorAddress = grouping.groupRequestsBySponsorAddress(state.requests);
-  const sponsorAddresses = Object.keys(requestsBySponsorAddress);
-
-  const promises = sponsorAddresses.map((address) => submitSponsorRequestsSequentially(state, address));
-  const nestedGroupRequests = await Promise.all(promises);
-  return nestedGroupRequests.reduce((merged, groupRequests) => ({
-    apiCalls: [...merged.apiCalls, ...groupRequests.apiCalls],
-    withdrawals: [...merged.withdrawals, ...groupRequests.withdrawals],
-  }));
 }
