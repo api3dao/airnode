@@ -246,11 +246,58 @@ contract RrpBeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
-        require(data.length == 64, "Incorrect data length");
-        (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
-            data,
-            (int256, uint256)
+        (int256 decodedData, uint256 decodedTimestamp) = ingestData(
+            beaconId,
+            data
         );
+        emit UpdatedBeacon(beaconId, requestId, decodedData, decodedTimestamp);
+    }
+
+    /// @notice Called to update a beacon without a preceding RRP request using
+    /// data signed by the respective Airnode
+    /// @dev The request hash used here is derived using a different scheme
+    /// than RRP. This means signed RRP responses cannot be used with this
+    /// method, and vice versa.
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param data Fulfillment data
+    /// @param signature Request ID and fulfillment data signed by the Airnode
+    /// address
+    function updateBeaconWithoutRequest(
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata data,
+        bytes calldata signature
+    ) external override {
+        (, bytes32 beaconId) = IAirnodeRrp(airnodeRrp).verifySignature(
+            templateId,
+            parameters,
+            data,
+            signature
+        );
+        (int256 decodedData, uint256 decodedTimestamp) = ingestData(
+            beaconId,
+            data
+        );
+        emit UpdatedBeaconWithoutRequest(
+            beaconId,
+            decodedData,
+            decodedTimestamp
+        );
+    }
+
+    /// @notice Called privately to decode and process the fulfillment data
+    /// @param beaconId Beacon ID
+    /// @param data Fulfillment data
+    /// @return decodedData Decoded beacon data
+    /// @return decodedTimestamp Decoded beacon timestamp
+    function ingestData(bytes32 beaconId, bytes calldata data)
+        private
+        returns (int256 decodedData, uint256 decodedTimestamp)
+    {
+        require(data.length == 64, "Incorrect data length");
+        (decodedData, decodedTimestamp) = abi.decode(data, (int256, uint256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
@@ -275,12 +322,6 @@ contract RrpBeaconServer is
             value: int224(decodedData),
             timestamp: uint32(decodedTimestamp)
         });
-        emit UpdatedBeacon(
-            beaconId,
-            requestId,
-            int224(decodedData),
-            uint32(decodedTimestamp)
-        );
     }
 
     /// @notice Called to read the beacon
@@ -361,6 +402,7 @@ contract RrpBeaconServer is
 
     /// @notice Derives the beacon ID from the respective template ID and
     /// additional parameters
+    /// @dev Beacon ID is referred to as the "request hash" in AirnodeRrp
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
