@@ -253,13 +253,7 @@ contract AirnodeRrp is
             ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
-        require(
-            (
-                keccak256(abi.encodePacked(requestId, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
+        verifySignature(airnode, requestId, data, signature);
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
@@ -326,13 +320,7 @@ contract AirnodeRrp is
         airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
         requestHash = keccak256(abi.encodePacked(templateId, parameters));
-        require(
-            (
-                keccak256(abi.encodePacked(requestHash, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
+        verifySignature(airnode, requestHash, data, signature);
     }
 
     /// @notice Called to check if the request with the ID is made but not
@@ -352,5 +340,30 @@ contract AirnodeRrp is
     {
         isAwaitingFulfillment =
             requestIdToFulfillmentParameters[requestId] != bytes32(0);
+    }
+
+    /// @notice Called privately to verify the fulfillment data associated with
+    /// a request, reverts if it fails
+    /// @dev The request hash will either be a request ID generated for RRP or
+    /// the hash of the template ID and the additional parameters
+    /// @param airnode Airnode address
+    /// @param requestHash A hash that represents the request whose response is
+    /// signed
+    /// @param data Fulfillment data
+    /// @param signature Request hash and fulfillment data signed by the
+    /// Airnode address
+    function verifySignature(
+        address airnode,
+        bytes32 requestHash,
+        bytes calldata data,
+        bytes calldata signature
+    ) private pure {
+        require(
+            (
+                keccak256(abi.encodePacked(requestHash, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
     }
 }
