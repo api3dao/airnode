@@ -265,7 +265,7 @@ This will use the deployer to remove the Airnode lambdas from the cloud provider
 
 ### 19. (Optional) Make a withdrawal request
 
-Withdrawal request makes the Airnode return the funds of particular sponsor wallet back to sponsor. Doing this step is
+Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to sponsor. This step is
 recommended when testing on public testnets. To do so run:
 
 ```sh
