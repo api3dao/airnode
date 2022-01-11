@@ -8,15 +8,31 @@ import {
   getAirnodeWallet,
   readConfig,
   cliPrint,
+  setMaxPromiseTimeout,
 } from '../src';
 
-const fulfilled = async (requestId: string) => {
+const waitForFulfillment = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
-  return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
+
+  const fulfilled = new Promise((resolve) =>
+    provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve)
+  );
+  const failed = new Promise((resolve) =>
+    provider.once(airnodeRrp.filters.FailedRequest(null, requestId), resolve)
+  ).then((rawRequestFailedLog) => {
+    const log = airnodeRrp.interface.parseLog(rawRequestFailedLog as ethers.Event);
+    throw new Error(`Request failed. Reason:\n${log.args.errorMessage}`);
+  });
+
+  // Airnode request can either:
+  // 1) be fulfilled - in that case this promise resolves
+  // 2) fail - in that case, this promise rejects and this function throws an error
+  // 3) never be processed - this means the request is invalid or a bug in Airnode. This should not happen.
+  await Promise.race([fulfilled, failed]);
 };
 
-export const makeRequest = async (): Promise<string> => {
+const makeRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
@@ -24,9 +40,9 @@ export const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' from the admin CLI package
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' from the
+  // admin CLI package
   const sponsorWalletAddress = await deriveSponsorWalletAddress(
-    // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' from the admin CLI package
     deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
     sponsor.address
@@ -57,7 +73,7 @@ const main = async () => {
   cliPrint.info('Making request...');
   const requestId = await makeRequest();
   cliPrint.info('Waiting for fulfillment...');
-  await fulfilled(requestId);
+  await setMaxPromiseTimeout(waitForFulfillment(requestId), 80 * 1000);
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();
