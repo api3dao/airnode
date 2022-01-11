@@ -3119,7 +3119,7 @@ describe('fail', function () {
   });
 });
 
-describe('verifyData', function () {
+describe('verifySignature', function () {
   context('Template exists', function () {
     context('Signature valid', function () {
       context('Signature correct', function () {
@@ -3145,7 +3145,7 @@ describe('verifyData', function () {
               )
             )
           );
-          const staticCallResponse = await airnodeRrp.verifyData(
+          const staticCallResponse = await airnodeRrp.verifySignature(
             templateId,
             requestTimeParameters,
             fulfillData,
@@ -3183,7 +3183,7 @@ describe('verifyData', function () {
               )
             );
             await expect(
-              airnodeRrp.verifyData(templateId, requestTimeParameters, fulfillData, signature)
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, fulfillData, signature)
             ).to.be.revertedWith('Signature mismatch');
           });
         });
@@ -3211,7 +3211,7 @@ describe('verifyData', function () {
               )
             );
             await expect(
-              airnodeRrp.verifyData(templateId, requestTimeParameters, fulfillData, signature)
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, fulfillData, signature)
             ).to.be.revertedWith('Signature mismatch');
           });
         });
@@ -3239,7 +3239,7 @@ describe('verifyData', function () {
               )
             );
             await expect(
-              airnodeRrp.verifyData(templateId, requestTimeParameters, testUtils.generateRandomBytes(), signature)
+              airnodeRrp.verifySignature(templateId, requestTimeParameters, testUtils.generateRandomBytes(), signature)
             ).to.be.revertedWith('Signature mismatch');
           });
         });
@@ -3255,7 +3255,7 @@ describe('verifyData', function () {
           hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
         await expect(
-          airnodeRrp.verifyData(
+          airnodeRrp.verifySignature(
             templateId,
             testUtils.generateRandomBytes(),
             testUtils.generateRandomBytes(),
@@ -3263,7 +3263,7 @@ describe('verifyData', function () {
           )
         ).to.be.revertedWith('ECDSA: invalid signature length');
         await expect(
-          airnodeRrp.verifyData(
+          airnodeRrp.verifySignature(
             templateId,
             testUtils.generateRandomBytes(),
             testUtils.generateRandomBytes(),
@@ -3277,7 +3277,7 @@ describe('verifyData', function () {
   context('Template does not exist', function () {
     it('reverts', async function () {
       await expect(
-        airnodeRrp.verifyData(
+        airnodeRrp.verifySignature(
           testUtils.generateRandomBytes32(),
           testUtils.generateRandomBytes(),
           testUtils.generateRandomBytes(),
