@@ -4,7 +4,7 @@ import { handlers, logger, utils, providers } from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env);
+const parsedConfig = loadConfig(configFile, process.env, false);
 
 export async function startCoordinator(_req: Request, res: Response) {
   await handlers.startCoordinator(parsedConfig);

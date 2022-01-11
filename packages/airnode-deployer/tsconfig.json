@@ -4,6 +4,6 @@
     "baseUrl": "./",
     "outDir": "dist"
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "./test/**/*"],
   "exclude": ["dist/**/*", "node_modules/**/*"]
 }

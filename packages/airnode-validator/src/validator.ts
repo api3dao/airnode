@@ -11,10 +11,12 @@ import { keywords } from './utils/globals';
  * @param templateName - name of the template (ois, config...)
  * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - if the validator should run the validation
  */
 export function validateJsonWithTemplate(
   specs: object,
   templateName: string | undefined,
+  shouldValidate: boolean,
   interpolate?: Record<string, string | undefined>,
   returnJson = false
 ): Result {
@@ -51,7 +53,8 @@ export function validateJsonWithTemplate(
     template,
     split.slice(0, split.length - 1).join(path.sep) + path.sep,
     interpolate,
-    returnJson
+    returnJson,
+    shouldValidate
   );
 }
 
@@ -85,7 +88,7 @@ export function validateWithTemplate(
     }
   }
 
-  return validateJsonWithTemplate(specs, templateName, env, returnJson);
+  return validateJsonWithTemplate(specs, templateName, true, env, returnJson);
 }
 
 /**
@@ -94,13 +97,15 @@ export function validateWithTemplate(
  * @param templatePath - template json file
  * @param interpolatePath - path to env file that will be interpolated with specification file
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - should the config be validated
  * @returns array of error and warning messages
  */
 export function validate(
   specsPath: string | undefined,
   templatePath: string | undefined,
   interpolatePath?: string,
-  returnJson = false
+  returnJson = false,
+  shouldValidate = true
 ): Result {
   if (!specsPath || !templatePath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
@@ -125,7 +130,14 @@ export function validate(
 
   const split = templatePath.split(path.sep);
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, env, returnJson);
+  return validateJson(
+    specs,
+    template,
+    split.slice(0, split.length - 1).join(path.sep) + path.sep,
+    env,
+    returnJson,
+    shouldValidate
+  );
 }
 
 /**
@@ -135,6 +147,7 @@ export function validate(
  * @param templatePath - path to current validator template file
  * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - should the config be validated
  * @returns array of error and warning messages
  */
 export function validateJson(
@@ -142,7 +155,8 @@ export function validateJson(
   template: object,
   templatePath = '',
   interpolate?: Record<string, string | undefined>,
-  returnJson = false
+  returnJson = false,
+  shouldValidate = true
 ): Result {
   const messages: Log[] = [];
   let interpolated: object | undefined = specs;
@@ -154,6 +168,14 @@ export function validateJson(
   }
 
   const nonRedundant = template[keywords.arrayItem as keyof typeof template] ? [] : {};
+  if (!shouldValidate) {
+    return {
+      valid: true,
+      messages: [],
+      specs: returnJson ? interpolated : undefined,
+    };
+  }
+
   const result = processSpecs(
     interpolated,
     template,

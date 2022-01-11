@@ -3,7 +3,7 @@ import { handlers, logger, utils, providers, WorkerResponse } from '@api3/airnod
 import { loadConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env);
+const parsedConfig = loadConfig(configFile, process.env, false);
 
 function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);

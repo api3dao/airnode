@@ -18,7 +18,8 @@ export interface CallApiArgs {
 function loadConfig() {
   const { config, shouldSkipValidation, validationOutput } = parseConfig(
     path.resolve(`${__dirname}/../../config/config.json`),
-    process.env
+    process.env,
+    true
   );
 
   // TODO: Log debug that validation is skipped
