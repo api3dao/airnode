@@ -16,9 +16,9 @@ import { keywords } from './utils/globals';
 export function validateJsonWithTemplate(
   specs: object,
   templateName: string | undefined,
+  shouldValidate: boolean,
   interpolate?: Record<string, string | undefined>,
-  returnJson = false,
-  shouldValidate = true
+  returnJson = false
 ): Result {
   if (!templateName) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
@@ -88,7 +88,7 @@ export function validateWithTemplate(
     }
   }
 
-  return validateJsonWithTemplate(specs, templateName, env, returnJson);
+  return validateJsonWithTemplate(specs, templateName, true, env, returnJson);
 }
 
 /**
@@ -97,13 +97,15 @@ export function validateWithTemplate(
  * @param templatePath - template json file
  * @param interpolatePath - path to env file that will be interpolated with specification file
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - should the config be validated
  * @returns array of error and warning messages
  */
 export function validate(
   specsPath: string | undefined,
   templatePath: string | undefined,
   interpolatePath?: string,
-  returnJson = false
+  returnJson = false,
+  shouldValidate = true
 ): Result {
   if (!specsPath || !templatePath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
@@ -128,7 +130,14 @@ export function validate(
 
   const split = templatePath.split(path.sep);
 
-  return validateJson(specs, template, split.slice(0, split.length - 1).join(path.sep) + path.sep, env, returnJson);
+  return validateJson(
+    specs,
+    template,
+    split.slice(0, split.length - 1).join(path.sep) + path.sep,
+    env,
+    returnJson,
+    shouldValidate
+  );
 }
 
 /**
@@ -138,6 +147,7 @@ export function validate(
  * @param templatePath - path to current validator template file
  * @param interpolate - list of env variables that will be interpolated with specification
  * @param returnJson - parsed JSON specification will be returned
+ * @param shouldValidate - should the config be validated
  * @returns array of error and warning messages
  */
 export function validateJson(

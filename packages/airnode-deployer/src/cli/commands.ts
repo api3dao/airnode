@@ -16,7 +16,7 @@ import * as logger from '../utils/logger';
 
 export async function deploy(configFile: string, secretsFile: string, receiptFile: string) {
   const secrets = parseSecretsFile(secretsFile);
-  const config = loadConfig(configFile, secrets);
+  const config = loadConfig(configFile, secrets, true);
 
   if (config.nodeSettings.cloudProvider.type === 'local') {
     // We want to check cloud provider type regardless of "skipValidation" value.

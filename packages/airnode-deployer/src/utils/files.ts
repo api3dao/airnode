@@ -7,7 +7,7 @@ import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
 
-export function loadConfig(configFile: string, secrets: Record<string, string | undefined>, shouldValidate = true) {
+export function loadConfig(configFile: string, secrets: Record<string, string | undefined>, shouldValidate: boolean) {
   const { shouldSkipValidation, config, validationOutput } = parseConfig(configFile, secrets, shouldValidate);
   const { messages, valid } = validationOutput;
 

@@ -33,7 +33,7 @@ export interface ParseConfigResult {
 export function parseConfig(
   configPath: string,
   secrets: Record<string, string | undefined>,
-  shouldValidate = false
+  shouldValidate: boolean
 ): ParseConfigResult {
   const config = readConfig(configPath);
   const validationResult = validateConfig(config, secrets, shouldValidate);
@@ -63,14 +63,14 @@ export function getEnvValue(envName: string) {
 function validateConfig(
   supposedConfig: unknown,
   secrets: Record<string, string | undefined>,
-  shouldValidate = true
+  shouldValidate: boolean
 ): Result {
   // TODO: Improve TS types
   return validateJsonWithTemplate(
     supposedConfig as object,
     `config@${getNodeVersion()}`,
+    shouldValidate,
     secrets,
-    true,
-    shouldValidate
+    true
   );
 }

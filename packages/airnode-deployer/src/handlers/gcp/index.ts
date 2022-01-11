@@ -2,10 +2,9 @@ import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
 import { handlers, logger, utils, providers } from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
-import { isCloudFunction } from '../../utils/infrastructure';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env, !isCloudFunction());
+const parsedConfig = loadConfig(configFile, process.env, false);
 
 export async function startCoordinator(_req: Request, res: Response) {
   await handlers.startCoordinator(parsedConfig);

@@ -1,10 +1,9 @@
 import * as path from 'path';
 import { handlers, logger, utils, providers, WorkerResponse } from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
-import { isCloudFunction } from '../../utils/infrastructure';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env, !isCloudFunction());
+const parsedConfig = loadConfig(configFile, process.env, false);
 
 function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);
