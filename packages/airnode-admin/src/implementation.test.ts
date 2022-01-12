@@ -5,7 +5,7 @@ describe('deriveWalletPathFromSponsorAddress', () => {
   it('converts address to derivation path', () => {
     const sponsorAddress = '0x8A45eac0267dD0803Fd957723EdE10693A076698';
     const res = deriveWalletPathFromSponsorAddress(sponsorAddress);
-    expect(res).toEqual('0/973563544/2109481170/2137349576/871269377/610184194/17');
+    expect(res).toEqual('1/973563544/2109481170/2137349576/871269377/610184194/17');
 
     const randomAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
     const randomPath = deriveWalletPathFromSponsorAddress(randomAddress);
@@ -15,7 +15,7 @@ describe('deriveWalletPathFromSponsorAddress', () => {
   it('converts zero address to derivation path', () => {
     const sponsorAddress = ethers.constants.AddressZero;
     const res = deriveWalletPathFromSponsorAddress(sponsorAddress);
-    expect(res).toEqual('0/0/0/0/0/0/0');
+    expect(res).toEqual('1/0/0/0/0/0/0');
   });
 
   it('throws if address is null', () => {

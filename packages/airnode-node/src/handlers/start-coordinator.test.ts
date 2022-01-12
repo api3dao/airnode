@@ -30,6 +30,10 @@ import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
+beforeEach(() => {
+  console.log('s');
+});
+
 describe('startCoordinator', () => {
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
@@ -84,12 +88,12 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
-      '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
+      '0x70c03b74a037c83f8cac260413eae669e161f256c9c312ad0363ed4657033fef',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
-      '0x1e84aa4b6cae3e6c4e7132d47034db4fa3613ecf96b795c2cbb3676ddc77460d7be268236312701ccc1f2a0408171c9cfaf62606b8cfa2e5441caa991e4d49aa1b',
+      '0xba69a4584ca8e383412741f9f75b351d34d5eff9e14b38d8ba8b994bb175e3c5549594040952fc82817cbfb3eaf4593aa8858a34b682886737aac15f759dc1d41c',
       { gasLimit: 500_000, ...gasTarget, nonce: 212 }
     );
   });
