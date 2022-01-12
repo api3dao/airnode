@@ -175,6 +175,12 @@
         "__arrayItem": {
           "__regexp": "^0x[a-fA-F0-9]{40}$"
         }
+      },
+      "maxConcurrentTransactions": {
+        "__type": "number",
+        "__catch": {
+          "__message": "__fullPath: This field must be an integer"
+        }
       }
     }
   },

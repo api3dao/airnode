@@ -183,6 +183,7 @@
   },
   "chains": [
     {
+      "maxConcurrentTransactions": 100,
       "id": "1",
       "type": "evm",
       "providers": {
