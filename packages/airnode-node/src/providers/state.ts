@@ -91,7 +91,6 @@ export function refresh<T extends EVMProviderState>(state: ProviderState<T>) {
   throw new Error(`Unknown chain type: ${state.settings.chainType}`);
 }
 
-// TODO: Test
 export function splitStatesBySponsorAddress(providerStates: ProviderStates): ProviderState<EVMProviderSponsorState>[] {
   return flatMap(providerStates.evm, (providerState) => {
     const groupedRequests = groupRequestsBySponsorAddress(providerState.requests);

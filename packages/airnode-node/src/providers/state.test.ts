@@ -197,3 +197,93 @@ describe('refresh', () => {
     });
   });
 });
+
+describe('splitStatesBySponsorAddress', () => {
+  it('splits provider states based on the request sponsor address', () => {
+    const mixedRequest1 = fixtures.requests.buildApiCall({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    });
+    const mixedRequest2 = fixtures.requests.buildApiCall({
+      sponsorAddress: '0x815008C3327dA9ce35f824df29bF31486797C5D1',
+    });
+    const mixedWithdrawal1 = fixtures.requests.buildWithdrawal({
+      sponsorAddress: '0x815008C3327dA9ce35f824df29bF31486797C5D1',
+    });
+
+    const sameRequest1 = fixtures.requests.buildApiCall({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    });
+    const sameWithdrawal1 = fixtures.requests.buildWithdrawal({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    });
+
+    const differentRequest1 = fixtures.requests.buildApiCall({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    });
+    const differentWithdrawal1 = fixtures.requests.buildWithdrawal({
+      sponsorAddress: '0xcD9B7680110b11fac877F8be9d5D4334fb3d7A9B',
+    });
+
+    let stateWithMixedSponsorAddreses = fixtures.buildEVMProviderState();
+    stateWithMixedSponsorAddreses = state.update(stateWithMixedSponsorAddreses, {
+      requests: { apiCalls: [mixedRequest1, mixedRequest2], withdrawals: [mixedWithdrawal1] },
+    });
+    let stateWithSameSponsorAddreses = fixtures.buildEVMProviderState();
+    stateWithSameSponsorAddreses = state.update(stateWithSameSponsorAddreses, {
+      requests: { apiCalls: [sameRequest1], withdrawals: [sameWithdrawal1] },
+    });
+    let stateWithDifferentSponsorAddreses = fixtures.buildEVMProviderState();
+    stateWithDifferentSponsorAddreses = state.update(stateWithDifferentSponsorAddreses, {
+      requests: { apiCalls: [differentRequest1], withdrawals: [differentWithdrawal1] },
+    });
+
+    const providerStates = {
+      evm: [stateWithMixedSponsorAddreses, stateWithSameSponsorAddreses, stateWithDifferentSponsorAddreses],
+    };
+
+    const providerSponsorStates = state.splitStatesBySponsorAddress(providerStates);
+    let providerSponsorState1 = fixtures.buildEVMProviderSponsorState({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      id: stateWithMixedSponsorAddreses.id,
+    });
+    providerSponsorState1 = state.update(providerSponsorState1, {
+      requests: { apiCalls: [mixedRequest1], withdrawals: [] },
+    });
+    let providerSponsorState2 = fixtures.buildEVMProviderSponsorState({
+      sponsorAddress: '0x815008C3327dA9ce35f824df29bF31486797C5D1',
+      id: stateWithMixedSponsorAddreses.id,
+    });
+    providerSponsorState2 = state.update(providerSponsorState2, {
+      requests: { apiCalls: [mixedRequest2], withdrawals: [mixedWithdrawal1] },
+    });
+    let providerSponsorState3 = fixtures.buildEVMProviderSponsorState({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      id: stateWithSameSponsorAddreses.id,
+    });
+    providerSponsorState3 = state.update(providerSponsorState3, {
+      requests: { apiCalls: [sameRequest1], withdrawals: [sameWithdrawal1] },
+    });
+    let providerSponsorState4 = fixtures.buildEVMProviderSponsorState({
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      id: stateWithDifferentSponsorAddreses.id,
+    });
+    providerSponsorState4 = state.update(providerSponsorState4, {
+      requests: { apiCalls: [differentRequest1], withdrawals: [] },
+    });
+    let providerSponsorState5 = fixtures.buildEVMProviderSponsorState({
+      sponsorAddress: '0xcD9B7680110b11fac877F8be9d5D4334fb3d7A9B',
+      id: stateWithDifferentSponsorAddreses.id,
+    });
+    providerSponsorState5 = state.update(providerSponsorState5, {
+      requests: { apiCalls: [], withdrawals: [differentWithdrawal1] },
+    });
+
+    expect(providerSponsorStates).toEqual([
+      providerSponsorState1,
+      providerSponsorState2,
+      providerSponsorState3,
+      providerSponsorState4,
+      providerSponsorState5,
+    ]);
+  });
+});
