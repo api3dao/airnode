@@ -24,7 +24,7 @@ const providerErrorForWorker = {
 workers.forEach((workerType) => {
   describe(`${workerType} worker`, () => {
     it('handles remote AWS calls', async () => {
-      const state = fixtures.buildEVMProviderState();
+      const state = fixtures.buildEVMProviderSponsorState();
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
       );
@@ -43,7 +43,7 @@ workers.forEach((workerType) => {
     });
 
     it('returns an error if the worker rejects', async () => {
-      const state = fixtures.buildEVMProviderState();
+      const state = fixtures.buildEVMProviderSponsorState();
       invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
       const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
       const [logs, res] = await worker[workerType](state, workerOpts);
@@ -66,7 +66,7 @@ workers.forEach((workerType) => {
     });
 
     it('returns an error if the response has an error log', async () => {
-      const state = fixtures.buildEVMProviderState();
+      const state = fixtures.buildEVMProviderSponsorState();
       const errorLog = logger.pend('ERROR', 'Something went wrong');
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
@@ -86,7 +86,7 @@ workers.forEach((workerType) => {
     });
 
     it('returns an error if the response is not ok', async () => {
-      const state = fixtures.buildEVMProviderState();
+      const state = fixtures.buildEVMProviderSponsorState();
       invokeMock.mockImplementationOnce((params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
       );

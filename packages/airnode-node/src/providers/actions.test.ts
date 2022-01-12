@@ -197,7 +197,7 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
-  test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %d', async (txType) => {
+  test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %s', async (txType) => {
     const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -215,17 +215,15 @@ describe('processRequests', () => {
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
     const transactionCountsBySponsorAddress = { [sponsorAddress]: 5 };
-    const allProviders = {
-      evm: range(2)
-        .map(() => fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress }))
-        .map((initialState) => ({
-          ...initialState,
-          settings: {
-            ...initialState.settings,
-            chainOptions: { txType },
-          },
-        })),
-    };
+    const allProviders = range(2)
+      .map(() => fixtures.buildEVMProviderSponsorState({ requests, transactionCountsBySponsorAddress, sponsorAddress }))
+      .map((initialState) => ({
+        ...initialState,
+        settings: {
+          ...initialState.settings,
+          chainOptions: { txType },
+        },
+      }));
 
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await providers.processRequests(allProviders, workerOpts);
@@ -235,7 +233,7 @@ describe('processRequests', () => {
     expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
 
     expect(res.evm.map((evm) => evm.requests.apiCalls[0])).toEqual(
-      range(allProviders.evm.length).map(() => ({
+      range(allProviders.length).map(() => ({
         ...apiCall,
         fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
         nonce: 5,
