@@ -4,6 +4,9 @@ pragma solidity 0.8.9;
 import "./AirnodePspRelayedV1.sol";
 import "./interfaces/IAirnodeProtocolV1.sol";
 
+/// @title Airnode request–response protocol (RRP), publish–subscribe protocol
+/// (PSP), their relayed versions and an additional utility function to verify
+/// the signature of the fulfillment of a generic request
 contract AirnodeProtocolV1 is AirnodePspRelayedV1, IAirnodeProtocolV1 {
     using ECDSA for bytes32;
 

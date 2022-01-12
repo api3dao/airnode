@@ -7,6 +7,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
     event MadeRequestRelayed(
         address indexed relayer,
         bytes32 indexed requestId,
+        address indexed airnode,
         address requester,
         uint256 requesterRequestCount,
         bytes32 templateId,
@@ -17,6 +18,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
     event FulfilledRequestRelayed(
         address indexed relayer,
         bytes32 indexed requestId,
+        address indexed airnode,
         uint256 timestamp,
         bytes data
     );
@@ -24,6 +26,7 @@ interface IAirnodeRrpRelayedV1 is IAirnodeRrpV1 {
     event FailedRequestRelayed(
         address indexed relayer,
         bytes32 indexed requestId,
+        address indexed airnode,
         uint256 timestamp,
         string errorMessage
     );

@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 import "./AirnodeRrpRelayedV1.sol";
 import "./interfaces/IAirnodePspV1.sol";
 
+/// @title Airnode publish–subscribe protocol (PSP)
 contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
     using ECDSA for bytes32;
 
@@ -78,19 +79,15 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
     }
 
     /// @notice Called by the Airnode to fulfill the subscription
-    /// @dev The data is ABI-encoded as a `bytes` type, with its format
-    /// depending on the request specifications.
-    /// The conditions under which a subscription should be fulfilled are
-    /// specified in its parameters, and the subscription will be fulfilled
-    /// continually as long as these conditions are met. In other words, a
-    /// subscription does not necessarily expire when this function is called.
-    /// The Airnode will only call this function if the subsequent static call
-    /// returns `true` for `callSuccess`. If it does not in this static call or
-    /// the transaction following that, this will not be handled by the
-    /// Airnode in any way.
-    /// This function emits its event after an untrusted low-level call,
-    /// meaning that the order of these events within the transaction should
-    /// not be taken seriously, yet the content will be sound.
+    /// @dev An Airnode gets the active subscriptions that it needs to serve
+    /// from Allocator contracts. These subscriptions will be fulfilled
+    /// continually, as long as the conditions specified under their parameters
+    /// are met. In other words, unlike RRP requests, a subscription being
+    /// fulfilled does not result in its expiration.
+    /// The Airnode will only fulfill a subscription if the subsequent static
+    /// call returns `true` for `callSuccess`. If it does not in this static
+    /// call or the transaction following that, this will not be handled by the
+    /// Airnode in any way (i.e., there is no error message as in RRP).
     /// @param subscriptionId Subscription ID
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
@@ -108,21 +105,20 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
         Subscription storage subscription = subscriptions[subscriptionId];
         address airnode = templates[subscription.templateId].airnode;
         require(airnode != address(0), "Subscription does not exist");
-        address requester = subscription.requester;
-        require(
-            requester == subscription.sponsor ||
-                sponsorToRequesterToSponsorshipStatus[subscription.sponsor][
-                    requester
-                ],
-            "Requester not sponsored"
-        );
         require(
             (
                 keccak256(
-                    abi.encodePacked(subscriptionId, msg.sender, timestamp)
+                    abi.encodePacked(subscriptionId, timestamp, msg.sender)
                 ).toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"
+        );
+        address requester = subscription.requester;
+        address sponsor = subscription.sponsor;
+        require(
+            requester == sponsor ||
+                sponsorToRequesterToSponsorshipStatus[sponsor][requester],
+            "Requester not sponsored"
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSignature(

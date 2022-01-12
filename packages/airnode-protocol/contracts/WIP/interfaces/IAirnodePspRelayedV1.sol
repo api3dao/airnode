@@ -5,14 +5,16 @@ import "./IAirnodePspV1.sol";
 
 interface IAirnodePspRelayedV1 is IAirnodePspV1 {
     event FulfilledSubscriptionRelayed(
-        address indexed airnode,
+        address indexed relayer,
         bytes32 indexed subscriptionId,
+        address indexed airnode,
         uint256 timestamp,
         bytes data
     );
 
     function fulfillSubscriptionRelayed(
         bytes32 subscriptionId,
+        address relayer,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature

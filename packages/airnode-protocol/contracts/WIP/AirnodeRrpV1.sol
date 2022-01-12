@@ -6,10 +6,7 @@ import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./utils/WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrpV1.sol";
 
-/// @title Airnode request–response protocol (RRP) and publish–subscribe
-/// protocol (PSP)
-/// @notice This contract is used by requester contracts to request services
-/// from Airnodes and Airnodes to fulfill these requests
+/// @title Airnode request–response protocol (RRP)
 /// @dev This contract inherits Multicall for Airnodes to be able to make batch
 /// static calls to read the contract state
 contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
@@ -47,9 +44,12 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     /// @notice Called by the sponsor to set the sponsorship status of a
     /// requester, i.e., allow or disallow a requester to make requests that
     /// will be fulfilled by the sponsor wallet
-    /// @dev This is not Airnode-specific, i.e., the sponsor allows the
-    /// requester's requests to be fulfilled through its sponsor wallets across
-    /// all Airnodes
+    /// @dev This is not Airnode or protocol-specific, i.e., the sponsor allows
+    /// the requester's requests to be fulfilled through its sponsor wallets
+    /// across all Airnodes and protocols.
+    /// In all contracts, we use the "set" verb to refer to setting a value
+    /// without considering its previous value, and emitting an event whether
+    /// a state change has occurred or not.
     /// @param requester Requester address
     /// @param sponsorshipStatus Sponsorship status
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
@@ -167,8 +167,7 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     /// If `callSuccess` is `false`, `callData` can be decoded to retrieve the
     /// revert string.
     /// This function emits its event after an untrusted low-level call,
-    /// meaning that the order of these events within the transaction should
-    /// not be taken seriously, yet the content will be sound.
+    /// meaning that the log indices of these events may be off.
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param requester Requester address
@@ -194,7 +193,7 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
         );
         require(
             (
-                keccak256(abi.encodePacked(requestId, msg.sender, timestamp))
+                keccak256(abi.encodePacked(requestId, timestamp, msg.sender))
                     .toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"
@@ -247,7 +246,7 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
         );
         require(
             (
-                keccak256(abi.encodePacked(requestId, msg.sender, timestamp))
+                keccak256(abi.encodePacked(requestId, timestamp, msg.sender))
                     .toEthSignedMessageHash()
             ).recover(signature) == airnode,
             "Signature mismatch"

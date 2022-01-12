@@ -42,6 +42,25 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
+    /// @dev Reverts if the signature is not valid for the given `templateId`,
+    /// `parameters`, `timestamp` and `data`
+    modifier onlyValidSignature(
+        bytes32 templateId,
+        bytes calldata parameters,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) {
+        IAirnodeProtocolV1(airnodeProtocol).verifySignature(
+            templateId,
+            parameters,
+            timestamp,
+            data,
+            signature
+        );
+        _;
+    }
+
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
@@ -134,7 +153,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 requestId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyValidAirnodeFulfillment(timestamp) {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -162,7 +181,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 subscriptionId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyValidAirnodeFulfillment(timestamp) {
         (bytes32 beaconId, , , , ) = IAirnodeProtocolV1(airnodeProtocol)
             .subscriptions(subscriptionId);
         int256 decodedData = decodeAndValidateData(beaconId, timestamp, data);
