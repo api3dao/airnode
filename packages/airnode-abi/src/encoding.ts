@@ -12,6 +12,8 @@ const TRANSFORMATIONS: TransformationReference = {
   bytes32: ethers.utils.formatBytes32String,
 };
 
+const VERSION = '1';
+
 function buildSchemaHeader(types: ABIParameterType[]): string {
   const allShortTypes = Object.keys(PARAMETER_SHORT_TYPES);
 
@@ -23,11 +25,10 @@ function buildSchemaHeader(types: ABIParameterType[]): string {
     return [...acc, shortType!];
   }, []);
 
-  // '1' must be the first character as it indicates the version
-  return `1${selectedShortTypes.join('')}`;
+  return `${VERSION}${selectedShortTypes.join('')}`;
 }
 
-function buildNameValuePairs(parameters: InputParameter[]): string[] {
+function buildNameValuePairs(parameters: InputParameter[]): unknown[] {
   return flatMap(parameters, (parameter) => {
     const { name, value, type } = parameter;
     const transform = TRANSFORMATIONS[type];

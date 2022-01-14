@@ -4,7 +4,7 @@ import { PARAMETER_SHORT_TYPES } from './utils';
 import { ABIParameterType, ABIParameterTypeShort, DecodedMap } from './types';
 
 type TransformationReference = {
-  readonly [key: string]: (value: any) => string;
+  readonly [key in ABIParameterType]?: (value: any) => string;
 };
 
 // Certain types need to be parsed after ABI decoding happens
