@@ -160,26 +160,28 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
     return state;
   }
 
-  // TODO: apply chain request limits
+  // =================================================================
+  // STEP 4: Apply chain limits and drop requests exceeding this limit
+  // =================================================================
   state = applyChainRequestLimits(state);
 
   // =================================================================
-  // STEP 4: Group API calls with respect to request IDs
+  // STEP 5: Group API calls with respect to request IDs
   // =================================================================
   state = aggregateApiCalls(state);
 
   // =================================================================
-  // STEP 5: Execute API calls and save the responses
+  // STEP 6: Execute API calls and save the responses
   // =================================================================
   state = await executeApiCalls(state);
 
   // =================================================================
-  // STEP 6: Map API responses back to each provider's API requests
+  // STEP 7: Map API responses back to each provider's API requests
   // =================================================================
   state = disaggregateApiCalls(state);
 
   // ======================================================================
-  // STEP 7: Initiate transactions for each provider, sponsor wallet pair
+  // STEP 8: Initiate transactions for each provider, sponsor wallet pair
   // ======================================================================
   state = await initiateTransactions(state);
 
