@@ -10,15 +10,16 @@ import "./interfaces/IAirnodeProtocolV1.sol";
 contract AirnodeProtocolV1 is AirnodePspRelayedV1, IAirnodeProtocolV1 {
     using ECDSA for bytes32;
 
-    /// @notice Called to verify the signature associated with a request and
-    /// its response, reverts if it fails
+    /// @notice Called to verify the signature associated with request
+    /// parameters, a timestamp and the response to request specified by the
+    /// parameters
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data
-    /// @param signature Request hash and fulfillment data signed by the
-    /// Airnode address
+    /// @param data Response data
+    /// @param signature Request hash, a timestamp and response data signed by
+    /// the Airnode address
     function verifySignature(
         bytes32 templateId,
         bytes calldata parameters,

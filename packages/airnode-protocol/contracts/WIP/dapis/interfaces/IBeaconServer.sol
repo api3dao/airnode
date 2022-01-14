@@ -10,11 +10,27 @@ interface IBeaconServer is IAirnodeRequester {
         bool status
     );
 
+    event UpdatedBeaconWithoutRequest(
+        bytes32 indexed beaconId,
+        int256 value,
+        uint256 timestamp
+    );
+
     event RequestedBeaconUpdate(
         bytes32 indexed beaconId,
         address indexed sponsor,
         address indexed requester,
         bytes32 requestId,
+        bytes32 templateId,
+        bytes parameters
+    );
+
+    event RequestedBeaconUpdateRelayed(
+        bytes32 indexed beaconId,
+        address indexed sponsor,
+        address indexed requester,
+        bytes32 requestId,
+        address relayer,
         bytes32 templateId,
         bytes parameters
     );
@@ -36,8 +52,23 @@ interface IBeaconServer is IAirnodeRequester {
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
 
+    function updateBeaconWithoutRequest(
+        bytes32 templateId,
+        bytes calldata parameters,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) external;
+
     function requestBeaconUpdate(
         bytes32 templateId,
+        address sponsor,
+        bytes calldata parameters
+    ) external;
+
+    function requestBeaconUpdate(
+        bytes32 templateId,
+        address relayer,
         address sponsor,
         bytes calldata parameters
     ) external;
