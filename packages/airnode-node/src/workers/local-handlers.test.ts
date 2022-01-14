@@ -75,7 +75,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
-    const state = fixtures.buildEVMProviderState();
+    const state = fixtures.buildEVMProviderSponsorState();
     jest.spyOn(handlers, 'processTransactions').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
@@ -88,7 +88,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
-    const state = fixtures.buildEVMProviderState();
+    const state = fixtures.buildEVMProviderSponsorState();
     const error = new Error('Something went wrong!');
     jest.spyOn(handlers, 'processTransactions').mockRejectedValue(error);
 

@@ -26,9 +26,9 @@ export async function startCoordinator(config: Config) {
 }
 
 async function coordinator(config: Config): Promise<CoordinatorState> {
-  // =================================================================
+  // ======================================================================
   // STEP 1: Create a blank coordinator state
-  // =================================================================
+  // ======================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
   const logOptions = logger.buildBaseOptions(config, { coordinatorId: state1.id });
@@ -41,9 +41,9 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
     stage: config.nodeSettings.stage,
   };
 
-  // =================================================================
+  // ======================================================================
   // STEP 2: Get the initial state from each provider
-  // =================================================================
+  // ======================================================================
   // Should not throw
   const [initializeLogs, initializedStates] = await providers.initialize(coordinatorId, config, workerOpts);
   logger.logPending(initializeLogs, logOptions);
@@ -62,16 +62,16 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
     return state2;
   }
 
-  // =================================================================
+  // ======================================================================
   // STEP 3: Group API calls with respect to request IDs
-  // =================================================================
+  // ======================================================================
   const flatApiCalls = flatMap(state2.providerStates.evm, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
   const state3 = state.update(state2, { aggregatedApiCallsById });
 
-  // =================================================================
+  // ======================================================================
   // STEP 4: Execute API calls and save the responses
-  // =================================================================
+  // ======================================================================
   const aggregateCallIds = Object.keys(state3.aggregatedApiCallsById);
   const flatAggregatedCalls = flatMap(aggregateCallIds, (id) => state3.aggregatedApiCallsById[id]);
   const [callLogs, processedAggregatedApiCalls] = await calls.callApis(flatAggregatedCalls, logOptions, workerOpts);
@@ -80,21 +80,30 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
   const state4 = state.update(state3, { aggregatedApiCallsById: processedAggregatedApiCallsById });
 
-  // =================================================================
+  // ======================================================================
   // STEP 5: Map API responses back to each provider's API requests
-  // =================================================================
+  // ======================================================================
   const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
   logger.logPending(disaggregationLogs, logOptions);
   const state5 = state.update(state4, { providerStates: { evm: providersWithAPIResponses } });
 
-  // =================================================================
-  // STEP 6: Initiate transactions for each provider
-  // =================================================================
-  state5.providerStates.evm.map(async (evmProviderState) => {
-    logger.info(`Forking to submit transactions for EVM provider:${evmProviderState.settings.name}...`, logOptions);
+  // ======================================================================
+  // STEP 6: Initiate transactions for each provider, sponsor wallet pair
+  // ======================================================================
+
+  const sponsorProviderStates = providers.splitStatesBySponsorAddress(state5.providerStates);
+  sponsorProviderStates.forEach((sponsorProviderState) => {
+    logger.info(
+      `Forking to submit transactions for EVM provider:${sponsorProviderState.settings.name} and sponsor wallet: ${sponsorProviderState.sponsorAddress}...`,
+      logOptions
+    );
   });
-  // Should not throw
-  const [processedLogs, processedProviders] = await providers.processRequests(state5.providerStates, workerOpts);
+
+  // NOTE: Not merging responses and logs back (based on the provider, regardless sponsor wallet)
+  // as the data don't go anywhere from here but be aware if that changes in the future.
+
+  // NOTE: Should not throw
+  const [processedLogs, processedProviders] = await providers.processRequests(sponsorProviderStates, workerOpts);
   logger.logPending(processedLogs, logOptions);
 
   const state6 = state.update(state5, { providerStates: processedProviders });

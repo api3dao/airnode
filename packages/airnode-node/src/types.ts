@@ -202,6 +202,10 @@ export interface EVMProviderState {
   readonly currentBlock: number | null;
 }
 
+export interface EVMProviderSponsorState extends EVMProviderState {
+  readonly sponsorAddress: string;
+}
+
 export interface TransactionOptions {
   readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
