@@ -26,7 +26,7 @@ RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
     chmod +x ${appBin}
 
 # Default placement for GCP credentials
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcloud/application_default_credentials.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp.json
 
 WORKDIR ${appDir}
 
