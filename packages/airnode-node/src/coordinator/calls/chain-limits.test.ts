@@ -5,7 +5,7 @@ import { ChainConfig, ProviderStates, ProviderState, EVMProviderState, GroupedRe
 
 const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
   return {
-    maxConcurrentTransactions: 100,
+    maxConcurrency: 100,
     authorizers: [],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -60,9 +60,9 @@ describe('applyChainLimits', () => {
       outdatedProvider: { url: 'http://localhost:4112' },
     };
     const chainId = '31337';
-    const maxConcurrentTransactions = 20;
+    const maxConcurrency = 20;
     const config = fixtures.buildConfig({
-      chains: [createChainConfig({ maxConcurrentTransactions, providers, id: chainId })],
+      chains: [createChainConfig({ maxConcurrency, providers, id: chainId })],
     });
     const evmProviderStates = [
       createProviderState(createRequests(8, 2), chainId, 'maliciousProvider'),
@@ -95,9 +95,9 @@ describe('applyChainLimits', () => {
       outdatedProvider: { url: 'http://localhost:4112' },
     };
     const chainId = '31337';
-    const maxConcurrentTransactions = 10;
+    const maxConcurrency = 10;
     const config = fixtures.buildConfig({
-      chains: [createChainConfig({ maxConcurrentTransactions, providers, id: chainId })],
+      chains: [createChainConfig({ maxConcurrency, providers, id: chainId })],
     });
     const evmProviderStates = [
       createProviderState(createRequests(8, 2), chainId, 'maliciousProvider'),
@@ -114,7 +114,7 @@ describe('applyChainLimits', () => {
       0
     );
     expect(allRequestsCount).toBe(17);
-    expect(logs).toHaveLength(allRequestsCount - maxConcurrentTransactions);
+    expect(logs).toHaveLength(allRequestsCount - maxConcurrency);
 
     // Verify that they were ignored from the providers with most requests
     expect(result.evm[0].requests.apiCalls).toHaveLength(4);
@@ -132,13 +132,13 @@ describe('applyChainLimits', () => {
       outdatedProvider: { url: 'http://localhost:4112' },
     };
     const chainId1 = '31337';
-    const maxConcurrentTransactions1 = 20;
+    const maxConcurrency1 = 20;
     const chainId2 = '12345';
-    const maxConcurrentTransactions2 = 10;
+    const maxConcurrency2 = 10;
     const config = fixtures.buildConfig({
       chains: [
-        createChainConfig({ maxConcurrentTransactions: maxConcurrentTransactions1, providers, id: chainId1 }),
-        createChainConfig({ maxConcurrentTransactions: maxConcurrentTransactions2, providers, id: chainId2 }),
+        createChainConfig({ maxConcurrency: maxConcurrency1, providers, id: chainId1 }),
+        createChainConfig({ maxConcurrency: maxConcurrency2, providers, id: chainId2 }),
       ],
     });
     const evmProviderStates = [

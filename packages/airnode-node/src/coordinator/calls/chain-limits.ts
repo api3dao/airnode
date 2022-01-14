@@ -23,7 +23,7 @@ export function applyChainLimits(config: Config, providerStates: ProviderStates)
   const groupedProviderRequests = groupBy(providerRequests, 'chainId');
   const chainRequests = map(groupedProviderRequests, (group, chainId) => ({
     chainId,
-    chainLimit: config.chains.find((chain) => chain.id === chainId)!.maxConcurrentTransactions,
+    chainLimit: config.chains.find((chain) => chain.id === chainId)!.maxConcurrency,
     requestsGroups: group,
   }));
 

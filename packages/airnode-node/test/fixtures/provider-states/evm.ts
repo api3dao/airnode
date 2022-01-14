@@ -10,7 +10,7 @@ export function buildEVMProviderState(
   const chainId = '1337';
   const chainProviderName = 'Ganache test';
   const chainConfig: ChainConfig = {
-    maxConcurrentTransactions: 100,
+    maxConcurrency: 100,
     authorizers: [],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
