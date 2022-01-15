@@ -42,6 +42,34 @@ interface IAirnodeRrpV1 is IWithdrawalUtils {
         string errorMessage
     );
 
+    event MadeRequestRelayed(
+        address indexed relayer,
+        bytes32 indexed requestId,
+        address indexed airnode,
+        address requester,
+        uint256 requesterRequestCount,
+        bytes32 templateId,
+        bytes parameters,
+        address sponsor,
+        bytes4 fulfillFunctionId
+    );
+
+    event FulfilledRequestRelayed(
+        address indexed relayer,
+        bytes32 indexed requestId,
+        address indexed airnode,
+        uint256 timestamp,
+        bytes data
+    );
+
+    event FailedRequestRelayed(
+        address indexed relayer,
+        bytes32 indexed requestId,
+        address indexed airnode,
+        uint256 timestamp,
+        string errorMessage
+    );
+
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
@@ -72,6 +100,36 @@ interface IAirnodeRrpV1 is IWithdrawalUtils {
         bytes32 requestId,
         address airnode,
         address requester,
+        bytes4 fulfillFunctionId,
+        uint256 timestamp,
+        string calldata errorMessage,
+        bytes calldata signature
+    ) external;
+
+    function makeRequestRelayed(
+        bytes32 templateId,
+        bytes calldata parameters,
+        address relayer,
+        address sponsor,
+        bytes4 fulfillFunctionId
+    ) external returns (bytes32 requestId);
+
+    function fulfillRequestRelayed(
+        bytes32 requestId,
+        address airnode,
+        address requester,
+        address relayer,
+        bytes4 fulfillFunctionId,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) external returns (bool callSuccess, bytes memory callData);
+
+    function failRequestRelayed(
+        bytes32 requestId,
+        address airnode,
+        address requester,
+        address relayer,
         bytes4 fulfillFunctionId,
         uint256 timestamp,
         string calldata errorMessage,

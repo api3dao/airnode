@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./IAirnodeRrpRelayedV1.sol";
+import "./IAirnodeRrpV1.sol";
 
-interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
+interface IAirnodePspV1 is IAirnodeRrpV1 {
     event CreatedSubscription(
         bytes32 indexed subscriptionId,
         bytes32 templateId,
@@ -21,6 +21,14 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
         bytes data
     );
 
+    event FulfilledSubscriptionRelayed(
+        address indexed relayer,
+        bytes32 indexed subscriptionId,
+        address indexed airnode,
+        uint256 timestamp,
+        bytes data
+    );
+
     function createSubscription(
         bytes32 templateId,
         bytes calldata parameters,
@@ -32,6 +40,14 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
 
     function fulfillSubscription(
         bytes32 subscriptionId,
+        uint256 timestamp,
+        bytes calldata data,
+        bytes calldata signature
+    ) external returns (bool callSuccess, bytes memory callData);
+
+    function fulfillSubscriptionRelayed(
+        bytes32 subscriptionId,
+        address relayer,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature

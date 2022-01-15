@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./IAirnodePspRelayedV1.sol";
+import "./IAirnodePspV1.sol";
 
-interface IAirnodeProtocolV1 is IAirnodePspRelayedV1 {
+interface IAirnodeProtocolV1 is IAirnodePspV1 {
     function verifySignature(
         bytes32 templateId,
         bytes calldata parameters,
