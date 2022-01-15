@@ -146,7 +146,8 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol).makeRequest(
             templateId,
             parameters,
-            sponsor
+            sponsor,
+            this.fulfillRrp.selector
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         requestIdToBeaconId[requestId] = beaconId;
@@ -174,7 +175,13 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes calldata parameters
     ) external override onlyPermittedUpdateRequester(sponsor) {
         bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol)
-            .makeRequestRelayed(templateId, parameters, relayer, sponsor);
+            .makeRequestRelayed(
+                templateId,
+                parameters,
+                relayer,
+                sponsor,
+                this.fulfillRrp.selector
+            );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedBeaconUpdateRelayed(
@@ -218,7 +225,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
-        (bytes32 beaconId, , , , ) = IAirnodeProtocolV1(airnodeProtocol)
+        (bytes32 beaconId, , , , , , ) = IAirnodeProtocolV1(airnodeProtocol)
             .subscriptions(subscriptionId);
         int256 decodedData = ingestData(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(

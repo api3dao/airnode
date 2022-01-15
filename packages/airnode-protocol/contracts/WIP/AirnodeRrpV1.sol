@@ -110,11 +110,14 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param sponsor Sponsor address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
         bytes calldata parameters,
-        address sponsor
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
@@ -122,6 +125,7 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
+        require(fulfillFunctionId != bytes4(0), "Function selector zero");
         require(
             sponsor == msg.sender ||
                 sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
@@ -135,11 +139,12 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
                 requesterToRequestCountPlusOne[msg.sender],
                 templateId,
                 parameters,
-                sponsor
+                sponsor,
+                fulfillFunctionId
             )
         );
         requestIdToFulfillmentParameters[requestId] = keccak256(
-            abi.encodePacked(airnode, msg.sender)
+            abi.encodePacked(airnode, msg.sender, fulfillFunctionId)
         );
         emit MadeRequest(
             airnode,
@@ -148,7 +153,8 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
             requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
             parameters,
-            sponsor
+            sponsor,
+            fulfillFunctionId
         );
     }
 
@@ -171,6 +177,8 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param requester Requester address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
     /// @param signature Request ID, a timestamp and the sponsor wallet address
@@ -182,13 +190,15 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
         bytes32 requestId,
         address airnode,
         address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
         require(
-            keccak256(abi.encodePacked(airnode, requester)) ==
-                requestIdToFulfillmentParameters[requestId],
+            keccak256(
+                abi.encodePacked(airnode, requester, fulfillFunctionId)
+            ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
         require(
@@ -200,8 +210,8 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
         );
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSignature(
-                "fulfillRrp(bytes32,uint256,bytes)",
+            abi.encodeWithSelector(
+                fulfillFunctionId,
                 requestId,
                 timestamp,
                 data
@@ -227,6 +237,8 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param requester Requester address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @param timestamp Timestamp used in the signature
     /// @param errorMessage A message that explains why the request has failed
     /// @param signature Request ID, a timestamp and the sponsor wallet address
@@ -235,13 +247,15 @@ contract AirnodeRrpV1 is Multicall, WithdrawalUtils, IAirnodeRrpV1 {
         bytes32 requestId,
         address airnode,
         address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         string calldata errorMessage,
         bytes calldata signature
     ) external override {
         require(
-            keccak256(abi.encodePacked(airnode, requester)) ==
-                requestIdToFulfillmentParameters[requestId],
+            keccak256(
+                abi.encodePacked(airnode, requester, fulfillFunctionId)
+            ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
         require(

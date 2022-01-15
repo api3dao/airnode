@@ -58,8 +58,8 @@ contract AirnodePspRelayedV1 is AirnodePspV1, IAirnodePspRelayedV1 {
             "Requester not sponsored"
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSignature(
-                "fulfillPsp(bytes32,uint256,bytes)",
+            abi.encodeWithSelector(
+                subscription.fulfillFunctionId,
                 subscriptionId,
                 timestamp,
                 data

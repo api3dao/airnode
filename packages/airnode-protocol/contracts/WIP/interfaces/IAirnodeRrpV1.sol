@@ -24,7 +24,8 @@ interface IAirnodeRrpV1 is IWithdrawalUtils {
         uint256 requesterRequestCount,
         bytes32 templateId,
         bytes parameters,
-        address sponsor
+        address sponsor,
+        bytes4 fulfillFunctionId
     );
 
     event FulfilledRequest(
@@ -53,13 +54,15 @@ interface IAirnodeRrpV1 is IWithdrawalUtils {
     function makeRequest(
         bytes32 templateId,
         bytes calldata parameters,
-        address sponsor
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) external returns (bytes32 requestId);
 
     function fulfillRequest(
         bytes32 requestId,
         address airnode,
         address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
@@ -69,6 +72,7 @@ interface IAirnodeRrpV1 is IWithdrawalUtils {
         bytes32 requestId,
         address airnode,
         address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         string calldata errorMessage,
         bytes calldata signature

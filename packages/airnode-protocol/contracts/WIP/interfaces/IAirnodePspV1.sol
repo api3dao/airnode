@@ -9,8 +9,10 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
         bytes32 requestHash,
         bytes32 templateId,
         bytes parameters,
+        bytes conditions,
         address sponsor,
-        address requester
+        address requester,
+        bytes4 fulfillFunctionId
     );
 
     event FulfilledSubscription(
@@ -23,8 +25,10 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
     function createSubscription(
         bytes32 templateId,
         bytes calldata parameters,
+        bytes calldata conditions,
         address sponsor,
-        address requester
+        address requester,
+        bytes4 fulfillFunctionId
     ) external returns (bytes32 subscriptionId);
 
     function fulfillSubscription(
@@ -41,7 +45,9 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
             bytes32 requestHash,
             bytes32 templateId,
             bytes memory parameters,
+            bytes memory conditions,
             address sponsor,
-            address requester
+            address requester,
+            bytes4 fulfillFunctionId
         );
 }

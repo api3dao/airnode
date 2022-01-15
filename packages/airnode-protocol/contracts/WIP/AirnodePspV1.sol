@@ -12,8 +12,10 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
         bytes32 requestHash;
         bytes32 templateId;
         bytes parameters;
+        bytes conditions;
         address sponsor;
         address requester;
+        bytes4 fulfillFunctionId;
     }
 
     /// @notice Subscription with the ID
@@ -23,14 +25,20 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the request template
+    /// @param conditions Conditions under which the subscription is requested
+    /// to be fulfilled
     /// @param sponsor Sponsor address
     /// @param requester Requester address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @return subscriptionId Subscription ID
     function createSubscription(
         bytes32 templateId,
         bytes calldata parameters,
+        bytes calldata conditions,
         address sponsor,
-        address requester
+        address requester,
+        bytes4 fulfillFunctionId
     ) external override returns (bytes32 subscriptionId) {
         require(
             templates[templateId].airnode != address(0),
@@ -40,8 +48,13 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
+        require(
+            conditions.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Conditions too long"
+        );
         require(sponsor != address(0), "Sponsor address zero");
         require(requester != address(0), "Requester address zero");
+        require(fulfillFunctionId != bytes4(0), "Function selector zero");
         // Pre-compute the request hash and add it as a field to the
         // subscription so that it can be checked without having to read
         // `parameters` from storage
@@ -55,8 +68,10 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
                 requestHash,
                 templateId,
                 parameters,
+                conditions,
                 sponsor,
-                requester
+                requester,
+                fulfillFunctionId
             )
         );
         if (subscriptions[subscriptionId].templateId == bytes32(0)) {
@@ -64,16 +79,20 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
                 requestHash: requestHash,
                 templateId: templateId,
                 parameters: parameters,
+                conditions: conditions,
                 sponsor: sponsor,
-                requester: requester
+                requester: requester,
+                fulfillFunctionId: fulfillFunctionId
             });
             emit CreatedSubscription(
                 subscriptionId,
                 requestHash,
                 templateId,
                 parameters,
+                conditions,
                 sponsor,
-                requester
+                requester,
+                fulfillFunctionId
             );
         }
     }
@@ -121,8 +140,8 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
             "Requester not sponsored"
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSignature(
-                "fulfillPsp(bytes32,uint256,bytes)",
+            abi.encodeWithSelector(
+                subscription.fulfillFunctionId,
                 subscriptionId,
                 timestamp,
                 data

@@ -24,12 +24,15 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
     /// the parameters in the template
     /// @param relayer Relayer address
     /// @param sponsor Sponsor address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @return requestId Request ID
     function makeRequestRelayed(
         bytes32 templateId,
         bytes calldata parameters,
         address relayer,
-        address sponsor
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
@@ -37,6 +40,7 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
+        require(fulfillFunctionId != bytes4(0), "Function selector zero");
         require(
             sponsor == msg.sender ||
                 sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
@@ -51,11 +55,12 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
                 templateId,
                 parameters,
                 relayer,
-                sponsor
+                sponsor,
+                fulfillFunctionId
             )
         );
         requestIdToFulfillmentParameters[requestId] = keccak256(
-            abi.encodePacked(airnode, msg.sender, relayer)
+            abi.encodePacked(airnode, msg.sender, relayer, fulfillFunctionId)
         );
         emit MadeRequestRelayed(
             relayer,
@@ -65,7 +70,8 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
             requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
             parameters,
-            sponsor
+            sponsor,
+            fulfillFunctionId
         );
     }
 
@@ -80,6 +86,8 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
     /// @param airnode Airnode address
     /// @param requester Requester address
     /// @param relayer Relayer address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
     /// @param signature Request ID, a timestamp, the sponsor wallet address
@@ -92,13 +100,15 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
         address airnode,
         address requester,
         address relayer,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
         require(
-            keccak256(abi.encodePacked(airnode, requester, relayer)) ==
-                requestIdToFulfillmentParameters[requestId],
+            keccak256(
+                abi.encodePacked(airnode, requester, relayer, fulfillFunctionId)
+            ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
         require(
@@ -111,8 +121,8 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
         );
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSignature(
-                "fulfillRrp(bytes32,uint256,bytes)",
+            abi.encodeWithSelector(
+                fulfillFunctionId,
                 requestId,
                 timestamp,
                 data
@@ -158,13 +168,15 @@ contract AirnodeRrpRelayedV1 is AirnodeRrpV1, IAirnodeRrpRelayedV1 {
         address airnode,
         address requester,
         address relayer,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         string calldata errorMessage,
         bytes calldata signature
     ) external override {
         require(
-            keccak256(abi.encodePacked(airnode, requester, relayer)) ==
-                requestIdToFulfillmentParameters[requestId],
+            keccak256(
+                abi.encodePacked(airnode, requester, relayer, fulfillFunctionId)
+            ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
         require(
