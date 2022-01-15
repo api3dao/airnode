@@ -37,11 +37,6 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
-    function subscriptionIdToRequestHash(bytes32 subscriptionId)
-        external
-        view
-        returns (bytes32);
-
     function subscriptions(bytes32 subscriptionId)
         external
         view

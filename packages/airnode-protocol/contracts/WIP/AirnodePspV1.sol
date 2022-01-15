@@ -147,16 +147,4 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
             );
         }
     }
-
-    function subscriptionIdToRequestHash(bytes32 subscriptionId)
-        external
-        view
-        override
-        returns (bytes32)
-    {
-        Subscription storage subscription = subscriptions[subscriptionId];
-        bytes32 templateId = subscription.templateId;
-        require(templateId != bytes32(0), "Subscription does not exist");
-        return keccak256(abi.encodePacked(templateId, subscription.parameters));
-    }
 }

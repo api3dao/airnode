@@ -121,6 +121,16 @@ interface IBeaconServer is IAirnodeRequester {
         pure
         returns (bytes32 beaconId);
 
+    function registerSubscription(
+        address _airnodeProtocol,
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata conditions,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId
+    ) external returns (bytes32 subscriptionId, bytes32 beaconId);
+
     // solhint-disable-next-line func-name-mixedcase
     function UNLIMITED_READER_ROLE_DESCRIPTION()
         external

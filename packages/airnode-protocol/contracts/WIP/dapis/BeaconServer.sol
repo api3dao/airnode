@@ -233,7 +233,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
-        bytes32 beaconId = getBeaconId(subscriptionId);
+        bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
         int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(
             beaconId,
@@ -249,7 +249,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes calldata conditionParameters
     ) external override returns (bool) {
         require(msg.sender == address(0), "Sender not zero address");
-        bytes32 beaconId = getBeaconId(subscriptionId);
+        bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
         int224 beaconData = dataPoints[beaconId].value;
         int224 decodedData = decodeFulfillmentData(data);
         require(conditionParameters.length == 32, "Incorrect parameter length");
@@ -425,11 +425,48 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         return (HUNDRED_PERCENT * absoluteDelta) / absoluteFirstValue;
     }
 
-    function getBeaconId(bytes32 subscriptionId) private returns (bytes32) {
-        bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
+    function registerSubscription(
+        address _airnodeProtocol,
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata conditions,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId
+    ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
+        subscriptionId = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                _airnodeProtocol,
+                templateId,
+                parameters,
+                conditions,
+                sponsor,
+                requester,
+                fulfillFunctionId
+            )
+        );
+        beaconId = keccak256(abi.encodePacked(templateId, parameters));
+        subscriptionIdToBeaconId[subscriptionId] = beaconId;
+    }
+
+    function getRegisteredBeaconId(bytes32 subscriptionId)
+        private
+        returns (bytes32 beaconId)
+    {
+        beaconId = subscriptionIdToBeaconId[subscriptionId];
         if (beaconId == bytes32(0)) {
-            beaconId = IAirnodeProtocolV1(airnodeProtocol)
-                .subscriptionIdToRequestHash(subscriptionId);
+            (
+                bytes32 templateId,
+                bytes memory parameters,
+                ,
+                ,
+                ,
+
+            ) = IAirnodeProtocolV1(airnodeProtocol).subscriptions(
+                    subscriptionId
+                );
+            beaconId = keccak256(abi.encodePacked(templateId, parameters));
             subscriptionIdToBeaconId[subscriptionId] = beaconId;
         }
         return beaconId;
