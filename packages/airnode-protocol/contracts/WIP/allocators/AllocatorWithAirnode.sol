@@ -15,17 +15,14 @@ contract AllocatorWithAirnode is
 {
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
-    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription,
-        address _airnodeProtocol
+        string memory _adminRoleDescription
     )
         AccessControlRegistryAdminned(
             _accessControlRegistry,
             _adminRoleDescription
         )
-        Allocator(_airnodeProtocol)
     {}
 
     /// @notice Called to set a slot with the given parameters

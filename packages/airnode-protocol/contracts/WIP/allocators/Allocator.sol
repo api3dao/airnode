@@ -2,12 +2,11 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/Multicall.sol";
-import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
 /// @title Abstract contract that can be used to build Allocators that
 /// temporarily allocate subscription slots for Airnodes
-abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
+abstract contract Allocator is Multicall, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
@@ -25,9 +24,6 @@ abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
         public
         override airnodeToSlotIndexToSlot;
 
-    /// @param _airnodeProtocol AirnodeProtocol contract address
-    constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
-
     /// @notice Called internally to set a slot with the given parameters
     /// @dev The set slot can be reset by its setter, or when it has expired,
     /// or when its setter no longer is authorized to set slots.
@@ -43,9 +39,6 @@ abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
         uint64 expirationTimestamp
     ) internal {
         require(airnode != address(0), "Zero Airnode address");
-        (, bytes32 templateId, , , , , ) = IAirnodeProtocolV1(airnodeProtocol)
-            .subscriptions(subscriptionId);
-        require(templateId != bytes32(0), "Subscription does not exist");
         require(
             expirationTimestamp > block.timestamp,
             "Expiration is in the past"
