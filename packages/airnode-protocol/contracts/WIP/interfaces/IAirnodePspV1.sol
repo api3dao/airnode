@@ -6,7 +6,6 @@ import "./IAirnodeRrpRelayedV1.sol";
 interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
     event CreatedSubscription(
         bytes32 indexed subscriptionId,
-        bytes32 requestHash,
         bytes32 templateId,
         bytes parameters,
         bytes conditions,
@@ -38,11 +37,15 @@ interface IAirnodePspV1 is IAirnodeRrpRelayedV1 {
         bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
+    function subscriptionIdToRequestHash(bytes32 subscriptionId)
+        external
+        view
+        returns (bytes32);
+
     function subscriptions(bytes32 subscriptionId)
         external
         view
         returns (
-            bytes32 requestHash,
             bytes32 templateId,
             bytes memory parameters,
             bytes memory conditions,

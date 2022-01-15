@@ -26,7 +26,7 @@ contract AirnodeProtocolV1 is AirnodePspRelayedV1, IAirnodeProtocolV1 {
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
-    ) external view override returns (address airnode, bytes32 requestHash) {
+    ) external view override returns (bytes32 requestHash, address airnode) {
         airnode = templates[templateId].airnode;
         require(airnode != address(0), "Template does not exist");
         requestHash = keccak256(abi.encodePacked(templateId, parameters));

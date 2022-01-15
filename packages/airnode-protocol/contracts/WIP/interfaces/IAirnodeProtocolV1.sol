@@ -10,5 +10,5 @@ interface IAirnodeProtocolV1 is IAirnodePspRelayedV1 {
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
-    ) external view returns (address airnode, bytes32 requestHash);
+    ) external view returns (bytes32 requestHash, address airnode);
 }

@@ -9,7 +9,6 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
     using ECDSA for bytes32;
 
     struct Subscription {
-        bytes32 requestHash;
         bytes32 templateId;
         bytes parameters;
         bytes conditions;
@@ -55,17 +54,10 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
         require(sponsor != address(0), "Sponsor address zero");
         require(requester != address(0), "Requester address zero");
         require(fulfillFunctionId != bytes4(0), "Function selector zero");
-        // Pre-compute the request hash and add it as a field to the
-        // subscription so that it can be checked without having to read
-        // `parameters` from storage
-        bytes32 requestHash = keccak256(
-            abi.encodePacked(templateId, parameters)
-        );
         subscriptionId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
-                requestHash,
                 templateId,
                 parameters,
                 conditions,
@@ -76,7 +68,6 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
         );
         if (subscriptions[subscriptionId].templateId == bytes32(0)) {
             subscriptions[subscriptionId] = Subscription({
-                requestHash: requestHash,
                 templateId: templateId,
                 parameters: parameters,
                 conditions: conditions,
@@ -86,7 +77,6 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
             });
             emit CreatedSubscription(
                 subscriptionId,
-                requestHash,
                 templateId,
                 parameters,
                 conditions,
@@ -155,5 +145,17 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
                 data
             );
         }
+    }
+
+    function subscriptionIdToRequestHash(bytes32 subscriptionId)
+        external
+        view
+        override
+        returns (bytes32)
+    {
+        Subscription storage subscription = subscriptions[subscriptionId];
+        bytes32 templateId = subscription.templateId;
+        require(templateId != bytes32(0), "Subscription does not exist");
+        return keccak256(abi.encodePacked(templateId, subscription.parameters));
     }
 }
