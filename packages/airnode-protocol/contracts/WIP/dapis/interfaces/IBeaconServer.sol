@@ -81,6 +81,7 @@ interface IBeaconServer is IAirnodeRequester {
 
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
+        address relayer,
         uint256 timestamp,
         bytes calldata data
     ) external;

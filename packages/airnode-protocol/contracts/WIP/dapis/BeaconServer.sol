@@ -219,11 +219,17 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     }
 
     /// @notice Called by the Airnode protocol to fulfill the subscription
+    /// @dev `relayer` will be the Airnode address if this is a non-relayed
+    /// fulfillment and the relayer address if this is a relayed fulfillment.
+    /// In the context of this contract, the difference does not matter, which
+    /// is why we do not use `relayer`.
     /// @param subscriptionId ID of the subscription being fulfilled
+    /// @param relayer Relayer address
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
+        address relayer, // solhint-disable-line no-unused-vars
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {

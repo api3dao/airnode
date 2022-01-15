@@ -61,6 +61,7 @@ contract AirnodePspRelayedV1 is AirnodePspV1, IAirnodePspRelayedV1 {
             abi.encodeWithSelector(
                 subscription.fulfillFunctionId,
                 subscriptionId,
+                relayer,
                 timestamp,
                 data
             )

@@ -133,6 +133,7 @@ contract AirnodePspV1 is AirnodeRrpRelayedV1, IAirnodePspV1 {
             abi.encodeWithSelector(
                 subscription.fulfillFunctionId,
                 subscriptionId,
+                airnode,
                 timestamp,
                 data
             )
