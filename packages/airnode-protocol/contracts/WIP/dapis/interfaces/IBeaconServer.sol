@@ -79,29 +79,38 @@ interface IBeaconServer is IAirnodeRequester {
         bytes calldata data
     ) external;
 
-    function fulfillPsp(
+    function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
         uint256 timestamp,
         bytes calldata data
     ) external;
 
-    function readBeacon(bytes32 beaconId)
+    function conditionPspBeaconUpdate(
+        bytes32 subscriptionId,
+        bytes calldata data,
+        bytes calldata conditionParameters
+    ) external returns (bool);
+
+    function readDataPoint(bytes32 dataPointId)
         external
         view
         returns (int224 value, uint32 timestamp);
 
-    function readerCanReadBeacon(bytes32 beaconId, address reader)
+    function readerCanReadDataPoint(bytes32 dataPointId, address reader)
         external
         view
         returns (bool);
 
-    function beaconIdToReaderToWhitelistStatus(bytes32 beaconId, address reader)
+    function dataPointIdToReaderToWhitelistStatus(
+        bytes32 dataPointId,
+        address reader
+    )
         external
         view
         returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount);
 
-    function beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
-        bytes32 beaconId,
+    function dataPointIdToReaderToSetterToIndefiniteWhitelistStatus(
+        bytes32 dataPointId,
         address reader,
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
@@ -116,6 +125,9 @@ interface IBeaconServer is IAirnodeRequester {
         external
         view
         returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function HUNDRED_PERCENT() external view returns (uint256);
 
     function unlimitedReaderRole() external view returns (bytes32);
 

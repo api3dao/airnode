@@ -1,77 +1,76 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../whitelist/WhitelistWithManager.sol";
+import "./BeaconServer.sol";
 import "./InPlaceMedian.sol";
-import "./BeaconUser.sol";
+import "./interfaces/IDapiServer.sol";
 
-contract DapiServer is WhitelistWithManager, InPlaceMedian, BeaconUser {
-    string public constant UNLIMITED_READER_ROLE_DESCRIPTION =
-        "Unlimited reader";
-    bytes32 public immutable unlimitedReaderRole;
-
+contract DapiServer is BeaconServer, InPlaceMedian, IDapiServer {
+    /// @param _accessControlRegistry AccessControlRegistry contract address
+    /// @param _adminRoleDescription Admin role description
+    /// @param _manager Manager address
+    /// @param _airnodeProtocol Airnode protocol contract address
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _beaconServer
+        address _airnodeProtocol
     )
-        WhitelistWithManager(
+        BeaconServer(
             _accessControlRegistry,
             _adminRoleDescription,
-            _manager
+            _manager,
+            _airnodeProtocol
         )
-        BeaconUser(_beaconServer)
-    {
-        unlimitedReaderRole = _deriveRole(
-            _deriveAdminRole(manager),
-            keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
-        );
+    {}
+
+    function fulfillPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+        bytes32 dapiId = updateDapi(abi.decode(data, (bytes32[])));
+        require(keccak256(data) == dapiId, "Incorrect data length");
     }
 
-    function readDapi(bytes32[] calldata beaconIds)
-        external
-        view
-        returns (int256)
-    {
+    function conditionPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        bytes calldata data,
+        bytes calldata conditionParameters
+    ) external override returns (bool) {
+        require(msg.sender == address(0), "Sender not zero address");
+        bytes32 dapiId = keccak256(data);
+        int224 currentDapiValue = dataPoints[dapiId].value;
         require(
-            readerCanReadDapi(deriveDapiId(beaconIds), msg.sender),
-            "Caller not whitelisted"
+            dapiId == updateDapi(abi.decode(data, (bytes32[]))),
+            "Incorrect data length"
         );
-        uint256 beaconCount = beaconIds.length;
-        int256[] memory values = new int256[](beaconCount);
-        for (uint256 ind = 0; ind < beaconCount; ind++) {
-            (values[ind], ) = IBeaconServer(beaconServer).readBeacon(
-                beaconIds[ind]
-            );
-        }
-        return computeMedianInPlace(values);
-    }
-
-    function readerCanReadDapi(bytes32 dapiId, address reader)
-        public
-        view
-        returns (bool)
-    {
+        int224 updatedDapiValue = dataPoints[dapiId].value;
+        require(conditionParameters.length == 32, "Incorrect parameter length");
+        uint256 updatePercentageThreshold = abi.decode(
+            conditionParameters,
+            (uint256)
+        );
         return
-            userIsWhitelisted(dapiId, reader) ||
-            userIsUnlimitedReader(reader) ||
-            reader == address(0);
+            calculateUpdateInPercentage(currentDapiValue, updatedDapiValue) >=
+            updatePercentageThreshold;
     }
 
-    function deriveDapiId(bytes32[] calldata beaconIds)
+    function updateDapi(bytes32[] memory beaconIds)
         public
-        pure
+        override
         returns (bytes32 dapiId)
     {
         dapiId = keccak256(abi.encodePacked(beaconIds));
-    }
-
-    function userIsUnlimitedReader(address user) private view returns (bool) {
-        return
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                unlimitedReaderRole,
-                user
-            );
+        uint256 beaconCount = beaconIds.length;
+        int256[] memory values = new int256[](beaconCount);
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            values[ind] = dataPoints[beaconIds[ind]].value;
+        }
+        int224 updatedDapiValue = int224(computeMedianInPlace(values));
+        dataPoints[dapiId] = DataPoint({
+            value: updatedDapiValue,
+            timestamp: uint32(block.timestamp)
+        });
     }
 }

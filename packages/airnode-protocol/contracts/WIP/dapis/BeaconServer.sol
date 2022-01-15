@@ -20,7 +20,7 @@ import "./interfaces/IBeaconServer.sol";
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
 contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
-    struct Beacon {
+    struct DataPoint {
         int224 value;
         uint32 timestamp;
     }
@@ -28,6 +28,8 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     /// @notice Description of the unlimited reader role
     string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
+
+    uint256 public constant override HUNDRED_PERCENT = 1e8;
 
     /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
@@ -38,9 +40,11 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    mapping(bytes32 => Beacon) private beacons;
+    mapping(bytes32 => DataPoint) internal dataPoints;
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
+
+    mapping(bytes32 => bytes32) private subscriptionIdToBeaconId;
 
     /// @dev Reverts if the sender is not permitted to request an update with
     /// the sponsor or is not the sponsor
@@ -108,7 +112,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes calldata data,
         bytes calldata signature
     ) external override onlyFreshTimestamp(timestamp) {
-        (, bytes32 beaconId) = IAirnodeProtocolV1(airnodeProtocol)
+        (bytes32 beaconId, ) = IAirnodeProtocolV1(airnodeProtocol)
             .verifySignature(
                 templateId,
                 parameters,
@@ -116,7 +120,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
                 data,
                 signature
             );
-        int256 decodedData = ingestData(beaconId, timestamp, data);
+        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithoutRequest(beaconId, decodedData, timestamp);
     }
 
@@ -127,12 +131,10 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     /// `setUpdatePermissionStatus()` of this BeaconServer contract to give
     /// request update permission to the user of this method.
     /// The template and additional parameters used here must specify a single
-    /// point of data of type `int256` and an additional timestamp of type
-    /// `uint256` to be returned because this is what `fulfill()` expects.
-    /// This point of data must be castable to `int224` and the timestamp must
-    /// be castable to `uint32`.
+    /// point of data of type `int256` because this is what `fulfill()`
+    /// expects. This point of data must be castable to `int224`.
     /// The sponsor and the update requester in the event are indexed to allow
-    /// keepers to be able to keep track of their update requests.
+    /// keepers to keep track of their update requests.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
@@ -207,7 +209,7 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
-        int256 decodedData = ingestData(beaconId, timestamp, data);
+        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithRrp(
             beaconId,
             requestId,
@@ -220,14 +222,13 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     /// @param subscriptionId ID of the subscription being fulfilled
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    function fulfillPsp(
+    function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
-        (bytes32 beaconId, , , , , , ) = IAirnodeProtocolV1(airnodeProtocol)
-            .subscriptions(subscriptionId);
-        int256 decodedData = ingestData(beaconId, timestamp, data);
+        bytes32 beaconId = getBeaconId(subscriptionId);
+        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(
             beaconId,
             subscriptionId,
@@ -236,53 +237,71 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         );
     }
 
-    /// @notice Called to read the beacon
-    /// @dev The sender must be whitelisted.
-    /// If the `timestamp` of a beacon is zero, this means that it was never
-    /// written to before, and the zero value in the `value` field is not
-    /// valid. In general, make sure to check if the timestamp of the beacon is
-    /// fresh enough, and definitely disregard beacons with zero `timestamp`.
-    /// @param beaconId ID of the beacon that will be returned
-    /// @return value Beacon value
-    /// @return timestamp Beacon timestamp
-    function readBeacon(bytes32 beaconId)
+    function conditionPspBeaconUpdate(
+        bytes32 subscriptionId,
+        bytes calldata data,
+        bytes calldata conditionParameters
+    ) external override returns (bool) {
+        require(msg.sender == address(0), "Sender not zero address");
+        bytes32 beaconId = getBeaconId(subscriptionId);
+        int224 beaconData = dataPoints[beaconId].value;
+        int224 decodedData = decodeFulfillmentData(data);
+        require(conditionParameters.length == 32, "Incorrect parameter length");
+        uint256 updatePercentageThreshold = abi.decode(
+            conditionParameters,
+            (uint256)
+        );
+        return
+            calculateUpdateInPercentage(beaconData, decodedData) >=
+            updatePercentageThreshold;
+    }
+
+    /// @notice Called to read the data point
+    /// @param dataPointId ID of the data point that will be read
+    /// @return value Data point value
+    /// @return timestamp Data point timestamp
+    function readDataPoint(bytes32 dataPointId)
         external
         view
         override
         returns (int224 value, uint32 timestamp)
     {
         require(
-            readerCanReadBeacon(beaconId, msg.sender),
+            readerCanReadDataPoint(dataPointId, msg.sender),
             "Sender cannot read beacon"
         );
-        Beacon storage beacon = beacons[beaconId];
-        return (beacon.value, beacon.timestamp);
+        DataPoint storage dataPoint = dataPoints[dataPointId];
+        return (dataPoint.value, dataPoint.timestamp);
     }
 
-    /// @notice Called to check if a reader is whitelisted to read the beacon
-    /// @param beaconId Beacon ID
+    /// @notice Called to check if a reader is whitelisted to read the data
+    /// point
+    /// @param dataPointId Data point ID
     /// @param reader Reader address
     /// @return isWhitelisted If the reader is whitelisted
-    function readerCanReadBeacon(bytes32 beaconId, address reader)
+    function readerCanReadDataPoint(bytes32 dataPointId, address reader)
         public
         view
         override
         returns (bool)
     {
         return
-            userIsWhitelisted(beaconId, reader) ||
+            userIsWhitelisted(dataPointId, reader) ||
             userIsUnlimitedReader(reader);
     }
 
     /// @notice Called to get the detailed whitelist status of the reader for
-    /// the beacon
-    /// @param beaconId Beacon ID
+    /// the data point
+    /// @param dataPointId Data point ID
     /// @param reader Reader address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
     /// reader will expire
     /// @return indefiniteWhitelistCount Number of times `reader` was
-    /// whitelisted indefinitely for `templateId`
-    function beaconIdToReaderToWhitelistStatus(bytes32 beaconId, address reader)
+    /// whitelisted indefinitely for `id`
+    function dataPointIdToReaderToWhitelistStatus(
+        bytes32 dataPointId,
+        address reader
+    )
         external
         view
         override
@@ -290,27 +309,27 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
-                beaconId
+                dataPointId
             ][reader];
         expirationTimestamp = whitelistStatus.expirationTimestamp;
         indefiniteWhitelistCount = whitelistStatus.indefiniteWhitelistCount;
     }
 
     /// @notice Returns if an account has indefinitely whitelisted the reader
-    /// for the beacon
-    /// @param beaconId Beacon ID
+    /// for the data point
+    /// @param dataPointId Data point ID
     /// @param reader Reader address
     /// @param setter Address of the account that has potentially whitelisted
-    /// the reader for the beacon indefinitely
+    /// the reader for the data point indefinitely
     /// @return indefiniteWhitelistStatus If `setter` has indefinitely
-    /// whitelisted reader for the beacon
-    function beaconIdToReaderToSetterToIndefiniteWhitelistStatus(
-        bytes32 beaconId,
+    /// whitelisted reader for the data point
+    function dataPointIdToReaderToSetterToIndefiniteWhitelistStatus(
+        bytes32 dataPointId,
         address reader,
         address setter
     ) external view override returns (bool indefiniteWhitelistStatus) {
         indefiniteWhitelistStatus = serviceIdToUserToSetterToIndefiniteWhitelistStatus[
-            beaconId
+            dataPointId
         ][reader][setter];
     }
 
@@ -329,10 +348,10 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
         beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 
-    /// @notice Returns if the user has the role unlimited reader
-    /// @dev An unlimited reader can read all resources. `address(0)` is
+    /// @notice Returns if the user has the unlimited reader role
+    /// @dev An unlimited reader can read all data points. `address(0)` is
     /// treated as an unlimited reader to provide an easy way for off-chain
-    /// agents to read beacon values without having to resort to logs.
+    /// agents to read data point values without having to resort to logs.
     /// @param user User address
     /// @return If the user is unlimited reader
     function userIsUnlimitedReader(address user) private view returns (bool) {
@@ -348,25 +367,65 @@ contract BeaconServer is WhitelistWithManager, AirnodeRequester, IBeaconServer {
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     /// @return decodedData Decoded beacon data
-    function ingestData(
+    function ingestFulfillmentData(
         bytes32 beaconId,
         uint256 timestamp,
         bytes calldata data
     ) private returns (int256 decodedData) {
+        decodedData = decodeFulfillmentData(data);
+        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
+        require(
+            timestamp > dataPoints[beaconId].timestamp,
+            "Fulfillment older than beacon"
+        );
+        dataPoints[beaconId] = DataPoint({
+            value: int224(decodedData),
+            timestamp: uint32(timestamp)
+        });
+    }
+
+    function decodeFulfillmentData(bytes calldata data)
+        private
+        returns (int224)
+    {
         require(data.length == 32, "Incorrect data length");
-        decodedData = abi.decode(data, (int256));
+        int256 decodedData = abi.decode(data, (int256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
         );
-        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
-        require(
-            timestamp > beacons[beaconId].timestamp,
-            "Fulfillment older than beacon"
+        return int224(decodedData);
+    }
+
+    function calculateUpdateInPercentage(int224 firstValue, int224 secondValue)
+        internal
+        view
+        returns (uint256 updateInPercentage)
+    {
+        uint256 absoluteDelta = uint256(
+            firstValue > secondValue
+                ? int256(firstValue) - secondValue
+                : int256(secondValue) - firstValue
         );
-        beacons[beaconId] = Beacon({
-            value: int224(decodedData),
-            timestamp: uint32(timestamp)
-        });
+        uint256 absoluteFirstValue;
+        if (firstValue > 0) {
+            absoluteFirstValue = uint256(int256(firstValue));
+        } else if (firstValue < 0) {
+            absoluteFirstValue = uint256(-int256(firstValue));
+        } else {
+            // Avoid division by 0
+            absoluteFirstValue = 1;
+        }
+        return (HUNDRED_PERCENT * absoluteDelta) / absoluteFirstValue;
+    }
+
+    function getBeaconId(bytes32 subscriptionId) private returns (bytes32) {
+        bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
+        if (beaconId == bytes32(0)) {
+            beaconId = IAirnodeProtocolV1(airnodeProtocol)
+                .subscriptionIdToRequestHash(subscriptionId);
+            subscriptionIdToBeaconId[subscriptionId] = beaconId;
+        }
+        return beaconId;
     }
 }
