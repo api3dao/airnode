@@ -12,4 +12,4 @@ preferred method: a request header named `X-CMC_PRO_API_KEY`. Your API key, whic
 is provided as a value via interpolation of the `CMC_PRO_API_KEY` variable defined in `secrets.env`.
 
 For more information about how the Airnode is configured refer to the
-[docs](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/configuring-airnode.html).
+[docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html).

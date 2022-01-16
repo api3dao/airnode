@@ -5,7 +5,7 @@
 ## User documentation
 
 You can find documentation on how to use the deployer in the
-[deployer docs](https://docs.api3.org/airnode/v0.2/grp-providers/docker/deployer-image.html).
+[deployer docs](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html).
 
 ## For developers
 
