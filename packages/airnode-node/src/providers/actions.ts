@@ -1,11 +1,20 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
+import omit from 'lodash/omit';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import { buildEVMState } from '../providers/state';
 import { spawnNewProvider, spawnProviderRequestProcessor } from '../providers/worker';
-import { Config, EVMProviderState, LogsData, ProviderState, ProviderStates, WorkerOptions } from '../types';
+import {
+  Config,
+  EVMProviderState,
+  EVMProviderSponsorState,
+  LogsData,
+  ProviderState,
+  ProviderStates,
+  WorkerOptions,
+} from '../types';
 import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT } from '../constants';
 
 async function initializeEVMProvider(
@@ -58,9 +67,9 @@ export async function initialize(
 }
 
 async function processEvmProviderRequests(
-  state: ProviderState<EVMProviderState>,
+  state: ProviderState<EVMProviderSponsorState>,
   workerOpts: WorkerOptions
-): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
+): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
   const initialization = () => spawnProviderRequestProcessor(state, workerOpts);
   const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT });
   if (err || !logsWithRes) {
@@ -71,23 +80,23 @@ async function processEvmProviderRequests(
 }
 
 export async function processRequests(
-  providerStates: ProviderStates,
+  sponsorProviderStates: ProviderState<EVMProviderSponsorState>[],
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderStates>> {
-  const processEvmProviders = flatMap(
-    providerStates.evm.map((providerState) => processEvmProviderRequests(providerState, workerOpts))
+  const processEvmProviderSponsorPairs = sponsorProviderStates.map((sponsorProviderState) =>
+    processEvmProviderRequests(sponsorProviderState, workerOpts)
   );
-  const evmProviderStates = await Promise.all(processEvmProviders);
+  const evmProviderSponsorStates = await Promise.all(processEvmProviderSponsorPairs);
 
-  const logs = flatMap(evmProviderStates.map((ps) => ps[0]));
-  const successfulResponses = evmProviderStates.filter((ps) => !!ps[1]);
-  const successfulEvmProviders = successfulResponses.map((ps) => ps[1]) as ProviderState<EVMProviderState>[];
+  const logs = flatMap(evmProviderSponsorStates, (ps) => ps[0]);
+  const successfulResponses = evmProviderSponsorStates.filter((ps) => !!ps[1]);
+  const successfulEvmProviderSponsors = successfulResponses.map((ps) => ps[1]);
 
   // NOTE: It's possible that a provider fails (returns null), so we need to merge the successful responses
   // with the existing provider states to avoid losing anything.
-  const allEvmProviders = providerStates.evm.map((existingState) => {
-    const successfulResponse = successfulEvmProviders.find((ps) => ps.id === existingState.id);
-    return successfulResponse || existingState;
+  const allEvmProviders = sponsorProviderStates.map((existingState) => {
+    const successfulResponse = successfulEvmProviderSponsors.find((ps) => ps && ps.id === existingState.id);
+    return omit(successfulResponse || existingState, 'sponsorWallet');
   });
 
   return [logs, { evm: allEvmProviders }];

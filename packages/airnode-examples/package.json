@@ -17,6 +17,7 @@
     "dev:generate-example-files": "ts-node dev-scripts/generate-example-files.ts",
     "eth-node": "hardhat node",
     "make-request": "ts-node scripts/make-request.ts",
+    "make-withdrawal-request": "ts-node scripts/make-withdrawal-request.ts",
     "print-account-details": "ts-node scripts/print-account-details.ts",
     "rebuild-airnode-container": "ts-node scripts/rebuild-airnode-container.ts",
     "rebuild-artifacts-container": "ts-node scripts/rebuild-artifacts-container.ts",

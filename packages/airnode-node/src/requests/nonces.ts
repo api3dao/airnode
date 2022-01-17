@@ -1,10 +1,9 @@
-import * as grouping from './grouping';
 import { blockedOrIgnored } from './request';
 import * as sorting from './sorting';
 import { removeKey } from '../utils/object-utils';
 import {
   ApiCall,
-  EVMProviderState,
+  EVMProviderSponsorState,
   GroupedRequests,
   ProviderState,
   Request,
@@ -88,35 +87,14 @@ function assignWalletNonces(flatRequests: Request<AnyRequest>[], transactionCoun
   return withNonces.requests;
 }
 
-export function assign(state: ProviderState<EVMProviderState>): GroupedRequests {
-  const requestsBySponsorAddress = grouping.groupRequestsBySponsorAddress(state.requests);
+export function assign(state: ProviderState<EVMProviderSponsorState>): GroupedRequests {
+  // Ensure requests are sorted before assigning nonces
+  const sortedRequests = sorting.sortGroupedRequests(state.requests);
+  // Flatten all requests into a single array so that nonces can be assigned across types
+  const flatRequests = flattenRequests(sortedRequests);
+  const transactionCount = state.transactionCountsBySponsorAddress[state.sponsorAddress];
+  // Assign nonces to each request
+  const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount);
 
-  const sponsorAddresses = Object.keys(requestsBySponsorAddress);
-
-  return sponsorAddresses.reduce(
-    (acc: GroupedRequests, sponsorAddress) => {
-      const requests = requestsBySponsorAddress[sponsorAddress];
-
-      // Ensure requests are sorted for we assign nonces
-      const sortedRequests = sorting.sortGroupedRequests(requests);
-
-      // Flatten all requests into a single array so that nonces can be assigned across types
-      const flatRequests = flattenRequests(sortedRequests);
-
-      const transactionCount = state.transactionCountsBySponsorAddress[sponsorAddress];
-
-      // Assign nonces to each request
-      const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount);
-
-      // Re-group requests so they can be added back to the state
-      const { apiCalls, withdrawals } = groupRequests(flattenRequestsWithNonces);
-
-      return {
-        ...acc,
-        apiCalls: [...acc.apiCalls, ...apiCalls],
-        withdrawals: [...acc.withdrawals, ...withdrawals],
-      };
-    },
-    { apiCalls: [], withdrawals: [] }
-  );
+  return groupRequests(flattenRequestsWithNonces);
 }

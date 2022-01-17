@@ -268,6 +268,12 @@ describe('validator', () => {
       valid: true,
       messages: [],
     });
+    expect(
+      validator.validateJson(JSON.parse(validEndpointSpec), endpointsTemplate, undefined, undefined, undefined, false)
+    ).toEqual({
+      valid: true,
+      messages: [],
+    });
 
     const invalidEndpointSpec = `[
       {
@@ -343,6 +349,12 @@ describe('validator', () => {
         extraFieldMessage(['[1]', 'extra']),
       ],
     });
+    expect(
+      validator.validateJson(JSON.parse(invalidEndpointSpec), endpointsTemplate, undefined, undefined, undefined, false)
+    ).toEqual({
+      valid: true,
+      messages: [],
+    });
   });
 
   it('ois specs', () => {
@@ -367,6 +379,19 @@ describe('validator', () => {
           'Properties of parameter "myParameter" from endpoints.[1].parameters.[0], must match it\'s properties in apiSpecifications.paths'
         ),
       ],
+    });
+    expect(
+      validator.validateJson(
+        JSON.parse(invalidOISSpecification),
+        oisTemplate,
+        'templates/1.0/',
+        undefined,
+        undefined,
+        false
+      )
+    ).toEqual({
+      valid: true,
+      messages: [],
     });
   });
 

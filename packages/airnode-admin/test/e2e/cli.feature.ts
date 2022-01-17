@@ -113,6 +113,7 @@ describe('CLI', () => {
       'requester-to-request-count-plus-one',
       'sponsor-to-withdrawal-request-count',
       'templates',
+      'verify-signature',
     ].sort();
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
@@ -200,7 +201,7 @@ describe('CLI', () => {
       const out = execCommand(
         'sponsor-requester',
         ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-rrp-address', airnodeRrp.address],
         ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--requester-address', requesterAddress]
@@ -226,7 +227,7 @@ describe('CLI', () => {
         ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-rrp-address', airnodeRrp.address],
         ['--requester-address', requesterAddress]
       );
       expect(out).toBe(`Requester address ${requesterAddress} is no longer sponsored by ${sponsorAddress}`);
@@ -241,7 +242,7 @@ describe('CLI', () => {
         execCommand(
           'get-sponsor-status',
           ['--provider-url', PROVIDER_URL],
-          ['--airnode-rrp', airnodeRrp.address],
+          ['--airnode-rrp-address', airnodeRrp.address],
           ['--sponsor-address', sponsorAddress],
           ['--requester-address', requesterAddress]
         );
@@ -260,7 +261,7 @@ describe('CLI', () => {
         ['--mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-rrp-address', airnodeRrp.address],
         ['--template-file-path', `${__dirname}/../fixtures/${fileName}`]
       );
 
@@ -279,7 +280,7 @@ describe('CLI', () => {
       const out = execCommand(
         'get-template',
         ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-rrp-address', airnodeRrp.address],
         ['--template-id', templateId]
       );
 
@@ -315,7 +316,7 @@ describe('CLI', () => {
         ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-rrp-address', airnodeRrp.address],
         ['--airnode-address', airnodeWallet.address],
         ['--sponsor-wallet-address', sponsorWallet.address]
       );
@@ -327,7 +328,7 @@ describe('CLI', () => {
         execCommand(
           'check-withdrawal-request',
           ['--provider-url', PROVIDER_URL],
-          ['--airnode-rrp', airnodeRrp.address],
+          ['--airnode-rrp-address', airnodeRrp.address],
           ['--withdrawal-request-id', withdrawalRequestId]
         );
 
@@ -363,7 +364,7 @@ describe('CLI', () => {
           ['--sponsor-mnemonic', mnemonic],
           ['--derivation-path', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
           ['--provider-url', PROVIDER_URL],
-          ['--airnode-rrp', airnodeRrp.address]
+          ['--airnode-rrp-address', airnodeRrp.address]
           // missing ['--requester-address', requester]
         )
       ).toThrow('Missing required argument: requester-address');
@@ -445,7 +446,7 @@ describe('CLI', () => {
         ['--mnemonic', airnodeWallet.mnemonic.phrase],
         ['--derivation-path', airnodeWallet.mnemonic.path],
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--expiration-timestamp', expirationTimestamp.getTime()],
@@ -485,7 +486,7 @@ describe('CLI', () => {
         ['--mnemonic', bob.mnemonic.phrase], // An admin should be able to extend whitelist expiration
         ['--derivation-path', bobDerivationPath],
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--expiration-timestamp', extendedExpirationTimestamp.getTime()],
@@ -521,7 +522,7 @@ describe('CLI', () => {
         ['--mnemonic', airnodeWallet.mnemonic.phrase],
         ['--derivation-path', airnodeWallet.mnemonic.path],
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--indefinite-whitelist-status', true],
@@ -542,7 +543,7 @@ describe('CLI', () => {
       let out = execCommand(
         'get-whitelist-status',
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--airnode-address', airnodeWallet.address]
@@ -558,7 +559,7 @@ describe('CLI', () => {
       out = execCommand(
         'get-whitelist-status',
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--airnode-address', airnodeWallet.address]
@@ -575,7 +576,7 @@ describe('CLI', () => {
       out = execCommand(
         'get-whitelist-status',
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--airnode-address', airnodeWallet.address]
@@ -591,7 +592,7 @@ describe('CLI', () => {
       let out = execCommand(
         'is-requester-whitelisted',
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--airnode-address', airnodeWallet.address]
@@ -604,12 +605,17 @@ describe('CLI', () => {
       out = execCommand(
         'is-requester-whitelisted',
         ['--provider-url', PROVIDER_URL],
-        ['--requester-authorizer-with-airnode', requesterAuthorizerWithAirnode.address],
+        ['--requester-authorizer-with-airnode-address', requesterAuthorizerWithAirnode.address],
         ['--endpoint-id', endpointId],
         ['--requester-address', alice.address],
         ['--airnode-address', airnodeWallet.address]
       );
       expect(out).toEqual('Is requester whitelisted: true');
+    });
+
+    it('can derive airnode address', () => {
+      const out = execCommand('derive-airnode-address', ['--airnode-mnemonic', airnodeWallet.mnemonic.phrase]);
+      expect(out).toEqual(`Airnode address: ${airnodeWallet.address}`);
     });
   });
 });

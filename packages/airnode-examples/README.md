@@ -263,6 +263,15 @@ yarn remove-airnode
 
 This will use the deployer to remove the Airnode lambdas from the cloud provider.
 
+### 19. (Optional) Make a withdrawal request
+
+Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to sponsor. This step is
+recommended when testing on public testnets. To do so run:
+
+```sh
+yarn make-withdrawal-request
+```
+
 ## For developers
 
 The main point of these examples is to demonstrate the flexibility and features of Airnode, while being easy to

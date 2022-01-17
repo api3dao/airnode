@@ -18,15 +18,15 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import * as fixtures from '../../../test/fixtures';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from '../../types';
+import { EVMProviderSponsorState, GroupedRequests, ProviderState, RequestStatus } from '../../types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 
 describe('submit', () => {
-  let mutableInitialState: ProviderState<EVMProviderState>;
+  let mutableInitialState: ProviderState<EVMProviderSponsorState>;
 
   beforeEach(() => {
-    mutableInitialState = fixtures.buildEVMProviderState();
+    mutableInitialState = fixtures.buildEVMProviderSponsorState();
   });
 
   it('submits transactions for multiple wallets and returns the transactions', async () => {

@@ -1,6 +1,6 @@
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
-import { ChainConfig, EVMProviderState, ProviderState } from '../../../src/types';
+import { ChainConfig, EVMProviderState, EVMProviderSponsorState, ProviderState } from '../../../src/types';
 
 export function buildEVMProviderState(
   overrides?: Partial<ProviderState<EVMProviderState>>
@@ -29,4 +29,10 @@ export function buildEVMProviderState(
     ...state,
     ...overrides,
   };
+}
+
+export function buildEVMProviderSponsorState(
+  overrides?: Partial<ProviderState<EVMProviderSponsorState>>
+): ProviderState<EVMProviderSponsorState> {
+  return { ...buildEVMProviderState(), sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', ...overrides };
 }
