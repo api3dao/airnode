@@ -20,7 +20,7 @@ the Airnode contracts across chains
 
 [**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities
 for Airnode according to the
-[Airnode ABI specifications](https://docs.api3.org/airnode/v0.2/reference/specifications/airnode-abi-specifications.html)
+[Airnode ABI specifications](https://docs.api3.org/airnode/latest/reference/specifications/airnode-abi-specifications.html)
 
 [**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) Tools to automate Airnode
 deployment
@@ -31,7 +31,7 @@ showcasing the features of Airnode
 [**node**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-node) Airnode itself
 
 [**ois**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-ois) Types for
-[Oracle Integration Specification (OIS)](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/api-integration.html#ois-template)
+[Oracle Integration Specification (OIS)](https://docs.api3.org/ois/v1.0.0/)
 
 [**operation**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-operation) Development and testing
 utilities for the core parts of Airnode

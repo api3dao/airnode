@@ -93,9 +93,9 @@ deploy the contracts and make transactions, so make sure it is funded. The recom
 
 ### 4. Deploy the RRP contract
 
-The [RRP contract](https://docs.api3.org/airnode/v0.2/concepts/#airnoderrp-sol) is a contract through which the
-[requester](https://docs.api3.org/airnode/v0.2/concepts/requester.html) triggers a request for Airnode. This contract is
-common for all Airnodes and requesters on a chain.
+The [RRP contract](https://docs.api3.org/airnode/v0.3/concepts/#airnoderrp-sol) is a contract through which the
+[requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
+is common for all Airnodes and requesters on a chain.
 
 API3 team will deploy this contract for the most popular chains at some point, but for now you have to deploy it
 yourself using:
@@ -152,7 +152,7 @@ yarn create-airnode-secrets
 > https://stackoverflow.com/a/24326540
 
 Refer to the
-[documentation](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
+[documentation](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
 more details.
 
 ### 9. Build docker artifacts
@@ -217,11 +217,11 @@ yarn deploy-requester
 
 ### 15. Derive and fund the sponsor wallet
 
-Airnode request requires a [sponsor](https://docs.api3.org/airnode/v0.2/concepts/sponsor.html), which will pay for the
+Airnode request requires a [sponsor](https://docs.api3.org/airnode/latest/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
 "sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the
 [admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
-[documentation](https://docs.api3.org/airnode/v0.2/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
+[documentation](https://docs.api3.org/airnode/v0.3/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 
 Run:
