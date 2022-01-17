@@ -2,8 +2,8 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
-import "../utils/AddressRegistryUser.sol";
+import "../authorizers/interfaces/IRequesterAuthorizer.sol";
+import "./RequesterAuthorizerRegistryReader.sol";
 import "./AirnodeEndpointFeeRegistryReader.sol";
 import "./AirnodeTokenLockRolesWithManager.sol";
 import "./interfaces/IAirnodeTokenLock.sol";
@@ -11,7 +11,7 @@ import "./interfaces/IAirnodeTokenLock.sol";
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract AirnodeTokenLock is
     AirnodeTokenLockRolesWithManager,
-    AddressRegistryUser,
+    RequesterAuthorizerRegistryReader,
     AirnodeEndpointFeeRegistryReader,
     IAirnodeTokenLock
 {
@@ -100,7 +100,7 @@ contract AirnodeTokenLock is
             _adminRoleDescription,
             _manager
         )
-        AddressRegistryUser(_airnodeRequesterAuthorizerRegistry)
+        RequesterAuthorizerRegistryReader(_airnodeRequesterAuthorizerRegistry)
         AirnodeEndpointFeeRegistryReader(_airnodeFeeRegistry)
     {
         require(_api3Token != address(0), ERROR_ZERO_ADDRESS);
@@ -226,10 +226,12 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount++;
 
         if (tokenLock.whitelistCount == 1) {
-            (, address requesterAuthorizerWithManager) = IAddressRegistry(
-                addressRegistry
-            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
-            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+            (
+                ,
+                address requesterAuthorizerWithManager
+            ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
+                    .tryReadChainRequesterAuthorizer(_chainId);
+            IRequesterAuthorizer(requesterAuthorizerWithManager)
                 .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,
@@ -288,10 +290,12 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount--;
 
         if (tokenLock.whitelistCount == 0) {
-            (, address requesterAuthorizerWithManager) = IAddressRegistry(
-                addressRegistry
-            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
-            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+            (
+                ,
+                address requesterAuthorizerWithManager
+            ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
+                    .tryReadChainRequesterAuthorizer(_chainId);
+            IRequesterAuthorizer(requesterAuthorizerWithManager)
                 .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,
@@ -366,10 +370,12 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount--;
 
         if (tokenLock.whitelistCount == 0) {
-            (, address requesterAuthorizerWithManager) = IAddressRegistry(
-                addressRegistry
-            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
-            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+            (
+                ,
+                address requesterAuthorizerWithManager
+            ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
+                    .tryReadChainRequesterAuthorizer(_chainId);
+            IRequesterAuthorizer(requesterAuthorizerWithManager)
                 .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,

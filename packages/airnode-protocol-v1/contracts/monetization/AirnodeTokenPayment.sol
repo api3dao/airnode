@@ -2,8 +2,8 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
-import "../utils/AddressRegistryUser.sol";
+import "../authorizers/interfaces/IRequesterAuthorizer.sol";
+import "./RequesterAuthorizerRegistryReader.sol";
 import "./AirnodeEndpointFeeRegistryReader.sol";
 import "./AirnodeTokenPaymentRolesWithManager.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
@@ -15,7 +15,7 @@ import "./interfaces/IAirnodeTokenPayment.sol";
 /// contract
 contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
-    AddressRegistryUser,
+    RequesterAuthorizerRegistryReader,
     AirnodeEndpointFeeRegistryReader,
     IAirnodeTokenPayment
 {
@@ -70,7 +70,7 @@ contract AirnodeTokenPayment is
             _adminRoleDescription,
             _manager
         )
-        AddressRegistryUser(_airnodeRequesterAuthorizerRegistry)
+        RequesterAuthorizerRegistryReader(_airnodeRequesterAuthorizerRegistry)
         AirnodeEndpointFeeRegistryReader(_airnodeFeeRegistry)
     {
         require(_paymentTokenAddress != address(0), "Zero address");
@@ -192,9 +192,11 @@ contract AirnodeTokenPayment is
             "Invalid whitelist duration"
         );
 
-        (, address requesterAuthorizerWithManager) = IAddressRegistry(
-            addressRegistry
-        ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
+        (
+            ,
+            address requesterAuthorizerWithManager
+        ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
+                .tryReadChainRequesterAuthorizer(_chainId);
         require(
             requesterAuthorizerWithManager != address(0),
             "No requester authorizer set"
@@ -203,7 +205,7 @@ contract AirnodeTokenPayment is
         (
             uint64 expirationTimestamp,
             uint192 indefiniteWhitelistCount
-        ) = IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+        ) = IRequesterAuthorizer(requesterAuthorizerWithManager)
                 .airnodeToEndpointIdToRequesterToWhitelistStatus(
                     _airnode,
                     _endpointId,
@@ -225,7 +227,7 @@ contract AirnodeTokenPayment is
             uint64(block.timestamp)
             ? expirationTimestamp + _whitelistDuration
             : uint64(block.timestamp) + _whitelistDuration;
-        IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+        IRequesterAuthorizer(requesterAuthorizerWithManager)
             .extendWhitelistExpiration(
                 _airnode,
                 _endpointId,

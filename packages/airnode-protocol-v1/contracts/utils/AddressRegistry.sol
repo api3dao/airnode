@@ -22,11 +22,6 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
         )
     {}
 
-    function registerAddress(bytes32 id, address address_) external override {
-        _registerAddress(id, address_);
-        emit RegisteredAddress(id, address_, msg.sender);
-    }
-
     function tryReadRegisteredAddress(bytes32 id)
         public
         view

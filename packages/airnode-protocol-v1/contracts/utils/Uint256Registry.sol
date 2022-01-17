@@ -22,11 +22,6 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
         )
     {}
 
-    function registerUint256(bytes32 id, uint256 uint256_) external override {
-        _registerUint256(id, uint256_);
-        emit RegisteredUint256(id, uint256_, msg.sender);
-    }
-
     function tryReadRegisteredUint256(bytes32 id)
         public
         view
