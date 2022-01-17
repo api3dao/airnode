@@ -4,16 +4,15 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
 import "../utils/AddressRegistryUser.sol";
-import "./AirnodeFeeRegistryClient.sol";
+import "./AirnodeEndpointFeeRegistryReader.sol";
 import "./AirnodeTokenLockRolesWithManager.sol";
-import "./interfaces/IAirnodeFeeRegistry.sol";
 import "./interfaces/IAirnodeTokenLock.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract AirnodeTokenLock is
     AirnodeTokenLockRolesWithManager,
     AddressRegistryUser,
-    AirnodeFeeRegistryClient,
+    AirnodeEndpointFeeRegistryReader,
     IAirnodeTokenLock
 {
     string private constant ERROR_ZERO_CHAINID = "Zero chainId";
@@ -102,7 +101,7 @@ contract AirnodeTokenLock is
             _manager
         )
         AddressRegistryUser(_airnodeRequesterAuthorizerRegistry)
-        AirnodeFeeRegistryClient(_airnodeFeeRegistry)
+        AirnodeEndpointFeeRegistryReader(_airnodeFeeRegistry)
     {
         require(_api3Token != address(0), ERROR_ZERO_ADDRESS);
         api3Token = _api3Token;
@@ -129,22 +128,6 @@ contract AirnodeTokenLock is
             ERROR_AIRNODE_NOT_OPTED_IN
         );
         _;
-    }
-
-    /// @notice Called by a airnodeFeeRegistry setter to set the address
-    /// of the AirnodeFeeRegistry contract
-    /// @param _airnodeFeeRegistry The address of the AirnodeFeeRegistry contract
-    function setAirnodeFeeRegistry(address _airnodeFeeRegistry)
-        external
-        override
-    {
-        require(
-            hasAirnodeFeeRegistrySetterRoleOrIsManager(msg.sender),
-            ERROR_NOT_AIRNODE_FEE_REGISTRY_SETTER
-        );
-        require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
-        airnodeFeeRegistry = _airnodeFeeRegistry;
-        emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
     }
 
     /// @notice Called by an oracle to set the price of API3
@@ -418,8 +401,9 @@ contract AirnodeTokenLock is
         address _airnode,
         bytes32 _endpointId
     ) public view override returns (uint256 _lockAmount) {
-        uint256 endpointFee = IAirnodeFeeRegistry(airnodeFeeRegistry)
-            .getEndpointPrice(_chainId, _airnode, _endpointId);
+        uint256 endpointFee = IAirnodeEndpointFeeRegistry(
+            airnodeEndpointFeeRegistry
+        ).getPrice(_airnode, _chainId, _endpointId);
         _lockAmount = (multiplierCoefficient * endpointFee) / api3PriceInUsd;
     }
 

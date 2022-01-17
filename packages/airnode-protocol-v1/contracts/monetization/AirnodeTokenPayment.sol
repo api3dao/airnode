@@ -4,9 +4,8 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../authorizers/interfaces/IRequesterAuthorizerWithManager.sol";
 import "../utils/AddressRegistryUser.sol";
-import "./AirnodeFeeRegistryClient.sol";
+import "./AirnodeEndpointFeeRegistryReader.sol";
 import "./AirnodeTokenPaymentRolesWithManager.sol";
-import "./interfaces/IAirnodeFeeRegistry.sol";
 import "./interfaces/IAirnodeTokenPayment.sol";
 
 /// @title The contract used to pay with ERC20 in order to get whitelisted to
@@ -17,7 +16,7 @@ import "./interfaces/IAirnodeTokenPayment.sol";
 contract AirnodeTokenPayment is
     AirnodeTokenPaymentRolesWithManager,
     AddressRegistryUser,
-    AirnodeFeeRegistryClient,
+    AirnodeEndpointFeeRegistryReader,
     IAirnodeTokenPayment
 {
     struct WhitelistDuration {
@@ -72,7 +71,7 @@ contract AirnodeTokenPayment is
             _manager
         )
         AddressRegistryUser(_airnodeRequesterAuthorizerRegistry)
-        AirnodeFeeRegistryClient(_airnodeFeeRegistry)
+        AirnodeEndpointFeeRegistryReader(_airnodeFeeRegistry)
     {
         require(_paymentTokenAddress != address(0), "Zero address");
         paymentTokenAddress = _paymentTokenAddress;
@@ -273,10 +272,15 @@ contract AirnodeTokenPayment is
         uint64 _whitelistDuration
     ) public view override returns (uint256 amount) {
         uint8 tokenDecimals = IERC20Metadata(paymentTokenAddress).decimals();
-        uint256 feeInUsd = IAirnodeFeeRegistry(airnodeFeeRegistry)
-            .getEndpointPrice(_chainId, _airnode, _endpointId);
-        uint24 feeDecimals = IAirnodeFeeRegistry(airnodeFeeRegistry).DECIMALS();
-        uint24 feeInterval = IAirnodeFeeRegistry(airnodeFeeRegistry).INTERVAL();
+        uint256 feeInUsd = IAirnodeEndpointFeeRegistry(
+            airnodeEndpointFeeRegistry
+        ).getPrice(_airnode, _chainId, _endpointId);
+        uint256 feeDecimals = IAirnodeEndpointFeeRegistry(
+            airnodeEndpointFeeRegistry
+        ).DECIMALS();
+        uint256 feeInterval = IAirnodeEndpointFeeRegistry(
+            airnodeEndpointFeeRegistry
+        ).PRICING_INTERVAL();
         amount =
             (1e18 * ((10**tokenDecimals) * feeInUsd * _whitelistDuration)) /
             ((10**feeDecimals) * paymentTokenPrice * feeInterval);

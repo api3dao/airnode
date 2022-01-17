@@ -61,8 +61,6 @@ interface IAirnodeTokenLock {
         uint256 whitelistCount
     );
 
-    function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
-
     function setAPI3Price(uint256 price) external;
 
     function setMultiplierCoefficient(uint256 multiplierCoefficient) external;
