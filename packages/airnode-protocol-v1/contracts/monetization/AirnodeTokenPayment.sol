@@ -195,7 +195,7 @@ contract AirnodeTokenPayment is
 
         address requesterAuthorizerWithManager = IAddressRegistry(
             addressRegistry
-        ).hashToAddress(keccak256(abi.encodePacked(_chainId)));
+        ).readRegisteredAddress(manager, keccak256(abi.encodePacked(_chainId)));
         require(
             requesterAuthorizerWithManager != address(0),
             "No requester authorizer set"

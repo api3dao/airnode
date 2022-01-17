@@ -244,7 +244,8 @@ contract AirnodeTokenLock is
 
         if (tokenLock.whitelistCount == 1) {
             IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).hashToAddress(
+                IAddressRegistry(addressRegistry).readRegisteredAddress(
+                    manager,
                     keccak256(abi.encodePacked(_chainId))
                 )
             ).setIndefiniteWhitelistStatus(
@@ -306,7 +307,8 @@ contract AirnodeTokenLock is
 
         if (tokenLock.whitelistCount == 0) {
             IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).hashToAddress(
+                IAddressRegistry(addressRegistry).readRegisteredAddress(
+                    manager,
                     keccak256(abi.encodePacked(_chainId))
                 )
             ).setIndefiniteWhitelistStatus(
@@ -384,7 +386,8 @@ contract AirnodeTokenLock is
 
         if (tokenLock.whitelistCount == 0) {
             IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).hashToAddress(
+                IAddressRegistry(addressRegistry).readRegisteredAddress(
+                    manager,
                     keccak256(abi.encodePacked(_chainId))
                 )
             ).setIndefiniteWhitelistStatus(

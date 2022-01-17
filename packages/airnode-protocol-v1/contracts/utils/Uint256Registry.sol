@@ -2,10 +2,10 @@
 pragma solidity 0.8.9;
 
 import "./Registry.sol";
-import "./interfaces/IAddressRegistry.sol";
+import "./interfaces/IUint256Registry.sol";
 
-contract AddressRegistry is Registry, IAddressRegistry {
-    mapping(bytes32 => address) private hashToAddress;
+contract Uint256Registry is Registry, IUint256Registry {
+    mapping(bytes32 => uint256) private hashToUint256;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
@@ -14,21 +14,21 @@ contract AddressRegistry is Registry, IAddressRegistry {
         string memory _adminRoleDescription
     ) Registry(_accessControlRegistry, _adminRoleDescription) {}
 
-    function registerAddress(
+    function registerUint256(
         address user,
         bytes32 id,
-        address address_
+        uint256 uint256_
     ) public override onlyRegistrarOrUser(user) {
-        hashToAddress[keccak256(abi.encodePacked(user, id))] = address_;
-        emit RegisteredAddress(user, id, address_);
+        hashToUint256[keccak256(abi.encodePacked(user, id))] = uint256_;
+        emit RegisteredUint256(user, id, uint256_);
     }
 
-    function readRegisteredAddress(address user, bytes32 id)
+    function readRegisteredUint256(address user, bytes32 id)
         external
         view
         override
-        returns (address)
+        returns (uint256)
     {
-        return hashToAddress[keccak256(abi.encodePacked(user, id))];
+        return hashToUint256[keccak256(abi.encodePacked(user, id))];
     }
 }
