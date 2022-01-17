@@ -22,12 +22,8 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
         )
     {}
 
-    function registerUint256(bytes32 id, uint256 uint256_)
-        public
-        override
-        onlyRegistrarOrManager
-    {
-        idToUint256[id] = uint256_;
+    function registerUint256(bytes32 id, uint256 uint256_) external override {
+        _registerUint256(id, uint256_);
         emit RegisteredUint256(id, uint256_, msg.sender);
     }
 
@@ -38,5 +34,13 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
     {
         uint256_ = idToUint256[id];
         success = uint256_ != 0;
+    }
+
+    function _registerUint256(bytes32 id, uint256 uint256_)
+        internal
+        onlyRegistrarOrManager
+    {
+        require(uint256_ != 0, "Cannot register zero");
+        idToUint256[id] = uint256_;
     }
 }

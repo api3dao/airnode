@@ -22,12 +22,8 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
         )
     {}
 
-    function registerAddress(bytes32 id, address address_)
-        public
-        override
-        onlyRegistrarOrManager
-    {
-        idToAddress[id] = address_;
+    function registerAddress(bytes32 id, address address_) external override {
+        _registerAddress(id, address_);
         emit RegisteredAddress(id, address_, msg.sender);
     }
 
@@ -38,5 +34,13 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
     {
         address_ = idToAddress[id];
         success = address_ != address(0);
+    }
+
+    function _registerAddress(bytes32 id, address address_)
+        internal
+        onlyRegistrarOrManager
+    {
+        require(address_ != address(0), "Cannot register zero address");
+        idToAddress[id] = address_;
     }
 }
