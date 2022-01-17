@@ -79,8 +79,8 @@ The contracts are under the `contracts/` directory.
 - `/access-control-registry/AccessControlManagerProxy.sol`: An Ownable proxy contract to be used while interacting with
   AccessControlRegistry to allow roles to be transferred as a whole
 
-- `/access-control-registry/AccessControlClient.sol`: A contract to inherit for contracts that will be interacting with
-  AccessControlRegistry
+- `/access-control-registry/AccessControlRegistryUser.sol`: A contract to inherit for contracts that will be interacting
+  with AccessControlRegistry
 
 - `/access-control-registry/RoleDeriver.sol`: Implements the role ID derivation convention
 

@@ -688,6 +688,307 @@ describe('requestBeaconUpdate', function () {
   });
 });
 
+describe('updateBeaconWithoutRequest', function () {
+  context('Template exists', function () {
+    context('Signature valid', function () {
+      context('Signature correct', function () {
+        context('Encoded data length is correct', function () {
+          context('Data typecast successfully', function () {
+            context('Data fresher than beacon', function () {
+              context('Data not older than 1 hour and not more than 1 hour from the future', function () {
+                it('updates beacon', async function () {
+                  const requestId = hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+                  );
+                  const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
+                    .timestamp;
+                  await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+                  const encodedData = 123;
+                  const encodedTimestamp = now;
+                  const data = hre.ethers.utils.defaultAbiCoder.encode(
+                    ['int256', 'uint256'],
+                    [encodedData, encodedTimestamp]
+                  );
+                  const signature = await airnodeWallet.signMessage(
+                    hre.ethers.utils.arrayify(
+                      hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+                    )
+                  );
+                  await expect(
+                    rrpBeaconServer
+                      .connect(roles.randomPerson)
+                      .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+                  )
+                    .to.emit(rrpBeaconServer, 'UpdatedBeaconWithoutRequest')
+                    .withArgs(beaconId, encodedData, encodedTimestamp);
+                });
+              });
+              context('Data more than 1 hour from the future', function () {
+                it('reverts', async function () {
+                  const requestId = hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+                  );
+                  const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
+                    .timestamp;
+                  await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+                  const encodedData = 123;
+                  const encodedTimestamp = now + 4000;
+                  const data = hre.ethers.utils.defaultAbiCoder.encode(
+                    ['int256', 'uint256'],
+                    [encodedData, encodedTimestamp]
+                  );
+                  const signature = await airnodeWallet.signMessage(
+                    hre.ethers.utils.arrayify(
+                      hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+                    )
+                  );
+                  await expect(
+                    rrpBeaconServer
+                      .connect(roles.randomPerson)
+                      .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+                  ).to.be.revertedWith('Fulfillment from future');
+                });
+              });
+            });
+            context('Data not fresher than beacon', function () {
+              it('reverts', async function () {
+                const requestId = hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+                );
+                const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+                await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+                const encodedData = 123;
+                const encodedTimestamp = 0;
+                const data = hre.ethers.utils.defaultAbiCoder.encode(
+                  ['int256', 'uint256'],
+                  [encodedData, encodedTimestamp]
+                );
+                const signature = await airnodeWallet.signMessage(
+                  hre.ethers.utils.arrayify(
+                    hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+                  )
+                );
+                await expect(
+                  rrpBeaconServer
+                    .connect(roles.randomPerson)
+                    .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+                ).to.be.revertedWith('Fulfillment older than beacon');
+              });
+            });
+          });
+          context('Data does not typecast successfully', function () {
+            context('Data larger than maximum int224', function () {
+              it('reverts', async function () {
+                const requestId = hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+                );
+                const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+                await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+                const encodedData = hre.ethers.BigNumber.from(2).pow(223);
+                const encodedTimestamp = now;
+                const data = hre.ethers.utils.defaultAbiCoder.encode(
+                  ['int256', 'uint256'],
+                  [encodedData, encodedTimestamp]
+                );
+                const signature = await airnodeWallet.signMessage(
+                  hre.ethers.utils.arrayify(
+                    hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+                  )
+                );
+                await expect(
+                  rrpBeaconServer
+                    .connect(roles.randomPerson)
+                    .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+                ).to.be.revertedWith('Value typecasting error');
+              });
+            });
+            context('Data smaller than minimum int224', function () {
+              it('reverts', async function () {
+                const requestId = hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+                );
+                const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+                await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+                const encodedData = hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1);
+                const encodedTimestamp = now;
+                const data = hre.ethers.utils.defaultAbiCoder.encode(
+                  ['int256', 'uint256'],
+                  [encodedData, encodedTimestamp]
+                );
+                const signature = await airnodeWallet.signMessage(
+                  hre.ethers.utils.arrayify(
+                    hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+                  )
+                );
+                await expect(
+                  rrpBeaconServer
+                    .connect(roles.randomPerson)
+                    .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+                ).to.be.revertedWith('Value typecasting error');
+              });
+            });
+          });
+        });
+        context('Encoded data length is too long', function () {
+          it('reverts', async function () {
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+            );
+            const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+            const encodedData = 123;
+            const encodedTimestamp = now;
+            const data = hre.ethers.utils.defaultAbiCoder.encode(
+              ['int256', 'uint256'],
+              [encodedData, encodedTimestamp]
+            );
+            const longData = data + '00';
+            const signature = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, longData]))
+              )
+            );
+            await expect(
+              rrpBeaconServer
+                .connect(roles.randomPerson)
+                .updateBeaconWithoutRequest(templateId, beaconParameters, longData, signature)
+            ).to.be.revertedWith('Incorrect data length');
+          });
+        });
+        context('Encoded data length is too short', function () {
+          it('reverts', async function () {
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+            );
+            const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+            const encodedData = 123;
+            const encodedTimestamp = now;
+            const data = hre.ethers.utils.defaultAbiCoder.encode(
+              ['int256', 'uint256'],
+              [encodedData, encodedTimestamp]
+            );
+            const shortData = data.substring(0, data.length - 2);
+            const signature = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, shortData]))
+              )
+            );
+            await expect(
+              rrpBeaconServer
+                .connect(roles.randomPerson)
+                .updateBeaconWithoutRequest(templateId, beaconParameters, shortData, signature)
+            ).to.be.revertedWith('Incorrect data length');
+          });
+        });
+      });
+      context('Request ID mismatch', function () {
+        it('reverts', async function () {
+          const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+          const encodedData = 123;
+          const encodedTimestamp = now;
+          const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [testUtils.generateRandomBytes32(), data])
+              )
+            )
+          );
+          await expect(
+            rrpBeaconServer
+              .connect(roles.randomPerson)
+              .updateBeaconWithoutRequest(templateId, beaconParameters, data, signature)
+          ).to.be.revertedWith('Signature mismatch');
+        });
+      });
+      context('Airnode address mismatch', function () {
+        it('reverts', async function () {
+          const anotherAirnodeAddress = testUtils.generateRandomAddress();
+          await airnodeRrp
+            .connect(roles.randomPerson)
+            .createTemplate(anotherAirnodeAddress, endpointId, templateParameters);
+          const anotherTemplateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'bytes32', 'bytes'],
+              [anotherAirnodeAddress, endpointId, templateParameters]
+            )
+          );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [anotherTemplateId, beaconParameters])
+          );
+          const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+          const encodedData = 123;
+          const encodedTimestamp = now;
+          const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
+          await expect(
+            rrpBeaconServer
+              .connect(roles.randomPerson)
+              .updateBeaconWithoutRequest(anotherTemplateId, beaconParameters, data, signature)
+          ).to.be.revertedWith('Signature mismatch');
+        });
+      });
+      context('Fulfillment data mismatch', function () {
+        it('reverts', async function () {
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+          );
+          const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+          const encodedData = 123;
+          const encodedTimestamp = now;
+          const data = hre.ethers.utils.defaultAbiCoder.encode(['int256', 'uint256'], [encodedData, encodedTimestamp]);
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
+          await expect(
+            rrpBeaconServer
+              .connect(roles.randomPerson)
+              .updateBeaconWithoutRequest(templateId, beaconParameters, '0x12345678', signature)
+          ).to.be.revertedWith('Signature mismatch');
+        });
+      });
+    });
+    context('Signature invalid', function () {
+      it('reverts', async function () {
+        await expect(
+          rrpBeaconServer
+            .connect(roles.randomPerson)
+            .updateBeaconWithoutRequest(
+              templateId,
+              beaconParameters,
+              testUtils.generateRandomBytes(),
+              testUtils.generateRandomBytes()
+            )
+        ).to.be.revertedWith('ECDSA: invalid signature length');
+      });
+    });
+  });
+  context('Template does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        rrpBeaconServer
+          .connect(roles.randomPerson)
+          .updateBeaconWithoutRequest(
+            testUtils.generateRandomBytes32(),
+            beaconParameters,
+            testUtils.generateRandomBytes(),
+            testUtils.generateRandomBytes()
+          )
+      ).to.be.revertedWith('Template does not exist');
+    });
+  });
+});
+
 describe('readBeacon', function () {
   context('Sender whitelisted', function () {
     it('reads beacon', async function () {
@@ -853,10 +1154,6 @@ describe('readerCanReadBeacon', function () {
   });
 });
 
-// Tests for `fulfill()` should come last because the line below causes all following `fulfill()`
-// calls to revert
-// await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
-// This can be solved by adding a `hardhat_reset` call to beforeEach, but that breaks solcover.
 describe('fulfill', function () {
   context('Sender Airnode RRP', function () {
     context('requestId has been registered', function () {

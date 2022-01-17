@@ -1,0 +1,25 @@
+{
+  "name": "@api3/airnode-protocol-v1",
+  "license": "MIT",
+  "version": "0.3.1",
+  "private": false,
+  "scripts": {
+    "build:contracts": "hardhat compile",
+    "test:hardhat": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "test:gas": "REPORT_GAS=TRUE hardhat test"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.3.2",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.6.0",
+    "hardhat-gas-reporter": "^1.0.4",
+    "solidity-coverage": "^0.7.16"
+  },
+  "dependencies": {
+    "ethers": "^5.4.4"
+  }
+}
