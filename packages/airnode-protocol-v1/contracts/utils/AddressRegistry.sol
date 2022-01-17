@@ -1,34 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./Registry.sol";
+import "./RegistryRolesWithManager.sol";
 import "./interfaces/IAddressRegistry.sol";
 
-contract AddressRegistry is Registry, IAddressRegistry {
-    mapping(bytes32 => address) private hashToAddress;
+contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
+    mapping(bytes32 => address) private idToAddress;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
+    /// @param _manager Manager address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription
-    ) Registry(_accessControlRegistry, _adminRoleDescription) {}
+        string memory _adminRoleDescription,
+        address _manager
+    )
+        RegistryRolesWithManager(
+            _accessControlRegistry,
+            _adminRoleDescription,
+            _manager
+        )
+    {}
 
-    function registerAddress(
-        address user,
-        bytes32 id,
-        address address_
-    ) public override onlyRegistrarOrUser(user) {
-        hashToAddress[keccak256(abi.encodePacked(user, id))] = address_;
-        emit RegisteredAddress(user, id, address_);
+    function registerAddress(bytes32 id, address address_)
+        public
+        override
+        onlyRegistrarOrManager
+    {
+        idToAddress[id] = address_;
+        emit RegisteredAddress(id, address_, msg.sender);
     }
 
-    function readRegisteredAddress(address user, bytes32 id)
-        external
-        view
+    function tryReadRegisteredAddress(bytes32 id)
+        public
         override
-        returns (address)
+        returns (bool success, address address_)
     {
-        return hashToAddress[keccak256(abi.encodePacked(user, id))];
+        address_ = idToAddress[id];
+        success = address_ != address(0);
     }
 }

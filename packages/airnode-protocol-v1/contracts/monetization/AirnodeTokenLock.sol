@@ -243,12 +243,11 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount++;
 
         if (tokenLock.whitelistCount == 1) {
-            IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).readRegisteredAddress(
-                    manager,
-                    keccak256(abi.encodePacked(_chainId))
-                )
-            ).setIndefiniteWhitelistStatus(
+            (, address requesterAuthorizerWithManager) = IAddressRegistry(
+                addressRegistry
+            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
+            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+                .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,
                     _requesterAddress,
@@ -306,12 +305,11 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount--;
 
         if (tokenLock.whitelistCount == 0) {
-            IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).readRegisteredAddress(
-                    manager,
-                    keccak256(abi.encodePacked(_chainId))
-                )
-            ).setIndefiniteWhitelistStatus(
+            (, address requesterAuthorizerWithManager) = IAddressRegistry(
+                addressRegistry
+            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
+            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+                .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,
                     _requesterAddress,
@@ -385,12 +383,11 @@ contract AirnodeTokenLock is
         tokenLock.whitelistCount--;
 
         if (tokenLock.whitelistCount == 0) {
-            IRequesterAuthorizerWithManager(
-                IAddressRegistry(addressRegistry).readRegisteredAddress(
-                    manager,
-                    keccak256(abi.encodePacked(_chainId))
-                )
-            ).setIndefiniteWhitelistStatus(
+            (, address requesterAuthorizerWithManager) = IAddressRegistry(
+                addressRegistry
+            ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
+            IRequesterAuthorizerWithManager(requesterAuthorizerWithManager)
+                .setIndefiniteWhitelistStatus(
                     _airnode,
                     _endpointId,
                     _requesterAddress,

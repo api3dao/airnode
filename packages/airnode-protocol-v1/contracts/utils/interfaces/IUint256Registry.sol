@@ -1,19 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./IRegistry.sol";
+import "./IRegistryRolesWithManager.sol";
 
-interface IUint256Registry is IRegistry {
-    event RegisteredUint256(address indexed user, bytes32 id, uint256 uint256_);
+interface IUint256Registry is IRegistryRolesWithManager {
+    event RegisteredUint256(bytes32 id, uint256 uint256_, address sender);
 
-    function registerUint256(
-        address user,
-        bytes32 id,
-        uint256 uint256_
-    ) external;
+    function registerUint256(bytes32 id, uint256 uint256_) external;
 
-    function readRegisteredUint256(address user, bytes32 id)
+    function tryReadRegisteredUint256(bytes32 id)
         external
-        view
-        returns (uint256);
+        returns (bool success, uint256 uint256_);
 }

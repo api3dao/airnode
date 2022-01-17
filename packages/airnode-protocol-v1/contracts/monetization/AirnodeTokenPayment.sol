@@ -193,9 +193,9 @@ contract AirnodeTokenPayment is
             "Invalid whitelist duration"
         );
 
-        address requesterAuthorizerWithManager = IAddressRegistry(
+        (, address requesterAuthorizerWithManager) = IAddressRegistry(
             addressRegistry
-        ).readRegisteredAddress(manager, keccak256(abi.encodePacked(_chainId)));
+        ).tryReadRegisteredAddress(keccak256(abi.encodePacked(_chainId)));
         require(
             requesterAuthorizerWithManager != address(0),
             "No requester authorizer set"
