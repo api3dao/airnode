@@ -29,6 +29,7 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
 
     function tryReadRegisteredUint256(bytes32 id)
         public
+        view
         override
         returns (bool success, uint256 uint256_)
     {

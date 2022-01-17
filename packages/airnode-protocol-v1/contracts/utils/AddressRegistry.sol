@@ -29,6 +29,7 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
 
     function tryReadRegisteredAddress(bytes32 id)
         public
+        view
         override
         returns (bool success, address address_)
     {
