@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Multicall.sol";
-import "./utils/WithdrawalUtils.sol";
+import "./AirnodeWithdrawal.sol";
 import "./interfaces/IAirnodeRrp.sol";
 
 /// @title Airnode request–response protocol (RRP) and its relayed version
@@ -15,7 +15,7 @@ import "./interfaces/IAirnodeRrp.sol";
 /// Unlike the other protocols, the event for relayed RRP has the address of
 /// the relayer indexed. This is because the relayer will need to listen for
 /// requests and fulfillments.
-contract AirnodeRrp is Multicall, WithdrawalUtils, IAirnodeRrp {
+contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
     using ECDSA for bytes32;
 
     struct Template {

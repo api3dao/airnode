@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./interfaces/IWithdrawalUtils.sol";
+import "./interfaces/IAirnodeWithdrawal.sol";
 
 /// @title Contract that implements logic for withdrawals from sponsor wallets
 /// @notice This contract is used by sponsors to request withdrawals from
@@ -27,7 +27,7 @@ import "./interfaces/IWithdrawalUtils.sol";
 /// particular reporter–sponsor pair, which is why sponsor wallet derivation
 /// includes a protocol ID. Refer to the documentation of the particular node
 /// implementation for what these protocol IDs are.
-contract WithdrawalUtils is IWithdrawalUtils {
+contract AirnodeWithdrawal is IAirnodeWithdrawal {
     /// @notice Sponsor balance that is withdrawn but not claimed yet
     mapping(address => uint256) public override sponsorToBalance;
 

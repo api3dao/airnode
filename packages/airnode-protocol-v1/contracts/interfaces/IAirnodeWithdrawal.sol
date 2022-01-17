@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface IWithdrawalUtils {
+interface IAirnodeWithdrawal {
     event RequestedWithdrawal(
         address indexed reporter,
         address indexed sponsor,
