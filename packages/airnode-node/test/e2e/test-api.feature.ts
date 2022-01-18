@@ -18,7 +18,7 @@ it('makes a call to test the API', async () => {
   const expected = {
     // Value is returned by the mock server from the operation package
     value: JSON.stringify({
-      rawValue: { success: true, result: '723.392028' },
+      rawValue: { success: true, result: '723.39202' },
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
       values: ['72339202'],
     }),

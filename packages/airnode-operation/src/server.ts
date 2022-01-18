@@ -13,7 +13,7 @@ app.get('/convert', (req, res) => {
   const { from, to } = req.query;
 
   if (from === 'ETH' && to === 'USD') {
-    res.status(200).send({ success: true, result: '723.392028' });
+    res.status(200).send({ success: true, result: '723.39202' });
     return;
   }
 
