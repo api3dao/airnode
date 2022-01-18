@@ -15,28 +15,22 @@ contract InPlaceSort {
         assert(arrayLength <= MAX_ARRAY_LENGTH);
         // Do a sort of a binary search that favors shorter array lengths
         if (arrayLength < 6) {
-            // Possible lengths: 2, 3, 4, 5
+            // Possible lengths: 1, 2, 3, 4, 5
             if (arrayLength < 4) {
-                // Possible lengths: 2, 3
-                if (arrayLength == 2) {
-                    // Length: 2
-                    swapIfFirstIsLarger(values, 0, 1);
-                } else {
+                // Possible lengths: 1, 2, 3
+                if (arrayLength == 3) {
                     // Length: 3
                     swapIfFirstIsLarger(values, 0, 1);
                     swapIfFirstIsLarger(values, 1, 2);
                     swapIfFirstIsLarger(values, 0, 1);
+                } else if (arrayLength == 2) {
+                    // Length: 2
+                    swapIfFirstIsLarger(values, 0, 1);
                 }
+                // Do nothing for Length: 1
             } else {
                 // Possible lengths: 4, 5
-                if (arrayLength == 4) {
-                    // Length: 4
-                    swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 1, 3);
-                    swapIfFirstIsLarger(values, 0, 2);
-                    swapIfFirstIsLarger(values, 1, 2);
-                } else {
+                if (arrayLength == 5) {
                     // Length: 5
                     swapIfFirstIsLarger(values, 1, 2);
                     swapIfFirstIsLarger(values, 3, 4);
@@ -47,27 +41,20 @@ contract InPlaceSort {
                     swapIfFirstIsLarger(values, 0, 1);
                     swapIfFirstIsLarger(values, 2, 3);
                     swapIfFirstIsLarger(values, 1, 2);
+                } else {
+                    // Length: 4
+                    swapIfFirstIsLarger(values, 0, 1);
+                    swapIfFirstIsLarger(values, 2, 3);
+                    swapIfFirstIsLarger(values, 1, 3);
+                    swapIfFirstIsLarger(values, 0, 2);
+                    swapIfFirstIsLarger(values, 1, 2);
                 }
             }
         } else if (arrayLength < 10) {
             // Possible lengths: 6, 7, 8, 9
             if (arrayLength < 8) {
                 // Possible lengths: 6, 7
-                if (arrayLength == 6) {
-                    // Length: 6
-                    swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 4, 5);
-                    swapIfFirstIsLarger(values, 1, 3);
-                    swapIfFirstIsLarger(values, 3, 5);
-                    swapIfFirstIsLarger(values, 1, 3);
-                    swapIfFirstIsLarger(values, 2, 4);
-                    swapIfFirstIsLarger(values, 0, 2);
-                    swapIfFirstIsLarger(values, 2, 4);
-                    swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 1, 2);
-                    swapIfFirstIsLarger(values, 2, 3);
-                } else {
+                if (arrayLength == 7) {
                     // Length: 7
                     swapIfFirstIsLarger(values, 1, 2);
                     swapIfFirstIsLarger(values, 3, 4);
@@ -85,31 +72,24 @@ contract InPlaceSort {
                     swapIfFirstIsLarger(values, 0, 1);
                     swapIfFirstIsLarger(values, 2, 3);
                     swapIfFirstIsLarger(values, 4, 5);
-                }
-            } else {
-                // Possible lengths: 8, 9
-                if (arrayLength == 8) {
-                    // Length: 8
-                    swapIfFirstIsLarger(values, 0, 7);
-                    swapIfFirstIsLarger(values, 1, 6);
-                    swapIfFirstIsLarger(values, 2, 5);
-                    swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 0, 3);
-                    swapIfFirstIsLarger(values, 4, 7);
-                    swapIfFirstIsLarger(values, 1, 2);
-                    swapIfFirstIsLarger(values, 5, 6);
+                } else {
+                    // Length: 6
                     swapIfFirstIsLarger(values, 0, 1);
                     swapIfFirstIsLarger(values, 2, 3);
                     swapIfFirstIsLarger(values, 4, 5);
-                    swapIfFirstIsLarger(values, 6, 7);
+                    swapIfFirstIsLarger(values, 1, 3);
                     swapIfFirstIsLarger(values, 3, 5);
+                    swapIfFirstIsLarger(values, 1, 3);
                     swapIfFirstIsLarger(values, 2, 4);
-                    swapIfFirstIsLarger(values, 1, 2);
+                    swapIfFirstIsLarger(values, 0, 2);
+                    swapIfFirstIsLarger(values, 2, 4);
                     swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 5, 6);
+                    swapIfFirstIsLarger(values, 1, 2);
                     swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 4, 5);
-                } else {
+                }
+            } else {
+                // Possible lengths: 8, 9
+                if (arrayLength == 9) {
                     // Length: 9
                     swapIfFirstIsLarger(values, 1, 8);
                     swapIfFirstIsLarger(values, 2, 7);
@@ -136,46 +116,35 @@ contract InPlaceSort {
                     swapIfFirstIsLarger(values, 7, 8);
                     swapIfFirstIsLarger(values, 2, 3);
                     swapIfFirstIsLarger(values, 4, 5);
+                } else {
+                    // Length: 8
+                    swapIfFirstIsLarger(values, 0, 7);
+                    swapIfFirstIsLarger(values, 1, 6);
+                    swapIfFirstIsLarger(values, 2, 5);
+                    swapIfFirstIsLarger(values, 3, 4);
+                    swapIfFirstIsLarger(values, 0, 3);
+                    swapIfFirstIsLarger(values, 4, 7);
+                    swapIfFirstIsLarger(values, 1, 2);
+                    swapIfFirstIsLarger(values, 5, 6);
+                    swapIfFirstIsLarger(values, 0, 1);
+                    swapIfFirstIsLarger(values, 2, 3);
+                    swapIfFirstIsLarger(values, 4, 5);
+                    swapIfFirstIsLarger(values, 6, 7);
+                    swapIfFirstIsLarger(values, 3, 5);
+                    swapIfFirstIsLarger(values, 2, 4);
+                    swapIfFirstIsLarger(values, 1, 2);
+                    swapIfFirstIsLarger(values, 3, 4);
+                    swapIfFirstIsLarger(values, 5, 6);
+                    swapIfFirstIsLarger(values, 2, 3);
+                    swapIfFirstIsLarger(values, 4, 5);
+                    swapIfFirstIsLarger(values, 3, 4);
                 }
             }
         } else {
             // Possible lengths: 10, 11, 12, 13
             if (arrayLength < 12) {
                 // Possible lengths: 10, 11
-                if (arrayLength == 10) {
-                    // Length: 10
-                    swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 4, 5);
-                    swapIfFirstIsLarger(values, 6, 7);
-                    swapIfFirstIsLarger(values, 8, 9);
-                    swapIfFirstIsLarger(values, 4, 9);
-                    swapIfFirstIsLarger(values, 0, 5);
-                    swapIfFirstIsLarger(values, 1, 8);
-                    swapIfFirstIsLarger(values, 3, 7);
-                    swapIfFirstIsLarger(values, 2, 6);
-                    swapIfFirstIsLarger(values, 0, 2);
-                    swapIfFirstIsLarger(values, 3, 6);
-                    swapIfFirstIsLarger(values, 7, 9);
-                    swapIfFirstIsLarger(values, 1, 4);
-                    swapIfFirstIsLarger(values, 5, 8);
-                    swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 2, 7);
-                    swapIfFirstIsLarger(values, 8, 9);
-                    swapIfFirstIsLarger(values, 4, 6);
-                    swapIfFirstIsLarger(values, 3, 5);
-                    swapIfFirstIsLarger(values, 2, 4);
-                    swapIfFirstIsLarger(values, 6, 8);
-                    swapIfFirstIsLarger(values, 1, 3);
-                    swapIfFirstIsLarger(values, 5, 7);
-                    swapIfFirstIsLarger(values, 1, 2);
-                    swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 5, 6);
-                    swapIfFirstIsLarger(values, 7, 8);
-                    swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 4, 5);
-                    swapIfFirstIsLarger(values, 6, 7);
-                } else {
+                if (arrayLength == 11) {
                     // Length: 11
                     swapIfFirstIsLarger(values, 0, 9);
                     swapIfFirstIsLarger(values, 1, 8);
@@ -212,52 +181,43 @@ contract InPlaceSort {
                     swapIfFirstIsLarger(values, 3, 4);
                     swapIfFirstIsLarger(values, 5, 6);
                     swapIfFirstIsLarger(values, 7, 8);
-                }
-            } else {
-                // Possible lengths: 12, 13
-                if (arrayLength == 12) {
-                    // Length: 12
-                    swapIfFirstIsLarger(values, 0, 6);
-                    swapIfFirstIsLarger(values, 1, 7);
-                    swapIfFirstIsLarger(values, 2, 8);
-                    swapIfFirstIsLarger(values, 3, 9);
-                    swapIfFirstIsLarger(values, 4, 10);
-                    swapIfFirstIsLarger(values, 5, 11);
-                    swapIfFirstIsLarger(values, 0, 3);
-                    swapIfFirstIsLarger(values, 1, 4);
-                    swapIfFirstIsLarger(values, 2, 5);
-                    swapIfFirstIsLarger(values, 6, 9);
-                    swapIfFirstIsLarger(values, 7, 10);
-                    swapIfFirstIsLarger(values, 8, 11);
+                } else {
+                    // Length: 10
                     swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 5, 8);
-                    swapIfFirstIsLarger(values, 10, 11);
-                    swapIfFirstIsLarger(values, 6, 7);
-                    swapIfFirstIsLarger(values, 1, 2);
-                    swapIfFirstIsLarger(values, 3, 6);
-                    swapIfFirstIsLarger(values, 7, 8);
-                    swapIfFirstIsLarger(values, 9, 10);
-                    swapIfFirstIsLarger(values, 4, 5);
-                    swapIfFirstIsLarger(values, 0, 1);
-                    swapIfFirstIsLarger(values, 2, 9);
-                    swapIfFirstIsLarger(values, 10, 11);
-                    swapIfFirstIsLarger(values, 3, 4);
-                    swapIfFirstIsLarger(values, 5, 8);
-                    swapIfFirstIsLarger(values, 6, 7);
-                    swapIfFirstIsLarger(values, 1, 3);
-                    swapIfFirstIsLarger(values, 4, 7);
-                    swapIfFirstIsLarger(values, 8, 10);
-                    swapIfFirstIsLarger(values, 2, 6);
-                    swapIfFirstIsLarger(values, 5, 9);
                     swapIfFirstIsLarger(values, 2, 3);
-                    swapIfFirstIsLarger(values, 4, 6);
+                    swapIfFirstIsLarger(values, 4, 5);
+                    swapIfFirstIsLarger(values, 6, 7);
                     swapIfFirstIsLarger(values, 8, 9);
+                    swapIfFirstIsLarger(values, 4, 9);
+                    swapIfFirstIsLarger(values, 0, 5);
+                    swapIfFirstIsLarger(values, 1, 8);
+                    swapIfFirstIsLarger(values, 3, 7);
+                    swapIfFirstIsLarger(values, 2, 6);
+                    swapIfFirstIsLarger(values, 0, 2);
+                    swapIfFirstIsLarger(values, 3, 6);
+                    swapIfFirstIsLarger(values, 7, 9);
+                    swapIfFirstIsLarger(values, 1, 4);
+                    swapIfFirstIsLarger(values, 5, 8);
+                    swapIfFirstIsLarger(values, 0, 1);
+                    swapIfFirstIsLarger(values, 2, 7);
+                    swapIfFirstIsLarger(values, 8, 9);
+                    swapIfFirstIsLarger(values, 4, 6);
+                    swapIfFirstIsLarger(values, 3, 5);
+                    swapIfFirstIsLarger(values, 2, 4);
+                    swapIfFirstIsLarger(values, 6, 8);
+                    swapIfFirstIsLarger(values, 1, 3);
                     swapIfFirstIsLarger(values, 5, 7);
+                    swapIfFirstIsLarger(values, 1, 2);
                     swapIfFirstIsLarger(values, 3, 4);
                     swapIfFirstIsLarger(values, 5, 6);
                     swapIfFirstIsLarger(values, 7, 8);
-                } else {
+                    swapIfFirstIsLarger(values, 2, 3);
+                    swapIfFirstIsLarger(values, 4, 5);
+                    swapIfFirstIsLarger(values, 6, 7);
+                }
+            } else {
+                // Possible lengths: 12, 13
+                if (arrayLength == 13) {
                     // Length: 13
                     swapIfFirstIsLarger(values, 1, 12);
                     swapIfFirstIsLarger(values, 2, 11);
@@ -308,6 +268,48 @@ contract InPlaceSort {
                     swapIfFirstIsLarger(values, 6, 7);
                     swapIfFirstIsLarger(values, 8, 9);
                     swapIfFirstIsLarger(values, 10, 11);
+                } else {
+                    // Length: 12
+                    swapIfFirstIsLarger(values, 0, 6);
+                    swapIfFirstIsLarger(values, 1, 7);
+                    swapIfFirstIsLarger(values, 2, 8);
+                    swapIfFirstIsLarger(values, 3, 9);
+                    swapIfFirstIsLarger(values, 4, 10);
+                    swapIfFirstIsLarger(values, 5, 11);
+                    swapIfFirstIsLarger(values, 0, 3);
+                    swapIfFirstIsLarger(values, 1, 4);
+                    swapIfFirstIsLarger(values, 2, 5);
+                    swapIfFirstIsLarger(values, 6, 9);
+                    swapIfFirstIsLarger(values, 7, 10);
+                    swapIfFirstIsLarger(values, 8, 11);
+                    swapIfFirstIsLarger(values, 0, 1);
+                    swapIfFirstIsLarger(values, 3, 4);
+                    swapIfFirstIsLarger(values, 5, 8);
+                    swapIfFirstIsLarger(values, 10, 11);
+                    swapIfFirstIsLarger(values, 6, 7);
+                    swapIfFirstIsLarger(values, 1, 2);
+                    swapIfFirstIsLarger(values, 3, 6);
+                    swapIfFirstIsLarger(values, 7, 8);
+                    swapIfFirstIsLarger(values, 9, 10);
+                    swapIfFirstIsLarger(values, 4, 5);
+                    swapIfFirstIsLarger(values, 0, 1);
+                    swapIfFirstIsLarger(values, 2, 9);
+                    swapIfFirstIsLarger(values, 10, 11);
+                    swapIfFirstIsLarger(values, 3, 4);
+                    swapIfFirstIsLarger(values, 5, 8);
+                    swapIfFirstIsLarger(values, 6, 7);
+                    swapIfFirstIsLarger(values, 1, 3);
+                    swapIfFirstIsLarger(values, 4, 7);
+                    swapIfFirstIsLarger(values, 8, 10);
+                    swapIfFirstIsLarger(values, 2, 6);
+                    swapIfFirstIsLarger(values, 5, 9);
+                    swapIfFirstIsLarger(values, 2, 3);
+                    swapIfFirstIsLarger(values, 4, 6);
+                    swapIfFirstIsLarger(values, 8, 9);
+                    swapIfFirstIsLarger(values, 5, 7);
+                    swapIfFirstIsLarger(values, 3, 4);
+                    swapIfFirstIsLarger(values, 5, 6);
+                    swapIfFirstIsLarger(values, 7, 8);
                 }
             }
         }
@@ -323,7 +325,7 @@ contract InPlaceSort {
         uint256 i,
         uint256 j
     ) private pure {
-        assert(i < j);
+        // assert(i < j);
         if (values[i] > values[j]) {
             (values[i], values[j]) = (values[j], values[i]);
         }

@@ -23,6 +23,6 @@ contract InPlaceMedian is InPlaceSort {
         }
         // Divide by 2 first to avoid a potential overflow (at the cost of
         // minimal precision)
-        return values[arrayLength / 2] / 2 + values[arrayLength / 2 + 1] / 2;
+        return values[arrayLength / 2 - 1] / 2 + values[arrayLength / 2] / 2;
     }
 }

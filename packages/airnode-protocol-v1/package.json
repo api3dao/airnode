@@ -6,6 +6,7 @@
   "scripts": {
     "build:contracts": "hardhat compile",
     "test:hardhat": "hardhat test",
+    "test:extended": "EXTENDED_TEST=TRUE hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
