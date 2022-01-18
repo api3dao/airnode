@@ -10,7 +10,7 @@ interface IRequesterAuthorizerWhitelisterWithToken is
     IAirnodeEndpointFeeRegistryReader,
     IRequesterAuthorizerRegistryReader
 {
-    enum AirnodeStatus {
+    enum AirnodeParticipationStatus {
         Inactive,
         Active,
         OptedOut
@@ -20,13 +20,13 @@ interface IRequesterAuthorizerWhitelisterWithToken is
 
     event SetPriceCoefficient(uint256 priceCoefficient, address sender);
 
-    event SetAirnodeActivity(address airnode, bool active, address sender);
+    event SetAirnodeParticipationStatus(
+        address airnode,
+        AirnodeParticipationStatus airnodeParticipationStatus,
+        address sender
+    );
 
-    event OptedOut(address airnode);
-
-    event OptedIn(address airnode);
-
-    event SetBlockedWithdrawalDestination(address blockedWithdrawalDestination);
+    event SetProceedsDestination(address proceedsDestination);
 
     event BlockedRequester(address requester, address sender);
 
@@ -40,20 +40,23 @@ interface IRequesterAuthorizerWhitelisterWithToken is
 
     function setPriceCoefficient(uint256 _priceCoefficient) external;
 
-    function setAirnodeActivity(address airnode, bool active) external;
-
-    function optOut() external;
-
-    function optIn() external;
-
-    function setBlockedWithdrawalDestination(
-        address _blockedWithdrawalDestination
+    function setAirnodeParticipationStatus(
+        address airnode,
+        AirnodeParticipationStatus airnodeParticipationStatus
     ) external;
+
+    function setProceedsDestination(address _proceedsDestination) external;
 
     function blockRequester(address requester) external;
 
     function blockRequesterForAirnode(address airnode, address requester)
         external;
+
+    function getTokenAmount(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId
+    ) external view returns (uint256 amount);
 
     function token() external view returns (address);
 
@@ -61,12 +64,12 @@ interface IRequesterAuthorizerWhitelisterWithToken is
 
     function priceCoefficient() external view returns (uint256);
 
-    function blockedWithdrawalDestination() external view returns (address);
+    function proceedsDestination() external view returns (address);
 
-    function airnodeToStatus(address airnode)
+    function airnodeToParticipationStatus(address airnode)
         external
         view
-        returns (AirnodeStatus);
+        returns (AirnodeParticipationStatus);
 
     function requesterToBlockStatus(address requester)
         external

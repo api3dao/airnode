@@ -26,11 +26,13 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
     /// @param _airnodeEndpointFeeRegistry AirnodeFeeRegistry contract address
-    /// @param _requesterAuthorizerRegistry RequesterAuthorizerRegistry contract address
+    /// @param _requesterAuthorizerRegistry RequesterAuthorizerRegistry
+    /// contract address
     /// @param _token Token contract address
     /// @param _tokenPrice Token price in USD (times 10^18)
     /// @param _priceCoefficient Price coefficient (has the same number of
     /// decimals as the token)
+    /// @param _proceedsDestination Destination of proceeds
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
@@ -39,7 +41,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         address _requesterAuthorizerRegistry,
         address _token,
         uint256 _tokenPrice,
-        uint256 _priceCoefficient
+        uint256 _priceCoefficient,
+        address _proceedsDestination
     )
         RequesterAuthorizerWhitelisterWithToken(
             _accessControlRegistry,
@@ -49,7 +52,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             _requesterAuthorizerRegistry,
             _token,
             _tokenPrice,
-            _priceCoefficient
+            _priceCoefficient,
+            _proceedsDestination
         )
     {}
 
@@ -72,7 +76,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         onlyNonBlockedRequester(airnode, requester)
     {
         require(
-            airnodeToStatus[airnode] == AirnodeStatus.Active,
+            airnodeToParticipationStatus[airnode] ==
+                AirnodeParticipationStatus.Active,
             "Airnode not active"
         );
         TokenDeposits
@@ -99,7 +104,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             tokenDeposits.depositorToAmount[msg.sender] == 0,
             "Sender already deposited tokens"
         );
-        uint256 tokenDepositAmount = getDepositAmount(
+        uint256 tokenDepositAmount = getTokenAmount(
             airnode,
             chainId,
             endpointId
@@ -228,10 +233,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         require(tokenWithdrawAmount != 0, "Depositor has not deposited");
         tokenDeposits.depositorToAmount[depositor] = 0;
         require(
-            IERC20(token).transfer(
-                blockedWithdrawalDestination,
-                tokenWithdrawAmount
-            ),
+            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount),
             "Transfer unsuccesful"
         );
         emit WithdrewFundsDepositedForBlockedRequester(
@@ -243,22 +245,6 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             tokenDepositsCount,
             tokenWithdrawAmount
         );
-    }
-
-    /// @notice Amount of tokens needed to be deposited to be whitelisted for
-    /// the Airnode–endpoint pair on the chain
-    /// @param airnode Airnode address
-    /// @param chainId Chain ID
-    /// @param endpointId Endpoint ID
-    function getDepositAmount(
-        address airnode,
-        uint256 chainId,
-        bytes32 endpointId
-    ) public view override returns (uint256 amount) {
-        uint256 endpointPrice = IAirnodeEndpointFeeRegistry(
-            airnodeEndpointFeeRegistry
-        ).getPrice(airnode, chainId, endpointId);
-        amount = (endpointPrice * priceCoefficient) / tokenPrice;
     }
 
     /// @notice Number of deposits made for the requester to be whitelisted for

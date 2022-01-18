@@ -58,12 +58,6 @@ interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
         address depositor
     ) external;
 
-    function getDepositAmount(
-        address airnode,
-        uint256 chainId,
-        bytes32 endpointId
-    ) external view returns (uint256 amount);
-
     function airnodeToChainIdToEndpointIdToRequesterToTokenDepositsCount(
         address airnode,
         uint256 chainId,
