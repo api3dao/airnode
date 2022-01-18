@@ -28,11 +28,16 @@ interface IRequesterAuthorizerWhitelisterWithToken is
 
     event SetProceedsDestination(address proceedsDestination);
 
-    event BlockedRequester(address requester, address sender);
+    event SetRequesterBlockStatus(
+        address requester,
+        bool status,
+        address sender
+    );
 
-    event BlockedRequesterForAirnode(
+    event SetRequesterBlockStatusForAirnode(
         address airnode,
         address requester,
+        bool status,
         address sender
     );
 
@@ -47,10 +52,13 @@ interface IRequesterAuthorizerWhitelisterWithToken is
 
     function setProceedsDestination(address _proceedsDestination) external;
 
-    function blockRequester(address requester) external;
+    function setRequesterBlockStatus(address requester, bool status) external;
 
-    function blockRequesterForAirnode(address airnode, address requester)
-        external;
+    function setRequesterBlockStatusForAirnode(
+        address airnode,
+        address requester,
+        bool status
+    ) external;
 
     function getTokenAmount(
         address airnode,

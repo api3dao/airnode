@@ -73,6 +73,17 @@ contract RequesterAuthorizerWhitelisterWithToken is
         _;
     }
 
+    /// @dev Reverts if Airnode is not active
+    /// @param airnode Airnode address
+    modifier onlyActiveAirnode(address airnode) {
+        require(
+            airnodeToParticipationStatus[airnode] ==
+                AirnodeParticipationStatus.Active,
+            "Airnode not active"
+        );
+        _;
+    }
+
     /// @dev Reverts if chain ID is zero
     /// @param chainId Chain ID
     modifier onlyNonZeroChainId(uint256 chainId) {
@@ -166,6 +177,20 @@ contract RequesterAuthorizerWhitelisterWithToken is
             adminRole,
             keccak256(abi.encodePacked(BLOCKER_ROLE_DESCRIPTION))
         );
+        require(
+            keccak256(
+                abi.encodePacked(
+                    IAirnodeEndpointFeeRegistry(airnodeEndpointFeeRegistry)
+                        .DENOMINATION()
+                )
+            ) == keccak256(abi.encodePacked("USD")),
+            "Fee denomination mismatch"
+        );
+        require(
+            IAirnodeEndpointFeeRegistry(airnodeEndpointFeeRegistry)
+                .DECIMALS() == 18,
+            "Fee decimals mismatch"
+        );
     }
 
     /// @notice Sets token price
@@ -239,28 +264,39 @@ contract RequesterAuthorizerWhitelisterWithToken is
 
     /// @notice Called to block requester globally
     /// @param requester Requester address
-    function blockRequester(address requester)
+    /// @param status Requester block status (`true` represents being blocked)
+    function setRequesterBlockStatus(address requester, bool status)
         external
         override
         onlyBlocker
         onlyNonZeroRequester(requester)
     {
-        requesterToBlockStatus[requester] = true;
-        emit BlockedRequester(requester, msg.sender);
+        requesterToBlockStatus[requester] = status;
+        emit SetRequesterBlockStatus(requester, status, msg.sender);
     }
 
     /// @notice Called to block requester for the Airnode
     /// @param airnode Airnode address
     /// @param requester Requester address
-    function blockRequesterForAirnode(address airnode, address requester)
+    /// @param status Requester block status (`true` represents being blocked)
+    function setRequesterBlockStatusForAirnode(
+        address airnode,
+        address requester,
+        bool status
+    )
         external
         override
         onlyBlocker
         onlyNonZeroAirnode(airnode)
         onlyNonZeroRequester(requester)
     {
-        airnodeToRequesterToBlockStatus[airnode][requester] = true;
-        emit BlockedRequesterForAirnode(airnode, requester, msg.sender);
+        airnodeToRequesterToBlockStatus[airnode][requester] = status;
+        emit SetRequesterBlockStatusForAirnode(
+            airnode,
+            requester,
+            status,
+            msg.sender
+        );
     }
 
     /// @notice Called internally to check if the requester is blocked
@@ -291,6 +327,24 @@ contract RequesterAuthorizerWhitelisterWithToken is
             airnodeEndpointFeeRegistry
         ).getPrice(airnode, chainId, endpointId);
         amount = (endpointPrice * priceCoefficient) / tokenPrice;
+    }
+
+    /// @notice Fetches the RequesterAuthorizer address for the chain
+    /// @dev Reverts if the contract address has not been registered beforehand
+    /// @param chainId Chain ID
+    /// @return RequesterAuthorizer address
+    function getRequesterAuthorizerAddress(uint256 chainId)
+        internal
+        view
+        returns (address)
+    {
+        (
+            bool success,
+            address requesterAuthorizer
+        ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
+                .tryReadChainRequesterAuthorizer(chainId);
+        require(success, "No authorizer for chain");
+        return requesterAuthorizer;
     }
 
     /// @notice Called privately to set the token price
