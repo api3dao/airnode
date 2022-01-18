@@ -177,13 +177,11 @@ describe('setSlot', function () {
     });
     context('Airnode address is zero', function () {
       it('reverts', async function () {
-        it('reverts', async function () {
-          await expect(
-            allocatorWithManager
-              .connect(roles.slotSetter)
-              .setSlot(hre.ethers.constants.AddressZero, slotIndex, subscriptionId, expirationTimestamp)
-          ).to.be.revertedWith('Airnode address zero');
-        });
+        await expect(
+          allocatorWithManager
+            .connect(roles.slotSetter)
+            .setSlot(hre.ethers.constants.AddressZero, slotIndex, subscriptionId, expirationTimestamp)
+        ).to.be.revertedWith('Airnode address zero');
       });
     });
   });

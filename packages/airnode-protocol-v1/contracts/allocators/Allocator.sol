@@ -41,7 +41,7 @@ abstract contract Allocator is Multicall, IAllocator {
         bytes32 subscriptionId,
         uint64 expirationTimestamp
     ) internal {
-        require(airnode != address(0), "Zero Airnode address");
+        require(airnode != address(0), "Airnode address zero");
         require(
             expirationTimestamp >= block.timestamp,
             "Expiration is in past"
