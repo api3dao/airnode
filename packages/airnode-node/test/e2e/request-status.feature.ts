@@ -33,9 +33,9 @@ it('sets the correct status code for both successful and failed requests', async
   const validFulfillment = logs.find(
     (log) => log.args.requestId === validRequest!.args.requestId && log.name === 'FulfilledRequest'
   );
-  // The API responds with 723.392028 which multipled by the _times parameter
+  // The API responds with 723.39202 which multipled by the _times parameter
   const validResponseValue = ethers.BigNumber.from(validFulfillment!.args.data).toString();
-  expect(validResponseValue).toEqual('723392028');
+  expect(validResponseValue).toEqual('723392020');
 
   const encodedInvalidParams = encode(invalidParameters);
   const invalidRequest = logs.find((log) => log.args.parameters === encodedInvalidParams);

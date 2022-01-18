@@ -17,7 +17,7 @@
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "int256" },
             { "type": "bytes32", "name": "_path", "value": "result" },
-            { "type": "bytes32", "name": "_times", "value": "1000000" }
+            { "type": "bytes32", "name": "_times", "value": "100000" }
           ]
         }
       }
@@ -64,7 +64,7 @@
         { "type": "bytes32", "name": "to", "value": "USD" },
         { "type": "bytes32", "name": "_type", "value": "int256" },
         { "type": "bytes32", "name": "_path", "value": "result" },
-        { "type": "bytes32", "name": "_times", "value": "1000000" }
+        { "type": "bytes32", "name": "_times", "value": "100000" }
       ]
     },
     {

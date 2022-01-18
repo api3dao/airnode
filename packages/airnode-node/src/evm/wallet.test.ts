@@ -33,6 +33,6 @@ describe('deriveSponsorWallet', () => {
     const masterHDNode = wallet.getMasterHDNode(config);
     const signingWallet = wallet.deriveSponsorWallet(masterHDNode, '0x06f509f73eefba36352bc8228f9112c3786100da');
     expect(signingWallet._isSigner).toEqual(true);
-    expect(signingWallet.address).toEqual('0x8857812BF8b001ED3021bFaF9Df77262204D17e3');
+    expect(signingWallet.address).toEqual('0x228A54F33E46fbb32a62ca650Fcc9eD3C730511d');
   });
 });

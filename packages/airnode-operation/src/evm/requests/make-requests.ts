@@ -72,7 +72,8 @@ export async function makeWithdrawal(state: State, request: Request) {
 
   const { AirnodeRrp } = state.contracts;
 
-  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, sponsorWallet.address);
+  const tx = await AirnodeRrp.connect(signer).requestWithdrawal(airnode, sponsorWallet.address);
+  await tx.wait();
 }
 
 export async function makeRequests(state: State) {

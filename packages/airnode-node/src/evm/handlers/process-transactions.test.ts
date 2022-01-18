@@ -62,7 +62,7 @@ describe('processTransactions', () => {
       });
       const withdrawal = fixtures.requests.buildWithdrawal({
         sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
-        sponsorWalletAddress: '0xfD63156337539030025B0D3f57479a346553172c',
+        sponsorWalletAddress: '0xE3C02B8866369AeFDEAce3Bd149E187fC2F5b8E6',
       });
 
       const transactionCountsBySponsorAddress = {

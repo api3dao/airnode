@@ -59,7 +59,7 @@ describe('request ID verification', () => {
     const apiCall = fixtures.buildAggregatedRegularApiCall({
       id: '0xinvalid',
     });
-    const expectedId = '0x1848c75378cb0f0c14c9255c6d7631aac3f1f236e502340b4a4dc0e184841153';
+    const expectedId = '0xbc5fa2d0ab4d9bbb74dbf91d3577a73589d82a70f356bf31237b1f2ddabc75a3';
 
     const isValid = verification.isValidRequestId(apiCall);
     const computedRequestId = verification.getExpectedRequestId(apiCall);

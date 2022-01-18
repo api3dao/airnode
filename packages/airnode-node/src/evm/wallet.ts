@@ -12,7 +12,7 @@ import { Config } from '../types';
  *
  * Since addresses can be represented as 160bits (20bytes) we can then
  * split it in chunks of 31bits and create a path with the following pattern:
- * 0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
+ * 1/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
@@ -24,7 +24,7 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `0/${paths.join('/')}`;
+  return `1/${paths.join('/')}`;
 };
 
 export function getMasterHDNode(config: Config): ethers.utils.HDNode {

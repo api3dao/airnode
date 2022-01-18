@@ -14,19 +14,19 @@ describe('initialize (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
+      sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
       id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
-        transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+        transactionHash: event.transactionHash,
       },
       sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
       status: RequestStatus.Pending,
@@ -48,7 +48,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     expect(requests).toEqual([
       {
         airnodeAddress: 'airnodeAddress',
-        sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
+        sponsorWalletAddress: '0xdBFe14C250643DEFE92C9AbC52103bf4978C7113',
         id,
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -81,21 +81,21 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
     const [logs, res] = withdrawals.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
+        sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
         id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+          transactionHash: event.transactionHash,
         },
         sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
         status: RequestStatus.Pending,
@@ -115,7 +115,7 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: requestEvent.transactionHash,
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -123,7 +123,7 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: fulfillEvent.transactionHash,
     };
 
     const [logs, requests] = withdrawals.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);
