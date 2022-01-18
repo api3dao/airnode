@@ -17,7 +17,8 @@ describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
     jest.setTimeout(30_000);
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
-    getBlockNumberSpy.mockResolvedValueOnce(12);
+    const currentBlockNumber = 18;
+    getBlockNumberSpy.mockResolvedValueOnce(currentBlockNumber);
 
     const templateRequest = fixtures.evm.logs.buildMadeTemplateRequest();
     const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
@@ -51,7 +52,7 @@ describe('initializeProvider', () => {
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 12,
-          currentBlock: 12,
+          currentBlock: currentBlockNumber,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x07ac0f0e0915f11216c86b1dfad7ef05c1daa80ee607d18648d8b447e75caebd',
         },
@@ -89,10 +90,9 @@ describe('initializeProvider', () => {
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 13,
-          currentBlock: 12, // TODO: should be >= blockNumber above
+          currentBlock: currentBlockNumber,
           ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash:
-            '0xba69a4584ca8e383412741f9f75b351d34d5eff9e14b38d8ba8b994bb175e3c5549594040952fc82817cbfb3eaf4593aa8858a34b682886737aac15f759dc1d41c',
+          transactionHash: '0xbc652033fc6d20b3e0b35213b570e41155b08fb05605c67fb3478cfa521769bb',
         },
         parameters: {
           from: 'ETH',

@@ -59,8 +59,7 @@ export function buildMadeFullRequest(overrides?: Partial<Log>): Log {
       '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
       '0x8d6d6ce1ac5020c4db26c34ae42fa8318a51fa21faef9a65663724641b369e63',
     ],
-    transactionHash:
-      '0xba69a4584ca8e383412741f9f75b351d34d5eff9e14b38d8ba8b994bb175e3c5549594040952fc82817cbfb3eaf4593aa8858a34b682886737aac15f759dc1d41c',
+    transactionHash: '0xbc652033fc6d20b3e0b35213b570e41155b08fb05605c67fb3478cfa521769bb',
     logIndex: 0,
     ...overrides,
   };
