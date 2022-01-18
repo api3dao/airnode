@@ -119,11 +119,12 @@ yarn create-aws-secrets
 
 ### 6. (Only if deploying to GCP) Create GCP credentials
 
-If you intend to deploy Airnode on GCP, you will need to sign in using the GCP CLI tool. If you are not sure how to do
-this or how to create a GCP account, see
+If you intend to deploy Airnode on GCP, you will need to create a service account for your project and add and download
+an access key for this account. If you are not sure how to do this or how to create a GCP account, see
 [the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
 
-No credentials file is required - signing through the GCP CLI is all there is needed.
+Store the access key file as `gcp.json` into the integration directory - e.g. if you have choosen the `coingecko`
+integration, store the file as `integrations/coingecko/gcp.json`.
 
 ### 7. Create Airnode configuration
 

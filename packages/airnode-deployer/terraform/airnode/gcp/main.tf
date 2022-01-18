@@ -1,3 +1,17 @@
+resource "google_project_service" "management_apis" {
+  for_each = toset([
+    "cloudfunctions.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "cloudscheduler.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com",
+  ])
+  service = each.key
+
+  disable_dependent_services = true
+  disable_on_destroy = true
+}
+
 module "initializeProvider" {
   source = "./modules/function"
 
@@ -9,6 +23,10 @@ module "initializeProvider" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
+
+  depends_on = [
+    google_project_service.management_apis
+  ]
 }
 
 module "callApi" {
@@ -22,6 +40,10 @@ module "callApi" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
+
+  depends_on = [
+    google_project_service.management_apis
+  ]
 }
 
 module "processProviderRequests" {
@@ -35,6 +57,10 @@ module "processProviderRequests" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
+
+  depends_on = [
+    google_project_service.management_apis
+  ]
 }
 
 module "startCoordinator" {
@@ -53,5 +79,10 @@ module "startCoordinator" {
   max_instances     = 1
   invoke_targets    = [module.initializeProvider.function_name, module.callApi.function_name, module.processProviderRequests.function_name]
 
-  depends_on = [module.initializeProvider, module.callApi, module.processProviderRequests]
+  depends_on = [
+    google_project_service.management_apis,
+    module.initializeProvider,
+    module.callApi,
+    module.processProviderRequests
+  ]
 }
