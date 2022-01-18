@@ -119,6 +119,8 @@ export interface ApiCall {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Withdrawal {}
 
+export type AnyRequest = ApiCall | Withdrawal;
+
 export interface ApiCallTemplate {
   readonly airnodeAddress: string;
   readonly endpointId: string;
@@ -182,7 +184,7 @@ export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
   readonly providerStates: ProviderStates;
-  readonly id: string;
+  readonly coordinatorId: string;
   readonly settings: CoordinatorSettings;
 }
 
@@ -433,6 +435,7 @@ export interface ChainConfig {
   readonly type: ChainType;
   readonly options: ChainOptions;
   readonly providers: Record<string, Provider>;
+  readonly maxConcurrency: number;
 }
 
 export interface HttpGateway {

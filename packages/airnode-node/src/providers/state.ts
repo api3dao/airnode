@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import map from 'lodash/map';
 import * as evm from '../evm';
-import { randomString, removeKeys } from '../utils';
+import { randomHexString, removeKeys } from '../utils';
 import {
   ChainConfig,
   ChainType,
@@ -22,7 +22,7 @@ export function buildEVMState(
   config: Config
 ): ProviderState<EVMProviderState> {
   const masterHDNode = evm.getMasterHDNode(config);
-  const chainProviderUrl = chain.providers[chainProviderName].url || '';
+  const chainProviderUrl = chain.providers[chainProviderName].url;
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
   const airnodeAddress = evm.getAirnodeWallet(config).address;
 
@@ -48,7 +48,7 @@ export function buildEVMState(
   };
 
   return {
-    id: randomString(16),
+    id: randomHexString(32),
     config,
     contracts: chain.contracts,
     coordinatorId,

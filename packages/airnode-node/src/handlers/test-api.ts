@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import * as wallet from '../evm/wallet';
-import { randomString } from '../utils/string-utils';
+import { randomHexString } from '../utils/string-utils';
 import { AggregatedApiCall, Config, WorkerOptions, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
 import { go } from '../utils/promise-utils';
@@ -12,7 +12,7 @@ export async function testApi(
   endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
-  const testCallId = randomString(8);
+  const testCallId = randomHexString(16);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
