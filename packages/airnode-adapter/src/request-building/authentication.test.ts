@@ -154,4 +154,34 @@ describe('relay metadata', () => {
       cookies: {},
     });
   });
+
+  it('relays sponsor address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'query', type: 'relaySponsorAddress', name: 'mySponsorAddress' };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { mySponsorAddress: '0x7a9a6F6B21AEE3b905AEeC757bbBcA39747Ca4Fa' },
+      headers: {},
+      cookies: {},
+    });
+  });
+
+  it('relays sponsor wallet address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = {
+      in: 'query',
+      type: 'relaySponsorWalletAddress',
+      name: 'mySponsorWalletAddress',
+    };
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { mySponsorWalletAddress: '0xB604c9f7de852F26DB90C04000820850112905b4' },
+      headers: {},
+      cookies: {},
+    });
+  });
 });
