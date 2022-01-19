@@ -18,16 +18,26 @@ contract AirnodeRequester is AirnodeUser, IAirnodeRequester {
         _;
     }
 
-    /// @dev Reverts if the timestamp is not at most 1 hour old, which is
-    /// appropriate in most cases. Adjust this in your implementation at your
-    /// own risk.
+    /// @dev Reverts if the timestamp is not valid
     /// @param timestamp Timestamp used in the signature
-    modifier onlyFreshTimestamp(uint256 timestamp) {
-        require(timestamp + 1 hours > block.timestamp, "Timestamp stale");
-        require(timestamp < block.timestamp, "Timestamp from future");
+    modifier onlyValidTimestamp(uint256 timestamp) {
+        require(timestampIsValid(timestamp), "Invalid timestamp");
         _;
     }
 
     /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
+
+    /// @notice Returns if the timestamp used in the signature is valid
+    /// @dev Returns `false` if the timestamp is not at most 1 hour old to
+    /// prevent replays. Returns `false` if the timestamp is not from the past,
+    /// with some leeway to accomodate for minimal time drift. These values are
+    /// appropriate in most cases, adjust them in your implementation at your
+    /// own risk.
+    /// @param timestamp Timestamp used in the signature
+    function timestampIsValid(uint256 timestamp) internal view returns (bool) {
+        return
+            timestamp + 1 hours > block.timestamp &&
+            timestamp < block.timestamp + 15 minutes;
+    }
 }

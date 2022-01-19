@@ -117,7 +117,7 @@ contract DapiServer is
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
-    ) external override onlyFreshTimestamp(timestamp) {
+    ) external override onlyValidTimestamp(timestamp) {
         (bytes32 beaconId, ) = IAirnodeProtocolV1(airnodeProtocol)
             .verifySignature(
                 templateId,
@@ -211,7 +211,7 @@ contract DapiServer is
         bytes32 requestId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -233,7 +233,7 @@ contract DapiServer is
         bytes32 subscriptionId,
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
         bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
         int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(
@@ -257,7 +257,7 @@ contract DapiServer is
         address relayer, // solhint-disable-line no-unused-vars
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
         bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
         int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(
@@ -502,7 +502,7 @@ contract DapiServer is
         bytes32 subscriptionId, // solhint-disable-line no-unused-vars
         uint256 timestamp,
         bytes calldata data
-    ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
         require(
             keccak256(data) == updateDapi(abi.decode(data, (bytes32[]))),
             "Incorrect data length"
@@ -575,6 +575,7 @@ contract DapiServer is
         bytes32[] memory beaconIds = new bytes32[](beaconCount);
         for (uint256 ind = 0; ind < beaconCount; ind++) {
             if (signatures[ind].length != 0) {
+                require(timestampIsValid(timestamps[ind]), "Invalid timestamp");
                 (beaconIds[ind], ) = IAirnodeProtocolV1(airnodeProtocol)
                     .verifySignature(
                         templateIds[ind],
