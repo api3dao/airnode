@@ -9,7 +9,7 @@ module.exports = {
     noColors: true,
   },
   mocha: {
-    timeout: process.env.EXTENDED_TEST ? 60000 : 20000,
+    timeout: process.env.EXTENDED_TEST ? 3600000 : 20000,
   },
   paths: {
     tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
