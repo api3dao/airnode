@@ -6,7 +6,7 @@
   "scripts": {
     "build:contracts": "hardhat compile",
     "test:hardhat": "hardhat test",
-    "test:extended": "EXTENDED_TEST=TRUE hardhat test",
+    "test:extended": "EXTENDED_TEST=TRUE NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test"
   },

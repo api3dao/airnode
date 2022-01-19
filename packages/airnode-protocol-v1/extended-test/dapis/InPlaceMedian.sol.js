@@ -14,9 +14,9 @@ beforeEach(async () => {
 });
 
 describe('computeMedianInPlace', function () {
-  context('Array length is 1-13', function () {
+  context('Array length is 1-9', function () {
     it('computes median', async function () {
-      for (let arrayLength = 1; arrayLength <= 13; arrayLength++) {
+      for (let arrayLength = 1; arrayLength <= 9; arrayLength++) {
         const array = Array.from(Array(arrayLength), (_, i) => i - Math.floor(arrayLength / 2));
         const shuffledArray = array
           .map((value) => ({ value, sort: Math.random() }))
@@ -37,11 +37,11 @@ describe('computeMedianInPlace', function () {
       }
     });
   });
-  context('Array length is larger than 13', function () {
+  context('Array length is larger than 9', function () {
     it('reverts', async function () {
-      await expect(inplaceMedian.externalComputeMedianInPlace(Array(13).fill(0))).to.not.be.reverted;
-      await expect(inplaceMedian.externalComputeMedianInPlace(Array(14).fill(0))).to.be.reverted;
-      await expect(inplaceMedian.externalComputeMedianInPlace(Array(15).fill(0))).to.be.reverted;
+      await expect(inplaceMedian.externalComputeMedianInPlace(Array(10).fill(0))).to.not.be.reverted;
+      await expect(inplaceMedian.externalComputeMedianInPlace(Array(11).fill(0))).to.be.reverted;
+      await expect(inplaceMedian.externalComputeMedianInPlace(Array(12).fill(0))).to.be.reverted;
     });
   });
 });

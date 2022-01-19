@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 let inPlaceSort;
 
-// Adapted from https://stackoverflow.com/a/37580979/14558682 with a workaround to avoid hitting heap size limit
+// Adapted from https://stackoverflow.com/a/37580979/14558682
 async function testSortWithAllPermutations(arrayLength) {
   const array = Array.from(Array(arrayLength), (_, i) => i - Math.floor(arrayLength / 2));
   let length = array.length,
@@ -61,19 +61,11 @@ describe('sortValuesInPlace', function () {
       }
     });
   });
-  context('Array length is 10-13', function () {
-    it('sorts values', async function () {
-      for (let arrayLength = 10; arrayLength <= 13; arrayLength++) {
-        console.log(`Testing with array length ${arrayLength}`);
-        await testSortWithAllPermutations(arrayLength);
-      }
-    });
-  });
-  context('Array length is larger than 13', function () {
+  context('Array length is larger than 9', function () {
     it('reverts', async function () {
-      await expect(inPlaceSort.externalSortValuesInPlace(Array(13).fill(0))).to.not.be.reverted;
-      await expect(inPlaceSort.externalSortValuesInPlace(Array(14).fill(0))).to.be.reverted;
-      await expect(inPlaceSort.externalSortValuesInPlace(Array(15).fill(0))).to.be.reverted;
+      await expect(inPlaceSort.externalSortValuesInPlace(Array(10).fill(0))).to.not.be.reverted;
+      await expect(inPlaceSort.externalSortValuesInPlace(Array(11).fill(0))).to.be.reverted;
+      await expect(inPlaceSort.externalSortValuesInPlace(Array(12).fill(0))).to.be.reverted;
     });
   });
 });
