@@ -111,7 +111,7 @@ contract DapiServer is
     /// @param data Response data (a single `int256` encoded as `bytes`)
     /// @param signature Request hash, a timestamp and the response data signed
     /// by the Airnode address
-    function updateBeaconWithoutRequest(
+    function updateBeaconWithSignedData(
         bytes32 templateId,
         bytes calldata parameters,
         uint256 timestamp,
@@ -127,7 +127,7 @@ contract DapiServer is
                 signature
             );
         int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
-        emit UpdatedBeaconWithoutRequest(beaconId, decodedData, timestamp);
+        emit UpdatedBeaconWithSignedData(beaconId, decodedData, timestamp);
     }
 
     /// @notice Called to request a beacon to be updated
@@ -554,5 +554,69 @@ contract DapiServer is
             value: updatedValue,
             timestamp: updatedTimestamp
         });
+        emit UpdatedDapi(dapiId, updatedValue, updatedTimestamp);
+    }
+
+    function updateDapiWithSignedData(
+        bytes32[] calldata templateIds,
+        bytes[] calldata parameters,
+        uint256[] calldata timestamps,
+        bytes[] calldata data,
+        bytes[] calldata signatures
+    ) external override returns (bytes32 dapiId) {
+        uint256 beaconCount = templateIds.length;
+        require(
+            beaconCount == parameters.length &&
+                beaconCount == timestamps.length &&
+                beaconCount == data.length &&
+                beaconCount == signatures.length,
+            "Parameter length mismatch"
+        );
+        bytes32[] memory beaconIds = new bytes32[](beaconCount);
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            if (signatures[ind].length != 0) {
+                (beaconIds[ind], ) = IAirnodeProtocolV1(airnodeProtocol)
+                    .verifySignature(
+                        templateIds[ind],
+                        parameters[ind],
+                        timestamps[ind],
+                        data[ind],
+                        signatures[ind]
+                    );
+            } else {
+                beaconIds[ind] = keccak256(
+                    abi.encodePacked(templateIds[ind], parameters[ind])
+                );
+            }
+        }
+        dapiId = keccak256(abi.encodePacked(beaconIds));
+        int256[] memory values = new int256[](beaconCount);
+        uint256 accumulatedTimestamp = 0;
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            if (signatures[ind].length != 0) {
+                values[ind] = decodeFulfillmentData(data[ind]);
+                uint256 timestamp = timestamps[ind];
+                require(
+                    timestamp <= type(uint32).max,
+                    "Timestamp typecasting error"
+                );
+                accumulatedTimestamp += timestamp;
+            } else {
+                DataPoint storage dataPoint = dataPoints[beaconIds[ind]];
+                values[ind] = dataPoint.value;
+                accumulatedTimestamp += dataPoint.timestamp;
+            }
+        }
+        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
+        require(
+            updatedTimestamp > dataPoints[dapiId].timestamp,
+            "Updated value outdated"
+        );
+        int224 updatedValue = int224(computeMedianInPlace(values));
+        dataPoints[dapiId] = DataPoint({
+            value: updatedValue,
+            timestamp: updatedTimestamp
+        });
+        emit UpdatedDapiWithSignedData(dapiId, updatedValue, updatedTimestamp);
     }
 }

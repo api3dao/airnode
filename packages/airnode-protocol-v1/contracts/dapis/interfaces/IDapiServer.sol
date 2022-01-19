@@ -10,7 +10,7 @@ interface IDapiServer is IAirnodeRequester {
         bool status
     );
 
-    event UpdatedBeaconWithoutRequest(
+    event UpdatedBeaconWithSignedData(
         bytes32 indexed beaconId,
         int256 value,
         uint256 timestamp
@@ -49,10 +49,18 @@ interface IDapiServer is IAirnodeRequester {
         uint32 timestamp
     );
 
+    event UpdatedDapi(bytes32 indexed dapiId, int224 value, uint32 timestamp);
+
+    event UpdatedDapiWithSignedData(
+        bytes32 indexed dapiId,
+        int224 value,
+        uint32 timestamp
+    );
+
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
 
-    function updateBeaconWithoutRequest(
+    function updateBeaconWithSignedData(
         bytes32 templateId,
         bytes calldata parameters,
         uint256 timestamp,
@@ -168,4 +176,12 @@ interface IDapiServer is IAirnodeRequester {
     function updateDapi(bytes32[] memory beaconIds)
         external
         returns (bytes32 dapiId);
+
+    function updateDapiWithSignedData(
+        bytes32[] calldata templateIds,
+        bytes[] calldata parameters,
+        uint256[] calldata timestamps,
+        bytes[] calldata data,
+        bytes[] calldata signatures
+    ) external returns (bytes32 dapiId);
 }
