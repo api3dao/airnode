@@ -503,8 +503,10 @@ contract DapiServer is
         uint256 timestamp,
         bytes calldata data
     ) external override onlyAirnodeProtocol onlyFreshTimestamp(timestamp) {
-        bytes32 dapiId = updateDapi(abi.decode(data, (bytes32[])));
-        require(keccak256(data) == dapiId, "Incorrect data length");
+        require(
+            keccak256(data) == updateDapi(abi.decode(data, (bytes32[]))),
+            "Incorrect data length"
+        );
     }
 
     function conditionPspDapiUpdate(
@@ -536,15 +538,21 @@ contract DapiServer is
         returns (bytes32 dapiId)
     {
         dapiId = keccak256(abi.encodePacked(beaconIds));
+        uint32 currentTimestamp = dataPoints[dapiId].timestamp;
         uint256 beaconCount = beaconIds.length;
         int256[] memory values = new int256[](beaconCount);
+        uint256 accumulatedTimestamp = 0;
         for (uint256 ind = 0; ind < beaconCount; ind++) {
-            values[ind] = dataPoints[beaconIds[ind]].value;
+            DataPoint storage datapoint = dataPoints[beaconIds[ind]];
+            values[ind] = datapoint.value;
+            accumulatedTimestamp += datapoint.timestamp;
         }
-        int224 updatedDapiValue = int224(computeMedianInPlace(values));
+        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
+        require(updatedTimestamp > currentTimestamp, "Updated value outdated");
+        int224 updatedValue = int224(computeMedianInPlace(values));
         dataPoints[dapiId] = DataPoint({
-            value: updatedDapiValue,
-            timestamp: uint32(block.timestamp)
+            value: updatedValue,
+            timestamp: updatedTimestamp
         });
     }
 }
