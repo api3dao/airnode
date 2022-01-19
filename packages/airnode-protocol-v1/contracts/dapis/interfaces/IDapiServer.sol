@@ -10,6 +10,8 @@ interface IDapiServer is IAirnodeRequester {
         bool status
     );
 
+    event SetName(string name, bytes32 dataPointId, address sender);
+
     event UpdatedBeaconWithSignedData(
         bytes32 indexed beaconId,
         int256 value,
@@ -59,6 +61,8 @@ interface IDapiServer is IAirnodeRequester {
 
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
+
+    function setName(string calldata name, bytes32 dataPointId) external;
 
     function updateBeaconWithSignedData(
         bytes32 templateId,
@@ -111,6 +115,11 @@ interface IDapiServer is IAirnodeRequester {
         view
         returns (int224 value, uint32 timestamp);
 
+    function readDataPoint(string calldata name)
+        external
+        view
+        returns (int224 value, uint32 timestamp);
+
     function readerCanReadDataPoint(bytes32 dataPointId, address reader)
         external
         view
@@ -152,9 +161,22 @@ interface IDapiServer is IAirnodeRequester {
         returns (string memory);
 
     // solhint-disable-next-line func-name-mixedcase
+    function NAME_SETTER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
     function HUNDRED_PERCENT() external view returns (uint256);
 
     function unlimitedReaderRole() external view returns (bytes32);
+
+    function nameSetterRole() external view returns (bytes32);
+
+    function nameHashToDataPointId(bytes32 nameHash)
+        external
+        view
+        returns (bytes32);
 
     function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,

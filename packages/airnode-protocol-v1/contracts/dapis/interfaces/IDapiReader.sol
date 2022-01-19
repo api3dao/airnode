@@ -12,4 +12,9 @@ interface IDapiServer {
         external
         view
         returns (int224 value, uint32 timestamp);
+
+    function readDataPoint(string calldata name)
+        external
+        view
+        returns (int224 value, uint32 timestamp);
 }

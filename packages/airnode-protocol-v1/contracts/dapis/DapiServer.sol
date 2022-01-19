@@ -35,10 +35,17 @@ contract DapiServer is
     string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
 
+    string public constant override NAME_SETTER_ROLE_DESCRIPTION =
+        "Alias registrar";
+
     uint256 public constant override HUNDRED_PERCENT = 1e8;
 
     /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
+
+    bytes32 public immutable override nameSetterRole;
+
+    mapping(bytes32 => bytes32) public override nameHashToDataPointId;
 
     /// @notice Called to check if a sponsor has permitted an account to
     /// request updates at this contract
@@ -85,6 +92,10 @@ contract DapiServer is
             _deriveAdminRole(manager),
             keccak256(abi.encodePacked(UNLIMITED_READER_ROLE_DESCRIPTION))
         );
+        nameSetterRole = _deriveRole(
+            _deriveAdminRole(manager),
+            keccak256(abi.encodePacked(NAME_SETTER_ROLE_DESCRIPTION))
+        );
     }
 
     /// @notice Called by the sponsor to set the update request permission
@@ -100,6 +111,22 @@ contract DapiServer is
             updateRequester
         ] = status;
         emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
+    }
+
+    function setName(string calldata name, bytes32 dataPointId)
+        external
+        override
+    {
+        require(
+            msg.sender == manager ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    nameSetterRole,
+                    msg.sender
+                ),
+            "Sender cannot set name"
+        );
+        nameHashToDataPointId[keccak256(abi.encodePacked(name))] = dataPointId;
+        emit SetName(name, dataPointId, msg.sender);
     }
 
     /// @notice Called to update a beacon using data signed by the respective
@@ -302,6 +329,23 @@ contract DapiServer is
             "Sender cannot read beacon"
         );
         DataPoint storage dataPoint = dataPoints[dataPointId];
+        return (dataPoint.value, dataPoint.timestamp);
+    }
+
+    function readDataPoint(string calldata name)
+        external
+        view
+        override
+        returns (int224 value, uint32 timestamp)
+    {
+        bytes32 nameHash = keccak256(abi.encodePacked(name));
+        require(
+            readerCanReadDataPoint(nameHash, msg.sender),
+            "Sender cannot read beacon"
+        );
+        DataPoint storage dataPoint = dataPoints[
+            nameHashToDataPointId[nameHash]
+        ];
         return (dataPoint.value, dataPoint.timestamp);
     }
 
