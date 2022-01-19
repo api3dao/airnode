@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
 import "../AirnodeRequester.sol";
-import "./InPlaceMedian.sol";
+import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 
 /// @title Contract that serves beacons using the Airnode protocol
@@ -23,7 +23,7 @@ import "./interfaces/IDapiServer.sol";
 contract DapiServer is
     WhitelistWithManager,
     AirnodeRequester,
-    InPlaceMedian,
+    Median,
     IDapiServer
 {
     struct DataPoint {
@@ -549,7 +549,7 @@ contract DapiServer is
         }
         uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
         require(updatedTimestamp > currentTimestamp, "Updated value outdated");
-        int224 updatedValue = int224(computeMedianInPlace(values));
+        int224 updatedValue = int224(median(values));
         dataPoints[dapiId] = DataPoint({
             value: updatedValue,
             timestamp: updatedTimestamp
@@ -612,7 +612,7 @@ contract DapiServer is
             updatedTimestamp > dataPoints[dapiId].timestamp,
             "Updated value outdated"
         );
-        int224 updatedValue = int224(computeMedianInPlace(values));
+        int224 updatedValue = int224(median(values));
         dataPoints[dapiId] = DataPoint({
             value: updatedValue,
             timestamp: updatedTimestamp
