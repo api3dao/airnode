@@ -28,8 +28,7 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
     /// subscriptions
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 4096;
 
-    /// @notice Called to get the sponsorship status for a sponsor–requester
-    /// pair
+    /// @notice Returns the sponsorship status for a sponsor–requester pair
     mapping(address => mapping(address => bool))
         public
         override sponsorToRequesterToSponsorshipStatus;
@@ -40,7 +39,7 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
     /// because they are inherently short-lived.
     mapping(bytes32 => Template) public override templates;
 
-    /// @notice Called to get the request count of the requester plus one
+    /// @notice Returns the request count of the requester plus one
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
     mapping(address => uint256) public override requesterToRequestCountPlusOne;
@@ -457,7 +456,7 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         );
     }
 
-    /// @notice Called to check if the request with the ID is made but not
+    /// @notice Returns if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
     /// not hear back, it can call this method to check if the Airnode has

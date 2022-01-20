@@ -25,7 +25,7 @@ contract AllocatorWithAirnode is
         )
     {}
 
-    /// @notice Called to set a slot with the given parameters
+    /// @notice Sets a slot with the given parameters
     /// @param airnode Airnode address
     /// @param slotIndex Index of the subscription slot to be set
     /// @param subscriptionId Subscription ID
@@ -44,8 +44,8 @@ contract AllocatorWithAirnode is
         _setSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    /// @notice Called to check if the setter of the slot is still authorized
-    /// to set slots
+    /// @notice Returns if the setter of the slot is still authorized to set
+    /// slots
     /// @param airnode Airnode address
     /// @param slotIndex Index of the subscription slot to be set
     /// @return If the setter of the slot is still authorized to set slots
@@ -62,8 +62,8 @@ contract AllocatorWithAirnode is
             );
     }
 
-    /// @notice Called to check if the account has the slot setter role or has
-    /// the respective Airnode address
+    /// @notice Returns if the account has the slot setter role or has the
+    /// respective Airnode address
     /// @param airnode Airnode address
     /// @param account Account address
     function hasSlotSetterRoleOrIsAirnode(address airnode, address account)

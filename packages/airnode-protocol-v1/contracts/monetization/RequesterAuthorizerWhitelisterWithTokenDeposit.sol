@@ -57,8 +57,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         )
     {}
 
-    /// @notice Called to deposit tokens for the requester to be whitelisted
-    /// for the Airnode–endpoint pair on the chain
+    /// @notice Deposits tokens for the requester to be whitelisted for the
+    /// Airnode–endpoint pair on the chain
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID
@@ -119,8 +119,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         );
     }
 
-    /// @notice Called to withdraw tokens previously deposited for the
-    /// requester to be whitelisted for the Airnode–endpoint pair on the chain
+    /// @notice Withdraws tokens previously deposited for the requester to be
+    /// whitelisted for the Airnode–endpoint pair on the chain
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID
@@ -172,9 +172,9 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         );
     }
 
-    /// @notice Called to withdraw tokens previously deposited for the blocked
-    /// requester to be whitelisted for the Airnode–endpoint pair on the chain
-    /// by the depositor
+    /// @notice Withdraws tokens previously deposited for the blocked requester
+    /// to be whitelisted for the Airnode–endpoint pair on the chain by the
+    /// depositor
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID

@@ -262,7 +262,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
         emit SetProceedsDestination(_proceedsDestination);
     }
 
-    /// @notice Called to block requester globally
+    /// @notice Blocks requester globally
     /// @param requester Requester address
     /// @param status Requester block status (`true` represents being blocked)
     function setRequesterBlockStatus(address requester, bool status)
@@ -275,7 +275,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
         emit SetRequesterBlockStatus(requester, status, msg.sender);
     }
 
-    /// @notice Called to block requester for the Airnode
+    /// @notice Blocks requester for the Airnode
     /// @param airnode Airnode address
     /// @param requester Requester address
     /// @param status Requester block status (`true` represents being blocked)

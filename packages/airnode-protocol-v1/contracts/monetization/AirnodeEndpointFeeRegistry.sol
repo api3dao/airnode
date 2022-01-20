@@ -55,7 +55,7 @@ contract AirnodeEndpointFeeRegistry is
         Uint256Registry(_accessControlRegistry, _adminRoleDescription, _manager)
     {}
 
-    /// @notice Called to set the default price
+    /// @notice Sets the default price
     /// @param price Price in USD (times 10^18)
     function setDefaultPrice(uint256 price)
         external
@@ -66,7 +66,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetDefaultPrice(price, msg.sender);
     }
 
-    /// @notice Called to set the default chain price
+    /// @notice Sets the default chain price
     /// @param chainId Chain ID
     /// @param price Price in USD (times 10^18)
     function setDefaultChainPrice(uint256 chainId, uint256 price)
@@ -81,7 +81,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetDefaultChainPrice(chainId, price, msg.sender);
     }
 
-    /// @notice Called to set the Airnode price
+    /// @notice Sets the Airnode price
     /// @param airnode Airnode address
     /// @param price Price in USD (times 10^18)
     function setAirnodePrice(address airnode, uint256 price)
@@ -94,7 +94,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetAirnodePrice(airnode, price, msg.sender);
     }
 
-    /// @notice Called to set the Airnode chain price
+    /// @notice Sets the Airnode chain price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param price Price in USD (times 10^18)
@@ -113,7 +113,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetAirnodeChainPrice(airnode, chainId, price, msg.sender);
     }
 
-    /// @notice Called to set the Airnode endpoint price
+    /// @notice Sets the Airnode endpoint price
     /// @dev The registry ID hash is salted in case the Airnode is not using
     /// hashes for `endpointId` as they are supposed to and numbers instead,
     /// which may be the same as chain IDs and result in collision.
@@ -132,7 +132,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetAirnodeEndpointPrice(airnode, endpointId, price, msg.sender);
     }
 
-    /// @notice Called to set the Airnode chain endpoint price
+    /// @notice Sets the Airnode chain endpoint price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
@@ -162,8 +162,8 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to set if the endpoint or the chain price will be
-    /// prioritized for the Airnode
+    /// @notice Sets if the endpoint or the chain price will be prioritized
+    /// for the Airnode
     /// @param airnode Airnode address
     /// @param status Flag status, `true` prioritizes the endpoint price,
     /// `false` prioritizes the chain price (default)
@@ -177,7 +177,7 @@ contract AirnodeEndpointFeeRegistry is
         emit SetEndpointAndChainPricePriority(airnode, status, msg.sender);
     }
 
-    /// @notice Called to get the default price
+    /// @notice Returns the default price
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
     function getDefaultPrice()
@@ -189,7 +189,7 @@ contract AirnodeEndpointFeeRegistry is
         (success, price) = tryReadRegisteredUint256(DEFAULT_PRICE_ID);
     }
 
-    /// @notice Called to get the default chain price
+    /// @notice Returns the default chain price
     /// @param chainId Chain ID
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
@@ -204,7 +204,7 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to get the Airnode price
+    /// @notice Returns the Airnode price
     /// @param airnode Airnode address
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
@@ -219,7 +219,7 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to get the Airnode, chain price
+    /// @notice Returns the Airnode, chain price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @return success If the price was set
@@ -235,7 +235,7 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to get the Airnode, endpoint price
+    /// @notice Returns the Airnode, endpoint price
     /// @dev The registry ID hash is salted in case the Airnode is not using
     /// hashes for `endpointId` as they are supposed to and numbers instead,
     /// which may be the same as chain IDs and result in collision.
@@ -254,7 +254,7 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to get the Airnode, chain, endpoint price
+    /// @notice Returns the Airnode, chain, endpoint price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID
@@ -270,8 +270,8 @@ contract AirnodeEndpointFeeRegistry is
         );
     }
 
-    /// @notice Called to get the price that should be used for the given
-    /// Airnode, chain and endpoint
+    /// @notice Returns the price that should be used for the given Airnode,
+    /// chain and endpoint
     /// @dev The logic prioritizes more specific prices over less specific
     /// prices. There is ambiguity in if Airnode + chain or Airnode + endpoint
     /// should be prioritize, which we made to configurable (defaults to

@@ -10,9 +10,10 @@ import "./interfaces/IAirnodeProtocolV1.sol";
 contract AirnodeProtocolV1 is AirnodePsp, IAirnodeProtocolV1 {
     using ECDSA for bytes32;
 
-    /// @notice Called to verify the signature associated with request
-    /// parameters, a timestamp and the response to request specified by the
+    /// @notice Verifies the signature associated with request parameters, a
+    /// timestamp and the response to request specified by the
     /// parameters
+    /// @dev Reverts if the verification is not successful
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template

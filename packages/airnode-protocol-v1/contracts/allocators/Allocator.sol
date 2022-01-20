@@ -16,16 +16,17 @@ abstract contract Allocator is Multicall, IAllocator {
         uint64 expirationTimestamp;
     }
 
-    /// @notice Description of the slot setter role
+    /// @notice Slot setter role description
     string public constant override SLOT_SETTER_ROLE_DESCRIPTION =
         "Slot setter";
-    bytes32 internal constant SLOT_SETTER_ROLE_DESCRIPTION_HASH =
-        keccak256(abi.encodePacked(SLOT_SETTER_ROLE_DESCRIPTION));
 
     /// @notice Subscription slot of an Airnode addressed by the index
     mapping(address => mapping(uint256 => Slot))
         public
         override airnodeToSlotIndexToSlot;
+
+    bytes32 internal constant SLOT_SETTER_ROLE_DESCRIPTION_HASH =
+        keccak256(abi.encodePacked(SLOT_SETTER_ROLE_DESCRIPTION));
 
     /// @notice Called internally to set a slot with the given parameters
     /// @dev The set slot can be reset by its setter, or when it has expired,
@@ -55,7 +56,7 @@ abstract contract Allocator is Multicall, IAllocator {
         emit SetSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    /// @notice Called to reset a slot
+    /// @notice Resets a slot
     /// @dev This will revert if the slot has been set before, and the sender
     /// is not the setter of the slot, and the slot has not expired and the
     /// setter of the slot is still authorized to set slots.
@@ -72,8 +73,8 @@ abstract contract Allocator is Multicall, IAllocator {
         }
     }
 
-    /// @notice Called to check if the setter of the slot is still authorized
-    /// to set slots
+    /// @notice Returns if the setter of the slot is still authorized to set
+    /// slots
     /// @param airnode Airnode address
     /// @param slotIndex Index of the subscription slot to be set
     /// @return If the setter of the slot is still authorized to set slots

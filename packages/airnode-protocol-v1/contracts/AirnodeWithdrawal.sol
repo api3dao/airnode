@@ -119,8 +119,8 @@ contract AirnodeWithdrawal is IAirnodeWithdrawal {
         require(success, "Transfer failed");
     }
 
-    /// @notice Called to check if the withdrawal request with the ID is made
-    /// but not fulfilled yet
+    /// @notice Returns if the withdrawal request with the ID is made but not
+    /// fulfilled yet
     /// @param requestId Request ID
     /// @return isAwaitingFulfillment If the request is awaiting fulfillment
     function withdrawalRequestIsAwaitingFulfillment(bytes32 requestId)

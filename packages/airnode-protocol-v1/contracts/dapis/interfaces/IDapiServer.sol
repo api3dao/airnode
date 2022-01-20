@@ -154,35 +154,6 @@ interface IDapiServer is IAirnodeRequester {
         bytes4 fulfillFunctionId
     ) external returns (bytes32 subscriptionId, bytes32 beaconId);
 
-    // solhint-disable-next-line func-name-mixedcase
-    function UNLIMITED_READER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function NAME_SETTER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function HUNDRED_PERCENT() external view returns (uint256);
-
-    function unlimitedReaderRole() external view returns (bytes32);
-
-    function nameSetterRole() external view returns (bytes32);
-
-    function nameHashToDataPointId(bytes32 nameHash)
-        external
-        view
-        returns (bytes32);
-
-    function sponsorToUpdateRequesterToPermissionStatus(
-        address sponsor,
-        address updateRequester
-    ) external view returns (bool permissionStatus);
-
     function fulfillPspDapiUpdate(
         bytes32 subscriptionId, // solhint-disable-line no-unused-vars
         uint256 timestamp,
@@ -206,4 +177,28 @@ interface IDapiServer is IAirnodeRequester {
         bytes[] calldata data,
         bytes[] calldata signatures
     ) external returns (bytes32 dapiId);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function UNLIMITED_READER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function NAME_SETTER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function HUNDRED_PERCENT() external view returns (uint256);
+
+    function unlimitedReaderRole() external view returns (bytes32);
+
+    function nameSetterRole() external view returns (bytes32);
+
+    function sponsorToUpdateRequesterToPermissionStatus(
+        address sponsor,
+        address updateRequester
+    ) external view returns (bool permissionStatus);
 }

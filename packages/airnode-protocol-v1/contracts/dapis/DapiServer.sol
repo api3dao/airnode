@@ -6,54 +6,57 @@ import "../AirnodeRequester.sol";
 import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 
-/// @title Contract that serves beacons using the Airnode protocol
-/// @notice A beacon is a live data point associated with a beacon ID, which is
+/// @title Contract that serves Beacons and dAPIs using the Airnode protocol
+/// @notice A Beacon is a live data point addressed with an ID, which is
 /// derived from a template ID and additional parameters. This is suitable
 /// where the more recent data point is always more favorable, e.g., in the
-/// context of an asset price data feed. Another definition of beacons are
+/// context of an asset price data feed. Another definition of Beacons are
 /// one-Airnode data feeds that can be used individually or combined to build
 /// dAPIs.
-/// @dev This contract casts the reported data point to `int224`. If this is
-/// a problem (because the reported data may not fit into 224 bits or it is of
-/// a completely different type such as `bytes32`), do not use this contract
-/// and implement a customized version instead.
-/// The contract casts the timestamps to `uint32`, which means it will not work
-/// work past-2106 in the current form. If this is an issue, consider casting
-/// the timestamps to a larger type.
 contract DapiServer is
     WhitelistWithManager,
     AirnodeRequester,
     Median,
     IDapiServer
 {
+    // Airnodes serve their fulfillment data along with timestamps. This
+    // contract casts the reported data to `int224` and the timestamp to
+    // `uint32`, which works until year 2106.
     struct DataPoint {
         int224 value;
         uint32 timestamp;
     }
 
-    /// @notice Description of the unlimited reader role
+    /// @notice Unlimited reader role description
     string public constant override UNLIMITED_READER_ROLE_DESCRIPTION =
         "Unlimited reader";
 
+    /// @notice Name setter role description
     string public constant override NAME_SETTER_ROLE_DESCRIPTION =
-        "Alias registrar";
+        "Name setter";
 
+    /// @notice Number that represents 100%
+    /// @dev 10^8 is chosen (and not a larger number) to avoid overflows. Since
+    /// reported data needs to fit into 224 bits, its multiplication with 10^8
+    /// does not overflow (while representing 100% with 10^18 is potentially
+    /// problematic)
     uint256 public constant override HUNDRED_PERCENT = 1e8;
 
     /// @notice Unlimited reader role
     bytes32 public immutable override unlimitedReaderRole;
 
+    /// @notice Name setter role
     bytes32 public immutable override nameSetterRole;
 
-    mapping(bytes32 => bytes32) public override nameHashToDataPointId;
-
-    /// @notice Called to check if a sponsor has permitted an account to
-    /// request updates at this contract
+    /// @notice Returns if a sponsor has permitted an account to request
+    /// updates at this contract
     mapping(address => mapping(address => bool))
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    mapping(bytes32 => DataPoint) internal dataPoints;
+    mapping(bytes32 => DataPoint) private dataPoints;
+
+    mapping(bytes32 => bytes32) private nameHashToDataPointId;
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
@@ -129,8 +132,7 @@ contract DapiServer is
         emit SetName(name, dataPointId, msg.sender);
     }
 
-    /// @notice Called to update a beacon using data signed by the respective
-    /// Airnode
+    /// @notice Updates a beacon using data signed by the respective Airnode
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
@@ -157,7 +159,7 @@ contract DapiServer is
         emit UpdatedBeaconWithSignedData(beaconId, decodedData, timestamp);
     }
 
-    /// @notice Called to request a beacon to be updated
+    /// @notice Requests a beacon to be updated
     /// @dev There are two requirements for this method to be called: (1) The
     /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
     /// sponsor this BeaconServer contract, (2) The sponsor must call
@@ -196,7 +198,7 @@ contract DapiServer is
         );
     }
 
-    /// @notice Called to request a beacon to be updated by a relayer
+    /// @notice Requests a beacon to be updated by a relayer
     /// @param templateId Template ID of the beacon to be updated
     /// @param relayer Relayer address
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
@@ -314,7 +316,7 @@ contract DapiServer is
             updatePercentageThreshold;
     }
 
-    /// @notice Called to read the data point
+    /// @notice Reads the data point
     /// @param dataPointId ID of the data point that will be read
     /// @return value Data point value
     /// @return timestamp Data point timestamp
@@ -349,8 +351,7 @@ contract DapiServer is
         return (dataPoint.value, dataPoint.timestamp);
     }
 
-    /// @notice Called to check if a reader is whitelisted to read the data
-    /// point
+    /// @notice Returns if a reader is whitelisted to read the data point
     /// @param dataPointId Data point ID
     /// @param reader Reader address
     /// @return isWhitelisted If the reader is whitelisted
@@ -365,8 +366,8 @@ contract DapiServer is
             userIsUnlimitedReader(reader);
     }
 
-    /// @notice Called to get the detailed whitelist status of the reader for
-    /// the data point
+    /// @notice Returns the detailed whitelist status of the reader for the
+    /// data point
     /// @param dataPointId Data point ID
     /// @param reader Reader address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
