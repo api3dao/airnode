@@ -36,7 +36,7 @@ jobs:
   build:
     name: Build and lint Airnode
     runs-on: ubuntu-latest
-    # don't run twice for a push within an internal PR
+    # Don't run twice for a push within an internal PR
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
