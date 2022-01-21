@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface IAllocator {
+import "../../interfaces/IAirnodeUser.sol";
+
+interface IAllocator is IAirnodeUser {
     event SetSlot(
         address indexed airnode,
         uint256 slotIndex,
@@ -15,7 +17,10 @@ interface IAllocator {
         address airnode,
         uint256 slotIndex,
         bytes32 subscriptionId,
-        uint64 expirationTimestamp
+        uint64 expirationTimestamp,
+        address requester,
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) external;
 
     function resetSlot(address airnode, uint256 slotIndex) external;

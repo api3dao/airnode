@@ -10,15 +10,7 @@ interface IDapiServer is IAirnodeRequester {
         bool status
     );
 
-    event SetName(string name, bytes32 dataPointId, address sender);
-
-    event UpdatedBeaconWithSignedData(
-        bytes32 indexed beaconId,
-        int256 value,
-        uint256 timestamp
-    );
-
-    event RequestedBeaconUpdate(
+    event RequestedRrpBeaconUpdate(
         bytes32 indexed beaconId,
         address indexed sponsor,
         address indexed requester,
@@ -27,7 +19,7 @@ interface IDapiServer is IAirnodeRequester {
         bytes parameters
     );
 
-    event RequestedBeaconUpdateRelayed(
+    event RequestedRrpBeaconUpdateRelayed(
         bytes32 indexed beaconId,
         address indexed sponsor,
         address indexed requester,
@@ -44,11 +36,22 @@ interface IDapiServer is IAirnodeRequester {
         uint32 timestamp
     );
 
+    event RegisteredSubscription(
+        bytes32 indexed subscriptionId,
+        bytes32 beaconId
+    );
+
     event UpdatedBeaconWithPsp(
         bytes32 indexed beaconId,
         bytes32 subscriptionId,
         int224 value,
         uint32 timestamp
+    );
+
+    event UpdatedBeaconWithSignedData(
+        bytes32 indexed beaconId,
+        int256 value,
+        uint256 timestamp
     );
 
     event UpdatedDapi(bytes32 indexed dapiId, int224 value, uint32 timestamp);
@@ -59,10 +62,49 @@ interface IDapiServer is IAirnodeRequester {
         uint32 timestamp
     );
 
+    event SetName(bytes32 name, bytes32 dataPointId, address sender);
+
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
 
-    function setName(string calldata name, bytes32 dataPointId) external;
+    function requestRrpBeaconUpdate(
+        bytes32 templateId,
+        bytes calldata parameters,
+        address sponsor
+    ) external;
+
+    function requestRrpBeaconUpdateRelayed(
+        bytes32 templateId,
+        bytes calldata parameters,
+        address relayer,
+        address sponsor
+    ) external;
+
+    function fulfillRrpBeaconUpdate(
+        bytes32 requestId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external;
+
+    function registerBeaconUpdateSubscription(
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata conditions,
+        address relayer,
+        address sponsor
+    ) external returns (bytes32 subscriptionId, bytes32 beaconId);
+
+    function conditionPspBeaconUpdate(
+        bytes32 subscriptionId,
+        bytes calldata data,
+        bytes calldata conditionParameters
+    ) external returns (bool);
+
+    function fulfillPspBeaconUpdate(
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external;
 
     function updateBeaconWithSignedData(
         bytes32 templateId,
@@ -72,50 +114,38 @@ interface IDapiServer is IAirnodeRequester {
         bytes calldata signature
     ) external;
 
-    function requestBeaconUpdate(
-        bytes32 templateId,
-        address sponsor,
-        bytes calldata parameters
-    ) external;
+    function updateDapi(bytes32[] memory beaconIds)
+        external
+        returns (bytes32 dapiId);
 
-    function requestBeaconUpdate(
-        bytes32 templateId,
-        address relayer,
-        address sponsor,
-        bytes calldata parameters
-    ) external;
-
-    function fulfillRrpBeaconUpdate(
-        bytes32 requestId,
-        uint256 timestamp,
-        bytes calldata data
-    ) external;
-
-    function fulfillPspBeaconUpdate(
-        bytes32 subscriptionId,
-        uint256 timestamp,
-        bytes calldata data
-    ) external;
-
-    function fulfillPspBeaconUpdate(
-        bytes32 subscriptionId,
-        address relayer,
-        uint256 timestamp,
-        bytes calldata data
-    ) external;
-
-    function conditionPspBeaconUpdate(
-        bytes32 subscriptionId,
+    function conditionPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
         bytes calldata data,
         bytes calldata conditionParameters
     ) external returns (bool);
 
-    function readDataPoint(bytes32 dataPointId)
+    function fulfillPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        uint256 timestamp,
+        bytes calldata data
+    ) external;
+
+    function updateDapiWithSignedData(
+        bytes32[] calldata templateIds,
+        bytes[] calldata parameters,
+        uint256[] calldata timestamps,
+        bytes[] calldata data,
+        bytes[] calldata signatures
+    ) external returns (bytes32 dapiId);
+
+    function setName(bytes32 name, bytes32 dataPointId) external;
+
+    function readWithDataPointId(bytes32 dataPointId)
         external
         view
         returns (int224 value, uint32 timestamp);
 
-    function readDataPoint(string calldata name)
+    function readWithName(bytes32 name)
         external
         view
         returns (int224 value, uint32 timestamp);
@@ -144,39 +174,10 @@ interface IDapiServer is IAirnodeRequester {
         pure
         returns (bytes32 beaconId);
 
-    function registerSubscription(
-        address _airnodeProtocol,
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata conditions,
-        address sponsor,
-        address requester,
-        bytes4 fulfillFunctionId
-    ) external returns (bytes32 subscriptionId, bytes32 beaconId);
-
-    function fulfillPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
-        uint256 timestamp,
-        bytes calldata data
-    ) external;
-
-    function conditionPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
-        bytes calldata data,
-        bytes calldata conditionParameters
-    ) external returns (bool);
-
-    function updateDapi(bytes32[] memory beaconIds)
+    function deriveDapiId(bytes32[] memory beaconIds)
         external
+        pure
         returns (bytes32 dapiId);
-
-    function updateDapiWithSignedData(
-        bytes32[] calldata templateIds,
-        bytes[] calldata parameters,
-        uint256[] calldata timestamps,
-        bytes[] calldata data,
-        bytes[] calldata signatures
-    ) external returns (bytes32 dapiId);
 
     // solhint-disable-next-line func-name-mixedcase
     function UNLIMITED_READER_ROLE_DESCRIPTION()
@@ -200,5 +201,12 @@ interface IDapiServer is IAirnodeRequester {
     function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,
         address updateRequester
-    ) external view returns (bool permissionStatus);
+    ) external view returns (bool);
+
+    function subscriptionIdToBeaconId(bytes32 subscriptionId)
+        external
+        view
+        returns (bytes32);
+
+    function nameToDataPointId(bytes32 name) external view returns (bytes32);
 }

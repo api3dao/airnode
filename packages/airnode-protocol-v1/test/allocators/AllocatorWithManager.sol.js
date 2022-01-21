@@ -9,7 +9,7 @@ let allocatorWithManagerAdminRoleDescription = 'AllocatorWithManager admin role'
 let slotSetterRoleDescription = 'Slot setter';
 let slotSetterRole;
 let slotIndex = Math.floor(Math.random() * 1000);
-let subscriptionId = testUtils.generateRandomBytes32();
+let subscriptionId, anotherSubscriptionId, requester, sponsor, fulfillFunctionId;
 let expirationTimestamp;
 
 beforeEach(async () => {
@@ -24,11 +24,14 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
+  const airnodeProtocolFactory = await hre.ethers.getContractFactory('AirnodeProtocolV1', roles.deployer);
+  const airnodeProtocol = await airnodeProtocolFactory.deploy();
   const allocatorWithManagerFactory = await hre.ethers.getContractFactory('AllocatorWithManager', roles.deployer);
   allocatorWithManager = await allocatorWithManagerFactory.deploy(
     accessControlRegistry.address,
     allocatorWithManagerAdminRoleDescription,
-    roles.manager.address
+    roles.manager.address,
+    airnodeProtocol.address
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
   const managerAdminRole = await allocatorWithManager.adminRole();
@@ -42,6 +45,75 @@ beforeEach(async () => {
   await accessControlRegistry.connect(roles.manager).grantRole(slotSetterRole, roles.slotSetter.address);
   await accessControlRegistry.connect(roles.manager).grantRole(slotSetterRole, roles.anotherSlotSetter.address);
   expirationTimestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 3600;
+  const endpointId = testUtils.generateRandomBytes32();
+  const templateParameters = testUtils.generateRandomBytes();
+  await airnodeProtocol.storeTemplate(roles.airnode.address, endpointId, templateParameters);
+  const templateId = hre.ethers.utils.keccak256(
+    hre.ethers.utils.solidityPack(
+      ['address', 'bytes32', 'bytes'],
+      [roles.airnode.address, endpointId, templateParameters]
+    )
+  );
+  const subscriptionParameters = testUtils.generateRandomBytes();
+  const subscriptionConditions = testUtils.generateRandomBytes();
+  sponsor = testUtils.generateRandomAddress();
+  requester = testUtils.generateRandomAddress();
+  fulfillFunctionId = testUtils.generateRandomBytes().substring(0, 8 + 2);
+  await airnodeProtocol
+    .connect(roles.randomPerson)
+    .storeSubscription(
+      templateId,
+      subscriptionParameters,
+      subscriptionConditions,
+      roles.airnode.address,
+      sponsor,
+      requester,
+      fulfillFunctionId
+    );
+  subscriptionId = hre.ethers.utils.keccak256(
+    hre.ethers.utils.solidityPack(
+      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      [
+        (await hre.ethers.provider.getNetwork()).chainId,
+        airnodeProtocol.address,
+        templateId,
+        subscriptionParameters,
+        subscriptionConditions,
+        roles.airnode.address,
+        sponsor,
+        requester,
+        fulfillFunctionId,
+      ]
+    )
+  );
+  const anotherSubscriptionParameters = testUtils.generateRandomBytes();
+  await airnodeProtocol
+    .connect(roles.randomPerson)
+    .storeSubscription(
+      templateId,
+      anotherSubscriptionParameters,
+      subscriptionConditions,
+      roles.airnode.address,
+      sponsor,
+      requester,
+      fulfillFunctionId
+    );
+  anotherSubscriptionId = hre.ethers.utils.keccak256(
+    hre.ethers.utils.solidityPack(
+      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      [
+        (await hre.ethers.provider.getNetwork()).chainId,
+        airnodeProtocol.address,
+        templateId,
+        anotherSubscriptionParameters,
+        subscriptionConditions,
+        roles.airnode.address,
+        sponsor,
+        requester,
+        fulfillFunctionId,
+      ]
+    )
+  );
 });
 
 describe('constructor', function () {
@@ -66,8 +138,8 @@ describe('constructor', function () {
 
 describe('setSlot', function () {
   context('Sender has slot setter role', function () {
-    context('Airnode address is not zero', function () {
-      context('Expiration is not in the past', function () {
+    context('Expiration is not in the past', function () {
+      context('Subscription is registered', function () {
         context('Slot has not been set before', function () {
           it('sets slot', async function () {
             const slotBefore = await allocatorWithManager.airnodeToSlotIndexToSlot(roles.airnode.address, slotIndex);
@@ -77,7 +149,15 @@ describe('setSlot', function () {
             await expect(
               allocatorWithManager
                 .connect(roles.slotSetter)
-                .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                .setSlot(
+                  roles.airnode.address,
+                  slotIndex,
+                  subscriptionId,
+                  expirationTimestamp,
+                  requester,
+                  sponsor,
+                  fulfillFunctionId
+                )
             )
               .to.emit(allocatorWithManager, 'SetSlot')
               .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -92,11 +172,27 @@ describe('setSlot', function () {
             it('sets slot', async function () {
               await allocatorWithManager
                 .connect(roles.slotSetter)
-                .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+                .setSlot(
+                  roles.airnode.address,
+                  slotIndex,
+                  anotherSubscriptionId,
+                  expirationTimestamp,
+                  requester,
+                  sponsor,
+                  fulfillFunctionId
+                );
               await expect(
                 allocatorWithManager
                   .connect(roles.slotSetter)
-                  .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                  .setSlot(
+                    roles.airnode.address,
+                    slotIndex,
+                    subscriptionId,
+                    expirationTimestamp,
+                    requester,
+                    sponsor,
+                    fulfillFunctionId
+                  )
               )
                 .to.emit(allocatorWithManager, 'SetSlot')
                 .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -114,12 +210,28 @@ describe('setSlot', function () {
                 const secondSlotIsSetAt = firstSlotSetExpiresAt + 60;
                 await allocatorWithManager
                   .connect(roles.anotherSlotSetter)
-                  .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), firstSlotSetExpiresAt);
+                  .setSlot(
+                    roles.airnode.address,
+                    slotIndex,
+                    anotherSubscriptionId,
+                    firstSlotSetExpiresAt,
+                    requester,
+                    sponsor,
+                    fulfillFunctionId
+                  );
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [secondSlotIsSetAt]);
                 await expect(
                   allocatorWithManager
                     .connect(roles.slotSetter)
-                    .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                    .setSlot(
+                      roles.airnode.address,
+                      slotIndex,
+                      subscriptionId,
+                      expirationTimestamp,
+                      requester,
+                      sponsor,
+                      fulfillFunctionId
+                    )
                 )
                   .to.emit(allocatorWithManager, 'SetSlot')
                   .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -134,14 +246,30 @@ describe('setSlot', function () {
                 it('sets slot', async function () {
                   await allocatorWithManager
                     .connect(roles.anotherSlotSetter)
-                    .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+                    .setSlot(
+                      roles.airnode.address,
+                      slotIndex,
+                      anotherSubscriptionId,
+                      expirationTimestamp,
+                      requester,
+                      sponsor,
+                      fulfillFunctionId
+                    );
                   await accessControlRegistry
                     .connect(roles.manager)
                     .revokeRole(slotSetterRole, roles.anotherSlotSetter.address);
                   await expect(
                     allocatorWithManager
                       .connect(roles.slotSetter)
-                      .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                      .setSlot(
+                        roles.airnode.address,
+                        slotIndex,
+                        subscriptionId,
+                        expirationTimestamp,
+                        requester,
+                        sponsor,
+                        fulfillFunctionId
+                      )
                   )
                     .to.emit(allocatorWithManager, 'SetSlot')
                     .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -155,11 +283,27 @@ describe('setSlot', function () {
                 it('reverts', async function () {
                   await allocatorWithManager
                     .connect(roles.anotherSlotSetter)
-                    .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+                    .setSlot(
+                      roles.airnode.address,
+                      slotIndex,
+                      anotherSubscriptionId,
+                      expirationTimestamp,
+                      requester,
+                      sponsor,
+                      fulfillFunctionId
+                    );
                   await expect(
                     allocatorWithManager
                       .connect(roles.slotSetter)
-                      .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                      .setSlot(
+                        roles.airnode.address,
+                        slotIndex,
+                        subscriptionId,
+                        expirationTimestamp,
+                        requester,
+                        sponsor,
+                        fulfillFunctionId
+                      )
                   ).to.be.revertedWith('Cannot reset slot');
                 });
               });
@@ -167,21 +311,31 @@ describe('setSlot', function () {
           });
         });
       });
-      context('Expiration is in the past', function () {
+      context('Subscription is not registered', function () {
         it('reverts', async function () {
           await expect(
-            allocatorWithManager.connect(roles.slotSetter).setSlot(roles.airnode.address, slotIndex, subscriptionId, 0)
-          ).to.be.revertedWith('Expiration is in past');
+            allocatorWithManager
+              .connect(roles.slotSetter)
+              .setSlot(
+                roles.airnode.address,
+                slotIndex,
+                testUtils.generateRandomBytes32(),
+                expirationTimestamp,
+                requester,
+                sponsor,
+                fulfillFunctionId
+              )
+          ).to.be.revertedWith('Subscription not registered');
         });
       });
     });
-    context('Airnode address is zero', function () {
+    context('Expiration is in the past', function () {
       it('reverts', async function () {
         await expect(
           allocatorWithManager
             .connect(roles.slotSetter)
-            .setSlot(hre.ethers.constants.AddressZero, slotIndex, subscriptionId, expirationTimestamp)
-        ).to.be.revertedWith('Airnode address zero');
+            .setSlot(roles.airnode.address, slotIndex, subscriptionId, 0, requester, sponsor, fulfillFunctionId)
+        ).to.be.revertedWith('Expiration is in past');
       });
     });
   });
@@ -196,7 +350,15 @@ describe('setSlot', function () {
           await expect(
             allocatorWithManager
               .connect(roles.manager)
-              .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+              .setSlot(
+                roles.airnode.address,
+                slotIndex,
+                subscriptionId,
+                expirationTimestamp,
+                requester,
+                sponsor,
+                fulfillFunctionId
+              )
           )
             .to.emit(allocatorWithManager, 'SetSlot')
             .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -211,11 +373,27 @@ describe('setSlot', function () {
           it('sets slot', async function () {
             await allocatorWithManager
               .connect(roles.manager)
-              .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+              .setSlot(
+                roles.airnode.address,
+                slotIndex,
+                anotherSubscriptionId,
+                expirationTimestamp,
+                requester,
+                sponsor,
+                fulfillFunctionId
+              );
             await expect(
               allocatorWithManager
                 .connect(roles.manager)
-                .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                .setSlot(
+                  roles.airnode.address,
+                  slotIndex,
+                  subscriptionId,
+                  expirationTimestamp,
+                  requester,
+                  sponsor,
+                  fulfillFunctionId
+                )
             )
               .to.emit(allocatorWithManager, 'SetSlot')
               .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -233,12 +411,28 @@ describe('setSlot', function () {
               const secondSlotIsSetAt = firstSlotSetExpiresAt + 60;
               await allocatorWithManager
                 .connect(roles.anotherSlotSetter)
-                .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), firstSlotSetExpiresAt);
+                .setSlot(
+                  roles.airnode.address,
+                  slotIndex,
+                  anotherSubscriptionId,
+                  firstSlotSetExpiresAt,
+                  requester,
+                  sponsor,
+                  fulfillFunctionId
+                );
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [secondSlotIsSetAt]);
               await expect(
                 allocatorWithManager
                   .connect(roles.manager)
-                  .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                  .setSlot(
+                    roles.airnode.address,
+                    slotIndex,
+                    subscriptionId,
+                    expirationTimestamp,
+                    requester,
+                    sponsor,
+                    fulfillFunctionId
+                  )
               )
                 .to.emit(allocatorWithManager, 'SetSlot')
                 .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -253,14 +447,30 @@ describe('setSlot', function () {
               it('sets slot', async function () {
                 await allocatorWithManager
                   .connect(roles.anotherSlotSetter)
-                  .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+                  .setSlot(
+                    roles.airnode.address,
+                    slotIndex,
+                    anotherSubscriptionId,
+                    expirationTimestamp,
+                    requester,
+                    sponsor,
+                    fulfillFunctionId
+                  );
                 await accessControlRegistry
                   .connect(roles.manager)
                   .revokeRole(slotSetterRole, roles.anotherSlotSetter.address);
                 await expect(
                   allocatorWithManager
                     .connect(roles.manager)
-                    .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                    .setSlot(
+                      roles.airnode.address,
+                      slotIndex,
+                      subscriptionId,
+                      expirationTimestamp,
+                      requester,
+                      sponsor,
+                      fulfillFunctionId
+                    )
                 )
                   .to.emit(allocatorWithManager, 'SetSlot')
                   .withArgs(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
@@ -274,11 +484,27 @@ describe('setSlot', function () {
               it('reverts', async function () {
                 await allocatorWithManager
                   .connect(roles.anotherSlotSetter)
-                  .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+                  .setSlot(
+                    roles.airnode.address,
+                    slotIndex,
+                    anotherSubscriptionId,
+                    expirationTimestamp,
+                    requester,
+                    sponsor,
+                    fulfillFunctionId
+                  );
                 await expect(
                   allocatorWithManager
                     .connect(roles.manager)
-                    .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+                    .setSlot(
+                      roles.airnode.address,
+                      slotIndex,
+                      subscriptionId,
+                      expirationTimestamp,
+                      requester,
+                      sponsor,
+                      fulfillFunctionId
+                    )
                 ).to.be.revertedWith('Cannot reset slot');
               });
             });
@@ -289,7 +515,9 @@ describe('setSlot', function () {
     context('Expiration is in the past', function () {
       it('reverts', async function () {
         await expect(
-          allocatorWithManager.connect(roles.manager).setSlot(roles.airnode.address, slotIndex, subscriptionId, 0)
+          allocatorWithManager
+            .connect(roles.manager)
+            .setSlot(roles.airnode.address, slotIndex, subscriptionId, 0, requester, sponsor, fulfillFunctionId)
         ).to.be.revertedWith('Expiration is in past');
       });
     });
@@ -299,7 +527,15 @@ describe('setSlot', function () {
       await expect(
         allocatorWithManager
           .connect(roles.randomPerson)
-          .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp)
+          .setSlot(
+            roles.airnode.address,
+            slotIndex,
+            subscriptionId,
+            expirationTimestamp,
+            requester,
+            sponsor,
+            fulfillFunctionId
+          )
       ).to.be.revertedWith('Sender cannot set slot');
     });
   });
@@ -311,7 +547,15 @@ describe('resetSlot', function () {
       it('resets slot', async function () {
         await allocatorWithManager
           .connect(roles.slotSetter)
-          .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
+          .setSlot(
+            roles.airnode.address,
+            slotIndex,
+            subscriptionId,
+            expirationTimestamp,
+            requester,
+            sponsor,
+            fulfillFunctionId
+          );
         await expect(allocatorWithManager.connect(roles.slotSetter).resetSlot(roles.airnode.address, slotIndex))
           .to.emit(allocatorWithManager, 'ResetSlot')
           .withArgs(roles.airnode.address, slotIndex);
@@ -329,7 +573,15 @@ describe('resetSlot', function () {
           const slotResetAt = firstSlotSetExpiresAt + 60;
           await allocatorWithManager
             .connect(roles.slotSetter)
-            .setSlot(roles.airnode.address, slotIndex, subscriptionId, firstSlotSetExpiresAt);
+            .setSlot(
+              roles.airnode.address,
+              slotIndex,
+              subscriptionId,
+              firstSlotSetExpiresAt,
+              requester,
+              sponsor,
+              fulfillFunctionId
+            );
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [slotResetAt]);
           await expect(allocatorWithManager.connect(roles.randomPerson).resetSlot(roles.airnode.address, slotIndex))
             .to.emit(allocatorWithManager, 'ResetSlot')
@@ -345,7 +597,15 @@ describe('resetSlot', function () {
           it('resets slot', async function () {
             await allocatorWithManager
               .connect(roles.slotSetter)
-              .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+              .setSlot(
+                roles.airnode.address,
+                slotIndex,
+                anotherSubscriptionId,
+                expirationTimestamp,
+                requester,
+                sponsor,
+                fulfillFunctionId
+              );
             await accessControlRegistry.connect(roles.manager).revokeRole(slotSetterRole, roles.slotSetter.address);
             await expect(allocatorWithManager.connect(roles.randomPerson).resetSlot(roles.airnode.address, slotIndex))
               .to.emit(allocatorWithManager, 'ResetSlot')
@@ -360,7 +620,15 @@ describe('resetSlot', function () {
           it('reverts', async function () {
             await allocatorWithManager
               .connect(roles.slotSetter)
-              .setSlot(roles.airnode.address, slotIndex, testUtils.generateRandomBytes32(), expirationTimestamp);
+              .setSlot(
+                roles.airnode.address,
+                slotIndex,
+                anotherSubscriptionId,
+                expirationTimestamp,
+                requester,
+                sponsor,
+                fulfillFunctionId
+              );
             await expect(
               allocatorWithManager.connect(roles.randomPerson).resetSlot(roles.airnode.address, slotIndex)
             ).to.be.revertedWith('Cannot reset slot');
@@ -383,7 +651,15 @@ describe('setterOfSlotIsStillAuthorized', function () {
     it('returns true', async function () {
       await allocatorWithManager
         .connect(roles.slotSetter)
-        .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
+        .setSlot(
+          roles.airnode.address,
+          slotIndex,
+          subscriptionId,
+          expirationTimestamp,
+          requester,
+          sponsor,
+          fulfillFunctionId
+        );
       expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(true);
     });
   });
@@ -391,7 +667,15 @@ describe('setterOfSlotIsStillAuthorized', function () {
     it('returns true', async function () {
       await allocatorWithManager
         .connect(roles.manager)
-        .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
+        .setSlot(
+          roles.airnode.address,
+          slotIndex,
+          subscriptionId,
+          expirationTimestamp,
+          requester,
+          sponsor,
+          fulfillFunctionId
+        );
       expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(true);
     });
   });
@@ -399,7 +683,15 @@ describe('setterOfSlotIsStillAuthorized', function () {
     it('returns false', async function () {
       await allocatorWithManager
         .connect(roles.slotSetter)
-        .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
+        .setSlot(
+          roles.airnode.address,
+          slotIndex,
+          subscriptionId,
+          expirationTimestamp,
+          requester,
+          sponsor,
+          fulfillFunctionId
+        );
       await accessControlRegistry.connect(roles.manager).revokeRole(slotSetterRole, roles.slotSetter.address);
       expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(
         false

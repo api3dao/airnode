@@ -39,6 +39,8 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
     /// because they are inherently short-lived.
     mapping(bytes32 => Template) public override templates;
 
+    mapping(bytes32 => address) public override templateIdToAirnode;
+
     /// @notice Returns the request count of the requester plus one
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
@@ -73,7 +75,7 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
     }
 
-    /// @notice Creates a template record
+    /// @notice Stores a template record
     /// @dev Templates fully or partially define requests. By referencing a
     /// template, requesters can omit specifying the "boilerplate" sections of
     /// requests.
@@ -87,7 +89,7 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param parameters Template parameters
     /// @return templateId Template ID
-    function createTemplate(
+    function storeTemplate(
         address airnode,
         bytes32 endpointId,
         bytes calldata parameters
@@ -100,14 +102,35 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
-        if (templates[templateId].airnode == address(0)) {
-            templates[templateId] = Template({
-                airnode: airnode,
-                endpointId: endpointId,
-                parameters: parameters
-            });
-            emit CreatedTemplate(templateId, airnode, endpointId, parameters);
-        }
+        templates[templateId] = Template({
+            airnode: airnode,
+            endpointId: endpointId,
+            parameters: parameters
+        });
+        templateIdToAirnode[templateId] = airnode;
+        emit StoredTemplate(templateId, airnode, endpointId, parameters);
+    }
+
+    /// @notice Registers a template record
+    /// @param airnode Airnode address
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
+    /// @param parameters Template parameters
+    /// @return templateId Template ID
+    function registerTemplate(
+        address airnode,
+        bytes32 endpointId,
+        bytes calldata parameters
+    ) external override returns (bytes32 templateId) {
+        require(airnode != address(0), "Airnode address zero");
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
+        );
+        templateId = keccak256(
+            abi.encodePacked(airnode, endpointId, parameters)
+        );
+        templateIdToAirnode[templateId] = airnode;
+        emit RegisteredTemplate(templateId, airnode, endpointId, parameters);
     }
 
     /// @notice Called by the requester to make a request
@@ -124,8 +147,8 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         address sponsor,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
-        address airnode = templates[templateId].airnode;
-        require(airnode != address(0), "Template does not exist");
+        address airnode = templateIdToAirnode[templateId];
+        require(airnode != address(0), "Template not registered");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -294,8 +317,8 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         address sponsor,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
-        address airnode = templates[templateId].airnode;
-        require(airnode != address(0), "Template does not exist");
+        address airnode = templateIdToAirnode[templateId];
+        require(airnode != address(0), "Template not registered");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -471,5 +494,18 @@ contract AirnodeRrp is Multicall, AirnodeWithdrawal, IAirnodeRrp {
         returns (bool)
     {
         return requestIdToFulfillmentParameters[requestId] != bytes32(0);
+    }
+
+    function getBalances(address[] calldata accounts)
+        external
+        view
+        override
+        returns (uint256[] memory balances)
+    {
+        uint256 accountsLength = accounts.length;
+        balances = new uint256[](accountsLength);
+        for (uint256 ind = 0; ind < accountsLength; ind++) {
+            balances[ind] = accounts[ind].balance;
+        }
     }
 }

@@ -16,37 +16,40 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
         bytes32 templateId;
         bytes parameters;
         bytes conditions;
+        address relayer;
         address sponsor;
         address requester;
         bytes4 fulfillFunctionId;
     }
 
     /// @notice Subscription with the ID
-    mapping(bytes32 => Subscription) public subscriptions;
+    mapping(bytes32 => Subscription) public override subscriptions;
 
-    /// @notice Creates a subscription record
+    mapping(bytes32 => bytes32) public override subscriptionIdToHash;
+
+    /// @notice Stores a subscription record
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the request template
     /// @param conditions Conditions under which the subscription is requested
     /// to be fulfilled
+    /// @param relayer Relayer address
     /// @param sponsor Sponsor address
     /// @param requester Requester address
     /// @param fulfillFunctionId Selector of the function to be called for
     /// fulfillment
     /// @return subscriptionId Subscription ID
-    function createSubscription(
+    function storeSubscription(
         bytes32 templateId,
         bytes calldata parameters,
         bytes calldata conditions,
+        address relayer,
         address sponsor,
         address requester,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 subscriptionId) {
-        require(
-            templates[templateId].airnode != address(0),
-            "Template does not exist"
-        );
+        address airnode = templateIdToAirnode[templateId];
+        require(airnode != address(0), "Template not registered");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -55,6 +58,7 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
             conditions.length <= MAXIMUM_PARAMETER_LENGTH,
             "Conditions too long"
         );
+        require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         require(requester != address(0), "Requester address zero");
         require(fulfillFunctionId != bytes4(0), "Function selector zero");
@@ -65,30 +69,85 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
                 templateId,
                 parameters,
                 conditions,
+                relayer,
                 sponsor,
                 requester,
                 fulfillFunctionId
             )
         );
-        if (subscriptions[subscriptionId].templateId == bytes32(0)) {
-            subscriptions[subscriptionId] = Subscription({
-                templateId: templateId,
-                parameters: parameters,
-                conditions: conditions,
-                sponsor: sponsor,
-                requester: requester,
-                fulfillFunctionId: fulfillFunctionId
-            });
-            emit CreatedSubscription(
-                subscriptionId,
+        subscriptions[subscriptionId] = Subscription({
+            templateId: templateId,
+            parameters: parameters,
+            conditions: conditions,
+            relayer: relayer,
+            sponsor: sponsor,
+            requester: requester,
+            fulfillFunctionId: fulfillFunctionId
+        });
+        subscriptionIdToHash[subscriptionId] = keccak256(
+            abi.encodePacked(airnode, requester, sponsor, fulfillFunctionId)
+        );
+        emit StoredSubscription(
+            subscriptionId,
+            templateId,
+            parameters,
+            conditions,
+            relayer,
+            sponsor,
+            requester,
+            fulfillFunctionId
+        );
+    }
+
+    function registerSubscription(
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata conditions,
+        address relayer,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId
+    ) external override returns (bytes32 subscriptionId) {
+        address airnode = templateIdToAirnode[templateId];
+        require(airnode != address(0), "Template not registered");
+        require(
+            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Parameters too long"
+        );
+        require(
+            conditions.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Conditions too long"
+        );
+        require(relayer != address(0), "Relayer address zero");
+        require(sponsor != address(0), "Sponsor address zero");
+        require(requester != address(0), "Requester address zero");
+        require(fulfillFunctionId != bytes4(0), "Function selector zero");
+        subscriptionId = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                address(this),
                 templateId,
                 parameters,
                 conditions,
+                relayer,
                 sponsor,
                 requester,
                 fulfillFunctionId
-            );
-        }
+            )
+        );
+        subscriptionIdToHash[subscriptionId] = keccak256(
+            abi.encodePacked(airnode, requester, sponsor, fulfillFunctionId)
+        );
+        emit RegisteredSubscription(
+            subscriptionId,
+            templateId,
+            parameters,
+            conditions,
+            relayer,
+            sponsor,
+            requester,
+            fulfillFunctionId
+        );
     }
 
     /// @notice Called by the Airnode to fulfill the subscription
@@ -111,13 +170,26 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
     /// any)
     function fulfillSubscription(
         bytes32 subscriptionId,
+        address airnode,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
-        Subscription storage subscription = subscriptions[subscriptionId];
-        address airnode = templates[subscription.templateId].airnode;
-        require(airnode != address(0), "Subscription does not exist");
+        require(
+            subscriptionIdToHash[subscriptionId] ==
+                keccak256(
+                    abi.encodePacked(
+                        airnode,
+                        requester,
+                        sponsor,
+                        fulfillFunctionId
+                    )
+                ),
+            "Subscription not registered"
+        );
         require(
             (
                 keccak256(
@@ -126,8 +198,6 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
             ).recover(signature) == airnode,
             "Signature mismatch"
         );
-        address requester = subscription.requester;
-        address sponsor = subscription.sponsor;
         require(
             requester == sponsor ||
                 sponsorToRequesterToSponsorshipStatus[sponsor][requester],
@@ -135,19 +205,14 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(
-                subscription.fulfillFunctionId,
+                fulfillFunctionId,
                 subscriptionId,
                 timestamp,
                 data
             )
         );
         if (callSuccess) {
-            emit FulfilledSubscription(
-                airnode,
-                subscriptionId,
-                timestamp,
-                data
-            );
+            emit FulfilledSubscription(subscriptionId, timestamp, data);
         }
     }
 
@@ -156,7 +221,6 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
     /// Allocator contracts it uses, gets Airnode to sign responses for them,
     /// and sends the fulfillment transaction.
     /// @param subscriptionId Subscription ID
-    /// @param relayer Relayer address
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data
     /// @param signature Subscription ID, a timestamp, the relayer address,
@@ -167,21 +231,32 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
     /// any)
     function fulfillSubscriptionRelayed(
         bytes32 subscriptionId,
-        address relayer,
+        address airnode,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override returns (bool callSuccess, bytes memory callData) {
-        Subscription storage subscription = subscriptions[subscriptionId];
-        address airnode = templates[subscription.templateId].airnode;
-        require(airnode != address(0), "Subscription does not exist");
+        require(
+            subscriptionIdToHash[subscriptionId] ==
+                keccak256(
+                    abi.encodePacked(
+                        airnode,
+                        requester,
+                        sponsor,
+                        fulfillFunctionId
+                    )
+                ),
+            "Subscription not registered"
+        );
         require(
             (
                 keccak256(
                     abi.encodePacked(
                         subscriptionId,
                         timestamp,
-                        relayer,
                         msg.sender,
                         data
                     )
@@ -189,8 +264,6 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
             ).recover(signature) == airnode,
             "Signature mismatch"
         );
-        address requester = subscription.requester;
-        address sponsor = subscription.sponsor;
         require(
             requester == sponsor ||
                 sponsorToRequesterToSponsorshipStatus[sponsor][requester],
@@ -198,21 +271,14 @@ contract AirnodePsp is AirnodeRrp, IAirnodePsp {
         );
         (callSuccess, callData) = requester.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(
-                subscription.fulfillFunctionId,
+                fulfillFunctionId,
                 subscriptionId,
-                relayer,
                 timestamp,
                 data
             )
         );
         if (callSuccess) {
-            emit FulfilledSubscriptionRelayed(
-                relayer,
-                subscriptionId,
-                airnode,
-                timestamp,
-                data
-            );
+            emit FulfilledSubscriptionRelayed(subscriptionId, timestamp, data);
         }
     }
 }

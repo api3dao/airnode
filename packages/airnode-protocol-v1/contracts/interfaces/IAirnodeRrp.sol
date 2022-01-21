@@ -10,7 +10,14 @@ interface IAirnodeRrp is IAirnodeWithdrawal {
         bool sponsorshipStatus
     );
 
-    event CreatedTemplate(
+    event StoredTemplate(
+        bytes32 indexed templateId,
+        address airnode,
+        bytes32 endpointId,
+        bytes parameters
+    );
+
+    event RegisteredTemplate(
         bytes32 indexed templateId,
         address airnode,
         bytes32 endpointId,
@@ -73,7 +80,13 @@ interface IAirnodeRrp is IAirnodeWithdrawal {
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
-    function createTemplate(
+    function storeTemplate(
+        address airnode,
+        bytes32 endpointId,
+        bytes calldata parameters
+    ) external returns (bytes32 templateId);
+
+    function registerTemplate(
         address airnode,
         bytes32 endpointId,
         bytes calldata parameters
@@ -141,6 +154,11 @@ interface IAirnodeRrp is IAirnodeWithdrawal {
         view
         returns (bool);
 
+    function getBalances(address[] calldata accounts)
+        external
+        view
+        returns (uint256[] memory balances);
+
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
         address requester
@@ -154,6 +172,11 @@ interface IAirnodeRrp is IAirnodeWithdrawal {
             bytes32 endpointId,
             bytes memory parameters
         );
+
+    function templateIdToAirnode(bytes32 templateId)
+        external
+        view
+        returns (address);
 
     // solhint-disable-next-line func-name-mixedcase
     function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);

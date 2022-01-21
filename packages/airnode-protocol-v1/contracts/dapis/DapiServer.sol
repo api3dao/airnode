@@ -7,10 +7,10 @@ import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 
 /// @title Contract that serves Beacons and dAPIs using the Airnode protocol
-/// @notice A Beacon is a live data point addressed with an ID, which is
+/// @notice A Beacon is a live data point addressed by an ID, which is
 /// derived from a template ID and additional parameters. This is suitable
 /// where the more recent data point is always more favorable, e.g., in the
-/// context of an asset price data feed. Another definition of Beacons are
+/// context of an asset price data feed. Beacons can also be seen as
 /// one-Airnode data feeds that can be used individually or combined to build
 /// dAPIs.
 contract DapiServer is
@@ -36,10 +36,10 @@ contract DapiServer is
         "Name setter";
 
     /// @notice Number that represents 100%
-    /// @dev 10^8 is chosen (and not a larger number) to avoid overflows. Since
-    /// reported data needs to fit into 224 bits, its multiplication with 10^8
-    /// does not overflow (while representing 100% with 10^18 is potentially
-    /// problematic)
+    /// @dev 10^8 is chosen (and not a larger number) to avoid overflows in
+    /// `calculateUpdateInPercentage()`. Since the reported data needs to fit
+    /// into 224 bits, its multiplication by 10^8 is guaranteed not to
+    /// overflow.
     uint256 public constant override HUNDRED_PERCENT = 1e8;
 
     /// @notice Unlimited reader role
@@ -48,22 +48,24 @@ contract DapiServer is
     /// @notice Name setter role
     bytes32 public immutable override nameSetterRole;
 
-    /// @notice Returns if a sponsor has permitted an account to request
-    /// updates at this contract
+    /// @notice If a sponsor has permitted an account to request updates at
+    /// this contract
     mapping(address => mapping(address => bool))
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    mapping(bytes32 => DataPoint) private dataPoints;
+    /// @notice ID of the beacon that a subscription with the ID will update
+    mapping(bytes32 => bytes32) public override subscriptionIdToBeaconId;
 
-    mapping(bytes32 => bytes32) private nameHashToDataPointId;
+    /// @notice Data point ID that a name is pointed to
+    mapping(bytes32 => bytes32) public override nameToDataPointId;
+
+    mapping(bytes32 => DataPoint) private dataPoints;
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
-    mapping(bytes32 => bytes32) private subscriptionIdToBeaconId;
-
     /// @dev Reverts if the sender is not permitted to request an update with
-    /// the sponsor or is not the sponsor
+    /// the sponsor and is not the sponsor
     /// @param sponsor Sponsor address
     modifier onlyPermittedUpdateRequester(address sponsor) {
         require(
@@ -74,10 +76,21 @@ contract DapiServer is
         _;
     }
 
+    /// @dev Reverts if the sender is not authorized to read the data point
+    /// with the ID
+    /// @param dataPointId Data point ID
+    modifier onlyAuthorizedReader(bytes32 dataPointId) {
+        require(
+            readerCanReadDataPoint(dataPointId, msg.sender),
+            "Sender cannot read"
+        );
+        _;
+    }
+
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeProtocol Airnode protocol contract address
+    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
@@ -101,6 +114,8 @@ contract DapiServer is
         );
     }
 
+    ///                     ~~~RRP beacon updates~~~
+
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
     /// @param updateRequester Update requester address
@@ -116,21 +131,194 @@ contract DapiServer is
         emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
     }
 
-    function setName(string calldata name, bytes32 dataPointId)
-        external
-        override
-    {
-        require(
-            msg.sender == manager ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    nameSetterRole,
-                    msg.sender
-                ),
-            "Sender cannot set name"
+    /// @notice Requests a beacon to be updated
+    /// @dev There are two requirements for this method to be called: (1) The
+    /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
+    /// sponsor this DapiServer contract, (2) The sponsor must call
+    /// `setUpdatePermissionStatus()` of this DapiServer contract to give
+    /// request update permission to the user of this method.
+    /// The template and additional parameters used here must specify a single
+    /// point of data of type `int256` because this is what
+    /// `fulfillRrpBeaconUpdate()` expects. This point of data must be castable
+    /// to `int224`.
+    /// The sponsor and the update requester in the event are indexed to allow
+    /// keepers to keep track of their update requests.
+    /// @param templateId Template ID of the beacon to be updated
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param sponsor Address of the sponsor whose wallet will be used to
+    /// fulfill the request
+    function requestRrpBeaconUpdate(
+        bytes32 templateId,
+        bytes calldata parameters,
+        address sponsor
+    ) external override onlyPermittedUpdateRequester(sponsor) {
+        bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol).makeRequest(
+            templateId,
+            parameters,
+            sponsor,
+            this.fulfillRrpBeaconUpdate.selector
         );
-        nameHashToDataPointId[keccak256(abi.encodePacked(name))] = dataPointId;
-        emit SetName(name, dataPointId, msg.sender);
+        bytes32 beaconId = deriveBeaconId(templateId, parameters);
+        requestIdToBeaconId[requestId] = beaconId;
+        emit RequestedRrpBeaconUpdate(
+            beaconId,
+            sponsor,
+            msg.sender,
+            requestId,
+            templateId,
+            parameters
+        );
     }
+
+    /// @notice Requests a beacon to be updated by a relayer
+    /// @param templateId Template ID of the beacon to be updated
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param relayer Relayer address
+    /// @param sponsor Address of the sponsor whose wallet will be used to
+    /// fulfill the request
+    function requestRrpBeaconUpdateRelayed(
+        bytes32 templateId,
+        bytes calldata parameters,
+        address relayer,
+        address sponsor
+    ) external override onlyPermittedUpdateRequester(sponsor) {
+        bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol)
+            .makeRequestRelayed(
+                templateId,
+                parameters,
+                relayer,
+                sponsor,
+                this.fulfillRrpBeaconUpdate.selector
+            );
+        bytes32 beaconId = deriveBeaconId(templateId, parameters);
+        requestIdToBeaconId[requestId] = beaconId;
+        emit RequestedRrpBeaconUpdateRelayed(
+            beaconId,
+            sponsor,
+            msg.sender,
+            requestId,
+            relayer,
+            templateId,
+            parameters
+        );
+    }
+
+    /// @notice Called by the Airnode through AirnodeProtocol to fulfill the
+    /// request
+    /// @param requestId ID of the request being fulfilled
+    /// @param timestamp Timestamp used in the signature
+    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    function fulfillRrpBeaconUpdate(
+        bytes32 requestId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
+        bytes32 beaconId = requestIdToBeaconId[requestId];
+        delete requestIdToBeaconId[requestId];
+        int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
+        emit UpdatedBeaconWithRrp(
+            beaconId,
+            requestId,
+            int224(decodedData),
+            uint32(timestamp)
+        );
+    }
+
+    ///                     ~~~PSP beacon updates~~~
+
+    /// @notice Registers which beacon the respective subscription should
+    /// update
+    /// @dev Similar to how one needs to call `requestRrpBeaconUpdate()` for
+    /// this contract to recognize the incoming RRP fulfillment, this needs to
+    /// be called before subscription fulfillments
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the subscription in addition
+    /// to the parameters in the request template
+    /// @param conditions Conditions under which the subscription is requested
+    /// to be fulfilled
+    /// @param relayer Relayer address
+    /// @param sponsor Sponsor address
+    /// @return subscriptionId Subscription ID
+    /// @return beaconId Beacon ID
+    function registerBeaconUpdateSubscription(
+        bytes32 templateId,
+        bytes calldata parameters,
+        bytes calldata conditions,
+        address relayer,
+        address sponsor
+    ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
+        subscriptionId = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                airnodeProtocol,
+                templateId,
+                parameters,
+                conditions,
+                relayer,
+                sponsor,
+                address(this),
+                this.fulfillPspBeaconUpdate.selector
+            )
+        );
+        require(
+            IAirnodeProtocolV1(airnodeProtocol).subscriptionIdToHash(
+                subscriptionId
+            ) != bytes32(0),
+            "Not registered at protocol"
+        );
+        beaconId = deriveBeaconId(templateId, parameters);
+        subscriptionIdToBeaconId[subscriptionId] = beaconId;
+        emit RegisteredSubscription(subscriptionId, beaconId);
+    }
+
+    /// @notice Returns true if the respective beacon needs to be updated based
+    /// on the fulfillment data and the condition parameters
+    /// @dev Reverts if not called by a void signer with zero address.
+    /// Airnode derives `conditionParameters` out of the `conditions` field of
+    /// a Subscription.
+    /// @param subscriptionId Subscription ID
+    /// @param data Fulfillment data
+    /// @param conditionParameters Subscription condition parameters
+    /// @return If the beacon update subscription should be fulfilled
+    function conditionPspBeaconUpdate(
+        bytes32 subscriptionId,
+        bytes calldata data,
+        bytes calldata conditionParameters
+    ) external override returns (bool) {
+        require(msg.sender == address(0), "Sender not zero address");
+        bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
+        require(beaconId != bytes32(0), "Subscription not registered");
+        return
+            calculateUpdateInPercentage(
+                dataPoints[beaconId].value,
+                decodeFulfillmentData(data)
+            ) >= decodeConditionParameters(conditionParameters);
+    }
+
+    /// @notice Called by the Airnode protocol to fulfill the subscription
+    /// @dev This implementation should be used with non-relayed subscriptions
+    /// @param subscriptionId ID of the subscription being fulfilled
+    /// @param timestamp Timestamp used in the signature
+    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    function fulfillPspBeaconUpdate(
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
+        bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
+        require(beaconId != bytes32(0), "Subscription not registered");
+        int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
+        emit UpdatedBeaconWithPsp(
+            beaconId,
+            subscriptionId,
+            int224(decodedData),
+            uint32(timestamp)
+        );
+    }
+
+    ///                     ~~~Signed data beacon updates~~~
 
     /// @notice Updates a beacon using data signed by the respective Airnode
     /// @param templateId Template ID
@@ -155,199 +343,177 @@ contract DapiServer is
                 data,
                 signature
             );
-        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
+        int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
         emit UpdatedBeaconWithSignedData(beaconId, decodedData, timestamp);
     }
 
-    /// @notice Requests a beacon to be updated
-    /// @dev There are two requirements for this method to be called: (1) The
-    /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
-    /// sponsor this BeaconServer contract, (2) The sponsor must call
-    /// `setUpdatePermissionStatus()` of this BeaconServer contract to give
-    /// request update permission to the user of this method.
-    /// The template and additional parameters used here must specify a single
-    /// point of data of type `int256` because this is what `fulfill()`
-    /// expects. This point of data must be castable to `int224`.
-    /// The sponsor and the update requester in the event are indexed to allow
-    /// keepers to keep track of their update requests.
-    /// @param templateId Template ID of the beacon to be updated
-    /// @param sponsor Sponsor whose wallet will be used to fulfill this
-    /// request
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
-    function requestBeaconUpdate(
-        bytes32 templateId,
-        address sponsor,
-        bytes calldata parameters
-    ) external override onlyPermittedUpdateRequester(sponsor) {
-        bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol).makeRequest(
-            templateId,
-            parameters,
-            sponsor,
-            this.fulfillRrpBeaconUpdate.selector
-        );
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        requestIdToBeaconId[requestId] = beaconId;
-        emit RequestedBeaconUpdate(
-            beaconId,
-            sponsor,
-            msg.sender,
-            requestId,
-            templateId,
-            parameters
-        );
+    ///                     ~~~PSP dAPI updates~~~
+
+    function updateDapi(bytes32[] memory beaconIds)
+        public
+        override
+        returns (bytes32 dapiId)
+    {
+        dapiId = deriveDapiId(beaconIds);
+        uint32 currentTimestamp = dataPoints[dapiId].timestamp;
+        uint256 beaconCount = beaconIds.length;
+        int256[] memory values = new int256[](beaconCount);
+        uint256 accumulatedTimestamp = 0;
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            DataPoint storage datapoint = dataPoints[beaconIds[ind]];
+            values[ind] = datapoint.value;
+            accumulatedTimestamp += datapoint.timestamp;
+        }
+        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
+        require(updatedTimestamp > currentTimestamp, "Updated value outdated");
+        int224 updatedValue = int224(median(values));
+        dataPoints[dapiId] = DataPoint({
+            value: updatedValue,
+            timestamp: updatedTimestamp
+        });
+        emit UpdatedDapi(dapiId, updatedValue, updatedTimestamp);
     }
 
-    /// @notice Requests a beacon to be updated by a relayer
-    /// @param templateId Template ID of the beacon to be updated
-    /// @param relayer Relayer address
-    /// @param sponsor Sponsor whose wallet will be used to fulfill this
-    /// request
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
-    function requestBeaconUpdate(
-        bytes32 templateId,
-        address relayer,
-        address sponsor,
-        bytes calldata parameters
-    ) external override onlyPermittedUpdateRequester(sponsor) {
-        bytes32 requestId = IAirnodeProtocolV1(airnodeProtocol)
-            .makeRequestRelayed(
-                templateId,
-                parameters,
-                relayer,
-                sponsor,
-                this.fulfillRrpBeaconUpdate.selector
-            );
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
-        requestIdToBeaconId[requestId] = beaconId;
-        emit RequestedBeaconUpdateRelayed(
-            beaconId,
-            sponsor,
-            msg.sender,
-            requestId,
-            relayer,
-            templateId,
-            parameters
-        );
-    }
-
-    /// @notice Called by the Airnode protocol to fulfill the request
-    /// @param requestId ID of the request being fulfilled
-    /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    function fulfillRrpBeaconUpdate(
-        bytes32 requestId,
-        uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
-        bytes32 beaconId = requestIdToBeaconId[requestId];
-        require(beaconId != bytes32(0), "No such request made");
-        delete requestIdToBeaconId[requestId];
-        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
-        emit UpdatedBeaconWithRrp(
-            beaconId,
-            requestId,
-            int224(decodedData),
-            uint32(timestamp)
-        );
-    }
-
-    /// @notice Called by the Airnode protocol to fulfill the subscription
-    /// @dev This implementation should be used with non-relayed subscriptions
-    /// @param subscriptionId ID of the subscription being fulfilled
-    /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    function fulfillPspBeaconUpdate(
-        bytes32 subscriptionId,
-        uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
-        bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
-        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
-        emit UpdatedBeaconWithPsp(
-            beaconId,
-            subscriptionId,
-            int224(decodedData),
-            uint32(timestamp)
-        );
-    }
-
-    /// @notice Called by the Airnode protocol to fulfill the subscription
-    /// @dev This implementation should be used with relayed subscriptions.
-    /// The identity of the relayer does not matter in the context of this
-    /// contract, which is why the value is not used.
-    /// @param subscriptionId ID of the subscription being fulfilled
-    /// @param relayer Relayer address
-    /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    function fulfillPspBeaconUpdate(
-        bytes32 subscriptionId,
-        address relayer, // solhint-disable-line no-unused-vars
-        uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
-        bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
-        int256 decodedData = ingestFulfillmentData(beaconId, timestamp, data);
-        emit UpdatedBeaconWithPsp(
-            beaconId,
-            subscriptionId,
-            int224(decodedData),
-            uint32(timestamp)
-        );
-    }
-
-    function conditionPspBeaconUpdate(
-        bytes32 subscriptionId,
+    function conditionPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
         bytes calldata data,
         bytes calldata conditionParameters
     ) external override returns (bool) {
-        require(msg.sender == address(0), "Sender not zero address");
-        bytes32 beaconId = getRegisteredBeaconId(subscriptionId);
-        int224 beaconData = dataPoints[beaconId].value;
-        int224 decodedData = decodeFulfillmentData(data);
-        require(conditionParameters.length == 32, "Incorrect parameter length");
-        uint256 updatePercentageThreshold = abi.decode(
-            conditionParameters,
-            (uint256)
+        //require(msg.sender == address(0), "Sender not zero address");
+        bytes32 dapiId = keccak256(data);
+        int224 currentDapiValue = dataPoints[dapiId].value;
+        require(
+            dapiId == updateDapi(abi.decode(data, (bytes32[]))),
+            "Incorrect data length"
         );
         return
-            calculateUpdateInPercentage(beaconData, decodedData) >=
-            updatePercentageThreshold;
+            calculateUpdateInPercentage(
+                currentDapiValue,
+                dataPoints[dapiId].value
+            ) >= decodeConditionParameters(conditionParameters);
+    }
+
+    function fulfillPspDapiUpdate(
+        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        uint256 timestamp,
+        bytes calldata data
+    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
+        require(
+            keccak256(data) == updateDapi(abi.decode(data, (bytes32[]))),
+            "Incorrect data length"
+        );
+    }
+
+    ///                     ~~~Signed data dAPI updates~~~
+
+    function updateDapiWithSignedData(
+        bytes32[] calldata templateIds,
+        bytes[] calldata parameters,
+        uint256[] calldata timestamps,
+        bytes[] calldata data,
+        bytes[] calldata signatures
+    ) external override returns (bytes32 dapiId) {
+        uint256 beaconCount = templateIds.length;
+        require(
+            beaconCount == parameters.length &&
+                beaconCount == timestamps.length &&
+                beaconCount == data.length &&
+                beaconCount == signatures.length,
+            "Parameter length mismatch"
+        );
+        bytes32[] memory beaconIds = new bytes32[](beaconCount);
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            if (signatures[ind].length != 0) {
+                require(timestampIsValid(timestamps[ind]), "Invalid timestamp");
+                (beaconIds[ind], ) = IAirnodeProtocolV1(airnodeProtocol)
+                    .verifySignature(
+                        templateIds[ind],
+                        parameters[ind],
+                        timestamps[ind],
+                        data[ind],
+                        signatures[ind]
+                    );
+            } else {
+                beaconIds[ind] = deriveBeaconId(
+                    templateIds[ind],
+                    parameters[ind]
+                );
+            }
+        }
+        dapiId = deriveDapiId(beaconIds);
+        int256[] memory values = new int256[](beaconCount);
+        uint256 accumulatedTimestamp = 0;
+        for (uint256 ind = 0; ind < beaconCount; ind++) {
+            if (signatures[ind].length != 0) {
+                values[ind] = decodeFulfillmentData(data[ind]);
+                uint256 timestamp = timestamps[ind];
+                require(
+                    timestamp <= type(uint32).max,
+                    "Timestamp typecasting error"
+                );
+                accumulatedTimestamp += timestamp;
+            } else {
+                DataPoint storage dataPoint = dataPoints[beaconIds[ind]];
+                values[ind] = dataPoint.value;
+                accumulatedTimestamp += dataPoint.timestamp;
+            }
+        }
+        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
+        require(
+            updatedTimestamp > dataPoints[dapiId].timestamp,
+            "Updated value outdated"
+        );
+        int224 updatedValue = int224(median(values));
+        dataPoints[dapiId] = DataPoint({
+            value: updatedValue,
+            timestamp: updatedTimestamp
+        });
+        emit UpdatedDapiWithSignedData(dapiId, updatedValue, updatedTimestamp);
+    }
+
+    /// @notice Sets the data point ID the name points to
+    /// @dev While a data point ID refers to a specific Beacon or dAPI, names
+    /// provide a more abstract interface for convenience. This means a name
+    /// that was pointing at a beacon can be pointed to a dAPI, then another
+    /// dAPI, etc.
+    /// @param name Human-readable name
+    /// @param dataPointId Data point ID the name will point to
+    function setName(bytes32 name, bytes32 dataPointId) external override {
+        require(
+            msg.sender == manager ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    nameSetterRole,
+                    msg.sender
+                ),
+            "Sender cannot set name"
+        );
+        nameToDataPointId[name] = dataPointId;
+        emit SetName(name, dataPointId, msg.sender);
     }
 
     /// @notice Reads the data point
     /// @param dataPointId ID of the data point that will be read
     /// @return value Data point value
     /// @return timestamp Data point timestamp
-    function readDataPoint(bytes32 dataPointId)
+    function readWithDataPointId(bytes32 dataPointId)
         external
         view
         override
+        onlyAuthorizedReader(dataPointId)
         returns (int224 value, uint32 timestamp)
     {
-        require(
-            readerCanReadDataPoint(dataPointId, msg.sender),
-            "Sender cannot read beacon"
-        );
         DataPoint storage dataPoint = dataPoints[dataPointId];
         return (dataPoint.value, dataPoint.timestamp);
     }
 
-    function readDataPoint(string calldata name)
+    function readWithName(bytes32 name)
         external
         view
         override
+        onlyAuthorizedReader(name)
         returns (int224 value, uint32 timestamp)
     {
-        bytes32 nameHash = keccak256(abi.encodePacked(name));
-        require(
-            readerCanReadDataPoint(nameHash, msg.sender),
-            "Sender cannot read beacon"
-        );
-        DataPoint storage dataPoint = dataPoints[
-            nameHashToDataPointId[nameHash]
-        ];
+        DataPoint storage dataPoint = dataPoints[nameToDataPointId[name]];
         return (dataPoint.value, dataPoint.timestamp);
     }
 
@@ -362,8 +528,12 @@ contract DapiServer is
         returns (bool)
     {
         return
+            reader == address(0) ||
             userIsWhitelisted(dataPointId, reader) ||
-            userIsUnlimitedReader(reader);
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                unlimitedReaderRole,
+                reader
+            );
     }
 
     /// @notice Returns the detailed whitelist status of the reader for the
@@ -424,42 +594,41 @@ contract DapiServer is
         beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 
-    /// @notice Returns if the user has the unlimited reader role
-    /// @dev An unlimited reader can read all data points. `address(0)` is
-    /// treated as an unlimited reader to provide an easy way for off-chain
-    /// agents to read data point values without having to resort to logs.
-    /// @param user User address
-    /// @return If the user is unlimited reader
-    function userIsUnlimitedReader(address user) private view returns (bool) {
-        return
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                unlimitedReaderRole,
-                user
-            ) || user == address(0);
+    function deriveDapiId(bytes32[] memory beaconIds)
+        public
+        pure
+        override
+        returns (bytes32 dapiId)
+    {
+        dapiId = keccak256(abi.encodePacked(beaconIds));
     }
 
-    /// @notice Called privately to decode and process the fulfillment data
+    /// @notice Called privately to process the beacon update
     /// @param beaconId Beacon ID
     /// @param timestamp Timestamp used in the signature
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    /// @return decodedData Decoded beacon data
-    function ingestFulfillmentData(
+    /// @return decodedData Decoded fulfillment data
+    function processBeaconUpdate(
         bytes32 beaconId,
         uint256 timestamp,
         bytes calldata data
     ) private returns (int256 decodedData) {
         decodedData = decodeFulfillmentData(data);
-        require(timestamp <= type(uint32).max, "Timestamp typecasting error");
         require(
             timestamp > dataPoints[beaconId].timestamp,
             "Fulfillment older than beacon"
         );
+        // Timestamp validity is already checked by `onlyValidTimestamp`, which
+        // means it will be small enough to be typecast into `uint32`
         dataPoints[beaconId] = DataPoint({
             value: int224(decodedData),
             timestamp: uint32(timestamp)
         });
     }
 
+    /// @notice Called privately to decode the fulfillment data
+    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @return decodedData Decoded fulfillment data
     function decodeFulfillmentData(bytes calldata data)
         private
         pure
@@ -474,8 +643,17 @@ contract DapiServer is
         return int224(decodedData);
     }
 
+    function decodeConditionParameters(bytes calldata conditionParameters)
+        private
+        pure
+        returns (uint256)
+    {
+        require(conditionParameters.length == 32, "Incorrect parameter length");
+        return abi.decode(conditionParameters, (uint256));
+    }
+
     function calculateUpdateInPercentage(int224 firstValue, int224 secondValue)
-        internal
+        private
         pure
         returns (uint256 updateInPercentage)
     {
@@ -494,175 +672,5 @@ contract DapiServer is
             absoluteFirstValue = 1;
         }
         return (HUNDRED_PERCENT * absoluteDelta) / absoluteFirstValue;
-    }
-
-    function registerSubscription(
-        address _airnodeProtocol,
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata conditions,
-        address sponsor,
-        address requester,
-        bytes4 fulfillFunctionId
-    ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
-        subscriptionId = keccak256(
-            abi.encodePacked(
-                block.chainid,
-                _airnodeProtocol,
-                templateId,
-                parameters,
-                conditions,
-                sponsor,
-                requester,
-                fulfillFunctionId
-            )
-        );
-        beaconId = keccak256(abi.encodePacked(templateId, parameters));
-        subscriptionIdToBeaconId[subscriptionId] = beaconId;
-    }
-
-    function getRegisteredBeaconId(bytes32 subscriptionId)
-        private
-        returns (bytes32 beaconId)
-    {
-        beaconId = subscriptionIdToBeaconId[subscriptionId];
-        if (beaconId == bytes32(0)) {
-            (
-                bytes32 templateId,
-                bytes memory parameters,
-                ,
-                ,
-                ,
-
-            ) = IAirnodeProtocolV1(airnodeProtocol).subscriptions(
-                    subscriptionId
-                );
-            beaconId = keccak256(abi.encodePacked(templateId, parameters));
-            subscriptionIdToBeaconId[subscriptionId] = beaconId;
-        }
-        return beaconId;
-    }
-
-    function fulfillPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
-        uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
-        require(
-            keccak256(data) == updateDapi(abi.decode(data, (bytes32[]))),
-            "Incorrect data length"
-        );
-    }
-
-    function conditionPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
-        bytes calldata data,
-        bytes calldata conditionParameters
-    ) external override returns (bool) {
-        require(msg.sender == address(0), "Sender not zero address");
-        bytes32 dapiId = keccak256(data);
-        int224 currentDapiValue = dataPoints[dapiId].value;
-        require(
-            dapiId == updateDapi(abi.decode(data, (bytes32[]))),
-            "Incorrect data length"
-        );
-        int224 updatedDapiValue = dataPoints[dapiId].value;
-        require(conditionParameters.length == 32, "Incorrect parameter length");
-        uint256 updatePercentageThreshold = abi.decode(
-            conditionParameters,
-            (uint256)
-        );
-        return
-            calculateUpdateInPercentage(currentDapiValue, updatedDapiValue) >=
-            updatePercentageThreshold;
-    }
-
-    function updateDapi(bytes32[] memory beaconIds)
-        public
-        override
-        returns (bytes32 dapiId)
-    {
-        dapiId = keccak256(abi.encodePacked(beaconIds));
-        uint32 currentTimestamp = dataPoints[dapiId].timestamp;
-        uint256 beaconCount = beaconIds.length;
-        int256[] memory values = new int256[](beaconCount);
-        uint256 accumulatedTimestamp = 0;
-        for (uint256 ind = 0; ind < beaconCount; ind++) {
-            DataPoint storage datapoint = dataPoints[beaconIds[ind]];
-            values[ind] = datapoint.value;
-            accumulatedTimestamp += datapoint.timestamp;
-        }
-        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
-        require(updatedTimestamp > currentTimestamp, "Updated value outdated");
-        int224 updatedValue = int224(median(values));
-        dataPoints[dapiId] = DataPoint({
-            value: updatedValue,
-            timestamp: updatedTimestamp
-        });
-        emit UpdatedDapi(dapiId, updatedValue, updatedTimestamp);
-    }
-
-    function updateDapiWithSignedData(
-        bytes32[] calldata templateIds,
-        bytes[] calldata parameters,
-        uint256[] calldata timestamps,
-        bytes[] calldata data,
-        bytes[] calldata signatures
-    ) external override returns (bytes32 dapiId) {
-        uint256 beaconCount = templateIds.length;
-        require(
-            beaconCount == parameters.length &&
-                beaconCount == timestamps.length &&
-                beaconCount == data.length &&
-                beaconCount == signatures.length,
-            "Parameter length mismatch"
-        );
-        bytes32[] memory beaconIds = new bytes32[](beaconCount);
-        for (uint256 ind = 0; ind < beaconCount; ind++) {
-            if (signatures[ind].length != 0) {
-                require(timestampIsValid(timestamps[ind]), "Invalid timestamp");
-                (beaconIds[ind], ) = IAirnodeProtocolV1(airnodeProtocol)
-                    .verifySignature(
-                        templateIds[ind],
-                        parameters[ind],
-                        timestamps[ind],
-                        data[ind],
-                        signatures[ind]
-                    );
-            } else {
-                beaconIds[ind] = keccak256(
-                    abi.encodePacked(templateIds[ind], parameters[ind])
-                );
-            }
-        }
-        dapiId = keccak256(abi.encodePacked(beaconIds));
-        int256[] memory values = new int256[](beaconCount);
-        uint256 accumulatedTimestamp = 0;
-        for (uint256 ind = 0; ind < beaconCount; ind++) {
-            if (signatures[ind].length != 0) {
-                values[ind] = decodeFulfillmentData(data[ind]);
-                uint256 timestamp = timestamps[ind];
-                require(
-                    timestamp <= type(uint32).max,
-                    "Timestamp typecasting error"
-                );
-                accumulatedTimestamp += timestamp;
-            } else {
-                DataPoint storage dataPoint = dataPoints[beaconIds[ind]];
-                values[ind] = dataPoint.value;
-                accumulatedTimestamp += dataPoint.timestamp;
-            }
-        }
-        uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
-        require(
-            updatedTimestamp > dataPoints[dapiId].timestamp,
-            "Updated value outdated"
-        );
-        int224 updatedValue = int224(median(values));
-        dataPoints[dapiId] = DataPoint({
-            value: updatedValue,
-            timestamp: updatedTimestamp
-        });
-        emit UpdatedDapiWithSignedData(dapiId, updatedValue, updatedTimestamp);
     }
 }

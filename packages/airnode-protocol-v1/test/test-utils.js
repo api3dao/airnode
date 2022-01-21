@@ -1,13 +1,13 @@
 const { ethers } = require('hardhat');
 
-function deriveWalletPathFromSponsorAddress(sponsorAddress) {
+function deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId) {
   const sponsorAddressBN = ethers.BigNumber.from(sponsorAddress);
   const paths = [];
   for (let i = 0; i < 6; i++) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `0/${paths.join('/')}`;
+  return `${protocolId}/${paths.join('/')}`;
 }
 
 module.exports = {
@@ -31,15 +31,17 @@ module.exports = {
   generateRandomBytes: () => {
     return ethers.utils.hexlify(ethers.utils.randomBytes(256));
   },
-  deriveSponsorWalletAddress: (airnodeXpub, sponsorAddress) => {
+  deriveSponsorWalletAddress: (airnodeXpub, sponsorAddress, protocolId) => {
     const hdNodeFromXpub = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-    const sponsorWalletHdNode = hdNodeFromXpub.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
+    const sponsorWalletHdNode = hdNodeFromXpub.derivePath(
+      deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)
+    );
     return sponsorWalletHdNode.address;
   },
-  deriveSponsorWallet: (airnodeMnemonic, sponsorAddress) => {
+  deriveSponsorWallet: (airnodeMnemonic, sponsorAddress, protocolId) => {
     return ethers.Wallet.fromMnemonic(
       airnodeMnemonic,
-      `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+      `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)}`
     );
   },
   deriveServiceId: (airnodeAddress, endpointId) => {

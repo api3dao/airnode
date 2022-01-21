@@ -2,6 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/Multicall.sol";
+import "../AirnodeUser.sol";
 import "./interfaces/IAllocator.sol";
 
 /// @title Abstract contract that is inherited by contracts that temporarily
@@ -9,12 +10,15 @@ import "./interfaces/IAllocator.sol";
 /// @dev An Airnode calls a number of Allocators to retrieve a number of slots
 /// to serve the respective subscriptions. What these Allocators and slot
 /// numbers are expected to be communicated off-chain.
-abstract contract Allocator is Multicall, IAllocator {
+abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
         address setter;
         uint64 expirationTimestamp;
     }
+
+    /// @param _airnodeProtocol AirnodeProtocol contract address
+    constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
 
     /// @notice Slot setter role description
     string public constant override SLOT_SETTER_ROLE_DESCRIPTION =
@@ -36,16 +40,31 @@ abstract contract Allocator is Multicall, IAllocator {
     /// @param subscriptionId Subscription ID
     /// @param expirationTimestamp Timestamp at which the slot allocation will
     /// expire
+    /// @param requester Requester address
+    /// @param sponsor Sponsor address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     function _setSlot(
         address airnode,
         uint256 slotIndex,
         bytes32 subscriptionId,
-        uint64 expirationTimestamp
+        uint64 expirationTimestamp,
+        address requester,
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) internal {
-        require(airnode != address(0), "Airnode address zero");
         require(
             expirationTimestamp >= block.timestamp,
             "Expiration is in past"
+        );
+        require(
+            keccak256(
+                abi.encodePacked(airnode, requester, sponsor, fulfillFunctionId)
+            ) ==
+                IAirnodeProtocolV1(airnodeProtocol).subscriptionIdToHash(
+                    subscriptionId
+                ),
+            "Subscription not registered"
         );
         _resetSlot(airnode, slotIndex);
         airnodeToSlotIndexToSlot[airnode][slotIndex] = Slot({

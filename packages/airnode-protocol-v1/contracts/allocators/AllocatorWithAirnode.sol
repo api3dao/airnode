@@ -15,14 +15,17 @@ contract AllocatorWithAirnode is
 {
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
+    /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription
+        string memory _adminRoleDescription,
+        address _airnodeProtocol
     )
         AccessControlRegistryAdminned(
             _accessControlRegistry,
             _adminRoleDescription
         )
+        Allocator(_airnodeProtocol)
     {}
 
     /// @notice Sets a slot with the given parameters
@@ -31,17 +34,32 @@ contract AllocatorWithAirnode is
     /// @param subscriptionId Subscription ID
     /// @param expirationTimestamp Timestamp at which the slot allocation will
     /// expire
+    /// @param requester Requester address
+    /// @param sponsor Sponsor address
+    /// @param fulfillFunctionId Selector of the function to be called for
+    /// fulfillment
     function setSlot(
         address airnode,
         uint256 slotIndex,
         bytes32 subscriptionId,
-        uint64 expirationTimestamp
+        uint64 expirationTimestamp,
+        address requester,
+        address sponsor,
+        bytes4 fulfillFunctionId
     ) external override {
         require(
             hasSlotSetterRoleOrIsAirnode(airnode, msg.sender),
             "Sender cannot set slot"
         );
-        _setSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
+        _setSlot(
+            airnode,
+            slotIndex,
+            subscriptionId,
+            expirationTimestamp,
+            requester,
+            sponsor,
+            fulfillFunctionId
+        );
     }
 
     /// @notice Returns if the setter of the slot is still authorized to set
