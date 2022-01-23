@@ -5,8 +5,13 @@ import { InputParameter } from './types';
 describe('encode', () => {
   const inputParameters: InputParameter[] = [
     { type: 'bytes', name: 'TestBytesName', value: '0x123abc' },
-    { type: 'bytes32', name: 'TestBytes32Name', value: 'Some bytes32 value' },
+    {
+      type: 'bytes32',
+      name: 'TestBytes32Name',
+      value: '0x72616e646f6d737472696e670000000000000000000000000000000000000000',
+    },
     { type: 'string', name: 'TestStringName', value: 'Some string value' },
+    { type: 'string32', name: 'TestString32Name', value: 'Some string32 value' },
     { type: 'address', name: 'TestAddressName', value: '0x4128922394C63A204Dd98ea6fbd887780b78bb7d' },
     { type: 'int256', name: 'TestIntName', value: '-10000000000000000000' },
     { type: 'uint256', name: 'TestUIntName', value: '20000000000000000000' },
@@ -29,7 +34,7 @@ describe('encode', () => {
 
   it('encodes multiple types', () => {
     const parameters: InputParameter[] = [
-      { type: 'bytes32', name: 'bytes32 name', value: 'bytes 32 value' },
+      { type: 'string32', name: 'string32 name', value: 'string32 value' },
       { type: 'address', name: 'wallet', value: '0x4128922394C63A204Dd98ea6fbd887780b78bb7d' },
       { type: 'string', name: 'string name', value: 'string value' },
       { type: 'int256', name: 'balance', value: '-10000000000000000000' },
@@ -40,7 +45,7 @@ describe('encode', () => {
     const encoded = encoding.encode(parameters);
     const decoded = decoding.decode(encoded);
     expect(decoded).toEqual({
-      'bytes32 name': 'bytes 32 value',
+      'string32 name': 'string32 value',
       'bytes name': '0x123abc',
       'string name': 'string value',
       balance: '-10000000000000000000',

@@ -1,25 +1,21 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
-import { PARAMETER_SHORT_TYPES } from './utils';
-import { ABIParameterType, ABIParameterTypeShort, DecodedMap } from './types';
-
-type TransformationReference = {
-  readonly [key in ABIParameterType]?: (value: any) => string;
-};
+import { PARAMETER_SHORT_TYPES, ParameterTypeShort, ParameterType, TYPE_TRANSFORMATIONS } from './constants';
+import { DecodedMap, ValueTransformation } from './types';
 
 // Certain types need to be parsed after ABI decoding happens
-const TRANSFORMATIONS: TransformationReference = {
-  bytes32: ethers.utils.parseBytes32String,
+const VALUE_TRANSFORMATIONS: ValueTransformation = {
+  string32: ethers.utils.parseBytes32String,
   int256: (value: ethers.BigNumber) => value.toString(),
   uint256: (value: ethers.BigNumber) => value.toString(),
 };
 
-function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, string][]): DecodedMap {
+function buildDecodedMap(types: ParameterType[], nameValuePairs: [string, string][]): DecodedMap {
   return nameValuePairs.reduce((acc, pair, index) => {
     const [encodedName, encodedValue] = pair;
     const name = ethers.utils.parseBytes32String(encodedName);
     const type = types[index];
-    const transform = TRANSFORMATIONS[type];
+    const transform = VALUE_TRANSFORMATIONS[type];
     // If the type does not need to be transformed, return it as is
     if (!transform) {
       return { ...acc, [name]: encodedValue };
@@ -50,16 +46,16 @@ export function decode(encodedData: string): DecodedMap {
   const encodedParameterTypes = parsedHeader.substring(1);
 
   // Replace encoded types with full type names
-  const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map(
-    (type) => PARAMETER_SHORT_TYPES[type as ABIParameterTypeShort]
+  const fullParameterTypes: ParameterType[] = Array.from(encodedParameterTypes).map(
+    (type) => PARAMETER_SHORT_TYPES[type as ParameterTypeShort]
   );
 
   // The first `bytes32` is the type encoding
-  const initialDecodedTypes: ABIParameterType[] = ['bytes32'];
+  const initialDecodedTypes: ParameterType[] = ['bytes32'];
 
   const decodingTypes = fullParameterTypes.reduce((acc: string[], type) => {
     // Each parameter is expected to have a `bytes32` name
-    return [...acc, 'bytes32' as const, type];
+    return [...acc, 'bytes32' as const, TYPE_TRANSFORMATIONS[type] ?? type];
   }, initialDecodedTypes);
 
   // It's important to leave the `encodedData` intact here and not try to trim off the first
