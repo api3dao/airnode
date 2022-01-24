@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./interfaces/IAirnodeProtocolV1.sol";
+import "./interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IAirnodeUser.sol";
 
 /// @title Contract to be inherited to interact with the Airnode protocol

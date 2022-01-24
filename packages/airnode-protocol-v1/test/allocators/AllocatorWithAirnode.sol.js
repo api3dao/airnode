@@ -23,7 +23,7 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  const airnodeProtocolFactory = await hre.ethers.getContractFactory('AirnodeProtocolV1', roles.deployer);
+  const airnodeProtocolFactory = await hre.ethers.getContractFactory('AirnodeProtocol', roles.deployer);
   const airnodeProtocol = await airnodeProtocolFactory.deploy();
   const allocatorWithAirnodeFactory = await hre.ethers.getContractFactory('AllocatorWithAirnode', roles.deployer);
   allocatorWithAirnode = await allocatorWithAirnodeFactory.deploy(

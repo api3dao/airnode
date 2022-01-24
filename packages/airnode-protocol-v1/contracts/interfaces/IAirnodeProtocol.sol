@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "./IAirnodeRrp.sol";
 
-interface IAirnodePsp is IAirnodeRrp {
+interface IAirnodeProtocol is IAirnodeRrp {
     event StoredSubscription(
         bytes32 indexed subscriptionId,
         bytes32 templateId,

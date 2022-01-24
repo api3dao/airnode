@@ -2,14 +2,15 @@
 pragma solidity 0.8.9;
 
 import "./AirnodeRrp.sol";
-import "./interfaces/IAirnodePsp.sol";
+import "./interfaces/IAirnodeProtocol.sol";
 
-/// @title Airnode publish–subscribe protocol (PSP) and its relayed version
+/// @title Airnode request–response protocol (RRP), publish–subscribe protocol
+/// (PSP) and their relayed versions
 /// @notice Differently from PSP, relayed PSP allows the requester to specify
 /// an Airnode that will sign the fulfillment in the subscription and a relayer
 /// that will report the signed fulfillment in the respective Allocator
 /// contract.
-contract AirnodePsp is AirnodeRrp, IAirnodePsp {
+contract AirnodeProtocol is AirnodeRrp, IAirnodeProtocol {
     using ECDSA for bytes32;
 
     struct Subscription {

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../interfaces/IAirnodeRequester.sol";
+import "../../interfaces/IAirnodeRequesterAndSignatureVerifier.sol";
 
-interface IDapiServer is IAirnodeRequester {
+interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -54,7 +54,11 @@ interface IDapiServer is IAirnodeRequester {
         uint256 timestamp
     );
 
-    event UpdatedDapi(bytes32 indexed dapiId, int224 value, uint32 timestamp);
+    event UpdatedDapiWithBeacons(
+        bytes32 indexed dapiId,
+        int224 value,
+        uint32 timestamp
+    );
 
     event UpdatedDapiWithSignedData(
         bytes32 indexed dapiId,
@@ -62,7 +66,7 @@ interface IDapiServer is IAirnodeRequester {
         uint32 timestamp
     );
 
-    event SetName(bytes32 name, bytes32 dataPointId, address sender);
+    event SetName(bytes32 indexed name, bytes32 dataPointId, address sender);
 
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
@@ -71,14 +75,14 @@ interface IDapiServer is IAirnodeRequester {
         bytes32 templateId,
         bytes calldata parameters,
         address sponsor
-    ) external;
+    ) external returns (bytes32 requestId);
 
     function requestRrpBeaconUpdateRelayed(
         bytes32 templateId,
         bytes calldata parameters,
         address relayer,
         address sponsor
-    ) external;
+    ) external returns (bytes32 requestId);
 
     function fulfillRrpBeaconUpdate(
         bytes32 requestId,
@@ -88,8 +92,8 @@ interface IDapiServer is IAirnodeRequester {
 
     function registerBeaconUpdateSubscription(
         bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata conditions,
+        bytes memory parameters,
+        bytes memory conditions,
         address relayer,
         address sponsor
     ) external returns (bytes32 subscriptionId, bytes32 beaconId);
@@ -114,7 +118,7 @@ interface IDapiServer is IAirnodeRequester {
         bytes calldata signature
     ) external;
 
-    function updateDapi(bytes32[] memory beaconIds)
+    function updateDapiWithBeacons(bytes32[] memory beaconIds)
         external
         returns (bytes32 dapiId);
 
@@ -139,6 +143,8 @@ interface IDapiServer is IAirnodeRequester {
     ) external returns (bytes32 dapiId);
 
     function setName(bytes32 name, bytes32 dataPointId) external;
+
+    function nameToDataPointId(bytes32 name) external view returns (bytes32);
 
     function readWithDataPointId(bytes32 dataPointId)
         external
@@ -207,6 +213,4 @@ interface IDapiServer is IAirnodeRequester {
         external
         view
         returns (bytes32);
-
-    function nameToDataPointId(bytes32 name) external view returns (bytes32);
 }

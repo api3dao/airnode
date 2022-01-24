@@ -61,7 +61,7 @@ abstract contract Allocator is Multicall, AirnodeUser, IAllocator {
             keccak256(
                 abi.encodePacked(airnode, requester, sponsor, fulfillFunctionId)
             ) ==
-                IAirnodeProtocolV1(airnodeProtocol).subscriptionIdToHash(
+                IAirnodeProtocol(airnodeProtocol).subscriptionIdToHash(
                     subscriptionId
                 ),
             "Subscription not registered"
