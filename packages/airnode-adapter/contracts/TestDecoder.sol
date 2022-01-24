@@ -106,19 +106,4 @@ contract TestDecoder {
     {
         timestamp = abi.decode(data, (uint256));
     }
-
-    function encoderXXX()
-        public
-        pure
-        returns (bytes memory encoded)
-    {
-      encoded = abi.encode(
-        bytes32("1BSasb"),
-        bytes32("MyFirstBytes"), bytes(hex"1234"),
-        bytes32("MyString"), "1234",
-        bytes32("MyFirstAddress"), 0x0000000000000000000000000000000000001234,
-        bytes32("MyString32"), bytes32("1234"),
-        bytes32("MyBytes32"), 0x68656c6c6f000000000000000000000000000000000000000000000000000000
-      );
-    }
 }

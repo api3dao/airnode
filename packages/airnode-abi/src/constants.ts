@@ -5,7 +5,10 @@ export const PARAMETER_SHORT_TYPES = {
   B: 'bytes',
   b: 'bytes32',
   S: 'string',
-  s: 'string32', // This is not officially supported type in solidity and we use bytes32 on chain instead
+  // Type "string32" is not supported in solidity and we use bytes32 on chain instead. We need to create this
+  // artificially made up type so that users can decide if they want their data encoded as short string or as raw bytes
+  // value.
+  s: 'string32',
   a: 'address',
   i: 'int256',
   u: 'uint256',

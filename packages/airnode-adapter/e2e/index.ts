@@ -274,9 +274,4 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       );
     });
   });
-
-  it.only('wow', async () => {
-    const x = await testDecoder.encoderXXX();
-    console.log(x);
-  });
 });
