@@ -57,6 +57,10 @@ variable "region" {
   description = "GCP region"
 }
 
+variable "project" {
+  description = "GCP project"
+}
+
 variable "memory_size" {
   description = "GCP memory allocation"
 }
