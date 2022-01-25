@@ -56,8 +56,9 @@ contract DapiServer is
         public
         override sponsorToUpdateRequesterToPermissionStatus;
 
-    /// @notice ID of the Beacon that a subscription with the ID will update
     mapping(bytes32 => bytes32) public override subscriptionIdToBeaconId;
+
+    mapping(bytes32 => bytes32) private subscriptionIdToHash;
 
     mapping(bytes32 => bytes32) private nameHashToDataPointId;
 
@@ -266,11 +267,10 @@ contract DapiServer is
         bytes memory conditions,
         address relayer,
         address sponsor
-    ) public override returns (bytes32 subscriptionId, bytes32 beaconId) {
+    ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
         subscriptionId = keccak256(
             abi.encodePacked(
                 block.chainid,
-                airnodeProtocol,
                 templateId,
                 parameters,
                 conditions,
@@ -280,15 +280,25 @@ contract DapiServer is
                 this.fulfillPspBeaconUpdate.selector
             )
         );
-        require(
-            IAirnodeProtocol(airnodeProtocol).subscriptionIdToHash(
-                subscriptionId
-            ) != bytes32(0),
-            "Not registered at protocol"
+        address airnode = IAirnodeProtocol(airnodeProtocol).templateIdToAirnode(
+            templateId
+        );
+        require(airnode != address(0), "Template not registered");
+        subscriptionIdToHash[subscriptionId] = keccak256(
+            abi.encodePacked(airnode, relayer, sponsor)
         );
         beaconId = deriveBeaconId(templateId, parameters);
         subscriptionIdToBeaconId[subscriptionId] = beaconId;
-        emit RegisteredSubscription(subscriptionId, beaconId);
+        emit RegisteredSubscription(
+            subscriptionId,
+            templateId,
+            parameters,
+            conditions,
+            relayer,
+            sponsor,
+            address(this),
+            this.fulfillPspBeaconUpdate.selector
+        );
     }
 
     /// @notice Returns true if the respective Beacon needs to be updated based
@@ -326,11 +336,45 @@ contract DapiServer is
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
+        address airnode,
+        address relayer,
+        address sponsor,
         uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
+        bytes calldata data,
+        bytes calldata signature
+    ) external override onlyValidTimestamp(timestamp) {
+        require(
+            subscriptionIdToHash[subscriptionId] ==
+                keccak256(abi.encodePacked(airnode, relayer, sponsor)),
+            "Subscription not registered"
+        );
+        if (airnode == relayer) {
+            require(
+                (
+                    keccak256(
+                        abi.encodePacked(subscriptionId, timestamp, msg.sender)
+                    ).toEthSignedMessageHash()
+                ).recover(signature) == airnode,
+                "Signature mismatch"
+            );
+        } else {
+            require(
+                (
+                    keccak256(
+                        abi.encodePacked(
+                            subscriptionId,
+                            timestamp,
+                            msg.sender,
+                            data
+                        )
+                    ).toEthSignedMessageHash()
+                ).recover(signature) == airnode,
+                "Signature mismatch"
+            );
+        }
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
-        require(beaconId != bytes32(0), "Subscription not registered");
+        // Beacon ID is guaranteed to not be zero because the subscription is
+        // registered
         int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
         emit UpdatedBeaconWithPsp(
             beaconId,
@@ -429,7 +473,7 @@ contract DapiServer is
         int224 currentDapiValue = dataPoints[dapiId].value;
         require(
             dapiId == updateDapiWithBeacons(abi.decode(data, (bytes32[]))),
-            "Incorrect data length"
+            "Data length not correct"
         );
         return
             calculateUpdateInPercentage(
@@ -455,13 +499,17 @@ contract DapiServer is
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     function fulfillPspDapiUpdate(
         bytes32 subscriptionId, // solhint-disable-line no-unused-vars
-        uint256 timestamp,
-        bytes calldata data
-    ) external override onlyAirnodeProtocol onlyValidTimestamp(timestamp) {
+        address airnode, // solhint-disable-line no-unused-vars
+        address relayer, // solhint-disable-line no-unused-vars
+        address sponsor, // solhint-disable-line no-unused-vars
+        uint256 timestamp, // solhint-disable-line no-unused-vars
+        bytes calldata data,
+        bytes calldata signature // solhint-disable-line no-unused-vars
+    ) external override {
         require(
             keccak256(data) ==
                 updateDapiWithBeacons(abi.decode(data, (bytes32[]))),
-            "Incorrect data length"
+            "Data length not correct"
         );
     }
 
@@ -480,12 +528,12 @@ contract DapiServer is
     /// by the respective Airnode addresses
     /// @return dapiId ID of the dAPI that is updated
     function updateDapiWithSignedData(
-        bytes32[] calldata templateIds,
-        bytes[] calldata parameters,
-        uint256[] calldata timestamps,
-        bytes[] calldata data,
-        bytes[] calldata signatures
-    ) external override returns (bytes32 dapiId) {
+        bytes32[] memory templateIds,
+        bytes[] memory parameters,
+        uint256[] memory timestamps,
+        bytes[] memory data,
+        bytes[] memory signatures
+    ) public override returns (bytes32 dapiId) {
         uint256 beaconCount = templateIds.length;
         require(
             beaconCount == parameters.length &&
@@ -494,6 +542,7 @@ contract DapiServer is
                 beaconCount == signatures.length,
             "Parameter length mismatch"
         );
+        require(beaconCount > 1, "Specified less than two Beacons");
         bytes32[] memory beaconIds = new bytes32[](beaconCount);
         for (uint256 ind = 0; ind < beaconCount; ind++) {
             if (signatures[ind].length != 0) {
@@ -529,7 +578,7 @@ contract DapiServer is
         }
         uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
         require(
-            updatedTimestamp > dataPoints[dapiId].timestamp,
+            updatedTimestamp >= dataPoints[dapiId].timestamp,
             "Updated value outdated"
         );
         int224 updatedValue = int224(median(values));
@@ -565,7 +614,12 @@ contract DapiServer is
     /// @notice Returns the data point ID the name is set to
     /// @param name Name
     /// @return Data point ID
-    function nameToDataPointId(bytes32 name) external view returns (bytes32) {
+    function nameToDataPointId(bytes32 name)
+        external
+        view
+        override
+        returns (bytes32)
+    {
         return nameHashToDataPointId[keccak256(abi.encodePacked(name))];
     }
 
@@ -718,12 +772,12 @@ contract DapiServer is
     /// @notice Called privately to decode the fulfillment data
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     /// @return decodedData Decoded fulfillment data
-    function decodeFulfillmentData(bytes calldata data)
+    function decodeFulfillmentData(bytes memory data)
         private
         pure
         returns (int224)
     {
-        require(data.length == 32, "Incorrect data length");
+        require(data.length == 32, "Data length not correct");
         int256 decodedData = abi.decode(data, (int256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,

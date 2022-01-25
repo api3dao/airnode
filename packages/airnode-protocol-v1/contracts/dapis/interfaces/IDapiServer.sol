@@ -38,7 +38,13 @@ interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
 
     event RegisteredSubscription(
         bytes32 indexed subscriptionId,
-        bytes32 beaconId
+        bytes32 templateId,
+        bytes parameters,
+        bytes conditions,
+        address relayer,
+        address sponsor,
+        address requester,
+        bytes4 fulfillFunctionId
     );
 
     event UpdatedBeaconWithPsp(
@@ -106,8 +112,12 @@ interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
 
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
+        address airnode,
+        address relayer,
+        address sponsor,
         uint256 timestamp,
-        bytes calldata data
+        bytes calldata data,
+        bytes calldata signature
     ) external;
 
     function updateBeaconWithSignedData(
@@ -123,23 +133,27 @@ interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
         returns (bytes32 dapiId);
 
     function conditionPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        bytes32 subscriptionId,
         bytes calldata data,
         bytes calldata conditionParameters
     ) external returns (bool);
 
     function fulfillPspDapiUpdate(
-        bytes32 subscriptionId, // solhint-disable-line no-unused-vars
+        bytes32 subscriptionId,
+        address airnode,
+        address relayer,
+        address sponsor,
         uint256 timestamp,
-        bytes calldata data
+        bytes calldata data,
+        bytes calldata signature
     ) external;
 
     function updateDapiWithSignedData(
-        bytes32[] calldata templateIds,
-        bytes[] calldata parameters,
-        uint256[] calldata timestamps,
-        bytes[] calldata data,
-        bytes[] calldata signatures
+        bytes32[] memory templateIds,
+        bytes[] memory parameters,
+        uint256[] memory timestamps,
+        bytes[] memory data,
+        bytes[] memory signatures
     ) external returns (bytes32 dapiId);
 
     function setName(bytes32 name, bytes32 dataPointId) external;

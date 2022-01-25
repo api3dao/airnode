@@ -34,10 +34,10 @@ contract AirnodeRequesterAndSignatureVerifier is
     /// additional parameters
     function verifySignature(
         bytes32 templateId,
-        bytes calldata parameters,
+        bytes memory parameters,
         uint256 timestamp,
-        bytes calldata data,
-        bytes calldata signature
+        bytes memory data,
+        bytes memory signature
     ) internal returns (bytes32 requestHash) {
         address airnode = templateIdToAirnode[templateId];
         if (airnode == address(0)) {
