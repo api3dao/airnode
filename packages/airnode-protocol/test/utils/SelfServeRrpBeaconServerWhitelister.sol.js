@@ -320,7 +320,7 @@ describe('whitelistReaderWithExpiration', function () {
       const randomBeaconId = hre.ethers.utils.randomBytes(32);
       await expect(
         selfServeRrpBeaconServerWhitelister.whitelistReaderWithExpiration(randomBeaconId, roles.beaconReader.address)
-      ).to.be.revertedWith('Cannot whitelist for beacon');
+      ).to.be.revertedWith('Cannot whitelist');
     });
   });
 });
@@ -357,7 +357,7 @@ describe('whitelistReaderIndefinitely', function () {
       const randomBeaconId = hre.ethers.utils.randomBytes(32);
       await expect(
         selfServeRrpBeaconServerWhitelister.whitelistReaderIndefinitely(randomBeaconId, roles.beaconReader.address)
-      ).to.be.revertedWith('Cannot whitelist indefinitely for beacon');
+      ).to.be.revertedWith('Cannot whitelist indefinitely');
     });
   });
 });
