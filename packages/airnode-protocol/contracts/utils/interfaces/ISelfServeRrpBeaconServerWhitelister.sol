@@ -2,36 +2,40 @@
 pragma solidity 0.8.9;
 
 interface ISelfServeRrpBeaconServerWhitelister {
-    event SetBeaconIdWithExpirationTimestamp(
+    event SetBeaconIdToExpirationTimestamp(
         bytes32 indexed beaconId,
         uint64 expirationTimestamp
     );
-    event SetBeaconIdWithIndefiniteWhitelistStatus(
+    event SetBeaconIdToIndefiniteWhitelistStatus(
         bytes32 indexed beaconId,
         bool indefiniteWhitelistStatus
     );
-    event WhitelistedReaderWithExpiration(
+    event WhitelistedReader(
         bytes32 indexed beaconId,
-        address indexed reader
-    );
-    event WhitelistedReaderIndefinitely(
-        bytes32 indexed beaconId,
-        address indexed reader
+        address indexed reader,
+        uint64 expirationTimestamp,
+        bool indefiniteWhitelistStatus
     );
 
-    function setBeaconIdWithExpirationTimestamp(
+    function setBeaconIdToExpirationTimestamp(
         bytes32 _beaconId,
         uint64 _expirationTimestamp
     ) external;
 
-    function setBeaconIdWithIndefiniteWhitelistStatus(
+    function setBeaconIdToIndefiniteWhitelistStatus(
         bytes32 _beaconId,
         bool _indefiniteWhitelistStatus
     ) external;
 
-    function whitelistReaderWithExpiration(bytes32 _beaconId, address _reader)
-        external;
+    function whitelistReader(bytes32 _beaconId, address _reader) external;
 
-    function whitelistReaderIndefinitely(bytes32 _beaconId, address _reader)
-        external;
+    function beaconIdToExpirationTimestamp(bytes32 _beaconId)
+        external
+        view
+        returns (uint64);
+
+    function beaconIdToIndefiniteWhitelistStatus(bytes32 _beaconId)
+        external
+        view
+        returns (bool);
 }
