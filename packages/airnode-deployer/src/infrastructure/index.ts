@@ -83,7 +83,6 @@ function awsAirnodeInitArguments(cloudProvider: AwsCloudProvider, bucket: string
   return [
     ['backend-config', 'region', cloudProvider.region],
     ['backend-config', 'bucket', bucket],
-    ['backend-config', 'dynamodb_table', aws.awsDynamodbTableFromBucket(bucket)],
   ];
 }
 

@@ -2,10 +2,6 @@ import AWS from 'aws-sdk';
 import { AwsCloudProvider } from '@api3/airnode-node';
 import * as logger from '../utils/logger';
 
-export function awsDynamodbTableFromBucket(bucket: string) {
-  return `${bucket}-lock`;
-}
-
 async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.ObjectIdentifierList) {
   logger.debug(`Deleting objects ${JSON.stringify(objects)} from S3 bucket ${bucket}`);
   await s3
@@ -45,21 +41,13 @@ async function deleteBucket(s3: AWS.S3, bucket: string) {
   await s3.deleteBucket({ Bucket: bucket }).promise();
 }
 
-async function deleteDynamodbTable(dynamoDb: AWS.DynamoDB, dynamodbTable: string) {
-  logger.debug(`Removing DynamoDB table ${dynamodbTable}`);
-  await dynamoDb.deleteTable({ TableName: dynamodbTable }).promise();
-}
-
 export async function removeState(bucket: string, cloudProvider: AwsCloudProvider) {
   logger.debug('Removing Terraform state from AWS');
   const { region } = cloudProvider;
-  const dynamodbTable = awsDynamodbTableFromBucket(bucket);
   AWS.config.update({ region });
   const s3 = new AWS.S3();
-  const dynamoDb = new AWS.DynamoDB();
 
   await deleteBucket(s3, bucket);
-  await deleteDynamodbTable(dynamoDb, dynamodbTable);
 }
 
 async function bucketExists(s3: AWS.S3, bucket: string) {
@@ -75,26 +63,11 @@ async function bucketExists(s3: AWS.S3, bucket: string) {
   }
 }
 
-async function dynamodbTableExists(dynamoDb: AWS.DynamoDB, dynamodbTable: string) {
-  try {
-    logger.debug(`Fetching DynamoDB table ${dynamodbTable} info`);
-    await dynamoDb.describeTable({ TableName: dynamodbTable }).promise();
-
-    return true;
-  } catch (err) {
-    // Not found or forbidden
-    logger.debug((err as Error).toString());
-    return false;
-  }
-}
-
 export async function stateExists(bucket: string, cloudProvider: AwsCloudProvider) {
   logger.debug('Checking Terraform state existence in AWS');
   const { region } = cloudProvider;
-  const dynamodbTable = awsDynamodbTableFromBucket(bucket);
   AWS.config.update({ region });
   const s3 = new AWS.S3();
-  const dynamoDb = new AWS.DynamoDB();
 
-  return (await bucketExists(s3, bucket)) && (await dynamodbTableExists(dynamoDb, dynamodbTable));
+  return await bucketExists(s3, bucket);
 }
