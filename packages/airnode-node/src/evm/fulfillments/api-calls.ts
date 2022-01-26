@@ -168,7 +168,7 @@ async function submitFail(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      errorMessage,
+      errorMessage.length > 100 ? errorMessage.substring(0, 97).concat('...') : errorMessage,
       {
         gasLimit: GAS_LIMIT,
         ...options.gasTarget,
