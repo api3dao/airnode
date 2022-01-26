@@ -5,7 +5,7 @@ const coinLabel = 'Ethereum';
 const coinId = coinLabel.toLowerCase();
 
 export const getEncodedParameters = () => {
-  return encode([{ name: 'coinId', type: 'bytes32', value: coinId }]);
+  return encode([{ name: 'coinId', type: 'string32', value: coinId }]);
 };
 
 export const printResponse = async (requestId: string) => {

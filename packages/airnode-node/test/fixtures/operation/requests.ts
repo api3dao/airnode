@@ -8,7 +8,7 @@ export function buildTemplateRequest(overrides?: Partial<TemplateRequest>): Temp
     template: 'template-1',
     requester: 'MockRrpRequesterFactory',
     fulfillFunctionName: 'fulfill',
-    parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
+    parameters: [{ type: 'string32', name: 'from', value: 'ETH' }],
     ...overrides,
   };
 }
@@ -23,11 +23,11 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
     requester: 'MockRrpRequesterFactory',
     fulfillFunctionName: 'fulfill',
     parameters: [
-      { type: 'bytes32', name: 'from', value: 'ETH' },
-      { type: 'bytes32', name: 'to', value: 'USD' },
-      { type: 'bytes32', name: '_type', value: 'int256' },
-      { type: 'bytes32', name: '_path', value: 'result' },
-      { type: 'bytes32', name: '_times', value: '100000' },
+      { type: 'string32', name: 'from', value: 'ETH' },
+      { type: 'string32', name: 'to', value: 'USD' },
+      { type: 'string32', name: '_type', value: 'int256' },
+      { type: 'string32', name: '_path', value: 'result' },
+      { type: 'string32', name: '_times', value: '100000' },
     ],
     ...overrides,
   };
