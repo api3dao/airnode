@@ -2353,10 +2353,11 @@ describe('readWithName', function () {
       it('reads Beacon', async function () {
         const name = hre.ethers.utils.formatBytes32String('My beacon');
         await dapiServer.connect(roles.nameSetter).setName(name, beaconId);
-        // Whitelist for the name, not the data point ID
+        // Whitelist for the name hash, not the data point ID
+        const nameHash = hre.ethers.utils.keccak256(hre.ethers.utils.defaultAbiCoder.encode(['bytes32'], [name]));
         await dapiServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(name, roles.randomPerson.address, true);
+          .setIndefiniteWhitelistStatus(nameHash, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
         await setBeacon(templateId, beaconParameters, 123, timestamp);
         const beacon = await dapiServer.connect(roles.randomPerson).readWithName(name);
@@ -2368,10 +2369,11 @@ describe('readWithName', function () {
       it('reads dAPI', async function () {
         const name = hre.ethers.utils.formatBytes32String('My dAPI');
         await dapiServer.connect(roles.nameSetter).setName(name, dapiId);
-        // Whitelist for the name, not the data point ID
+        // Whitelist for the name hash, not the data point ID
+        const nameHash = hre.ethers.utils.keccak256(hre.ethers.utils.defaultAbiCoder.encode(['bytes32'], [name]));
         await dapiServer
           .connect(roles.indefiniteWhitelister)
-          .setIndefiniteWhitelistStatus(name, roles.randomPerson.address, true);
+          .setIndefiniteWhitelistStatus(nameHash, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
         await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(roles.randomPerson).readWithName(name);

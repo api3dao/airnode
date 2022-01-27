@@ -78,17 +78,6 @@ contract DapiServer is
         _;
     }
 
-    /// @dev Reverts if the sender is not authorized to read the data point
-    /// with the ID
-    /// @param dataPointId Data point ID
-    modifier onlyAuthorizedReader(bytes32 dataPointId) {
-        require(
-            readerCanReadDataPoint(dataPointId, msg.sender),
-            "Sender cannot read"
-        );
-        _;
-    }
-
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
@@ -631,9 +620,12 @@ contract DapiServer is
         external
         view
         override
-        onlyAuthorizedReader(dataPointId)
         returns (int224 value, uint32 timestamp)
     {
+        require(
+            readerCanReadDataPoint(dataPointId, msg.sender),
+            "Sender cannot read"
+        );
         DataPoint storage dataPoint = dataPoints[dataPointId];
         return (dataPoint.value, dataPoint.timestamp);
     }
@@ -647,11 +639,15 @@ contract DapiServer is
         external
         view
         override
-        onlyAuthorizedReader(name)
         returns (int224 value, uint32 timestamp)
     {
+        bytes32 nameHash = keccak256(abi.encodePacked(name));
+        require(
+            readerCanReadDataPoint(nameHash, msg.sender),
+            "Sender cannot read"
+        );
         DataPoint storage dataPoint = dataPoints[
-            nameHashToDataPointId[keccak256(abi.encodePacked(name))]
+            nameHashToDataPointId[nameHash]
         ];
         return (dataPoint.value, dataPoint.timestamp);
     }
