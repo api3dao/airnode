@@ -9,14 +9,6 @@ resource "random_string" "function_service_account_id" {
   number  = false
 }
 
-resource "random_string" "scheduler_service_account_id" {
-  length  = 20
-  lower   = true
-  upper   = false
-  special = false
-  number  = false
-}
-
 resource "null_resource" "fetch_function_files" {
   provisioner "local-exec" {
     command = <<EOC
@@ -85,7 +77,16 @@ resource "google_cloudfunctions_function" "function" {
   timeout               = var.timeout
   max_instances         = var.max_instances
   environment_variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {}), { AIRNODE_CLOUD_PROVIDER = "gcp" })
+}
 
+resource "random_string" "scheduler_service_account_id" {
+  count = var.schedule_interval == 0 ? 0 : 1
+
+  length  = 20
+  lower   = true
+  upper   = false
+  special = false
+  number  = false
 }
 
 resource "google_app_engine_application" "app" {
@@ -98,7 +99,7 @@ resource "google_app_engine_application" "app" {
 resource "google_service_account" "scheduler_service_account" {
   count = var.schedule_interval == 0 ? 0 : 1
 
-  account_id   = random_string.scheduler_service_account_id.result
+  account_id   = random_string.scheduler_service_account_id[0].result
   display_name = "${var.name}-service-account"
 }
 

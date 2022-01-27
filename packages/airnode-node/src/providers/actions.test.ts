@@ -37,6 +37,7 @@ const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
     authorizers: [ethers.constants.AddressZero],
+    maxConcurrency: 100,
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },
@@ -58,6 +59,7 @@ const chains: ChainConfig[] = [
   },
   {
     authorizers: [ethers.constants.AddressZero],
+    maxConcurrency: 100,
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
     },

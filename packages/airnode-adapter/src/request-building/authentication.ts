@@ -104,8 +104,10 @@ function getSchemeAuthentication(
       return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'chainType');
     case 'relayRequesterAddress':
       return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'requesterAddress');
-    default:
-      return {};
+    case 'relaySponsorAddress':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'sponsorAddress');
+    case 'relaySponsorWalletAddress':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'sponsorWalletAddress');
   }
 }
 

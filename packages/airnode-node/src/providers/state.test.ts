@@ -10,6 +10,7 @@ describe('create', () => {
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
+      maxConcurrency: 100,
       authorizers: [ethers.constants.AddressZero],
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -84,6 +85,7 @@ describe('create', () => {
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
+      maxConcurrency: 100,
       authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
       contracts: {

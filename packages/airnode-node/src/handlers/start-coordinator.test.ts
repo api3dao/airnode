@@ -31,7 +31,7 @@ import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
-  test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %d`, async (txType) => {
+  test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
     const config = {
@@ -84,12 +84,12 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
-      '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
+      '0x894580d6cffd205170373f9b95adfe58b65d63f273bb9945e81fa5f0d7901ffe',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
-      '0x1e84aa4b6cae3e6c4e7132d47034db4fa3613ecf96b795c2cbb3676ddc77460d7be268236312701ccc1f2a0408171c9cfaf62606b8cfa2e5441caa991e4d49aa1b',
+      '0x69567b16514c2b799597247462cc6c3d9ac9dce88c0bc97c17db45dfb572cacb0fc7b38b2a73cf1fd78279251e5ef75b5e6fb06f4b0f0d023c4b215609e2e38f1b',
       { gasLimit: 500_000, ...gasTarget, nonce: 212 }
     );
   });

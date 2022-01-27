@@ -29,7 +29,7 @@ describe('callApi', () => {
       success: true,
       value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
       signature:
-        '0x8df4fee3530c2a918ca0f8a295c3ae3ab849b30547548da5b7df7a8b69b70a753326afb7784ff1d99b732ccc2caf9171db8fc6ce5372afffd4d47c69c1e5828b1b',
+        '0xe92f5ee40ddb5aa42cab65fcdc025008b2bc026af80a7c93a9aac4e474f8a88f4f2bd861b9cf9a2b050bf0fd13e9714c4575cebbea658d7501e98c0963a5a38b1c',
     });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
@@ -43,10 +43,10 @@ describe('callApi', () => {
           chainId: '31337',
           chainType: 'evm',
           endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
-          requestId: '0x1848c75378cb0f0c14c9255c6d7631aac3f1f236e502340b4a4dc0e184841153',
+          requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
           requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-          sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
-          sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
+          sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
+          sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
         },
         apiCredentials: [
           {

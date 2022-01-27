@@ -14,7 +14,7 @@ describe('initialize (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
 
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
@@ -22,24 +22,24 @@ describe('initialize (ApiCall)', () => {
       chainId: '31337',
       requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
-      sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
+      sponsorWalletAddress: '0x91Fa5bf7FE3cF2a8970B031b1EB6f824fFe228BE',
       endpointId: null,
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters:
-        '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
+        '0x317300000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+      id: '0x894580d6cffd205170373f9b95adfe58b65d63f273bb9945e81fa5f0d7901ffe',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
-        transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+        transactionHash: event.transactionHash,
       },
       parameters: {},
       requestCount: '1',
       status: RequestStatus.Pending,
-      templateId: '0x441afbe66277833474b7b55975a5bb9d51fa8fb48a856dc1dbf1ce018e1638a9',
+      templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
       type: 'template',
     });
   });
@@ -53,7 +53,7 @@ describe('initialize (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
     const template = {
       ...base,
@@ -81,7 +81,7 @@ describe('applyParameters', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
   });
 
@@ -178,7 +178,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: event.transactionHash,
     };
     const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
@@ -188,24 +188,24 @@ describe('mapRequests (ApiCall)', () => {
         chainId: '31337',
         requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
-        sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
+        sponsorWalletAddress: '0x91Fa5bf7FE3cF2a8970B031b1EB6f824fFe228BE',
         endpointId: null,
         fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         fulfillFunctionId: '0x7c1de7e1',
         encodedParameters:
-          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x2b31642d1177b2f9f03c7df66ff707fb85fd129aa6fa2b95964530e74a86839c',
+          '0x317300000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+        id: '0x894580d6cffd205170373f9b95adfe58b65d63f273bb9945e81fa5f0d7901ffe',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+          transactionHash: event.transactionHash,
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
         status: RequestStatus.Pending,
-        templateId: '0x441afbe66277833474b7b55975a5bb9d51fa8fb48a856dc1dbf1ce018e1638a9',
+        templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
         type: 'template',
       },
     ]);
@@ -223,7 +223,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: requestEvent.transactionHash,
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -231,7 +231,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+      transactionHash: fulfillEvent.transactionHash,
     };
 
     const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);

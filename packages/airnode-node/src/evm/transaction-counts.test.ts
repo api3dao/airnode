@@ -30,7 +30,7 @@ describe('fetchBySponsor', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({ '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
-    expect(getTransactionCountMock).toHaveBeenCalledWith('0x15c2D488bE806Ee769078Cceec00E57a9f2009E1', 10716084);
+    expect(getTransactionCountMock).toHaveBeenCalledWith('0xdBFe14C250643DEFE92C9AbC52103bf4978C7113', 10716084);
   });
 
   it('returns transaction counts for multiple wallets', async () => {
@@ -50,8 +50,8 @@ describe('fetchBySponsor', () => {
     });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0x15c2D488bE806Ee769078Cceec00E57a9f2009E1', 10716084],
-      ['0xfD63156337539030025B0D3f57479a346553172c', 10716084],
+      ['0xdBFe14C250643DEFE92C9AbC52103bf4978C7113', 10716084],
+      ['0xE3C02B8866369AeFDEAce3Bd149E187fC2F5b8E6', 10716084],
     ]);
   });
 
@@ -69,8 +69,8 @@ describe('fetchBySponsor', () => {
     expect(res).toEqual({ '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0x15c2D488bE806Ee769078Cceec00E57a9f2009E1', 10716084],
-      ['0x15c2D488bE806Ee769078Cceec00E57a9f2009E1', 10716084],
+      ['0xdBFe14C250643DEFE92C9AbC52103bf4978C7113', 10716084],
+      ['0xdBFe14C250643DEFE92C9AbC52103bf4978C7113', 10716084],
     ]);
   });
 
@@ -87,7 +87,7 @@ describe('fetchBySponsor', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'Unable to fetch transaction count for wallet:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
+        message: 'Unable to fetch transaction count for wallet:0xdBFe14C250643DEFE92C9AbC52103bf4978C7113',
         error: new Error('Server says no'),
       },
     ]);

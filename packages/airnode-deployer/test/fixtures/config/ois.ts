@@ -45,7 +45,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         },
       },
       security: {
-        myapiApiScheme: [],
+        myApiSecurityScheme: [],
       },
     },
     endpoints: [

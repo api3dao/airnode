@@ -93,9 +93,9 @@ deploy the contracts and make transactions, so make sure it is funded. The recom
 
 ### 4. Deploy the RRP contract
 
-The [RRP contract](https://docs.api3.org/airnode/v0.2/concepts/#airnoderrp-sol) is a contract through which the
-[requester](https://docs.api3.org/airnode/v0.2/concepts/requester.html) triggers a request for Airnode. This contract is
-common for all Airnodes and requesters on a chain.
+The [RRP contract](https://docs.api3.org/airnode/v0.3/concepts/#airnoderrp-sol) is a contract through which the
+[requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
+is common for all Airnodes and requesters on a chain.
 
 API3 team will deploy this contract for the most popular chains at some point, but for now you have to deploy it
 yourself using:
@@ -119,11 +119,12 @@ yarn create-aws-secrets
 
 ### 6. (Only if deploying to GCP) Create GCP credentials
 
-If you intend to deploy Airnode on GCP, you will need to sign in using the GCP CLI tool. If you are not sure how to do
-this or how to create a GCP account, see
+If you intend to deploy Airnode on GCP, you will need to create a service account for your project and add and download
+an access key for this account. If you are not sure how to do this or how to create a GCP account, see
 [the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
 
-No credentials file is required - signing through the GCP CLI is all there is needed.
+Store the access key file as `gcp.json` into the integration directory - e.g. if you have choosen the `coingecko`
+integration, store the file as `integrations/coingecko/gcp.json`.
 
 ### 7. Create Airnode configuration
 
@@ -152,7 +153,7 @@ yarn create-airnode-secrets
 > https://stackoverflow.com/a/24326540
 
 Refer to the
-[documentation](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
+[documentation](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
 more details.
 
 ### 9. Build docker artifacts
@@ -217,11 +218,11 @@ yarn deploy-requester
 
 ### 15. Derive and fund the sponsor wallet
 
-Airnode request requires a [sponsor](https://docs.api3.org/airnode/v0.2/concepts/sponsor.html), which will pay for the
+Airnode request requires a [sponsor](https://docs.api3.org/airnode/latest/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
 "sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the
 [admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
-[documentation](https://docs.api3.org/airnode/v0.2/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
+[documentation](https://docs.api3.org/airnode/v0.3/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 
 Run:
@@ -253,7 +254,16 @@ yarn make-request
 When there is an blockchain event received by Airnode, it will immediately perform the API call and submit the response
 back on chain. This command will wait for all of this to happen and you should see the final output in the CLI.
 
-### 18. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
+### 18. (Optional) Make a withdrawal request
+
+Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to sponsor. This step is
+recommended when testing on public testnets. To do so run:
+
+```sh
+yarn make-withdrawal-request
+```
+
+### 19. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
 
 If you want to tear down the Airnode from the cloud provider run:
 
@@ -262,15 +272,6 @@ yarn remove-airnode
 ```
 
 This will use the deployer to remove the Airnode lambdas from the cloud provider.
-
-### 19. (Optional) Make a withdrawal request
-
-Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to sponsor. This step is
-recommended when testing on public testnets. To do so run:
-
-```sh
-yarn make-withdrawal-request
-```
 
 ## For developers
 

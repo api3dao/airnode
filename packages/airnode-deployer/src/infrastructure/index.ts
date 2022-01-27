@@ -96,7 +96,7 @@ function awsAirnodeImportOptions(_cloudProvider: AwsCloudProvider): string[] {
 }
 
 function gcpAirnodeImportOptions(cloudProvider: GcpCloudProvider): string[] {
-  return ['module.startCoordinator.google_app_engine_application.app', cloudProvider.projectId!];
+  return ['module.startCoordinator.google_app_engine_application.app[0]', cloudProvider.projectId!];
 }
 
 const cloudProviderLib = {

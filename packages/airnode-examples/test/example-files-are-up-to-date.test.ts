@@ -11,8 +11,15 @@ describe('Verifies that all config.example.json files are up to date', () => {
       const path = join(folder, 'config.example.json');
       const currentConfigFile = readFileSync(path).toString();
 
-      const createConfig = await import(join(folder, 'create-config.ts'));
-      await createConfig.default(true);
+      // For some reason, when there is a compile error in the "create-config.ts" the tests fail with no error
+      // description. Maybe because the error output (coming from TSC) is decorated and colored. Wrapping in try-catch
+      // solves this issue.
+      try {
+        const createConfig = await import(join(folder, 'create-config.ts'));
+        await createConfig.default(true);
+      } catch (e) {
+        throw new Error((e as Error).message);
+      }
       const generatedConfigFile = readFileSync(path).toString();
 
       // Revert the changes done to the example file

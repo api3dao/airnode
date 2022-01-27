@@ -1,7 +1,7 @@
 import orderBy from 'lodash/orderBy';
 import { Request, GroupedRequests } from '../types';
 
-function sortRequests<T>(requests: Request<T>[]): Request<T>[] {
+export function sortRequests<T>(requests: Request<T>[]): Request<T>[] {
   // In order to keep consistency between runs, requests are sorted by the following criteria:
   //
   //   1. Block number (ascending)

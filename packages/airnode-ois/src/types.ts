@@ -53,12 +53,22 @@ export interface RelayRequesterAddressSecurityScheme extends ConfigurableSecurit
   type: 'relayRequesterAddress';
 }
 
+export interface RelaySponsorAddressSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relaySponsorAddress';
+}
+
+export interface RelaySponsorWalletAddressSecurityScheme extends ConfigurableSecurityScheme {
+  type: 'relaySponsorWalletAddress';
+}
+
 export type ApiSecurityScheme =
   | ApiKeySecurityScheme
   | HttpSecurityScheme
   | RelayChainIdSecurityScheme
   | RelayChainTypeSecurityScheme
-  | RelayRequesterAddressSecurityScheme;
+  | RelayRequesterAddressSecurityScheme
+  | RelaySponsorAddressSecurityScheme
+  | RelaySponsorWalletAddressSecurityScheme;
 
 // OAS supports also "oauth2" and "openIdConnect", but we don't
 export type SecuritySchemeType = ApiSecurityScheme['type'];

@@ -49,7 +49,7 @@ describe('callApis', () => {
         ...aggregatedApiCall,
         responseValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
         signature:
-          '0xa41f09c91624f5e44013313a58266152168ce1cd5f4d0f49c1d36896d6942e712e08dc2312bf5a768f323dfdc7cfea080fcf0e6aa333ed5808f1711d681ebf631b',
+          '0x17b172685ff32e15b2a0db561014beeb426e135659cbfd080dd135b24eb87fbf3121845fdc02e47599018b19d02e9bce9fbd830e23e4735ecacf8f1a9a0d10ca1b',
         errorMessage: undefined,
       },
     ]);
