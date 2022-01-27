@@ -14,6 +14,7 @@ coverage.json
 
 # Changelog files are auto-generated using the @changesets package
 **/CHANGELOG.md
+.changeset
 
 packages/airnode-validator/test/fixtures
 packages/airnode-protocol/src/contracts
