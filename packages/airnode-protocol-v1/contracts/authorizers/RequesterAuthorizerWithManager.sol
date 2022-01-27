@@ -45,7 +45,7 @@ contract RequesterAuthorizerWithManager is
     ) external override {
         require(
             hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
-            "Not expiration extender"
+            "Cannot extend expiration"
         );
         _extendWhitelistExpirationAndEmit(
             airnode,
@@ -72,7 +72,7 @@ contract RequesterAuthorizerWithManager is
     ) external override {
         require(
             hasWhitelistExpirationSetterRoleOrIsManager(msg.sender),
-            "Not expiration setter"
+            "Cannot set expiration"
         );
         _setWhitelistExpirationAndEmit(
             airnode,
@@ -97,7 +97,7 @@ contract RequesterAuthorizerWithManager is
     ) external override {
         require(
             hasIndefiniteWhitelisterRoleOrIsManager(msg.sender),
-            "Not indefinite whitelister"
+            "Cannot set indefinite status"
         );
         _setIndefiniteWhitelistStatusAndEmit(
             airnode,
@@ -121,7 +121,7 @@ contract RequesterAuthorizerWithManager is
     ) external override {
         require(
             !hasIndefiniteWhitelisterRoleOrIsManager(setter),
-            "setter is indefinite whitelister"
+            "setter can set indefinite status"
         );
         _revokeIndefiniteWhitelistStatusAndEmit(
             airnode,

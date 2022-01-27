@@ -315,17 +315,17 @@ describe('extendWhitelistExpiration', function () {
         requesterAuthorizerWithManager
           .connect(roles.whitelistExpirationSetter)
           .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 1000)
-      ).to.be.revertedWith('Not expiration extender');
+      ).to.be.revertedWith('Cannot extend expiration');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.indefiniteWhitelister)
           .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 1000)
-      ).to.be.revertedWith('Not expiration extender');
+      ).to.be.revertedWith('Cannot extend expiration');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
           .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 1000)
-      ).to.be.revertedWith('Not expiration extender');
+      ).to.be.revertedWith('Cannot extend expiration');
     });
   });
 });
@@ -436,17 +436,17 @@ describe('setWhitelistExpiration', function () {
         requesterAuthorizerWithManager
           .connect(roles.whitelistExpirationExtender)
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      ).to.be.revertedWith('Not expiration setter');
+      ).to.be.revertedWith('Cannot set expiration');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.indefiniteWhitelister)
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      ).to.be.revertedWith('Not expiration setter');
+      ).to.be.revertedWith('Cannot set expiration');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
           .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      ).to.be.revertedWith('Not expiration setter');
+      ).to.be.revertedWith('Cannot set expiration');
     });
   });
 });
@@ -703,17 +703,17 @@ describe('setIndefiniteWhitelistStatus', function () {
         requesterAuthorizerWithManager
           .connect(roles.whitelistExpirationExtender)
           .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
-      ).to.be.revertedWith('Not indefinite whitelister');
+      ).to.be.revertedWith('Cannot set indefinite status');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.whitelistExpirationSetter)
           .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
-      ).to.be.revertedWith('Not indefinite whitelister');
+      ).to.be.revertedWith('Cannot set indefinite status');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
           .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
-      ).to.be.revertedWith('Not indefinite whitelister');
+      ).to.be.revertedWith('Cannot set indefinite status');
     });
   });
 });
@@ -828,7 +828,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
           requesterAuthorizerWithManager
             .connect(roles.randomPerson)
             .revokeIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, roles.manager.address)
-        ).to.be.revertedWith('setter is indefinite whitelister');
+        ).to.be.revertedWith('setter can set indefinite status');
       });
     });
   });
@@ -843,7 +843,7 @@ describe('revokeIndefiniteWhitelistStatus', function () {
             roles.requester.address,
             roles.indefiniteWhitelister.address
           )
-      ).to.be.revertedWith('setter is indefinite whitelister');
+      ).to.be.revertedWith('setter can set indefinite status');
     });
   });
 });

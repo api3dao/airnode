@@ -72,7 +72,11 @@ interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
         uint32 timestamp
     );
 
-    event SetName(bytes32 indexed name, bytes32 dataPointId, address sender);
+    event SetName(
+        bytes32 indexed name,
+        bytes32 dataPointId,
+        address indexed sender
+    );
 
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;

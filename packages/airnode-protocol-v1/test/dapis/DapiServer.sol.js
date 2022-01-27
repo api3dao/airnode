@@ -6,7 +6,7 @@ const testUtils = require('../test-utils');
 let roles;
 let accessControlRegistry, airnodeProtocol, dapiServer;
 let dapiServerAdminRoleDescription = 'DapiServer admin';
-let adminRole, indefiniteWhitelisterRole, unlimitedReaderRole, nameSetterRole;
+let indefiniteWhitelisterRole, unlimitedReaderRole, nameSetterRole;
 let airnodeAddress, airnodeWallet, relayerAddress;
 let airnodeRrpSponsorWallet, airnodePspSponsorWallet, relayerRrpSponsorWallet, relayerPspSponsorWallet;
 let voidSignerAddressZero;
@@ -38,10 +38,24 @@ async function deployContracts() {
 async function setUpRoles() {
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
   // Initialize the roles and grant them to respective accounts
-  adminRole = await dapiServer.adminRole();
+  const adminRole = await dapiServer.adminRole();
   await accessControlRegistry
     .connect(roles.manager)
     .initializeRoleAndGrantToSender(managerRootRole, dapiServerAdminRoleDescription);
+  const whitelistExpirationExtenderRole = await dapiServer.whitelistExpirationExtenderRole();
+  await accessControlRegistry
+    .connect(roles.manager)
+    .initializeRoleAndGrantToSender(adminRole, await dapiServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION());
+  await accessControlRegistry
+    .connect(roles.manager)
+    .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address);
+  const whitelistExpirationSetterRole = await dapiServer.whitelistExpirationSetterRole();
+  await accessControlRegistry
+    .connect(roles.manager)
+    .initializeRoleAndGrantToSender(adminRole, await dapiServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION());
+  await accessControlRegistry
+    .connect(roles.manager)
+    .grantRole(whitelistExpirationSetterRole, roles.whitelistExpirationSetter.address);
   indefiniteWhitelisterRole = await dapiServer.indefiniteWhitelisterRole();
   await accessControlRegistry
     .connect(roles.manager)
@@ -381,12 +395,15 @@ beforeEach(async () => {
   roles = {
     deployer: accounts[0],
     manager: accounts[1],
-    indefiniteWhitelister: accounts[2],
-    unlimitedReader: accounts[3],
-    nameSetter: accounts[4],
-    sponsor: accounts[5],
-    updateRequester: accounts[6],
-    randomPerson: accounts[9],
+    whitelistExpirationExtender: accounts[2],
+    whitelistExpirationSetter: accounts[3],
+    indefiniteWhitelister: accounts[4],
+    unlimitedReader: accounts[5],
+    nameSetter: accounts[6],
+    sponsor: accounts[7],
+    updateRequester: accounts[8],
+    beaconReader: accounts[9],
+    randomPerson: accounts[10],
   };
   await deployContracts();
   await setUpRoles();
@@ -394,6 +411,378 @@ beforeEach(async () => {
   await setUpTemplate();
   await setUpBeacon();
   await setUpDapi();
+});
+
+describe('extendWhitelistExpiration', function () {
+  context('Sender has whitelist expiration extender role', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        context('Timestamp extends whitelist expiration', function () {
+          it('extends whitelist expiration', async function () {
+            const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+            await expect(
+              dapiServer
+                .connect(roles.whitelistExpirationExtender)
+                .extendWhitelistExpiration(beaconId, roles.beaconReader.address, timestamp)
+            )
+              .to.emit(dapiServer, 'ExtendedWhitelistExpiration')
+              .withArgs(beaconId, roles.beaconReader.address, roles.whitelistExpirationExtender.address, timestamp);
+            const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+              beaconId,
+              roles.beaconReader.address
+            );
+            expect(whitelistStatus.expirationTimestamp).to.equal(timestamp);
+            expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+          });
+        });
+        context('Timestamp does not extend whitelist expiration', function () {
+          it('reverts', async function () {
+            await expect(
+              dapiServer
+                .connect(roles.whitelistExpirationExtender)
+                .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
+            ).to.be.revertedWith('Does not extend expiration');
+          });
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+          await expect(
+            dapiServer
+              .connect(roles.whitelistExpirationExtender)
+              .extendWhitelistExpiration(beaconId, hre.ethers.constants.AddressZero, timestamp)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+        await expect(
+          dapiServer
+            .connect(roles.whitelistExpirationExtender)
+            .extendWhitelistExpiration(hre.ethers.constants.HashZero, roles.beaconReader.address, timestamp)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender is the manager', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        context('Timestamp extends whitelist expiration', function () {
+          it('extends whitelist expiration', async function () {
+            const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+            await expect(
+              dapiServer
+                .connect(roles.manager)
+                .extendWhitelistExpiration(beaconId, roles.beaconReader.address, timestamp)
+            )
+              .to.emit(dapiServer, 'ExtendedWhitelistExpiration')
+              .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, timestamp);
+            const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+              beaconId,
+              roles.beaconReader.address
+            );
+            expect(whitelistStatus.expirationTimestamp).to.equal(timestamp);
+            expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+          });
+        });
+        context('Timestamp does not extend whitelist expiration', function () {
+          it('reverts', async function () {
+            await expect(
+              dapiServer.connect(roles.manager).extendWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
+            ).to.be.revertedWith('Does not extend expiration');
+          });
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+          await expect(
+            dapiServer
+              .connect(roles.manager)
+              .extendWhitelistExpiration(beaconId, hre.ethers.constants.AddressZero, timestamp)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+        await expect(
+          dapiServer
+            .connect(roles.manager)
+            .extendWhitelistExpiration(hre.ethers.constants.HashZero, roles.beaconReader.address, timestamp)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender does not have the whitelist extender role and is not the manager', function () {
+    it('reverts', async function () {
+      const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+      await expect(
+        dapiServer
+          .connect(roles.randomPerson)
+          .extendWhitelistExpiration(beaconId, roles.beaconReader.address, timestamp)
+      ).to.be.revertedWith('Cannot extend expiration');
+    });
+  });
+});
+
+describe('setWhitelistExpiration', function () {
+  context('Sender has whitelist expiration setter role', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        it('sets whitelist expiration', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.whitelistExpirationSetter)
+              .setWhitelistExpiration(beaconId, roles.beaconReader.address, 123)
+          )
+            .to.emit(dapiServer, 'SetWhitelistExpiration')
+            .withArgs(beaconId, roles.beaconReader.address, roles.whitelistExpirationSetter.address, 123);
+          const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+            beaconId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(123);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.whitelistExpirationSetter)
+              .setWhitelistExpiration(beaconId, hre.ethers.constants.AddressZero, 123)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        await expect(
+          dapiServer
+            .connect(roles.whitelistExpirationSetter)
+            .setWhitelistExpiration(hre.ethers.constants.HashZero, roles.beaconReader.address, 123)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender is the manager', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        it('sets whitelist expiration', async function () {
+          await expect(
+            dapiServer.connect(roles.manager).setWhitelistExpiration(beaconId, roles.beaconReader.address, 123)
+          )
+            .to.emit(dapiServer, 'SetWhitelistExpiration')
+            .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, 123);
+          const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+            beaconId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(123);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            dapiServer.connect(roles.manager).setWhitelistExpiration(beaconId, hre.ethers.constants.AddressZero, 123)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        await expect(
+          dapiServer
+            .connect(roles.manager)
+            .setWhitelistExpiration(hre.ethers.constants.HashZero, roles.beaconReader.address, 123)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender does not have the whitelist setter role and is not the manager', function () {
+    it('reverts', async function () {
+      await expect(
+        dapiServer.connect(roles.beaconReader).setWhitelistExpiration(beaconId, roles.beaconReader.address, 123)
+      ).to.be.revertedWith('Cannot set expiration');
+    });
+  });
+});
+
+describe('setIndefiniteWhitelistStatus', function () {
+  context('Sender has indefinite whitelister setter role', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        it('sets indefinite whitelist status', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.indefiniteWhitelister)
+              .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
+          )
+            .to.emit(dapiServer, 'SetIndefiniteWhitelistStatus')
+            .withArgs(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address, true, 1);
+          const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+            beaconId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+          expect(
+            await dapiServer.dataPointIdToReaderToSetterToIndefiniteWhitelistStatus(
+              beaconId,
+              roles.beaconReader.address,
+              roles.indefiniteWhitelister.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.indefiniteWhitelister)
+              .setIndefiniteWhitelistStatus(beaconId, hre.ethers.constants.AddressZero, true)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        await expect(
+          dapiServer
+            .connect(roles.indefiniteWhitelister)
+            .setIndefiniteWhitelistStatus(hre.ethers.constants.HashZero, roles.beaconReader.address, true)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender is the manager', function () {
+    context('Data point ID is not zero', function () {
+      context('Reader address is not zero', function () {
+        it('sets indefinite whitelist status', async function () {
+          await expect(
+            dapiServer.connect(roles.manager).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
+          )
+            .to.emit(dapiServer, 'SetIndefiniteWhitelistStatus')
+            .withArgs(beaconId, roles.beaconReader.address, roles.manager.address, true, 1);
+          const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+            beaconId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+          expect(
+            await dapiServer.dataPointIdToReaderToSetterToIndefiniteWhitelistStatus(
+              beaconId,
+              roles.beaconReader.address,
+              roles.manager.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Reader address is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.manager)
+              .setIndefiniteWhitelistStatus(beaconId, hre.ethers.constants.AddressZero, true)
+          ).to.be.revertedWith('User address zero');
+        });
+      });
+    });
+    context('Data point ID is zero', function () {
+      it('reverts', async function () {
+        await expect(
+          dapiServer
+            .connect(roles.manager)
+            .setIndefiniteWhitelistStatus(hre.ethers.constants.HashZero, roles.beaconReader.address, true)
+        ).to.be.revertedWith('Service ID zero');
+      });
+    });
+  });
+  context('Sender does not have the indefinite whitelister role and is not the manager', function () {
+    it('reverts', async function () {
+      await expect(
+        dapiServer.connect(roles.randomPerson).setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
+      ).to.be.revertedWith('Cannot set indefinite status');
+    });
+  });
+});
+
+describe('revokeIndefiniteWhitelistStatus', function () {
+  context('setter does not have the indefinite whitelister role', function () {
+    context('setter is not the manager address', function () {
+      it('revokes indefinite whitelist status', async function () {
+        // Grant indefinite whitelist status
+        await dapiServer
+          .connect(roles.indefiniteWhitelister)
+          .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true);
+        // Revoke the indefinite whitelister role
+        await accessControlRegistry
+          .connect(roles.manager)
+          .revokeRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
+        // Revoke the indefinite whitelist status
+        await expect(
+          dapiServer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
+        )
+          .to.emit(dapiServer, 'RevokedIndefiniteWhitelistStatus')
+          .withArgs(
+            beaconId,
+            roles.beaconReader.address,
+            roles.indefiniteWhitelister.address,
+            roles.randomPerson.address,
+            0
+          );
+        const whitelistStatus = await dapiServer.dataPointIdToReaderToWhitelistStatus(
+          beaconId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        expect(
+          await dapiServer.dataPointIdToReaderToSetterToIndefiniteWhitelistStatus(
+            beaconId,
+            roles.beaconReader.address,
+            roles.indefiniteWhitelister.address
+          )
+        ).to.equal(false);
+        // Revoking twice should not emit an event
+        await expect(
+          dapiServer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
+        ).to.not.emit(dapiServer, 'RevokedIndefiniteWhitelistStatus');
+      });
+    });
+    context('setter is the manager address', function () {
+      it('reverts', async function () {
+        await accessControlRegistry
+          .connect(roles.manager)
+          .renounceRole(indefiniteWhitelisterRole, roles.manager.address);
+        await expect(
+          dapiServer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.manager.address)
+        ).to.be.revertedWith('setter can set indefinite status');
+      });
+    });
+  });
+  context('setter has the indefinite whitelister role', function () {
+    it('reverts', async function () {
+      await expect(
+        dapiServer
+          .connect(roles.randomPerson)
+          .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
+      ).to.be.revertedWith('setter can set indefinite status');
+    });
+  });
 });
 
 describe('constructor', function () {
