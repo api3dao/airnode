@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 import "../../utils/interfaces/IAddressRegistry.sol";
 
 interface IRequesterAuthorizerRegistry is IAddressRegistry {
-    event RegisteredRequesterAuthorizer(
+    event SetChainRequesterAuthorizer(
         uint256 chainId,
         address requesterAuthorizer,
         address sender

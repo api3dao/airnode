@@ -23,11 +23,12 @@ contract RequesterAuthorizerRegistry is
         uint256 chainId,
         address requesterAuthorizer
     ) external override onlyRegistrarOrManager {
+        require(chainId != 0, "Chain ID zero");
         _registerAddress(
             keccak256(abi.encodePacked(chainId)),
             requesterAuthorizer
         );
-        emit RegisteredRequesterAuthorizer(
+        emit SetChainRequesterAuthorizer(
             chainId,
             requesterAuthorizer,
             msg.sender

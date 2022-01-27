@@ -20,7 +20,7 @@ contract RequesterAuthorizerRegistryReader is
     constructor(address _requesterAuthorizerRegistry) {
         require(
             _requesterAuthorizerRegistry != address(0),
-            "Zero authorizer registry address"
+            "Authorizer registry address zero"
         );
         requesterAuthorizerRegistry = _requesterAuthorizerRegistry;
     }

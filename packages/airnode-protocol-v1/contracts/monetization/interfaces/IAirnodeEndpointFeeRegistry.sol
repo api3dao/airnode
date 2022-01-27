@@ -64,32 +64,32 @@ interface IAirnodeEndpointFeeRegistry {
     function setEndpointAndChainPricePriority(address airnode, bool status)
         external;
 
-    function getDefaultPrice()
+    function tryReadDefaultPrice()
         external
         view
         returns (bool success, uint256 price);
 
-    function getDefaultChainPrice(uint256 chainId)
+    function tryReadDefaultChainPrice(uint256 chainId)
         external
         view
         returns (bool success, uint256 price);
 
-    function getAirnodePrice(address airnode)
+    function tryReadAirnodePrice(address airnode)
         external
         view
         returns (bool success, uint256 price);
 
-    function getAirnodeChainPrice(address airnode, uint256 chainId)
+    function tryReadAirnodeChainPrice(address airnode, uint256 chainId)
         external
         view
         returns (bool success, uint256 price);
 
-    function getAirnodeEndpointPrice(address airnode, bytes32 endpointId)
+    function tryReadAirnodeEndpointPrice(address airnode, bytes32 endpointId)
         external
         view
         returns (bool success, uint256 price);
 
-    function getAirnodeChainEndpointPrice(
+    function tryReadAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
         bytes32 endpointId

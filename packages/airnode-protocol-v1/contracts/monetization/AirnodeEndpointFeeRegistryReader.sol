@@ -28,7 +28,7 @@ contract AirnodeEndpointFeeRegistryReader is IAirnodeEndpointFeeRegistryReader {
     constructor(address _airnodeEndpointFeeRegistry) {
         require(
             _airnodeEndpointFeeRegistry != address(0),
-            "Zero fee registry address"
+            "Fee registry address zero"
         );
         airnodeEndpointFeeRegistry = _airnodeEndpointFeeRegistry;
     }

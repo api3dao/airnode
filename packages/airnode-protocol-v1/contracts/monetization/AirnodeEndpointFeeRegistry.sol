@@ -73,6 +73,7 @@ contract AirnodeEndpointFeeRegistry is
         external
         override
         onlyRegistrarOrManager
+        onlyNonZeroChainId(chainId)
     {
         _registerUint256(
             keccak256(abi.encodePacked(DEFAULT_PRICE_ID, chainId)),
@@ -180,7 +181,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @notice Returns the default price
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getDefaultPrice()
+    function tryReadDefaultPrice()
         public
         view
         override
@@ -193,7 +194,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @param chainId Chain ID
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getDefaultChainPrice(uint256 chainId)
+    function tryReadDefaultChainPrice(uint256 chainId)
         public
         view
         override
@@ -208,7 +209,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @param airnode Airnode address
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getAirnodePrice(address airnode)
+    function tryReadAirnodePrice(address airnode)
         public
         view
         override
@@ -224,7 +225,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @param chainId Chain ID
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getAirnodeChainPrice(address airnode, uint256 chainId)
+    function tryReadAirnodeChainPrice(address airnode, uint256 chainId)
         public
         view
         override
@@ -243,7 +244,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @param endpointId Endpoint ID
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getAirnodeEndpointPrice(address airnode, bytes32 endpointId)
+    function tryReadAirnodeEndpointPrice(address airnode, bytes32 endpointId)
         public
         view
         override
@@ -260,7 +261,7 @@ contract AirnodeEndpointFeeRegistry is
     /// @param endpointId Endpoint ID
     /// @return success If the price was set
     /// @return price Price in USD (times 10^18)
-    function getAirnodeChainEndpointPrice(
+    function tryReadAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
         bytes32 endpointId
@@ -287,7 +288,7 @@ contract AirnodeEndpointFeeRegistry is
         bytes32 endpointId
     ) external view override returns (uint256 price) {
         bool success;
-        (success, price) = getAirnodeChainEndpointPrice(
+        (success, price) = tryReadAirnodeChainEndpointPrice(
             airnode,
             chainId,
             endpointId
@@ -296,36 +297,33 @@ contract AirnodeEndpointFeeRegistry is
             return price;
         }
         if (prioritizeEndpointPriceOverChainPrice[airnode]) {
-            (success, price) = getAirnodeEndpointPrice(airnode, endpointId);
+            (success, price) = tryReadAirnodeEndpointPrice(airnode, endpointId);
             if (success) {
                 return price;
             }
-            (success, price) = getAirnodeChainPrice(airnode, chainId);
+            (success, price) = tryReadAirnodeChainPrice(airnode, chainId);
             if (success) {
                 return price;
             }
         } else {
-            (success, price) = getAirnodeChainPrice(airnode, chainId);
+            (success, price) = tryReadAirnodeChainPrice(airnode, chainId);
             if (success) {
                 return price;
             }
-            (success, price) = getAirnodeEndpointPrice(airnode, endpointId);
+            (success, price) = tryReadAirnodeEndpointPrice(airnode, endpointId);
             if (success) {
                 return price;
             }
         }
-        (success, price) = getAirnodePrice(airnode);
+        (success, price) = tryReadAirnodePrice(airnode);
         if (success) {
             return price;
         }
-        (success, price) = getDefaultChainPrice(chainId);
+        (success, price) = tryReadDefaultChainPrice(chainId);
         if (success) {
             return price;
         }
-        (success, price) = getDefaultPrice();
-        if (success) {
-            return price;
-        }
-        revert("No default price");
+        (success, price) = tryReadDefaultPrice();
+        require(success, "No default price set");
     }
 }
