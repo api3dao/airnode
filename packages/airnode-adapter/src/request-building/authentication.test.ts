@@ -62,7 +62,7 @@ describe('building API key authentication parameters', () => {
 
   it('returns the API key in the headers', () => {
     const ois = fixtures.buildOIS();
-    (ois.apiSpecifications.components.securitySchemes.myapiApiScheme as ApiKeySecurityScheme).in = 'header';
+    (ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme as ApiKeySecurityScheme).in = 'header';
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
@@ -74,7 +74,7 @@ describe('building API key authentication parameters', () => {
 
   it('returns the API key in the cookies', () => {
     const ois = fixtures.buildOIS();
-    (ois.apiSpecifications.components.securitySchemes.myapiApiScheme as ApiKeySecurityScheme).in = 'cookie';
+    (ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme as ApiKeySecurityScheme).in = 'cookie';
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
@@ -89,7 +89,7 @@ describe('building HTTP authentication parameters', () => {
   it('returns Basic Authentication in the headers', () => {
     const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'basic', type: 'http' };
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
     const apiCredentials = fixtures.buildCredentials({ securitySchemeValue: 'd2h5YXJleW91OnJlYWRpbmd0aGlz' });
     const options = fixtures.buildCacheRequestOptions({ ois, apiCredentials });
     const res = authentication.buildParameters(options);
@@ -103,7 +103,7 @@ describe('building HTTP authentication parameters', () => {
   it('returns Bearer Authentication in the headers', () => {
     const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'bearer', type: 'http' };
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
     const apiCredentials = fixtures.buildCredentials({ securitySchemeValue: 'secret-jwt' });
     const options = fixtures.buildCacheRequestOptions({ ois, apiCredentials });
     const res = authentication.buildParameters(options);
@@ -118,38 +118,68 @@ describe('building HTTP authentication parameters', () => {
 describe('relay metadata', () => {
   it('relays chain id', () => {
     const ois = fixtures.buildOIS();
-    const scheme: ApiSecurityScheme = { in: 'header', type: 'relayChainId', name: 'chainId' };
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const scheme: ApiSecurityScheme = { in: 'header', type: 'relayChainId', name: 'myChainId' };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
-      headers: { chainId: '31337' },
+      headers: { myChainId: '31337' },
       cookies: {},
     });
   });
 
   it('relays chain type', () => {
     const ois = fixtures.buildOIS();
-    const scheme: ApiSecurityScheme = { in: 'cookie', type: 'relayChainType', name: 'chainType' };
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const scheme: ApiSecurityScheme = { in: 'cookie', type: 'relayChainType', name: 'myChainType' };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},
-      cookies: { chainType: 'evm' },
+      cookies: { myChainType: 'evm' },
     });
   });
 
   it('relays requester address', () => {
     const ois = fixtures.buildOIS();
-    const scheme: ApiSecurityScheme = { in: 'query', type: 'relayRequesterAddress', name: 'requesterAddress' };
-    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const scheme: ApiSecurityScheme = { in: 'query', type: 'relayRequesterAddress', name: 'myRequesterAddress' };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
-      query: { requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' },
+      query: { myRequesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' },
+      headers: {},
+      cookies: {},
+    });
+  });
+
+  it('relays sponsor address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = { in: 'query', type: 'relaySponsorAddress', name: 'mySponsorAddress' };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { mySponsorAddress: '0x7a9a6F6B21AEE3b905AEeC757bbBcA39747Ca4Fa' },
+      headers: {},
+      cookies: {},
+    });
+  });
+
+  it('relays sponsor wallet address', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = {
+      in: 'query',
+      type: 'relaySponsorWalletAddress',
+      name: 'mySponsorWalletAddress',
+    };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { mySponsorWalletAddress: '0xB604c9f7de852F26DB90C04000820850112905b4' },
       headers: {},
       cookies: {},
     });
