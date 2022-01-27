@@ -4,8 +4,8 @@
 
 > The contracts that implement the Airnode protocols
 
-**_This documents the protocol for v0.3. We have also published and documented the pre-alpha version widely. Pre-alpha
-and v0.3 are very different in implementation and the terminology they use is contradictory. If you are referring to any
+**_This documents the protocol for v0. We have also published and documented the pre-alpha version widely. Pre-alpha and
+v0 are very different in implementation and the terminology they use is contradictory. If you are referring to any
 outside source, make sure that it is not referring to the pre-alpha version, or at least interpret it accordingly._**
 
 ## Instructions
