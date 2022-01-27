@@ -42,6 +42,6 @@ it('sets the correct status code for both successful and failed requests', async
   const failedRequest = logs.find(
     (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'FailedRequest'
   );
-  // The error message will no longer contain the API error message
+  // The error message will not contain the API error message
   expect(failedRequest!.args.errorMessage).toEqual(`${RequestErrorMessage.ApiCallFailed}`);
 });
