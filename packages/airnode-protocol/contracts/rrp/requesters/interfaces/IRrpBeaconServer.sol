@@ -51,14 +51,8 @@ interface IRrpBeaconServer {
     event UpdatedBeacon(
         bytes32 indexed beaconId,
         bytes32 requestId,
-        int256 value,
-        uint256 timestamp
-    );
-
-    event UpdatedBeaconWithoutRequest(
-        bytes32 indexed beaconId,
-        int256 value,
-        uint256 timestamp
+        int224 value,
+        uint32 timestamp
     );
 
     function extendWhitelistExpiration(
@@ -96,13 +90,6 @@ interface IRrpBeaconServer {
     ) external;
 
     function fulfill(bytes32 requestId, bytes calldata data) external;
-
-    function updateBeaconWithoutRequest(
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata data,
-        bytes calldata signature
-    ) external;
 
     function readBeacon(bytes32 beaconId)
         external

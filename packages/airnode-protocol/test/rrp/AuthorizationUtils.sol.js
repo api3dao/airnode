@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const testUtils = require('../test-utils');
+const utils = require('../utils');
 
 let roles;
 let airnodeRrp, authorizerAlwaysTrue, authorizerAlwaysFalse;
@@ -26,16 +26,16 @@ beforeEach(async () => {
     roles.deployer
   );
   authorizerAlwaysFalse = await mockAuthorizerAlwaysFalseFactory.deploy();
-  ({ airnodeAddress: airnodeAddress } = testUtils.generateRandomAirnodeWallet());
+  ({ airnodeAddress: airnodeAddress } = utils.generateRandomAirnodeWallet());
 });
 
 describe('checkAuthorizationStatus', function () {
   context('authorizers array is empty', function () {
     it('returns false', async function () {
-      const requestId = testUtils.generateRandomBytes32();
-      const endpointId = testUtils.generateRandomBytes32();
-      const sponsor = testUtils.generateRandomAddress();
-      const requester = testUtils.generateRandomAddress();
+      const requestId = utils.generateRandomBytes32();
+      const endpointId = utils.generateRandomBytes32();
+      const sponsor = utils.generateRandomAddress();
+      const requester = utils.generateRandomAddress();
       expect(
         await airnodeRrp.checkAuthorizationStatus([], airnodeAddress, requestId, endpointId, sponsor, requester)
       ).to.equal(false);
@@ -43,10 +43,10 @@ describe('checkAuthorizationStatus', function () {
   });
   context('All authorizers return false', function () {
     it('returns false', async function () {
-      const requestId = testUtils.generateRandomBytes32();
-      const endpointId = testUtils.generateRandomBytes32();
-      const sponsor = testUtils.generateRandomAddress();
-      const requester = testUtils.generateRandomAddress();
+      const requestId = utils.generateRandomBytes32();
+      const endpointId = utils.generateRandomBytes32();
+      const sponsor = utils.generateRandomAddress();
+      const requester = utils.generateRandomAddress();
       expect(
         await airnodeRrp.checkAuthorizationStatus(
           Array(5).fill(authorizerAlwaysFalse.address),
@@ -61,10 +61,10 @@ describe('checkAuthorizationStatus', function () {
   });
   context('At least one of the authorizers returns true', function () {
     it('returns true', async function () {
-      const requestId = testUtils.generateRandomBytes32();
-      const endpointId = testUtils.generateRandomBytes32();
-      const sponsor = testUtils.generateRandomAddress();
-      const requester = testUtils.generateRandomAddress();
+      const requestId = utils.generateRandomBytes32();
+      const endpointId = utils.generateRandomBytes32();
+      const sponsor = utils.generateRandomAddress();
+      const requester = utils.generateRandomAddress();
       expect(
         await airnodeRrp.checkAuthorizationStatus(
           [...Array(5).fill(authorizerAlwaysFalse.address), authorizerAlwaysTrue.address],
@@ -84,10 +84,10 @@ describe('checkAuthorizationStatuses', function () {
     it('checks authorization statuses', async function () {
       const noRequests = 10;
       const authorizers = Array(5).fill(authorizerAlwaysFalse.address);
-      const requestIds = Array.from({ length: noRequests }, () => testUtils.generateRandomBytes32());
-      const endpointIds = Array.from({ length: noRequests }, () => testUtils.generateRandomBytes32());
-      const sponsors = Array.from({ length: noRequests }, () => testUtils.generateRandomAddress());
-      const requesters = Array.from({ length: noRequests }, () => testUtils.generateRandomAddress());
+      const requestIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
+      const endpointIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
+      const sponsors = Array.from({ length: noRequests }, () => utils.generateRandomAddress());
+      const requesters = Array.from({ length: noRequests }, () => utils.generateRandomAddress());
       expect(
         await airnodeRrp.checkAuthorizationStatuses(
           authorizers,
@@ -114,10 +114,10 @@ describe('checkAuthorizationStatuses', function () {
     it('reverts', async function () {
       const noRequests = 10;
       const authorizers = Array(5).fill(authorizerAlwaysFalse.address);
-      const requestIds = Array.from({ length: noRequests }, () => testUtils.generateRandomBytes32());
-      const endpointIds = Array.from({ length: noRequests }, () => testUtils.generateRandomBytes32());
-      const sponsors = Array.from({ length: noRequests }, () => testUtils.generateRandomAddress());
-      const requesters = Array.from({ length: noRequests }, () => testUtils.generateRandomAddress());
+      const requestIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
+      const endpointIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
+      const sponsors = Array.from({ length: noRequests }, () => utils.generateRandomAddress());
+      const requesters = Array.from({ length: noRequests }, () => utils.generateRandomAddress());
       await expect(
         airnodeRrp.checkAuthorizationStatuses(
           authorizers,

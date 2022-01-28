@@ -186,7 +186,7 @@ contract RrpBeaconServer is
     /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
     /// this RrpBeaconServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
-    /// request update permission to the user of this method.
+    /// request update permission to the caller of this method.
     /// The template and additional parameters used here must specify a single
     /// point of data of type `int256` and an additional timestamp of type
     /// `uint256` to be returned because this is what `fulfill()` expects.
@@ -206,9 +206,8 @@ contract RrpBeaconServer is
         bytes calldata parameters
     ) external override {
         require(
-            msg.sender == sponsor ||
-                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
-            "Sender not permitted"
+            sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+            "Caller not permitted"
         );
         bytes32 beaconId = deriveBeaconId(templateId, parameters);
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
@@ -246,58 +245,10 @@ contract RrpBeaconServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
-        (int256 decodedData, uint256 decodedTimestamp) = ingestData(
-            beaconId,
-            data
-        );
-        emit UpdatedBeacon(beaconId, requestId, decodedData, decodedTimestamp);
-    }
-
-    /// @notice Called to update a beacon without a preceding RRP request using
-    /// data signed by the respective Airnode
-    /// @dev The request hash used here is derived using a different scheme
-    /// than RRP. This means signed RRP responses cannot be used with this
-    /// method, and vice versa.
-    /// @param templateId Template ID
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
-    /// @param data Fulfillment data
-    /// @param signature Request ID and fulfillment data signed by the Airnode
-    /// address
-    function updateBeaconWithoutRequest(
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata data,
-        bytes calldata signature
-    ) external override {
-        (, bytes32 beaconId) = IAirnodeRrp(airnodeRrp).verifySignature(
-            templateId,
-            parameters,
+        (int256 decodedData, uint256 decodedTimestamp) = abi.decode(
             data,
-            signature
+            (int256, uint256)
         );
-        (int256 decodedData, uint256 decodedTimestamp) = ingestData(
-            beaconId,
-            data
-        );
-        emit UpdatedBeaconWithoutRequest(
-            beaconId,
-            decodedData,
-            decodedTimestamp
-        );
-    }
-
-    /// @notice Called privately to decode and process the fulfillment data
-    /// @param beaconId Beacon ID
-    /// @param data Fulfillment data
-    /// @return decodedData Decoded beacon data
-    /// @return decodedTimestamp Decoded beacon timestamp
-    function ingestData(bytes32 beaconId, bytes calldata data)
-        private
-        returns (int256 decodedData, uint256 decodedTimestamp)
-    {
-        require(data.length == 64, "Incorrect data length");
-        (decodedData, decodedTimestamp) = abi.decode(data, (int256, uint256));
         require(
             decodedData >= type(int224).min && decodedData <= type(int224).max,
             "Value typecasting error"
@@ -322,10 +273,16 @@ contract RrpBeaconServer is
             value: int224(decodedData),
             timestamp: uint32(decodedTimestamp)
         });
+        emit UpdatedBeacon(
+            beaconId,
+            requestId,
+            int224(decodedData),
+            uint32(decodedTimestamp)
+        );
     }
 
     /// @notice Called to read the beacon
-    /// @dev The sender must be whitelisted.
+    /// @dev The caller must be whitelisted.
     /// If the `timestamp` of a beacon is zero, this means that it was never
     /// written to before, and the zero value in the `value` field is not
     /// valid. In general, make sure to check if the timestamp of the beacon is
@@ -341,7 +298,7 @@ contract RrpBeaconServer is
     {
         require(
             readerCanReadBeacon(beaconId, msg.sender),
-            "Sender not whitelisted"
+            "Caller not whitelisted"
         );
         Beacon storage beacon = beacons[beaconId];
         return (beacon.value, beacon.timestamp);
@@ -402,7 +359,6 @@ contract RrpBeaconServer is
 
     /// @notice Derives the beacon ID from the respective template ID and
     /// additional parameters
-    /// @dev Beacon ID is referred to as the "request hash" in AirnodeRrp
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
