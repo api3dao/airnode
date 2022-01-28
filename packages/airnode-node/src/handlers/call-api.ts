@@ -180,7 +180,7 @@ async function performApiCall(
   if (err) {
     const { aggregatedApiCall } = payload;
     const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, err);
-    return [[log], { success: false, errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: ${err.message}` }];
+    return [[log], { success: false, errorMessage: `${RequestErrorMessage.ApiCallFailed}` }];
   }
 
   return [[], { ...res! }];
