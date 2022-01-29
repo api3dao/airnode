@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/Multicall.sol";
+import "./utils/ExtendedMulticall.sol";
 import "./AirnodeWithdrawal.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
@@ -15,7 +15,7 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Unlike the other protocols, the event for relayed RRP has the address of
 /// the relayer indexed. This is because the relayer will need to listen for
 /// requests and fulfillments.
-contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
+contract AirnodeProtocol is ExtendedMulticall, AirnodeWithdrawal, IAirnodeProtocol {
     using ECDSA for bytes32;
 
     struct Template {
@@ -590,18 +590,5 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
                 keccak256(abi.encodePacked(airnode, endpointId, parameters)),
             "Template not stored"
         );
-    }
-
-    function getBalances(address[] calldata accounts)
-        external
-        view
-        override
-        returns (uint256[] memory balances)
-    {
-        uint256 accountsLength = accounts.length;
-        balances = new uint256[](accountsLength);
-        for (uint256 ind = 0; ind < accountsLength; ind++) {
-            balances[ind] = accounts[ind].balance;
-        }
     }
 }

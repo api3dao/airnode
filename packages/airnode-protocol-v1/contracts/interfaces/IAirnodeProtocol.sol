@@ -184,11 +184,6 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
             bytes memory parameters
         );
 
-    function getBalances(address[] calldata accounts)
-        external
-        view
-        returns (uint256[] memory balances);
-
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
         address requester
