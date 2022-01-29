@@ -1,27 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "./ISubscriptionStore.sol";
 import "./IAirnodeWithdrawal.sol";
 
-interface IAirnodeProtocol is IAirnodeWithdrawal {
+interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
         bool sponsorshipStatus
-    );
-
-    event StoredTemplate(
-        bytes32 indexed templateId,
-        address airnode,
-        bytes32 endpointId,
-        bytes parameters
-    );
-
-    event RegisteredTemplate(
-        bytes32 indexed templateId,
-        address airnode,
-        bytes32 endpointId,
-        bytes parameters
     );
 
     event MadeRequest(
@@ -77,31 +64,8 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
         string errorMessage
     );
 
-    event StoredSubscription(
-        bytes32 indexed subscriptionId,
-        bytes32 templateId,
-        bytes parameters,
-        bytes conditions,
-        address relayer,
-        address sponsor,
-        address requester,
-        bytes4 fulfillFunctionId
-    );
-
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
-
-    function storeTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external returns (bytes32 templateId);
-
-    function registerTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external returns (bytes32 templateId);
 
     function makeRequest(
         bytes32 templateId,
@@ -160,58 +124,18 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
         bytes calldata signature
     ) external;
 
-    function storeSubscription(
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata conditions,
-        address relayer,
-        address sponsor,
-        address requester,
-        bytes4 fulfillFunctionId
-    ) external returns (bytes32 subscriptionId);
-
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
         returns (bool);
-
-    function getStoredTemplate(bytes32 templateId)
-        external
-        view
-        returns (
-            address airnode,
-            bytes32 endpointId,
-            bytes memory parameters
-        );
 
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
         address requester
     ) external view returns (bool sponsorshipStatus);
 
-    function templateIdToAirnode(bytes32 templateId)
-        external
-        view
-        returns (address);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_PARAMETER_LENGTH() external view returns (uint256);
-
     function requesterToRequestCountPlusOne(address requester)
         external
         view
         returns (uint256);
-
-    function subscriptions(bytes32 subscriptionId)
-        external
-        view
-        returns (
-            bytes32 templateId,
-            bytes memory parameters,
-            bytes memory conditions,
-            address relayer,
-            address sponsor,
-            address requester,
-            bytes4 fulfillFunctionId
-        );
 }
