@@ -175,7 +175,7 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
         view
         returns (bool);
 
-    function templates(bytes32 templateId)
+    function getStoredTemplate(bytes32 templateId)
         external
         view
         returns (

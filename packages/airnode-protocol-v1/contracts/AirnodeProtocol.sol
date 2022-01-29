@@ -52,7 +52,7 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
     /// @notice Subscription with the ID
     mapping(bytes32 => Subscription) public override subscriptions;
 
-    mapping(bytes32 => Template) private _templates;
+    mapping(bytes32 => Template) private templates;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -110,7 +110,7 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
-        _templates[templateId] = Template({
+        templates[templateId] = Template({
             endpointId: endpointId,
             parameters: parameters
         });
@@ -571,7 +571,7 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         return requestIdToFulfillmentParameters[requestId] != bytes32(0);
     }
 
-    function templates(bytes32 templateId)
+    function getStoredTemplate(bytes32 templateId)
         external
         view
         override
@@ -582,8 +582,14 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         )
     {
         airnode = templateIdToAirnode[templateId];
-        endpointId = _templates[templateId].endpointId;
-        parameters = _templates[templateId].parameters;
+        Template storage template = templates[templateId];
+        endpointId = template.endpointId;
+        parameters = template.parameters;
+        require(
+            templateId ==
+                keccak256(abi.encodePacked(airnode, endpointId, parameters)),
+            "Template not stored"
+        );
     }
 
     function getBalances(address[] calldata accounts)
