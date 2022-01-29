@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../interfaces/IAirnodeRequesterAndSignatureVerifier.sol";
+import "../../interfaces/IAirnodeRrpRequesterAndSignatureVerifier.sol";
 
-interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
+interface IDapiServer is IAirnodeRrpRequesterAndSignatureVerifier {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -112,7 +112,7 @@ interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
         bytes32 subscriptionId,
         bytes calldata data,
         bytes calldata conditionParameters
-    ) external returns (bool);
+    ) external view returns (bool);
 
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,

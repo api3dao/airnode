@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
-import "../AirnodeRequesterAndSignatureVerifier.sol";
+import "../AirnodeRrpRequesterAndSignatureVerifier.sol";
 import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /// dAPIs.
 contract DapiServer is
     WhitelistWithManager,
-    AirnodeRequesterAndSignatureVerifier,
+    AirnodeRrpRequesterAndSignatureVerifier,
     Median,
     IDapiServer
 {
@@ -93,7 +93,7 @@ contract DapiServer is
             _adminRoleDescription,
             _manager
         )
-        AirnodeRequesterAndSignatureVerifier(_airnodeProtocol)
+        AirnodeRrpRequesterAndSignatureVerifier(_airnodeProtocol)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),
@@ -305,7 +305,7 @@ contract DapiServer is
         bytes32 subscriptionId,
         bytes calldata data,
         bytes calldata conditionParameters
-    ) external override returns (bool) {
+    ) external view override returns (bool) {
         require(msg.sender == address(0), "Sender not zero address");
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
         require(beaconId != bytes32(0), "Subscription not registered");

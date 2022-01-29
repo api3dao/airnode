@@ -15,8 +15,7 @@ contract Quickselect {
         pure
         returns (uint256 indK)
     {
-        (uint256 indK, ) = quickselect(array, 0, array.length - 1, k, false);
-        return indK;
+        (indK, ) = quickselect(array, 0, array.length - 1, k, false);
     }
 
     /// @notice Returns the index of the k-th and (k+1)-th largest elements in
@@ -83,31 +82,30 @@ contract Quickselect {
     /// partitioned
     /// @param hi Last index of the section of the array that will be
     /// partitioned
-    /// @return Pivot index
+    /// @return pivotInd Pivot index
     function partition(
         int256[] memory array,
         uint256 lo,
         uint256 hi
-    ) private pure returns (uint256) {
+    ) private pure returns (uint256 pivotInd) {
         if (lo == hi) {
             return lo;
         }
         int256 pivot = array[lo];
         uint256 i = lo;
-        uint256 j = hi + 1;
+        pivotInd = hi + 1;
         while (true) {
             do {
                 i++;
             } while (i < array.length && array[i] < pivot);
             do {
-                j--;
-            } while (array[j] > pivot);
-            if (i >= j) {
-                // Swap with pivot
-                (array[lo], array[j]) = (array[j], array[lo]);
-                return j;
+                pivotInd--;
+            } while (array[pivotInd] > pivot);
+            if (i >= pivotInd) {
+                (array[lo], array[pivotInd]) = (array[pivotInd], array[lo]);
+                return pivotInd;
             }
-            (array[i], array[j]) = (array[j], array[i]);
+            (array[i], array[pivotInd]) = (array[pivotInd], array[i]);
         }
     }
 }

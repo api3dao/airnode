@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./AirnodeUser.sol";
-import "./interfaces/IAirnodeRequester.sol";
+import "./interfaces/IAirnodeProtocol.sol";
+import "./interfaces/IAirnodeRrpRequester.sol";
 
 /// @title Contract to be inherited to make Airnode requests and receive
 /// fulfillments
-contract AirnodeRequester is AirnodeUser, IAirnodeRequester {
+contract AirnodeRrpRequester is IAirnodeRrpRequester {
+    /// @notice AirnodeProtocol contract address
+    address public immutable override airnodeProtocol;
+
     /// @dev Reverts if the sender is not the Airnode protocol contract. Use
     /// this modifier with `fulfillRrp()` and `fulfillPsp()` implementations.
     /// that are meant to receive Airnode request or subscription fulfillments.
@@ -26,7 +29,13 @@ contract AirnodeRequester is AirnodeUser, IAirnodeRequester {
     }
 
     /// @param _airnodeProtocol AirnodeProtocol contract address
-    constructor(address _airnodeProtocol) AirnodeUser(_airnodeProtocol) {}
+    constructor(address _airnodeProtocol) {
+        require(
+            _airnodeProtocol != address(0),
+            "Airnode protocol address zero"
+        );
+        airnodeProtocol = _airnodeProtocol;
+    }
 
     /// @notice Returns if the timestamp used in the signature is valid
     /// @dev Returns `false` if the timestamp is not at most 1 hour old to
