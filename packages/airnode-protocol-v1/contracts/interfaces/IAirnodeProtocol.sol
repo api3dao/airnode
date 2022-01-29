@@ -175,6 +175,15 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
         view
         returns (bool);
 
+    function templates(bytes32 templateId)
+        external
+        view
+        returns (
+            address airnode,
+            bytes32 endpointId,
+            bytes memory parameters
+        );
+
     function getBalances(address[] calldata accounts)
         external
         view
@@ -184,15 +193,6 @@ interface IAirnodeProtocol is IAirnodeWithdrawal {
         address sponsor,
         address requester
     ) external view returns (bool sponsorshipStatus);
-
-    function templates(bytes32 templateId)
-        external
-        view
-        returns (
-            address airnode,
-            bytes32 endpointId,
-            bytes memory parameters
-        );
 
     function templateIdToAirnode(bytes32 templateId)
         external

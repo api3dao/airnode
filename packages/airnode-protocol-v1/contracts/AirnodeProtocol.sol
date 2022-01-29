@@ -19,7 +19,6 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
     using ECDSA for bytes32;
 
     struct Template {
-        address airnode;
         bytes32 endpointId;
         bytes parameters;
     }
@@ -43,12 +42,6 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         public
         override sponsorToRequesterToSponsorshipStatus;
 
-    /// @notice Template with the ID
-    /// @dev Templates and subscriptions are stored in storage in addition to
-    /// logs to ensure their persistance. Requests are only stored in logs
-    /// because they are inherently short-lived.
-    mapping(bytes32 => Template) public override templates;
-
     mapping(bytes32 => address) public override templateIdToAirnode;
 
     /// @notice Returns the request count of the requester plus one
@@ -59,7 +52,9 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
     /// @notice Subscription with the ID
     mapping(bytes32 => Subscription) public override subscriptions;
 
-    mapping(bytes32 => bytes32) internal requestIdToFulfillmentParameters;
+    mapping(bytes32 => Template) private _templates;
+
+    mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @notice Called by the sponsor to set the sponsorship status of a
     /// requester, i.e., allow or disallow a requester to make requests that
@@ -115,8 +110,7 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
-        templates[templateId] = Template({
-            airnode: airnode,
+        _templates[templateId] = Template({
             endpointId: endpointId,
             parameters: parameters
         });
@@ -575,6 +569,21 @@ contract AirnodeProtocol is Multicall, AirnodeWithdrawal, IAirnodeProtocol {
         returns (bool)
     {
         return requestIdToFulfillmentParameters[requestId] != bytes32(0);
+    }
+
+    function templates(bytes32 templateId)
+        external
+        view
+        override
+        returns (
+            address airnode,
+            bytes32 endpointId,
+            bytes memory parameters
+        )
+    {
+        airnode = templateIdToAirnode[templateId];
+        endpointId = _templates[templateId].endpointId;
+        parameters = _templates[templateId].parameters;
     }
 
     function getBalances(address[] calldata accounts)
