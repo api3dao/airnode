@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 interface IAirnodeWithdrawal {
     event RequestedWithdrawal(
-        address indexed reporter,
+        address indexed relayer,
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
         uint256 protocolId,
@@ -11,7 +11,7 @@ interface IAirnodeWithdrawal {
     );
 
     event FulfilledWithdrawal(
-        address indexed reporter,
+        address indexed relayer,
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
         uint256 protocolId,
@@ -22,14 +22,14 @@ interface IAirnodeWithdrawal {
     event ExecutedWithdrawal(address indexed sponsor, uint256 amount);
 
     function requestWithdrawal(
-        address reporter,
+        address relayer,
         uint256 protocolId,
         address sponsorWallet
     ) external;
 
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
-        address reporter,
+        address relayer,
         address sponsor,
         uint256 protocolId
     ) external payable;
