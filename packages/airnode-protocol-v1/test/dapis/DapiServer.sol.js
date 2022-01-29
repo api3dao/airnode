@@ -74,7 +74,6 @@ async function setUpRoles() {
     .initializeRoleAndGrantToSender(adminRole, await dapiServer.NAME_SETTER_ROLE_DESCRIPTION());
   await accessControlRegistry.connect(roles.manager).grantRole(nameSetterRole, roles.nameSetter.address);
 
-  await airnodeProtocol.connect(roles.sponsor).setSponsorshipStatus(dapiServer.address, true);
   await dapiServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
 }
 
@@ -332,7 +331,7 @@ async function deriveRegularRequestId() {
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         dapiServer.address,
-        await airnodeProtocol.requesterToRequestCountPlusOne(dapiServer.address),
+        (await airnodeProtocol.requesterToRequestCount(dapiServer.address)).add(1),
         templateId,
         beaconParameters,
         roles.sponsor.address,
@@ -350,7 +349,7 @@ async function deriveRelayedRequestId() {
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         dapiServer.address,
-        await airnodeProtocol.requesterToRequestCountPlusOne(dapiServer.address),
+        (await airnodeProtocol.requesterToRequestCount(dapiServer.address)).add(1),
         templateId,
         beaconParameters,
         relayerAddress,
@@ -830,64 +829,42 @@ describe('setUpdatePermissionStatus', function () {
 
 describe('requestRrpBeaconUpdate', function () {
   context('Request updater is the sponsor', function () {
-    context('DapiServer is sponsored', function () {
-      it('requests RRP Beacon update', async function () {
-        const requestId = await deriveRegularRequestId();
-        expect(
-          await dapiServer
-            .connect(roles.sponsor)
-            .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        ).to.equal(requestId);
-        await expect(
-          dapiServer.connect(roles.sponsor).requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        )
-          .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
-          .withArgs(beaconId, roles.sponsor.address, roles.sponsor.address, requestId, templateId, beaconParameters);
-      });
-    });
-    context('DapiServer is not sponsored', function () {
-      it('reverts', async function () {
-        await airnodeProtocol.connect(roles.sponsor).setSponsorshipStatus(dapiServer.address, false);
-        await expect(
-          dapiServer.connect(roles.sponsor).requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        ).to.be.revertedWith('Requester not sponsored');
-      });
+    it('requests RRP Beacon update', async function () {
+      const requestId = await deriveRegularRequestId();
+      expect(
+        await dapiServer
+          .connect(roles.sponsor)
+          .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+      ).to.equal(requestId);
+      await expect(
+        dapiServer.connect(roles.sponsor).requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+      )
+        .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
+        .withArgs(beaconId, roles.sponsor.address, roles.sponsor.address, requestId, templateId, beaconParameters);
     });
   });
   context('Request updater is permitted', function () {
-    context('DapiServer is sponsored', function () {
-      it('requests RRP Beacon update', async function () {
-        const requestId = await deriveRegularRequestId();
-        expect(
-          await dapiServer
-            .connect(roles.updateRequester)
-            .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        ).to.equal(requestId);
-        await expect(
-          dapiServer
-            .connect(roles.updateRequester)
-            .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        )
-          .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
-          .withArgs(
-            beaconId,
-            roles.sponsor.address,
-            roles.updateRequester.address,
-            requestId,
-            templateId,
-            beaconParameters
-          );
-      });
-    });
-    context('DapiServer is not sponsored', function () {
-      it('reverts', async function () {
-        await airnodeProtocol.connect(roles.sponsor).setSponsorshipStatus(dapiServer.address, false);
-        await expect(
-          dapiServer
-            .connect(roles.updateRequester)
-            .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
-        ).to.be.revertedWith('Requester not sponsored');
-      });
+    it('requests RRP Beacon update', async function () {
+      const requestId = await deriveRegularRequestId();
+      expect(
+        await dapiServer
+          .connect(roles.updateRequester)
+          .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+      ).to.equal(requestId);
+      await expect(
+        dapiServer
+          .connect(roles.updateRequester)
+          .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+      )
+        .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
+        .withArgs(
+          beaconId,
+          roles.sponsor.address,
+          roles.updateRequester.address,
+          requestId,
+          templateId,
+          beaconParameters
+        );
     });
   });
   context('Request updater is not permitted', function () {
@@ -903,87 +880,53 @@ describe('requestRrpBeaconUpdate', function () {
 
 describe('requestRrpBeaconUpdateRelayed', function () {
   context('Request updater is the sponsor', function () {
-    context('DapiServer is sponsored', function () {
-      it('requests RRP Beacon update', async function () {
-        const requestId = await deriveRelayedRequestId();
-        expect(
-          await dapiServer
-            .connect(roles.sponsor)
-            .callStatic.requestRrpBeaconUpdateRelayed(
-              templateId,
-              beaconParameters,
-              relayerAddress,
-              roles.sponsor.address
-            )
-        ).to.equal(requestId);
-        await expect(
-          dapiServer
-            .connect(roles.sponsor)
-            .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
-        )
-          .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
-          .withArgs(
-            beaconId,
-            roles.sponsor.address,
-            roles.sponsor.address,
-            requestId,
-            relayerAddress,
-            templateId,
-            beaconParameters
-          );
-      });
-    });
-    context('DapiServer is not sponsored', function () {
-      it('reverts', async function () {
-        await airnodeProtocol.connect(roles.sponsor).setSponsorshipStatus(dapiServer.address, false);
-        await expect(
-          dapiServer
-            .connect(roles.sponsor)
-            .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
-        ).to.be.revertedWith('Requester not sponsored');
-      });
+    it('requests RRP Beacon update', async function () {
+      const requestId = await deriveRelayedRequestId();
+      expect(
+        await dapiServer
+          .connect(roles.sponsor)
+          .callStatic.requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+      ).to.equal(requestId);
+      await expect(
+        dapiServer
+          .connect(roles.sponsor)
+          .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+      )
+        .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
+        .withArgs(
+          beaconId,
+          roles.sponsor.address,
+          roles.sponsor.address,
+          requestId,
+          relayerAddress,
+          templateId,
+          beaconParameters
+        );
     });
   });
   context('Request updater is permitted', function () {
-    context('DapiServer is sponsored', function () {
-      it('requests RRP Beacon update', async function () {
-        const requestId = await deriveRelayedRequestId();
-        expect(
-          await dapiServer
-            .connect(roles.updateRequester)
-            .callStatic.requestRrpBeaconUpdateRelayed(
-              templateId,
-              beaconParameters,
-              relayerAddress,
-              roles.sponsor.address
-            )
-        ).to.equal(requestId);
-        await expect(
-          dapiServer
-            .connect(roles.updateRequester)
-            .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
-        )
-          .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
-          .withArgs(
-            beaconId,
-            roles.sponsor.address,
-            roles.updateRequester.address,
-            requestId,
-            relayerAddress,
-            templateId,
-            beaconParameters
-          );
-      });
-    });
-    context('DapiServer is not sponsored', function () {
-      it('reverts', async function () {
-        await airnodeProtocol.connect(roles.sponsor).setSponsorshipStatus(dapiServer.address, false);
-        await expect(
-          dapiServer
-            .connect(roles.updateRequester)
-            .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
-        ).to.be.revertedWith('Requester not sponsored');
-      });
+    it('requests RRP Beacon update', async function () {
+      const requestId = await deriveRelayedRequestId();
+      expect(
+        await dapiServer
+          .connect(roles.updateRequester)
+          .callStatic.requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+      ).to.equal(requestId);
+      await expect(
+        dapiServer
+          .connect(roles.updateRequester)
+          .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+      )
+        .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
+        .withArgs(
+          beaconId,
+          roles.sponsor.address,
+          roles.updateRequester.address,
+          requestId,
+          relayerAddress,
+          templateId,
+          beaconParameters
+        );
     });
   });
   context('Request updater is not permitted', function () {

@@ -7,7 +7,7 @@ import "./IAirnodeWithdrawal.sol";
 interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
     event SetSponsorshipStatus(
         address indexed sponsor,
-        address indexed requester,
+        bytes32 indexed hash_,
         bool sponsorshipStatus
     );
 
@@ -64,7 +64,7 @@ interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
         string errorMessage
     );
 
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+    function setSponsorshipStatus(bytes32 hash_, bool sponsorshipStatus)
         external;
 
     function makeRequest(
@@ -129,12 +129,12 @@ interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
         view
         returns (bool);
 
-    function sponsorToRequesterToSponsorshipStatus(
-        address sponsor,
-        address requester
-    ) external view returns (bool sponsorshipStatus);
+    function sponsorToHashToSponsorshipStatus(address sponsor, bytes32 hash_)
+        external
+        view
+        returns (bool sponsorshipStatus);
 
-    function requesterToRequestCountPlusOne(address requester)
+    function requesterToRequestCount(address requester)
         external
         view
         returns (uint256);
