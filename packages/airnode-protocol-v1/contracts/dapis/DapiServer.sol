@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
-import "../AirnodeRrpRequesterAndSignatureVerifier.sol";
+import "../protocol/AirnodeRrpRequesterAndSignatureVerifier.sol";
 import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";

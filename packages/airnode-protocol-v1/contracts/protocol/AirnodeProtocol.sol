@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./utils/ExtendedMulticall.sol";
+import "../utils/ExtendedMulticall.sol";
 import "./AirnodeWithdrawal.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
