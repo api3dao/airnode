@@ -3,8 +3,8 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 
 let roles;
-let accessControlRegistry, airnodeEndpointFeeRegistry;
-let airnodeEndpointFeeRegistryAdminRoleDescription = 'AirnodeEndpointFeeRegistry admin';
+let accessControlRegistry, airnodeEndpointPriceRegistry;
+let airnodeEndpointPriceRegistryAdminRoleDescription = 'AirnodeEndpointPriceRegistry admin';
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -14,41 +14,41 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  const airnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-    'AirnodeEndpointFeeRegistry',
+  const airnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+    'AirnodeEndpointPriceRegistry',
     roles.deployer
   );
-  airnodeEndpointFeeRegistry = await airnodeEndpointFeeRegistryFactory.deploy(
+  airnodeEndpointPriceRegistry = await airnodeEndpointPriceRegistryFactory.deploy(
     accessControlRegistry.address,
-    airnodeEndpointFeeRegistryAdminRoleDescription,
+    airnodeEndpointPriceRegistryAdminRoleDescription,
     roles.manager.address
   );
 });
 
 describe('constructor', function () {
-  context('AirnodeEndpointFeeRegistry address is not zero', function () {
+  context('AirnodeEndpointPriceRegistry address is not zero', function () {
     it('constructs', async function () {
-      const airnodeEndpointFeeRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'AirnodeEndpointFeeRegistryReader',
+      const airnodeEndpointPriceRegistryReaderFactory = await hre.ethers.getContractFactory(
+        'AirnodeEndpointPriceRegistryReader',
         roles.deployer
       );
-      const airnodeEndpointFeeRegistryReader = await airnodeEndpointFeeRegistryReaderFactory.deploy(
-        airnodeEndpointFeeRegistry.address
+      const airnodeEndpointPriceRegistryReader = await airnodeEndpointPriceRegistryReaderFactory.deploy(
+        airnodeEndpointPriceRegistry.address
       );
-      expect(await airnodeEndpointFeeRegistryReader.airnodeEndpointFeeRegistry()).to.equal(
-        airnodeEndpointFeeRegistry.address
+      expect(await airnodeEndpointPriceRegistryReader.airnodeEndpointPriceRegistry()).to.equal(
+        airnodeEndpointPriceRegistry.address
       );
     });
   });
-  context('AirnodeEndpointFeeRegistry address is zero', function () {
+  context('AirnodeEndpointPriceRegistry address is zero', function () {
     it('reverts', async function () {
-      const airnodeEndpointFeeRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'AirnodeEndpointFeeRegistryReader',
+      const airnodeEndpointPriceRegistryReaderFactory = await hre.ethers.getContractFactory(
+        'AirnodeEndpointPriceRegistryReader',
         roles.deployer
       );
-      await expect(airnodeEndpointFeeRegistryReaderFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
-        'Fee registry address zero'
-      );
+      await expect(
+        airnodeEndpointPriceRegistryReaderFactory.deploy(hre.ethers.constants.AddressZero)
+      ).to.be.revertedWith('Price registry address zero');
     });
   });
 });

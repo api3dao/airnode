@@ -5,7 +5,7 @@ const testUtils = require('../test-utils');
 
 let roles;
 let accessControlRegistry,
-  airnodeEndpointFeeRegistry,
+  airnodeEndpointPriceRegistry,
   requesterAuthorizerRegistry,
   requesterAuthorizerWithManager,
   requesterAuthorizerWhitelisterWithTokenPayment,
@@ -33,13 +33,13 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  const airnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-    'AirnodeEndpointFeeRegistry',
+  const airnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+    'AirnodeEndpointPriceRegistry',
     roles.deployer
   );
-  airnodeEndpointFeeRegistry = await airnodeEndpointFeeRegistryFactory.deploy(
+  airnodeEndpointPriceRegistry = await airnodeEndpointPriceRegistryFactory.deploy(
     accessControlRegistry.address,
-    'AirnodeEndpointFeeRegistry admin',
+    'AirnodeEndpointPriceRegistry admin',
     roles.manager.address
   );
   const requesterAuthorizerRegistryFactory = await hre.ethers.getContractFactory(
@@ -73,7 +73,7 @@ beforeEach(async () => {
     accessControlRegistry.address,
     requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
     roles.manager.address,
-    airnodeEndpointFeeRegistry.address,
+    airnodeEndpointPriceRegistry.address,
     requesterAuthorizerRegistry.address,
     token.address,
     tokenPrice,
@@ -127,8 +127,8 @@ describe('constructor', function () {
     context('Token price is not zero', function () {
       context('Price coefficient is not zero', function () {
         context('Proceeds destination is not zero', function () {
-          context('Fee denomination matches with the registry', function () {
-            context('Fee decimals matches with the registry', function () {
+          context('Price denomination matches with the registry', function () {
+            context('Price decimals matches with the registry', function () {
               context('Pricing interval matches with the registry', function () {
                 it('constructs', async function () {
                   const adminRole = await requesterAuthorizerWhitelisterWithTokenPayment.adminRole();
@@ -175,11 +175,11 @@ describe('constructor', function () {
               });
               context('Pricing interval matches with the registry', function () {
                 it('reverts', async function () {
-                  const mockAirnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-                    'MockAirnodeEndpointFeeRegistry',
+                  const mockAirnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+                    'MockAirnodeEndpointPriceRegistry',
                     roles.deployer
                   );
-                  const mockAirnodeEndpointFeeRegistry = await mockAirnodeEndpointFeeRegistryFactory.deploy(
+                  const mockAirnodeEndpointPriceRegistry = await mockAirnodeEndpointPriceRegistryFactory.deploy(
                     'USD',
                     18,
                     12 * 30 * 24 * 60 * 60
@@ -193,7 +193,7 @@ describe('constructor', function () {
                       accessControlRegistry.address,
                       requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
                       roles.manager.address,
-                      mockAirnodeEndpointFeeRegistry.address,
+                      mockAirnodeEndpointPriceRegistry.address,
                       requesterAuthorizerRegistry.address,
                       token.address,
                       tokenPrice,
@@ -204,13 +204,13 @@ describe('constructor', function () {
                 });
               });
             });
-            context('Fee decimals does not match with the registry', function () {
+            context('Price decimals does not match with the registry', function () {
               it('reverts', async function () {
-                const mockAirnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-                  'MockAirnodeEndpointFeeRegistry',
+                const mockAirnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+                  'MockAirnodeEndpointPriceRegistry',
                   roles.deployer
                 );
-                const mockAirnodeEndpointFeeRegistry = await mockAirnodeEndpointFeeRegistryFactory.deploy(
+                const mockAirnodeEndpointPriceRegistry = await mockAirnodeEndpointPriceRegistryFactory.deploy(
                   'USD',
                   12,
                   30 * 24 * 60 * 60
@@ -224,24 +224,24 @@ describe('constructor', function () {
                     accessControlRegistry.address,
                     requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
                     roles.manager.address,
-                    mockAirnodeEndpointFeeRegistry.address,
+                    mockAirnodeEndpointPriceRegistry.address,
                     requesterAuthorizerRegistry.address,
                     token.address,
                     tokenPrice,
                     priceCoefficient,
                     roles.proceedsDestination.address
                   )
-                ).to.be.revertedWith('Fee decimals mismatch');
+                ).to.be.revertedWith('Price decimals mismatch');
               });
             });
           });
-          context('Fee denomination does not match with the registry', function () {
+          context('Price denomination does not match with the registry', function () {
             it('reverts', async function () {
-              const mockAirnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-                'MockAirnodeEndpointFeeRegistry',
+              const mockAirnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+                'MockAirnodeEndpointPriceRegistry',
                 roles.deployer
               );
-              const mockAirnodeEndpointFeeRegistry = await mockAirnodeEndpointFeeRegistryFactory.deploy(
+              const mockAirnodeEndpointPriceRegistry = await mockAirnodeEndpointPriceRegistryFactory.deploy(
                 'EUR',
                 18,
                 30 * 24 * 60 * 60
@@ -255,14 +255,14 @@ describe('constructor', function () {
                   accessControlRegistry.address,
                   requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
                   roles.manager.address,
-                  mockAirnodeEndpointFeeRegistry.address,
+                  mockAirnodeEndpointPriceRegistry.address,
                   requesterAuthorizerRegistry.address,
                   token.address,
                   tokenPrice,
                   priceCoefficient,
                   roles.proceedsDestination.address
                 )
-              ).to.be.revertedWith('Fee denomination mismatch');
+              ).to.be.revertedWith('Price denomination mismatch');
             });
           });
         });
@@ -277,7 +277,7 @@ describe('constructor', function () {
                 accessControlRegistry.address,
                 requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
                 roles.manager.address,
-                airnodeEndpointFeeRegistry.address,
+                airnodeEndpointPriceRegistry.address,
                 requesterAuthorizerRegistry.address,
                 token.address,
                 tokenPrice,
@@ -299,7 +299,7 @@ describe('constructor', function () {
               accessControlRegistry.address,
               requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
               roles.manager.address,
-              airnodeEndpointFeeRegistry.address,
+              airnodeEndpointPriceRegistry.address,
               requesterAuthorizerRegistry.address,
               token.address,
               tokenPrice,
@@ -321,7 +321,7 @@ describe('constructor', function () {
             accessControlRegistry.address,
             requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
             roles.manager.address,
-            airnodeEndpointFeeRegistry.address,
+            airnodeEndpointPriceRegistry.address,
             requesterAuthorizerRegistry.address,
             token.address,
             0,
@@ -343,7 +343,7 @@ describe('constructor', function () {
           accessControlRegistry.address,
           requesterAuthorizerWhitelisterWithTokenPaymentAdminRoleDescription,
           roles.manager.address,
-          airnodeEndpointFeeRegistry.address,
+          airnodeEndpointPriceRegistry.address,
           requesterAuthorizerRegistry.address,
           hre.ethers.constants.AddressZero,
           tokenPrice,
@@ -869,11 +869,11 @@ describe('setRequesterBlockStatusForAirnode', function () {
 });
 
 describe('getTokenAmount', function () {
-  context('Fee registry returns a value', function () {
+  context('Price registry returns a value', function () {
     it('gets token amount', async function () {
       const endpointId = testUtils.generateRandomBytes32();
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-      await airnodeEndpointFeeRegistry
+      await airnodeEndpointPriceRegistry
         .connect(roles.manager)
         .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       // $100 times 2 divided by $5 = 40 tokens with 12 decimals (because the token was defined to have 12 decimals)
@@ -883,7 +883,7 @@ describe('getTokenAmount', function () {
       ).to.equal(expectedTokenAmount);
     });
   });
-  context('Fee registry reverts', function () {
+  context('Price registry reverts', function () {
     it('reverts', async function () {
       const endpointId = testUtils.generateRandomBytes32();
       await expect(
@@ -1030,7 +1030,7 @@ describe('payTokens', function () {
                       .div(tokenPrice)
                       .mul(whitelistExtension)
                       .div(30 * 24 * 60 * 60);
-                    await airnodeEndpointFeeRegistry
+                    await airnodeEndpointPriceRegistry
                       .connect(roles.manager)
                       .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                     await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1087,7 +1087,7 @@ describe('payTokens', function () {
                     const requester = testUtils.generateRandomAddress();
                     const whitelistExtension = 365 * 24 * 60 * 60 + 1;
                     const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-                    await airnodeEndpointFeeRegistry
+                    await airnodeEndpointPriceRegistry
                       .connect(roles.manager)
                       .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                     await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1114,7 +1114,7 @@ describe('payTokens', function () {
                   const requester = testUtils.generateRandomAddress();
                   const whitelistExtension = 7 * 24 * 60 * 60;
                   const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-                  await airnodeEndpointFeeRegistry
+                  await airnodeEndpointPriceRegistry
                     .connect(roles.manager)
                     .setAirnodeChainEndpointPrice(roles.airnode.address, anotherChainId, endpointId, price);
                   await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1137,7 +1137,7 @@ describe('payTokens', function () {
                 const requester = testUtils.generateRandomAddress();
                 const whitelistExtension = 7 * 24 * 60 * 60;
                 const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-                await airnodeEndpointFeeRegistry
+                await airnodeEndpointPriceRegistry
                   .connect(roles.manager)
                   .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                 await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1257,7 +1257,7 @@ describe('resetWhitelistExpirationOfBlockedRequester', function () {
       const requester = testUtils.generateRandomAddress();
       const whitelistExtension = 7 * 24 * 60 * 60;
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-      await airnodeEndpointFeeRegistry
+      await airnodeEndpointPriceRegistry
         .connect(roles.manager)
         .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1303,7 +1303,7 @@ describe('resetWhitelistExpirationOfBlockedRequester', function () {
       const requester = testUtils.generateRandomAddress();
       const whitelistExtension = 7 * 24 * 60 * 60;
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-      await airnodeEndpointFeeRegistry
+      await airnodeEndpointPriceRegistry
         .connect(roles.manager)
         .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       await requesterAuthorizerWhitelisterWithTokenPayment
@@ -1357,12 +1357,12 @@ describe('resetWhitelistExpirationOfBlockedRequester', function () {
 });
 
 describe('getTokenPaymentAmount', function () {
-  context('Fee registry returns a value', function () {
+  context('Price registry returns a value', function () {
     it('gets token payment amount', async function () {
       const endpointId = testUtils.generateRandomBytes32();
       const whitelistExtension = 7 * 24 * 60 * 60;
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-      await airnodeEndpointFeeRegistry
+      await airnodeEndpointPriceRegistry
         .connect(roles.manager)
         .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       // $100 times 2 divided by $5 divided by 4 = ~10 tokens with 12 decimals (because the token was defined to have 12 decimals)
@@ -1381,7 +1381,7 @@ describe('getTokenPaymentAmount', function () {
       ).to.equal(expectedTokenAmount);
     });
   });
-  context('Fee registry reverts', function () {
+  context('Price registry reverts', function () {
     it('reverts', async function () {
       const endpointId = testUtils.generateRandomBytes32();
       const whitelistExtension = 7 * 24 * 60 * 60;

@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol";
-import "./AirnodeEndpointFeeRegistryReader.sol";
+import "./AirnodeEndpointPriceRegistryReader.sol";
 import "./RequesterAuthorizerRegistryReader.sol";
 import "./interfaces/IRequesterAuthorizerWhitelisterWithToken.sol";
 import "../authorizers/interfaces/IRequesterAuthorizer.sol";
@@ -12,7 +12,7 @@ import "../authorizers/interfaces/IRequesterAuthorizer.sol";
 /// will whitelist based on token interaction
 contract RequesterAuthorizerWhitelisterWithToken is
     AccessControlRegistryAdminnedWithManager,
-    AirnodeEndpointFeeRegistryReader,
+    AirnodeEndpointPriceRegistryReader,
     RequesterAuthorizerRegistryReader,
     IRequesterAuthorizerWhitelisterWithToken
 {
@@ -43,10 +43,10 @@ contract RequesterAuthorizerWhitelisterWithToken is
 
     /// @notice Coefficient that can be used to adjust the amount of tokens
     /// @dev If `token` has 18 decimals, a `priceCoefficient` of 10^18 means
-    /// the fee registry amount will be used directly, while a
-    /// `priceCoefficient` of 10^19 means 10 times the fee registry amount will
-    /// be used. On the other hand, if `token` has 6 decimals, a
-    /// `priceCoefficient` of 10^6 means the fee registry amount will be used
+    /// the price registry amount will be used directly, while a
+    /// `priceCoefficient` of 10^19 means 10 times the price registry amount
+    /// will be used. On the other hand, if `token` has 6 decimals, a
+    /// `priceCoefficient` of 10^6 means the price registry amount will be used
     /// directly.
     uint256 public override priceCoefficient;
 
@@ -137,7 +137,8 @@ contract RequesterAuthorizerWhitelisterWithToken is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeEndpointFeeRegistry AirnodeFeeRegistry contract address
+    /// @param _airnodeEndpointPriceRegistry AirnodeEndpointPriceRegistry
+    /// contract address
     /// @param _requesterAuthorizerRegistry RequesterAuthorizerRegistry
     /// contract address
     /// @param _token Token contract address
@@ -149,7 +150,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _airnodeEndpointFeeRegistry,
+        address _airnodeEndpointPriceRegistry,
         address _requesterAuthorizerRegistry,
         address _token,
         uint256 _tokenPrice,
@@ -161,7 +162,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
             _adminRoleDescription,
             _manager
         )
-        AirnodeEndpointFeeRegistryReader(_airnodeEndpointFeeRegistry)
+        AirnodeEndpointPriceRegistryReader(_airnodeEndpointPriceRegistry)
         RequesterAuthorizerRegistryReader(_requesterAuthorizerRegistry)
     {
         require(_token != address(0), "Token address zero");
@@ -180,16 +181,16 @@ contract RequesterAuthorizerWhitelisterWithToken is
         require(
             keccak256(
                 abi.encodePacked(
-                    IAirnodeEndpointFeeRegistry(airnodeEndpointFeeRegistry)
+                    IAirnodeEndpointPriceRegistry(airnodeEndpointPriceRegistry)
                         .DENOMINATION()
                 )
             ) == keccak256(abi.encodePacked("USD")),
-            "Fee denomination mismatch"
+            "Price denomination mismatch"
         );
         require(
-            IAirnodeEndpointFeeRegistry(airnodeEndpointFeeRegistry)
+            IAirnodeEndpointPriceRegistry(airnodeEndpointPriceRegistry)
                 .DECIMALS() == 18,
-            "Fee decimals mismatch"
+            "Price decimals mismatch"
         );
     }
 
@@ -314,8 +315,8 @@ contract RequesterAuthorizerWhitelisterWithToken is
         uint256 chainId,
         bytes32 endpointId
     ) public view override returns (uint256 amount) {
-        uint256 endpointPrice = IAirnodeEndpointFeeRegistry(
-            airnodeEndpointFeeRegistry
+        uint256 endpointPrice = IAirnodeEndpointPriceRegistry(
+            airnodeEndpointPriceRegistry
         ).getPrice(airnode, chainId, endpointId);
         amount = (endpointPrice * priceCoefficient) / tokenPrice;
     }

@@ -2,15 +2,15 @@
 pragma solidity 0.8.9;
 
 import "../utils/Uint256Registry.sol";
-import "./interfaces/IAirnodeEndpointFeeRegistry.sol";
+import "./interfaces/IAirnodeEndpointPriceRegistry.sol";
 
 /// @title Contract that stores the price of accessing Airnode endpoints across
 /// different chains
-/// @notice AirnodeFeeRegistry is a central contract that can be queried for
+/// @notice AirnodeEndpointPriceRegistry is a central contract that can be queried for
 /// the USD price of an Airnode–chain–endpoint pair
-contract AirnodeEndpointFeeRegistry is
+contract AirnodeEndpointPriceRegistry is
     Uint256Registry,
-    IAirnodeEndpointFeeRegistry
+    IAirnodeEndpointPriceRegistry
 {
     /// @notice A flag to determine which price to default to
     /// @dev See `getPrice()` for details

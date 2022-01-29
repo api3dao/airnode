@@ -4,8 +4,8 @@ const { expect } = require('chai');
 const testUtils = require('../test-utils');
 
 let roles;
-let accessControlRegistry, airnodeEndpointFeeRegistry;
-let airnodeEndpointFeeRegistryAdminRoleDescription = 'AirnodeEndpointFeeRegistry admin';
+let accessControlRegistry, airnodeEndpointPriceRegistry;
+let airnodeEndpointPriceRegistryAdminRoleDescription = 'AirnodeEndpointPriceRegistry admin';
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -18,32 +18,32 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  const airnodeEndpointFeeRegistryFactory = await hre.ethers.getContractFactory(
-    'AirnodeEndpointFeeRegistry',
+  const airnodeEndpointPriceRegistryFactory = await hre.ethers.getContractFactory(
+    'AirnodeEndpointPriceRegistry',
     roles.deployer
   );
-  airnodeEndpointFeeRegistry = await airnodeEndpointFeeRegistryFactory.deploy(
+  airnodeEndpointPriceRegistry = await airnodeEndpointPriceRegistryFactory.deploy(
     accessControlRegistry.address,
-    airnodeEndpointFeeRegistryAdminRoleDescription,
+    airnodeEndpointPriceRegistryAdminRoleDescription,
     roles.manager.address
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
-  const adminRole = await airnodeEndpointFeeRegistry.adminRole();
+  const adminRole = await airnodeEndpointPriceRegistry.adminRole();
   await accessControlRegistry
     .connect(roles.manager)
-    .initializeRoleAndGrantToSender(managerRootRole, airnodeEndpointFeeRegistryAdminRoleDescription);
-  const registrarRole = await airnodeEndpointFeeRegistry.registrarRole();
+    .initializeRoleAndGrantToSender(managerRootRole, airnodeEndpointPriceRegistryAdminRoleDescription);
+  const registrarRole = await airnodeEndpointPriceRegistry.registrarRole();
   await accessControlRegistry
     .connect(roles.manager)
-    .initializeRoleAndGrantToSender(adminRole, await airnodeEndpointFeeRegistry.REGISTRAR_ROLE_DESCRIPTION());
+    .initializeRoleAndGrantToSender(adminRole, await airnodeEndpointPriceRegistry.REGISTRAR_ROLE_DESCRIPTION());
   await accessControlRegistry.connect(roles.manager).grantRole(registrarRole, roles.registrar.address);
 });
 
 describe('constructor', function () {
   it('constructs', async function () {
-    expect(await airnodeEndpointFeeRegistry.DENOMINATION()).to.equal('USD');
-    expect(await airnodeEndpointFeeRegistry.DECIMALS()).to.equal(18);
-    expect(await airnodeEndpointFeeRegistry.PRICING_INTERVAL()).to.equal(30 * 24 * 60 * 60);
+    expect(await airnodeEndpointPriceRegistry.DENOMINATION()).to.equal('USD');
+    expect(await airnodeEndpointPriceRegistry.DECIMALS()).to.equal(18);
+    expect(await airnodeEndpointPriceRegistry.PRICING_INTERVAL()).to.equal(30 * 24 * 60 * 60);
   });
 });
 
@@ -52,13 +52,13 @@ describe('setDefaultPrice', function () {
     context('Price is not zero', function () {
       it('sets default price', async function () {
         const price = 123;
-        let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultPrice();
+        let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultPrice();
         expect(priceFetchAttempt.success).to.equal(false);
         expect(priceFetchAttempt.price).to.equal(0);
-        await expect(airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(price))
-          .to.emit(airnodeEndpointFeeRegistry, 'SetDefaultPrice')
+        await expect(airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(price))
+          .to.emit(airnodeEndpointPriceRegistry, 'SetDefaultPrice')
           .withArgs(price, roles.registrar.address);
-        priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultPrice();
+        priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultPrice();
         expect(priceFetchAttempt.success).to.equal(true);
         expect(priceFetchAttempt.price).to.equal(price);
       });
@@ -66,7 +66,7 @@ describe('setDefaultPrice', function () {
     context('Price is zero', function () {
       it('reverts', async function () {
         const price = 0;
-        await expect(airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(price)).to.be.revertedWith(
+        await expect(airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(price)).to.be.revertedWith(
           'Cannot register zero'
         );
       });
@@ -76,13 +76,13 @@ describe('setDefaultPrice', function () {
     context('Price is not zero', function () {
       it('sets default price', async function () {
         const price = 123;
-        let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultPrice();
+        let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultPrice();
         expect(priceFetchAttempt.success).to.equal(false);
         expect(priceFetchAttempt.price).to.equal(0);
-        await expect(airnodeEndpointFeeRegistry.connect(roles.manager).setDefaultPrice(price))
-          .to.emit(airnodeEndpointFeeRegistry, 'SetDefaultPrice')
+        await expect(airnodeEndpointPriceRegistry.connect(roles.manager).setDefaultPrice(price))
+          .to.emit(airnodeEndpointPriceRegistry, 'SetDefaultPrice')
           .withArgs(price, roles.manager.address);
-        priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultPrice();
+        priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultPrice();
         expect(priceFetchAttempt.success).to.equal(true);
         expect(priceFetchAttempt.price).to.equal(price);
       });
@@ -90,7 +90,7 @@ describe('setDefaultPrice', function () {
     context('Price is zero', function () {
       it('reverts', async function () {
         const price = 0;
-        await expect(airnodeEndpointFeeRegistry.connect(roles.manager).setDefaultPrice(price)).to.be.revertedWith(
+        await expect(airnodeEndpointPriceRegistry.connect(roles.manager).setDefaultPrice(price)).to.be.revertedWith(
           'Cannot register zero'
         );
       });
@@ -99,7 +99,7 @@ describe('setDefaultPrice', function () {
   context('Sender does not have the registrar role and is not the manager', function () {
     it('reverts', async function () {
       const price = 123;
-      await expect(airnodeEndpointFeeRegistry.connect(roles.randomPerson).setDefaultPrice(price)).to.be.revertedWith(
+      await expect(airnodeEndpointPriceRegistry.connect(roles.randomPerson).setDefaultPrice(price)).to.be.revertedWith(
         'Sender cannot register'
       );
     });
@@ -113,13 +113,13 @@ describe('setDefaultChainPrice', function () {
         it('sets default chain price', async function () {
           const chainId = 3;
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultChainPrice(chainId);
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultChainPrice(chainId);
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
-          await expect(airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price))
-            .to.emit(airnodeEndpointFeeRegistry, 'SetDefaultChainPrice')
+          await expect(airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price))
+            .to.emit(airnodeEndpointPriceRegistry, 'SetDefaultChainPrice')
             .withArgs(chainId, price, roles.registrar.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultChainPrice(chainId);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultChainPrice(chainId);
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -129,7 +129,7 @@ describe('setDefaultChainPrice', function () {
           const chainId = 3;
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price)
+            airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -139,7 +139,7 @@ describe('setDefaultChainPrice', function () {
         const chainId = 0;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price)
+          airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, price)
         ).to.be.revertedWith('Chain ID zero');
       });
     });
@@ -150,13 +150,13 @@ describe('setDefaultChainPrice', function () {
         it('sets default chain price', async function () {
           const chainId = 3;
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultChainPrice(chainId);
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultChainPrice(chainId);
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
-          await expect(airnodeEndpointFeeRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price))
-            .to.emit(airnodeEndpointFeeRegistry, 'SetDefaultChainPrice')
+          await expect(airnodeEndpointPriceRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price))
+            .to.emit(airnodeEndpointPriceRegistry, 'SetDefaultChainPrice')
             .withArgs(chainId, price, roles.manager.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadDefaultChainPrice(chainId);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadDefaultChainPrice(chainId);
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -166,7 +166,7 @@ describe('setDefaultChainPrice', function () {
           const chainId = 3;
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price)
+            airnodeEndpointPriceRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -176,7 +176,7 @@ describe('setDefaultChainPrice', function () {
         const chainId = 0;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setDefaultChainPrice(chainId, price)
         ).to.be.revertedWith('Chain ID zero');
       });
     });
@@ -186,7 +186,7 @@ describe('setDefaultChainPrice', function () {
       const chainId = 3;
       const price = 123;
       await expect(
-        airnodeEndpointFeeRegistry.connect(roles.randomPerson).setDefaultChainPrice(chainId, price)
+        airnodeEndpointPriceRegistry.connect(roles.randomPerson).setDefaultChainPrice(chainId, price)
       ).to.be.revertedWith('Sender cannot register');
     });
   });
@@ -199,13 +199,13 @@ describe('setAirnodePrice', function () {
         it('sets Airnode price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodePrice(airnodeAddress);
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodePrice(airnodeAddress);
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
-          await expect(airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price))
-            .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodePrice')
+          await expect(airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price))
+            .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodePrice')
             .withArgs(airnodeAddress, price, roles.registrar.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodePrice(airnodeAddress);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodePrice(airnodeAddress);
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -215,7 +215,7 @@ describe('setAirnodePrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price)
+            airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -225,7 +225,7 @@ describe('setAirnodePrice', function () {
         const airnodeAddress = hre.ethers.constants.AddressZero;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price)
+          airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -236,13 +236,13 @@ describe('setAirnodePrice', function () {
         it('sets Airnode price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodePrice(airnodeAddress);
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodePrice(airnodeAddress);
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
-          await expect(airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price))
-            .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodePrice')
+          await expect(airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price))
+            .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodePrice')
             .withArgs(airnodeAddress, price, roles.manager.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodePrice(airnodeAddress);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodePrice(airnodeAddress);
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -252,7 +252,7 @@ describe('setAirnodePrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price)
+            airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -262,7 +262,7 @@ describe('setAirnodePrice', function () {
         const airnodeAddress = hre.ethers.constants.AddressZero;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodePrice(airnodeAddress, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -272,7 +272,7 @@ describe('setAirnodePrice', function () {
       const airnodeAddress = testUtils.generateRandomAddress();
       const price = 123;
       await expect(
-        airnodeEndpointFeeRegistry.connect(roles.randomPerson).setAirnodePrice(airnodeAddress, price)
+        airnodeEndpointPriceRegistry.connect(roles.randomPerson).setAirnodePrice(airnodeAddress, price)
       ).to.be.revertedWith('Sender cannot register');
     });
   });
@@ -287,15 +287,18 @@ describe('setAirnodeChainPrice', function () {
             const airnodeAddress = testUtils.generateRandomAddress();
             const chainId = 3;
             const price = 123;
-            let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
+            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainPrice(
+              airnodeAddress,
+              chainId
+            );
             expect(priceFetchAttempt.success).to.equal(false);
             expect(priceFetchAttempt.price).to.equal(0);
             await expect(
-              airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
+              airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
             )
-              .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeChainPrice')
+              .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeChainPrice')
               .withArgs(airnodeAddress, chainId, price, roles.registrar.address);
-            priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
+            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
             expect(priceFetchAttempt.success).to.equal(true);
             expect(priceFetchAttempt.price).to.equal(price);
           });
@@ -306,7 +309,7 @@ describe('setAirnodeChainPrice', function () {
             const chainId = 3;
             const price = 0;
             await expect(
-              airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
+              airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
             ).to.be.revertedWith('Cannot register zero');
           });
         });
@@ -317,7 +320,7 @@ describe('setAirnodeChainPrice', function () {
           const chainId = 0;
           const price = 123;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
+            airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
           ).to.be.revertedWith('Chain ID zero');
         });
       });
@@ -328,7 +331,7 @@ describe('setAirnodeChainPrice', function () {
         const chainId = 3;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
+          airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -341,15 +344,18 @@ describe('setAirnodeChainPrice', function () {
             const airnodeAddress = testUtils.generateRandomAddress();
             const chainId = 3;
             const price = 123;
-            let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
+            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainPrice(
+              airnodeAddress,
+              chainId
+            );
             expect(priceFetchAttempt.success).to.equal(false);
             expect(priceFetchAttempt.price).to.equal(0);
             await expect(
-              airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
+              airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
             )
-              .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeChainPrice')
+              .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeChainPrice')
               .withArgs(airnodeAddress, chainId, price, roles.manager.address);
-            priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
+            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainPrice(airnodeAddress, chainId);
             expect(priceFetchAttempt.success).to.equal(true);
             expect(priceFetchAttempt.price).to.equal(price);
           });
@@ -360,7 +366,7 @@ describe('setAirnodeChainPrice', function () {
             const chainId = 3;
             const price = 0;
             await expect(
-              airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
+              airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
             ).to.be.revertedWith('Cannot register zero');
           });
         });
@@ -371,7 +377,7 @@ describe('setAirnodeChainPrice', function () {
           const chainId = 0;
           const price = 123;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
+            airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
           ).to.be.revertedWith('Chain ID zero');
         });
       });
@@ -382,7 +388,7 @@ describe('setAirnodeChainPrice', function () {
         const chainId = 3;
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodeChainPrice(airnodeAddress, chainId, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -393,7 +399,7 @@ describe('setAirnodeChainPrice', function () {
       const chainId = 3;
       const price = 123;
       await expect(
-        airnodeEndpointFeeRegistry.connect(roles.randomPerson).setAirnodeChainPrice(airnodeAddress, chainId, price)
+        airnodeEndpointPriceRegistry.connect(roles.randomPerson).setAirnodeChainPrice(airnodeAddress, chainId, price)
       ).to.be.revertedWith('Sender cannot register');
     });
   });
@@ -407,20 +413,23 @@ describe('setAirnodeEndpointPrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeEndpointPrice(
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
             airnodeAddress,
             endpointId
           );
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
           await expect(
-            airnodeEndpointFeeRegistry
+            airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
           )
-            .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeEndpointPrice')
+            .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeEndpointPrice')
             .withArgs(airnodeAddress, endpointId, price, roles.registrar.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeEndpointPrice(airnodeAddress, endpointId);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
+            airnodeAddress,
+            endpointId
+          );
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -431,7 +440,7 @@ describe('setAirnodeEndpointPrice', function () {
           const endpointId = testUtils.generateRandomBytes32();
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry
+            airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
           ).to.be.revertedWith('Cannot register zero');
@@ -444,7 +453,9 @@ describe('setAirnodeEndpointPrice', function () {
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
+          airnodeEndpointPriceRegistry
+            .connect(roles.registrar)
+            .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -456,18 +467,23 @@ describe('setAirnodeEndpointPrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
-          let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeEndpointPrice(
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
             airnodeAddress,
             endpointId
           );
           expect(priceFetchAttempt.success).to.equal(false);
           expect(priceFetchAttempt.price).to.equal(0);
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
+            airnodeEndpointPriceRegistry
+              .connect(roles.manager)
+              .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
           )
-            .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeEndpointPrice')
+            .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeEndpointPrice')
             .withArgs(airnodeAddress, endpointId, price, roles.manager.address);
-          priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeEndpointPrice(airnodeAddress, endpointId);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
+            airnodeAddress,
+            endpointId
+          );
           expect(priceFetchAttempt.success).to.equal(true);
           expect(priceFetchAttempt.price).to.equal(price);
         });
@@ -478,7 +494,9 @@ describe('setAirnodeEndpointPrice', function () {
           const endpointId = testUtils.generateRandomBytes32();
           const price = 0;
           await expect(
-            airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
+            airnodeEndpointPriceRegistry
+              .connect(roles.manager)
+              .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -489,7 +507,7 @@ describe('setAirnodeEndpointPrice', function () {
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -500,7 +518,7 @@ describe('setAirnodeEndpointPrice', function () {
       const endpointId = testUtils.generateRandomBytes32();
       const price = 123;
       await expect(
-        airnodeEndpointFeeRegistry
+        airnodeEndpointPriceRegistry
           .connect(roles.randomPerson)
           .setAirnodeEndpointPrice(airnodeAddress, endpointId, price)
       ).to.be.revertedWith('Sender cannot register');
@@ -518,7 +536,7 @@ describe('setAirnodeChainEndpointPrice', function () {
             const chainId = 3;
             const endpointId = testUtils.generateRandomBytes32();
             const price = 123;
-            let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainEndpointPrice(
+            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
               airnodeAddress,
               chainId,
               endpointId
@@ -526,13 +544,13 @@ describe('setAirnodeChainEndpointPrice', function () {
             expect(priceFetchAttempt.success).to.equal(false);
             expect(priceFetchAttempt.price).to.equal(0);
             await expect(
-              airnodeEndpointFeeRegistry
+              airnodeEndpointPriceRegistry
                 .connect(roles.registrar)
                 .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
             )
-              .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeChainEndpointPrice')
+              .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeChainEndpointPrice')
               .withArgs(airnodeAddress, chainId, endpointId, price, roles.registrar.address);
-            priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainEndpointPrice(
+            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
               airnodeAddress,
               chainId,
               endpointId
@@ -548,7 +566,7 @@ describe('setAirnodeChainEndpointPrice', function () {
             const endpointId = testUtils.generateRandomBytes32();
             const price = 0;
             await expect(
-              airnodeEndpointFeeRegistry
+              airnodeEndpointPriceRegistry
                 .connect(roles.registrar)
                 .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
             ).to.be.revertedWith('Cannot register zero');
@@ -562,7 +580,7 @@ describe('setAirnodeChainEndpointPrice', function () {
           const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
           await expect(
-            airnodeEndpointFeeRegistry
+            airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
           ).to.be.revertedWith('Chain ID zero');
@@ -576,7 +594,7 @@ describe('setAirnodeChainEndpointPrice', function () {
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry
+          airnodeEndpointPriceRegistry
             .connect(roles.registrar)
             .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
         ).to.be.revertedWith('Airnode address zero');
@@ -592,7 +610,7 @@ describe('setAirnodeChainEndpointPrice', function () {
             const chainId = 3;
             const endpointId = testUtils.generateRandomBytes32();
             const price = 123;
-            let priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainEndpointPrice(
+            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
               airnodeAddress,
               chainId,
               endpointId
@@ -600,13 +618,13 @@ describe('setAirnodeChainEndpointPrice', function () {
             expect(priceFetchAttempt.success).to.equal(false);
             expect(priceFetchAttempt.price).to.equal(0);
             await expect(
-              airnodeEndpointFeeRegistry
+              airnodeEndpointPriceRegistry
                 .connect(roles.manager)
                 .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
             )
-              .to.emit(airnodeEndpointFeeRegistry, 'SetAirnodeChainEndpointPrice')
+              .to.emit(airnodeEndpointPriceRegistry, 'SetAirnodeChainEndpointPrice')
               .withArgs(airnodeAddress, chainId, endpointId, price, roles.manager.address);
-            priceFetchAttempt = await airnodeEndpointFeeRegistry.tryReadAirnodeChainEndpointPrice(
+            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
               airnodeAddress,
               chainId,
               endpointId
@@ -622,7 +640,7 @@ describe('setAirnodeChainEndpointPrice', function () {
             const endpointId = testUtils.generateRandomBytes32();
             const price = 0;
             await expect(
-              airnodeEndpointFeeRegistry
+              airnodeEndpointPriceRegistry
                 .connect(roles.manager)
                 .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
             ).to.be.revertedWith('Cannot register zero');
@@ -636,7 +654,7 @@ describe('setAirnodeChainEndpointPrice', function () {
           const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
           await expect(
-            airnodeEndpointFeeRegistry
+            airnodeEndpointPriceRegistry
               .connect(roles.manager)
               .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
           ).to.be.revertedWith('Chain ID zero');
@@ -650,7 +668,7 @@ describe('setAirnodeChainEndpointPrice', function () {
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
-          airnodeEndpointFeeRegistry
+          airnodeEndpointPriceRegistry
             .connect(roles.manager)
             .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
         ).to.be.revertedWith('Airnode address zero');
@@ -664,7 +682,7 @@ describe('setAirnodeChainEndpointPrice', function () {
       const endpointId = testUtils.generateRandomBytes32();
       const price = 123;
       await expect(
-        airnodeEndpointFeeRegistry
+        airnodeEndpointPriceRegistry
           .connect(roles.randomPerson)
           .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
       ).to.be.revertedWith('Sender cannot register');
@@ -679,11 +697,11 @@ describe('setEndpointAndChainPricePriority', function () {
         const airnodeAddress = testUtils.generateRandomAddress();
         const status = true;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setEndpointAndChainPricePriority(airnodeAddress, status)
+          airnodeEndpointPriceRegistry.connect(roles.registrar).setEndpointAndChainPricePriority(airnodeAddress, status)
         )
-          .to.emit(airnodeEndpointFeeRegistry, 'SetEndpointAndChainPricePriority')
+          .to.emit(airnodeEndpointPriceRegistry, 'SetEndpointAndChainPricePriority')
           .withArgs(airnodeAddress, status, roles.registrar.address);
-        expect(await airnodeEndpointFeeRegistry.prioritizeEndpointPriceOverChainPrice(airnodeAddress)).to.equal(true);
+        expect(await airnodeEndpointPriceRegistry.prioritizeEndpointPriceOverChainPrice(airnodeAddress)).to.equal(true);
       });
     });
     context('Airnode address is zero', function () {
@@ -691,7 +709,7 @@ describe('setEndpointAndChainPricePriority', function () {
         const airnodeAddress = hre.ethers.constants.AddressZero;
         const status = true;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.registrar).setEndpointAndChainPricePriority(airnodeAddress, status)
+          airnodeEndpointPriceRegistry.connect(roles.registrar).setEndpointAndChainPricePriority(airnodeAddress, status)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -702,11 +720,11 @@ describe('setEndpointAndChainPricePriority', function () {
         const airnodeAddress = testUtils.generateRandomAddress();
         const status = true;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setEndpointAndChainPricePriority(airnodeAddress, status)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setEndpointAndChainPricePriority(airnodeAddress, status)
         )
-          .to.emit(airnodeEndpointFeeRegistry, 'SetEndpointAndChainPricePriority')
+          .to.emit(airnodeEndpointPriceRegistry, 'SetEndpointAndChainPricePriority')
           .withArgs(airnodeAddress, status, roles.manager.address);
-        expect(await airnodeEndpointFeeRegistry.prioritizeEndpointPriceOverChainPrice(airnodeAddress)).to.equal(true);
+        expect(await airnodeEndpointPriceRegistry.prioritizeEndpointPriceOverChainPrice(airnodeAddress)).to.equal(true);
       });
     });
     context('Airnode address is zero', function () {
@@ -714,7 +732,7 @@ describe('setEndpointAndChainPricePriority', function () {
         const airnodeAddress = hre.ethers.constants.AddressZero;
         const status = true;
         await expect(
-          airnodeEndpointFeeRegistry.connect(roles.manager).setEndpointAndChainPricePriority(airnodeAddress, status)
+          airnodeEndpointPriceRegistry.connect(roles.manager).setEndpointAndChainPricePriority(airnodeAddress, status)
         ).to.be.revertedWith('Airnode address zero');
       });
     });
@@ -724,7 +742,9 @@ describe('setEndpointAndChainPricePriority', function () {
       const airnodeAddress = testUtils.generateRandomAddress();
       const status = true;
       await expect(
-        airnodeEndpointFeeRegistry.connect(roles.randomPerson).setEndpointAndChainPricePriority(airnodeAddress, status)
+        airnodeEndpointPriceRegistry
+          .connect(roles.randomPerson)
+          .setEndpointAndChainPricePriority(airnodeAddress, status)
       ).to.be.revertedWith('Sender cannot register');
     });
   });
@@ -736,15 +756,17 @@ describe('getPrice', function () {
       const airnodeAddress = testUtils.generateRandomAddress();
       const chainId = 3;
       const endpointId = testUtils.generateRandomBytes32();
-      await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-      await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-      await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-      await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeEndpointPrice(airnodeAddress, endpointId, 4);
-      await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
-      await airnodeEndpointFeeRegistry
+      await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+      await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+      await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+      await airnodeEndpointPriceRegistry
+        .connect(roles.registrar)
+        .setAirnodeEndpointPrice(airnodeAddress, endpointId, 4);
+      await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
+      await airnodeEndpointPriceRegistry
         .connect(roles.registrar)
         .setAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, 6);
-      expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(6);
+      expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(6);
     });
   });
   context('Airnode, chain, endpoint price is not set', function () {
@@ -754,14 +776,14 @@ describe('getPrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const chainId = 3;
           const endpointId = testUtils.generateRandomBytes32();
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-          await airnodeEndpointFeeRegistry
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+          await airnodeEndpointPriceRegistry
             .connect(roles.registrar)
             .setAirnodeEndpointPrice(airnodeAddress, endpointId, 4);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
-          expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(5);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
+          expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(5);
         });
       });
       context('Airnode, chain price is not set', function () {
@@ -770,13 +792,13 @@ describe('getPrice', function () {
             const airnodeAddress = testUtils.generateRandomAddress();
             const chainId = 3;
             const endpointId = testUtils.generateRandomBytes32();
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-            await airnodeEndpointFeeRegistry
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+            await airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .setAirnodeEndpointPrice(airnodeAddress, endpointId, 4);
-            expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(4);
+            expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(4);
           });
         });
         context('Airnode, endpoint price is not set', function () {
@@ -785,10 +807,10 @@ describe('getPrice', function () {
               const airnodeAddress = testUtils.generateRandomAddress();
               const chainId = 3;
               const endpointId = testUtils.generateRandomBytes32();
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-              expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(3);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+              expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(3);
             });
           });
           context('Airnode price is not set', function () {
@@ -797,9 +819,9 @@ describe('getPrice', function () {
                 const airnodeAddress = testUtils.generateRandomAddress();
                 const chainId = 3;
                 const endpointId = testUtils.generateRandomBytes32();
-                await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-                await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-                expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(2);
+                await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+                await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+                expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(2);
               });
             });
             context('Default chain price is not set', function () {
@@ -808,8 +830,8 @@ describe('getPrice', function () {
                   const airnodeAddress = testUtils.generateRandomAddress();
                   const chainId = 3;
                   const endpointId = testUtils.generateRandomBytes32();
-                  await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-                  expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(1);
+                  await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+                  expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(1);
                 });
               });
               context('Default price is not set', function () {
@@ -818,7 +840,7 @@ describe('getPrice', function () {
                   const chainId = 3;
                   const endpointId = testUtils.generateRandomBytes32();
                   await expect(
-                    airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)
+                    airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)
                   ).to.be.revertedWith('No default price set');
                 });
               });
@@ -833,17 +855,17 @@ describe('getPrice', function () {
           const airnodeAddress = testUtils.generateRandomAddress();
           const chainId = 3;
           const endpointId = testUtils.generateRandomBytes32();
-          await airnodeEndpointFeeRegistry
+          await airnodeEndpointPriceRegistry
             .connect(roles.registrar)
             .setEndpointAndChainPricePriority(airnodeAddress, true);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-          await airnodeEndpointFeeRegistry
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+          await airnodeEndpointPriceRegistry
             .connect(roles.registrar)
             .setAirnodeEndpointPrice(airnodeAddress, endpointId, 4);
-          await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
-          expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(4);
+          await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
+          expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(4);
         });
       });
       context('Airnode, endpoint price is not set', function () {
@@ -852,14 +874,16 @@ describe('getPrice', function () {
             const airnodeAddress = testUtils.generateRandomAddress();
             const chainId = 3;
             const endpointId = testUtils.generateRandomBytes32();
-            await airnodeEndpointFeeRegistry
+            await airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .setEndpointAndChainPricePriority(airnodeAddress, true);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-            await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodeChainPrice(airnodeAddress, chainId, 5);
-            expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(5);
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+            await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+            await airnodeEndpointPriceRegistry
+              .connect(roles.registrar)
+              .setAirnodeChainPrice(airnodeAddress, chainId, 5);
+            expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(5);
           });
         });
         context('Airnode, chain price is not set', function () {
@@ -868,13 +892,13 @@ describe('getPrice', function () {
               const airnodeAddress = testUtils.generateRandomAddress();
               const chainId = 3;
               const endpointId = testUtils.generateRandomBytes32();
-              await airnodeEndpointFeeRegistry
+              await airnodeEndpointPriceRegistry
                 .connect(roles.registrar)
                 .setEndpointAndChainPricePriority(airnodeAddress, true);
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-              await airnodeEndpointFeeRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
-              expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(3);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+              await airnodeEndpointPriceRegistry.connect(roles.registrar).setAirnodePrice(airnodeAddress, 3);
+              expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(3);
             });
           });
           context('Airnode price is not set', function () {
@@ -883,12 +907,12 @@ describe('getPrice', function () {
                 const airnodeAddress = testUtils.generateRandomAddress();
                 const chainId = 3;
                 const endpointId = testUtils.generateRandomBytes32();
-                await airnodeEndpointFeeRegistry
+                await airnodeEndpointPriceRegistry
                   .connect(roles.registrar)
                   .setEndpointAndChainPricePriority(airnodeAddress, true);
-                await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-                await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
-                expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(2);
+                await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+                await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultChainPrice(chainId, 2);
+                expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(2);
               });
             });
             context('Default chain price is not set', function () {
@@ -897,11 +921,11 @@ describe('getPrice', function () {
                   const airnodeAddress = testUtils.generateRandomAddress();
                   const chainId = 3;
                   const endpointId = testUtils.generateRandomBytes32();
-                  await airnodeEndpointFeeRegistry
+                  await airnodeEndpointPriceRegistry
                     .connect(roles.registrar)
                     .setEndpointAndChainPricePriority(airnodeAddress, true);
-                  await airnodeEndpointFeeRegistry.connect(roles.registrar).setDefaultPrice(1);
-                  expect(await airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(1);
+                  await airnodeEndpointPriceRegistry.connect(roles.registrar).setDefaultPrice(1);
+                  expect(await airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)).to.equal(1);
                 });
               });
               context('Default price is not set', function () {
@@ -909,11 +933,11 @@ describe('getPrice', function () {
                   const airnodeAddress = testUtils.generateRandomAddress();
                   const chainId = 3;
                   const endpointId = testUtils.generateRandomBytes32();
-                  await airnodeEndpointFeeRegistry
+                  await airnodeEndpointPriceRegistry
                     .connect(roles.registrar)
                     .setEndpointAndChainPricePriority(airnodeAddress, true);
                   await expect(
-                    airnodeEndpointFeeRegistry.getPrice(airnodeAddress, chainId, endpointId)
+                    airnodeEndpointPriceRegistry.getPrice(airnodeAddress, chainId, endpointId)
                   ).to.be.revertedWith('No default price set');
                 });
               });

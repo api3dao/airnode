@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface IAirnodeEndpointFeeRegistry {
+interface IAirnodeEndpointPriceRegistry {
     event SetDefaultPrice(uint256 price, address sender);
 
     event SetDefaultChainPrice(uint256 chainId, uint256 price, address sender);

@@ -2,12 +2,12 @@
 pragma solidity 0.8.9;
 
 import "../../access-control-registry/interfaces/IAccessControlRegistryAdminnedWithManager.sol";
-import "./IAirnodeEndpointFeeRegistryReader.sol";
+import "./IAirnodeEndpointPriceRegistryReader.sol";
 import "./IRequesterAuthorizerRegistryReader.sol";
 
 interface IRequesterAuthorizerWhitelisterWithToken is
     IAccessControlRegistryAdminnedWithManager,
-    IAirnodeEndpointFeeRegistryReader,
+    IAirnodeEndpointPriceRegistryReader,
     IRequesterAuthorizerRegistryReader
 {
     enum AirnodeParticipationStatus {

@@ -21,7 +21,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
-    /// @param _airnodeEndpointFeeRegistry AirnodeFeeRegistry contract address
+    /// @param _airnodeEndpointPriceRegistry AirnodeEndpointPriceRegistry
+    /// contract address
     /// @param _requesterAuthorizerRegistry RequesterAuthorizerRegistry
     /// contract address
     /// @param _token Token contract address
@@ -33,7 +34,7 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager,
-        address _airnodeEndpointFeeRegistry,
+        address _airnodeEndpointPriceRegistry,
         address _requesterAuthorizerRegistry,
         address _token,
         uint256 _tokenPrice,
@@ -44,7 +45,7 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             _accessControlRegistry,
             _adminRoleDescription,
             _manager,
-            _airnodeEndpointFeeRegistry,
+            _airnodeEndpointPriceRegistry,
             _requesterAuthorizerRegistry,
             _token,
             _tokenPrice,
@@ -53,7 +54,7 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
         )
     {
         require(
-            IAirnodeEndpointFeeRegistry(airnodeEndpointFeeRegistry)
+            IAirnodeEndpointPriceRegistry(airnodeEndpointPriceRegistry)
                 .PRICING_INTERVAL() == PRICING_INTERVAL,
             "Pricing interval mismatch"
         );
