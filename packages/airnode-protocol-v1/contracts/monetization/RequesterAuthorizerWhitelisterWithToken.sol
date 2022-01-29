@@ -108,28 +108,28 @@ contract RequesterAuthorizerWhitelisterWithToken is
 
     /// @dev Reverts if sender does not have the maintainer role and is not the
     /// manager
-    modifier onlyMaintainer() {
+    modifier onlyMaintainerOrManager() {
         require(
             manager == msg.sender ||
                 IAccessControlRegistry(accessControlRegistry).hasRole(
                     maintainerRole,
                     msg.sender
                 ),
-            "Sender not maintainer"
+            "Sender cannot maintain"
         );
         _;
     }
 
     /// @dev Reverts if sender does not have the blocker role and is not the
     /// manager
-    modifier onlyBlocker() {
+    modifier onlyBlockerOrManager() {
         require(
             manager == msg.sender ||
                 IAccessControlRegistry(accessControlRegistry).hasRole(
                     blockerRole,
                     msg.sender
                 ),
-            "Sender not blocker"
+            "Sender cannot block"
         );
         _;
     }
@@ -198,7 +198,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
     function setTokenPrice(uint256 _tokenPrice)
         external
         override
-        onlyMaintainer
+        onlyMaintainerOrManager
     {
         _setTokenPrice(_tokenPrice);
         emit SetTokenPrice(_tokenPrice, msg.sender);
@@ -210,7 +210,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
     function setPriceCoefficient(uint256 _priceCoefficient)
         external
         override
-        onlyMaintainer
+        onlyMaintainerOrManager
     {
         _setPriceCoefficient(_priceCoefficient);
         emit SetPriceCoefficient(_priceCoefficient, msg.sender);
@@ -222,26 +222,31 @@ contract RequesterAuthorizerWhitelisterWithToken is
     function setAirnodeParticipationStatus(
         address airnode,
         AirnodeParticipationStatus airnodeParticipationStatus
-    ) external override onlyMaintainer onlyNonZeroAirnode(airnode) {
-        if (msg.sender != airnode) {
-            if (
-                airnodeParticipationStatus ==
-                AirnodeParticipationStatus.OptedOut
-            ) {
-                revert("Only Airnode can opt out");
-            }
-            if (
-                airnodeToParticipationStatus[airnode] ==
-                AirnodeParticipationStatus.OptedOut
-            ) {
-                revert("Airnode opted out");
-            }
+    ) external override onlyNonZeroAirnode(airnode) {
+        if (msg.sender == airnode) {
+            require(
+                airnodeParticipationStatus != AirnodeParticipationStatus.Active,
+                "Airnode cannot activate itself"
+            );
         } else {
-            if (
-                airnodeParticipationStatus == AirnodeParticipationStatus.Active
-            ) {
-                revert("Airnode cannot activate itself");
-            }
+            require(
+                manager == msg.sender ||
+                    IAccessControlRegistry(accessControlRegistry).hasRole(
+                        maintainerRole,
+                        msg.sender
+                    ),
+                "Sender cannot maintain"
+            );
+            require(
+                airnodeParticipationStatus !=
+                    AirnodeParticipationStatus.OptedOut,
+                "Only Airnode can opt out"
+            );
+            require(
+                airnodeToParticipationStatus[airnode] !=
+                    AirnodeParticipationStatus.OptedOut,
+                "Airnode opted out"
+            );
         }
         airnodeToParticipationStatus[airnode] = airnodeParticipationStatus;
         emit SetAirnodeParticipationStatus(
@@ -268,7 +273,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
     function setRequesterBlockStatus(address requester, bool status)
         external
         override
-        onlyBlocker
+        onlyBlockerOrManager
         onlyNonZeroRequester(requester)
     {
         requesterToBlockStatus[requester] = status;
@@ -286,7 +291,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
     )
         external
         override
-        onlyBlocker
+        onlyBlockerOrManager
         onlyNonZeroAirnode(airnode)
         onlyNonZeroRequester(requester)
     {
@@ -297,20 +302,6 @@ contract RequesterAuthorizerWhitelisterWithToken is
             status,
             msg.sender
         );
-    }
-
-    /// @notice Called internally to check if the requester is blocked
-    /// @dev Requesters can be blocked globally or for the specific Airnode
-    /// @param airnode Airnode address
-    /// @param requester Requester address
-    function requesterIsBlocked(address airnode, address requester)
-        internal
-        view
-        returns (bool)
-    {
-        return
-            !requesterToBlockStatus[requester] &&
-            !airnodeToRequesterToBlockStatus[airnode][requester];
     }
 
     /// @notice Amount of tokens needed to be whitelisted for the
@@ -329,6 +320,20 @@ contract RequesterAuthorizerWhitelisterWithToken is
         amount = (endpointPrice * priceCoefficient) / tokenPrice;
     }
 
+    /// @notice Called internally to check if the requester is blocked
+    /// @dev Requesters can be blocked globally or for the specific Airnode
+    /// @param airnode Airnode address
+    /// @param requester Requester address
+    function requesterIsBlocked(address airnode, address requester)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            requesterToBlockStatus[requester] ||
+            airnodeToRequesterToBlockStatus[airnode][requester];
+    }
+
     /// @notice Fetches the RequesterAuthorizer address for the chain
     /// @dev Reverts if the contract address has not been registered beforehand
     /// @param chainId Chain ID
@@ -343,7 +348,7 @@ contract RequesterAuthorizerWhitelisterWithToken is
             address requesterAuthorizer
         ) = IRequesterAuthorizerRegistry(requesterAuthorizerRegistry)
                 .tryReadChainRequesterAuthorizer(chainId);
-        require(success, "No authorizer for chain");
+        require(success, "No Authorizer set for chain");
         return requesterAuthorizer;
     }
 

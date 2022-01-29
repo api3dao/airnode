@@ -42,37 +42,55 @@ beforeEach(async () => {
 describe('setChainRequesterAuthorizer', function () {
   context('Sender has the registrar role', function () {
     context('Chain ID is not zero', function () {
-      context('RequesterAuthorizer address is not zero', function () {
-        it('sets default price', async function () {
-          const chainId = 3;
-          const requesterAuthorizerAddress = testUtils.generateRandomAddress();
-          let requesterAuthorizerAddressFetchAttempt =
-            await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(chainId);
-          expect(requesterAuthorizerAddressFetchAttempt.success).to.equal(false);
-          expect(requesterAuthorizerAddressFetchAttempt.requesterAuthorizer).to.equal(hre.ethers.constants.AddressZero);
-          await expect(
-            requesterAuthorizerRegistry
-              .connect(roles.registrar)
-              .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
-          )
-            .to.emit(requesterAuthorizerRegistry, 'SetChainRequesterAuthorizer')
-            .withArgs(chainId, requesterAuthorizerAddress, roles.registrar.address);
-          requesterAuthorizerAddressFetchAttempt = await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(
-            chainId
-          );
-          expect(requesterAuthorizerAddressFetchAttempt.success).to.equal(true);
-          expect(requesterAuthorizerAddressFetchAttempt.requesterAuthorizer).to.equal(requesterAuthorizerAddress);
+      context('RequesterAuthorizer has not been set before', function () {
+        context('RequesterAuthorizer address is not zero', function () {
+          it('sets RequesterAuthorizer address for the chain', async function () {
+            const chainId = 3;
+            const requesterAuthorizerAddress = testUtils.generateRandomAddress();
+            let requesterAuthorizerAddressFetchAttempt =
+              await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(chainId);
+            expect(requesterAuthorizerAddressFetchAttempt.success).to.equal(false);
+            expect(requesterAuthorizerAddressFetchAttempt.requesterAuthorizer).to.equal(
+              hre.ethers.constants.AddressZero
+            );
+            await expect(
+              requesterAuthorizerRegistry
+                .connect(roles.registrar)
+                .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+            )
+              .to.emit(requesterAuthorizerRegistry, 'SetChainRequesterAuthorizer')
+              .withArgs(chainId, requesterAuthorizerAddress, roles.registrar.address);
+            requesterAuthorizerAddressFetchAttempt = await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(
+              chainId
+            );
+            expect(requesterAuthorizerAddressFetchAttempt.success).to.equal(true);
+            expect(requesterAuthorizerAddressFetchAttempt.requesterAuthorizer).to.equal(requesterAuthorizerAddress);
+          });
+        });
+        context('RequesterAuthorizer address is zero', function () {
+          it('reverts', async function () {
+            const chainId = 3;
+            const requesterAuthorizerAddress = hre.ethers.constants.AddressZero;
+            await expect(
+              requesterAuthorizerRegistry
+                .connect(roles.registrar)
+                .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+            ).to.be.revertedWith('Cannot register zero');
+          });
         });
       });
-      context('RequesterAuthorizer address is zero', function () {
+      context('RequesterAuthorizer has been set before', function () {
         it('reverts', async function () {
           const chainId = 3;
-          const requesterAuthorizerAddress = hre.ethers.constants.AddressZero;
+          const requesterAuthorizerAddress = testUtils.generateRandomAddress();
+          await requesterAuthorizerRegistry
+            .connect(roles.registrar)
+            .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress);
           await expect(
             requesterAuthorizerRegistry
               .connect(roles.registrar)
               .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
-          ).to.be.revertedWith('Cannot register zero');
+          ).to.be.revertedWith('Chain Authorizer already set');
         });
       });
     });

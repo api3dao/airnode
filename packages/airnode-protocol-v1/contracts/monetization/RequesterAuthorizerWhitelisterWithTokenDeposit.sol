@@ -98,7 +98,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             ),
             "Transfer unsuccesful"
         );
-        uint256 tokenDepositsCount = tokenDeposits.count++;
+        uint256 tokenDepositsCount = ++tokenDeposits.count;
         if (tokenDepositsCount == 1) {
             IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
                 .setIndefiniteWhitelistStatus(
@@ -130,14 +130,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         uint256 chainId,
         bytes32 endpointId,
         address requester
-    )
-        external
-        override
-        onlyNonZeroAirnode(airnode)
-        onlyNonZeroChainId(chainId)
-        onlyNonZeroRequester(requester)
-        onlyNonBlockedRequester(airnode, requester)
-    {
+    ) external override onlyNonBlockedRequester(airnode, requester) {
         TokenDeposits
             storage tokenDeposits = airnodeToChainIdToEndpointIdToRequesterToTokenDeposits[
                 airnode
@@ -147,11 +140,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Sender has not deposited tokens");
         tokenDeposits.depositorToAmount[msg.sender] = 0;
-        require(
-            IERC20(token).transfer(msg.sender, tokenWithdrawAmount),
-            "Transfer unsuccesful"
-        );
-        uint256 tokenDepositsCount = tokenDeposits.count--;
+        assert(IERC20(token).transfer(msg.sender, tokenWithdrawAmount));
+        uint256 tokenDepositsCount = --tokenDeposits.count;
         if (tokenDepositsCount == 0) {
             IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
                 .setIndefiniteWhitelistStatus(
@@ -200,11 +190,10 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Depositor has not deposited");
         tokenDeposits.depositorToAmount[depositor] = 0;
-        require(
-            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount),
-            "Transfer unsuccesful"
+        assert(
+            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount)
         );
-        uint256 tokenDepositsCount = tokenDeposits.count--;
+        uint256 tokenDepositsCount = --tokenDeposits.count;
         if (tokenDepositsCount == 0) {
             IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
                 .setIndefiniteWhitelistStatus(
@@ -214,12 +203,12 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                     false
                 );
         }
-        emit WithdrewFundsDepositedForBlockedRequester(
+        emit WithdrewTokensDepositedForBlockedRequester(
             airnode,
             chainId,
             endpointId,
             requester,
-            msg.sender,
+            depositor,
             tokenDepositsCount,
             tokenWithdrawAmount
         );

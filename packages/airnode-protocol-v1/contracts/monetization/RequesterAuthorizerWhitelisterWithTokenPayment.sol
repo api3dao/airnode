@@ -12,7 +12,7 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
     RequesterAuthorizerWhitelisterWithToken,
     IRequesterAuthorizerWhitelisterWithTokenPayment
 {
-    uint64 public override minimumWhitelistDuration = 1 days;
+    uint64 public override minimumWhitelistExtension = 1 days;
 
     uint64 public override maximumWhitelistDuration = 365 days;
 
@@ -59,6 +59,36 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
         );
     }
 
+    function setMinimumWhitelistDuration(uint64 _minimumWhitelistExtension)
+        external
+        override
+        onlyMaintainerOrManager
+    {
+        require(
+            _minimumWhitelistExtension <= maximumWhitelistDuration &&
+                _minimumWhitelistExtension != 0,
+            "Invalid minimum duration"
+        );
+        minimumWhitelistExtension = _minimumWhitelistExtension;
+        emit SetMinimumWhitelistDuration(
+            _minimumWhitelistExtension,
+            msg.sender
+        );
+    }
+
+    function setMaximumWhitelistDuration(uint64 _maximumWhitelistDuration)
+        external
+        override
+        onlyMaintainerOrManager
+    {
+        require(
+            _maximumWhitelistDuration >= minimumWhitelistExtension,
+            "Invalid maximum duration"
+        );
+        maximumWhitelistDuration = _maximumWhitelistDuration;
+        emit SetMaximumWhitelistDuration(_maximumWhitelistDuration, msg.sender);
+    }
+
     function payTokens(
         address airnode,
         uint256 chainId,
@@ -74,8 +104,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
         onlyNonBlockedRequester(airnode, requester)
     {
         require(
-            whitelistExtension >= minimumWhitelistDuration,
-            "Below minimum duration"
+            whitelistExtension >= minimumWhitelistExtension,
+            "Extension below minimum"
         );
         uint256 tokenPaymentAmount = getTokenPaymentAmount(
             airnode,
@@ -105,7 +135,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             ? currentExpirationTimestamp + whitelistExtension
             : uint64(block.timestamp) + whitelistExtension;
         require(
-            newExpirationTimestamp <= maximumWhitelistDuration,
+            newExpirationTimestamp - block.timestamp <=
+                maximumWhitelistDuration,
             "Exceeded maximum duration"
         );
         requesterAuthorizer.setWhitelistExpiration(
@@ -120,7 +151,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             endpointId,
             requester,
             whitelistExtension,
-            msg.sender
+            msg.sender,
+            newExpirationTimestamp
         );
     }
 
@@ -143,33 +175,6 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             requester,
             msg.sender
         );
-    }
-
-    function setMinimumWhitelistDuration(uint64 _minimumWhitelistDuration)
-        external
-        override
-        onlyMaintainer
-    {
-        require(
-            _minimumWhitelistDuration <= maximumWhitelistDuration &&
-                _minimumWhitelistDuration != 0,
-            "Invalid minimum duration"
-        );
-        minimumWhitelistDuration = _minimumWhitelistDuration;
-        emit SetMinimumWhitelistDuration(_minimumWhitelistDuration, msg.sender);
-    }
-
-    function setMaximumWhitelistDuration(uint64 _maximumWhitelistDuration)
-        external
-        override
-        onlyMaintainer
-    {
-        require(
-            _maximumWhitelistDuration >= minimumWhitelistDuration,
-            "Invalid maximum duration"
-        );
-        maximumWhitelistDuration = _maximumWhitelistDuration;
-        emit SetMaximumWhitelistDuration(_maximumWhitelistDuration, msg.sender);
     }
 
     function getTokenPaymentAmount(

@@ -12,7 +12,8 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         bytes32 endpointId,
         address requester,
         uint64 whitelistExtension,
-        address sender
+        address sender,
+        uint64 newExpirationTimestamp
     );
 
     event ResetWhitelistExpirationOfBlockedRequester(
@@ -24,7 +25,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
     );
 
     event SetMinimumWhitelistDuration(
-        uint64 minimumWhitelistDuration,
+        uint64 minimumWhitelistExtension,
         address sender
     );
 
@@ -48,7 +49,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         address requester
     ) external;
 
-    function setMinimumWhitelistDuration(uint64 _minimumWhitelistDuration)
+    function setMinimumWhitelistDuration(uint64 _minimumWhitelistExtension)
         external;
 
     function setMaximumWhitelistDuration(uint64 _maximumWhitelistDuration)
@@ -61,7 +62,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         uint64 whitelistDuration
     ) external view returns (uint256 tokenPaymentAmount);
 
-    function minimumWhitelistDuration() external view returns (uint64);
+    function minimumWhitelistExtension() external view returns (uint64);
 
     function maximumWhitelistDuration() external view returns (uint64);
 }

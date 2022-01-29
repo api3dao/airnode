@@ -8,7 +8,7 @@ contract MockERC20 is ERC20 {
 
     constructor(uint8 __decimals) ERC20("Mock ERC20", "MOCK") {
         _decimals = __decimals;
-        _mint(msg.sender, 1 ether);
+        _mint(msg.sender, 100 ether);
     }
 
     function decimals() public view virtual override returns (uint8) {

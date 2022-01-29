@@ -24,6 +24,8 @@ contract RequesterAuthorizerRegistry is
         address requesterAuthorizer
     ) external override onlyRegistrarOrManager {
         require(chainId != 0, "Chain ID zero");
+        (bool success, ) = tryReadChainRequesterAuthorizer(chainId);
+        require(!success, "Chain Authorizer already set");
         _registerAddress(
             keccak256(abi.encodePacked(chainId)),
             requesterAuthorizer
@@ -36,7 +38,7 @@ contract RequesterAuthorizerRegistry is
     }
 
     function tryReadChainRequesterAuthorizer(uint256 chainId)
-        external
+        public
         view
         override
         returns (bool success, address requesterAuthorizer)

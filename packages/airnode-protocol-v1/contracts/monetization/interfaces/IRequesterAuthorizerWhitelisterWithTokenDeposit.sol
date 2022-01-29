@@ -26,12 +26,12 @@ interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
         uint256 tokenWithdrawAmount
     );
 
-    event WithdrewFundsDepositedForBlockedRequester(
+    event WithdrewTokensDepositedForBlockedRequester(
         address airnode,
         uint256 chainId,
         bytes32 endpointId,
         address requester,
-        address sender,
+        address depositor,
         uint256 tokenDepositsCount,
         uint256 tokenWithdrawAmount
     );
