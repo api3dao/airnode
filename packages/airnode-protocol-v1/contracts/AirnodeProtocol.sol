@@ -15,10 +15,14 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// Unlike the other protocols, the event for relayed RRP has the address of
 /// the relayer indexed. This is because the relayer will need to listen for
 /// requests and fulfillments.
-contract AirnodeProtocol is ExtendedMulticall, AirnodeWithdrawal, IAirnodeProtocol {
+contract AirnodeProtocol is
+    ExtendedMulticall,
+    AirnodeWithdrawal,
+    IAirnodeProtocol
+{
     using ECDSA for bytes32;
 
-    struct Template {
+    struct PartialTemplate {
         bytes32 endpointId;
         bytes parameters;
     }
@@ -52,7 +56,7 @@ contract AirnodeProtocol is ExtendedMulticall, AirnodeWithdrawal, IAirnodeProtoc
     /// @notice Subscription with the ID
     mapping(bytes32 => Subscription) public override subscriptions;
 
-    mapping(bytes32 => Template) private templates;
+    mapping(bytes32 => PartialTemplate) private partialTemplates;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -110,11 +114,11 @@ contract AirnodeProtocol is ExtendedMulticall, AirnodeWithdrawal, IAirnodeProtoc
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );
-        templates[templateId] = Template({
+        templateIdToAirnode[templateId] = airnode;
+        partialTemplates[templateId] = PartialTemplate({
             endpointId: endpointId,
             parameters: parameters
         });
-        templateIdToAirnode[templateId] = airnode;
         emit StoredTemplate(templateId, airnode, endpointId, parameters);
     }
 
@@ -582,9 +586,9 @@ contract AirnodeProtocol is ExtendedMulticall, AirnodeWithdrawal, IAirnodeProtoc
         )
     {
         airnode = templateIdToAirnode[templateId];
-        Template storage template = templates[templateId];
-        endpointId = template.endpointId;
-        parameters = template.parameters;
+        PartialTemplate storage partialTemplate = partialTemplates[templateId];
+        endpointId = partialTemplate.endpointId;
+        parameters = partialTemplate.parameters;
         require(
             templateId ==
                 keccak256(abi.encodePacked(airnode, endpointId, parameters)),
