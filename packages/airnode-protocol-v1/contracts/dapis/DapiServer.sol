@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
-import "../protocol/AirnodeRrpRequesterAndSignatureVerifier.sol";
+import "../protocol/AirnodeRequesterAndSignatureVerifier.sol";
 import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /// dAPIs.
 contract DapiServer is
     WhitelistWithManager,
-    AirnodeRrpRequesterAndSignatureVerifier,
+    AirnodeRequesterAndSignatureVerifier,
     Median,
     IDapiServer
 {
@@ -93,7 +93,7 @@ contract DapiServer is
             _adminRoleDescription,
             _manager
         )
-        AirnodeRrpRequesterAndSignatureVerifier(_airnodeProtocol)
+        AirnodeRequesterAndSignatureVerifier(_airnodeProtocol)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),

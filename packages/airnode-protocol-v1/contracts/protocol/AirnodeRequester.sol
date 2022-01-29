@@ -2,11 +2,11 @@
 pragma solidity 0.8.9;
 
 import "./interfaces/IAirnodeProtocol.sol";
-import "./interfaces/IAirnodeRrpRequester.sol";
+import "./interfaces/IAirnodeRequester.sol";
 
 /// @title Contract to be inherited to make Airnode requests and receive
 /// fulfillments
-contract AirnodeRrpRequester is IAirnodeRrpRequester {
+contract AirnodeRequester is IAirnodeRequester {
     /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 

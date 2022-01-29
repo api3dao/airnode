@@ -2,14 +2,14 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./AirnodeRrpRequester.sol";
-import "./interfaces/IAirnodeRrpRequesterAndSignatureVerifier.sol";
+import "./AirnodeRequester.sol";
+import "./interfaces/IAirnodeRequesterAndSignatureVerifier.sol";
 
 /// @title Contract to be inherited to make Airnode requests, receive
 /// fulfillments and verify signatures
-contract AirnodeRrpRequesterAndSignatureVerifier is
-    AirnodeRrpRequester,
-    IAirnodeRrpRequesterAndSignatureVerifier
+contract AirnodeRequesterAndSignatureVerifier is
+    AirnodeRequester,
+    IAirnodeRequesterAndSignatureVerifier
 {
     using ECDSA for bytes32;
 
@@ -18,9 +18,7 @@ contract AirnodeRrpRequesterAndSignatureVerifier is
     mapping(bytes32 => address) private templateIdToAirnode;
 
     /// @param _airnodeProtocol AirnodeProtocol contract address
-    constructor(address _airnodeProtocol)
-        AirnodeRrpRequester(_airnodeProtocol)
-    {}
+    constructor(address _airnodeProtocol) AirnodeRequester(_airnodeProtocol) {}
 
     /// @notice Verifies the signature associated with request parameters, a
     /// timestamp and the response to the request specified by the parameters
