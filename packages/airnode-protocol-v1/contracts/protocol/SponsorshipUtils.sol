@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./interfaces/ISponsorshipStore.sol";
+import "./interfaces/ISponsorshipUtils.sol";
 
-contract SponsorshipStore is ISponsorshipStore {
+contract SponsorshipUtils is ISponsorshipUtils {
     /// @notice Returns the sponsorship status for a sponsor–requester pair
     mapping(address => mapping(address => bool))
         public

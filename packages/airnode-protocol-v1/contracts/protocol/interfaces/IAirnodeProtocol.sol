@@ -2,13 +2,13 @@
 pragma solidity 0.8.9;
 
 import "./ISubscriptionStore.sol";
-import "./ISponsorshipStore.sol";
-import "./IAirnodeWithdrawal.sol";
+import "./ISponsorshipUtils.sol";
+import "./IWithdrawalUtils.sol";
 
 interface IAirnodeProtocol is
     ISubscriptionStore,
-    ISponsorshipStore,
-    IAirnodeWithdrawal
+    ISponsorshipUtils,
+    IWithdrawalUtils
 {
     event MadeRequest(
         address indexed airnode,

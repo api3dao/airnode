@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../protocol/interfaces/IAirnodeRequesterAndSignatureVerifier.sol";
+import "../../protocol/interfaces/IAirnodeRequester.sol";
 
-interface IDapiServer is IAirnodeRequesterAndSignatureVerifier {
+interface IDapiServer is IAirnodeRequester {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,

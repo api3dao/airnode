@@ -785,16 +785,31 @@ describe('revokeIndefiniteWhitelistStatus', function () {
 });
 
 describe('constructor', function () {
-  it('constructs', async function () {
-    expect(await dapiServer.UNLIMITED_READER_ROLE_DESCRIPTION()).to.equal('Unlimited reader');
-    expect(await dapiServer.NAME_SETTER_ROLE_DESCRIPTION()).to.equal('Name setter');
-    expect(await dapiServer.HUNDRED_PERCENT()).to.equal(Math.pow(10, 8));
-    expect(await dapiServer.accessControlRegistry()).to.equal(accessControlRegistry.address);
-    expect(await dapiServer.adminRoleDescription()).to.equal(dapiServerAdminRoleDescription);
-    expect(await dapiServer.manager()).to.equal(roles.manager.address);
-    expect(await dapiServer.airnodeProtocol()).to.equal(airnodeProtocol.address);
-    expect(await dapiServer.unlimitedReaderRole()).to.equal(unlimitedReaderRole);
-    expect(await dapiServer.nameSetterRole()).to.equal(nameSetterRole);
+  context('AirnodeProtocol address is not zero', function () {
+    it('constructs', async function () {
+      expect(await dapiServer.UNLIMITED_READER_ROLE_DESCRIPTION()).to.equal('Unlimited reader');
+      expect(await dapiServer.NAME_SETTER_ROLE_DESCRIPTION()).to.equal('Name setter');
+      expect(await dapiServer.HUNDRED_PERCENT()).to.equal(Math.pow(10, 8));
+      expect(await dapiServer.accessControlRegistry()).to.equal(accessControlRegistry.address);
+      expect(await dapiServer.adminRoleDescription()).to.equal(dapiServerAdminRoleDescription);
+      expect(await dapiServer.manager()).to.equal(roles.manager.address);
+      expect(await dapiServer.airnodeProtocol()).to.equal(airnodeProtocol.address);
+      expect(await dapiServer.unlimitedReaderRole()).to.equal(unlimitedReaderRole);
+      expect(await dapiServer.nameSetterRole()).to.equal(nameSetterRole);
+    });
+  });
+  context('AirnodeProtocol address is zero', function () {
+    it('reverts', async function () {
+      const dapiServerFactory = await hre.ethers.getContractFactory('DapiServer', roles.deployer);
+      await expect(
+        dapiServerFactory.deploy(
+          accessControlRegistry.address,
+          dapiServerAdminRoleDescription,
+          roles.manager.address,
+          hre.ethers.constants.AddressZero
+        )
+      ).to.be.revertedWith('AirnodeProtocol address zero');
+    });
   });
 });
 

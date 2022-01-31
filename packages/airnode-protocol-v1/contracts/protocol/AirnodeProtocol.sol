@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SubscriptionStore.sol";
-import "./SponsorshipStore.sol";
-import "./AirnodeWithdrawal.sol";
+import "./SponsorshipUtils.sol";
+import "./WithdrawalUtils.sol";
 import "../utils/ExtendedMulticall.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
@@ -19,8 +19,8 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// requests and fulfillments.
 contract AirnodeProtocol is
     SubscriptionStore,
-    SponsorshipStore,
-    AirnodeWithdrawal,
+    SponsorshipUtils,
+    WithdrawalUtils,
     ExtendedMulticall,
     IAirnodeProtocol
 {

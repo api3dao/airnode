@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./interfaces/IAirnodeWithdrawal.sol";
+import "./interfaces/IWithdrawalUtils.sol";
 
 /// @title Contract that implements logic for withdrawals from sponsor wallets
 /// @notice This contract is used by sponsors to request withdrawals from
@@ -28,7 +28,7 @@ import "./interfaces/IAirnodeWithdrawal.sol";
 /// particular relayer–sponsor pair, which is why sponsor wallet derivation
 /// includes a protocol ID. Refer to the documentation of the particular node
 /// implementation for what these protocol IDs are.
-contract AirnodeWithdrawal is IAirnodeWithdrawal {
+contract WithdrawalUtils is IWithdrawalUtils {
     using ECDSA for bytes32;
 
     /// @notice Sponsor balance that is withdrawn but not claimed yet

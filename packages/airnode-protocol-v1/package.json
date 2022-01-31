@@ -5,9 +5,9 @@
   "private": false,
   "scripts": {
     "build:contracts": "hardhat compile",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' hardhat test",
-    "test:extended": "EXTENDED_TEST=TRUE NODE_OPTIONS='--max-old-space-size=4096' hardhat test",
-    "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096' hardhat coverage",
+    "test": "NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
+    "test:extended": "EXTENDED_TEST=TRUE NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
+    "test:coverage": "NODE_OPTIONS='--max-old-space-size=8192' hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
   "devDependencies": {

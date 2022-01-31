@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IAirnodeRequester.sol";
 
 /// @title Contract to be inherited to make Airnode requests and receive
 /// fulfillments
 contract AirnodeRequester is IAirnodeRequester {
+    using ECDSA for bytes32;
+
     /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 
@@ -30,10 +33,7 @@ contract AirnodeRequester is IAirnodeRequester {
 
     /// @param _airnodeProtocol AirnodeProtocol contract address
     constructor(address _airnodeProtocol) {
-        require(
-            _airnodeProtocol != address(0),
-            "Airnode protocol address zero"
-        );
+        require(_airnodeProtocol != address(0), "AirnodeProtocol address zero");
         airnodeProtocol = _airnodeProtocol;
     }
 
@@ -48,5 +48,45 @@ contract AirnodeRequester is IAirnodeRequester {
         return
             timestamp + 1 hours > block.timestamp &&
             timestamp < block.timestamp + 15 minutes;
+    }
+
+    function verifyPspSignature(
+        address airnode,
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        address sponsorWallet,
+        bytes calldata signature
+    ) internal pure {
+        require(
+            (
+                keccak256(
+                    abi.encodePacked(subscriptionId, timestamp, sponsorWallet)
+                ).toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
+    }
+
+    function verifyPspSignatureRelayed(
+        address airnode,
+        bytes32 subscriptionId,
+        uint256 timestamp,
+        address relayerSponsorWallet,
+        bytes calldata data,
+        bytes calldata signature
+    ) internal pure {
+        require(
+            (
+                keccak256(
+                    abi.encodePacked(
+                        subscriptionId,
+                        timestamp,
+                        relayerSponsorWallet,
+                        data
+                    )
+                ).toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
     }
 }

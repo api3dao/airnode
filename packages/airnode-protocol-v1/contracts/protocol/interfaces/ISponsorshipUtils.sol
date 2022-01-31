@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface ISponsorshipStore {
+interface ISponsorshipUtils {
     event SetRrpSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,

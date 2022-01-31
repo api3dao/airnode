@@ -2,7 +2,7 @@
 pragma solidity 0.8.9;
 
 import "../whitelist/WhitelistWithManager.sol";
-import "../protocol/AirnodeRequesterAndSignatureVerifier.sol";
+import "../protocol/AirnodeRequester.sol";
 import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /// dAPIs.
 contract DapiServer is
     WhitelistWithManager,
-    AirnodeRequesterAndSignatureVerifier,
+    AirnodeRequester,
     Median,
     IDapiServer
 {
@@ -66,6 +66,10 @@ contract DapiServer is
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
+    // The template ID to Airnode address mapping is cached to avoid having to
+    // make repeated external calls
+    mapping(bytes32 => address) private templateIdToAirnode;
+
     /// @dev Reverts if the sender is not permitted to request an update with
     /// the sponsor and is not the sponsor
     /// @param sponsor Sponsor address
@@ -93,7 +97,7 @@ contract DapiServer is
             _adminRoleDescription,
             _manager
         )
-        AirnodeRequesterAndSignatureVerifier(_airnodeProtocol)
+        AirnodeRequester(_airnodeProtocol)
     {
         unlimitedReaderRole = _deriveRole(
             _deriveAdminRole(manager),
@@ -338,27 +342,21 @@ contract DapiServer is
             "Subscription not registered"
         );
         if (airnode == relayer) {
-            require(
-                (
-                    keccak256(
-                        abi.encodePacked(subscriptionId, timestamp, msg.sender)
-                    ).toEthSignedMessageHash()
-                ).recover(signature) == airnode,
-                "Signature mismatch"
+            verifyPspSignature(
+                airnode,
+                subscriptionId,
+                timestamp,
+                msg.sender,
+                signature
             );
         } else {
-            require(
-                (
-                    keccak256(
-                        abi.encodePacked(
-                            subscriptionId,
-                            timestamp,
-                            msg.sender,
-                            data
-                        )
-                    ).toEthSignedMessageHash()
-                ).recover(signature) == airnode,
-                "Signature mismatch"
+            verifyPspSignatureRelayed(
+                airnode,
+                subscriptionId,
+                timestamp,
+                msg.sender,
+                data,
+                signature
             );
         }
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
@@ -766,6 +764,44 @@ contract DapiServer is
             value: int224(updatedBeaconValue),
             timestamp: uint32(timestamp)
         });
+    }
+
+    /// @notice Verifies the signature associated with request parameters, a
+    /// timestamp and the response to the request specified by the parameters
+    /// @dev Reverts if the verification is not successful
+    /// @param templateId Template ID
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @param timestamp Timestamp used in the signature
+    /// @param data Response data
+    /// @param signature Request hash, a timestamp and response data signed by
+    /// the Airnode address
+    /// @return beaconId Request hash, composed of the template ID and the
+    /// additional parameters
+    function verifySignature(
+        bytes32 templateId,
+        bytes memory parameters,
+        uint256 timestamp,
+        bytes memory data,
+        bytes memory signature
+    ) private returns (bytes32 beaconId) {
+        address airnode = templateIdToAirnode[templateId];
+        if (airnode == address(0)) {
+            airnode = IAirnodeProtocol(airnodeProtocol).templateIdToAirnode(
+                templateId
+            );
+            require(airnode != address(0), "Template not registered");
+            // Cache for future use
+            templateIdToAirnode[templateId] = airnode;
+        }
+        beaconId = deriveBeaconId(templateId, parameters);
+        require(
+            (
+                keccak256(abi.encodePacked(beaconId, timestamp, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
+        );
     }
 
     /// @notice Called privately to decode the fulfillment data
