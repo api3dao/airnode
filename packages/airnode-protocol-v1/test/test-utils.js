@@ -11,10 +11,6 @@ function deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId) {
 }
 
 module.exports = {
-  timeTravel: async (_seconds) => {
-    await ethers.provider.send('evm_increaseTime', [_seconds]);
-    await ethers.provider.send('evm_mine');
-  },
   generateRandomAirnodeWallet: () => {
     const airnodeWallet = ethers.Wallet.createRandom();
     const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
@@ -42,15 +38,17 @@ module.exports = {
     return ethers.Wallet.fromMnemonic(
       airnodeMnemonic,
       `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)}`
-    );
+    ).connect(ethers.provider);
   },
-  deriveServiceId: (airnodeAddress, endpointId) => {
-    return ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, endpointId]));
+  deriveSponsorshipId: (scheme, parameters) => {
+    if (scheme === 'Requester') {
+      return ethers.utils.keccak256(ethers.utils.solidityPack(['uint256', 'address'], [1, parameters.requester]));
+    } else {
+      throw new Error('Invalid sponsorship scheme');
+    }
   },
   getCurrentTimestamp: async (provider) => {
-    const currentBlockNumber = await provider.getBlockNumber();
-    const currentBlock = await provider.getBlock(currentBlockNumber);
-    return currentBlock.timestamp;
+    return (await provider.getBlock()).timestamp;
   },
   decodeRevertString: (callData) => {
     // Refer to https://ethereum.stackexchange.com/a/83577

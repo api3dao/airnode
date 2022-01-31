@@ -63,10 +63,6 @@ contract TemplateStore is ITemplateStore {
         bytes calldata parameters
     ) external override returns (bytes32 templateId) {
         require(airnode != address(0), "Airnode address zero");
-        require(
-            parameters.length <= MAXIMUM_PARAMETER_LENGTH,
-            "Parameters too long"
-        );
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );

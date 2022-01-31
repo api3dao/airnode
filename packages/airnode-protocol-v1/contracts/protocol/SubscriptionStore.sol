@@ -52,7 +52,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         require(requester != address(0), "Requester address zero");
-        require(fulfillFunctionId != bytes4(0), "Function selector zero");
+        require(fulfillFunctionId != bytes4(0), "Fulfill function ID zero");
         subscriptionId = keccak256(
             abi.encodePacked(
                 block.chainid,

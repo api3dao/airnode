@@ -124,7 +124,7 @@ contract DapiServer is
 
     /// @notice Requests a Beacon to be updated
     /// @dev There are two requirements for this method to be called: (1) The
-    /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
+    /// sponsor must call `setRrpSponsorshipStatus()` of AirnodeProtocol to
     /// sponsor this DapiServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this DapiServer contract to give
     /// request update permission to the user of this method.
@@ -236,7 +236,7 @@ contract DapiServer is
     /// this contract to recognize the incoming RRP fulfillment, this needs to
     /// be called before subscription fulfillments.
     /// There is an additional requirement for this subscription to work: The
-    /// sponsor must call `setSponsorshipStatus()` of AirnodeProtocol to
+    /// sponsor must call `setRrpSponsorshipStatus()` of AirnodeProtocol to
     /// sponsor this DapiServer contract. Notice that there is no counterpart
     /// to `setUpdatePermissionStatus()` here. This is because whether if a
     /// subscription is permitted by its sponsor is checked by the slot setters
@@ -476,7 +476,7 @@ contract DapiServer is
     /// @dev There is no need to verify that `conditionPspDapiUpdate()`
     /// returns `true` because any dAPI update is a good dAPI update.
     /// Similar to Beacon update subscriptions, the sponsor must call
-    /// `setSponsorshipStatus()` of AirnodeProtocol to sponsor this DapiServer
+    /// `setRrpSponsorshipStatus()` of AirnodeProtocol to sponsor this DapiServer
     /// contract.
     /// We do not care about the subscription ID as long as `data` is formatted
     /// correctly.
@@ -535,7 +535,10 @@ contract DapiServer is
         bytes32[] memory beaconIds = new bytes32[](beaconCount);
         for (uint256 ind = 0; ind < beaconCount; ind++) {
             if (signatures[ind].length != 0) {
-                require(timestampIsValid(timestamps[ind]), "Invalid timestamp");
+                require(
+                    timestampIsValid(timestamps[ind]),
+                    "Timestamp not valid"
+                );
                 beaconIds[ind] = verifySignature(
                     templateIds[ind],
                     parameters[ind],

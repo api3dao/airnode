@@ -2,15 +2,14 @@
 pragma solidity 0.8.9;
 
 import "./ISubscriptionStore.sol";
+import "./ISponsorshipStore.sol";
 import "./IAirnodeWithdrawal.sol";
 
-interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
-    event SetSponsorshipStatus(
-        address indexed sponsor,
-        address indexed requester,
-        bool sponsorshipStatus
-    );
-
+interface IAirnodeProtocol is
+    ISubscriptionStore,
+    ISponsorshipStore,
+    IAirnodeWithdrawal
+{
     event MadeRequest(
         address indexed airnode,
         bytes32 indexed requestId,
@@ -63,9 +62,6 @@ interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
         uint256 timestamp,
         string errorMessage
     );
-
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external;
 
     function makeRequest(
         bytes32 templateId,
@@ -129,12 +125,7 @@ interface IAirnodeProtocol is ISubscriptionStore, IAirnodeWithdrawal {
         view
         returns (bool);
 
-    function sponsorToRequesterToSponsorshipStatus(
-        address sponsor,
-        address requester
-    ) external view returns (bool sponsorshipStatus);
-
-    function requesterToRequestCountPlusOne(address requester)
+    function requesterToRequestCount(address requester)
         external
         view
         returns (uint256);

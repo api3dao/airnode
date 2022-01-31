@@ -3,15 +3,14 @@ pragma solidity 0.8.9;
 
 interface IAirnodeWithdrawal {
     event RequestedWithdrawal(
-        address indexed relayer,
+        address indexed airnodeOrRelayer,
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
-        uint256 protocolId,
-        address sponsorWallet
+        uint256 protocolId
     );
 
     event FulfilledWithdrawal(
-        address indexed relayer,
+        address indexed airnodeOrRelayer,
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
         uint256 protocolId,
@@ -19,19 +18,18 @@ interface IAirnodeWithdrawal {
         uint256 amount
     );
 
-    event ExecutedWithdrawal(address indexed sponsor, uint256 amount);
+    event ClaimedBalance(address indexed sponsor, uint256 amount);
 
-    function requestWithdrawal(
-        address relayer,
-        uint256 protocolId,
-        address sponsorWallet
-    ) external;
+    function requestWithdrawal(address airnodeOrRelayer, uint256 protocolId)
+        external;
 
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
-        address relayer,
+        address airnodeOrRelayer,
+        uint256 protocolId,
         address sponsor,
-        uint256 protocolId
+        uint256 timestamp,
+        bytes calldata signature
     ) external payable;
 
     function claimBalance() external;

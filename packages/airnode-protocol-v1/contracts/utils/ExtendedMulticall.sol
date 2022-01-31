@@ -12,15 +12,15 @@ contract ExtendedMulticall is Multicall {
         return account.balance;
     }
 
-    function getCurrentBlockNumber() external view returns (uint256) {
+    function getBlockNumber() external view returns (uint256) {
         return block.number;
     }
 
-    function getCurrentBlockTimestamp() external view returns (uint256) {
+    function getBlockTimestamp() external view returns (uint256) {
         return block.timestamp;
     }
 
-    function getCurrentBasefee() external view returns (uint256) {
+    function getBlockBasefee() external view returns (uint256) {
         return block.basefee;
     }
 }

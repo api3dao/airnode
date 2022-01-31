@@ -24,7 +24,7 @@ contract AirnodeRequester is IAirnodeRequester {
     /// @dev Reverts if the timestamp is not valid
     /// @param timestamp Timestamp used in the signature
     modifier onlyValidTimestamp(uint256 timestamp) {
-        require(timestampIsValid(timestamp), "Invalid timestamp");
+        require(timestampIsValid(timestamp), "Timestamp not valid");
         _;
     }
 

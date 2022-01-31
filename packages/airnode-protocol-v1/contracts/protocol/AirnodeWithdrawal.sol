@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./interfaces/IAirnodeWithdrawal.sol";
 
 /// @title Contract that implements logic for withdrawals from sponsor wallets
@@ -28,6 +29,8 @@ import "./interfaces/IAirnodeWithdrawal.sol";
 /// includes a protocol ID. Refer to the documentation of the particular node
 /// implementation for what these protocol IDs are.
 contract AirnodeWithdrawal is IAirnodeWithdrawal {
+    using ECDSA for bytes32;
+
     /// @notice Sponsor balance that is withdrawn but not claimed yet
     mapping(address => uint256) public override sponsorToBalance;
 
@@ -46,18 +49,14 @@ contract AirnodeWithdrawal is IAirnodeWithdrawal {
     /// parameters are used during fulfillment and will get validated on-chain.
     /// The first withdrawal request a sponsor will make will cost slightly
     /// higher gas than the rest due to how the request counter is implemented.
-    /// @param relayer Relayer address
+    /// @param airnodeOrRelayer Relayer address
     /// @param protocolId Protocol ID of the sponsor wallet
-    /// @param sponsorWallet Address of the sponsor wallet that the withdrawal
-    /// is requested from
-    function requestWithdrawal(
-        address relayer,
-        uint256 protocolId,
-        address sponsorWallet
-    ) external override {
-        require(relayer != address(0), "Relayer address zero");
+    function requestWithdrawal(address airnodeOrRelayer, uint256 protocolId)
+        external
+        override
+    {
+        require(airnodeOrRelayer != address(0), "Airnode/relayer address zero");
         require(protocolId != 0, "Protocol ID zero");
-        require(sponsorWallet != address(0), "Sponsor wallet address zero");
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 block.chainid,
@@ -67,40 +66,54 @@ contract AirnodeWithdrawal is IAirnodeWithdrawal {
             )
         );
         withdrawalRequestIdToParameters[withdrawalRequestId] = keccak256(
-            abi.encodePacked(relayer, msg.sender, protocolId, sponsorWallet)
+            abi.encodePacked(airnodeOrRelayer, protocolId, msg.sender)
         );
         emit RequestedWithdrawal(
-            relayer,
+            airnodeOrRelayer,
             msg.sender,
             withdrawalRequestId,
-            protocolId,
-            sponsorWallet
+            protocolId
         );
     }
 
     /// @notice Called by the relayer using the sponsor wallet to fulfill the
     /// withdrawal request made by the sponsor
     /// @param withdrawalRequestId Withdrawal request ID
-    /// @param relayer Relayer address
-    /// @param sponsor Sponsor address
+    /// @param airnodeOrRelayer Relayer address
     /// @param protocolId Protocol ID of the sponsor wallet
+    /// @param sponsor Sponsor address
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
-        address relayer,
+        address airnodeOrRelayer,
+        uint256 protocolId,
         address sponsor,
-        uint256 protocolId
+        uint256 timestamp,
+        bytes calldata signature
     ) external payable override {
         require(
             withdrawalRequestIdToParameters[withdrawalRequestId] ==
                 keccak256(
-                    abi.encodePacked(relayer, sponsor, protocolId, msg.sender)
+                    abi.encodePacked(airnodeOrRelayer, protocolId, sponsor)
                 ),
             "Invalid withdrawal fulfillment"
+        );
+        require(
+            timestamp + 1 hours > block.timestamp &&
+                timestamp < block.timestamp + 15 minutes,
+            "Timestamp not valid"
+        );
+        require(
+            (
+                keccak256(
+                    abi.encodePacked(withdrawalRequestId, timestamp, msg.sender)
+                ).toEthSignedMessageHash()
+            ).recover(signature) == airnodeOrRelayer,
+            "Signature mismatch"
         );
         delete withdrawalRequestIdToParameters[withdrawalRequestId];
         sponsorToBalance[sponsor] += msg.value;
         emit FulfilledWithdrawal(
-            relayer,
+            airnodeOrRelayer,
             sponsor,
             withdrawalRequestId,
             protocolId,
@@ -114,7 +127,7 @@ contract AirnodeWithdrawal is IAirnodeWithdrawal {
         uint256 sponsorBalance = sponsorToBalance[msg.sender];
         require(sponsorBalance != 0, "Sender balance zero");
         sponsorToBalance[msg.sender] = 0;
-        emit ExecutedWithdrawal(msg.sender, sponsorBalance);
+        emit ClaimedBalance(msg.sender, sponsorBalance);
         (bool success, ) = msg.sender.call{value: sponsorBalance}(""); // solhint-disable-line avoid-low-level-calls
         require(success, "Transfer failed");
     }

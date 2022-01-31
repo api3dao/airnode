@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SubscriptionStore.sol";
+import "./SponsorshipStore.sol";
 import "./AirnodeWithdrawal.sol";
 import "../utils/ExtendedMulticall.sol";
 import "./interfaces/IAirnodeProtocol.sol";
@@ -18,50 +19,19 @@ import "./interfaces/IAirnodeProtocol.sol";
 /// requests and fulfillments.
 contract AirnodeProtocol is
     SubscriptionStore,
+    SponsorshipStore,
     AirnodeWithdrawal,
     ExtendedMulticall,
     IAirnodeProtocol
 {
     using ECDSA for bytes32;
 
-    /// @notice Returns the sponsorship status for a sponsor–requester pair
-    mapping(address => mapping(address => bool))
-        public
-        override sponsorToRequesterToSponsorshipStatus;
-
-    /// @notice Returns the request count of the requester plus one
+    /// @notice Returns the request count of the requester
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
-    mapping(address => uint256) public override requesterToRequestCountPlusOne;
+    mapping(address => uint256) public override requesterToRequestCount;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
-
-    /// @notice Called by the sponsor to set the sponsorship status of a
-    /// requester, i.e., allow or disallow a requester to make requests that
-    /// will be fulfilled by the sponsor wallet
-    /// @dev This is not Airnode or protocol-specific, i.e., the sponsor allows
-    /// the requester's requests to be fulfilled through its sponsor wallets
-    /// across all Airnodes and protocols.
-    /// In all contracts, we use the "set" verb to refer to setting a value
-    /// without considering its previous value, and emitting an event whether
-    /// a state change has occurred or not.
-    /// @param requester Requester address
-    /// @param sponsorshipStatus Sponsorship status
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external
-        override
-    {
-        require(requester != address(0), "Requester address zero");
-        // Initialize the requester request count for consistent request gas
-        // cost
-        if (requesterToRequestCountPlusOne[requester] == 0) {
-            requesterToRequestCountPlusOne[requester] = 1;
-        }
-        sponsorToRequesterToSponsorshipStatus[msg.sender][
-            requester
-        ] = sponsorshipStatus;
-        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
-    }
 
     /// @notice Called by the requester to make a request
     /// @param templateId Template ID
@@ -83,18 +53,15 @@ contract AirnodeProtocol is
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
-        require(fulfillFunctionId != bytes4(0), "Function selector zero");
-        require(
-            sponsor == msg.sender ||
-                sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
-            "Requester not sponsored"
-        );
+        require(sponsor != address(0), "Sponsor address zero");
+        require(fulfillFunctionId != bytes4(0), "Fulfill function ID zero");
+        uint256 requesterRequestCount = ++requesterToRequestCount[msg.sender];
         requestId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
                 msg.sender,
-                requesterToRequestCountPlusOne[msg.sender],
+                requesterRequestCount,
                 templateId,
                 parameters,
                 sponsor,
@@ -108,7 +75,7 @@ contract AirnodeProtocol is
             airnode,
             requestId,
             msg.sender,
-            requesterToRequestCountPlusOne[msg.sender]++,
+            requesterRequestCount,
             templateId,
             parameters,
             sponsor,
@@ -253,18 +220,16 @@ contract AirnodeProtocol is
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
-        require(fulfillFunctionId != bytes4(0), "Function selector zero");
-        require(
-            sponsor == msg.sender ||
-                sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
-            "Requester not sponsored"
-        );
+        require(relayer != address(0), "Relayer address zero");
+        require(sponsor != address(0), "Sponsor address zero");
+        require(fulfillFunctionId != bytes4(0), "Fulfill function ID zero");
+        uint256 requesterRequestCount = ++requesterToRequestCount[msg.sender];
         requestId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
                 msg.sender,
-                requesterToRequestCountPlusOne[msg.sender],
+                requesterRequestCount,
                 templateId,
                 parameters,
                 relayer,
@@ -280,7 +245,7 @@ contract AirnodeProtocol is
             requestId,
             airnode,
             msg.sender,
-            requesterToRequestCountPlusOne[msg.sender]++,
+            requesterRequestCount,
             templateId,
             parameters,
             sponsor,
