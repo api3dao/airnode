@@ -25,14 +25,14 @@ contract AirnodeProtocol is
     using ECDSA for bytes32;
 
     /// @notice Returns the sponsorship status for a sponsor–requester pair
-    mapping(address => mapping(bytes32 => bool))
+    mapping(address => mapping(address => bool))
         public
-        override sponsorToHashToSponsorshipStatus;
+        override sponsorToRequesterToSponsorshipStatus;
 
     /// @notice Returns the request count of the requester plus one
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
-    mapping(address => uint256) public override requesterToRequestCount;
+    mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
@@ -45,15 +45,22 @@ contract AirnodeProtocol is
     /// In all contracts, we use the "set" verb to refer to setting a value
     /// without considering its previous value, and emitting an event whether
     /// a state change has occurred or not.
-    /// @param hash_ Hash
+    /// @param requester Requester address
     /// @param sponsorshipStatus Sponsorship status
-    function setSponsorshipStatus(bytes32 hash_, bool sponsorshipStatus)
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external
         override
     {
-        require(hash_ != bytes32(0), "Hash zero");
-        sponsorToHashToSponsorshipStatus[msg.sender][hash_] = sponsorshipStatus;
-        emit SetSponsorshipStatus(msg.sender, hash_, sponsorshipStatus);
+        require(requester != address(0), "Requester address zero");
+        // Initialize the requester request count for consistent request gas
+        // cost
+        if (requesterToRequestCountPlusOne[requester] == 0) {
+            requesterToRequestCountPlusOne[requester] = 1;
+        }
+        sponsorToRequesterToSponsorshipStatus[msg.sender][
+            requester
+        ] = sponsorshipStatus;
+        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
     }
 
     /// @notice Called by the requester to make a request
@@ -77,13 +84,17 @@ contract AirnodeProtocol is
             "Parameters too long"
         );
         require(fulfillFunctionId != bytes4(0), "Function selector zero");
-        uint256 requestCount = ++requesterToRequestCount[msg.sender];
+        require(
+            sponsor == msg.sender ||
+                sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
+        );
         requestId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
                 msg.sender,
-                requestCount,
+                requesterToRequestCountPlusOne[msg.sender],
                 templateId,
                 parameters,
                 sponsor,
@@ -97,7 +108,7 @@ contract AirnodeProtocol is
             airnode,
             requestId,
             msg.sender,
-            requestCount,
+            requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
             parameters,
             sponsor,
@@ -243,13 +254,17 @@ contract AirnodeProtocol is
             "Parameters too long"
         );
         require(fulfillFunctionId != bytes4(0), "Function selector zero");
-        uint256 requestCount = ++requesterToRequestCount[msg.sender];
+        require(
+            sponsor == msg.sender ||
+                sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
+        );
         requestId = keccak256(
             abi.encodePacked(
                 block.chainid,
                 address(this),
                 msg.sender,
-                requestCount,
+                requesterToRequestCountPlusOne[msg.sender],
                 templateId,
                 parameters,
                 relayer,
@@ -265,7 +280,7 @@ contract AirnodeProtocol is
             requestId,
             airnode,
             msg.sender,
-            requestCount,
+            requesterToRequestCountPlusOne[msg.sender]++,
             templateId,
             parameters,
             sponsor,
