@@ -105,7 +105,7 @@ describe('callApis', () => {
     expect(logs[1].level).toEqual('ERROR');
     // TODO: Change this error message since it does not read nice
     expect(logs[1].message).toMatch(
-      /API call to Endpoint:convertToUSD errored after \d+ms with error message:API call failed with error: Unexpected error/
+      /API call to Endpoint:convertToUSD errored after \d+ms with error message:API call failed/
     );
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
@@ -113,7 +113,7 @@ describe('callApis', () => {
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Unexpected error`,
+        errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
       },
     ]);
     expect(spy).toHaveBeenCalledTimes(1);

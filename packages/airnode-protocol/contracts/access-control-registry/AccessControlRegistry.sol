@@ -27,7 +27,6 @@ contract AccessControlRegistry is
     /// effect.
     /// @param manager Manager address to be initialized
     function initializeManager(address manager) public override {
-        require(manager != address(0), "Manager address zero");
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
             _setupRole(rootRole, manager);
@@ -36,9 +35,7 @@ contract AccessControlRegistry is
     }
 
     /// @notice Called for the account to renounce the role
-    /// @dev Overriden to disallow managers to renounce their root roles.
-    /// `role` and `account` are not validated because
-    /// `AccessControl.renounceRole` will revert if either of them is zero.
+    /// @dev Overriden to disallow managers to renounce their root roles
     /// @param role Role to be renounced
     /// @param account Account to renounce the role
     function renounceRole(bytes32 role, address account)
@@ -58,8 +55,7 @@ contract AccessControlRegistry is
     /// explicitly renounce it after initializing it.
     /// Once a role is initialized, subsequent initialization have no effect,
     /// other than granting the role to the sender.
-    /// The sender must be a member of `adminRole`. `adminRole` value is not
-    /// validated because the sender cannot have the `bytes32(0)` role.
+    /// The sender must be a member of `adminRole`.
     /// If the sender is an uninitialized manager that is initializing a role
     /// directly under their root role, manager initialization will happen
     /// automatically, which will grant the sender `adminRole` and allow them
@@ -72,7 +68,6 @@ contract AccessControlRegistry is
         override
         returns (bytes32 role)
     {
-        require(bytes(description).length > 0, "Role description empty");
         role = deriveRole(adminRole, description);
         // AccessControl roles have `DEFAULT_ADMIN_ROLE` (i.e., `bytes32(0)`)
         // as their `adminRole` by default. No account in AccessControlRegistry
@@ -118,9 +113,7 @@ contract AccessControlRegistry is
         roles = new bytes32[](argumentLength);
         for (uint256 ind = 0; ind < argumentLength; ind++) {
             roles[ind] = initializeRole(adminRoles[ind], descriptions[ind]);
-            address account = accounts[ind];
-            require(account != address(0), "Account address zero");
-            grantRole(roles[ind], account);
+            grantRole(roles[ind], accounts[ind]);
         }
     }
 

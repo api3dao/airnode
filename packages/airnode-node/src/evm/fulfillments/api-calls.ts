@@ -4,7 +4,7 @@ import { applyTransactionResult } from './requests';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
-import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
+import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 import {
   ApiCall,
   Request,
@@ -161,6 +161,10 @@ async function submitFail(
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCall>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
+  const trimmedErrorMessage =
+    errorMessage.length > MAXIMUM_ONCHAIN_ERROR_LENGTH
+      ? errorMessage.substring(0, MAXIMUM_ONCHAIN_ERROR_LENGTH - 3).concat('...')
+      : errorMessage;
 
   const tx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fail(
@@ -168,7 +172,7 @@ async function submitFail(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      errorMessage,
+      trimmedErrorMessage,
       {
         gasLimit: GAS_LIMIT,
         ...options.gasTarget,

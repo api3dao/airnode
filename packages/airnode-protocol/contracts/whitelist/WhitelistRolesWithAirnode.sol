@@ -22,7 +22,7 @@ contract WhitelistRolesWithAirnode is
     /// @param airnode Airnode address
     /// @return adminRole Admin role
     function deriveAdminRole(address airnode)
-        external
+        public
         view
         override
         returns (bytes32 adminRole)
