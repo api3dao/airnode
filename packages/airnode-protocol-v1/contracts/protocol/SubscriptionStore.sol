@@ -6,6 +6,7 @@ import "./interfaces/ISubscriptionStore.sol";
 
 contract SubscriptionStore is TemplateStore, ISubscriptionStore {
     struct Subscription {
+        address airnode;
         bytes32 templateId;
         bytes parameters;
         bytes conditions;
@@ -19,7 +20,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
     mapping(bytes32 => Subscription) public override subscriptions;
 
     /// @notice Stores a subscription record
-    /// @param templateId Template ID
+    /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the request template
     /// @param conditions Conditions under which the subscription is requested
@@ -31,6 +32,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
     /// fulfillment
     /// @return subscriptionId Subscription ID
     function storeSubscription(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         bytes calldata conditions,
@@ -39,8 +41,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
         address requester,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 subscriptionId) {
-        address airnode = templateIdToAirnode[templateId];
-        require(airnode != address(0), "Template not registered");
+        require(airnode != address(0), "Airnode address zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -56,6 +57,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
         subscriptionId = keccak256(
             abi.encodePacked(
                 block.chainid,
+                airnode,
                 templateId,
                 parameters,
                 conditions,
@@ -66,6 +68,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
             )
         );
         subscriptions[subscriptionId] = Subscription({
+            airnode: airnode,
             templateId: templateId,
             parameters: parameters,
             conditions: conditions,
@@ -76,6 +79,7 @@ contract SubscriptionStore is TemplateStore, ISubscriptionStore {
         });
         emit StoredSubscription(
             subscriptionId,
+            airnode,
             templateId,
             parameters,
             conditions,

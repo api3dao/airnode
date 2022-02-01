@@ -34,7 +34,7 @@ contract AirnodeProtocol is
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @notice Called by the requester to make a request
-    /// @param templateId Template ID
+    /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param sponsor Sponsor address
@@ -42,13 +42,13 @@ contract AirnodeProtocol is
     /// fulfillment
     /// @return requestId Request ID
     function makeRequest(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         address sponsor,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
-        address airnode = templateIdToAirnode[templateId];
-        require(airnode != address(0), "Template not registered");
+        require(airnode != address(0), "Airnode address zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -62,6 +62,7 @@ contract AirnodeProtocol is
                 address(this),
                 msg.sender,
                 requesterRequestCount,
+                airnode,
                 templateId,
                 parameters,
                 sponsor,
@@ -199,7 +200,7 @@ contract AirnodeProtocol is
     /// @dev The response to this request is required to be signed by the
     /// respective Airnode, which will be used by the relayer while fulfilling
     /// the request
-    /// @param templateId Template ID
+    /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param relayer Relayer address
@@ -208,14 +209,14 @@ contract AirnodeProtocol is
     /// fulfillment
     /// @return requestId Request ID
     function makeRequestRelayed(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         address relayer,
         address sponsor,
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
-        address airnode = templateIdToAirnode[templateId];
-        require(airnode != address(0), "Template not registered");
+        require(airnode != address(0), "Airnode address zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -230,6 +231,7 @@ contract AirnodeProtocol is
                 address(this),
                 msg.sender,
                 requesterRequestCount,
+                airnode,
                 templateId,
                 parameters,
                 relayer,

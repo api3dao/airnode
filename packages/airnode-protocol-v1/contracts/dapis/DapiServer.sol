@@ -139,14 +139,12 @@ contract DapiServer is
     /// The sponsor and the update requester in the event are indexed to allow
     /// keepers to keep track of their update requests.
     /// @param templateId Template ID of the Beacon to be updated
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
     /// @param sponsor Address of the sponsor whose wallet will be used to
     /// fulfill the request
     /// @return requestId Request ID
     function requestRrpBeaconUpdate(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         address sponsor
     )
         external
@@ -155,34 +153,33 @@ contract DapiServer is
         returns (bytes32 requestId)
     {
         requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
+            airnode,
             templateId,
-            parameters,
+            "",
             sponsor,
             this.fulfillRrpBeaconUpdate.selector
         );
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
+        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedRrpBeaconUpdate(
             beaconId,
             sponsor,
             msg.sender,
             requestId,
-            templateId,
-            parameters
+            airnode,
+            templateId
         );
     }
 
     /// @notice Requests a Beacon to be updated by a relayer
     /// @param templateId Template ID of the Beacon to be updated
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
     /// @param relayer Relayer address
     /// @param sponsor Address of the sponsor whose wallet will be used to
     /// fulfill the request
     /// @return requestId Request ID
     function requestRrpBeaconUpdateRelayed(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         address relayer,
         address sponsor
     )
@@ -192,22 +189,23 @@ contract DapiServer is
         returns (bytes32 requestId)
     {
         requestId = IAirnodeProtocol(airnodeProtocol).makeRequestRelayed(
+            airnode,
             templateId,
-            parameters,
+            "",
             relayer,
             sponsor,
             this.fulfillRrpBeaconUpdate.selector
         );
-        bytes32 beaconId = deriveBeaconId(templateId, parameters);
+        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedRrpBeaconUpdateRelayed(
             beaconId,
             sponsor,
             msg.sender,
             requestId,
+            airnode,
             relayer,
-            templateId,
-            parameters
+            templateId
         );
     }
 
@@ -246,8 +244,6 @@ contract DapiServer is
     /// subscription is permitted by its sponsor is checked by the slot setters
     /// of Allocators, and not here.
     /// @param templateId Template ID
-    /// @param parameters Parameters provided by the subscription in addition
-    /// to the parameters in the request template
     /// @param conditions Conditions under which the subscription is requested
     /// to be fulfilled
     /// @param relayer Relayer address
@@ -255,17 +251,21 @@ contract DapiServer is
     /// @return subscriptionId Subscription ID
     /// @return beaconId Beacon ID
     function registerBeaconUpdateSubscription(
+        address airnode,
         bytes32 templateId,
-        bytes memory parameters,
         bytes memory conditions,
         address relayer,
         address sponsor
     ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
+        require(airnode != address(0), "Airnode address zero");
+        require(relayer != address(0), "Relayer address zero");
+        require(sponsor != address(0), "Sponsor address zero");
         subscriptionId = keccak256(
             abi.encodePacked(
                 block.chainid,
+                airnode,
                 templateId,
-                parameters,
+                "",
                 conditions,
                 relayer,
                 sponsor,
@@ -273,19 +273,18 @@ contract DapiServer is
                 this.fulfillPspBeaconUpdate.selector
             )
         );
-        address airnode = IAirnodeProtocol(airnodeProtocol).templateIdToAirnode(
-            templateId
-        );
-        require(airnode != address(0), "Template not registered");
         subscriptionIdToHash[subscriptionId] = keccak256(
             abi.encodePacked(airnode, relayer, sponsor)
         );
-        beaconId = deriveBeaconId(templateId, parameters);
-        subscriptionIdToBeaconId[subscriptionId] = beaconId;
-        emit RegisteredSubscription(
+        subscriptionIdToBeaconId[subscriptionId] = deriveBeaconId(
+            airnode,
+            templateId
+        );
+        emit RegisteredBeaconUpdateSubscription(
             subscriptionId,
+            airnode,
             templateId,
-            parameters,
+            "",
             conditions,
             relayer,
             sponsor,
@@ -342,21 +341,27 @@ contract DapiServer is
             "Subscription not registered"
         );
         if (airnode == relayer) {
-            verifyPspSignature(
-                airnode,
-                subscriptionId,
-                timestamp,
-                msg.sender,
-                signature
+            require(
+                (
+                    keccak256(
+                        abi.encodePacked(subscriptionId, timestamp, msg.sender)
+                    ).toEthSignedMessageHash()
+                ).recover(signature) == airnode,
+                "Signature mismatch"
             );
         } else {
-            verifyPspSignatureRelayed(
-                airnode,
-                subscriptionId,
-                timestamp,
-                msg.sender,
-                data,
-                signature
+            require(
+                (
+                    keccak256(
+                        abi.encodePacked(
+                            subscriptionId,
+                            timestamp,
+                            msg.sender,
+                            data
+                        )
+                    ).toEthSignedMessageHash()
+                ).recover(signature) == airnode,
+                "Signature mismatch"
             );
         }
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
@@ -375,26 +380,25 @@ contract DapiServer is
 
     /// @notice Updates a Beacon using data signed by the respective Airnode
     /// @param templateId Template ID
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
     /// @param timestamp Timestamp used in the signature
     /// @param data Response data (a single `int256` encoded as `bytes`)
     /// @param signature Request hash, a timestamp and the response data signed
     /// by the Airnode address
     function updateBeaconWithSignedData(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
     ) external override onlyValidTimestamp(timestamp) {
-        bytes32 beaconId = verifySignature(
-            templateId,
-            parameters,
-            timestamp,
-            data,
-            signature
+        require(
+            (
+                keccak256(abi.encodePacked(templateId, timestamp, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Signature mismatch"
         );
+        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
         emit UpdatedBeaconWithSignedData(beaconId, decodedData, timestamp);
     }
@@ -506,8 +510,6 @@ contract DapiServer is
     /// The beacons for which the signature is omitted will be read from the
     /// storage.
     /// @param templateIds Template IDs
-    /// @param parameters Parameters provided by the requesters in addition to
-    /// the parameters in the templates
     /// @param timestamps Timestamps used in the signatures
     /// @param data Response data (a single `int256` encoded as `bytes` per
     /// beacon)
@@ -515,15 +517,15 @@ contract DapiServer is
     /// by the respective Airnode addresses
     /// @return dapiId ID of the dAPI that is updated
     function updateDapiWithSignedData(
+        address[] memory airnodes,
         bytes32[] memory templateIds,
-        bytes[] memory parameters,
         uint256[] memory timestamps,
         bytes[] memory data,
         bytes[] memory signatures
     ) public override returns (bytes32 dapiId) {
-        uint256 beaconCount = templateIds.length;
+        uint256 beaconCount = airnodes.length;
         require(
-            beaconCount == parameters.length &&
+            beaconCount == templateIds.length &&
                 beaconCount == timestamps.length &&
                 beaconCount == data.length &&
                 beaconCount == signatures.length,
@@ -531,41 +533,41 @@ contract DapiServer is
         );
         require(beaconCount > 1, "Specified less than two Beacons");
         bytes32[] memory beaconIds = new bytes32[](beaconCount);
-        for (uint256 ind = 0; ind < beaconCount; ind++) {
-            if (signatures[ind].length != 0) {
-                require(
-                    timestampIsValid(timestamps[ind]),
-                    "Timestamp not valid"
-                );
-                beaconIds[ind] = verifySignature(
-                    templateIds[ind],
-                    parameters[ind],
-                    timestamps[ind],
-                    data[ind],
-                    signatures[ind]
-                );
-            } else {
-                beaconIds[ind] = deriveBeaconId(
-                    templateIds[ind],
-                    parameters[ind]
-                );
-            }
-        }
-        dapiId = deriveDapiId(beaconIds);
         int256[] memory values = new int256[](beaconCount);
         uint256 accumulatedTimestamp = 0;
         for (uint256 ind = 0; ind < beaconCount; ind++) {
             if (signatures[ind].length != 0) {
-                values[ind] = decodeFulfillmentData(data[ind]);
+                uint256 timestamp = timestamps[ind];
+                bytes memory data = data[ind];
+                require(timestampIsValid(timestamp), "Timestamp not valid");
+                require(
+                    (
+                        keccak256(
+                            abi.encodePacked(templateIds[ind], timestamp, data)
+                        ).toEthSignedMessageHash()
+                    ).recover(signatures[ind]) == airnodes[ind],
+                    "Signature mismatch"
+                );
+                values[ind] = decodeFulfillmentData(data);
                 // Timestamp validity is already checked, which means it will
                 // be small enough to be typecast into `uint32`
-                accumulatedTimestamp += timestamps[ind];
+                accumulatedTimestamp += timestamp;
+                beaconIds[ind] = deriveBeaconId(
+                    airnodes[ind],
+                    templateIds[ind]
+                );
             } else {
-                DataPoint storage dataPoint = dataPoints[beaconIds[ind]];
+                bytes32 beaconId = deriveBeaconId(
+                    airnodes[ind],
+                    templateIds[ind]
+                );
+                DataPoint storage dataPoint = dataPoints[beaconId];
                 values[ind] = dataPoint.value;
                 accumulatedTimestamp += dataPoint.timestamp;
+                beaconIds[ind] = beaconId;
             }
         }
+        dapiId = deriveDapiId(beaconIds);
         uint32 updatedTimestamp = uint32(accumulatedTimestamp / beaconCount);
         require(
             updatedTimestamp >= dataPoints[dapiId].timestamp,
@@ -718,16 +720,14 @@ contract DapiServer is
     /// @notice Derives the Beacon ID from the respective template ID and
     /// additional parameters
     /// @param templateId Template ID
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
     /// @return beaconId Beacon ID
-    function deriveBeaconId(bytes32 templateId, bytes memory parameters)
+    function deriveBeaconId(address airnode, bytes32 templateId)
         public
         pure
         override
         returns (bytes32 beaconId)
     {
-        beaconId = keccak256(abi.encodePacked(templateId, parameters));
+        beaconId = keccak256(abi.encodePacked(airnode, templateId));
     }
 
     /// @notice Derives the dAPI ID from the beacon IDs
@@ -764,44 +764,6 @@ contract DapiServer is
             value: int224(updatedBeaconValue),
             timestamp: uint32(timestamp)
         });
-    }
-
-    /// @notice Verifies the signature associated with request parameters, a
-    /// timestamp and the response to the request specified by the parameters
-    /// @dev Reverts if the verification is not successful
-    /// @param templateId Template ID
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
-    /// @param timestamp Timestamp used in the signature
-    /// @param data Response data
-    /// @param signature Request hash, a timestamp and response data signed by
-    /// the Airnode address
-    /// @return beaconId Request hash, composed of the template ID and the
-    /// additional parameters
-    function verifySignature(
-        bytes32 templateId,
-        bytes memory parameters,
-        uint256 timestamp,
-        bytes memory data,
-        bytes memory signature
-    ) private returns (bytes32 beaconId) {
-        address airnode = templateIdToAirnode[templateId];
-        if (airnode == address(0)) {
-            airnode = IAirnodeProtocol(airnodeProtocol).templateIdToAirnode(
-                templateId
-            );
-            require(airnode != address(0), "Template not registered");
-            // Cache for future use
-            templateIdToAirnode[templateId] = airnode;
-        }
-        beaconId = deriveBeaconId(templateId, parameters);
-        require(
-            (
-                keccak256(abi.encodePacked(beaconId, timestamp, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
     }
 
     /// @notice Called privately to decode the fulfillment data

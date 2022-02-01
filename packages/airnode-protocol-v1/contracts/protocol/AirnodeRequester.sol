@@ -49,44 +49,4 @@ contract AirnodeRequester is IAirnodeRequester {
             timestamp + 1 hours > block.timestamp &&
             timestamp < block.timestamp + 15 minutes;
     }
-
-    function verifyPspSignature(
-        address airnode,
-        bytes32 subscriptionId,
-        uint256 timestamp,
-        address sponsorWallet,
-        bytes calldata signature
-    ) internal pure {
-        require(
-            (
-                keccak256(
-                    abi.encodePacked(subscriptionId, timestamp, sponsorWallet)
-                ).toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
-    }
-
-    function verifyPspSignatureRelayed(
-        address airnode,
-        bytes32 subscriptionId,
-        uint256 timestamp,
-        address relayerSponsorWallet,
-        bytes calldata data,
-        bytes calldata signature
-    ) internal pure {
-        require(
-            (
-                keccak256(
-                    abi.encodePacked(
-                        subscriptionId,
-                        timestamp,
-                        relayerSponsorWallet,
-                        data
-                    )
-                ).toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
-    }
 }

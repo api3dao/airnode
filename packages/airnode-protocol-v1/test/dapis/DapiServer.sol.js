@@ -10,14 +10,13 @@ let indefiniteWhitelisterRole, unlimitedReaderRole, nameSetterRole;
 let airnodeAddress, airnodeWallet, relayerAddress;
 let airnodeRrpSponsorWallet, airnodePspSponsorWallet, relayerRrpSponsorWallet, relayerPspSponsorWallet;
 let voidSignerAddressZero;
-let endpointId, templateParameters, templateId;
-let beaconParameters, beaconId;
+let templateId, dapiTemplateIds;
+let beaconId;
 let beaconUpdateSubscriptionId,
   beaconUpdateSubscriptionRelayedId,
   beaconUpdateSubscriptionConditionParameters,
   beaconUpdateSubscriptionConditions;
-let dapiBeaconParameters = [],
-  dapiBeaconIds = [],
+let dapiBeaconIds = [],
   dapiId;
 let dapiUpdateSubscriptionId, dapiUpdateSubscriptionRelayedId, dapiUpdateSubscriptionConditionParameters;
 
@@ -116,18 +115,17 @@ async function setUpSponsorWallets() {
 }
 
 async function setUpTemplate() {
-  endpointId = testUtils.generateRandomBytes32();
-  templateParameters = testUtils.generateRandomBytes();
-  await airnodeProtocol.connect(roles.randomPerson).storeTemplate(airnodeAddress, endpointId, templateParameters);
-  templateId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, templateParameters])
-  );
+  templateId = testUtils.generateRandomBytes32();
+  dapiTemplateIds = [
+    testUtils.generateRandomBytes32(),
+    testUtils.generateRandomBytes32(),
+    testUtils.generateRandomBytes32(),
+  ];
 }
 
 async function setUpBeacon() {
-  beaconParameters = testUtils.generateRandomBytes();
   beaconId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+    hre.ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, templateId])
   );
   // Update threshold is 10%
   beaconUpdateSubscriptionConditionParameters = hre.ethers.utils.defaultAbiCoder.encode(
@@ -155,11 +153,12 @@ async function setUpBeacon() {
   // Register the Beacon update subscription
   beaconUpdateSubscriptionId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
+        airnodeAddress,
         templateId,
-        beaconParameters,
+        '0x',
         beaconUpdateSubscriptionConditions,
         airnodeAddress,
         roles.sponsor.address,
@@ -171,8 +170,8 @@ async function setUpBeacon() {
   await dapiServer
     .connect(roles.randomPerson)
     .registerBeaconUpdateSubscription(
+      airnodeAddress,
       templateId,
-      beaconParameters,
       beaconUpdateSubscriptionConditions,
       airnodeAddress,
       roles.sponsor.address
@@ -180,11 +179,12 @@ async function setUpBeacon() {
   // Register the relayed Beacon update subscription
   beaconUpdateSubscriptionRelayedId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
+        airnodeAddress,
         templateId,
-        beaconParameters,
+        '0x',
         beaconUpdateSubscriptionConditions,
         relayerAddress,
         roles.sponsor.address,
@@ -196,8 +196,8 @@ async function setUpBeacon() {
   await dapiServer
     .connect(roles.randomPerson)
     .registerBeaconUpdateSubscription(
+      airnodeAddress,
       templateId,
-      beaconParameters,
       beaconUpdateSubscriptionConditions,
       relayerAddress,
       roles.sponsor.address
@@ -206,11 +206,9 @@ async function setUpBeacon() {
 
 async function setUpDapi() {
   for (let ind = 0; ind < 3; ind++) {
-    const dapiBeaconParameter = testUtils.generateRandomBytes();
     const dapiBeaconId = hre.ethers.utils.keccak256(
-      hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, dapiBeaconParameter])
+      hre.ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, dapiTemplateIds[ind]])
     );
-    dapiBeaconParameters[ind] = dapiBeaconParameter;
     dapiBeaconIds[ind] = dapiBeaconId;
   }
   dapiId = hre.ethers.utils.keccak256(hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]));
@@ -234,13 +232,9 @@ async function setUpDapi() {
       dapiUpdateSubscriptionConditionParameters,
     ]
   );
-  // Create and store the dAPI update template
-  await airnodeProtocol.connect(roles.randomPerson).storeTemplate(airnodeAddress, hre.ethers.constants.HashZero, '0x');
+  // Create the dAPI update template
   const dapiUpdateTemplateId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
-      ['address', 'bytes32', 'bytes'],
-      [airnodeAddress, hre.ethers.constants.HashZero, '0x']
-    )
+    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [hre.ethers.constants.HashZero, '0x'])
   );
   // Calculate the dAPI update subscription ID
   const dapiUpdateParameters = hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]);
@@ -249,7 +243,7 @@ async function setUpDapi() {
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
-        airnodeProtocol.address,
+        airnodeAddress,
         dapiUpdateTemplateId,
         dapiUpdateParameters,
         dapiUpdateSubscriptionConditions,
@@ -265,7 +259,7 @@ async function setUpDapi() {
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
-        airnodeProtocol.address,
+        airnodeAddress,
         dapiUpdateTemplateId,
         dapiUpdateParameters,
         dapiUpdateSubscriptionConditionParameters,
@@ -326,14 +320,15 @@ async function encodeAndSignData(decodedData, requestHash, timestamp) {
 async function deriveRegularRequestId() {
   return hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'address', 'uint256', 'bytes32', 'bytes', 'address', 'bytes4'],
+      ['uint256', 'address', 'address', 'uint256', 'address', 'bytes32', 'bytes', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         dapiServer.address,
         (await airnodeProtocol.requesterToRequestCount(dapiServer.address)).add(1),
+        airnodeAddress,
         templateId,
-        beaconParameters,
+        '0x',
         roles.sponsor.address,
         dapiServer.interface.getSighash('fulfillRrpBeaconUpdate'),
       ]
@@ -344,14 +339,15 @@ async function deriveRegularRequestId() {
 async function deriveRelayedRequestId() {
   return hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'address', 'uint256', 'bytes32', 'bytes', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'address', 'uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         dapiServer.address,
         (await airnodeProtocol.requesterToRequestCount(dapiServer.address)).add(1),
+        airnodeAddress,
         templateId,
-        beaconParameters,
+        '0x',
         relayerAddress,
         roles.sponsor.address,
         dapiServer.interface.getSighash('fulfillRrpBeaconUpdate'),
@@ -360,29 +356,26 @@ async function deriveRelayedRequestId() {
   );
 }
 
-async function setBeacon(templateId, beaconParameters, decodedData, timestamp) {
-  const beaconIdToBeSet = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
-  );
-  const [data, signature] = await encodeAndSignData(decodedData, beaconIdToBeSet, timestamp);
+async function setBeacon(templateId, decodedData, timestamp) {
+  const [data, signature] = await encodeAndSignData(decodedData, templateId, timestamp);
   await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
   await dapiServer
     .connect(roles.randomPerson)
-    .updateBeaconWithSignedData(templateId, beaconParameters, timestamp, data, signature);
+    .updateBeaconWithSignedData(airnodeAddress, templateId, timestamp, data, signature);
 }
 
-async function setDapi(templateId, dapiBeaconParameters, decodedData, timestamps) {
+async function setDapi(airnodeAddress, templateIds, decodedData, timestamps) {
   const dataArray = [];
   const signatureArray = [];
   for (let ind = 0; ind < decodedData.length; ind++) {
-    const [data, signature] = await encodeAndSignData(decodedData[ind], dapiBeaconIds[ind], timestamps[ind]);
+    const [data, signature] = await encodeAndSignData(decodedData[ind], dapiTemplateIds[ind], timestamps[ind]);
     dataArray.push(data);
     signatureArray.push(signature);
   }
   await hre.ethers.provider.send('evm_setNextBlockTimestamp', [Math.max(...timestamps)]);
   await dapiServer.updateDapiWithSignedData(
-    Array(3).fill(templateId),
-    dapiBeaconParameters,
+    Array(3).fill(airnodeAddress),
+    templateIds,
     timestamps,
     dataArray,
     signatureArray
@@ -849,13 +842,13 @@ describe('requestRrpBeaconUpdate', function () {
       expect(
         await dapiServer
           .connect(roles.sponsor)
-          .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+          .callStatic.requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address)
       ).to.equal(requestId);
       await expect(
-        dapiServer.connect(roles.sponsor).requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+        dapiServer.connect(roles.sponsor).requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address)
       )
         .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
-        .withArgs(beaconId, roles.sponsor.address, roles.sponsor.address, requestId, templateId, beaconParameters);
+        .withArgs(beaconId, roles.sponsor.address, roles.sponsor.address, requestId, airnodeAddress, templateId);
     });
   });
   context('Request updater is permitted', function () {
@@ -864,12 +857,12 @@ describe('requestRrpBeaconUpdate', function () {
       expect(
         await dapiServer
           .connect(roles.updateRequester)
-          .callStatic.requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+          .callStatic.requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address)
       ).to.equal(requestId);
       await expect(
         dapiServer
           .connect(roles.updateRequester)
-          .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+          .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address)
       )
         .to.emit(dapiServer, 'RequestedRrpBeaconUpdate')
         .withArgs(
@@ -877,17 +870,15 @@ describe('requestRrpBeaconUpdate', function () {
           roles.sponsor.address,
           roles.updateRequester.address,
           requestId,
-          templateId,
-          beaconParameters
+          airnodeAddress,
+          templateId
         );
     });
   });
   context('Request updater is not permitted', function () {
     it('reverts', async function () {
       await expect(
-        dapiServer
-          .connect(roles.randomPerson)
-          .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address)
+        dapiServer.connect(roles.randomPerson).requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address)
       ).to.be.revertedWith('Sender not permitted');
     });
   });
@@ -900,12 +891,12 @@ describe('requestRrpBeaconUpdateRelayed', function () {
       expect(
         await dapiServer
           .connect(roles.sponsor)
-          .callStatic.requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+          .callStatic.requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address)
       ).to.equal(requestId);
       await expect(
         dapiServer
           .connect(roles.sponsor)
-          .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+          .requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address)
       )
         .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
         .withArgs(
@@ -913,9 +904,9 @@ describe('requestRrpBeaconUpdateRelayed', function () {
           roles.sponsor.address,
           roles.sponsor.address,
           requestId,
+          airnodeAddress,
           relayerAddress,
-          templateId,
-          beaconParameters
+          templateId
         );
     });
   });
@@ -925,12 +916,12 @@ describe('requestRrpBeaconUpdateRelayed', function () {
       expect(
         await dapiServer
           .connect(roles.updateRequester)
-          .callStatic.requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+          .callStatic.requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address)
       ).to.equal(requestId);
       await expect(
         dapiServer
           .connect(roles.updateRequester)
-          .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+          .requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address)
       )
         .to.emit(dapiServer, 'RequestedRrpBeaconUpdateRelayed')
         .withArgs(
@@ -938,9 +929,9 @@ describe('requestRrpBeaconUpdateRelayed', function () {
           roles.sponsor.address,
           roles.updateRequester.address,
           requestId,
+          airnodeAddress,
           relayerAddress,
-          templateId,
-          beaconParameters
+          templateId
         );
     });
   });
@@ -949,7 +940,7 @@ describe('requestRrpBeaconUpdateRelayed', function () {
       await expect(
         dapiServer
           .connect(roles.randomPerson)
-          .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address)
+          .requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address)
       ).to.be.revertedWith('Sender not permitted');
     });
   });
@@ -969,7 +960,7 @@ describe('fulfillRrpBeaconUpdate', function () {
                 const requestId = await deriveRegularRequestId();
                 await dapiServer
                   .connect(roles.updateRequester)
-                  .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+                  .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
                 const decodedData = 123;
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1008,7 +999,7 @@ describe('fulfillRrpBeaconUpdate', function () {
                 const requestId = await deriveRelayedRequestId();
                 await dapiServer
                   .connect(roles.updateRequester)
-                  .requestRrpBeaconUpdateRelayed(templateId, beaconParameters, relayerAddress, roles.sponsor.address);
+                  .requestRrpBeaconUpdateRelayed(airnodeAddress, templateId, relayerAddress, roles.sponsor.address);
                 const decodedData = 123;
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
                 await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1047,7 +1038,7 @@ describe('fulfillRrpBeaconUpdate', function () {
               const requestId = await deriveRegularRequestId();
               await dapiServer
                 .connect(roles.updateRequester)
-                .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+                .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
               const [data, signature] = await encodeAndSignFulfillment(
                 456,
                 requestId,
@@ -1055,7 +1046,7 @@ describe('fulfillRrpBeaconUpdate', function () {
                 airnodeRrpSponsorWallet.address
               );
               const futureTimestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-              await setBeacon(templateId, beaconParameters, 123, futureTimestamp);
+              await setBeacon(templateId, 123, futureTimestamp);
               const staticCallResult = await airnodeProtocol
                 .connect(airnodeRrpSponsorWallet)
                 .callStatic.fulfillRequest(
@@ -1096,7 +1087,7 @@ describe('fulfillRrpBeaconUpdate', function () {
               const requestId = await deriveRegularRequestId();
               await dapiServer
                 .connect(roles.updateRequester)
-                .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+                .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
               const largeDecodedData = hre.ethers.BigNumber.from(2).pow(223);
               const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1144,7 +1135,7 @@ describe('fulfillRrpBeaconUpdate', function () {
               const requestId = await deriveRegularRequestId();
               await dapiServer
                 .connect(roles.updateRequester)
-                .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+                .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
               const smallDecodedData = hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1);
               const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
               await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1194,7 +1185,7 @@ describe('fulfillRrpBeaconUpdate', function () {
           const requestId = await deriveRegularRequestId();
           await dapiServer
             .connect(roles.updateRequester)
-            .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+            .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
           const decodedData = 123;
           const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1243,7 +1234,7 @@ describe('fulfillRrpBeaconUpdate', function () {
           const requestId = await deriveRegularRequestId();
           await dapiServer
             .connect(roles.updateRequester)
-            .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+            .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
           const decodedData = 123;
           const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
@@ -1293,7 +1284,7 @@ describe('fulfillRrpBeaconUpdate', function () {
         const requestId = await deriveRegularRequestId();
         await dapiServer
           .connect(roles.updateRequester)
-          .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+          .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
         const decodedData = 123;
         const currentTimestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [currentTimestamp + 1]);
@@ -1342,7 +1333,7 @@ describe('fulfillRrpBeaconUpdate', function () {
         const requestId = await deriveRegularRequestId();
         await dapiServer
           .connect(roles.updateRequester)
-          .requestRrpBeaconUpdate(templateId, beaconParameters, roles.sponsor.address);
+          .requestRrpBeaconUpdate(airnodeAddress, templateId, roles.sponsor.address);
         const currentTimestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [currentTimestamp + 1]);
         const timestamp = currentTimestamp + 15 * 60 + 1;
@@ -1397,46 +1388,81 @@ describe('fulfillRrpBeaconUpdate', function () {
 });
 
 describe('registerBeaconUpdateSubscription', function () {
-  context('Template is registered at the Airnode protocol', function () {
-    it('registers subscription', async function () {
-      await expect(
-        dapiServer
-          .connect(roles.randomPerson)
-          .registerBeaconUpdateSubscription(
-            templateId,
-            beaconParameters,
-            beaconUpdateSubscriptionConditions,
-            airnodeAddress,
-            roles.sponsor.address
+  context('Airnode address is not zero', function () {
+    context('Relayer address is not zero', function () {
+      context('Sponsor address is not zero', function () {
+        it('registers beacon update subscription', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.randomPerson)
+              .registerBeaconUpdateSubscription(
+                airnodeAddress,
+                templateId,
+                beaconUpdateSubscriptionConditions,
+                airnodeAddress,
+                roles.sponsor.address
+              )
           )
-      )
-        .to.emit(dapiServer, 'RegisteredSubscription')
-        .withArgs(
-          beaconUpdateSubscriptionId,
-          templateId,
-          beaconParameters,
-          beaconUpdateSubscriptionConditions,
-          airnodeAddress,
-          roles.sponsor.address,
-          dapiServer.address,
-          dapiServer.interface.getSighash('fulfillPspBeaconUpdate')
-        );
-      expect(await dapiServer.subscriptionIdToBeaconId(beaconUpdateSubscriptionId)).to.equal(beaconId);
+            .to.emit(dapiServer, 'RegisteredBeaconUpdateSubscription')
+            .withArgs(
+              beaconUpdateSubscriptionId,
+              airnodeAddress,
+              templateId,
+              '0x',
+              beaconUpdateSubscriptionConditions,
+              airnodeAddress,
+              roles.sponsor.address,
+              dapiServer.address,
+              dapiServer.interface.getSighash('fulfillPspBeaconUpdate')
+            );
+          expect(await dapiServer.subscriptionIdToBeaconId(beaconUpdateSubscriptionId)).to.equal(beaconId);
+        });
+      });
+      context('Sponsor address is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            dapiServer
+              .connect(roles.randomPerson)
+              .registerBeaconUpdateSubscription(
+                airnodeAddress,
+                templateId,
+                beaconUpdateSubscriptionConditions,
+                airnodeAddress,
+                hre.ethers.constants.AddressZero
+              )
+          ).to.be.revertedWith('Sponsor address zero');
+        });
+      });
+    });
+    context('Relayer address is zero', function () {
+      it('reverts', async function () {
+        await expect(
+          dapiServer
+            .connect(roles.randomPerson)
+            .registerBeaconUpdateSubscription(
+              airnodeAddress,
+              templateId,
+              beaconUpdateSubscriptionConditions,
+              hre.ethers.constants.AddressZero,
+              roles.sponsor.address
+            )
+        ).to.be.revertedWith('Relayer address zero');
+      });
     });
   });
-  context('Template is not registered at the Airnode protocol', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
       await expect(
         dapiServer
           .connect(roles.randomPerson)
           .registerBeaconUpdateSubscription(
-            testUtils.generateRandomBytes32(),
-            beaconParameters,
+            hre.ethers.constants.AddressZero,
+            templateId,
             beaconUpdateSubscriptionConditions,
             airnodeAddress,
             roles.sponsor.address
           )
-      ).to.be.revertedWith('Template not registered');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
@@ -1481,7 +1507,7 @@ describe('conditionPspBeaconUpdate', function () {
               it('returns true', async function () {
                 // Set the Beacon to 100 first
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, beaconParameters, 100, timestamp);
+                await setBeacon(templateId, 100, timestamp);
                 // beaconUpdateSubscriptionConditionParameters is 10%
                 // 100 -> 110 satisfies the condition and returns true
                 const conditionData = encodeData(110);
@@ -1500,7 +1526,7 @@ describe('conditionPspBeaconUpdate', function () {
               it('returns true', async function () {
                 // Set the Beacon to 100 first
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, beaconParameters, 100, timestamp);
+                await setBeacon(templateId, 100, timestamp);
                 // beaconUpdateSubscriptionConditionParameters is 10%
                 // 100 -> 90 satisfies the condition and returns true
                 const conditionData = encodeData(90);
@@ -1521,7 +1547,7 @@ describe('conditionPspBeaconUpdate', function () {
               it('returns false', async function () {
                 // Set the Beacon to 100 first
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, beaconParameters, 100, timestamp);
+                await setBeacon(templateId, 100, timestamp);
                 // beaconUpdateSubscriptionConditionParameters is 10%
                 // 100 -> 109 doesn't satisfy the condition and returns false
                 const conditionData = encodeData(109);
@@ -1540,7 +1566,7 @@ describe('conditionPspBeaconUpdate', function () {
               it('returns false', async function () {
                 // Set the Beacon to 100 first
                 const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, beaconParameters, 100, timestamp);
+                await setBeacon(templateId, 100, timestamp);
                 // beaconUpdateSubscriptionConditionParameters is 10%
                 // 100 -> 91 doesn't satisfy the condition and returns false
                 const conditionData = encodeData(91);
@@ -1562,8 +1588,8 @@ describe('conditionPspBeaconUpdate', function () {
             await dapiServer
               .connect(roles.randomPerson)
               .registerBeaconUpdateSubscription(
+                airnodeAddress,
                 templateId,
-                beaconParameters,
                 beaconUpdateSubscriptionConditions,
                 airnodeAddress,
                 roles.sponsor.address
@@ -1775,7 +1801,7 @@ describe('fulfillPspBeaconUpdate', function () {
           it('reverts', async function () {
             const initialTimestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             const futureTimestamp = initialTimestamp + 1;
-            await setBeacon(templateId, beaconParameters, 123, futureTimestamp);
+            await setBeacon(templateId, 123, futureTimestamp);
             const [data, signature] = await encodeAndSignFulfillment(
               456,
               beaconUpdateSubscriptionId,
@@ -1890,11 +1916,11 @@ describe('updateBeaconWithSignedData', function () {
           it('updates Beacon', async function () {
             const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
-            const [data, signature] = await encodeAndSignData(123, beaconId, timestamp);
+            const [data, signature] = await encodeAndSignData(123, templateId, timestamp);
             await expect(
               dapiServer
                 .connect(roles.randomPerson)
-                .updateBeaconWithSignedData(templateId, beaconParameters, timestamp, data, signature)
+                .updateBeaconWithSignedData(airnodeAddress, templateId, timestamp, data, signature)
             )
               .to.emit(dapiServer, 'UpdatedBeaconWithSignedData')
               .withArgs(beaconId, 123, timestamp);
@@ -1907,13 +1933,13 @@ describe('updateBeaconWithSignedData', function () {
           it('reverts', async function () {
             const initialTimestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
             const futureTimestamp = initialTimestamp + 1;
-            await setBeacon(templateId, beaconParameters, 123, futureTimestamp);
+            await setBeacon(templateId, 123, futureTimestamp);
             await hre.ethers.provider.send('evm_setNextBlockTimestamp', [futureTimestamp + 1]);
-            const [data, signature] = await encodeAndSignData(456, beaconId, initialTimestamp);
+            const [data, signature] = await encodeAndSignData(456, templateId, initialTimestamp);
             await expect(
               dapiServer
                 .connect(roles.randomPerson)
-                .updateBeaconWithSignedData(templateId, beaconParameters, initialTimestamp, data, signature)
+                .updateBeaconWithSignedData(airnodeAddress, templateId, initialTimestamp, data, signature)
             ).to.be.revertedWith('Fulfillment older than Beacon');
           });
         });
@@ -1927,14 +1953,14 @@ describe('updateBeaconWithSignedData', function () {
           const signature = await airnodeWallet.signMessage(
             hre.ethers.utils.arrayify(
               hre.ethers.utils.keccak256(
-                hre.ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [beaconId, timestamp, longData])
+                hre.ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [templateId, timestamp, longData])
               )
             )
           );
           await expect(
             dapiServer
               .connect(roles.randomPerson)
-              .updateBeaconWithSignedData(templateId, beaconParameters, timestamp, longData, signature)
+              .updateBeaconWithSignedData(airnodeAddress, templateId, timestamp, longData, signature)
           ).to.be.revertedWith('Data length not correct');
         });
       });
@@ -1946,7 +1972,7 @@ describe('updateBeaconWithSignedData', function () {
         await expect(
           dapiServer
             .connect(roles.randomPerson)
-            .updateBeaconWithSignedData(templateId, beaconParameters, timestamp, '0x', '0x')
+            .updateBeaconWithSignedData(airnodeAddress, templateId, timestamp, '0x', '0x')
         ).to.be.revertedWith('ECDSA: invalid signature length');
       });
     });
@@ -1957,7 +1983,7 @@ describe('updateBeaconWithSignedData', function () {
       await expect(
         dapiServer
           .connect(roles.randomPerson)
-          .updateBeaconWithSignedData(templateId, beaconParameters, timestamp, '0x', '0x')
+          .updateBeaconWithSignedData(airnodeAddress, templateId, timestamp, '0x', '0x')
       ).to.be.revertedWith('Timestamp not valid');
     });
   });
@@ -1972,7 +1998,7 @@ describe('updateDapiWithBeacons', function () {
         const beaconData = [123, 456, 789];
         for (let ind = 0; ind < beaconData.length; ind++) {
           timestamp++;
-          await setBeacon(templateId, dapiBeaconParameters[ind], beaconData[ind], timestamp);
+          await setBeacon(dapiTemplateIds[ind], beaconData[ind], timestamp);
         }
         const dapiInitial = await dapiServer.connect(voidSignerAddressZero).readWithDataPointId(dapiId);
         expect(dapiInitial.value).to.equal(0);
@@ -1992,12 +2018,12 @@ describe('updateDapiWithBeacons', function () {
         const beaconData = [123, 456, 789];
         for (let ind = 0; ind < beaconData.length; ind++) {
           timestamp++;
-          await setBeacon(templateId, dapiBeaconParameters[ind], beaconData[ind], timestamp);
+          await setBeacon(dapiTemplateIds[ind], beaconData[ind], timestamp);
         }
         // Update the dAPI with signed data
         const dapiData = [321, 654, 987];
         timestamp++;
-        await setDapi(templateId, dapiBeaconParameters, dapiData, [timestamp, timestamp, timestamp]);
+        await setDapi(airnodeAddress, dapiTemplateIds, dapiData, [timestamp, timestamp, timestamp]);
         // Update with Beacons will fail because the previous update with signed data was fresher
         await expect(dapiServer.connect(roles.randomPerson).updateDapiWithBeacons(dapiBeaconIds)).to.be.revertedWith(
           'Updated value outdated'
@@ -2026,13 +2052,13 @@ describe('conditionPspDapiUpdate', function () {
             // Set the dAPI to 100 first
             let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             timestamp++;
-            await setDapi(templateId, dapiBeaconParameters, [100, 100, 100], [timestamp, timestamp, timestamp]);
+            await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
             // dapiUpdateSubscriptionConditionParameters is 5%
             // 100 -> 105 satisfies the condition and returns true
             const encodedData = [105, 110, 100];
             for (let ind = 0; ind < encodedData.length; ind++) {
               timestamp++;
-              await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+              await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
             }
             expect(
               await dapiServer
@@ -2050,13 +2076,13 @@ describe('conditionPspDapiUpdate', function () {
             // Set the dAPI to 100 first
             let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             timestamp++;
-            await setDapi(templateId, dapiBeaconParameters, [100, 100, 100], [timestamp, timestamp, timestamp]);
+            await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
             // dapiUpdateSubscriptionConditionParameters is 5%
             // 100 -> 95 satisfies the condition and returns true
             const encodedData = [95, 100, 90];
             for (let ind = 0; ind < encodedData.length; ind++) {
               timestamp++;
-              await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+              await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
             }
             expect(
               await dapiServer
@@ -2076,13 +2102,13 @@ describe('conditionPspDapiUpdate', function () {
             // Set the dAPI to 100 first
             let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             timestamp++;
-            await setDapi(templateId, dapiBeaconParameters, [100, 100, 100], [timestamp, timestamp, timestamp]);
+            await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
             // dapiUpdateSubscriptionConditionParameters is 5%
             // 100 -> 104 does not satisfy the condition and returns false
             const encodedData = [110, 104, 95];
             for (let ind = 0; ind < encodedData.length; ind++) {
               timestamp++;
-              await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+              await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
             }
             expect(
               await dapiServer
@@ -2100,13 +2126,13 @@ describe('conditionPspDapiUpdate', function () {
             // Set the dAPI to 100 first
             let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             timestamp++;
-            await setDapi(templateId, dapiBeaconParameters, [100, 100, 100], [timestamp, timestamp, timestamp]);
+            await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
             // dapiUpdateSubscriptionConditionParameters is 5%
             // 100 -> 96 does not satisfy the condition and returns false
             const encodedData = [105, 96, 95];
             for (let ind = 0; ind < encodedData.length; ind++) {
               timestamp++;
-              await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+              await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
             }
             expect(
               await dapiServer
@@ -2176,7 +2202,7 @@ describe('fulfillPspDapiUpdate', function () {
         const encodedData = [95, 100, 90];
         for (let ind = 0; ind < encodedData.length; ind++) {
           timestamp++;
-          await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+          await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
         }
         const data = hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]);
         const signature = await airnodeWallet.signMessage(
@@ -2218,7 +2244,7 @@ describe('fulfillPspDapiUpdate', function () {
         const encodedData = [95, 100, 90];
         for (let ind = 0; ind < encodedData.length; ind++) {
           timestamp++;
-          await setBeacon(templateId, dapiBeaconParameters[ind], encodedData[ind], timestamp);
+          await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
         }
         const data = hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]);
         const signature = await airnodeWallet.signMessage(
@@ -2299,17 +2325,17 @@ describe('updateDapiWithSignedData', function () {
                   let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
                   // Set the first beacon to a value
                   timestamp++;
-                  await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+                  await setBeacon(dapiTemplateIds[0], 100, timestamp);
                   // Sign data for the next two beacons
-                  const [data1, signature1] = await encodeAndSignData(105, dapiBeaconIds[1], timestamp);
-                  const [data2, signature2] = await encodeAndSignData(110, dapiBeaconIds[2], timestamp);
+                  const [data1, signature1] = await encodeAndSignData(105, dapiTemplateIds[1], timestamp);
+                  const [data2, signature2] = await encodeAndSignData(110, dapiTemplateIds[2], timestamp);
                   // Pass an empty signature for the first beacon, meaning that it will be read from the storage
                   await expect(
                     dapiServer
                       .connect(roles.randomPerson)
                       .updateDapiWithSignedData(
-                        Array(3).fill(templateId),
-                        dapiBeaconParameters,
+                        Array(3).fill(airnodeAddress),
+                        dapiTemplateIds,
                         [0, timestamp, timestamp],
                         ['0x', data1, data2],
                         ['0x', signature1, signature2]
@@ -2326,20 +2352,20 @@ describe('updateDapiWithSignedData', function () {
                 it('reverts', async function () {
                   let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
                   timestamp++;
-                  await setDapi(templateId, dapiBeaconParameters, Array(3).fill(100), Array(3).fill(timestamp));
+                  await setDapi(airnodeAddress, dapiTemplateIds, Array(3).fill(100), Array(3).fill(timestamp));
                   // Set the first beacon to a value
                   timestamp++;
-                  await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+                  await setBeacon(dapiTemplateIds[0], 100, timestamp);
                   // Sign data for the next two beacons
-                  const [data1, signature1] = await encodeAndSignData(110, dapiBeaconIds[1], timestamp - 5);
-                  const [data2, signature2] = await encodeAndSignData(105, dapiBeaconIds[2], timestamp - 5);
+                  const [data1, signature1] = await encodeAndSignData(110, dapiTemplateIds[1], timestamp - 5);
+                  const [data2, signature2] = await encodeAndSignData(105, dapiTemplateIds[2], timestamp - 5);
                   // Pass an empty signature for the first beacon, meaning that it will be read from the storage
                   await expect(
                     dapiServer
                       .connect(roles.randomPerson)
                       .updateDapiWithSignedData(
-                        Array(3).fill(templateId),
-                        dapiBeaconParameters,
+                        Array(3).fill(airnodeAddress),
+                        dapiTemplateIds,
                         [0, timestamp - 5, timestamp - 5],
                         ['0x', data1, data2],
                         ['0x', signature1, signature2]
@@ -2353,9 +2379,9 @@ describe('updateDapiWithSignedData', function () {
                 let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
                 // Set the first beacon to a value
                 timestamp++;
-                await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+                await setBeacon(dapiTemplateIds[0], 100, timestamp);
                 // Sign data for the next beacons
-                const [data1, signature1] = await encodeAndSignData(110, dapiBeaconIds[1], timestamp);
+                const [data1, signature1] = await encodeAndSignData(110, dapiTemplateIds[1], timestamp);
                 // The third data contains an un-typecastable value
                 const data2 = encodeData(hre.ethers.BigNumber.from(2).pow(223));
                 const signature2 = await airnodeWallet.signMessage(
@@ -2363,7 +2389,7 @@ describe('updateDapiWithSignedData', function () {
                     hre.ethers.utils.keccak256(
                       hre.ethers.utils.solidityPack(
                         ['bytes32', 'uint256', 'bytes'],
-                        [dapiBeaconIds[2], timestamp, data2]
+                        [dapiTemplateIds[2], timestamp, data2]
                       )
                     )
                   )
@@ -2373,8 +2399,8 @@ describe('updateDapiWithSignedData', function () {
                   dapiServer
                     .connect(roles.randomPerson)
                     .updateDapiWithSignedData(
-                      Array(3).fill(templateId),
-                      dapiBeaconParameters,
+                      Array(3).fill(airnodeAddress),
+                      dapiTemplateIds,
                       [0, timestamp, timestamp],
                       ['0x', data1, data2],
                       ['0x', signature1, signature2]
@@ -2388,15 +2414,18 @@ describe('updateDapiWithSignedData', function () {
               let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
               // Set the first beacon to a value
               timestamp++;
-              await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+              await setBeacon(dapiTemplateIds[0], 100, timestamp);
               // Sign data for the next beacons
-              const [data1, signature1] = await encodeAndSignData(110, dapiBeaconIds[1], timestamp);
+              const [data1, signature1] = await encodeAndSignData(110, dapiTemplateIds[1], timestamp);
               // The third data does not have the correct length
               const data2 = encodeData(105) + '00';
               const signature2 = await airnodeWallet.signMessage(
                 hre.ethers.utils.arrayify(
                   hre.ethers.utils.keccak256(
-                    hre.ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [dapiBeaconIds[2], timestamp, data2])
+                    hre.ethers.utils.solidityPack(
+                      ['bytes32', 'uint256', 'bytes'],
+                      [dapiTemplateIds[2], timestamp, data2]
+                    )
                   )
                 )
               );
@@ -2405,8 +2434,8 @@ describe('updateDapiWithSignedData', function () {
                 dapiServer
                   .connect(roles.randomPerson)
                   .updateDapiWithSignedData(
-                    Array(3).fill(templateId),
-                    dapiBeaconParameters,
+                    Array(3).fill(airnodeAddress),
+                    dapiTemplateIds,
                     [0, timestamp, timestamp],
                     ['0x', data1, data2],
                     ['0x', signature1, signature2]
@@ -2420,18 +2449,18 @@ describe('updateDapiWithSignedData', function () {
             let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
             // Set the first beacon to a value
             timestamp++;
-            await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+            await setBeacon(dapiTemplateIds[0], 100, timestamp);
             // Sign data for the next two beacons
-            const [data1, signature1] = await encodeAndSignData(110, dapiBeaconIds[1], timestamp);
-            const [data2] = await encodeAndSignData(105, dapiBeaconIds[2], timestamp);
+            const [data1, signature1] = await encodeAndSignData(110, dapiTemplateIds[1], timestamp);
+            const [data2] = await encodeAndSignData(105, dapiTemplateIds[2], timestamp);
             // Pass an empty signature for the first beacon, meaning that it will be read from the storage
             // The signature for the third beacon is invalid
             await expect(
               dapiServer
                 .connect(roles.randomPerson)
                 .updateDapiWithSignedData(
-                  Array(3).fill(templateId),
-                  dapiBeaconParameters,
+                  Array(3).fill(airnodeAddress),
+                  dapiTemplateIds,
                   [0, timestamp, timestamp],
                   ['0x', data1, data2],
                   ['0x', signature1, '0x12345678']
@@ -2445,18 +2474,18 @@ describe('updateDapiWithSignedData', function () {
           let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
           // Set the first beacon to a value
           timestamp++;
-          await setBeacon(templateId, dapiBeaconParameters[0], 100, timestamp);
+          await setBeacon(dapiTemplateIds[0], 100, timestamp);
           // Sign data for the next two beacons
-          const [data1, signature1] = await encodeAndSignData(110, dapiBeaconIds[1], timestamp);
-          const [data2, signature2] = await encodeAndSignData(105, dapiBeaconIds[2], 0);
+          const [data1, signature1] = await encodeAndSignData(110, dapiTemplateIds[1], timestamp);
+          const [data2, signature2] = await encodeAndSignData(105, dapiTemplateIds[2], 0);
           // Pass an empty signature for the first beacon, meaning that it will be read from the storage
           // The timestamp for the third beacon is invalid
           await expect(
             dapiServer
               .connect(roles.randomPerson)
               .updateDapiWithSignedData(
-                Array(3).fill(templateId),
-                dapiBeaconParameters,
+                Array(3).fill(airnodeAddress),
+                dapiTemplateIds,
                 [0, timestamp, 0],
                 ['0x', data1, data2],
                 ['0x', signature1, signature2]
@@ -2474,8 +2503,8 @@ describe('updateDapiWithSignedData', function () {
           dapiServer
             .connect(roles.randomPerson)
             .updateDapiWithSignedData(
+              [testUtils.generateRandomAddress()],
               [testUtils.generateRandomBytes32()],
-              [testUtils.generateRandomBytes()],
               [0],
               [testUtils.generateRandomBytes()],
               [testUtils.generateRandomBytes()]
@@ -2490,8 +2519,19 @@ describe('updateDapiWithSignedData', function () {
         dapiServer
           .connect(roles.randomPerson)
           .updateDapiWithSignedData(
+            Array(4).fill(testUtils.generateRandomAddress()),
+            Array(3).fill(testUtils.generateRandomBytes32()),
+            Array(3).fill(0),
+            Array(3).fill(testUtils.generateRandomBytes()),
+            Array(3).fill(testUtils.generateRandomBytes())
+          )
+      ).to.be.revertedWith('Parameter length mismatch');
+      await expect(
+        dapiServer
+          .connect(roles.randomPerson)
+          .updateDapiWithSignedData(
+            Array(3).fill(testUtils.generateRandomAddress()),
             Array(4).fill(testUtils.generateRandomBytes32()),
-            Array(3).fill(testUtils.generateRandomBytes()),
             Array(3).fill(0),
             Array(3).fill(testUtils.generateRandomBytes()),
             Array(3).fill(testUtils.generateRandomBytes())
@@ -2501,19 +2541,8 @@ describe('updateDapiWithSignedData', function () {
         dapiServer
           .connect(roles.randomPerson)
           .updateDapiWithSignedData(
+            Array(3).fill(testUtils.generateRandomAddress()),
             Array(3).fill(testUtils.generateRandomBytes32()),
-            Array(4).fill(testUtils.generateRandomBytes()),
-            Array(3).fill(0),
-            Array(3).fill(testUtils.generateRandomBytes()),
-            Array(3).fill(testUtils.generateRandomBytes())
-          )
-      ).to.be.revertedWith('Parameter length mismatch');
-      await expect(
-        dapiServer
-          .connect(roles.randomPerson)
-          .updateDapiWithSignedData(
-            Array(3).fill(testUtils.generateRandomBytes32()),
-            Array(3).fill(testUtils.generateRandomBytes()),
             Array(4).fill(0),
             Array(3).fill(testUtils.generateRandomBytes()),
             Array(3).fill(testUtils.generateRandomBytes())
@@ -2523,8 +2552,8 @@ describe('updateDapiWithSignedData', function () {
         dapiServer
           .connect(roles.randomPerson)
           .updateDapiWithSignedData(
+            Array(3).fill(testUtils.generateRandomAddress()),
             Array(3).fill(testUtils.generateRandomBytes32()),
-            Array(3).fill(testUtils.generateRandomBytes()),
             Array(3).fill(0),
             Array(4).fill(testUtils.generateRandomBytes()),
             Array(3).fill(testUtils.generateRandomBytes())
@@ -2534,8 +2563,8 @@ describe('updateDapiWithSignedData', function () {
         dapiServer
           .connect(roles.randomPerson)
           .updateDapiWithSignedData(
+            Array(3).fill(testUtils.generateRandomAddress()),
             Array(3).fill(testUtils.generateRandomBytes32()),
-            Array(3).fill(testUtils.generateRandomBytes()),
             Array(3).fill(0),
             Array(3).fill(testUtils.generateRandomBytes()),
             Array(4).fill(testUtils.generateRandomBytes())
@@ -2590,7 +2619,7 @@ describe('readWithDataPointId', function () {
     context('Data point is Beacon', function () {
       it('reads Beacon', async function () {
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(voidSignerAddressZero).readWithDataPointId(beaconId);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2599,7 +2628,7 @@ describe('readWithDataPointId', function () {
     context('Data point is dAPI', function () {
       it('reads dAPI', async function () {
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(voidSignerAddressZero).readWithDataPointId(dapiId);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2613,7 +2642,7 @@ describe('readWithDataPointId', function () {
           .connect(roles.indefiniteWhitelister)
           .setIndefiniteWhitelistStatus(beaconId, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(roles.randomPerson).readWithDataPointId(beaconId);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2625,7 +2654,7 @@ describe('readWithDataPointId', function () {
           .connect(roles.indefiniteWhitelister)
           .setIndefiniteWhitelistStatus(dapiId, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(roles.randomPerson).readWithDataPointId(dapiId);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2636,7 +2665,7 @@ describe('readWithDataPointId', function () {
     context('Data point is Beacon', function () {
       it('reads Beacon', async function () {
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(roles.unlimitedReader).readWithDataPointId(beaconId);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2645,7 +2674,7 @@ describe('readWithDataPointId', function () {
     context('Data point is dAPI', function () {
       it('reads dAPI', async function () {
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(roles.unlimitedReader).readWithDataPointId(dapiId);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2677,7 +2706,7 @@ describe('readWithName', function () {
         const name = hre.ethers.utils.formatBytes32String('My beacon');
         await dapiServer.connect(roles.nameSetter).setName(name, beaconId);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(voidSignerAddressZero).readWithName(name);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2688,7 +2717,7 @@ describe('readWithName', function () {
         const name = hre.ethers.utils.formatBytes32String('My dAPI');
         await dapiServer.connect(roles.nameSetter).setName(name, dapiId);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(voidSignerAddressZero).readWithName(name);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2706,7 +2735,7 @@ describe('readWithName', function () {
           .connect(roles.indefiniteWhitelister)
           .setIndefiniteWhitelistStatus(nameHash, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(roles.randomPerson).readWithName(name);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2722,7 +2751,7 @@ describe('readWithName', function () {
           .connect(roles.indefiniteWhitelister)
           .setIndefiniteWhitelistStatus(nameHash, roles.randomPerson.address, true);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(roles.randomPerson).readWithName(name);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2735,7 +2764,7 @@ describe('readWithName', function () {
         const name = hre.ethers.utils.formatBytes32String('My beacon');
         await dapiServer.connect(roles.nameSetter).setName(name, beaconId);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setBeacon(templateId, beaconParameters, 123, timestamp);
+        await setBeacon(templateId, 123, timestamp);
         const beacon = await dapiServer.connect(roles.unlimitedReader).readWithName(name);
         expect(beacon.value).to.be.equal(123);
         expect(beacon.timestamp).to.be.equal(timestamp);
@@ -2746,7 +2775,7 @@ describe('readWithName', function () {
         const name = hre.ethers.utils.formatBytes32String('My dAPI');
         await dapiServer.connect(roles.nameSetter).setName(name, dapiId);
         const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-        await setDapi(templateId, dapiBeaconParameters, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
+        await setDapi(airnodeAddress, dapiTemplateIds, [123, 456, 789], [timestamp - 2, timestamp, timestamp + 2]);
         const dapi = await dapiServer.connect(roles.unlimitedReader).readWithName(name);
         expect(dapi.value).to.be.equal(456);
         expect(dapi.timestamp).to.be.equal(timestamp);
@@ -2850,12 +2879,7 @@ describe('dataPointIdToReaderToSetterToIndefiniteWhitelistStatus', function () {
 
 describe('deriveBeaconId', function () {
   it('derives Beacon ID', async function () {
-    expect(await dapiServer.deriveBeaconId(templateId, beaconParameters)).to.equal(beaconId);
-    expect(await dapiServer.deriveBeaconId(templateId, '0x')).to.equal(
-      hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, '0x']))
-    );
-    // templateId != beaconId if `parameters` is empty
-    expect(await dapiServer.deriveBeaconId(templateId, '0x')).to.not.equal(templateId);
+    expect(await dapiServer.deriveBeaconId(airnodeAddress, templateId)).to.equal(beaconId);
   });
 });
 

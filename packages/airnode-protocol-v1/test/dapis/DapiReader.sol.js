@@ -37,19 +37,15 @@ beforeEach(async () => {
   const dapiReaderFactory = await hre.ethers.getContractFactory('MockDapiReader', roles.deployer);
   dapiReader = await dapiReaderFactory.deploy(dapiServer1.address);
   const airnodeData = testUtils.generateRandomAirnodeWallet();
+  const airnodeAddress = airnodeData.airnodeAddress;
   const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeData.airnodeMnemonic, "m/44'/60'/0'/0/0");
   const endpointId = testUtils.generateRandomBytes32();
   const templateParameters = testUtils.generateRandomBytes();
-  await airnodeProtocol.storeTemplate(airnodeWallet.address, endpointId, templateParameters);
   const templateId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
-      ['address', 'bytes32', 'bytes'],
-      [airnodeWallet.address, endpointId, templateParameters]
-    )
+    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [endpointId, templateParameters])
   );
-  const beaconParameters = testUtils.generateRandomBytes();
   beaconId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [templateId, beaconParameters])
+    hre.ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, templateId])
   );
   await dapiServer1.connect(roles.manager).setName(name, beaconId);
   beaconValue = 123;
@@ -58,12 +54,12 @@ beforeEach(async () => {
   const signature = await airnodeWallet.signMessage(
     hre.ethers.utils.arrayify(
       hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [beaconId, beaconTimestamp, data])
+        hre.ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [templateId, beaconTimestamp, data])
       )
     )
   );
   await hre.ethers.provider.send('evm_setNextBlockTimestamp', [beaconTimestamp + 1]);
-  await dapiServer1.updateBeaconWithSignedData(templateId, beaconParameters, beaconTimestamp, data, signature);
+  await dapiServer1.updateBeaconWithSignedData(airnodeAddress, templateId, beaconTimestamp, data, signature);
 });
 
 describe('constructor', function () {

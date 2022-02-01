@@ -15,8 +15,8 @@ interface IDapiServer is IAirnodeRequester {
         address indexed sponsor,
         address indexed requester,
         bytes32 requestId,
-        bytes32 templateId,
-        bytes parameters
+        address airnode,
+        bytes32 templateId
     );
 
     event RequestedRrpBeaconUpdateRelayed(
@@ -24,9 +24,9 @@ interface IDapiServer is IAirnodeRequester {
         address indexed sponsor,
         address indexed requester,
         bytes32 requestId,
+        address airnode,
         address relayer,
-        bytes32 templateId,
-        bytes parameters
+        bytes32 templateId
     );
 
     event UpdatedBeaconWithRrp(
@@ -36,8 +36,9 @@ interface IDapiServer is IAirnodeRequester {
         uint32 timestamp
     );
 
-    event RegisteredSubscription(
+    event RegisteredBeaconUpdateSubscription(
         bytes32 indexed subscriptionId,
+        address airnode,
         bytes32 templateId,
         bytes parameters,
         bytes conditions,
@@ -82,14 +83,14 @@ interface IDapiServer is IAirnodeRequester {
         external;
 
     function requestRrpBeaconUpdate(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         address sponsor
     ) external returns (bytes32 requestId);
 
     function requestRrpBeaconUpdateRelayed(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         address relayer,
         address sponsor
     ) external returns (bytes32 requestId);
@@ -101,8 +102,8 @@ interface IDapiServer is IAirnodeRequester {
     ) external;
 
     function registerBeaconUpdateSubscription(
+        address airnode,
         bytes32 templateId,
-        bytes memory parameters,
         bytes memory conditions,
         address relayer,
         address sponsor
@@ -125,8 +126,8 @@ interface IDapiServer is IAirnodeRequester {
     ) external;
 
     function updateBeaconWithSignedData(
+        address airnode,
         bytes32 templateId,
-        bytes calldata parameters,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
@@ -153,8 +154,8 @@ interface IDapiServer is IAirnodeRequester {
     ) external;
 
     function updateDapiWithSignedData(
+        address[] memory airnodes,
         bytes32[] memory templateIds,
-        bytes[] memory parameters,
         uint256[] memory timestamps,
         bytes[] memory data,
         bytes[] memory signatures
@@ -193,7 +194,7 @@ interface IDapiServer is IAirnodeRequester {
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
 
-    function deriveBeaconId(bytes32 templateId, bytes memory parameters)
+    function deriveBeaconId(address airnode, bytes32 templateId)
         external
         pure
         returns (bytes32 beaconId);

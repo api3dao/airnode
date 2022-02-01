@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 import "./interfaces/ITemplateStore.sol";
 
 contract TemplateStore is ITemplateStore {
-    struct PartialTemplate {
+    struct Template {
         bytes32 endpointId;
         bytes parameters;
     }
@@ -13,9 +13,7 @@ contract TemplateStore is ITemplateStore {
     /// subscriptions
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 4096;
 
-    mapping(bytes32 => address) public override templateIdToAirnode;
-
-    mapping(bytes32 => PartialTemplate) private partialTemplates;
+    mapping(bytes32 => Template) public templates;
 
     /// @notice Stores a template record
     /// @dev Templates fully or partially define requests. By referencing a
@@ -27,67 +25,23 @@ contract TemplateStore is ITemplateStore {
     /// (2) After querying their parameters with the respective ID, you can
     /// verify the integrity of the returned data by checking if they match the
     /// ID.
-    /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param parameters Template parameters
     /// @return templateId Template ID
-    function storeTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external override returns (bytes32 templateId) {
-        require(airnode != address(0), "Airnode address zero");
+    function storeTemplate(bytes32 endpointId, bytes calldata parameters)
+        external
+        override
+        returns (bytes32 templateId)
+    {
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
-        templateId = keccak256(
-            abi.encodePacked(airnode, endpointId, parameters)
-        );
-        templateIdToAirnode[templateId] = airnode;
-        partialTemplates[templateId] = PartialTemplate({
+        templateId = keccak256(abi.encodePacked(endpointId, parameters));
+        templates[templateId] = Template({
             endpointId: endpointId,
             parameters: parameters
         });
-        emit StoredTemplate(templateId, airnode, endpointId, parameters);
-    }
-
-    /// @notice Registers a template record
-    /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
-    /// @param parameters Template parameters
-    /// @return templateId Template ID
-    function registerTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external override returns (bytes32 templateId) {
-        require(airnode != address(0), "Airnode address zero");
-        templateId = keccak256(
-            abi.encodePacked(airnode, endpointId, parameters)
-        );
-        templateIdToAirnode[templateId] = airnode;
-        emit RegisteredTemplate(templateId, airnode, endpointId, parameters);
-    }
-
-    function getStoredTemplate(bytes32 templateId)
-        external
-        view
-        override
-        returns (
-            address airnode,
-            bytes32 endpointId,
-            bytes memory parameters
-        )
-    {
-        airnode = templateIdToAirnode[templateId];
-        PartialTemplate storage partialTemplate = partialTemplates[templateId];
-        endpointId = partialTemplate.endpointId;
-        parameters = partialTemplate.parameters;
-        require(
-            templateId ==
-                keccak256(abi.encodePacked(airnode, endpointId, parameters)),
-            "Template not stored"
-        );
+        emit StoredTemplate(templateId, endpointId, parameters);
     }
 }

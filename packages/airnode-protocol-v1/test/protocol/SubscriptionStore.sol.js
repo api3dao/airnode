@@ -20,7 +20,7 @@ beforeEach(async () => {
   endpointId = testUtils.generateRandomBytes32();
   templateParameters = testUtils.generateRandomBytes();
   templateId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, templateParameters])
+    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [endpointId, templateParameters])
   );
   subscriptionParameters = testUtils.generateRandomBytes();
   subscriptionConditions = testUtils.generateRandomBytes();
@@ -30,9 +30,10 @@ beforeEach(async () => {
   fulfillFunctionId = '0x12345678';
   subscriptionId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
+        airnodeAddress,
         templateId,
         subscriptionParameters,
         subscriptionConditions,
@@ -46,7 +47,7 @@ beforeEach(async () => {
 });
 
 describe('storeSubscription', function () {
-  context('Template is registered', function () {
+  context('Airnode address is not zero', function () {
     context('Subscription parameters are not too long', function () {
       context('Subscription conditions are not too long', function () {
         context('Relayer address is not zero', function () {
@@ -54,13 +55,11 @@ describe('storeSubscription', function () {
             context('Requester address is not zero', function () {
               context('Fulfill function ID is not zero', function () {
                 it('stores subscription', async function () {
-                  await airnodeProtocol
-                    .connect(roles.randomPerson)
-                    .registerTemplate(airnodeAddress, endpointId, templateParameters);
                   await expect(
                     airnodeProtocol
                       .connect(roles.randomPerson)
                       .storeSubscription(
+                        airnodeAddress,
                         templateId,
                         subscriptionParameters,
                         subscriptionConditions,
@@ -73,6 +72,7 @@ describe('storeSubscription', function () {
                     .to.emit(airnodeProtocol, 'StoredSubscription')
                     .withArgs(
                       subscriptionId,
+                      airnodeAddress,
                       templateId,
                       subscriptionParameters,
                       subscriptionConditions,
@@ -85,13 +85,11 @@ describe('storeSubscription', function () {
               });
               context('Fulfill function ID is zero', function () {
                 it('reverts', async function () {
-                  await airnodeProtocol
-                    .connect(roles.randomPerson)
-                    .registerTemplate(airnodeAddress, endpointId, templateParameters);
                   await expect(
                     airnodeProtocol
                       .connect(roles.randomPerson)
                       .storeSubscription(
+                        airnodeAddress,
                         templateId,
                         subscriptionParameters,
                         subscriptionConditions,
@@ -106,13 +104,11 @@ describe('storeSubscription', function () {
             });
             context('Requester address is zero', function () {
               it('reverts', async function () {
-                await airnodeProtocol
-                  .connect(roles.randomPerson)
-                  .registerTemplate(airnodeAddress, endpointId, templateParameters);
                 await expect(
                   airnodeProtocol
                     .connect(roles.randomPerson)
                     .storeSubscription(
+                      airnodeAddress,
                       templateId,
                       subscriptionParameters,
                       subscriptionConditions,
@@ -127,13 +123,11 @@ describe('storeSubscription', function () {
           });
           context('Sponsor address is zero', function () {
             it('reverts', async function () {
-              await airnodeProtocol
-                .connect(roles.randomPerson)
-                .registerTemplate(airnodeAddress, endpointId, templateParameters);
               await expect(
                 airnodeProtocol
                   .connect(roles.randomPerson)
                   .storeSubscription(
+                    airnodeAddress,
                     templateId,
                     subscriptionParameters,
                     subscriptionConditions,
@@ -148,13 +142,11 @@ describe('storeSubscription', function () {
         });
         context('Relayer address is zero', function () {
           it('reverts', async function () {
-            await airnodeProtocol
-              .connect(roles.randomPerson)
-              .registerTemplate(airnodeAddress, endpointId, templateParameters);
             await expect(
               airnodeProtocol
                 .connect(roles.randomPerson)
                 .storeSubscription(
+                  airnodeAddress,
                   templateId,
                   subscriptionParameters,
                   subscriptionConditions,
@@ -169,13 +161,11 @@ describe('storeSubscription', function () {
       });
       context('Subscription conditions are too long', function () {
         it('reverts', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           await expect(
             airnodeProtocol
               .connect(roles.randomPerson)
               .storeSubscription(
+                airnodeAddress,
                 templateId,
                 subscriptionParameters,
                 `0x${'12'.repeat(4096 + 1)}`,
@@ -190,13 +180,11 @@ describe('storeSubscription', function () {
     });
     context('Subscription parameters are too long', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         await expect(
           airnodeProtocol
             .connect(roles.randomPerson)
             .storeSubscription(
+              airnodeAddress,
               templateId,
               `0x${'12'.repeat(4096 + 1)}`,
               subscriptionConditions,
@@ -209,12 +197,13 @@ describe('storeSubscription', function () {
       });
     });
   });
-  context('Template is not registered', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
       await expect(
         airnodeProtocol
           .connect(roles.randomPerson)
           .storeSubscription(
+            hre.ethers.constants.AddressZero,
             templateId,
             subscriptionParameters,
             subscriptionConditions,
@@ -223,7 +212,7 @@ describe('storeSubscription', function () {
             requester,
             fulfillFunctionId
           )
-      ).to.be.revertedWith('Template not registered');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });

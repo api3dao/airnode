@@ -64,6 +64,7 @@ interface IAirnodeProtocol is
     );
 
     function makeRequest(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         address sponsor,
@@ -91,6 +92,7 @@ interface IAirnodeProtocol is
     ) external;
 
     function makeRequestRelayed(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         address relayer,

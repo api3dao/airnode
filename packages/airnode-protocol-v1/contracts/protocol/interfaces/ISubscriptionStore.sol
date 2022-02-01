@@ -6,6 +6,7 @@ import "./ITemplateStore.sol";
 interface ISubscriptionStore is ITemplateStore {
     event StoredSubscription(
         bytes32 indexed subscriptionId,
+        address airnode,
         bytes32 templateId,
         bytes parameters,
         bytes conditions,
@@ -16,6 +17,7 @@ interface ISubscriptionStore is ITemplateStore {
     );
 
     function storeSubscription(
+        address airnode,
         bytes32 templateId,
         bytes calldata parameters,
         bytes calldata conditions,
@@ -29,6 +31,7 @@ interface ISubscriptionStore is ITemplateStore {
         external
         view
         returns (
+            address airnode,
             bytes32 templateId,
             bytes memory parameters,
             bytes memory conditions,

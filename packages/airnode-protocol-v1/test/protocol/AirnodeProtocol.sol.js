@@ -12,12 +12,13 @@ let endpointId, templateParameters, templateId, requestParameters;
 async function deriveExpectedRequestId(fulfillFunctionId) {
   return hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'address', 'uint256', 'bytes32', 'bytes', 'address', 'bytes4'],
+      ['uint256', 'address', 'address', 'uint256', 'address', 'bytes32', 'bytes', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         airnodeRequester.address,
         (await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).add(1),
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -30,12 +31,13 @@ async function deriveExpectedRequestId(fulfillFunctionId) {
 async function deriveExpectedRelayedRequestId(fulfillFunctionId) {
   return hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'address', 'uint256', 'bytes32', 'bytes', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'address', 'uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeProtocol.address,
         airnodeRequester.address,
         (await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).add(1),
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -83,19 +85,17 @@ beforeEach(async () => {
 });
 
 describe('makeRequest', function () {
-  context('Template is registered', function () {
+  context('Airnode address is not zero', function () {
     context('Parameters are not too long', function () {
       context('Sponsor address is not zero', function () {
         context('Function selector is not zero', function () {
           it('makes request', async function () {
-            await airnodeProtocol
-              .connect(roles.randomPerson)
-              .registerTemplate(airnodeAddress, endpointId, templateParameters);
             const expectedRequestId = await deriveExpectedRequestId(
               airnodeRequester.interface.getSighash('fulfillRequest')
             );
             await expect(
               airnodeRequester.makeRequest(
+                airnodeAddress,
                 templateId,
                 requestParameters,
                 roles.sponsor.address,
@@ -119,22 +119,23 @@ describe('makeRequest', function () {
         });
         context('Function selector is zero', function () {
           it('reverts', async function () {
-            await airnodeProtocol
-              .connect(roles.randomPerson)
-              .registerTemplate(airnodeAddress, endpointId, templateParameters);
             await expect(
-              airnodeRequester.makeRequest(templateId, requestParameters, roles.sponsor.address, '0x00000000')
+              airnodeRequester.makeRequest(
+                airnodeAddress,
+                templateId,
+                requestParameters,
+                roles.sponsor.address,
+                '0x00000000'
+              )
             ).to.be.revertedWith('Fulfill function ID zero');
           });
         });
       });
       context('Sponsor address is zero', function () {
         it('reverts', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           await expect(
             airnodeRequester.makeRequest(
+              airnodeAddress,
               templateId,
               requestParameters,
               hre.ethers.constants.AddressZero,
@@ -146,11 +147,9 @@ describe('makeRequest', function () {
     });
     context('Parameters are too long', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         await expect(
           airnodeRequester.makeRequest(
+            airnodeAddress,
             templateId,
             `0x${'01'.repeat(4096 + 1)}`,
             roles.sponsor.address,
@@ -160,16 +159,17 @@ describe('makeRequest', function () {
       });
     });
   });
-  context('Template is not registered', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
       await expect(
         airnodeRequester.makeRequest(
+          hre.ethers.constants.AddressZero,
           templateId,
           requestParameters,
           roles.sponsor.address,
           airnodeRequester.interface.getSighash('fulfillRequest')
         )
-      ).to.be.revertedWith('Template not registered');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
@@ -179,11 +179,9 @@ describe('fulfillRequest', function () {
     context('Signature is valid', function () {
       context('Fulfill function does not revert', function () {
         it('returns `true` and fulfills request', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
           await airnodeRequester.makeRequest(
+            airnodeAddress,
             templateId,
             requestParameters,
             roles.sponsor.address,
@@ -254,13 +252,11 @@ describe('fulfillRequest', function () {
       });
       context('Fulfill function reverts with string', function () {
         it('returns `false` with revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysReverts')
           );
           await airnodeRequester.makeRequest(
+            airnodeAddress,
             templateId,
             requestParameters,
             roles.sponsor.address,
@@ -331,13 +327,11 @@ describe('fulfillRequest', function () {
       });
       context('Fulfill function reverts without string', function () {
         it('returns `false` without revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysRevertsWithNoString')
           );
           await airnodeRequester.makeRequest(
+            airnodeAddress,
             templateId,
             requestParameters,
             roles.sponsor.address,
@@ -408,13 +402,11 @@ describe('fulfillRequest', function () {
       });
       context('Fulfill function runs out of gas', function () {
         it('returns `false` without revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysRunsOutOfGas')
           );
           await airnodeRequester.makeRequest(
+            airnodeAddress,
             templateId,
             requestParameters,
             roles.sponsor.address,
@@ -486,11 +478,9 @@ describe('fulfillRequest', function () {
     });
     context('Signature is not valid', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequest(
+          airnodeAddress,
           templateId,
           requestParameters,
           roles.sponsor.address,
@@ -544,11 +534,9 @@ describe('fulfillRequest', function () {
   });
   context('Request ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -586,11 +574,9 @@ describe('fulfillRequest', function () {
   });
   context('Airnode address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -628,11 +614,9 @@ describe('fulfillRequest', function () {
   });
   context('Requester address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -670,11 +654,9 @@ describe('fulfillRequest', function () {
   });
   context('Fulfill function ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -716,11 +698,9 @@ describe('failRequest', function () {
   context('Fulfillment parameters are correct', function () {
     context('Signature is valid', function () {
       it('fails request with an error message', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequest(
+          airnodeAddress,
           templateId,
           requestParameters,
           roles.sponsor.address,
@@ -773,11 +753,9 @@ describe('failRequest', function () {
     });
     context('Signature is not valid', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequest(
+          airnodeAddress,
           templateId,
           requestParameters,
           roles.sponsor.address,
@@ -829,11 +807,9 @@ describe('failRequest', function () {
   });
   context('Request ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -869,11 +845,9 @@ describe('failRequest', function () {
   });
   context('Airnode address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -909,11 +883,9 @@ describe('failRequest', function () {
   });
   context('Requester address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -949,11 +921,9 @@ describe('failRequest', function () {
   });
   context('Fulfill function ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequest(
+        airnodeAddress,
         templateId,
         requestParameters,
         roles.sponsor.address,
@@ -990,20 +960,18 @@ describe('failRequest', function () {
 });
 
 describe('makeRequestRelayed', function () {
-  context('Template is registered', function () {
+  context('Airnode address is not zero', function () {
     context('Parameters are not too long', function () {
       context('Relayer address is not zero', function () {
         context('Sponsor address is not zero', function () {
           context('Function selector is not zero', function () {
             it('makes relayed request', async function () {
-              await airnodeProtocol
-                .connect(roles.randomPerson)
-                .registerTemplate(airnodeAddress, endpointId, templateParameters);
               const expectedRequestId = await deriveExpectedRelayedRequestId(
                 airnodeRequester.interface.getSighash('fulfillRequest')
               );
               await expect(
                 airnodeRequester.makeRequestRelayed(
+                  airnodeAddress,
                   templateId,
                   requestParameters,
                   relayerAddress,
@@ -1029,11 +997,9 @@ describe('makeRequestRelayed', function () {
           });
           context('Function selector is zero', function () {
             it('reverts', async function () {
-              await airnodeProtocol
-                .connect(roles.randomPerson)
-                .registerTemplate(airnodeAddress, endpointId, templateParameters);
               await expect(
                 airnodeRequester.makeRequestRelayed(
+                  airnodeAddress,
                   templateId,
                   requestParameters,
                   relayerAddress,
@@ -1046,11 +1012,9 @@ describe('makeRequestRelayed', function () {
         });
         context('Sponsor address is zero', function () {
           it('reverts', async function () {
-            await airnodeProtocol
-              .connect(roles.randomPerson)
-              .registerTemplate(airnodeAddress, endpointId, templateParameters);
             await expect(
               airnodeRequester.makeRequestRelayed(
+                airnodeAddress,
                 templateId,
                 requestParameters,
                 relayerAddress,
@@ -1063,11 +1027,9 @@ describe('makeRequestRelayed', function () {
       });
       context('Relayer address is zero', function () {
         it('reverts', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           await expect(
             airnodeRequester.makeRequestRelayed(
+              airnodeAddress,
               templateId,
               requestParameters,
               hre.ethers.constants.AddressZero,
@@ -1080,11 +1042,9 @@ describe('makeRequestRelayed', function () {
     });
     context('Parameters are too long', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         await expect(
           airnodeRequester.makeRequestRelayed(
+            airnodeAddress,
             templateId,
             `0x${'01'.repeat(4096 + 1)}`,
             relayerAddress,
@@ -1095,17 +1055,18 @@ describe('makeRequestRelayed', function () {
       });
     });
   });
-  context('Template is not registered', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
       await expect(
         airnodeRequester.makeRequestRelayed(
+          hre.ethers.constants.AddressZero,
           templateId,
           requestParameters,
           relayerAddress,
           roles.sponsor.address,
           airnodeRequester.interface.getSighash('fulfillRequest')
         )
-      ).to.be.revertedWith('Template not registered');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
@@ -1115,13 +1076,11 @@ describe('fulfillRequestRelayed', function () {
     context('Signature is valid', function () {
       context('Fulfill function does not revert', function () {
         it('returns `true` and fulfills request', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRelayedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequest')
           );
           await airnodeRequester.makeRequestRelayed(
+            airnodeAddress,
             templateId,
             requestParameters,
             relayerAddress,
@@ -1196,13 +1155,11 @@ describe('fulfillRequestRelayed', function () {
       });
       context('Fulfill function reverts with string', function () {
         it('returns `false` with revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRelayedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysReverts')
           );
           await airnodeRequester.makeRequestRelayed(
+            airnodeAddress,
             templateId,
             requestParameters,
             relayerAddress,
@@ -1277,13 +1234,11 @@ describe('fulfillRequestRelayed', function () {
       });
       context('Fulfill function reverts without string', function () {
         it('returns `false` without revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRelayedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysRevertsWithNoString')
           );
           await airnodeRequester.makeRequestRelayed(
+            airnodeAddress,
             templateId,
             requestParameters,
             relayerAddress,
@@ -1358,13 +1313,11 @@ describe('fulfillRequestRelayed', function () {
       });
       context('Fulfill function runs out of gas', function () {
         it('returns `false` without revert string and fails', async function () {
-          await airnodeProtocol
-            .connect(roles.randomPerson)
-            .registerTemplate(airnodeAddress, endpointId, templateParameters);
           const requestId = await deriveExpectedRelayedRequestId(
             airnodeRequester.interface.getSighash('fulfillRequestAlwaysRunsOutOfGas')
           );
           await airnodeRequester.makeRequestRelayed(
+            airnodeAddress,
             templateId,
             requestParameters,
             relayerAddress,
@@ -1440,11 +1393,9 @@ describe('fulfillRequestRelayed', function () {
     });
     context('Signature is not valid', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequestRelayed(
+          airnodeAddress,
           templateId,
           requestParameters,
           relayerAddress,
@@ -1501,11 +1452,9 @@ describe('fulfillRequestRelayed', function () {
   });
   context('Request ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1545,11 +1494,9 @@ describe('fulfillRequestRelayed', function () {
   });
   context('Airnode address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1589,11 +1536,9 @@ describe('fulfillRequestRelayed', function () {
   });
   context('Requester address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1633,11 +1578,9 @@ describe('fulfillRequestRelayed', function () {
   });
   context('Relayer address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1677,11 +1620,9 @@ describe('fulfillRequestRelayed', function () {
   });
   context('Fulfill function ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1725,11 +1666,9 @@ describe('failRequestRelayed', function () {
   context('Fulfillment parameters are correct', function () {
     context('Signature is valid', function () {
       it('fails request with an error message', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequestRelayed(
+          airnodeAddress,
           templateId,
           requestParameters,
           relayerAddress,
@@ -1785,11 +1724,9 @@ describe('failRequestRelayed', function () {
     });
     context('Signature is not valid', function () {
       it('reverts', async function () {
-        await airnodeProtocol
-          .connect(roles.randomPerson)
-          .registerTemplate(airnodeAddress, endpointId, templateParameters);
         const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
         await airnodeRequester.makeRequestRelayed(
+          airnodeAddress,
           templateId,
           requestParameters,
           relayerAddress,
@@ -1844,11 +1781,9 @@ describe('failRequestRelayed', function () {
   });
   context('Request ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1886,11 +1821,9 @@ describe('failRequestRelayed', function () {
   });
   context('Airnode address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1928,11 +1861,9 @@ describe('failRequestRelayed', function () {
   });
   context('Requester address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -1970,11 +1901,9 @@ describe('failRequestRelayed', function () {
   });
   context('Relayer address is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
@@ -2012,11 +1941,9 @@ describe('failRequestRelayed', function () {
   });
   context('Fulfill function ID is not correct', function () {
     it('reverts', async function () {
-      await airnodeProtocol
-        .connect(roles.randomPerson)
-        .registerTemplate(airnodeAddress, endpointId, templateParameters);
       const requestId = await deriveExpectedRelayedRequestId(airnodeRequester.interface.getSighash('fulfillRequest'));
       await airnodeRequester.makeRequestRelayed(
+        airnodeAddress,
         templateId,
         requestParameters,
         relayerAddress,
