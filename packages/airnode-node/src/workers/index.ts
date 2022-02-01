@@ -12,6 +12,16 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
       return gcp.spawn(params);
 
     case 'local':
-      return localHandlers[params.functionName](params.payload);
+      if (params.payload.functionName === 'initializeProvider') {
+        return localHandlers.initializeProvider(params.payload);
+      }
+      if (params.payload.functionName === 'processProviderRequests') {
+        return localHandlers.processProviderRequests(params.payload);
+      }
+      if (params.payload.functionName === 'callApi') {
+        return localHandlers.callApi(params.payload);
+      }
+
+      throw new Error(`Invalid function name. ${params}'`);
   }
 }

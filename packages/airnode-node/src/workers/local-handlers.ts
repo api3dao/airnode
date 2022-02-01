@@ -3,28 +3,8 @@ import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
-import {
-  AggregatedApiCall,
-  EVMProviderState,
-  EVMProviderSponsorState,
-  LogOptions,
-  ProviderState,
-  WorkerResponse,
-} from '../types';
+import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
 import { go } from '../utils/promise-utils';
-
-export interface ProviderArgs {
-  readonly state: ProviderState<EVMProviderState>;
-}
-
-export interface ProviderSponsorArgs {
-  readonly state: ProviderState<EVMProviderSponsorState>;
-}
-
-export interface CallApiArgs {
-  readonly aggregatedApiCall: AggregatedApiCall;
-  readonly logOptions: LogOptions;
-}
 
 function loadConfig() {
   const { config, shouldSkipValidation, validationOutput } = parseConfig(
@@ -49,7 +29,7 @@ export async function startCoordinator(): Promise<WorkerResponse> {
   return { ok: true, data: { message: 'Coordinator completed' } };
 }
 
-export async function initializeProvider({ state: providerState }: ProviderArgs): Promise<WorkerResponse> {
+export async function initializeProvider({ state: providerState }: InitializeProviderPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
@@ -64,14 +44,16 @@ export async function initializeProvider({ state: providerState }: ProviderArgs)
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }: CallApiArgs): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const [logs, response] = await handlers.callApi({ config, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }
 
-export async function processProviderRequests({ state: providerState }: ProviderSponsorArgs): Promise<WorkerResponse> {
+export async function processProviderRequests({
+  state: providerState,
+}: ProcessTransactionsPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 

@@ -13,19 +13,9 @@ export async function startCoordinator(...args: unknown[]) {
   return await handler.startCoordinator(...args);
 }
 
-export async function initializeProvider(...args: unknown[]) {
+export async function run(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.initializeProvider(...args);
-}
-
-export async function callApi(...args: unknown[]) {
-  const handler = await cloudHandler();
-  return await handler.callApi(...args);
-}
-
-export async function processProviderRequests(...args: unknown[]) {
-  const handler = await cloudHandler();
-  return await handler.processProviderRequests(...args);
+  return await handler.run(...args);
 }
 
 export async function testApi(...args: unknown[]) {
