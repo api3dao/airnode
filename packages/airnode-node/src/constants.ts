@@ -1,8 +1,8 @@
 // The maximum TOTAL time an API call has before it is timed out (including retries).
-export const API_CALL_TOTAL_TIMEOUT = 10_000;
+export const API_CALL_TOTAL_TIMEOUT = 30_000;
 
 // The maximum time an API call has before it is timed out (and retried).
-export const API_CALL_TIMEOUT = 10_000;
+export const API_CALL_TIMEOUT = 30_000;
 
 // The number of past blocks to lookup when fetching Airnode RRP events.
 export const BLOCK_COUNT_HISTORY_LIMIT = 300;
@@ -22,22 +22,22 @@ export const BLOCK_MIN_CONFIRMATIONS = 0;
 export const CONVENIENCE_BATCH_SIZE = 10;
 
 // The default amount of time before a "retryable" promise is timed out and retried
-export const DEFAULT_RETRY_TIMEOUT_MS = 5_000;
+export const DEFAULT_RETRY_TIMEOUT_MS = 30_000;
 
 // The default amount of time to wait before retrying a given promise
 export const DEFAULT_RETRY_DELAY_MS = 50;
 
 // The amount of time EVM provider calls are allowed
-export const EVM_PROVIDER_TIMEOUT = 22_000;
+export const EVM_PROVIDER_TIMEOUT = 20_000;
 
 // The maximum amount of time the "initialize provider" worker is allowed before being timed out
-export const WORKER_PROVIDER_INITIALIZATION_TIMEOUT = 17_000;
+export const WORKER_PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
 // The maximum amount of time the "process requests" worker is allowed before being timed out
-export const WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT = 32_000;
+export const WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT = 10_000;
 
 // The maximum amount of time the "call API" worker is allowed before being timed out
-export const WORKER_CALL_API_TIMEOUT = 10_000;
+export const WORKER_CALL_API_TIMEOUT = 30_000;
 
 // The maximum number of requests for a single sponsor wallet in a single Airnode run cycle
 export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
