@@ -18,7 +18,8 @@ contract AccessControlRegistryAdminnedWithManager is
     /// transferring managership.
     address public immutable override manager;
 
-    // Since `manager` is immutable, so is `adminRole`
+    /// @notice Admin role
+    /// @dev Since `manager` is immutable, so is `adminRole`
     bytes32 public immutable override adminRole;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address

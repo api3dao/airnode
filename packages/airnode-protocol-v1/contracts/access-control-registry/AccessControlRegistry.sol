@@ -58,7 +58,7 @@ contract AccessControlRegistry is
     /// the sender
     /// @dev If the sender should not have the initialized role, they should
     /// explicitly renounce it after initializing it.
-    /// Once a role is initialized, subsequent initialization have no effect,
+    /// Once a role is initialized, subsequent initializations have no effect
     /// other than granting the role to the sender.
     /// The sender must be a member of `adminRole`. `adminRole` value is not
     /// validated because the sender cannot have the `bytes32(0)` role.
