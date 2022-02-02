@@ -43,10 +43,10 @@ contract StorageUtils is IStorageUtils {
     /// for them to be specified in the configuration file.
     uint256 public constant override MAXIMUM_PARAMETER_LENGTH = 4096;
 
-    /// @notice Returns the template details with the ID
+    /// @notice Template details with the ID
     mapping(bytes32 => Template) public override templates;
 
-    /// @notice Returns the subscription details with the ID
+    /// @notice Subscription details with the ID
     mapping(bytes32 => Subscription) public override subscriptions;
 
     /// @notice Stores template details

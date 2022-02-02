@@ -17,13 +17,12 @@ import "./interfaces/ISponsorshipUtils.sol";
 /// fulfillments, as they know that funds they have deposited in the respective
 /// sponsor wallet will only be used for use-cases they have sponsored.
 contract SponsorshipUtils is ISponsorshipUtils {
-    /// @notice Returns the sponsorship status for a sponsor–RRP requester pair
+    /// @notice Sponsorship status for a sponsor–RRP requester pair
     mapping(address => mapping(address => bool))
         public
         override sponsorToRequesterToRrpSponsorshipStatus;
 
-    /// @notice Returns the sponsorship status for a sponsor–PSP subscription
-    /// pair
+    /// @notice Sponsorship status for a sponsor–PSP subscription pair
     mapping(address => mapping(bytes32 => bool))
         public
         override sponsorToSubscriptionIdToPspSponsorshipStatus;

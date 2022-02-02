@@ -7,13 +7,25 @@ import "./Median.sol";
 import "./interfaces/IDapiServer.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-/// @title Contract that serves Beacons and dAPIs using the Airnode protocol
-/// @notice A Beacon is a live data point addressed by an ID, which is
-/// derived from a template ID and additional parameters. This is suitable
-/// where the more recent data point is always more favorable, e.g., in the
-/// context of an asset price data feed. Beacons can also be seen as
-/// one-Airnode data feeds that can be used individually or combined to build
-/// dAPIs.
+/// @title Contract that serves Beacons and dAPIs based on the Airnode protocol
+/// @notice A Beacon is a live data point addressed by an ID, which is derived
+/// from an Airnode address and a template ID. This is suitable where the more
+/// recent data point is always more favorable, e.g., in the context of an
+/// asset price data feed. Beacons can also be seen as one-Airnode data feeds
+/// that can be used individually or combined to build dAPIs.
+/// @dev DapiServer is a PSP requester contract. Unlike RRP, which is
+/// implemented as a central contract, PSP implementation is built into the
+/// requester for optimization. Accordingly, the checks that are not required
+/// are omitted. Some examples:
+/// - While executing a PSP beacon update, the condition is not verified
+/// because beacon updates where the condition returns `false` (i.e., the
+/// on-chain value is already close to the actual value) are not harmful, and
+/// are even desirable.
+/// - PSP dAPI update subscription IDs are not verified, as the Airnode/relayer
+/// cannot be made to "misreport a dAPI update" by spoofing a subscription ID.
+/// - While executing a PSP dAPI update, even the signature is not checked
+/// because this is a purely keeper job that does not require off-chain data.
+/// Similar to beacon updates, any dAPI update is welcome.
 contract DapiServer is
     WhitelistWithManager,
     AirnodeRequester,
@@ -21,6 +33,7 @@ contract DapiServer is
     IDapiServer
 {
     using ECDSA for bytes32;
+
     // Airnodes serve their fulfillment data along with timestamps. This
     // contract casts the reported data to `int224` and the timestamp to
     // `uint32`, which works until year 2106.
@@ -38,7 +51,7 @@ contract DapiServer is
         "Name setter";
 
     /// @notice Number that represents 100%
-    /// @dev 10^8 is chosen (and not a larger number) to avoid overflows in
+    /// @dev 10^8 (and not a larger number) is chosen to avoid overflows in
     /// `calculateUpdateInPercentage()`. Since the reported data needs to fit
     /// into 224 bits, its multiplication by 10^8 is guaranteed not to
     /// overflow.
@@ -50,33 +63,32 @@ contract DapiServer is
     /// @notice Name setter role
     bytes32 public immutable override nameSetterRole;
 
-    /// @notice If a sponsor has permitted an account to request updates at
-    /// this contract
+    /// @notice If a sponsor has permitted an account to request RRP-based
+    /// updates at this contract
     mapping(address => mapping(address => bool))
         public
-        override sponsorToUpdateRequesterToPermissionStatus;
+        override sponsorToRrpBeaconUpdateRequesterToPermissionStatus;
 
+    /// @notice ID of the beacon that the subscription is registered to update
     mapping(bytes32 => bytes32) public override subscriptionIdToBeaconId;
-
-    mapping(bytes32 => bytes32) private subscriptionIdToHash;
-
-    mapping(bytes32 => bytes32) private nameHashToDataPointId;
 
     mapping(bytes32 => DataPoint) private dataPoints;
 
     mapping(bytes32 => bytes32) private requestIdToBeaconId;
 
-    // The template ID to Airnode address mapping is cached to avoid having to
-    // make repeated external calls
-    mapping(bytes32 => address) private templateIdToAirnode;
+    mapping(bytes32 => bytes32) private subscriptionIdToHash;
 
-    /// @dev Reverts if the sender is not permitted to request an update with
-    /// the sponsor and is not the sponsor
+    mapping(bytes32 => bytes32) private nameHashToDataPointId;
+
+    /// @dev Reverts if the sender is not permitted to request an RRP-based
+    /// update with the sponsor and is not the sponsor
     /// @param sponsor Sponsor address
     modifier onlyPermittedUpdateRequester(address sponsor) {
         require(
             sponsor == msg.sender ||
-                sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
+                sponsorToRrpBeaconUpdateRequesterToPermissionStatus[sponsor][
+                    msg.sender
+                ],
             "Sender not permitted"
         );
         _;
@@ -113,34 +125,38 @@ contract DapiServer is
 
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
-    /// @param updateRequester Update requester address
-    /// @param status Update permission status of the update requester
-    function setUpdatePermissionStatus(address updateRequester, bool status)
-        external
-        override
-    {
-        require(updateRequester != address(0), "Update requester zero");
-        sponsorToUpdateRequesterToPermissionStatus[msg.sender][
-            updateRequester
+    /// @param rrpBeaconUpdateRequester RRP-based beacon update requester
+    /// address
+    /// @param status Permission status
+    function setRrpBeaconUpdatePermissionStatus(
+        address rrpBeaconUpdateRequester,
+        bool status
+    ) external override {
+        require(
+            rrpBeaconUpdateRequester != address(0),
+            "Update requester zero"
+        );
+        sponsorToRrpBeaconUpdateRequesterToPermissionStatus[msg.sender][
+            rrpBeaconUpdateRequester
         ] = status;
-        emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
+        emit SetRrpBeaconUpdatePermissionStatus(
+            msg.sender,
+            rrpBeaconUpdateRequester,
+            status
+        );
     }
 
-    /// @notice Requests a Beacon to be updated
-    /// @dev There are two requirements for this method to be called: (1) The
-    /// sponsor must call `setRrpSponsorshipStatus()` of AirnodeProtocol to
-    /// sponsor this DapiServer contract, (2) The sponsor must call
-    /// `setUpdatePermissionStatus()` of this DapiServer contract to give
-    /// request update permission to the user of this method.
-    /// The template and additional parameters used here must specify a single
-    /// point of data of type `int256` because this is what
-    /// `fulfillRrpBeaconUpdate()` expects. This point of data must be castable
-    /// to `int224`.
-    /// The sponsor and the update requester in the event are indexed to allow
-    /// keepers to keep track of their update requests.
-    /// @param templateId Template ID of the Beacon to be updated
-    /// @param sponsor Address of the sponsor whose wallet will be used to
-    /// fulfill the request
+    /// @notice Creates an RRP requests for the Beacon to be updated
+    /// @dev In addition to the sponsor sponsoring this contract (by calling
+    /// `setRrpSponsorshipStatus()`), the sponsor must also give update request
+    /// permission to the sender (by calling
+    /// `setRrpBeaconUpdatePermissionStatus()`) before this method is called.
+    /// The template must specify a single point of data of type `int256` to be
+    /// returned and for it to be small enough to be castable to `int224`
+    /// because this is what `fulfillRrpBeaconUpdate()` expects.
+    /// @param airnode Airnode address
+    /// @param templateId Template ID
+    /// @param sponsor Sponsor address
     /// @return requestId Request ID
     function requestRrpBeaconUpdate(
         address airnode,
@@ -171,11 +187,11 @@ contract DapiServer is
         );
     }
 
-    /// @notice Requests a Beacon to be updated by a relayer
-    /// @param templateId Template ID of the Beacon to be updated
+    /// @notice Creates an RRP requests for the Beacon to be updated by the relayer
+    /// @param airnode Airnode address
+    /// @param templateId Template ID
     /// @param relayer Relayer address
-    /// @param sponsor Address of the sponsor whose wallet will be used to
-    /// fulfill the request
+    /// @param sponsor Sponsor address
     /// @return requestId Request ID
     function requestRrpBeaconUpdateRelayed(
         address airnode,
@@ -209,11 +225,11 @@ contract DapiServer is
         );
     }
 
-    /// @notice Called by the Airnode through AirnodeProtocol to fulfill the
-    /// request
+    /// @notice Called by the Airnode/relayer using the sponsor wallet through
+    /// AirnodeProtocol to fulfill the request
     /// @param requestId Request ID
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (an `int256` encoded in contract ABI)
     function fulfillRrpBeaconUpdate(
         bytes32 requestId,
         uint256 timestamp,
@@ -222,28 +238,20 @@ contract DapiServer is
         bytes32 beaconId = requestIdToBeaconId[requestId];
         delete requestIdToBeaconId[requestId];
         int256 decodedData = processBeaconUpdate(beaconId, timestamp, data);
-        emit UpdatedBeaconWithRrp(
-            beaconId,
-            requestId,
-            int224(decodedData),
-            uint32(timestamp)
-        );
+        emit UpdatedBeaconWithRrp(beaconId, requestId, decodedData, timestamp);
     }
 
     ///                     ~~~PSP Beacon updates~~~
 
-    /// @notice Registers which Beacon the respective subscription should
-    /// update
+    /// @notice Registers the Beacon update subscription
     /// @dev Similar to how one needs to call `requestRrpBeaconUpdate()` for
     /// this contract to recognize the incoming RRP fulfillment, this needs to
-    /// be called before subscription fulfillments.
-    /// There is an additional requirement for this subscription to work: The
-    /// sponsor must call `setRrpSponsorshipStatus()` of AirnodeProtocol to
-    /// sponsor this DapiServer contract. Notice that there is no counterpart
-    /// to `setUpdatePermissionStatus()` here. This is because whether if a
-    /// subscription is permitted by its sponsor is checked by the slot setters
-    /// of Allocators, and not here.
-    /// @param templateId Template ID
+    /// be called before the subscription fulfillments.
+    /// In addition to the subscription being registered, the sponsor must use
+    /// `setPspSponsorshipStatus()` to give permission for its sponsor wallet
+    /// to be used for the specific subscription.
+    /// @param airnode Airnode address
+    /// @param templateId Template ID (not allowed to be `bytes32(0)`)
     /// @param conditions Conditions under which the subscription is requested
     /// to be fulfilled
     /// @param relayer Relayer address
@@ -258,6 +266,7 @@ contract DapiServer is
         address sponsor
     ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
         require(airnode != address(0), "Airnode address zero");
+        require(templateId != bytes32(0), "Template ID zero");
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         subscriptionId = keccak256(
@@ -293,16 +302,16 @@ contract DapiServer is
         );
     }
 
-    /// @notice Returns true if the respective Beacon needs to be updated based
-    /// on the fulfillment data and the condition parameters
+    /// @notice Returns if the respective Beacon needs to be updated based on
+    /// the fulfillment data and the condition parameters
     /// @dev Reverts if not called by a void signer with zero address because
-    /// this method can be used to read from a Beacon indirectly.
-    /// Airnode derives `conditionParameters` out of the `conditions` field of
-    /// a Subscription.
+    /// this method can be used to indirectly read a Beacon.
+    /// `conditionParameters` are specified within the `conditions` field of a
+    /// Subscription.
     /// @param subscriptionId Subscription ID
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    /// @param conditionParameters Subscription condition parameters (a single
-    /// `uint256` encoded as `bytes`)
+    /// @param data Fulfillment data (an `int256` encoded in contract ABI)
+    /// @param conditionParameters Subscription condition parameters (a
+    /// `uint256` encoded in contract ABI)
     /// @return If the Beacon update subscription should be fulfilled
     function conditionPspBeaconUpdate(
         bytes32 subscriptionId,
@@ -319,13 +328,20 @@ contract DapiServer is
             ) >= decodeConditionParameters(conditionParameters);
     }
 
-    /// @notice Called by the Airnode through AirnodeProtocol to fulfill the
-    /// beacon update subscription
+    /// @notice Called by the Airnode/relayer using the sponsor wallet to
+    /// fulfill the beacon update subscription
     /// @dev There is no need to verify that `conditionPspBeaconUpdate()`
     /// returns `true` because any Beacon update is a good Beacon update
-    /// @param subscriptionId ID of the subscription being fulfilled
+    /// @param subscriptionId Subscription ID
+    /// @param airnode Airnode address
+    /// @param relayer Relayer address
+    /// @param sponsor Sponsor address
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (a single `int256` encoded in contract
+    /// ABI)
+    /// @param signature Subscription ID, timestamp, sponsor wallet address
+    /// (and fulfillment data if the relayer is not the Airnode) signed by the
+    /// Airnode wallet
     function fulfillPspBeaconUpdate(
         bytes32 subscriptionId,
         address airnode,
@@ -378,11 +394,13 @@ contract DapiServer is
 
     ///                     ~~~Signed data Beacon updates~~~
 
-    /// @notice Updates a Beacon using data signed by the respective Airnode
+    /// @notice Updates a Beacon using data signed by the respective Airnode,
+    /// without requiring a request or subscription
+    /// @param airnode Airnode address
     /// @param templateId Template ID
     /// @param timestamp Timestamp used in the signature
-    /// @param data Response data (a single `int256` encoded as `bytes`)
-    /// @param signature Request hash, a timestamp and the response data signed
+    /// @param data Response data (an `int256` encoded in contract ABI)
+    /// @param signature Template ID, a timestamp and the response data signed
     /// by the Airnode address
     function updateBeaconWithSignedData(
         address airnode,
@@ -405,7 +423,7 @@ contract DapiServer is
 
     ///                     ~~~PSP dAPI updates~~~
 
-    /// @notice Updates the dAPI that is comprised by the Beacons with the IDs
+    /// @notice Updates the dAPI that is specified by the beacon IDs
     /// @param beaconIds Beacon IDs
     /// @return dapiId dAPI ID
     function updateDapiWithBeacons(bytes32[] memory beaconIds)
@@ -436,24 +454,21 @@ contract DapiServer is
         emit UpdatedDapiWithBeacons(dapiId, updatedValue, updatedTimestamp);
     }
 
-    /// @notice Returns true if the respective dAPI needs to be updated based
-    /// on the fulfillment data and the condition parameters
-    /// @dev This method does not allow the caller to read from a dAPI
-    /// indirectly and thus is not protected, which allows implementation of
-    /// mechanics such as rewarding keepers that trigger substantial dAPI
-    /// updates.
-    /// The respective Airnode does not need to make an API call before
-    /// checking this condition. In such cases, the endpoint ID of the template
-    /// of the respective subscription is set to zero, which indicates to the
-    /// Airnode that it should forward the template parameters as `data` to the
-    /// condition. Therefore, `data` here is the `parameters` field from the
-    /// template used in the subscription.
-    /// We do not care about the subscription ID as long as `data` and
-    /// `conditionParameters` are formatted correctly.
+    /// @notice Returns if the respective dAPI needs to be updated based on the
+    /// condition parameters
+    /// @dev This method does not allow the caller to indirectly read a dAPI,
+    /// which is why it does not require the sender to be a void signer with
+    /// zero address. This allows the implementation of incentive mechanisms
+    /// that rewards keepers that trigger valid dAPI updates.
+    /// The template ID used in the respective Subscription is expected to be
+    /// zero, which means the `parameters` field of the Subscription will be
+    /// forwarded to this function as `data`. This field should be the beacon
+    /// ID array encoded in contract ABI.
     /// @param subscriptionId Subscription ID
-    /// @param data Fulfillment data (array of Beacon IDs)
-    /// @param conditionParameters Subscription condition parameters (a single
-    /// `uint256` encoded as `bytes`)
+    /// @param data Fulfillment data (array of beacon IDs, i.e., `bytes32[]`
+    /// encoded in contract ABI)
+    /// @param conditionParameters Subscription condition parameters (a
+    /// `uint256` encoded in contract ABI)
     /// @return If the dAPI update subscription should be fulfilled
     function conditionPspDapiUpdate(
         bytes32 subscriptionId, // solhint-disable-line no-unused-vars
@@ -473,21 +488,28 @@ contract DapiServer is
             ) >= decodeConditionParameters(conditionParameters);
     }
 
-    /// @notice Called by the Airnode through AirnodeProtocol to fulfill the
-    /// dAPI update subscription
-    /// @dev There is no need to verify that `conditionPspDapiUpdate()`
-    /// returns `true` because any dAPI update is a good dAPI update.
-    /// Similar to Beacon update subscriptions, the sponsor must call
-    /// `setRrpSponsorshipStatus()` of AirnodeProtocol to sponsor this DapiServer
-    /// contract.
-    /// We do not care about the subscription ID as long as `data` is formatted
-    /// correctly.
-    /// `onlyAirnodeProtocol` and `onlyValidTimestamp` can be omitted, but we
-    /// are keeping them to prevent subscription fulfillments from being
-    /// spoofed.
-    /// @param subscriptionId ID of the subscription being fulfilled
+    /// @notice Called by the Airnode/relayer using the sponsor wallet to
+    /// fulfill the dAPI update subscription
+    /// @dev Similar to `conditionPspDapiUpdate()`, if `templateId` of the
+    /// Subscription is zero, its `parameters` field will be forwarded to
+    /// `data` here, which is expect to be contract ABI-encoded array of beacon
+    /// IDs.
+    /// It does not make sense for this subscription to be relayed, as there is
+    /// no external data being delivered. Nevertheless, this is allowed for the
+    /// lack of a reason to prevent it.
+    /// Even though the consistency of the arguments are not being checked, if
+    /// a standard implementation of Airnode is being used, these can be
+    /// expected to be correct. Either way, the assumption is that it does not
+    /// matter for the purposes of a dAPI update subscription.
+    /// @param subscriptionId Subscription ID
+    /// @param airnode Airnode address
+    /// @param relayer Relayer address
+    /// @param sponsor Sponsor address
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (an `int256` encoded in contract ABI)
+    /// @param signature Subscription ID, timestamp, sponsor wallet address
+    /// (and fulfillment data if the relayer is not the Airnode) signed by the
+    /// Airnode wallet
     function fulfillPspDapiUpdate(
         bytes32 subscriptionId, // solhint-disable-line no-unused-vars
         address airnode, // solhint-disable-line no-unused-vars
@@ -506,16 +528,17 @@ contract DapiServer is
 
     ///                     ~~~Signed data dAPI updates~~~
 
-    /// @notice Updates a dAPI using data signed by the respective Airnodes.
-    /// The beacons for which the signature is omitted will be read from the
-    /// storage.
+    /// @notice Updates a dAPI using data signed by the respective Airnodes
+    /// without requiring a request or subscription. The beacons for which the
+    /// signature is omitted will be read from the storage.
+    /// @param airnodes Airnode addresses
     /// @param templateIds Template IDs
     /// @param timestamps Timestamps used in the signatures
-    /// @param data Response data (a single `int256` encoded as `bytes` per
-    /// beacon)
-    /// @param signatures Request hash, a timestamp and the response data signed
-    /// by the respective Airnode addresses
-    /// @return dapiId ID of the dAPI that is updated
+    /// @param data Response data (an `int256` encoded in contract ABI per
+    /// Beacon)
+    /// @param signatures Template ID, a timestamp and the response data signed
+    /// by the respective Airnode address per Beacon
+    /// @return dapiId dAPI ID
     function updateDapiWithSignedData(
         address[] memory airnodes,
         bytes32[] memory templateIds,
@@ -616,7 +639,7 @@ contract DapiServer is
     }
 
     /// @notice Reads the data point with ID
-    /// @param dataPointId ID of the data point that will be read
+    /// @param dataPointId Data point ID
     /// @return value Data point value
     /// @return timestamp Data point timestamp
     function readWithDataPointId(bytes32 dataPointId)
@@ -634,8 +657,9 @@ contract DapiServer is
     }
 
     /// @notice Reads the data point with name
-    /// @dev The read data point may belong to a Beacon or dAPI
-    /// @param name Name of the data point
+    /// @dev The read data point may belong to a Beacon or dAPI. The reader
+    /// must be whitelisted for the hash of the data point name.
+    /// @param name Data point name
     /// @return value Data point value
     /// @return timestamp Data point timestamp
     function readWithName(bytes32 name)
@@ -655,10 +679,10 @@ contract DapiServer is
         return (dataPoint.value, dataPoint.timestamp);
     }
 
-    /// @notice Returns if a reader is whitelisted to read the data point
-    /// @param dataPointId Data point ID
+    /// @notice Returns if a reader can read the data point
+    /// @param dataPointId Data point ID (or data point name hash)
     /// @param reader Reader address
-    /// @return isWhitelisted If the reader is whitelisted
+    /// @return If the reader can read the data point
     function readerCanReadDataPoint(bytes32 dataPointId, address reader)
         public
         view
@@ -676,12 +700,12 @@ contract DapiServer is
 
     /// @notice Returns the detailed whitelist status of the reader for the
     /// data point
-    /// @param dataPointId Data point ID
+    /// @param dataPointId Data point ID (or data point name hash)
     /// @param reader Reader address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
     /// reader will expire
     /// @return indefiniteWhitelistCount Number of times `reader` was
-    /// whitelisted indefinitely for `id`
+    /// whitelisted indefinitely for `dataPointId`
     function dataPointIdToReaderToWhitelistStatus(
         bytes32 dataPointId,
         address reader
@@ -701,7 +725,7 @@ contract DapiServer is
 
     /// @notice Returns if an account has indefinitely whitelisted the reader
     /// for the data point
-    /// @param dataPointId Data point ID
+    /// @param dataPointId Data point ID (or data point name hash)
     /// @param reader Reader address
     /// @param setter Address of the account that has potentially whitelisted
     /// the reader for the data point indefinitely
@@ -717,8 +741,8 @@ contract DapiServer is
         ][reader][setter];
     }
 
-    /// @notice Derives the Beacon ID from the respective template ID and
-    /// additional parameters
+    /// @notice Derives the Beacon ID from the Airnode address and template ID
+    /// @param airnode Airnode address
     /// @param templateId Template ID
     /// @return beaconId Beacon ID
     function deriveBeaconId(address airnode, bytes32 templateId)
@@ -731,7 +755,7 @@ contract DapiServer is
     }
 
     /// @notice Derives the dAPI ID from the beacon IDs
-    /// @dev `abi.encode()` is used over `abi.encodePacked()`
+    /// @dev Notice that `abi.encode()` is used over `abi.encodePacked()`
     /// @param beaconIds Beacon IDs
     /// @return dapiId dAPI ID
     function deriveDapiId(bytes32[] memory beaconIds)
@@ -746,7 +770,7 @@ contract DapiServer is
     /// @notice Called privately to process the Beacon update
     /// @param beaconId Beacon ID
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (an `int256` encoded in contract ABI)
     /// @return updatedBeaconValue Updated Beacon value
     function processBeaconUpdate(
         bytes32 beaconId,
@@ -767,7 +791,7 @@ contract DapiServer is
     }
 
     /// @notice Called privately to decode the fulfillment data
-    /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
+    /// @param data Fulfillment data (an `int256` encoded in contract ABI)
     /// @return decodedData Decoded fulfillment data
     function decodeFulfillmentData(bytes memory data)
         private
@@ -784,8 +808,8 @@ contract DapiServer is
     }
 
     /// @notice Called privately to decode the condition parameters
-    /// @param conditionParameters Condition parameters (a single `uint256`
-    /// encoded as `bytes`)
+    /// @param conditionParameters Condition parameters (a `uint256` encoded in
+    /// contract ABI)
     /// @return updateThresholdInPercentage Update threshold in percentage
     /// where 100% is represented as `HUNDRED_PERCENT`
     function decodeConditionParameters(bytes calldata conditionParameters)
@@ -800,9 +824,8 @@ contract DapiServer is
         );
     }
 
-    /// @notice Called privately to calculate update that the second value does
-    /// over the first value in percentage where 100% is represented as
-    /// `HUNDRED_PERCENT`
+    /// @notice Called privately to calculate the update magnitude in
+    /// percentages where 100% is represented as `HUNDRED_PERCENT`
     /// @dev The percentage changes will be more pronounced when the first
     /// value is almost zero, which may trigger updates more frequently than
     /// wanted. To avoid this, Beacons should be defined in a way that the
@@ -810,23 +833,22 @@ contract DapiServer is
     /// offset and scale.
     /// @param initialValue Initial value
     /// @param updatedValue Updated value
-    /// @return updateInPercentage Update in percentage where 100% is
-    /// represented as `HUNDRED_PERCENT`
+    /// @return updateInPercentage Update in percentage
     function calculateUpdateInPercentage(
         int224 initialValue,
         int224 updatedValue
     ) private pure returns (uint256 updateInPercentage) {
         int256 delta = int256(updatedValue) - int256(initialValue);
         uint256 absoluteDelta = delta > 0 ? uint256(delta) : uint256(-delta);
-        uint256 absoluteFirstValue = initialValue > 0
+        uint256 absoluteInitialValue = initialValue > 0
             ? uint256(int256(initialValue))
             : uint256(-int256(initialValue));
         // Avoid division by 0
-        if (absoluteFirstValue == 0) {
-            absoluteFirstValue = 1;
+        if (absoluteInitialValue == 0) {
+            absoluteInitialValue = 1;
         }
         updateInPercentage =
             (absoluteDelta * HUNDRED_PERCENT) /
-            absoluteFirstValue;
+            absoluteInitialValue;
     }
 }

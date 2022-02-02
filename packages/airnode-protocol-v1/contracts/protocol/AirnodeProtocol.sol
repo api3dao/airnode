@@ -28,7 +28,7 @@ contract AirnodeProtocol is
 {
     using ECDSA for bytes32;
 
-    /// @notice Returns the number of requests the requester made
+    /// @notice Number of requests the requester made
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
     mapping(address => uint256) public override requesterToRequestCount;

@@ -24,10 +24,10 @@ import "./interfaces/IWithdrawalUtils.sol";
 contract WithdrawalUtils is IWithdrawalUtils {
     using ECDSA for bytes32;
 
-    /// @notice Returns the sponsor balance that is withdrawn but not claimed
+    /// @notice Sponsor balance that is withdrawn but not claimed
     mapping(address => uint256) public override sponsorToBalance;
 
-    /// @notice Returns the number of withdrawal requests the sponsor made
+    /// @notice Number of withdrawal requests the sponsor made
     /// @dev This can be used to calculate the ID of the next withdrawal
     /// request the sponsor will make
     mapping(address => uint256) public override sponsorToWithdrawalRequestCount;

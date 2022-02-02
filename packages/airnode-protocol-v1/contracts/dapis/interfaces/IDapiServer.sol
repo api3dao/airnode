@@ -4,9 +4,9 @@ pragma solidity 0.8.9;
 import "../../protocol/interfaces/IAirnodeRequester.sol";
 
 interface IDapiServer is IAirnodeRequester {
-    event SetUpdatePermissionStatus(
+    event SetRrpBeaconUpdatePermissionStatus(
         address indexed sponsor,
-        address indexed updateRequester,
+        address indexed rrpBeaconUpdateRequester,
         bool status
     );
 
@@ -32,8 +32,8 @@ interface IDapiServer is IAirnodeRequester {
     event UpdatedBeaconWithRrp(
         bytes32 indexed beaconId,
         bytes32 requestId,
-        int224 value,
-        uint32 timestamp
+        int256 value,
+        uint256 timestamp
     );
 
     event RegisteredBeaconUpdateSubscription(
@@ -79,8 +79,10 @@ interface IDapiServer is IAirnodeRequester {
         address indexed sender
     );
 
-    function setUpdatePermissionStatus(address updateRequester, bool status)
-        external;
+    function setRrpBeaconUpdatePermissionStatus(
+        address rrpBeaconUpdateRequester,
+        bool status
+    ) external;
 
     function requestRrpBeaconUpdate(
         address airnode,
@@ -127,7 +129,7 @@ interface IDapiServer is IAirnodeRequester {
 
     function updateBeaconWithSignedData(
         address airnode,
-        bytes32 templateId,
+        bytes32 beaconId,
         uint256 timestamp,
         bytes calldata data,
         bytes calldata signature
@@ -223,7 +225,7 @@ interface IDapiServer is IAirnodeRequester {
 
     function nameSetterRole() external view returns (bytes32);
 
-    function sponsorToUpdateRequesterToPermissionStatus(
+    function sponsorToRrpBeaconUpdateRequesterToPermissionStatus(
         address sponsor,
         address updateRequester
     ) external view returns (bool);

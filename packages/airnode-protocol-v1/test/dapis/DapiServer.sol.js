@@ -73,7 +73,7 @@ async function setUpRoles() {
     .initializeRoleAndGrantToSender(adminRole, await dapiServer.NAME_SETTER_ROLE_DESCRIPTION());
   await accessControlRegistry.connect(roles.manager).grantRole(nameSetterRole, roles.nameSetter.address);
 
-  await dapiServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+  await dapiServer.connect(roles.sponsor).setRrpBeaconUpdatePermissionStatus(roles.updateRequester.address, true);
 }
 
 async function setUpSponsorWallets() {
@@ -806,30 +806,43 @@ describe('constructor', function () {
   });
 });
 
-describe('setUpdatePermissionStatus', function () {
+describe('setRrpBeaconUpdatePermissionStatus', function () {
   context('Update requester is not zero address', function () {
-    it('sets update permission status', async function () {
+    it('sets RRP-based beacon update permission status', async function () {
       expect(
-        await dapiServer.sponsorToUpdateRequesterToPermissionStatus(roles.sponsor.address, roles.randomPerson.address)
+        await dapiServer.sponsorToRrpBeaconUpdateRequesterToPermissionStatus(
+          roles.sponsor.address,
+          roles.randomPerson.address
+        )
       ).to.equal(false);
-      await expect(dapiServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.randomPerson.address, true))
-        .to.emit(dapiServer, 'SetUpdatePermissionStatus')
+      await expect(
+        dapiServer.connect(roles.sponsor).setRrpBeaconUpdatePermissionStatus(roles.randomPerson.address, true)
+      )
+        .to.emit(dapiServer, 'SetRrpBeaconUpdatePermissionStatus')
         .withArgs(roles.sponsor.address, roles.randomPerson.address, true);
       expect(
-        await dapiServer.sponsorToUpdateRequesterToPermissionStatus(roles.sponsor.address, roles.randomPerson.address)
+        await dapiServer.sponsorToRrpBeaconUpdateRequesterToPermissionStatus(
+          roles.sponsor.address,
+          roles.randomPerson.address
+        )
       ).to.equal(true);
-      await expect(dapiServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.randomPerson.address, false))
-        .to.emit(dapiServer, 'SetUpdatePermissionStatus')
+      await expect(
+        dapiServer.connect(roles.sponsor).setRrpBeaconUpdatePermissionStatus(roles.randomPerson.address, false)
+      )
+        .to.emit(dapiServer, 'SetRrpBeaconUpdatePermissionStatus')
         .withArgs(roles.sponsor.address, roles.randomPerson.address, false);
       expect(
-        await dapiServer.sponsorToUpdateRequesterToPermissionStatus(roles.sponsor.address, roles.randomPerson.address)
+        await dapiServer.sponsorToRrpBeaconUpdateRequesterToPermissionStatus(
+          roles.sponsor.address,
+          roles.randomPerson.address
+        )
       ).to.equal(false);
     });
   });
   context('Update requester is zero address', function () {
     it('reverts', async function () {
       await expect(
-        dapiServer.connect(roles.sponsor).setUpdatePermissionStatus(hre.ethers.constants.AddressZero, false)
+        dapiServer.connect(roles.sponsor).setRrpBeaconUpdatePermissionStatus(hre.ethers.constants.AddressZero, false)
       ).to.be.revertedWith('Update requester zero');
     });
   });
@@ -1389,36 +1402,53 @@ describe('fulfillRrpBeaconUpdate', function () {
 
 describe('registerBeaconUpdateSubscription', function () {
   context('Airnode address is not zero', function () {
-    context('Relayer address is not zero', function () {
-      context('Sponsor address is not zero', function () {
-        it('registers beacon update subscription', async function () {
-          await expect(
-            dapiServer
-              .connect(roles.randomPerson)
-              .registerBeaconUpdateSubscription(
+    context('Template ID is zero', function () {
+      context('Relayer address is not zero', function () {
+        context('Sponsor address is not zero', function () {
+          it('registers beacon update subscription', async function () {
+            await expect(
+              dapiServer
+                .connect(roles.randomPerson)
+                .registerBeaconUpdateSubscription(
+                  airnodeAddress,
+                  templateId,
+                  beaconUpdateSubscriptionConditions,
+                  airnodeAddress,
+                  roles.sponsor.address
+                )
+            )
+              .to.emit(dapiServer, 'RegisteredBeaconUpdateSubscription')
+              .withArgs(
+                beaconUpdateSubscriptionId,
                 airnodeAddress,
                 templateId,
+                '0x',
                 beaconUpdateSubscriptionConditions,
                 airnodeAddress,
-                roles.sponsor.address
-              )
-          )
-            .to.emit(dapiServer, 'RegisteredBeaconUpdateSubscription')
-            .withArgs(
-              beaconUpdateSubscriptionId,
-              airnodeAddress,
-              templateId,
-              '0x',
-              beaconUpdateSubscriptionConditions,
-              airnodeAddress,
-              roles.sponsor.address,
-              dapiServer.address,
-              dapiServer.interface.getSighash('fulfillPspBeaconUpdate')
-            );
-          expect(await dapiServer.subscriptionIdToBeaconId(beaconUpdateSubscriptionId)).to.equal(beaconId);
+                roles.sponsor.address,
+                dapiServer.address,
+                dapiServer.interface.getSighash('fulfillPspBeaconUpdate')
+              );
+            expect(await dapiServer.subscriptionIdToBeaconId(beaconUpdateSubscriptionId)).to.equal(beaconId);
+          });
+        });
+        context('Sponsor address is zero', function () {
+          it('reverts', async function () {
+            await expect(
+              dapiServer
+                .connect(roles.randomPerson)
+                .registerBeaconUpdateSubscription(
+                  airnodeAddress,
+                  templateId,
+                  beaconUpdateSubscriptionConditions,
+                  airnodeAddress,
+                  hre.ethers.constants.AddressZero
+                )
+            ).to.be.revertedWith('Sponsor address zero');
+          });
         });
       });
-      context('Sponsor address is zero', function () {
+      context('Relayer address is zero', function () {
         it('reverts', async function () {
           await expect(
             dapiServer
@@ -1427,26 +1457,26 @@ describe('registerBeaconUpdateSubscription', function () {
                 airnodeAddress,
                 templateId,
                 beaconUpdateSubscriptionConditions,
-                airnodeAddress,
-                hre.ethers.constants.AddressZero
+                hre.ethers.constants.AddressZero,
+                roles.sponsor.address
               )
-          ).to.be.revertedWith('Sponsor address zero');
+          ).to.be.revertedWith('Relayer address zero');
         });
       });
     });
-    context('Relayer address is zero', function () {
+    context('Template ID is zero', function () {
       it('reverts', async function () {
         await expect(
           dapiServer
             .connect(roles.randomPerson)
             .registerBeaconUpdateSubscription(
               airnodeAddress,
-              templateId,
+              hre.ethers.constants.HashZero,
               beaconUpdateSubscriptionConditions,
-              hre.ethers.constants.AddressZero,
+              airnodeAddress,
               roles.sponsor.address
             )
-        ).to.be.revertedWith('Relayer address zero');
+        ).to.be.revertedWith('Template ID zero');
       });
     });
   });

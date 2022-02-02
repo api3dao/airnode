@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "./interfaces/IDapiReader.sol";
 
-/// @title Contract to be inherited to interact with a DapiServer contract
+/// @title Contract to be inherited to read from a DapiServer contract
 contract DapiReader is IDapiReader {
     /// @notice DapiServer contract address
     address public override dapiServer;
