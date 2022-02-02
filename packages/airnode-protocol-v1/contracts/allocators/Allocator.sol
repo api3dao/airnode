@@ -5,10 +5,11 @@ import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./interfaces/IAllocator.sol";
 
 /// @title Abstract contract that is inherited by contracts that temporarily
-/// allocate subscription slots for Airnodes
-/// @dev An Airnode calls a number of Allocators to retrieve a number of slots
-/// to serve the respective subscriptions. What these Allocators and slot
-/// numbers are expected to be communicated off-chain.
+/// allocate subscription slots for Airnodes/relayers
+/// @dev An Airnode/relayer calls a number of Allocators to retrieve a number
+/// of slots to serve the respective subscriptions. What these Allocators and
+/// slot numbers are expected to be communicated off-chain. The Airnode/relayer
+/// should not process expired slots or subscriptions with invalid IDs.
 abstract contract Allocator is Multicall, IAllocator {
     struct Slot {
         bytes32 subscriptionId;
@@ -28,7 +29,7 @@ abstract contract Allocator is Multicall, IAllocator {
     bytes32 internal constant SLOT_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(SLOT_SETTER_ROLE_DESCRIPTION));
 
-    /// @notice Called internally to set a slot with the given parameters
+    /// @notice Called internally to set the slot with the given parameters
     /// @dev The set slot can be reset by its setter, or when it has expired,
     /// or when its setter is no longer authorized to set slots
     /// @param airnode Airnode address
@@ -55,7 +56,7 @@ abstract contract Allocator is Multicall, IAllocator {
         emit SetSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    /// @notice Resets a slot
+    /// @notice Resets the slot
     /// @dev This will revert if the slot has been set before, and the sender
     /// is not the setter of the slot, and the slot has not expired and the
     /// setter of the slot is still authorized to set slots.
@@ -72,12 +73,11 @@ abstract contract Allocator is Multicall, IAllocator {
         }
     }
 
-    /// @notice Returns if the setter of the slot is still authorized to set
-    /// slots
+    /// @notice Returns if the setter of the slot can still set slots
     /// @param airnode Airnode address
-    /// @param slotIndex Index of the subscription slot to be set
-    /// @return If the setter of the slot is still authorized to set slots
-    function setterOfSlotIsStillAuthorized(address airnode, uint256 slotIndex)
+    /// @param slotIndex Index of the subscription slot that was set
+    /// @return If the setter of the slot can still set slots
+    function setterOfSlotIsCanStillSet(address airnode, uint256 slotIndex)
         public
         view
         virtual
@@ -92,7 +92,7 @@ abstract contract Allocator is Multicall, IAllocator {
         require(
             slot.setter == msg.sender ||
                 slot.expirationTimestamp < block.timestamp ||
-                !setterOfSlotIsStillAuthorized(airnode, slotIndex),
+                !setterOfSlotIsCanStillSet(airnode, slotIndex),
             "Cannot reset slot"
         );
         delete airnodeToSlotIndexToSlot[airnode][slotIndex];

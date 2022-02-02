@@ -369,13 +369,13 @@ describe('resetSlot', function () {
   });
 });
 
-describe('setterOfSlotIsStillAuthorized', function () {
+describe('setterOfSlotIsCanStillSet', function () {
   context('Setter of slot is still a slot setter', function () {
     it('returns true', async function () {
       await allocatorWithManager
         .connect(roles.slotSetter)
         .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
-      expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(true);
+      expect(await allocatorWithManager.setterOfSlotIsCanStillSet(roles.airnode.address, slotIndex)).to.equal(true);
     });
   });
   context('Setter of slot is the manager address', function () {
@@ -383,7 +383,7 @@ describe('setterOfSlotIsStillAuthorized', function () {
       await allocatorWithManager
         .connect(roles.manager)
         .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
-      expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(true);
+      expect(await allocatorWithManager.setterOfSlotIsCanStillSet(roles.airnode.address, slotIndex)).to.equal(true);
     });
   });
   context('Setter of slot is no longer authorized', function () {
@@ -392,9 +392,7 @@ describe('setterOfSlotIsStillAuthorized', function () {
         .connect(roles.slotSetter)
         .setSlot(roles.airnode.address, slotIndex, subscriptionId, expirationTimestamp);
       await accessControlRegistry.connect(roles.manager).revokeRole(slotSetterRole, roles.slotSetter.address);
-      expect(await allocatorWithManager.setterOfSlotIsStillAuthorized(roles.airnode.address, slotIndex)).to.equal(
-        false
-      );
+      expect(await allocatorWithManager.setterOfSlotIsCanStillSet(roles.airnode.address, slotIndex)).to.equal(false);
     });
   });
 });

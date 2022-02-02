@@ -6,6 +6,8 @@ import "./interfaces/IAccessControlRegistryAdminnedWithManager.sol";
 
 /// @title Contract that should be inherited by contracts with manager whose
 /// adminship functionality will be implemented using AccessControlRegistry
+/// @notice The manager address here is expected to belong to an
+/// AccessControlRegistry user that is a multisig/DAO
 contract AccessControlRegistryAdminnedWithManager is
     AccessControlRegistryAdminned,
     IAccessControlRegistryAdminnedWithManager

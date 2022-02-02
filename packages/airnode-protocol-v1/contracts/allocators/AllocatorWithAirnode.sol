@@ -44,12 +44,11 @@ contract AllocatorWithAirnode is
         _setSlot(airnode, slotIndex, subscriptionId, expirationTimestamp);
     }
 
-    /// @notice Returns if the setter of the slot is still authorized to set
-    /// slots
+    /// @notice Returns if the setter of the slot can still set slots
     /// @param airnode Airnode address
-    /// @param slotIndex Index of the subscription slot to be set
-    /// @return If the setter of the slot is still authorized to set slots
-    function setterOfSlotIsStillAuthorized(address airnode, uint256 slotIndex)
+    /// @param slotIndex Index of the subscription slot that was set
+    /// @return If the setter of the slot can still set slots
+    function setterOfSlotIsCanStillSet(address airnode, uint256 slotIndex)
         public
         view
         override(Allocator, IAllocator)

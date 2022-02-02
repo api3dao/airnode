@@ -20,7 +20,7 @@ interface IAllocator {
 
     function resetSlot(address airnode, uint256 slotIndex) external;
 
-    function setterOfSlotIsStillAuthorized(address airnode, uint256 slotIndex)
+    function setterOfSlotIsCanStillSet(address airnode, uint256 slotIndex)
         external
         view
         returns (bool);
