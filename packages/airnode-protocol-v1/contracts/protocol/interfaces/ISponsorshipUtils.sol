@@ -5,30 +5,27 @@ interface ISponsorshipUtils {
     event SetRrpSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
-        bool sponsorshipStatus
+        bool status
     );
 
     event SetPspSponsorshipStatus(
         address indexed sponsor,
         bytes32 indexed subscriptionId,
-        bool sponsorshipStatus
+        bool status
     );
 
-    function setRrpSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external;
+    function setRrpSponsorshipStatus(address requester, bool status) external;
 
-    function setPspSponsorshipStatus(
-        bytes32 subscriptionId,
-        bool sponsorshipStatus
-    ) external;
+    function setPspSponsorshipStatus(bytes32 subscriptionId, bool status)
+        external;
 
     function sponsorToRequesterToRrpSponsorshipStatus(
         address sponsor,
         address requester
-    ) external view returns (bool sponsorshipStatus);
+    ) external view returns (bool status);
 
     function sponsorToSubscriptionIdToPspSponsorshipStatus(
         address sponsor,
         bytes32 subscriptionId
-    ) external view returns (bool sponsorshipStatus);
+    ) external view returns (bool status);
 }

@@ -13,9 +13,8 @@ contract AirnodeRequester is IAirnodeRequester {
     /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 
-    /// @dev Reverts if the sender is not the Airnode protocol contract. Use
-    /// this modifier with `fulfillRrp()` and `fulfillPsp()` implementations.
-    /// that are meant to receive Airnode request or subscription fulfillments.
+    /// @dev Reverts if the sender is not the AirnodeProtocol contract. Use
+    /// this modifier with methods that are meant to receive RRP fulfillments.
     modifier onlyAirnodeProtocol() {
         require(
             msg.sender == address(airnodeProtocol),
@@ -24,7 +23,8 @@ contract AirnodeRequester is IAirnodeRequester {
         _;
     }
 
-    /// @dev Reverts if the timestamp is not valid
+    /// @dev Reverts if the timestamp is not valid. Use this modifier with
+    /// methods that are meant to receive RRP and PSP fulfillments.
     /// @param timestamp Timestamp used in the signature
     modifier onlyValidTimestamp(uint256 timestamp) {
         require(timestampIsValid(timestamp), "Timestamp not valid");
@@ -40,9 +40,9 @@ contract AirnodeRequester is IAirnodeRequester {
     /// @notice Returns if the timestamp used in the signature is valid
     /// @dev Returns `false` if the timestamp is not at most 1 hour old to
     /// prevent replays. Returns `false` if the timestamp is not from the past,
-    /// with some leeway to accomodate for minimal time drift. These values are
-    /// appropriate in most cases, adjust them in your implementation at your
-    /// own risk.
+    /// with some leeway to accomodate for some benign time drift. These values
+    /// are appropriate in most cases, but you can adjust them if you are aware
+    /// of the implications.
     /// @param timestamp Timestamp used in the signature
     function timestampIsValid(uint256 timestamp) internal view returns (bool) {
         return

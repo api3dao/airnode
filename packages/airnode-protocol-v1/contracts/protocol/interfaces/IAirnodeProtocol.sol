@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./ISubscriptionStore.sol";
+import "./IStorageUtils.sol";
 import "./ISponsorshipUtils.sol";
 import "./IWithdrawalUtils.sol";
 
 interface IAirnodeProtocol is
-    ISubscriptionStore,
+    IStorageUtils,
     ISponsorshipUtils,
     IWithdrawalUtils
 {

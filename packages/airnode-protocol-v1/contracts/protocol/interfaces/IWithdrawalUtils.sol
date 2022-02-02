@@ -34,10 +34,10 @@ interface IWithdrawalUtils {
 
     function claimBalance() external;
 
-    function withdrawalRequestIsAwaitingFulfillment(bytes32 requestId)
+    function withdrawalRequestIsAwaitingFulfillment(bytes32 withdrawalRequestId)
         external
         view
-        returns (bool isAwaitingFulfillment);
+        returns (bool);
 
     function sponsorToBalance(address sponsor) external view returns (uint256);
 

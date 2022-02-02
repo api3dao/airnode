@@ -2,23 +2,25 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./SubscriptionStore.sol";
+import "./StorageUtils.sol";
 import "./SponsorshipUtils.sol";
 import "./WithdrawalUtils.sol";
 import "../utils/ExtendedMulticall.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 
 /// @title Airnode request–response protocol (RRP) and its relayed version
-/// @notice Differently from RRP, relayed RRP allows the requester to specify
-/// an Airnode that will sign the fulfillment and a relayer that will report
-/// the signed fulfillment
+/// @notice Similar to HTTP, RRP allows the requester to specify a one-off
+/// request that the Airnode is expected to respond to as soon as possible.
+/// The relayed version allows the requester to specify an Airnode that will
+/// sign the fulfillment data and a relayer that will report the signed
+/// fulfillment.
 /// @dev This contract inherits Multicall for Airnodes to be able to make batch
-/// static calls to read the contract state.
-/// Unlike the other protocols, the event for relayed RRP has the address of
-/// the relayer indexed. This is because the relayer will need to listen for
-/// requests and fulfillments.
+/// static calls to read sponsorship states, and template and subscription
+/// details.
+/// StorageUtils, SponsorshipUtils and WithdrawalUtils also implement some
+/// auxiliary functionality for PSP.
 contract AirnodeProtocol is
-    SubscriptionStore,
+    StorageUtils,
     SponsorshipUtils,
     WithdrawalUtils,
     ExtendedMulticall,
@@ -26,7 +28,7 @@ contract AirnodeProtocol is
 {
     using ECDSA for bytes32;
 
-    /// @notice Returns the request count of the requester
+    /// @notice Returns the number of requests the requester made
     /// @dev This can be used to calculate the ID of the next request that the
     /// requester will make
     mapping(address => uint256) public override requesterToRequestCount;
@@ -34,6 +36,8 @@ contract AirnodeProtocol is
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @notice Called by the requester to make a request
+    /// @dev If the `templateId` is zero, the fulfillment will be made with
+    /// `parameters` being used as fulfillment data
     /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
@@ -84,12 +88,11 @@ contract AirnodeProtocol is
         );
     }
 
-    /// @notice Called by the Airnode to fulfill the request
-    /// @dev The data is ABI-encoded as a `bytes` type, with its format
-    /// depending on the request specifications.
-    /// Airnodes attest to controlling their respective sponsor wallets by
+    /// @notice Called by the Airnode using the sponsor wallet to fulfill the
+    /// request
+    /// @dev Airnodes attest to controlling their respective sponsor wallets by
     /// signing a message with the address of the sponsor wallet. A timestamp
-    /// is added to this signature so it acts like an expiring token if the
+    /// is added to this signature for it to act as an expiring token if the
     /// requester contract checks for freshness.
     /// This will not revert depending on the external call. However, it will
     /// return `false` if the external call reverts or if there is no function
@@ -106,9 +109,9 @@ contract AirnodeProtocol is
     /// @param fulfillFunctionId Selector of the function to be called for
     /// fulfillment
     /// @param timestamp Timestamp used in the signature
-    /// @param data Fulfillment data
+    /// @param data Fulfillment data, encoded in contract ABI
     /// @param signature Request ID, a timestamp and the sponsor wallet address
-    /// signed by the Airnode address
+    /// signed by the Airnode wallet
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -156,7 +159,8 @@ contract AirnodeProtocol is
         }
     }
 
-    /// @notice Called by the Airnode if the request cannot be fulfilled
+    /// @notice Called by the Airnode using the sponsor wallet if the request
+    /// cannot be fulfilled
     /// @dev The Airnode should fall back to this if a request cannot be
     /// fulfilled because of an error, including the static call to `fulfill()`
     /// returning `false` for `callSuccess`.
@@ -197,9 +201,8 @@ contract AirnodeProtocol is
 
     /// @notice Called by the requester to make a request to be fulfilled by a
     /// relayer
-    /// @dev The response to this request is required to be signed by the
-    /// respective Airnode, which will be used by the relayer while fulfilling
-    /// the request
+    /// @dev The relayer address indexed in the relayed protocol logs because
+    /// it will be the relayer that will be listening to these logs
     /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
@@ -255,13 +258,11 @@ contract AirnodeProtocol is
         );
     }
 
-    /// @notice Called by the relayer to fulfill the request with the
-    /// Airnode-signed response
-    /// @dev The hash that Airnode signs includes the address of the sponsor
-    /// wallet that is controlled by the relayer, which will be sending the
-    /// transaction where this method is called. The Airnode should verify
-    /// that this address is indeed derived from `relayer` and `sponsor`
-    /// specified in the request, and reject to sign if it is not.
+    /// @notice Called by the relayer using the sponsor wallet to fulfill the
+    /// request with the Airnode-signed response
+    /// @dev The Airnode must verify the integrity of the request details,
+    /// template details, sponsor address–sponsor wallet address consistency
+    /// before signing the response
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param requester Requester address
@@ -328,7 +329,8 @@ contract AirnodeProtocol is
         }
     }
 
-    /// @notice Called by the relayer if the request cannot be fulfilled
+    /// @notice Called by the relayer using the sponsor wallet if the request
+    /// cannot be fulfilled
     /// @dev Since failure may also include problems at the Airnode end (such
     /// as it being unavailable), we are content with a signature from the
     /// relayer to validate failures. This is acceptable because explicit
@@ -379,11 +381,10 @@ contract AirnodeProtocol is
     /// @notice Returns if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
-    /// not hear back, it can call this method to check if the Airnode has
-    /// called back `fail()` instead.
+    /// not hear back, it can call this method to check if the Airnode/relayer
+    /// called back `failRequest()`/`failRequestRelayed()` instead.
     /// @param requestId Request ID
-    /// @return If the request is awaiting fulfillment (i.e., `true` if
-    /// `fulfill()` or `fail()` is not called back yet, `false` otherwise)
+    /// @return If the request is awaiting fulfillment
     function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view

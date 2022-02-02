@@ -4,53 +4,39 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./interfaces/IWithdrawalUtils.sol";
 
-/// @title Contract that implements logic for withdrawals from sponsor wallets
-/// @notice This contract is used by sponsors to request withdrawals from
-/// sponsor wallets controlled by relayers and relayers to fulfill these
-/// requests
+/// @title Contract that can be used by sponsors to request withdrawals from
+/// sponsor wallets and Airnodes/relayers to fulfill these
+/// @notice The respective Airnode/relayer may not support withdrawals for the
+/// specified protocol, or at all. Similarly, an Airnode/relayer may deposit
+/// funds directly to the sponsor address without being prompted, e.g., because
+/// they are ceasing operations. In general, no guarantee is provided for the
+/// funds deposited to sponsor wallets at the protocol level. Therefore, the
+/// sponsors should limit their deposits to the minimum amount required for
+/// their operations, and assume they will not receive these funds back.
 /// @dev Withdrawals are implemented in the form of pull payments. The sponsor
-/// requests a withdrawal from a sponsor wallet, and the relayer uses the
-/// specified sponsor wallet to deposit the entire balance at this contract.
-/// Then, the sponsor claims/pulls the payment from this contract.
-/// We are referring to the relayer and not the Airnode because although an
-/// Airnode operator may choose to relay their own fulfillments
-/// (`airnode == relayer`), requesters can also request other parties to
-/// relay fulfillments that are signed by a particular Airnode
-/// (`airnode != relayer`). Since it is the relayer that is making the
-/// fulfillment transaction, the relayer will be controlling the respective
-/// sponsor wallet and will have to fulfill any withdrawal requests.
-/// Sponsor wallet addresses are derived using the extended public key of the
-/// relayer, the protocol ID and the sponsor address. The sponsor specifies
-/// the sponsor wallet address and the protocol ID while requesting a
-/// withdrawal, and the node must verify the consistency of this information
-/// before fulfilling the request.
+/// requests a withdrawal from a sponsor wallet, and the Airnode/relayer uses
+/// the specified sponsor wallet to deposit the entire balance at this
+/// contract. Then, the sponsor claims/pulls the payment from this contract.
 /// Different protocols (RRP, PSP, etc.) use different sponsor wallets for a
-/// particular relayer–sponsor pair, which is why sponsor wallet derivation
-/// includes a protocol ID. Refer to the documentation of the particular node
-/// implementation for what these protocol IDs are.
+/// particular Airnode/relayer–sponsor pair, which is why sponsor wallet
+/// derivation includes a protocol ID. Refer to the node documentation for what
+/// these protocol IDs are.
 contract WithdrawalUtils is IWithdrawalUtils {
     using ECDSA for bytes32;
 
-    /// @notice Sponsor balance that is withdrawn but not claimed yet
+    /// @notice Returns the sponsor balance that is withdrawn but not claimed
     mapping(address => uint256) public override sponsorToBalance;
 
-    /// @notice Withdrawal request count of the sponsor
+    /// @notice Returns the number of withdrawal requests the sponsor made
     /// @dev This can be used to calculate the ID of the next withdrawal
     /// request the sponsor will make
     mapping(address => uint256) public override sponsorToWithdrawalRequestCount;
 
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
-    /// @notice Called by a sponsor to create a request for the relayer to
-    /// send the funds kept in the respective sponsor wallet to this contract
-    /// where it can be claimed by the sponsor
-    /// @dev We do not need to use the withdrawal request parameters in the
-    /// request ID hash to validate them at the node-side because all of the
-    /// parameters are used during fulfillment and will get validated on-chain.
-    /// The first withdrawal request a sponsor will make will cost slightly
-    /// higher gas than the rest due to how the request counter is implemented.
-    /// @param airnodeOrRelayer Relayer address
-    /// @param protocolId Protocol ID of the sponsor wallet
+    /// @notice Called by a sponsor to request a withdrawal
+    /// @param airnodeOrRelayer Airnode/relayer address
+    /// @param protocolId Protocol ID
     function requestWithdrawal(address airnodeOrRelayer, uint256 protocolId)
         external
         override
@@ -76,11 +62,11 @@ contract WithdrawalUtils is IWithdrawalUtils {
         );
     }
 
-    /// @notice Called by the relayer using the sponsor wallet to fulfill the
-    /// withdrawal request made by the sponsor
+    /// @notice Called by the Airnode/relayer using the sponsor wallet to
+    /// fulfill the withdrawal request made by the sponsor
     /// @param withdrawalRequestId Withdrawal request ID
-    /// @param airnodeOrRelayer Relayer address
-    /// @param protocolId Protocol ID of the sponsor wallet
+    /// @param airnodeOrRelayer Airnode/relayer address
+    /// @param protocolId Protocol ID
     /// @param sponsor Sponsor address
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
@@ -123,6 +109,9 @@ contract WithdrawalUtils is IWithdrawalUtils {
     }
 
     /// @notice Called by the sponsor to claim the withdrawn funds
+    /// @dev The sponsor must be able to receive funds. For example, if the
+    /// sponsor is a contract without a default `payable` function, this will
+    /// revert.
     function claimBalance() external override {
         uint256 sponsorBalance = sponsorToBalance[msg.sender];
         require(sponsorBalance != 0, "Sender balance zero");
@@ -134,15 +123,16 @@ contract WithdrawalUtils is IWithdrawalUtils {
 
     /// @notice Returns if the withdrawal request with the ID is made but not
     /// fulfilled yet
-    /// @param requestId Request ID
-    /// @return isAwaitingFulfillment If the request is awaiting fulfillment
-    function withdrawalRequestIsAwaitingFulfillment(bytes32 requestId)
+    /// @param withdrawalRequestId Withdrawal request ID
+    /// @return isAwaitingFulfillment If the withdrawal request is awaiting
+    /// fulfillment
+    function withdrawalRequestIsAwaitingFulfillment(bytes32 withdrawalRequestId)
         external
         view
         override
-        returns (bool isAwaitingFulfillment)
+        returns (bool)
     {
-        isAwaitingFulfillment =
-            withdrawalRequestIdToParameters[requestId] != bytes32(0);
+        return
+            withdrawalRequestIdToParameters[withdrawalRequestId] != bytes32(0);
     }
 }
