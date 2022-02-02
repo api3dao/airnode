@@ -5,21 +5,21 @@ jest.mock('./cloud-platforms/aws', () => ({
 
 const spawnLocalMock = jest.fn();
 jest.mock('./local-handlers', () => ({
-  callApi: spawnLocalMock,
+  initializeProvider: spawnLocalMock,
 }));
 
 import * as fixtures from '../../test/fixtures';
-import { WorkerFunctionName, WorkerParameters } from '../types';
+import { WorkerParameters } from '../types';
 import * as workers from './index';
 
 describe('spawn', () => {
   it('spawns for aws', async () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
+    const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const parameters: WorkerParameters = {
       ...workerOpts,
-      functionName: 'callApi' as WorkerFunctionName,
-      payload: { from: 'ETH' },
+      payload: { functionName: 'initializeProvider', state },
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ ok: true, data: { value: 777 } });
@@ -29,15 +29,15 @@ describe('spawn', () => {
 
   it('spawns for local', async () => {
     spawnLocalMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
+    const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'local' } });
     const parameters: WorkerParameters = {
       ...workerOpts,
-      functionName: 'callApi' as WorkerFunctionName,
-      payload: { from: 'ETH' },
+      payload: { functionName: 'initializeProvider', state },
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ ok: true, data: { value: 777 } });
     expect(spawnLocalMock).toHaveBeenCalledTimes(1);
-    expect(spawnLocalMock).toHaveBeenCalledWith({ from: 'ETH' });
+    expect(spawnLocalMock).toHaveBeenCalledWith(parameters.payload);
   });
 });
