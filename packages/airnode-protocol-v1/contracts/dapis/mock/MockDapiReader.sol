@@ -4,7 +4,6 @@ pragma solidity 0.8.9;
 import "../DapiReader.sol";
 
 contract MockDapiReader is DapiReader {
-    /// @param _dapiServer DapiServer contract address
     constructor(address _dapiServer) DapiReader(_dapiServer) {}
 
     function exposedSetDapiServer(address _dapiServer) external {
