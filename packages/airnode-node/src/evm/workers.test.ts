@@ -11,11 +11,11 @@ import * as fixtures from '../../test/fixtures';
 
 const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as ReadonlyArray<keyof typeof worker>;
 
-const functionNameForWorker = {
-  spawnNewProvider: 'airnode-19255a4-test-initializeProvider',
-  spawnProviderRequestProcessor: 'airnode-19255a4-test-processProviderRequests',
+const serverlessFunctionName = 'airnode-19255a4-test-run';
+const functionNames = {
+  spawnNewProvider: 'initializeProvider',
+  spawnProviderRequestProcessor: 'processProviderRequests',
 } as const;
-
 const providerErrorForWorker = {
   spawnNewProvider: 'Unable to initialize provider: Ganache test',
   spawnProviderRequestProcessor: 'Unable to process provider requests: Ganache test',
@@ -35,8 +35,8 @@ workers.forEach((workerType) => {
       expect(invokeMock).toHaveBeenCalledTimes(1);
       expect(invokeMock).toHaveBeenCalledWith(
         {
-          FunctionName: functionNameForWorker[workerType],
-          Payload: JSON.stringify({ state }),
+          FunctionName: serverlessFunctionName,
+          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
         },
         expect.anything()
       );
@@ -58,8 +58,8 @@ workers.forEach((workerType) => {
       expect(invokeMock).toHaveBeenCalledTimes(1);
       expect(invokeMock).toHaveBeenCalledWith(
         {
-          FunctionName: functionNameForWorker[workerType],
-          Payload: JSON.stringify({ state }),
+          FunctionName: serverlessFunctionName,
+          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
         },
         expect.anything()
       );
@@ -78,8 +78,8 @@ workers.forEach((workerType) => {
       expect(invokeMock).toHaveBeenCalledTimes(1);
       expect(invokeMock).toHaveBeenCalledWith(
         {
-          FunctionName: functionNameForWorker[workerType],
-          Payload: JSON.stringify({ state }),
+          FunctionName: serverlessFunctionName,
+          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
         },
         expect.anything()
       );
@@ -97,8 +97,8 @@ workers.forEach((workerType) => {
       expect(invokeMock).toHaveBeenCalledTimes(1);
       expect(invokeMock).toHaveBeenCalledWith(
         {
-          FunctionName: functionNameForWorker[workerType],
-          Payload: JSON.stringify({ state }),
+          FunctionName: serverlessFunctionName,
+          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
         },
         expect.anything()
       );
