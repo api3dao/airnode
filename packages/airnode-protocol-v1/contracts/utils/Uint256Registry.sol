@@ -4,6 +4,8 @@ pragma solidity 0.8.9;
 import "./RegistryRolesWithManager.sol";
 import "./interfaces/IUint256Registry.sol";
 
+/// @title Registry with manager that maps IDs to unsigned integers
+/// @dev Does not allow zero to be registered as a number
 contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
     mapping(bytes32 => uint256) private idToUint256;
 
@@ -22,6 +24,12 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
         )
     {}
 
+    /// @notice Returns if there is a registered unsigned integer with the ID
+    /// and the registered unsigned integer if it exists
+    /// @param id Registry ID
+    /// @return success If there is a registered unsigned integer with the ID
+    /// @return uint256_ Registered unsigned integer if it exists (returns 0
+    /// otherwise)
     function tryReadRegisteredUint256(bytes32 id)
         public
         view
@@ -32,6 +40,10 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
         success = uint256_ != 0;
     }
 
+    /// @notice Called by registrars or the manager to register the unsigned
+    /// integer with the ID
+    /// @param id Registry ID
+    /// @param uint256_ Unsigned integer to be registered
     function _registerUint256(bytes32 id, uint256 uint256_)
         internal
         onlyRegistrarOrManager

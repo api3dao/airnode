@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 import "./RegistryRolesWithManager.sol";
 import "./interfaces/IAddressRegistry.sol";
 
+/// @title Registry with manager that maps IDs to addresses
 contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
     mapping(bytes32 => address) private idToAddress;
 
@@ -22,6 +23,12 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
         )
     {}
 
+    /// @notice Returns if there is a registered address with the ID and the
+    /// registered address if it exists
+    /// @param id Registry ID
+    /// @return success If there is a registered address with the ID
+    /// @return address_ Registered address if it exists (returns `address(0)`
+    /// otherwise)
     function tryReadRegisteredAddress(bytes32 id)
         public
         view
@@ -32,6 +39,10 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
         success = address_ != address(0);
     }
 
+    /// @notice Called by registrars or the manager to register the address
+    /// with the ID
+    /// @param id Registry ID
+    /// @param address_ Address to be registered
     function _registerAddress(bytes32 id, address address_)
         internal
         onlyRegistrarOrManager
