@@ -1,0 +1,347 @@
+Contract locking ether found:
+	Contract MockCallForwarderTarget (contracts/utils/mock/MockCallForwarderTarget.sol#4-41) has payable functions:
+	 - MockCallForwarderTarget.payableTargetFunction(string,uint256,uint256) (contracts/utils/mock/MockCallForwarderTarget.sol#8-24)
+	But does not have a function to withdraw the ether
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether
+
+Variable 'ECDSA.tryRecover(bytes32,bytes).r (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#59)' in ECDSA.tryRecover(bytes32,bytes) (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#54-83) potentially used before declaration: r = mload(uint256)(signature + 0x20) (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#76)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#pre-declaration-usage-of-local-variables
+
+Reentrancy in DapiServer.requestRrpBeaconUpdate(address,bytes32,address) (contracts/dapis/DapiServer.sol#161-188):
+	External calls:
+	- requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(airnode,templateId,,sponsor,this.fulfillRrpBeaconUpdate.selector) (contracts/dapis/DapiServer.sol#172-178)
+	State variables written after the call(s):
+	- requestIdToBeaconId[requestId] = beaconId (contracts/dapis/DapiServer.sol#179)
+Reentrancy in DapiServer.requestRrpBeaconUpdateRelayed(address,bytes32,address,address) (contracts/dapis/DapiServer.sol#196-226):
+	External calls:
+	- requestId = IAirnodeProtocol(airnodeProtocol).makeRequestRelayed(airnode,templateId,,relayer,sponsor,this.fulfillRrpBeaconUpdate.selector) (contracts/dapis/DapiServer.sol#208-215)
+	State variables written after the call(s):
+	- requestIdToBeaconId[requestId] = beaconId (contracts/dapis/DapiServer.sol#216)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+
+Reentrancy in AirnodeProtocol.fulfillRequest(bytes32,address,address,bytes4,uint256,bytes,bytes) (contracts/protocol/AirnodeProtocol.sol#119-161):
+	External calls:
+	- (callSuccess,callData) = requester.call(abi.encodeWithSelector(fulfillFunctionId,requestId,timestamp,data)) (contracts/protocol/AirnodeProtocol.sol#142-149)
+	Event emitted after the call(s):
+	- FailedRequest(airnode,requestId,timestamp,Fulfillment failed unexpectedly) (contracts/protocol/AirnodeProtocol.sol#154-159)
+	- FulfilledRequest(airnode,requestId,timestamp,data) (contracts/protocol/AirnodeProtocol.sol#151)
+Reentrancy in AirnodeProtocol.fulfillRequestRelayed(bytes32,address,address,address,bytes4,uint256,bytes,bytes) (contracts/protocol/AirnodeProtocol.sol#281-332):
+	External calls:
+	- (callSuccess,callData) = requester.call(abi.encodeWithSelector(fulfillFunctionId,requestId,timestamp,data)) (contracts/protocol/AirnodeProtocol.sol#306-313)
+	Event emitted after the call(s):
+	- FailedRequestRelayed(relayer,requestId,airnode,timestamp,Fulfillment failed unexpectedly) (contracts/protocol/AirnodeProtocol.sol#324-330)
+	- FulfilledRequestRelayed(relayer,requestId,airnode,timestamp,data) (contracts/protocol/AirnodeProtocol.sol#315-321)
+Reentrancy in DapiServer.requestRrpBeaconUpdate(address,bytes32,address) (contracts/dapis/DapiServer.sol#161-188):
+	External calls:
+	- requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(airnode,templateId,,sponsor,this.fulfillRrpBeaconUpdate.selector) (contracts/dapis/DapiServer.sol#172-178)
+	Event emitted after the call(s):
+	- RequestedRrpBeaconUpdate(beaconId,sponsor,msg.sender,requestId,airnode,templateId) (contracts/dapis/DapiServer.sol#180-187)
+Reentrancy in DapiServer.requestRrpBeaconUpdateRelayed(address,bytes32,address,address) (contracts/dapis/DapiServer.sol#196-226):
+	External calls:
+	- requestId = IAirnodeProtocol(airnodeProtocol).makeRequestRelayed(airnode,templateId,,relayer,sponsor,this.fulfillRrpBeaconUpdate.selector) (contracts/dapis/DapiServer.sol#208-215)
+	Event emitted after the call(s):
+	- RequestedRrpBeaconUpdateRelayed(beaconId,sponsor,msg.sender,requestId,airnode,relayer,templateId) (contracts/dapis/DapiServer.sol#217-225)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+
+Allocator._setSlot(address,uint256,bytes32,uint64) (contracts/allocators/Allocator.sol#40-57) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(expirationTimestamp >= block.timestamp,Expiration is in past) (contracts/allocators/Allocator.sol#46-49)
+Allocator._resetSlot(address,uint256) (contracts/allocators/Allocator.sol#90-99) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(slot.setter == msg.sender || slot.expirationTimestamp < block.timestamp || ! setterOfSlotIsCanStillSet(airnode,slotIndex),Cannot reset slot) (contracts/allocators/Allocator.sol#92-97)
+DapiServer.readerCanReadDataPoint(bytes32,address) (contracts/dapis/DapiServer.sol#684-697) uses timestamp for comparisons
+	Dangerous comparisons:
+	- reader == address(0) || userIsWhitelisted(dataPointId,reader) || IAccessControlRegistry(accessControlRegistry).hasRole(unlimitedReaderRole,reader) (contracts/dapis/DapiServer.sol#690-696)
+RequesterAuthorizerWhitelisterWithTokenPayment.payTokens(address,uint256,bytes32,address,uint64) (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#108-173) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(newExpirationTimestamp - block.timestamp <= maximumWhitelistDuration,Exceeds maximum duration) (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#145-149)
+	- currentExpirationTimestamp > block.timestamp (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#141-144)
+AirnodeRequester.timestampIsValid(uint256) (contracts/protocol/AirnodeRequester.sol#44-48) uses timestamp for comparisons
+	Dangerous comparisons:
+	- timestamp + 3600 > block.timestamp && timestamp < block.timestamp + 900 (contracts/protocol/AirnodeRequester.sol#45-47)
+WithdrawalUtils.fulfillWithdrawal(bytes32,address,uint256,address,uint256,bytes) (contracts/protocol/WithdrawalUtils.sol#71-109) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(timestamp + 3600 > block.timestamp && timestamp < block.timestamp + 900,Timestamp not valid) (contracts/protocol/WithdrawalUtils.sol#86-90)
+Whitelist.userIsWhitelisted(bytes32,address) (contracts/whitelist/Whitelist.sol#139-151) uses timestamp for comparisons
+	Dangerous comparisons:
+	- whitelistStatus.indefiniteWhitelistCount > 0 || whitelistStatus.expirationTimestamp > block.timestamp (contracts/whitelist/Whitelist.sol#148-150)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+
+Address.isContract(address) (node_modules/@openzeppelin/contracts/utils/Address.sol#26-36) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/Address.sol#32-34)
+Address.verifyCallResult(bool,bytes,string) (node_modules/@openzeppelin/contracts/utils/Address.sol#195-215) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/Address.sol#207-210)
+ECDSA.tryRecover(bytes32,bytes) (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#54-83) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#64-68)
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#75-78)
+ECDSA.tryRecover(bytes32,bytes32,bytes32) (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#112-124) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#119-122)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage
+
+Different versions of Solidity is used:
+	- Version used: ['0.8.9', '^0.8.0']
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/access/Ownable.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/Address.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/Context.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/Multicall.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/Strings.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#3)
+	- ^0.8.0 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#3)
+	- 0.8.9 (contracts/access-control-registry/AccessControlRegistry.sol#2)
+	- 0.8.9 (contracts/access-control-registry/AccessControlRegistryAdminned.sol#2)
+	- 0.8.9 (contracts/access-control-registry/AccessControlRegistryAdminnedWithManager.sol#2)
+	- 0.8.9 (contracts/access-control-registry/AccessControlRegistryUser.sol#2)
+	- 0.8.9 (contracts/access-control-registry/RoleDeriver.sol#2)
+	- 0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistry.sol#2)
+	- 0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryAdminned.sol#2)
+	- 0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryAdminnedWithManager.sol#2)
+	- 0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryUser.sol#2)
+	- 0.8.9 (contracts/allocators/Allocator.sol#2)
+	- 0.8.9 (contracts/allocators/AllocatorWithAirnode.sol#2)
+	- 0.8.9 (contracts/allocators/AllocatorWithManager.sol#2)
+	- 0.8.9 (contracts/allocators/interfaces/IAllocator.sol#2)
+	- 0.8.9 (contracts/allocators/interfaces/IAllocatorWithAirnode.sol#2)
+	- 0.8.9 (contracts/allocators/interfaces/IAllocatorWithManager.sol#2)
+	- 0.8.9 (contracts/authorizers/RequesterAuthorizer.sol#2)
+	- 0.8.9 (contracts/authorizers/RequesterAuthorizerWithAirnode.sol#2)
+	- 0.8.9 (contracts/authorizers/RequesterAuthorizerWithManager.sol#2)
+	- 0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizer.sol#2)
+	- 0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizerWithAirnode.sol#2)
+	- 0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizerWithManager.sol#2)
+	- 0.8.9 (contracts/dapis/DapiReader.sol#2)
+	- 0.8.9 (contracts/dapis/DapiServer.sol#2)
+	- 0.8.9 (contracts/dapis/Median.sol#2)
+	- 0.8.9 (contracts/dapis/QuickSelect.sol#2)
+	- 0.8.9 (contracts/dapis/Sort.sol#2)
+	- 0.8.9 (contracts/dapis/interfaces/IDapiReader.sol#2)
+	- 0.8.9 (contracts/dapis/interfaces/IDapiServer.sol#2)
+	- 0.8.9 (contracts/dapis/mock/MockDapiReader.sol#2)
+	- 0.8.9 (contracts/dapis/mock/MockMedian.sol#2)
+	- 0.8.9 (contracts/dapis/mock/MockSort.sol#2)
+	- 0.8.9 (contracts/monetization/AirnodeEndpointPriceRegistry.sol#2)
+	- 0.8.9 (contracts/monetization/AirnodeEndpointPriceRegistryUser.sol#2)
+	- 0.8.9 (contracts/monetization/RequesterAuthorizerRegistry.sol#2)
+	- 0.8.9 (contracts/monetization/RequesterAuthorizerRegistryUser.sol#2)
+	- 0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithToken.sol#2)
+	- 0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenDeposit.sol#2)
+	- 0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistry.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistryUser.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerRegistry.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerRegistryUser.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithToken.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithTokenDeposit.sol#2)
+	- 0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithTokenPayment.sol#2)
+	- 0.8.9 (contracts/monetization/mock/MockAirnodeEndpointFeeRegistry.sol#2)
+	- 0.8.9 (contracts/monetization/mock/MockERC20.sol#2)
+	- 0.8.9 (contracts/protocol/AirnodeProtocol.sol#2)
+	- 0.8.9 (contracts/protocol/AirnodeRequester.sol#2)
+	- 0.8.9 (contracts/protocol/SponsorshipUtils.sol#2)
+	- 0.8.9 (contracts/protocol/StorageUtils.sol#2)
+	- 0.8.9 (contracts/protocol/WithdrawalUtils.sol#2)
+	- 0.8.9 (contracts/protocol/interfaces/IAirnodeProtocol.sol#2)
+	- 0.8.9 (contracts/protocol/interfaces/IAirnodeRequester.sol#2)
+	- 0.8.9 (contracts/protocol/interfaces/ISponsorshipUtils.sol#2)
+	- 0.8.9 (contracts/protocol/interfaces/IStorageUtils.sol#2)
+	- 0.8.9 (contracts/protocol/interfaces/IWithdrawalUtils.sol#2)
+	- 0.8.9 (contracts/protocol/mock/MockAirnodeRequester.sol#2)
+	- 0.8.9 (contracts/protocol/mock/MockSponsor.sol#2)
+	- 0.8.9 (contracts/utils/AddressRegistry.sol#2)
+	- 0.8.9 (contracts/utils/ExtendedMulticall.sol#2)
+	- 0.8.9 (contracts/utils/OwnableCallForwarder.sol#2)
+	- 0.8.9 (contracts/utils/RegistryRolesWithManager.sol#2)
+	- 0.8.9 (contracts/utils/Uint256Registry.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IAddressRegistry.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IExtendedMulticall.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IMulticall.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IOwnableCallForwarder.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IRegistryRolesWithManager.sol#2)
+	- 0.8.9 (contracts/utils/interfaces/IUint256Registry.sol#2)
+	- 0.8.9 (contracts/utils/mock/MockCallForwarderTarget.sol#2)
+	- 0.8.9 (contracts/whitelist/Whitelist.sol#2)
+	- 0.8.9 (contracts/whitelist/WhitelistRoles.sol#2)
+	- 0.8.9 (contracts/whitelist/WhitelistRolesWithAirnode.sol#2)
+	- 0.8.9 (contracts/whitelist/WhitelistRolesWithManager.sol#2)
+	- 0.8.9 (contracts/whitelist/WhitelistWithManager.sol#2)
+	- 0.8.9 (contracts/whitelist/interfaces/IWhitelistRoles.sol#2)
+	- 0.8.9 (contracts/whitelist/interfaces/IWhitelistRolesWithAirnode.sol#2)
+	- 0.8.9 (contracts/whitelist/interfaces/IWhitelistRolesWithManager.sol#2)
+	- 0.8.9 (contracts/whitelist/interfaces/IWhitelistWithManager.sol#2)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
+
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/access/Ownable.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/Address.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/Context.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/Multicall.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/Strings.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#3) allows old versions
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#3) allows old versions
+Pragma version0.8.9 (contracts/access-control-registry/AccessControlRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/AccessControlRegistryAdminned.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/AccessControlRegistryAdminnedWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/AccessControlRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/RoleDeriver.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryAdminned.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryAdminnedWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/access-control-registry/interfaces/IAccessControlRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/Allocator.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/AllocatorWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/AllocatorWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/interfaces/IAllocator.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/interfaces/IAllocatorWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/allocators/interfaces/IAllocatorWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/RequesterAuthorizer.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/RequesterAuthorizerWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/RequesterAuthorizerWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizer.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizerWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/authorizers/interfaces/IRequesterAuthorizerWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/DapiReader.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/DapiServer.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/Median.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/QuickSelect.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/Sort.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/interfaces/IDapiReader.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/interfaces/IDapiServer.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/mock/MockDapiReader.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/mock/MockMedian.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/dapis/mock/MockSort.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/AirnodeEndpointPriceRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/AirnodeEndpointPriceRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/RequesterAuthorizerRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/RequesterAuthorizerRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithToken.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenDeposit.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerRegistryUser.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithToken.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithTokenDeposit.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithTokenPayment.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/mock/MockAirnodeEndpointFeeRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/monetization/mock/MockERC20.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/AirnodeProtocol.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/AirnodeRequester.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/SponsorshipUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/StorageUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/WithdrawalUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/interfaces/IAirnodeProtocol.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/interfaces/IAirnodeRequester.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/interfaces/ISponsorshipUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/interfaces/IStorageUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/interfaces/IWithdrawalUtils.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/mock/MockAirnodeRequester.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/protocol/mock/MockSponsor.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/AddressRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/ExtendedMulticall.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/OwnableCallForwarder.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/RegistryRolesWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/Uint256Registry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IAddressRegistry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IExtendedMulticall.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IMulticall.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IOwnableCallForwarder.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IRegistryRolesWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/interfaces/IUint256Registry.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/utils/mock/MockCallForwarderTarget.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/Whitelist.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/WhitelistRoles.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/WhitelistRolesWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/WhitelistRolesWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/WhitelistWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/interfaces/IWhitelistRoles.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/interfaces/IWhitelistRolesWithAirnode.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/interfaces/IWhitelistRolesWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+Pragma version0.8.9 (contracts/whitelist/interfaces/IWhitelistWithManager.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7
+solc-0.8.9 is not recommended for deployment
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+
+Low level call in Address.sendValue(address,uint256) (node_modules/@openzeppelin/contracts/utils/Address.sol#54-59):
+	- (success) = recipient.call{value: amount}() (node_modules/@openzeppelin/contracts/utils/Address.sol#57)
+Low level call in Address.functionCallWithValue(address,bytes,uint256,string) (node_modules/@openzeppelin/contracts/utils/Address.sol#122-133):
+	- (success,returndata) = target.call{value: value}(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#131)
+Low level call in Address.functionStaticCall(address,bytes,string) (node_modules/@openzeppelin/contracts/utils/Address.sol#151-160):
+	- (success,returndata) = target.staticcall(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#158)
+Low level call in Address.functionDelegateCall(address,bytes,string) (node_modules/@openzeppelin/contracts/utils/Address.sol#178-187):
+	- (success,returndata) = target.delegatecall(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#185)
+Low level call in AirnodeProtocol.fulfillRequest(bytes32,address,address,bytes4,uint256,bytes,bytes) (contracts/protocol/AirnodeProtocol.sol#119-161):
+	- (callSuccess,callData) = requester.call(abi.encodeWithSelector(fulfillFunctionId,requestId,timestamp,data)) (contracts/protocol/AirnodeProtocol.sol#142-149)
+Low level call in AirnodeProtocol.fulfillRequestRelayed(bytes32,address,address,address,bytes4,uint256,bytes,bytes) (contracts/protocol/AirnodeProtocol.sol#281-332):
+	- (callSuccess,callData) = requester.call(abi.encodeWithSelector(fulfillFunctionId,requestId,timestamp,data)) (contracts/protocol/AirnodeProtocol.sol#306-313)
+Low level call in WithdrawalUtils.claimBalance() (contracts/protocol/WithdrawalUtils.sol#115-122):
+	- (success) = msg.sender.call{value: sponsorBalance}() (contracts/protocol/WithdrawalUtils.sol#120)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+
+Function IAllocator.SLOT_SETTER_ROLE_DESCRIPTION() (contracts/allocators/interfaces/IAllocator.sol#29-32) is not in mixedCase
+Parameter DapiReader.setDapiServer(address)._dapiServer (contracts/dapis/DapiReader.sol#24) is not in mixedCase
+Function IDapiServer.UNLIMITED_READER_ROLE_DESCRIPTION() (contracts/dapis/interfaces/IDapiServer.sol#210-213) is not in mixedCase
+Function IDapiServer.NAME_SETTER_ROLE_DESCRIPTION() (contracts/dapis/interfaces/IDapiServer.sol#216-219) is not in mixedCase
+Function IDapiServer.HUNDRED_PERCENT() (contracts/dapis/interfaces/IDapiServer.sol#222) is not in mixedCase
+Parameter MockDapiReader.exposedSetDapiServer(address)._dapiServer (contracts/dapis/mock/MockDapiReader.sol#9) is not in mixedCase
+Parameter RequesterAuthorizerWhitelisterWithToken.setTokenPrice(uint256)._tokenPrice (contracts/monetization/RequesterAuthorizerWhitelisterWithToken.sol#206) is not in mixedCase
+Parameter RequesterAuthorizerWhitelisterWithToken.setPriceCoefficient(uint256)._priceCoefficient (contracts/monetization/RequesterAuthorizerWhitelisterWithToken.sol#218) is not in mixedCase
+Parameter RequesterAuthorizerWhitelisterWithToken.setProceedsDestination(address)._proceedsDestination (contracts/monetization/RequesterAuthorizerWhitelisterWithToken.sol#270) is not in mixedCase
+Parameter RequesterAuthorizerWhitelisterWithTokenPayment.setMinimumWhitelistExtension(uint64)._minimumWhitelistExtension (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#68) is not in mixedCase
+Parameter RequesterAuthorizerWhitelisterWithTokenPayment.setMaximumWhitelistDuration(uint64)._maximumWhitelistDuration (contracts/monetization/RequesterAuthorizerWhitelisterWithTokenPayment.sol#88) is not in mixedCase
+Function IAirnodeEndpointPriceRegistry.DENOMINATION() (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistry.sol#114) is not in mixedCase
+Function IAirnodeEndpointPriceRegistry.DECIMALS() (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistry.sol#117) is not in mixedCase
+Function IAirnodeEndpointPriceRegistry.PRICING_INTERVAL() (contracts/monetization/interfaces/IAirnodeEndpointPriceRegistry.sol#120) is not in mixedCase
+Function IRequesterAuthorizerWhitelisterWithToken.MAINTAINER_ROLE_DESCRIPTION() (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithToken.sol#93-96) is not in mixedCase
+Function IRequesterAuthorizerWhitelisterWithToken.BLOCKER_ROLE_DESCRIPTION() (contracts/monetization/interfaces/IRequesterAuthorizerWhitelisterWithToken.sol#101) is not in mixedCase
+Variable MockAirnodeEndpointPriceRegistry.DENOMINATION (contracts/monetization/mock/MockAirnodeEndpointFeeRegistry.sol#5) is not in mixedCase
+Variable MockAirnodeEndpointPriceRegistry.DECIMALS (contracts/monetization/mock/MockAirnodeEndpointFeeRegistry.sol#6) is not in mixedCase
+Variable MockAirnodeEndpointPriceRegistry.PRICING_INTERVAL (contracts/monetization/mock/MockAirnodeEndpointFeeRegistry.sol#7) is not in mixedCase
+Function IStorageUtils.MAXIMUM_PARAMETER_LENGTH() (contracts/protocol/interfaces/IStorageUtils.sol#41) is not in mixedCase
+Function IRegistryRolesWithManager.REGISTRAR_ROLE_DESCRIPTION() (contracts/utils/interfaces/IRegistryRolesWithManager.sol#8) is not in mixedCase
+Function IWhitelistRoles.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION() (contracts/whitelist/interfaces/IWhitelistRoles.sol#6-9) is not in mixedCase
+Function IWhitelistRoles.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION() (contracts/whitelist/interfaces/IWhitelistRoles.sol#12-15) is not in mixedCase
+Function IWhitelistRoles.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION() (contracts/whitelist/interfaces/IWhitelistRoles.sol#18-21) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+
+revokeRole(bytes32,address) should be declared external:
+	- AccessControl.revokeRole(bytes32,address) (node_modules/@openzeppelin/contracts/access/AccessControl.sol#142-144)
+renounceOwnership() should be declared external:
+	- Ownable.renounceOwnership() (node_modules/@openzeppelin/contracts/access/Ownable.sol#53-55)
+transferOwnership(address) should be declared external:
+	- Ownable.transferOwnership(address) (node_modules/@openzeppelin/contracts/access/Ownable.sol#61-64)
+name() should be declared external:
+	- ERC20.name() (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#61-63)
+symbol() should be declared external:
+	- ERC20.symbol() (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#69-71)
+decimals() should be declared external:
+	- ERC20.decimals() (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#86-88)
+	- MockERC20.decimals() (contracts/monetization/mock/MockERC20.sol#14-16)
+totalSupply() should be declared external:
+	- ERC20.totalSupply() (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#93-95)
+balanceOf(address) should be declared external:
+	- ERC20.balanceOf(address) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#100-102)
+transfer(address,uint256) should be declared external:
+	- ERC20.transfer(address,uint256) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#112-115)
+allowance(address,address) should be declared external:
+	- ERC20.allowance(address,address) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#120-122)
+approve(address,uint256) should be declared external:
+	- ERC20.approve(address,uint256) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#131-134)
+transferFrom(address,address,uint256) should be declared external:
+	- ERC20.transferFrom(address,address,uint256) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#149-163)
+increaseAllowance(address,uint256) should be declared external:
+	- ERC20.increaseAllowance(address,uint256) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#177-180)
+decreaseAllowance(address,uint256) should be declared external:
+	- ERC20.decreaseAllowance(address,uint256) (node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol#196-204)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external
+. analyzed (94 contracts with 77 detectors), 159 result(s) found
+

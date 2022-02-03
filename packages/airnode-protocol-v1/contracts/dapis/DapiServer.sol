@@ -168,6 +168,7 @@ contract DapiServer is
         onlyPermittedUpdateRequester(sponsor)
         returns (bytes32 requestId)
     {
+        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestId = IAirnodeProtocol(airnodeProtocol).makeRequest(
             airnode,
             templateId,
@@ -175,7 +176,6 @@ contract DapiServer is
             sponsor,
             this.fulfillRrpBeaconUpdate.selector
         );
-        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedRrpBeaconUpdate(
             beaconId,
@@ -204,6 +204,7 @@ contract DapiServer is
         onlyPermittedUpdateRequester(sponsor)
         returns (bytes32 requestId)
     {
+        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestId = IAirnodeProtocol(airnodeProtocol).makeRequestRelayed(
             airnode,
             templateId,
@@ -212,7 +213,6 @@ contract DapiServer is
             sponsor,
             this.fulfillRrpBeaconUpdate.selector
         );
-        bytes32 beaconId = deriveBeaconId(airnode, templateId);
         requestIdToBeaconId[requestId] = beaconId;
         emit RequestedRrpBeaconUpdateRelayed(
             beaconId,
@@ -542,7 +542,7 @@ contract DapiServer is
         uint256[] memory timestamps,
         bytes[] memory data,
         bytes[] memory signatures
-    ) public override returns (bytes32 dapiId) {
+    ) external override returns (bytes32 dapiId) {
         uint256 beaconCount = airnodes.length;
         require(
             beaconCount == templateIds.length &&

@@ -129,14 +129,6 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             endpointId,
             whitelistExtension
         );
-        require(
-            IERC20(token).transferFrom(
-                msg.sender,
-                proceedsDestination,
-                tokenPaymentAmount
-            ),
-            "Transfer unsuccesful"
-        );
         IRequesterAuthorizer requesterAuthorizer = IRequesterAuthorizer(
             getRequesterAuthorizerAddress(chainId)
         );
@@ -155,12 +147,6 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
                 maximumWhitelistDuration,
             "Exceeds maximum duration"
         );
-        requesterAuthorizer.setWhitelistExpiration(
-            airnode,
-            endpointId,
-            requester,
-            newExpirationTimestamp
-        );
         emit PaidTokens(
             airnode,
             chainId,
@@ -169,6 +155,20 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             whitelistExtension,
             msg.sender,
             newExpirationTimestamp
+        );
+        requesterAuthorizer.setWhitelistExpiration(
+            airnode,
+            endpointId,
+            requester,
+            newExpirationTimestamp
+        );
+        require(
+            IERC20(token).transferFrom(
+                msg.sender,
+                proceedsDestination,
+                tokenPaymentAmount
+            ),
+            "Transfer unsuccesful"
         );
     }
 
@@ -188,8 +188,6 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             requesterIsBlocked(airnode, requester),
             "Requester not blocked"
         );
-        IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
-            .setWhitelistExpiration(airnode, endpointId, requester, 0);
         emit ResetWhitelistExpirationOfBlockedRequester(
             airnode,
             chainId,
@@ -197,6 +195,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             requester,
             msg.sender
         );
+        IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+            .setWhitelistExpiration(airnode, endpointId, requester, 0);
     }
 
     /// @notice Amount of tokens needed to be paid to extend the whitelist

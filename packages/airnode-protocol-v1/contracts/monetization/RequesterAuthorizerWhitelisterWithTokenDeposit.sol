@@ -90,15 +90,16 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             endpointId
         );
         tokenDeposits.depositorToAmount[msg.sender] = tokenDepositAmount;
-        require(
-            IERC20(token).transferFrom(
-                msg.sender,
-                address(this),
-                tokenDepositAmount
-            ),
-            "Transfer unsuccesful"
-        );
         uint256 tokenDepositsCount = ++tokenDeposits.count;
+        emit DepositedTokens(
+            airnode,
+            chainId,
+            endpointId,
+            requester,
+            msg.sender,
+            tokenDepositsCount,
+            tokenDepositAmount
+        );
         if (tokenDepositsCount == 1) {
             IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
                 .setIndefiniteWhitelistStatus(
@@ -108,14 +109,13 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                     true
                 );
         }
-        emit DepositedTokens(
-            airnode,
-            chainId,
-            endpointId,
-            requester,
-            msg.sender,
-            tokenDepositsCount,
-            tokenDepositAmount
+        require(
+            IERC20(token).transferFrom(
+                msg.sender,
+                address(this),
+                tokenDepositAmount
+            ),
+            "Transfer unsuccesful"
         );
     }
 
@@ -140,17 +140,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Sender has not deposited tokens");
         tokenDeposits.depositorToAmount[msg.sender] = 0;
-        assert(IERC20(token).transfer(msg.sender, tokenWithdrawAmount));
         uint256 tokenDepositsCount = --tokenDeposits.count;
-        if (tokenDepositsCount == 0) {
-            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
-                .setIndefiniteWhitelistStatus(
-                    airnode,
-                    endpointId,
-                    requester,
-                    false
-                );
-        }
         emit WithdrewTokens(
             airnode,
             chainId,
@@ -160,6 +150,16 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             tokenDepositsCount,
             tokenWithdrawAmount
         );
+        if (tokenDepositsCount == 0) {
+            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+                .setIndefiniteWhitelistStatus(
+                    airnode,
+                    endpointId,
+                    requester,
+                    false
+                );
+        }
+        assert(IERC20(token).transfer(msg.sender, tokenWithdrawAmount));
     }
 
     /// @notice Withdraws tokens previously deposited for the blocked requester
@@ -190,10 +190,16 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Depositor has not deposited");
         tokenDeposits.depositorToAmount[depositor] = 0;
-        assert(
-            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount)
-        );
         uint256 tokenDepositsCount = --tokenDeposits.count;
+        emit WithdrewTokensDepositedForBlockedRequester(
+            airnode,
+            chainId,
+            endpointId,
+            requester,
+            depositor,
+            tokenDepositsCount,
+            tokenWithdrawAmount
+        );
         if (tokenDepositsCount == 0) {
             IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
                 .setIndefiniteWhitelistStatus(
@@ -203,14 +209,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                     false
                 );
         }
-        emit WithdrewTokensDepositedForBlockedRequester(
-            airnode,
-            chainId,
-            endpointId,
-            requester,
-            depositor,
-            tokenDepositsCount,
-            tokenWithdrawAmount
+        assert(
+            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount)
         );
     }
 
