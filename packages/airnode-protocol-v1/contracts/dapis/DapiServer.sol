@@ -257,14 +257,13 @@ contract DapiServer is
     /// @param relayer Relayer address
     /// @param sponsor Sponsor address
     /// @return subscriptionId Subscription ID
-    /// @return beaconId Beacon ID
     function registerBeaconUpdateSubscription(
         address airnode,
         bytes32 templateId,
         bytes memory conditions,
         address relayer,
         address sponsor
-    ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
+    ) external override returns (bytes32 subscriptionId) {
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         subscriptionId = keccak256(
@@ -558,25 +557,26 @@ contract DapiServer is
         uint256 accumulatedTimestamp = 0;
         for (uint256 ind = 0; ind < beaconCount; ind++) {
             if (signatures[ind].length != 0) {
+                address airnode = airnodes[ind];
                 uint256 timestamp = timestamps[ind];
-                bytes memory data = data[ind];
                 require(timestampIsValid(timestamp), "Timestamp not valid");
                 require(
                     (
                         keccak256(
-                            abi.encodePacked(templateIds[ind], timestamp, data)
+                            abi.encodePacked(
+                                templateIds[ind],
+                                timestamp,
+                                data[ind]
+                            )
                         ).toEthSignedMessageHash()
-                    ).recover(signatures[ind]) == airnodes[ind],
+                    ).recover(signatures[ind]) == airnode,
                     "Signature mismatch"
                 );
-                values[ind] = decodeFulfillmentData(data);
+                values[ind] = decodeFulfillmentData(data[ind]);
                 // Timestamp validity is already checked, which means it will
                 // be small enough to be typecast into `uint32`
                 accumulatedTimestamp += timestamp;
-                beaconIds[ind] = deriveBeaconId(
-                    airnodes[ind],
-                    templateIds[ind]
-                );
+                beaconIds[ind] = deriveBeaconId(airnode, templateIds[ind]);
             } else {
                 bytes32 beaconId = deriveBeaconId(
                     airnodes[ind],

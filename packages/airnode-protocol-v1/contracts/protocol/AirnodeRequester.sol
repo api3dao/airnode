@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./interfaces/IAirnodeProtocol.sol";
 import "./interfaces/IAirnodeRequester.sol";
 
 /// @title Contract to be inherited to make Airnode requests and receive
 /// fulfillments
 contract AirnodeRequester is IAirnodeRequester {
-    using ECDSA for bytes32;
-
     /// @notice AirnodeProtocol contract address
     address public immutable override airnodeProtocol;
 

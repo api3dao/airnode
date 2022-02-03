@@ -109,7 +109,7 @@ interface IDapiServer is IAirnodeRequester {
         bytes memory conditions,
         address relayer,
         address sponsor
-    ) external returns (bytes32 subscriptionId, bytes32 beaconId);
+    ) external returns (bytes32 subscriptionId);
 
     function conditionPspBeaconUpdate(
         bytes32 subscriptionId,
