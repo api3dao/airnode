@@ -18,26 +18,36 @@ contract WhitelistRoles is IWhitelistRoles {
     // is the admin of (2), (3) and (4). So (1) is more of a "contract admin",
     // while the `adminRole` used in AccessControl and AccessControlRegistry
     // refers to a more general adminship relationship between roles.
+
+    /// @notice Whitelist expiration extender role description
     string
         public constant
         override WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION =
         "Whitelist expiration extender";
+
+    /// @notice Whitelist expiration setter role description
     string
         public constant
         override WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION =
         "Whitelist expiration setter";
+
+    /// @notice Indefinite whitelister role description
+
     string public constant override INDEFINITE_WHITELISTER_ROLE_DESCRIPTION =
         "Indefinite whitelister";
+
     bytes32
         internal constant WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH =
         keccak256(
             abi.encodePacked(WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION)
         );
+
     bytes32
         internal constant WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(
             abi.encodePacked(WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION)
         );
+
     bytes32 internal constant INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(INDEFINITE_WHITELISTER_ROLE_DESCRIPTION));
 }

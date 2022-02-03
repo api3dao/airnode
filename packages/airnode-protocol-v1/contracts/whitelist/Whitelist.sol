@@ -6,7 +6,7 @@ pragma solidity 0.8.9;
 /// @notice This contract implements two kinds of whitelisting:
 ///   (1) Temporary, ends when the expiration timestamp is in the past
 ///   (2) Indefinite, ends when the indefinite whitelist count is zero
-/// Multiple senders can idefinitely whitelist/unwhitelist independently. The
+/// Multiple senders can indefinitely whitelist/unwhitelist independently. The
 /// user will be considered whitelisted as long as there is at least one active
 /// indefinite whitelisting.
 /// @dev The interface of this contract is not implemented. It should be
@@ -65,7 +65,7 @@ contract Whitelist {
     /// service
     /// @dev As long as at least there is at least one account that has set the
     /// indefinite whitelist status of the user for the service as true, the
-    /// user will be considered whitelisted.
+    /// user will be considered whitelisted
     /// @param serviceId Service ID
     /// @param user User address
     /// @param status Indefinite whitelist status

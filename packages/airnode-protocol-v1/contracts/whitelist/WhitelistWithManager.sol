@@ -5,6 +5,7 @@ import "./Whitelist.sol";
 import "./WhitelistRolesWithManager.sol";
 import "./interfaces/IWhitelistWithManager.sol";
 
+/// @title Whitelist contract that is controlled by a manager
 contract WhitelistWithManager is
     Whitelist,
     WhitelistRolesWithManager,

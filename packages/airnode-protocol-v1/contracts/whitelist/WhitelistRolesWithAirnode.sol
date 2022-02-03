@@ -25,7 +25,7 @@ contract WhitelistRolesWithAirnode is
         )
     {}
 
-    /// @notice Derives the admin role for the specific Airnode address
+    /// @notice Derives the admin role for the Airnode
     /// @param airnode Airnode address
     /// @return adminRole Admin role
     function deriveAdminRole(address airnode)
@@ -37,8 +37,7 @@ contract WhitelistRolesWithAirnode is
         adminRole = _deriveAdminRole(airnode);
     }
 
-    /// @notice Derives the whitelist expiration extender role for the specific
-    /// Airnode address
+    /// @notice Derives the whitelist expiration extender role for the Airnode
     /// @param airnode Airnode address
     /// @return whitelistExpirationExtenderRole Whitelist expiration extender
     /// role
@@ -54,8 +53,7 @@ contract WhitelistRolesWithAirnode is
         );
     }
 
-    /// @notice Derives the whitelist expiration setter role for the specific
-    /// Airnode address
+    /// @notice Derives the whitelist expiration setter role for the Airnode
     /// @param airnode Airnode address
     /// @return whitelistExpirationSetterRole Whitelist expiration setter role
     function deriveWhitelistExpirationSetterRole(address airnode)
@@ -70,8 +68,7 @@ contract WhitelistRolesWithAirnode is
         );
     }
 
-    /// @notice Derives the indefinite whitelister role for the specific
-    /// Airnode address
+    /// @notice Derives the indefinite whitelister role for the Airnode
     /// @param airnode Airnode address
     /// @return indefiniteWhitelisterRole Indefinite whitelister role
     function deriveIndefiniteWhitelisterRole(address airnode)
