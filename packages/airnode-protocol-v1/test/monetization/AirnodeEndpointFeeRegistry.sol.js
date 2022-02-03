@@ -426,56 +426,42 @@ describe('registerAirnodeChainPrice', function () {
 describe('registerAirnodeEndpointPrice', function () {
   context('Sender has the registrar role', function () {
     context('Airnode address is not zero', function () {
-      context('Endpoint ID is not zero', function () {
-        context('Price is not zero', function () {
-          it('sets Airnode, endpoint price', async function () {
-            const airnodeAddress = testUtils.generateRandomAddress();
-            const endpointId = testUtils.generateRandomBytes32();
-            const price = 123;
-            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
-              airnodeAddress,
-              endpointId
-            );
-            expect(priceFetchAttempt.success).to.equal(false);
-            expect(priceFetchAttempt.price).to.equal(0);
-            await expect(
-              airnodeEndpointPriceRegistry
-                .connect(roles.registrar)
-                .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-            )
-              .to.emit(airnodeEndpointPriceRegistry, 'RegisterAirnodeEndpointPrice')
-              .withArgs(airnodeAddress, endpointId, price, roles.registrar.address);
-            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
-              airnodeAddress,
-              endpointId
-            );
-            expect(priceFetchAttempt.success).to.equal(true);
-            expect(priceFetchAttempt.price).to.equal(price);
-          });
-        });
-        context('Price is zero', function () {
-          it('reverts', async function () {
-            const airnodeAddress = testUtils.generateRandomAddress();
-            const endpointId = testUtils.generateRandomBytes32();
-            const price = 0;
-            await expect(
-              airnodeEndpointPriceRegistry
-                .connect(roles.registrar)
-                .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-            ).to.be.revertedWith('Cannot register zero');
-          });
-        });
-      });
-      context('Endpoint ID is zero', function () {
-        it('reverts', async function () {
+      context('Price is not zero', function () {
+        it('sets Airnode, endpoint price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
-          const endpointId = hre.ethers.constants.HashZero;
+          const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
+          let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
+            airnodeAddress,
+            endpointId
+          );
+          expect(priceFetchAttempt.success).to.equal(false);
+          expect(priceFetchAttempt.price).to.equal(0);
           await expect(
             airnodeEndpointPriceRegistry
               .connect(roles.registrar)
               .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-          ).to.be.revertedWith('Endpoint ID zero');
+          )
+            .to.emit(airnodeEndpointPriceRegistry, 'RegisterAirnodeEndpointPrice')
+            .withArgs(airnodeAddress, endpointId, price, roles.registrar.address);
+          priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeEndpointPrice(
+            airnodeAddress,
+            endpointId
+          );
+          expect(priceFetchAttempt.success).to.equal(true);
+          expect(priceFetchAttempt.price).to.equal(price);
+        });
+      });
+      context('Price is zero', function () {
+        it('reverts', async function () {
+          const airnodeAddress = testUtils.generateRandomAddress();
+          const endpointId = testUtils.generateRandomBytes32();
+          const price = 0;
+          await expect(
+            airnodeEndpointPriceRegistry
+              .connect(roles.registrar)
+              .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
+          ).to.be.revertedWith('Cannot register zero');
         });
       });
     });
@@ -564,61 +550,46 @@ describe('registerAirnodeChainEndpointPrice', function () {
   context('Sender has the registrar role', function () {
     context('Airnode address is not zero', function () {
       context('Chain ID is not zero', function () {
-        context('Endpoint ID is not zero', function () {
-          context('Price is not zero', function () {
-            it('sets Airnode, chain, endpoint price', async function () {
-              const airnodeAddress = testUtils.generateRandomAddress();
-              const chainId = 3;
-              const endpointId = testUtils.generateRandomBytes32();
-              const price = 123;
-              let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
-                airnodeAddress,
-                chainId,
-                endpointId
-              );
-              expect(priceFetchAttempt.success).to.equal(false);
-              expect(priceFetchAttempt.price).to.equal(0);
-              await expect(
-                airnodeEndpointPriceRegistry
-                  .connect(roles.registrar)
-                  .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-              )
-                .to.emit(airnodeEndpointPriceRegistry, 'RegisterAirnodeChainEndpointPrice')
-                .withArgs(airnodeAddress, chainId, endpointId, price, roles.registrar.address);
-              priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
-                airnodeAddress,
-                chainId,
-                endpointId
-              );
-              expect(priceFetchAttempt.success).to.equal(true);
-              expect(priceFetchAttempt.price).to.equal(price);
-            });
-          });
-          context('Price is zero', function () {
-            it('reverts', async function () {
-              const airnodeAddress = testUtils.generateRandomAddress();
-              const chainId = 3;
-              const endpointId = testUtils.generateRandomBytes32();
-              const price = 0;
-              await expect(
-                airnodeEndpointPriceRegistry
-                  .connect(roles.registrar)
-                  .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-              ).to.be.revertedWith('Cannot register zero');
-            });
-          });
-        });
-        context('Endpoint ID is zero', function () {
-          it('reverts', async function () {
+        context('Price is not zero', function () {
+          it('sets Airnode, chain, endpoint price', async function () {
             const airnodeAddress = testUtils.generateRandomAddress();
             const chainId = 3;
-            const endpointId = hre.ethers.constants.HashZero;
+            const endpointId = testUtils.generateRandomBytes32();
             const price = 123;
+            let priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
+              airnodeAddress,
+              chainId,
+              endpointId
+            );
+            expect(priceFetchAttempt.success).to.equal(false);
+            expect(priceFetchAttempt.price).to.equal(0);
             await expect(
               airnodeEndpointPriceRegistry
                 .connect(roles.registrar)
                 .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-            ).to.be.revertedWith('Endpoint ID zero');
+            )
+              .to.emit(airnodeEndpointPriceRegistry, 'RegisterAirnodeChainEndpointPrice')
+              .withArgs(airnodeAddress, chainId, endpointId, price, roles.registrar.address);
+            priceFetchAttempt = await airnodeEndpointPriceRegistry.tryReadAirnodeChainEndpointPrice(
+              airnodeAddress,
+              chainId,
+              endpointId
+            );
+            expect(priceFetchAttempt.success).to.equal(true);
+            expect(priceFetchAttempt.price).to.equal(price);
+          });
+        });
+        context('Price is zero', function () {
+          it('reverts', async function () {
+            const airnodeAddress = testUtils.generateRandomAddress();
+            const chainId = 3;
+            const endpointId = testUtils.generateRandomBytes32();
+            const price = 0;
+            await expect(
+              airnodeEndpointPriceRegistry
+                .connect(roles.registrar)
+                .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
+            ).to.be.revertedWith('Cannot register zero');
           });
         });
       });

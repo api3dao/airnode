@@ -46,13 +46,6 @@ contract AirnodeEndpointPriceRegistry is
         _;
     }
 
-    /// @dev Reverts if the endpoint ID is zero
-    /// @param endpointId Endpoint ID
-    modifier onlyNonZeroEndpointId(bytes32 endpointId) {
-        require(endpointId != 0, "Endpoint ID zero");
-        _;
-    }
-
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
@@ -133,19 +126,13 @@ contract AirnodeEndpointPriceRegistry is
     /// hashes for `endpointId` as they are supposed to and numbers instead,
     /// which may be the same as chain IDs and result in collision
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param price 30 day price in USD (times 10^18)
     function registerAirnodeEndpointPrice(
         address airnode,
         bytes32 endpointId,
         uint256 price
-    )
-        external
-        override
-        onlyRegistrarOrManager
-        onlyNonZeroAirnode(airnode)
-        onlyNonZeroEndpointId(endpointId)
-    {
+    ) external override onlyRegistrarOrManager onlyNonZeroAirnode(airnode) {
         _registerUint256(
             keccak256(abi.encodePacked(SALT, airnode, endpointId)),
             price
@@ -162,7 +149,7 @@ contract AirnodeEndpointPriceRegistry is
     /// Airnode, chain, endpoint price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param price 30 day price in USD (times 10^18)
     function registerAirnodeChainEndpointPrice(
         address airnode,
@@ -175,7 +162,6 @@ contract AirnodeEndpointPriceRegistry is
         onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
         onlyNonZeroChainId(chainId)
-        onlyNonZeroEndpointId(endpointId)
     {
         _registerUint256(
             keccak256(abi.encodePacked(airnode, chainId, endpointId)),

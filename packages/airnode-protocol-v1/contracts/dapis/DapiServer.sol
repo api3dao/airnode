@@ -251,7 +251,7 @@ contract DapiServer is
     /// `setPspSponsorshipStatus()` to give permission for its sponsor wallet
     /// to be used for the specific subscription.
     /// @param airnode Airnode address
-    /// @param templateId Template ID (not allowed to be `bytes32(0)`)
+    /// @param templateId Template ID
     /// @param conditions Conditions under which the subscription is requested
     /// to be fulfilled
     /// @param relayer Relayer address
