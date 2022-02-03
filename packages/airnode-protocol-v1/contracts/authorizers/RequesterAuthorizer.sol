@@ -43,8 +43,7 @@ abstract contract RequesterAuthorizer is
 
     /// @notice Sets the expiration of the temporary whitelist of `requester`
     /// for the `airnode`–`endpointId` pair and emits an event
-    /// @dev Unlike `_extendWhitelistExpiration()`, this can hasten expiration.
-    /// Emits the event even if it does not change the state.
+    /// @dev Unlike `_extendWhitelistExpiration()`, this can hasten expiration
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
