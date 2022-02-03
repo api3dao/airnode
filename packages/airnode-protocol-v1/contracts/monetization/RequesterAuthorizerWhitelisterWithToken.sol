@@ -2,6 +2,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Multicall.sol";
 import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol";
 import "./AirnodeEndpointPriceRegistryUser.sol";
 import "./RequesterAuthorizerRegistryUser.sol";
@@ -11,6 +12,7 @@ import "../authorizers/interfaces/IRequesterAuthorizer.sol";
 /// @title Base contract for RequesterAuthorizer whitelister contracts that
 /// will whitelist based on token interaction
 contract RequesterAuthorizerWhitelisterWithToken is
+    Multicall,
     AccessControlRegistryAdminnedWithManager,
     AirnodeEndpointPriceRegistryUser,
     RequesterAuthorizerRegistryUser,
