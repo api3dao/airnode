@@ -6,8 +6,8 @@ interface IDapiReader {
 }
 
 /// @dev We use the part of the interface that will persist between
-/// BeaconServer versions here
-interface IDapiServer {
+/// DapiServer versions
+interface IBaseDapiServer {
     function readWithDataPointId(bytes32 dataPointId)
         external
         view
