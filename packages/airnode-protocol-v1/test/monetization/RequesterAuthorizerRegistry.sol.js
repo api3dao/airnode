@@ -39,7 +39,7 @@ beforeEach(async () => {
   await accessControlRegistry.connect(roles.manager).grantRole(registrarRole, roles.registrar.address);
 });
 
-describe('setChainRequesterAuthorizer', function () {
+describe('registerChainRequesterAuthorizer', function () {
   context('Sender has the registrar role', function () {
     context('Chain ID is not zero', function () {
       context('RequesterAuthorizer has not been set before', function () {
@@ -56,9 +56,9 @@ describe('setChainRequesterAuthorizer', function () {
             await expect(
               requesterAuthorizerRegistry
                 .connect(roles.registrar)
-                .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+                .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
             )
-              .to.emit(requesterAuthorizerRegistry, 'SetChainRequesterAuthorizer')
+              .to.emit(requesterAuthorizerRegistry, 'RegisteredChainRequesterAuthorizer')
               .withArgs(chainId, requesterAuthorizerAddress, roles.registrar.address);
             requesterAuthorizerAddressFetchAttempt = await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(
               chainId
@@ -74,7 +74,7 @@ describe('setChainRequesterAuthorizer', function () {
             await expect(
               requesterAuthorizerRegistry
                 .connect(roles.registrar)
-                .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+                .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
             ).to.be.revertedWith('Cannot register zero');
           });
         });
@@ -85,11 +85,11 @@ describe('setChainRequesterAuthorizer', function () {
           const requesterAuthorizerAddress = testUtils.generateRandomAddress();
           await requesterAuthorizerRegistry
             .connect(roles.registrar)
-            .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress);
+            .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress);
           await expect(
             requesterAuthorizerRegistry
               .connect(roles.registrar)
-              .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+              .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
           ).to.be.revertedWith('Chain Authorizer already set');
         });
       });
@@ -101,7 +101,7 @@ describe('setChainRequesterAuthorizer', function () {
         await expect(
           requesterAuthorizerRegistry
             .connect(roles.registrar)
-            .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+            .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
         ).to.be.revertedWith('Chain ID zero');
       });
     });
@@ -119,9 +119,9 @@ describe('setChainRequesterAuthorizer', function () {
           await expect(
             requesterAuthorizerRegistry
               .connect(roles.manager)
-              .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+              .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
           )
-            .to.emit(requesterAuthorizerRegistry, 'SetChainRequesterAuthorizer')
+            .to.emit(requesterAuthorizerRegistry, 'RegisteredChainRequesterAuthorizer')
             .withArgs(chainId, requesterAuthorizerAddress, roles.manager.address);
           requesterAuthorizerAddressFetchAttempt = await requesterAuthorizerRegistry.tryReadChainRequesterAuthorizer(
             chainId
@@ -137,7 +137,7 @@ describe('setChainRequesterAuthorizer', function () {
           await expect(
             requesterAuthorizerRegistry
               .connect(roles.manager)
-              .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+              .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
           ).to.be.revertedWith('Cannot register zero');
         });
       });
@@ -149,7 +149,7 @@ describe('setChainRequesterAuthorizer', function () {
         await expect(
           requesterAuthorizerRegistry
             .connect(roles.manager)
-            .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+            .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
         ).to.be.revertedWith('Chain ID zero');
       });
     });
@@ -161,7 +161,7 @@ describe('setChainRequesterAuthorizer', function () {
       await expect(
         requesterAuthorizerRegistry
           .connect(roles.randomPerson)
-          .setChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
+          .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
       ).to.be.revertedWith('Sender cannot register');
     });
   });

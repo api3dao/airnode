@@ -17,8 +17,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         uint256 count;
     }
 
-    /// @notice Token deposits made for the Airnode–chain–endpoint–requester
-    /// pair
+    /// @notice Token deposits made for Airnode, chain, endpoint, requester
     mapping(address => mapping(uint256 => mapping(bytes32 => mapping(address => TokenDeposits))))
         private airnodeToChainIdToEndpointIdToRequesterToTokenDeposits;
 

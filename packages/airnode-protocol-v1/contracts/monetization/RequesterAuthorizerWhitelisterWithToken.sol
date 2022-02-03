@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol";
-import "./AirnodeEndpointPriceRegistryReader.sol";
-import "./RequesterAuthorizerRegistryReader.sol";
+import "./AirnodeEndpointPriceRegistryUser.sol";
+import "./RequesterAuthorizerRegistryUser.sol";
 import "./interfaces/IRequesterAuthorizerWhitelisterWithToken.sol";
 import "../authorizers/interfaces/IRequesterAuthorizer.sol";
 
@@ -12,20 +12,20 @@ import "../authorizers/interfaces/IRequesterAuthorizer.sol";
 /// will whitelist based on token interaction
 contract RequesterAuthorizerWhitelisterWithToken is
     AccessControlRegistryAdminnedWithManager,
-    AirnodeEndpointPriceRegistryReader,
-    RequesterAuthorizerRegistryReader,
+    AirnodeEndpointPriceRegistryUser,
+    RequesterAuthorizerRegistryUser,
     IRequesterAuthorizerWhitelisterWithToken
 {
     /// @notice Maintainer role description
     string public constant override MAINTAINER_ROLE_DESCRIPTION = "Maintainer";
 
+    /// @notice Blocker role description
+    string public constant override BLOCKER_ROLE_DESCRIPTION = "Blocker";
+
     /// @notice Maintainer role
     /// @dev Maintainers do day-to-day operation such as maintaining price
     /// parameters and Airnode participation statuses
     bytes32 public immutable override maintainerRole;
-
-    /// @notice Blocker role description
-    string public constant override BLOCKER_ROLE_DESCRIPTION = "Blocker";
 
     /// @notice Blocker role
     /// @dev Blockers deny service to malicious requesters. Since this
@@ -42,18 +42,25 @@ contract RequesterAuthorizerWhitelisterWithToken is
     uint256 public override tokenPrice;
 
     /// @notice Coefficient that can be used to adjust the amount of tokens
+    /// required to interact with the contract
     /// @dev If `token` has 18 decimals, a `priceCoefficient` of 10^18 means
     /// the price registry amount will be used directly, while a
     /// `priceCoefficient` of 10^19 means 10 times the price registry amount
     /// will be used. On the other hand, if `token` has 6 decimals, a
     /// `priceCoefficient` of 10^6 means the price registry amount will be used
-    /// directly.
+    /// directly, etc.
     uint256 public override priceCoefficient;
 
-    /// @notice Address to which the funds will be collected at
+    /// @notice Address that the funds will be collected at
     address public override proceedsDestination;
 
-    /// @notice Airnode status regarding participation in this contract
+    /// @notice If the Airnode is participating in the scheme implemented by
+    /// the contract:
+    /// Inactive: The Airnode is not participating, but can be made to
+    /// participate by a mantainer
+    /// Active: The Airnode is participating
+    /// OptedOut: The Airnode actively opted out, and cannot be made to
+    /// participate unless this is reverted by the Airnode
     mapping(address => AirnodeParticipationStatus)
         public
         override airnodeToParticipationStatus;
@@ -162,8 +169,8 @@ contract RequesterAuthorizerWhitelisterWithToken is
             _adminRoleDescription,
             _manager
         )
-        AirnodeEndpointPriceRegistryReader(_airnodeEndpointPriceRegistry)
-        RequesterAuthorizerRegistryReader(_requesterAuthorizerRegistry)
+        AirnodeEndpointPriceRegistryUser(_airnodeEndpointPriceRegistry)
+        RequesterAuthorizerRegistryUser(_requesterAuthorizerRegistry)
     {
         require(_token != address(0), "Token address zero");
         token = _token;
@@ -226,8 +233,9 @@ contract RequesterAuthorizerWhitelisterWithToken is
     ) external override onlyNonZeroAirnode(airnode) {
         if (msg.sender == airnode) {
             require(
-                airnodeParticipationStatus != AirnodeParticipationStatus.Active,
-                "Airnode cannot activate itself"
+                airnodeParticipationStatus ==
+                    AirnodeParticipationStatus.OptedOut,
+                "Airnode can only opt out"
             );
         } else {
             require(

@@ -4,6 +4,8 @@ pragma solidity 0.8.9;
 import "../utils/AddressRegistry.sol";
 import "./interfaces/IRequesterAuthorizerRegistry.sol";
 
+/// @title Registry for addresses of RequesterAuthorizer contracts dedicated to
+/// chains
 contract RequesterAuthorizerRegistry is
     AddressRegistry,
     IRequesterAuthorizerRegistry
@@ -19,7 +21,12 @@ contract RequesterAuthorizerRegistry is
         AddressRegistry(_accessControlRegistry, _adminRoleDescription, _manager)
     {}
 
-    function setChainRequesterAuthorizer(
+    /// @notice Called by registrars or the manager to register the
+    /// RequesterAuthorizer with the chain ID
+    /// @dev The RequesterAuthorizer for the chain can be registered only once
+    /// @param chainId Chain ID
+    /// @param requesterAuthorizer RequesterAuthorizer contract address
+    function registerChainRequesterAuthorizer(
         uint256 chainId,
         address requesterAuthorizer
     ) external override onlyRegistrarOrManager {
@@ -30,13 +37,18 @@ contract RequesterAuthorizerRegistry is
             keccak256(abi.encodePacked(chainId)),
             requesterAuthorizer
         );
-        emit SetChainRequesterAuthorizer(
+        emit RegisteredChainRequesterAuthorizer(
             chainId,
             requesterAuthorizer,
             msg.sender
         );
     }
 
+    /// @notice Returns if there is a registered RequesterAuthorizer address
+    /// for the chain ID and what it is
+    /// @param chainId Chain ID
+    /// @return success If the RequesterAuthorizer was registered
+    /// @return requesterAuthorizer Registered address
     function tryReadChainRequesterAuthorizer(uint256 chainId)
         public
         view

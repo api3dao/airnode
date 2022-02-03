@@ -25,11 +25,10 @@ contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
     {}
 
     /// @notice Returns if there is a registered unsigned integer with the ID
-    /// and the registered unsigned integer if it exists
+    /// and the registered unsigned integer and what it is
     /// @param id Registry ID
     /// @return success If there is a registered unsigned integer with the ID
-    /// @return uint256_ Registered unsigned integer if it exists (returns 0
-    /// otherwise)
+    /// @return uint256_ Registered unsigned integer
     function tryReadRegisteredUint256(bytes32 id)
         public
         view

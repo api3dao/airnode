@@ -28,27 +28,27 @@ beforeEach(async () => {
 describe('constructor', function () {
   context('AirnodeEndpointPriceRegistry address is not zero', function () {
     it('constructs', async function () {
-      const airnodeEndpointPriceRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'AirnodeEndpointPriceRegistryReader',
+      const airnodeEndpointPriceRegistryUserFactory = await hre.ethers.getContractFactory(
+        'AirnodeEndpointPriceRegistryUser',
         roles.deployer
       );
-      const airnodeEndpointPriceRegistryReader = await airnodeEndpointPriceRegistryReaderFactory.deploy(
+      const airnodeEndpointPriceRegistryUser = await airnodeEndpointPriceRegistryUserFactory.deploy(
         airnodeEndpointPriceRegistry.address
       );
-      expect(await airnodeEndpointPriceRegistryReader.airnodeEndpointPriceRegistry()).to.equal(
+      expect(await airnodeEndpointPriceRegistryUser.airnodeEndpointPriceRegistry()).to.equal(
         airnodeEndpointPriceRegistry.address
       );
     });
   });
   context('AirnodeEndpointPriceRegistry address is zero', function () {
     it('reverts', async function () {
-      const airnodeEndpointPriceRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'AirnodeEndpointPriceRegistryReader',
+      const airnodeEndpointPriceRegistryUserFactory = await hre.ethers.getContractFactory(
+        'AirnodeEndpointPriceRegistryUser',
         roles.deployer
       );
-      await expect(
-        airnodeEndpointPriceRegistryReaderFactory.deploy(hre.ethers.constants.AddressZero)
-      ).to.be.revertedWith('Price registry address zero');
+      await expect(airnodeEndpointPriceRegistryUserFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
+        'Price registry address zero'
+      );
     });
   });
 });

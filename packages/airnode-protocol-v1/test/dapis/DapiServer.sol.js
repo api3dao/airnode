@@ -2891,7 +2891,7 @@ describe('deriveBeaconId', function () {
   context('Airnode address is zero', function () {
     it('reverts', async function () {
       await expect(dapiServer.deriveBeaconId(hre.ethers.constants.AddressZero, templateId)).to.be.revertedWith(
-        'Template ID zero'
+        'Airnode address zero'
       );
     });
   });

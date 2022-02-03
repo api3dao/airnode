@@ -1,18 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "./interfaces/IRequesterAuthorizerRegistryReader.sol";
+import "./interfaces/IRequesterAuthorizerRegistry.sol";
+import "./interfaces/IRequesterAuthorizerRegistryUser.sol";
 
-interface IRequesterAuthorizerRegistry {
-    function tryReadChainRequesterAuthorizer(uint256 chainId)
-        external
-        view
-        returns (bool success, address requesterAuthorizer);
-}
-
-contract RequesterAuthorizerRegistryReader is
-    IRequesterAuthorizerRegistryReader
-{
+/// @title Contract that should be inherited by contracts that will interact
+/// with RequesterAuthorizerRegistry
+contract RequesterAuthorizerRegistryUser is IRequesterAuthorizerRegistryUser {
     /// @notice RequesterAuthorizerRegistry contract address
     address public immutable override requesterAuthorizerRegistry;
 

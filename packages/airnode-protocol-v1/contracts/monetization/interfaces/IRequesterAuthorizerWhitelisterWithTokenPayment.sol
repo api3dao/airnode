@@ -24,7 +24,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         address sender
     );
 
-    event SetMinimumWhitelistDuration(
+    event SetMinimumWhitelistExtension(
         uint64 minimumWhitelistExtension,
         address sender
     );
@@ -49,7 +49,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         address requester
     ) external;
 
-    function setMinimumWhitelistDuration(uint64 _minimumWhitelistExtension)
+    function setMinimumWhitelistExtension(uint64 _minimumWhitelistExtension)
         external;
 
     function setMaximumWhitelistDuration(uint64 _maximumWhitelistDuration)
@@ -59,7 +59,7 @@ interface IRequesterAuthorizerWhitelisterWithTokenPayment is
         address airnode,
         uint256 chainId,
         bytes32 endpointId,
-        uint64 whitelistDuration
+        uint64 whitelistExtension
     ) external view returns (uint256 tokenPaymentAmount);
 
     function minimumWhitelistExtension() external view returns (uint64);

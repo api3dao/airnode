@@ -4,8 +4,7 @@ pragma solidity 0.8.9;
 import "../utils/Uint256Registry.sol";
 import "./interfaces/IAirnodeEndpointPriceRegistry.sol";
 
-/// @title Contract that stores the price of accessing Airnode endpoints across
-/// different chains
+/// @title Registry for prices of accessing Airnode endpoints across chains
 /// @notice AirnodeEndpointPriceRegistry is a central contract that can be queried for
 /// the USD price of an Airnode–chain–endpoint pair
 contract AirnodeEndpointPriceRegistry is
@@ -18,10 +17,13 @@ contract AirnodeEndpointPriceRegistry is
         public
         override prioritizeEndpointPriceOverChainPrice;
 
+    /// @notice Denomination used to specify the prices
     string public constant override DENOMINATION = "USD";
 
+    /// @notice Decimals used to specify the prices
     uint256 public constant override DECIMALS = 18;
 
+    /// @notice Pricing interval used to specify the prices
     uint256 public constant override PRICING_INTERVAL = 30 days;
 
     bytes32 private constant DEFAULT_PRICE_ID =
@@ -30,17 +32,24 @@ contract AirnodeEndpointPriceRegistry is
     bytes32 private constant SALT =
         keccak256(abi.encodePacked("Salt to avoid hash collision"));
 
-    /// @dev Reverts if Airnode address is zero
+    /// @dev Reverts if the Airnode address is zero
     /// @param airnode Airnode address
     modifier onlyNonZeroAirnode(address airnode) {
         require(airnode != address(0), "Airnode address zero");
         _;
     }
 
-    /// @dev Reverts if Chain ID is zero
+    /// @dev Reverts if the chain ID is zero
     /// @param chainId Chain ID
     modifier onlyNonZeroChainId(uint256 chainId) {
         require(chainId != 0, "Chain ID zero");
+        _;
+    }
+
+    /// @dev Reverts if the endpoint ID is zero
+    /// @param endpointId Endpoint ID
+    modifier onlyNonZeroEndpointId(bytes32 endpointId) {
+        require(endpointId != 0, "Endpoint ID zero");
         _;
     }
 
@@ -55,21 +64,23 @@ contract AirnodeEndpointPriceRegistry is
         Uint256Registry(_accessControlRegistry, _adminRoleDescription, _manager)
     {}
 
-    /// @notice Sets the default price
-    /// @param price Price in USD (times 10^18)
-    function setDefaultPrice(uint256 price)
+    /// @notice Called by registrars or the manager to register the
+    /// default price
+    /// @param price 30 day price in USD (times 10^18)
+    function registerDefaultPrice(uint256 price)
         external
         override
         onlyRegistrarOrManager
     {
         _registerUint256(DEFAULT_PRICE_ID, price);
-        emit SetDefaultPrice(price, msg.sender);
+        emit RegisterDefaultPrice(price, msg.sender);
     }
 
-    /// @notice Sets the default chain price
+    /// @notice Called by registrars or the manager to register the
+    /// default chain price
     /// @param chainId Chain ID
-    /// @param price Price in USD (times 10^18)
-    function setDefaultChainPrice(uint256 chainId, uint256 price)
+    /// @param price 30 day price in USD (times 10^18)
+    function registerDefaultChainPrice(uint256 chainId, uint256 price)
         external
         override
         onlyRegistrarOrManager
@@ -79,27 +90,29 @@ contract AirnodeEndpointPriceRegistry is
             keccak256(abi.encodePacked(DEFAULT_PRICE_ID, chainId)),
             price
         );
-        emit SetDefaultChainPrice(chainId, price, msg.sender);
+        emit RegisterDefaultChainPrice(chainId, price, msg.sender);
     }
 
-    /// @notice Sets the Airnode price
+    /// @notice Called by registrars or the manager to register the
+    /// Airnode price
     /// @param airnode Airnode address
-    /// @param price Price in USD (times 10^18)
-    function setAirnodePrice(address airnode, uint256 price)
+    /// @param price 30 day price in USD (times 10^18)
+    function registerAirnodePrice(address airnode, uint256 price)
         external
         override
         onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
     {
         _registerUint256(keccak256(abi.encodePacked(airnode)), price);
-        emit SetAirnodePrice(airnode, price, msg.sender);
+        emit RegisterAirnodePrice(airnode, price, msg.sender);
     }
 
-    /// @notice Sets the Airnode chain price
+    /// @notice Called by registrars or the manager to register the
+    /// Airnode, chain price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
-    /// @param price Price in USD (times 10^18)
-    function setAirnodeChainPrice(
+    /// @param price 30 day price in USD (times 10^18)
+    function registerAirnodeChainPrice(
         address airnode,
         uint256 chainId,
         uint256 price
@@ -111,34 +124,47 @@ contract AirnodeEndpointPriceRegistry is
         onlyNonZeroChainId(chainId)
     {
         _registerUint256(keccak256(abi.encodePacked(airnode, chainId)), price);
-        emit SetAirnodeChainPrice(airnode, chainId, price, msg.sender);
+        emit RegisterAirnodeChainPrice(airnode, chainId, price, msg.sender);
     }
 
-    /// @notice Sets the Airnode endpoint price
+    /// @notice Called by registrars or the manager to register the
+    /// Airnode, endpoint price
     /// @dev The registry ID hash is salted in case the Airnode is not using
     /// hashes for `endpointId` as they are supposed to and numbers instead,
-    /// which may be the same as chain IDs and result in collision.
+    /// which may be the same as chain IDs and result in collision
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
-    /// @param price Price in USD (times 10^18)
-    function setAirnodeEndpointPrice(
+    /// @param endpointId Endpoint ID
+    /// @param price 30 day price in USD (times 10^18)
+    function registerAirnodeEndpointPrice(
         address airnode,
         bytes32 endpointId,
         uint256 price
-    ) external override onlyRegistrarOrManager onlyNonZeroAirnode(airnode) {
+    )
+        external
+        override
+        onlyRegistrarOrManager
+        onlyNonZeroAirnode(airnode)
+        onlyNonZeroEndpointId(endpointId)
+    {
         _registerUint256(
             keccak256(abi.encodePacked(SALT, airnode, endpointId)),
             price
         );
-        emit SetAirnodeEndpointPrice(airnode, endpointId, price, msg.sender);
+        emit RegisterAirnodeEndpointPrice(
+            airnode,
+            endpointId,
+            price,
+            msg.sender
+        );
     }
 
-    /// @notice Sets the Airnode chain endpoint price
+    /// @notice Called by registrars or the manager to register the
+    /// Airnode, chain, endpoint price
     /// @param airnode Airnode address
     /// @param chainId Chain ID
-    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
-    /// @param price Price in USD (times 10^18)
-    function setAirnodeChainEndpointPrice(
+    /// @param endpointId Endpoint ID
+    /// @param price 30 day price in USD (times 10^18)
+    function registerAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
         bytes32 endpointId,
@@ -149,12 +175,13 @@ contract AirnodeEndpointPriceRegistry is
         onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
         onlyNonZeroChainId(chainId)
+        onlyNonZeroEndpointId(endpointId)
     {
         _registerUint256(
             keccak256(abi.encodePacked(airnode, chainId, endpointId)),
             price
         );
-        emit SetAirnodeChainEndpointPrice(
+        emit RegisterAirnodeChainEndpointPrice(
             airnode,
             chainId,
             endpointId,
@@ -178,9 +205,9 @@ contract AirnodeEndpointPriceRegistry is
         emit SetEndpointAndChainPricePriority(airnode, status, msg.sender);
     }
 
-    /// @notice Returns the default price
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @notice Returns if there is a registered default price and what it is
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadDefaultPrice()
         public
         view
@@ -190,10 +217,11 @@ contract AirnodeEndpointPriceRegistry is
         (success, price) = tryReadRegisteredUint256(DEFAULT_PRICE_ID);
     }
 
-    /// @notice Returns the default chain price
+    /// @notice Returns if there is a registered default chain price and what
+    /// it is
     /// @param chainId Chain ID
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadDefaultChainPrice(uint256 chainId)
         public
         view
@@ -205,10 +233,10 @@ contract AirnodeEndpointPriceRegistry is
         );
     }
 
-    /// @notice Returns the Airnode price
+    /// @notice Returns if there is a registered Airnode price and what it is
     /// @param airnode Airnode address
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadAirnodePrice(address airnode)
         public
         view
@@ -220,11 +248,12 @@ contract AirnodeEndpointPriceRegistry is
         );
     }
 
-    /// @notice Returns the Airnode, chain price
+    /// @notice Returns if there is a registered Airnode, chain price and what
+    /// it is
     /// @param airnode Airnode address
     /// @param chainId Chain ID
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadAirnodeChainPrice(address airnode, uint256 chainId)
         public
         view
@@ -236,14 +265,15 @@ contract AirnodeEndpointPriceRegistry is
         );
     }
 
-    /// @notice Returns the Airnode, endpoint price
+    /// @notice Returns if there is a registered Airnode, endpoint price and
+    /// what it is
     /// @dev The registry ID hash is salted in case the Airnode is not using
     /// hashes for `endpointId` as they are supposed to and numbers instead,
     /// which may be the same as chain IDs and result in collision.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadAirnodeEndpointPrice(address airnode, bytes32 endpointId)
         public
         view
@@ -255,12 +285,13 @@ contract AirnodeEndpointPriceRegistry is
         );
     }
 
-    /// @notice Returns the Airnode, chain, endpoint price
+    /// @notice Returns if there is a registered Airnode, chain, endpoint price
+    /// and what it is
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID
-    /// @return success If the price was set
-    /// @return price Price in USD (times 10^18)
+    /// @return success If the price was registered
+    /// @return price 30 day price in USD (times 10^18)
     function tryReadAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
@@ -275,13 +306,13 @@ contract AirnodeEndpointPriceRegistry is
     /// chain and endpoint
     /// @dev The logic prioritizes more specific prices over less specific
     /// prices. There is ambiguity in if Airnode + chain or Airnode + endpoint
-    /// should be prioritize, which we made to configurable (defaults to
+    /// should be prioritized, which we made to configurable (defaults to
     /// prioritizing Airnode + chain).
     /// Reverts if no price is set.
     /// @param airnode Airnode address
     /// @param chainId Chain ID
     /// @param endpointId Endpoint ID
-    /// @return price Price in USD (times 10^18)
+    /// @return price 30 day price in USD (times 10^18)
     function getPrice(
         address airnode,
         uint256 chainId,

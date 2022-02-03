@@ -2,27 +2,31 @@
 pragma solidity 0.8.9;
 
 interface IAirnodeEndpointPriceRegistry {
-    event SetDefaultPrice(uint256 price, address sender);
+    event RegisterDefaultPrice(uint256 price, address sender);
 
-    event SetDefaultChainPrice(uint256 chainId, uint256 price, address sender);
+    event RegisterDefaultChainPrice(
+        uint256 chainId,
+        uint256 price,
+        address sender
+    );
 
-    event SetAirnodePrice(address airnode, uint256 price, address sender);
+    event RegisterAirnodePrice(address airnode, uint256 price, address sender);
 
-    event SetAirnodeChainPrice(
+    event RegisterAirnodeChainPrice(
         address airnode,
         uint256 chainId,
         uint256 price,
         address sender
     );
 
-    event SetAirnodeEndpointPrice(
+    event RegisterAirnodeEndpointPrice(
         address airnode,
         bytes32 endpointId,
         uint256 price,
         address sender
     );
 
-    event SetAirnodeChainEndpointPrice(
+    event RegisterAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
         bytes32 endpointId,
@@ -36,25 +40,25 @@ interface IAirnodeEndpointPriceRegistry {
         address sender
     );
 
-    function setDefaultPrice(uint256 price) external;
+    function registerDefaultPrice(uint256 price) external;
 
-    function setDefaultChainPrice(uint256 chainId, uint256 price) external;
+    function registerDefaultChainPrice(uint256 chainId, uint256 price) external;
 
-    function setAirnodePrice(address airnode, uint256 price) external;
+    function registerAirnodePrice(address airnode, uint256 price) external;
 
-    function setAirnodeChainPrice(
+    function registerAirnodeChainPrice(
         address airnode,
         uint256 chainId,
         uint256 price
     ) external;
 
-    function setAirnodeEndpointPrice(
+    function registerAirnodeEndpointPrice(
         address airnode,
         bytes32 endpointId,
         uint256 price
     ) external;
 
-    function setAirnodeChainEndpointPrice(
+    function registerAirnodeChainEndpointPrice(
         address airnode,
         uint256 chainId,
         bytes32 endpointId,

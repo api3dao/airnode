@@ -24,11 +24,10 @@ contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
     {}
 
     /// @notice Returns if there is a registered address with the ID and the
-    /// registered address if it exists
+    /// registered address and what it is
     /// @param id Registry ID
     /// @return success If there is a registered address with the ID
-    /// @return address_ Registered address if it exists (returns `address(0)`
-    /// otherwise)
+    /// @return address_ Registered address
     function tryReadRegisteredAddress(bytes32 id)
         public
         view

@@ -28,27 +28,27 @@ beforeEach(async () => {
 describe('constructor', function () {
   context('RequesterAuthorizerRegistry address is not zero', function () {
     it('constructs', async function () {
-      const requesterAuthorizerRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'RequesterAuthorizerRegistryReader',
+      const requesterAuthorizerRegistryUserFactory = await hre.ethers.getContractFactory(
+        'RequesterAuthorizerRegistryUser',
         roles.deployer
       );
-      const requesterAuthorizerRegistryReader = await requesterAuthorizerRegistryReaderFactory.deploy(
+      const requesterAuthorizerRegistryUser = await requesterAuthorizerRegistryUserFactory.deploy(
         requesterAuthorizerRegistry.address
       );
-      expect(await requesterAuthorizerRegistryReader.requesterAuthorizerRegistry()).to.equal(
+      expect(await requesterAuthorizerRegistryUser.requesterAuthorizerRegistry()).to.equal(
         requesterAuthorizerRegistry.address
       );
     });
   });
   context('RequesterAuthorizerRegistry address is zero', function () {
     it('reverts', async function () {
-      const requesterAuthorizerRegistryReaderFactory = await hre.ethers.getContractFactory(
-        'RequesterAuthorizerRegistryReader',
+      const requesterAuthorizerRegistryUserFactory = await hre.ethers.getContractFactory(
+        'RequesterAuthorizerRegistryUser',
         roles.deployer
       );
-      await expect(
-        requesterAuthorizerRegistryReaderFactory.deploy(hre.ethers.constants.AddressZero)
-      ).to.be.revertedWith('Authorizer registry address zero');
+      await expect(requesterAuthorizerRegistryUserFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
+        'Authorizer registry address zero'
+      );
     });
   });
 });

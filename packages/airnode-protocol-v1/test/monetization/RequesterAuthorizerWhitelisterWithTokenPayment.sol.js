@@ -62,7 +62,7 @@ beforeEach(async () => {
   );
   await requesterAuthorizerRegistry
     .connect(roles.manager)
-    .setChainRequesterAuthorizer(chainId, requesterAuthorizerWithManager.address);
+    .registerChainRequesterAuthorizer(chainId, requesterAuthorizerWithManager.address);
   const tokenFactory = await hre.ethers.getContractFactory('MockERC20', roles.deployer);
   token = await tokenFactory.deploy(tokenDecimals);
   const requesterAuthorizerWhitelisterWithTokenPaymentFactory = await hre.ethers.getContractFactory(
@@ -446,7 +446,7 @@ describe('setPriceCoefficient', function () {
 describe('setAirnodeParticipationStatus', function () {
   context('Airnode address is not zero', function () {
     context('Sender is Airnode', function () {
-      context('Status is not Active', function () {
+      context('Status is OptedOut', function () {
         it('sets Airnode participation status', async function () {
           await expect(
             requesterAuthorizerWhitelisterWithTokenPayment
@@ -458,25 +458,20 @@ describe('setAirnodeParticipationStatus', function () {
           expect(
             await requesterAuthorizerWhitelisterWithTokenPayment.airnodeToParticipationStatus(roles.airnode.address)
           ).to.equal(AirnodeParticipationStatus.OptedOut);
-          await expect(
-            requesterAuthorizerWhitelisterWithTokenPayment
-              .connect(roles.airnode)
-              .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Inactive)
-          )
-            .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetAirnodeParticipationStatus')
-            .withArgs(roles.airnode.address, AirnodeParticipationStatus.Inactive, roles.airnode.address);
-          expect(
-            await requesterAuthorizerWhitelisterWithTokenPayment.airnodeToParticipationStatus(roles.airnode.address)
-          ).to.equal(AirnodeParticipationStatus.Inactive);
         });
       });
-      context('Status is Active', function () {
+      context('Status is not OptedOut', function () {
         it('reverts', async function () {
           await expect(
             requesterAuthorizerWhitelisterWithTokenPayment
               .connect(roles.airnode)
               .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active)
-          ).to.be.revertedWith('Airnode cannot activate itself');
+          ).to.be.revertedWith('Airnode can only opt out');
+          await expect(
+            requesterAuthorizerWhitelisterWithTokenPayment
+              .connect(roles.airnode)
+              .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Inactive)
+          ).to.be.revertedWith('Airnode can only opt out');
         });
       });
     });
@@ -875,7 +870,7 @@ describe('getTokenAmount', function () {
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
       await airnodeEndpointPriceRegistry
         .connect(roles.manager)
-        .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+        .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       // $100 times 2 divided by $5 = 40 tokens with 12 decimals (because the token was defined to have 12 decimals)
       const expectedTokenAmount = price.mul(priceCoefficient).div(tokenPrice);
       expect(
@@ -893,14 +888,14 @@ describe('getTokenAmount', function () {
   });
 });
 
-describe('setMinimumWhitelistDuration', function () {
+describe('setMinimumWhitelistExtension', function () {
   context('Sender is maintainer', function () {
     context('Minimum whitelist duration is valid', function () {
       it('sets minimum whitelist extension', async function () {
         await expect(
-          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.maintainer).setMinimumWhitelistDuration(123)
+          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.maintainer).setMinimumWhitelistExtension(123)
         )
-          .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetMinimumWhitelistDuration')
+          .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetMinimumWhitelistExtension')
           .withArgs(123, roles.maintainer.address);
         expect(await requesterAuthorizerWhitelisterWithTokenPayment.minimumWhitelistExtension()).to.equal(123);
       });
@@ -908,12 +903,12 @@ describe('setMinimumWhitelistDuration', function () {
     context('Minimum whitelist duration is not valid', function () {
       it('reverts', async function () {
         await expect(
-          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.maintainer).setMinimumWhitelistDuration(0)
+          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.maintainer).setMinimumWhitelistExtension(0)
         ).to.be.revertedWith('Invalid minimum duration');
         await expect(
           requesterAuthorizerWhitelisterWithTokenPayment
             .connect(roles.maintainer)
-            .setMinimumWhitelistDuration(
+            .setMinimumWhitelistExtension(
               (await requesterAuthorizerWhitelisterWithTokenPayment.maximumWhitelistDuration()).add(1)
             )
         ).to.be.revertedWith('Invalid minimum duration');
@@ -924,9 +919,9 @@ describe('setMinimumWhitelistDuration', function () {
     context('Minimum whitelist duration is valid', function () {
       it('sets minimum whitelist extension', async function () {
         await expect(
-          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.manager).setMinimumWhitelistDuration(123)
+          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.manager).setMinimumWhitelistExtension(123)
         )
-          .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetMinimumWhitelistDuration')
+          .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetMinimumWhitelistExtension')
           .withArgs(123, roles.manager.address);
         expect(await requesterAuthorizerWhitelisterWithTokenPayment.minimumWhitelistExtension()).to.equal(123);
       });
@@ -934,12 +929,12 @@ describe('setMinimumWhitelistDuration', function () {
     context('Minimum whitelist duration is not valid', function () {
       it('reverts', async function () {
         await expect(
-          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.manager).setMinimumWhitelistDuration(0)
+          requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.manager).setMinimumWhitelistExtension(0)
         ).to.be.revertedWith('Invalid minimum duration');
         await expect(
           requesterAuthorizerWhitelisterWithTokenPayment
             .connect(roles.manager)
-            .setMinimumWhitelistDuration(
+            .setMinimumWhitelistExtension(
               (await requesterAuthorizerWhitelisterWithTokenPayment.maximumWhitelistDuration()).add(1)
             )
         ).to.be.revertedWith('Invalid minimum duration');
@@ -949,7 +944,7 @@ describe('setMinimumWhitelistDuration', function () {
   context('Sender is not maintainer and manager', function () {
     it('reverts', async function () {
       await expect(
-        requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.randomPerson).setMinimumWhitelistDuration(123)
+        requesterAuthorizerWhitelisterWithTokenPayment.connect(roles.randomPerson).setMinimumWhitelistExtension(123)
       ).to.be.revertedWith('Sender cannot maintain');
     });
   });
@@ -1032,7 +1027,7 @@ describe('payTokens', function () {
                       .div(30 * 24 * 60 * 60);
                     await airnodeEndpointPriceRegistry
                       .connect(roles.manager)
-                      .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+                      .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                     await requesterAuthorizerWhitelisterWithTokenPayment
                       .connect(roles.maintainer)
                       .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1089,7 +1084,7 @@ describe('payTokens', function () {
                     const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
                     await airnodeEndpointPriceRegistry
                       .connect(roles.manager)
-                      .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+                      .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                     await requesterAuthorizerWhitelisterWithTokenPayment
                       .connect(roles.maintainer)
                       .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1103,7 +1098,7 @@ describe('payTokens', function () {
                       requesterAuthorizerWhitelisterWithTokenPayment
                         .connect(roles.payer)
                         .payTokens(roles.airnode.address, chainId, endpointId, requester, whitelistExtension)
-                    ).to.be.revertedWith('Exceeded maximum duration');
+                    ).to.be.revertedWith('Exceeds maximum duration');
                   });
                 });
               });
@@ -1116,7 +1111,7 @@ describe('payTokens', function () {
                   const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
                   await airnodeEndpointPriceRegistry
                     .connect(roles.manager)
-                    .setAirnodeChainEndpointPrice(roles.airnode.address, anotherChainId, endpointId, price);
+                    .registerAirnodeChainEndpointPrice(roles.airnode.address, anotherChainId, endpointId, price);
                   await requesterAuthorizerWhitelisterWithTokenPayment
                     .connect(roles.maintainer)
                     .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1139,7 +1134,7 @@ describe('payTokens', function () {
                 const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
                 await airnodeEndpointPriceRegistry
                   .connect(roles.manager)
-                  .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+                  .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
                 await requesterAuthorizerWhitelisterWithTokenPayment
                   .connect(roles.maintainer)
                   .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1259,7 +1254,7 @@ describe('resetWhitelistExpirationOfBlockedRequester', function () {
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
       await airnodeEndpointPriceRegistry
         .connect(roles.manager)
-        .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+        .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       await requesterAuthorizerWhitelisterWithTokenPayment
         .connect(roles.maintainer)
         .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1305,7 +1300,7 @@ describe('resetWhitelistExpirationOfBlockedRequester', function () {
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
       await airnodeEndpointPriceRegistry
         .connect(roles.manager)
-        .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+        .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       await requesterAuthorizerWhitelisterWithTokenPayment
         .connect(roles.maintainer)
         .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
@@ -1364,7 +1359,7 @@ describe('getTokenPaymentAmount', function () {
       const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
       await airnodeEndpointPriceRegistry
         .connect(roles.manager)
-        .setAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+        .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
       // $100 times 2 divided by $5 divided by 4 = ~10 tokens with 12 decimals (because the token was defined to have 12 decimals)
       const expectedTokenAmount = price
         .mul(priceCoefficient)
