@@ -27,7 +27,7 @@ describe('spawnNewProvider', () => {
   });
 });
 
-describe('spawnProviderRequestProcessor', () => {
+describe('spawnTransactionsProcessor', () => {
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
     const state = fixtures.buildEVMProviderState();
@@ -41,7 +41,7 @@ describe('spawnProviderRequestProcessor', () => {
         type: 'aws',
         region: 'us-east-1',
       },
-      payload: { state, functionName: 'processProviderRequests' },
+      payload: { state, functionName: 'processTransactions' },
       airnodeAddressShort: '19255a4',
       stage: 'test',
     });

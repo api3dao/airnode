@@ -69,7 +69,7 @@ describe('callApi', () => {
   });
 });
 
-describe('processProviderRequests', () => {
+describe('processTransactions', () => {
   it('processes provider requests', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
@@ -79,7 +79,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(handlers, 'processTransactions').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
-    const res = await local.processProviderRequests({ state, functionName: 'processProviderRequests' });
+    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
     expect(res).toEqual({ ok: true, data: scrubbed });
   });
 
@@ -93,7 +93,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(handlers, 'processTransactions').mockRejectedValue(error);
 
     const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to process provider requests:Ganache test' };
-    const res = await local.processProviderRequests({ state, functionName: 'processProviderRequests' });
+    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
     expect(res).toEqual({ ok: false, errorLog });
   });
 });

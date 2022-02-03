@@ -19,7 +19,7 @@ describe('constants', () => {
     expect(constants.EVM_PROVIDER_TIMEOUT).toEqual(22_000);
     expect(constants.WORKER_CALL_API_TIMEOUT).toEqual(10_000);
     expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(17_000);
-    expect(constants.WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT).toEqual(32_000);
+    expect(constants.WORKER_PROCESS_TRANSACTIONS_TIMEOUT).toEqual(32_000);
     expect(constants.MAXIMUM_SPONSOR_WALLET_REQUESTS).toBe(5);
     expect(constants.PRIORITY_FEE).toEqual(3120000000);
     expect(constants.BASE_FEE_MULTIPLIER).toEqual(2);

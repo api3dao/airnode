@@ -32,8 +32,8 @@ export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayP
   if (payload.functionName === 'callApi') {
     return callApi(payload);
   }
-  if (payload.functionName === 'processProviderRequests') {
-    return processProviderRequests(payload);
+  if (payload.functionName === 'processTransactions') {
+    return processTransactions(payload);
   }
 
   return { statusCode: 400, body: JSON.stringify({ error: 'Unknown function', payload }) };
@@ -64,7 +64,7 @@ async function callApi(payload: CallApiPayload) {
   return { statusCode: 200, body: response };
 }
 
-async function processProviderRequests(payload: ProcessTransactionsPayload) {
+async function processTransactions(payload: ProcessTransactionsPayload) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
   const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));

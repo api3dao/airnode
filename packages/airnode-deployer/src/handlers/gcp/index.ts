@@ -32,8 +32,8 @@ export async function run(req: Request, res: Response) {
     callApi(payload, res);
     return;
   }
-  if (payload.functionName === 'processProviderRequests') {
-    processProviderRequests(payload, res);
+  if (payload.functionName === 'processTransactions') {
+    processTransactions(payload, res);
     return;
   }
 
@@ -67,7 +67,7 @@ async function callApi(payload: CallApiPayload, res: Response) {
   res.status(200).send(response);
 }
 
-async function processProviderRequests(payload: ProcessTransactionsPayload, res: Response) {
+async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
   const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));

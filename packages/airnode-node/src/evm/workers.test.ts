@@ -14,7 +14,7 @@ const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as Readonl
 const serverlessFunctionName = 'airnode-19255a4-test-run';
 const functionNames = {
   spawnNewProvider: 'initializeProvider',
-  spawnProviderRequestProcessor: 'processProviderRequests',
+  spawnProviderRequestProcessor: 'processTransactions',
 } as const;
 const providerErrorForWorker = {
   spawnNewProvider: 'Unable to initialize provider: Ganache test',

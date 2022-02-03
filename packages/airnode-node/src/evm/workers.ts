@@ -52,5 +52,5 @@ export async function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderSponsorState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
-  return spawn(state, workerOpts, 'processProviderRequests', 'Unable to process provider requests');
+  return spawn(state, workerOpts, 'processTransactions', 'Unable to process provider requests');
 }

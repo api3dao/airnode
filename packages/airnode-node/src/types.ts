@@ -293,7 +293,7 @@ export interface InitializeProviderPayload {
 }
 
 export interface ProcessTransactionsPayload {
-  readonly functionName: 'processProviderRequests';
+  readonly functionName: 'processTransactions';
   readonly state: ProviderState<EVMProviderSponsorState>;
 }
 
