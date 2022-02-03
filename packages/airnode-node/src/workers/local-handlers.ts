@@ -51,7 +51,7 @@ export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload)
   return { ok: true, data: response };
 }
 
-export async function processProviderRequests({
+export async function processTransactions({
   state: providerState,
 }: ProcessTransactionsPayload): Promise<WorkerResponse> {
   const config = loadConfig();
