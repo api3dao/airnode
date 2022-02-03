@@ -265,8 +265,6 @@ contract DapiServer is
         address relayer,
         address sponsor
     ) external override returns (bytes32 subscriptionId, bytes32 beaconId) {
-        require(airnode != address(0), "Airnode address zero");
-        require(templateId != bytes32(0), "Template ID zero");
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         subscriptionId = keccak256(
@@ -751,6 +749,8 @@ contract DapiServer is
         override
         returns (bytes32 beaconId)
     {
+        require(airnode != address(0), "Airnode address zero");
+        require(templateId != bytes32(0), "Template ID zero");
         beaconId = keccak256(abi.encodePacked(airnode, templateId));
     }
 

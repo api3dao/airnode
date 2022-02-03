@@ -86,76 +86,93 @@ beforeEach(async () => {
 
 describe('makeRequest', function () {
   context('Airnode address is not zero', function () {
-    context('Parameters are not too long', function () {
-      context('Sponsor address is not zero', function () {
-        context('Function selector is not zero', function () {
-          it('makes request', async function () {
-            const expectedRequestId = await deriveExpectedRequestId(
-              airnodeRequester.interface.getSighash('fulfillRequest')
-            );
-            await expect(
-              airnodeRequester.makeRequest(
-                airnodeAddress,
-                templateId,
-                requestParameters,
-                roles.sponsor.address,
-                airnodeRequester.interface.getSighash('fulfillRequest')
-              )
-            )
-              .to.emit(airnodeProtocol, 'MadeRequest')
-              .withArgs(
-                airnodeAddress,
-                expectedRequestId,
-                airnodeRequester.address,
-                1,
-                templateId,
-                requestParameters,
-                roles.sponsor.address,
+    context('Template ID is not zero', function () {
+      context('Parameters are not too long', function () {
+        context('Sponsor address is not zero', function () {
+          context('Function selector is not zero', function () {
+            it('makes request', async function () {
+              const expectedRequestId = await deriveExpectedRequestId(
                 airnodeRequester.interface.getSighash('fulfillRequest')
               );
-            expect(await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).to.equal(1);
-            expect(await airnodeProtocol.requestIsAwaitingFulfillment(expectedRequestId)).to.equal(true);
+              await expect(
+                airnodeRequester.makeRequest(
+                  airnodeAddress,
+                  templateId,
+                  requestParameters,
+                  roles.sponsor.address,
+                  airnodeRequester.interface.getSighash('fulfillRequest')
+                )
+              )
+                .to.emit(airnodeProtocol, 'MadeRequest')
+                .withArgs(
+                  airnodeAddress,
+                  expectedRequestId,
+                  airnodeRequester.address,
+                  1,
+                  templateId,
+                  requestParameters,
+                  roles.sponsor.address,
+                  airnodeRequester.interface.getSighash('fulfillRequest')
+                );
+              expect(await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).to.equal(1);
+              expect(await airnodeProtocol.requestIsAwaitingFulfillment(expectedRequestId)).to.equal(true);
+            });
+          });
+          context('Function selector is zero', function () {
+            it('reverts', async function () {
+              await expect(
+                airnodeRequester.makeRequest(
+                  airnodeAddress,
+                  templateId,
+                  requestParameters,
+                  roles.sponsor.address,
+                  '0x00000000'
+                )
+              ).to.be.revertedWith('Fulfill function ID zero');
+            });
           });
         });
-        context('Function selector is zero', function () {
+        context('Sponsor address is zero', function () {
           it('reverts', async function () {
             await expect(
               airnodeRequester.makeRequest(
                 airnodeAddress,
                 templateId,
                 requestParameters,
-                roles.sponsor.address,
-                '0x00000000'
+                hre.ethers.constants.AddressZero,
+                airnodeRequester.interface.getSighash('fulfillRequest')
               )
-            ).to.be.revertedWith('Fulfill function ID zero');
+            ).to.be.revertedWith('Sponsor address zero');
           });
         });
       });
-      context('Sponsor address is zero', function () {
+      context('Parameters are too long', function () {
         it('reverts', async function () {
           await expect(
             airnodeRequester.makeRequest(
               airnodeAddress,
               templateId,
-              requestParameters,
-              hre.ethers.constants.AddressZero,
+              `0x${'01'.repeat(4096 + 1)}`,
+              roles.sponsor.address,
               airnodeRequester.interface.getSighash('fulfillRequest')
             )
-          ).to.be.revertedWith('Sponsor address zero');
+          ).to.be.revertedWith('Parameters too long');
         });
       });
     });
-    context('Parameters are too long', function () {
+    context('Template ID is zero', function () {
       it('reverts', async function () {
-        await expect(
-          airnodeRequester.makeRequest(
-            airnodeAddress,
-            templateId,
-            `0x${'01'.repeat(4096 + 1)}`,
-            roles.sponsor.address,
-            airnodeRequester.interface.getSighash('fulfillRequest')
-          )
-        ).to.be.revertedWith('Parameters too long');
+        it('reverts', async function () {
+          await expect(
+            airnodeRequester.makeRequest(
+              airnodeAddress,
+              hre.ethers.constants.HashZero,
+              requestParameters,
+              roles.sponsor.address,
+              airnodeRequester.interface.getSighash('fulfillRequest')
+            )
+          ).to.be.revertedWith('Template ID zero');
+        });
       });
     });
   });
@@ -961,41 +978,57 @@ describe('failRequest', function () {
 
 describe('makeRequestRelayed', function () {
   context('Airnode address is not zero', function () {
-    context('Parameters are not too long', function () {
-      context('Relayer address is not zero', function () {
-        context('Sponsor address is not zero', function () {
-          context('Function selector is not zero', function () {
-            it('makes relayed request', async function () {
-              const expectedRequestId = await deriveExpectedRelayedRequestId(
-                airnodeRequester.interface.getSighash('fulfillRequest')
-              );
-              await expect(
-                airnodeRequester.makeRequestRelayed(
-                  airnodeAddress,
-                  templateId,
-                  requestParameters,
-                  relayerAddress,
-                  roles.sponsor.address,
-                  airnodeRequester.interface.getSighash('fulfillRequest')
-                )
-              )
-                .to.emit(airnodeProtocol, 'MadeRequestRelayed')
-                .withArgs(
-                  relayerAddress,
-                  expectedRequestId,
-                  airnodeAddress,
-                  airnodeRequester.address,
-                  1,
-                  templateId,
-                  requestParameters,
-                  roles.sponsor.address,
+    context('Template ID is not zero', function () {
+      context('Parameters are not too long', function () {
+        context('Relayer address is not zero', function () {
+          context('Sponsor address is not zero', function () {
+            context('Function selector is not zero', function () {
+              it('makes relayed request', async function () {
+                const expectedRequestId = await deriveExpectedRelayedRequestId(
                   airnodeRequester.interface.getSighash('fulfillRequest')
                 );
-              expect(await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).to.equal(1);
-              expect(await airnodeProtocol.requestIsAwaitingFulfillment(expectedRequestId)).to.equal(true);
+                await expect(
+                  airnodeRequester.makeRequestRelayed(
+                    airnodeAddress,
+                    templateId,
+                    requestParameters,
+                    relayerAddress,
+                    roles.sponsor.address,
+                    airnodeRequester.interface.getSighash('fulfillRequest')
+                  )
+                )
+                  .to.emit(airnodeProtocol, 'MadeRequestRelayed')
+                  .withArgs(
+                    relayerAddress,
+                    expectedRequestId,
+                    airnodeAddress,
+                    airnodeRequester.address,
+                    1,
+                    templateId,
+                    requestParameters,
+                    roles.sponsor.address,
+                    airnodeRequester.interface.getSighash('fulfillRequest')
+                  );
+                expect(await airnodeProtocol.requesterToRequestCount(airnodeRequester.address)).to.equal(1);
+                expect(await airnodeProtocol.requestIsAwaitingFulfillment(expectedRequestId)).to.equal(true);
+              });
+            });
+            context('Function selector is zero', function () {
+              it('reverts', async function () {
+                await expect(
+                  airnodeRequester.makeRequestRelayed(
+                    airnodeAddress,
+                    templateId,
+                    requestParameters,
+                    relayerAddress,
+                    roles.sponsor.address,
+                    '0x00000000'
+                  )
+                ).to.be.revertedWith('Fulfill function ID zero');
+              });
             });
           });
-          context('Function selector is zero', function () {
+          context('Sponsor address is zero', function () {
             it('reverts', async function () {
               await expect(
                 airnodeRequester.makeRequestRelayed(
@@ -1003,55 +1036,55 @@ describe('makeRequestRelayed', function () {
                   templateId,
                   requestParameters,
                   relayerAddress,
-                  roles.sponsor.address,
-                  '0x00000000'
+                  hre.ethers.constants.AddressZero,
+                  airnodeRequester.interface.getSighash('fulfillRequest')
                 )
-              ).to.be.revertedWith('Fulfill function ID zero');
+              ).to.be.revertedWith('Sponsor address zero');
             });
           });
         });
-        context('Sponsor address is zero', function () {
+        context('Relayer address is zero', function () {
           it('reverts', async function () {
             await expect(
               airnodeRequester.makeRequestRelayed(
                 airnodeAddress,
                 templateId,
                 requestParameters,
-                relayerAddress,
                 hre.ethers.constants.AddressZero,
+                roles.sponsor.address,
                 airnodeRequester.interface.getSighash('fulfillRequest')
               )
-            ).to.be.revertedWith('Sponsor address zero');
+            ).to.be.revertedWith('Relayer address zero');
           });
         });
       });
-      context('Relayer address is zero', function () {
+      context('Parameters are too long', function () {
         it('reverts', async function () {
           await expect(
             airnodeRequester.makeRequestRelayed(
               airnodeAddress,
               templateId,
-              requestParameters,
-              hre.ethers.constants.AddressZero,
+              `0x${'01'.repeat(4096 + 1)}`,
+              relayerAddress,
               roles.sponsor.address,
               airnodeRequester.interface.getSighash('fulfillRequest')
             )
-          ).to.be.revertedWith('Relayer address zero');
+          ).to.be.revertedWith('Parameters too long');
         });
       });
     });
-    context('Parameters are too long', function () {
+    context('Template ID is zero', function () {
       it('reverts', async function () {
         await expect(
           airnodeRequester.makeRequestRelayed(
             airnodeAddress,
-            templateId,
-            `0x${'01'.repeat(4096 + 1)}`,
+            hre.ethers.constants.HashZero,
+            requestParameters,
             relayerAddress,
             roles.sponsor.address,
             airnodeRequester.interface.getSighash('fulfillRequest')
           )
-        ).to.be.revertedWith('Parameters too long');
+        ).to.be.revertedWith('Template ID zero');
       });
     });
   });

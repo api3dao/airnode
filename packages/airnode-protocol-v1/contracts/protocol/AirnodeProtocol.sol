@@ -38,7 +38,7 @@ contract AirnodeProtocol is
     /// @notice Called by the requester to make a request
     /// @dev If the `templateId` is zero, the fulfillment will be made with
     /// `parameters` being used as fulfillment data
-    /// @param templateId Template ID (allowed to be `bytes32(0)`)
+    /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param sponsor Sponsor address
@@ -53,6 +53,7 @@ contract AirnodeProtocol is
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "Airnode address zero");
+        require(templateId != bytes32(0), "Template ID zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
@@ -203,7 +204,7 @@ contract AirnodeProtocol is
     /// relayer
     /// @dev The relayer address indexed in the relayed protocol logs because
     /// it will be the relayer that will be listening to these logs
-    /// @param templateId Template ID (allowed to be `bytes32(0)`)
+    /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @param relayer Relayer address
@@ -220,6 +221,7 @@ contract AirnodeProtocol is
         bytes4 fulfillFunctionId
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "Airnode address zero");
+        require(templateId != bytes32(0), "Template ID zero");
         require(
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
