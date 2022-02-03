@@ -8,7 +8,7 @@
     "test": "NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
     "test:extended": "EXTENDED_TEST=TRUE NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
     "test:coverage": "NODE_OPTIONS='--max-old-space-size=8192' hardhat coverage",
-    "test:gas": "REPORT_GAS=TRUE hardhat test"
+    "test:gas": "NODE_OPTIONS='--max-old-space-size=8192' REPORT_GAS=TRUE hardhat test"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
