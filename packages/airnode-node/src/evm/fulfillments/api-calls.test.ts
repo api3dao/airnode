@@ -491,11 +491,13 @@ describe('submitApiCall', () => {
           status: RequestStatus.Errored,
           nonce: 5,
         });
+
         const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
           gasTarget,
           masterHDNode,
           provider,
         });
+
         expect(logs).toEqual([
           {
             level: 'INFO',
