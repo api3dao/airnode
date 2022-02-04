@@ -19,7 +19,7 @@ module "initializeProvider" {
   entry_point        = "initializeProvider"
   source_dir         = var.handler_dir
   memory_size        = 1024
-  timeout            = 20
+  timeout            = 24
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
@@ -53,7 +53,7 @@ module "processProviderRequests" {
   entry_point        = "processProviderRequests"
   source_dir         = var.handler_dir
   memory_size        = 1024
-  timeout            = 10
+  timeout            = 6
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
