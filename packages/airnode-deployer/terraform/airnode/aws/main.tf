@@ -9,7 +9,7 @@ module "initializeProvider" {
   handler            = "index.initializeProvider"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 24
+  timeout            = 20
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
@@ -39,7 +39,7 @@ module "processProviderRequests" {
   handler            = "index.processProviderRequests"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 6
+  timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
