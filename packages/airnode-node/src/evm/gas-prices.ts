@@ -14,7 +14,7 @@ export const parsePriorityFee = ({ value, unit }: PriorityFee) => ethers.utils.p
 const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider } = options;
 
-  const [err, gasPrice] = await go(provider.getGasPrice, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const [err, gasPrice] = await go(() => provider.getGasPrice(), { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !gasPrice) {
     const log = logger.pend('ERROR', 'All attempts to get legacy gasPrice from provider failed');
     return [[log], null];
