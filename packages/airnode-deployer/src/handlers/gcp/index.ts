@@ -9,6 +9,7 @@ import {
   InitializeProviderPayload,
   CallApiPayload,
   ProcessTransactionsPayload,
+  WorkerPayload,
 } from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
 
@@ -22,25 +23,20 @@ export async function startCoordinator(_req: Request, res: Response) {
 }
 
 export async function run(req: Request, res: Response) {
-  const payload = req.body;
+  const payload: WorkerPayload = req.body;
 
-  if (payload.functionName === 'initializeProvider') {
-    initializeProvider(payload, res);
-    return;
+  switch (payload.functionName) {
+    case 'initializeProvider':
+      return initializeProvider(payload, res);
+    case 'callApi':
+      return callApi(payload, res);
+    case 'processTransactions':
+      return processTransactions(payload, res);
   }
-  if (payload.functionName === 'callApi') {
-    callApi(payload, res);
-    return;
-  }
-  if (payload.functionName === 'processTransactions') {
-    processTransactions(payload, res);
-    return;
-  }
-
-  res.status(400).send(JSON.stringify({ error: 'Unknown function', payload }));
 }
 
 // TODO: Refactor handlers so they are common for all the cloud providers
+// https://api3dao.atlassian.net/browse/AN-527
 
 async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };

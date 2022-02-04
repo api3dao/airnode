@@ -10,15 +10,15 @@ async function cloudHandler() {
 
 export async function startCoordinator(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.startCoordinator(...args);
+  return handler.startCoordinator(...args);
 }
 
 export async function run(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.run(...args);
+  return handler.run(...args);
 }
 
 export async function testApi(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.testApi(...args);
+  return handler.testApi(...args);
 }

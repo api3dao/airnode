@@ -26,20 +26,18 @@ export async function startCoordinator() {
 }
 
 export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayProxyResult> {
-  if (payload.functionName === 'initializeProvider') {
-    return initializeProvider(payload);
+  switch (payload.functionName) {
+    case 'initializeProvider':
+      return initializeProvider(payload);
+    case 'callApi':
+      return callApi(payload);
+    case 'processTransactions':
+      return processTransactions(payload);
   }
-  if (payload.functionName === 'callApi') {
-    return callApi(payload);
-  }
-  if (payload.functionName === 'processTransactions') {
-    return processTransactions(payload);
-  }
-
-  return { statusCode: 400, body: JSON.stringify({ error: 'Unknown function', payload }) };
 }
 
 // TODO: Refactor handlers so they are common for all the cloud providers
+// https://api3dao.atlassian.net/browse/AN-527
 
 async function initializeProvider(payload: InitializeProviderPayload) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
