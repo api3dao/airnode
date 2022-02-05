@@ -131,7 +131,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
             },
             {
               name: '_times',
-              fixed: '',
+              fixed: ',,,,',
             },
           ],
           parameters: [],
