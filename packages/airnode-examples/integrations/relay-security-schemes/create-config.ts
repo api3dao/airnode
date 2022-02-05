@@ -97,7 +97,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               name: 'chainId',
             },
             relayChainType: {
-              in: 'query',
+              in: 'cookie',
               type: 'relayChainType',
               name: 'chainType',
             },
@@ -127,7 +127,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
             {
               name: '_path',
               fixed:
-                'headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,args.chainType',
+                'headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,headers.Cookie',
             },
             {
               name: '_times',

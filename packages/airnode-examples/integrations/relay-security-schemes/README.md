@@ -6,7 +6,8 @@ endpoint via security schemes. In order to demonstrate this functionality in a r
 This behavior allows request metadata returned in the API response to be fulfilled by Airnode on-chain as proof that the
 metadata is being relayed as expected.
 
-The following security scheme types illustrate the request metadata being relayed:
+The following security scheme types illustrate the request metadata being relayed and, as shown in `config.json`,
+demonstrate how the value can be sent via `query`, `header`, and `cookie`:
 
 - relayRequesterAddress
 - relaySponsorAddress
