@@ -531,7 +531,7 @@ describe('validators integration test', () => {
       valid: false,
       messages: [
         error(
-          'components.securitySchemes.mySecurityScheme.type: Allowed values are "apiKey", "http", "relayChainId", "relayChainType" or "relayRequesterAddress"'
+          'components.securitySchemes.mySecurityScheme.type: Allowed values are "apiKey", "http", "relayChainId", "relayChainType", "relayRequesterAddress", "relaySponsorAddress", or "relaySponsorWalletAddress"'
         ),
         error(
           'components.securitySchemes.mySecurityScheme2 must contain "name" and "in" since value of "type" is "apiKey"'
