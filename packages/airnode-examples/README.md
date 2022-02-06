@@ -125,7 +125,7 @@ If you intend to deploy Airnode on GCP, you will need to create a service accoun
 an access key for this account. If you are not sure how to do this or how to create a GCP account, see
 [the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
 
-Store the access key file as `gcp.json` into the integration directory - e.g. if you have choosen the `coingecko`
+Store the access key file as `gcp.json` into the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
 
 ### 7. Create Airnode configuration
