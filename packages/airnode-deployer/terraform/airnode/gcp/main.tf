@@ -23,47 +23,11 @@ resource "google_project_service" "management_apis" {
   ]
 }
 
-module "initializeProvider" {
+module "run" {
   source = "./modules/function"
 
-  name               = "${local.name_prefix}-initializeProvider"
-  entry_point        = "initializeProvider"
-  source_dir         = var.handler_dir
-  memory_size        = 1024
-  timeout            = 17
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  region             = var.gcp_region
-  project            = var.gcp_project
-
-  depends_on = [
-    google_project_service.management_apis
-  ]
-}
-
-module "callApi" {
-  source = "./modules/function"
-
-  name               = "${local.name_prefix}-callApi"
-  entry_point        = "callApi"
-  source_dir         = var.handler_dir
-  memory_size        = 256
-  timeout            = 10
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  region             = var.gcp_region
-  project            = var.gcp_project
-
-  depends_on = [
-    google_project_service.management_apis
-  ]
-}
-
-module "processProviderRequests" {
-  source = "./modules/function"
-
-  name               = "${local.name_prefix}-processProviderRequests"
-  entry_point        = "processProviderRequests"
+  name               = "${local.name_prefix}-run"
+  entry_point        = "run"
   source_dir         = var.handler_dir
   memory_size        = 1024
   timeout            = 32
@@ -96,13 +60,11 @@ module "startCoordinator" {
 
   schedule_interval = 1
   max_instances     = 1
-  invoke_targets    = [module.initializeProvider.function_name, module.callApi.function_name, module.processProviderRequests.function_name]
+  invoke_targets    = [module.run.function_name]
 
   depends_on = [
     google_project_service.management_apis,
-    module.initializeProvider,
-    module.callApi,
-    module.processProviderRequests
+    module.run,
   ]
 }
 
@@ -124,11 +86,8 @@ module "testApi" {
     HTTP_GATEWAY_API_KEY = var.api_key
   }
 
-  invoke_targets = [module.callApi.function_name]
-
   depends_on = [
     google_project_service.management_apis,
-    module.callApi,
   ]
 }
 
