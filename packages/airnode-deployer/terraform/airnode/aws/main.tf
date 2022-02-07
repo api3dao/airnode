@@ -9,7 +9,7 @@ module "initializeProvider" {
   handler            = "index.initializeProvider"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 17
+  timeout            = 20
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
@@ -23,10 +23,10 @@ module "callApi" {
   name               = "${local.name_prefix}-callApi"
   handler            = "index.callApi"
   source_dir         = var.handler_dir
-  timeout            = 10
+  timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
-  memory_size        = 256
+  memory_size        = 768
   environment_variables = {
     HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
   }
@@ -39,7 +39,7 @@ module "processProviderRequests" {
   handler            = "index.processProviderRequests"
   source_dir         = var.handler_dir
   memory_size        = 768
-  timeout            = 32
+  timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
@@ -53,7 +53,7 @@ module "startCoordinator" {
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
   source_dir         = var.handler_dir
-  memory_size        = 768
+  memory_size        = 512
   timeout            = 65
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file

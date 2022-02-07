@@ -55,7 +55,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 10_000 }
+      { timeout: 30_000 }
     );
   });
 
