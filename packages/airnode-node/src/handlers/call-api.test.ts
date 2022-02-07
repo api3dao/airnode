@@ -70,7 +70,7 @@ describe('callApi', () => {
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
     expect(res).toEqual({
-      errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Network is down`,
+      errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
       success: false,
     });
   });

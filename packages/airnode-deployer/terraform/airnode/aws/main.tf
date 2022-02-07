@@ -76,7 +76,7 @@ module "testApi" {
   handler            = "index.testApi"
   source_dir         = var.handler_dir
   memory_size        = 256
-  timeout            = 30
+  timeout            = 15
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
 

@@ -47,3 +47,6 @@ export const PRIORITY_FEE = 3120000000;
 
 // The Base Fee to Max Fee multiplier
 export const BASE_FEE_MULTIPLIER = 2;
+
+// The maximum character length of an error message sent on-chain
+export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;

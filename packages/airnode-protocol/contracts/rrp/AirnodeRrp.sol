@@ -45,7 +45,6 @@ contract AirnodeRrp is
         external
         override
     {
-        require(requester != address(0), "Requester address zero");
         // Initialize the requester request count for consistent request gas
         // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
@@ -59,14 +58,9 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a request that refers to a
     /// template for the Airnode address, endpoint ID and parameters
-    /// @dev The node already must validate `sponsor` and `sponsorWallet`
-    /// according to protocol specifications, which would implicitly include
-    /// checking if they are `address(0)`. Because of this, validation of these
-    /// parameters are left to the node and omitted here.
-    /// The protocol does not require `fulfillAddress` to belong to a contract
-    /// or `fulfillFunctionId` to have been implemented in this contract at
-    /// request or fulfillment time. Therefore, neither of these parameters are
-    /// validated in any way.
+    /// @dev `fulfillAddress` is not allowed to be the address of this
+    /// contract. This is not actually needed to protect users that use the
+    /// protocol as intended, but it is done for good measure.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -89,6 +83,7 @@ contract AirnodeRrp is
         // If the Airnode address of the template is zero the template does not
         // exist because template creation does not allow zero Airnode address
         require(airnode != address(0), "Template does not exist");
+        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -136,14 +131,9 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
-    /// @dev The node already must validate `sponsor` and `sponsorWallet`
-    /// according to protocol specifications, which would implicitly include
-    /// checking if they are `address(0)`. Because of this, validation of these
-    /// parameters are left to the node and omitted here.
-    /// The protocol does not require `fulfillAddress` to belong to a contract
-    /// or `fulfillFunctionId` to have been implemented in this contract at
-    /// request or fulfillment time. Therefore, neither of these parameters are
-    /// validated in any way.
+    /// @dev `fulfillAddress` is not allowed to be the address of this
+    /// contract. This is not actually needed to protect users that use the
+    /// protocol as intended, but it is done for good measure.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
@@ -164,6 +154,7 @@ contract AirnodeRrp is
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "Airnode address zero");
+        require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -225,12 +216,10 @@ contract AirnodeRrp is
     /// not be taken seriously, yet the content will be sound.
     /// @param requestId Request ID
     /// @param airnode Airnode address
+    /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param data Fulfillment data
-    /// @param signature Request ID and fulfillment data signed by the Airnode
-    /// address
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -253,7 +242,13 @@ contract AirnodeRrp is
             ) == requestIdToFulfillmentParameters[requestId],
             "Invalid request fulfillment"
         );
-        verifySignature(airnode, requestId, data, signature);
+        require(
+            (
+                keccak256(abi.encodePacked(requestId, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Invalid signature"
+        );
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
@@ -301,28 +296,6 @@ contract AirnodeRrp is
         emit FailedRequest(airnode, requestId, errorMessage);
     }
 
-    /// @notice Called to verify the fulfillment data associated with a
-    /// request, reverts if it fails
-    /// @dev This is exposed as a utility function to implement other
-    /// protocols. It is not used in RRP.
-    /// @param templateId Template ID
-    /// @param parameters Parameters provided by the requester in addition to
-    /// the parameters in the template
-    /// @param data Fulfillment data
-    /// @param signature Request hash and fulfillment data signed by the
-    /// Airnode address
-    function verifySignature(
-        bytes32 templateId,
-        bytes calldata parameters,
-        bytes calldata data,
-        bytes calldata signature
-    ) external view override returns (address airnode, bytes32 requestHash) {
-        airnode = templates[templateId].airnode;
-        require(airnode != address(0), "Template does not exist");
-        requestHash = keccak256(abi.encodePacked(templateId, parameters));
-        verifySignature(airnode, requestHash, data, signature);
-    }
-
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
     /// @dev If a requester has made a request, received a request ID but did
@@ -340,30 +313,5 @@ contract AirnodeRrp is
     {
         isAwaitingFulfillment =
             requestIdToFulfillmentParameters[requestId] != bytes32(0);
-    }
-
-    /// @notice Called privately to verify the fulfillment data associated with
-    /// a request, reverts if it fails
-    /// @dev The request hash will either be a request ID generated for RRP or
-    /// the hash of the template ID and the additional parameters
-    /// @param airnode Airnode address
-    /// @param requestHash A hash that represents the request whose response is
-    /// signed
-    /// @param data Fulfillment data
-    /// @param signature Request hash and fulfillment data signed by the
-    /// Airnode address
-    function verifySignature(
-        address airnode,
-        bytes32 requestHash,
-        bytes calldata data,
-        bytes calldata signature
-    ) private pure {
-        require(
-            (
-                keccak256(abi.encodePacked(requestHash, data))
-                    .toEthSignedMessageHash()
-            ).recover(signature) == airnode,
-            "Signature mismatch"
-        );
     }
 }

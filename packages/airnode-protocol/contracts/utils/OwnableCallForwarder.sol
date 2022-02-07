@@ -12,6 +12,8 @@ import "./interfaces/IOwnableCallForwarder.sol";
 /// is not desired, e.g., if the user is an Airnode and is immutably associated
 /// with a single address, in which case the manager will interact with
 /// AccessControlRegistry directly.
+/// The ownership of this contract is deliberately renouncable. If this does
+/// suit the use case, override and disable this functionality.
 contract OwnableCallForwarder is Ownable, IOwnableCallForwarder {
     /// @notice Forwards the calldata to the target address if the sender is
     /// the owner and returns the data

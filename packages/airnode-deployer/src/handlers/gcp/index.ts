@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
-import { handlers, logger, utils, providers } from '@api3/airnode-node';
+import { handlers, logger, utils, providers, config } from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
@@ -51,4 +51,30 @@ export async function processProviderRequests(req: Request, res: Response) {
 
   const body = { ok: true, data: providers.scrub(updatedState) };
   res.status(200).send(body);
+}
+
+export async function testApi(req: Request, res: Response) {
+  // We need to check for an API key manually because GCP HTTP Gateway
+  // doesn't support managing API keys via API
+  const apiKey = req.header('x-api-key');
+  if (!apiKey || apiKey !== config.getEnvValue('HTTP_GATEWAY_API_KEY')) {
+    res.status(401).send({ error: 'Wrong API key' });
+  }
+
+  const { parameters } = req.body;
+  const { endpointId } = req.query;
+
+  if (!endpointId) {
+    res.status(400).send({ error: 'Missing endpointId' });
+    return;
+  }
+
+  const [err, result] = await handlers.testApi(parsedConfig, endpointId as string, parameters);
+  if (err) {
+    res.status(400).send({ error: err.toString() });
+    return;
+  }
+
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
+  res.status(200).send(result!.value);
 }

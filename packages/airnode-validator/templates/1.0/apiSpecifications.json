@@ -68,15 +68,15 @@
     "securitySchemes": {
       "__objectItem": {
         "type": {
-          "__regexp": "^(apiKey|http|relayChainId|relayChainType|relayRequesterAddress)$",
+          "__regexp": "^(apiKey|http|relayChainId|relayChainType|relayRequesterAddress|relaySponsorAddress|relaySponsorWalletAddress)$",
           "__catch": {
-            "__message": "__fullPath: Allowed values are \"apiKey\", \"http\", \"relayChainId\", \"relayChainType\" or \"relayRequesterAddress\""
+            "__message": "__fullPath: Allowed values are \"apiKey\", \"http\", \"relayChainId\", \"relayChainType\", \"relayRequesterAddress\", \"relaySponsorAddress\", or \"relaySponsorWalletAddress\""
           }
         },
         "__conditions": [
           {
             "__if": {
-              "type": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$"
+              "type": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress|relaySponsorAddress|relaySponsorWalletAddress)$"
             },
             "__then": {
               "name": {},
@@ -120,7 +120,7 @@
             },
             "__then": {
               "type": {
-                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$",
+                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress|relaySponsorAddress|relaySponsorWalletAddress)$",
                 "__catch": {
                   "__level": "error"
                 }
@@ -137,7 +137,7 @@
             },
             "__then": {
               "type": {
-                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress)$",
+                "__regexp": "^(apiKey|relayChainId|relayChainType|relayRequesterAddress|relaySponsorAddress|relaySponsorWalletAddress)$",
                 "__catch": {
                   "__level": "error"
                 }

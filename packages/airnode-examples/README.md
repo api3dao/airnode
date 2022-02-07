@@ -41,6 +41,8 @@ authenticated requests encoding multiple reserved parameters. The following list
 - [OpenWeather](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
   authenticated weather request encoding multiple parameters including the transaction timestamp, time of sunset,
   temperature, and a description of the weather.
+- [Relay security schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
+  demonstration of how to relay multiple request metadata like chain ID and sponsor address to the API endpoint.
 
 ## Setup
 
@@ -123,7 +125,7 @@ If you intend to deploy Airnode on GCP, you will need to create a service accoun
 an access key for this account. If you are not sure how to do this or how to create a GCP account, see
 [the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
 
-Store the access key file as `gcp.json` into the integration directory - e.g. if you have choosen the `coingecko`
+Store the access key file as `gcp.json` into the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
 
 ### 7. Create Airnode configuration
