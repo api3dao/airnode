@@ -42,13 +42,14 @@ module "testApi" {
   source = "./modules/function"
   count  = var.api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-testApi"
-  handler            = "index.testApi"
-  source_dir         = var.handler_dir
-  memory_size        = 256
-  timeout            = 15
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
+  name                           = "${local.name_prefix}-testApi"
+  handler                        = "index.testApi"
+  source_dir                     = var.handler_dir
+  memory_size                    = 256
+  timeout                        = 15
+  configuration_file             = var.configuration_file
+  secrets_file                   = var.secrets_file
+  reserved_concurrent_executions = var.api_max_concurrency
 }
 
 module "testApiGateway" {
