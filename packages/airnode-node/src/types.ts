@@ -456,6 +456,7 @@ export interface ChainConfig {
 export interface HttpGateway {
   readonly enabled: boolean;
   readonly apiKey?: string;
+  readonly maxConcurrency?: number;
 }
 
 export interface Heartbeat {

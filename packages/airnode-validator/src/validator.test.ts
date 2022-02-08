@@ -397,7 +397,7 @@ describe('validator', () => {
 
   it('interpolation', () => {
     expect(
-      validator.validate('exampleSpecs/secrets.config.json', 'templates/0.4/config.json', 'exampleSpecs/secrets.env')
+      validator.validate('exampleSpecs/secrets.config.json', 'templates/0.5/config.json', 'exampleSpecs/secrets.env')
     ).toEqual({ valid: true, messages: [] });
   });
 });
