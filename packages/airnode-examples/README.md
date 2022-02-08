@@ -277,6 +277,8 @@ This will use the deployer to remove the Airnode lambdas from the cloud provider
 
 ## For developers
 
+When pulling or creating a new integration you need to run `yarn build` to create necessary contract artifacts.
+
 The main point of these examples is to demonstrate the flexibility and features of Airnode, while being easy to
 maintain. The main design choice is that all integrations share the same instructions. This has several trade offs,
 notably:
