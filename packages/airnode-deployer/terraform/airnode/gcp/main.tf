@@ -86,6 +86,8 @@ module "testApi" {
     HTTP_GATEWAY_API_KEY = var.api_key
   }
 
+  max_instances     = var.api_max_concurrency
+
   depends_on = [
     google_project_service.management_apis,
   ]
