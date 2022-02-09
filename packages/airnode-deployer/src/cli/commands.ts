@@ -33,11 +33,9 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
   }
 
   const httpGateway = config.nodeSettings.httpGateway;
-  let httpGatewayApiKey: string | undefined = undefined;
   if (httpGateway.enabled) {
-    httpGatewayApiKey = httpGateway.apiKey;
-    if (!httpGatewayApiKey) {
-      throw new Error('Unable to deploy HTTP gateway as the API key is missing');
+    if (httpGateway.maxConcurrency !== undefined && httpGateway.maxConcurrency <= 0) {
+      throw new Error('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
     }
   }
 
@@ -56,7 +54,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
       airnodeAddressShort,
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider as CloudProvider,
-      httpGatewayApiKey,
+      httpGateway,
       configFile,
       tmpSecretsFile
     );

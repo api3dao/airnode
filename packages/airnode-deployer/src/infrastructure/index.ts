@@ -4,7 +4,7 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
-import { AwsCloudProvider, CloudProvider, GcpCloudProvider } from '@api3/airnode-node';
+import { AwsCloudProvider, CloudProvider, GcpCloudProvider, HttpGateway } from '@api3/airnode-node';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import * as aws from './aws';
@@ -123,7 +123,7 @@ interface AirnodeVariables {
   stage: string;
   configPath?: string;
   secretsPath?: string;
-  httpGatewayApiKey?: string;
+  httpGateway?: HttpGateway;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -146,7 +146,7 @@ async function terraformAirnodeManage(
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGatewayApiKey } = variables;
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -161,8 +161,11 @@ async function terraformAirnodeManage(
     'no-color',
   ];
 
-  if (httpGatewayApiKey) {
-    commonArguments.push(['var', 'api_key', httpGatewayApiKey]);
+  if (httpGateway?.enabled) {
+    commonArguments.push(['var', 'api_key', httpGateway.apiKey!]);
+    if (httpGateway.maxConcurrency) {
+      commonArguments.push(['var', 'api_max_concurrency', `${httpGateway.maxConcurrency}`]);
+    }
   }
 
   // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
@@ -188,14 +191,14 @@ export async function deployAirnode(
   airnodeAddressShort: string,
   stage: string,
   cloudProvider: CloudProvider,
-  httpGatewayApiKey: string | undefined,
+  httpGateway: HttpGateway,
   configPath: string,
   secretsPath: string
 ) {
   const { type, region } = cloudProvider;
   spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
   try {
-    const output = await deploy(airnodeAddressShort, stage, cloudProvider, httpGatewayApiKey, configPath, secretsPath);
+    const output = await deploy(airnodeAddressShort, stage, cloudProvider, httpGateway, configPath, secretsPath);
     spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
     return output;
   } catch (err) {
@@ -208,7 +211,7 @@ async function deploy(
   airnodeAddressShort: string,
   stage: string,
   cloudProvider: CloudProvider,
-  httpGatewayApiKey: string | undefined,
+  httpGateway: HttpGateway,
   configPath: string,
   secretsPath: string
 ): Promise<DeployAirnodeOutput> {
@@ -247,7 +250,7 @@ async function deploy(
     stage,
     configPath,
     secretsPath,
-    httpGatewayApiKey,
+    httpGateway,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;
