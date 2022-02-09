@@ -1,5 +1,21 @@
 # @api3/airnode-admin
 
+## 0.4.0
+
+### Minor Changes
+
+- [#772](https://github.com/api3dao/airnode/pull/772) [`42a23157`](https://github.com/api3dao/airnode/commit/42a23157b5c7e17a69a9aaf721422d503a6804c3) Thanks [@Siegrift](https://github.com/Siegrift)! - Make the protocol IDs start from 1
+
+* [#764](https://github.com/api3dao/airnode/pull/764) [`cc4d1c49`](https://github.com/api3dao/airnode/commit/cc4d1c493445ca86673ed43b97267fc47b2d5600) Thanks [@Siegrift](https://github.com/Siegrift)! - Support withdrawals in Airnode examples, add "derive-airnode-address" command to admin CLI
+
+- [`2e669ff2`](https://github.com/api3dao/airnode/commit/2e669ff251b7d7d32ab1eb9b234081871879135e) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+### Patch Changes
+
+- Updated dependencies [[`42a23157`](https://github.com/api3dao/airnode/commit/42a23157b5c7e17a69a9aaf721422d503a6804c3), [`53f6a3c9`](https://github.com/api3dao/airnode/commit/53f6a3c9ed694022fa630a7573d7ac6f828520be), [`2e669ff2`](https://github.com/api3dao/airnode/commit/2e669ff251b7d7d32ab1eb9b234081871879135e)]:
+  - @api3/airnode-protocol@0.4.0
+  - @api3/airnode-abi@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes

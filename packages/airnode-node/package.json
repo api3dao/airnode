@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-node",
   "license": "MIT",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": false,
   "main": "dist/src/index",
   "types": "dist/src/index",
@@ -22,11 +22,11 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@api3/airnode-abi": "^0.3.1",
-    "@api3/airnode-adapter": "^0.3.1",
-    "@api3/airnode-ois": "^0.3.1",
-    "@api3/airnode-protocol": "^0.3.1",
-    "@api3/airnode-validator": "^0.3.1",
+    "@api3/airnode-abi": "^0.4.0",
+    "@api3/airnode-adapter": "^0.4.0",
+    "@api3/airnode-ois": "^0.4.0",
+    "@api3/airnode-protocol": "^0.4.0",
+    "@api3/airnode-validator": "^0.4.0",
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.814.0",
     "date-fns": "^2.16.1",
@@ -37,7 +37,7 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@api3/airnode-operation": "^0.3.1",
+    "@api3/airnode-operation": "^0.4.0",
     "@types/jest": "^27.0.2",
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.12.2",

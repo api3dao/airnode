@@ -1,5 +1,13 @@
 # @api3/airnode-abi
 
+## 0.4.0
+
+### Minor Changes
+
+- [#774](https://github.com/api3dao/airnode/pull/774) [`53f6a3c9`](https://github.com/api3dao/airnode/commit/53f6a3c9ed694022fa630a7573d7ac6f828520be) Thanks [@Siegrift](https://github.com/Siegrift)! - Add string32 and bool options to Airnode ABI. This is actually a breaking change. Users should change "bytes32" to "string32" when using Airnode v0.4
+
+* [`2e669ff2`](https://github.com/api3dao/airnode/commit/2e669ff251b7d7d32ab1eb9b234081871879135e) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
 ## 0.3.1
 
 ### Patch Changes

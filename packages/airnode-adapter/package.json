@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-adapter",
   "license": "MIT",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": false,
   "main": "dist/index",
   "types": "dist/index",
@@ -19,7 +19,7 @@
     "test:watch": "yarn test:ts --watch"
   },
   "dependencies": {
-    "@api3/airnode-ois": "^0.3.1",
+    "@api3/airnode-ois": "^0.4.0",
     "axios": "^0.21.2",
     "bignumber.js": "^9.0.0",
     "ethers": "^5.4.5",
