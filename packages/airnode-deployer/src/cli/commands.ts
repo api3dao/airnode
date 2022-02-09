@@ -14,9 +14,9 @@ import {
 } from '../utils';
 import * as logger from '../utils/logger';
 
-export async function deploy(configFile: string, secretsFile: string, receiptFile: string) {
-  const secrets = parseSecretsFile(secretsFile);
-  const config = loadConfig(configFile, secrets, true);
+export async function deploy(configPath: string, secretsPath: string, receiptFile: string) {
+  const secrets = parseSecretsFile(secretsPath);
+  const config = loadConfig(configPath, secrets, true);
 
   if (config.nodeSettings.cloudProvider.type === 'local') {
     // We want to check cloud provider type regardless of "skipValidation" value.
@@ -41,8 +41,8 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
 
   logger.debug('Creating a temporary secrets.json file');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-  const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
-  fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
+  const tmpSecretsPath = path.join(tmpDir, 'secrets.json');
+  fs.writeFileSync(tmpSecretsPath, JSON.stringify(secrets, null, 2));
 
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
@@ -50,14 +50,14 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
 
   let output = {};
   try {
-    output = await deployAirnode(
+    output = await deployAirnode({
       airnodeAddressShort,
-      config.nodeSettings.stage,
-      config.nodeSettings.cloudProvider as CloudProvider,
+      stage: config.nodeSettings.stage,
+      cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
       httpGateway,
-      configFile,
-      tmpSecretsFile
-    );
+      configPath,
+      secretsPath: tmpSecretsPath,
+    });
   } catch (err) {
     logger.warn(`Failed deploying configuration, skipping`);
     logger.warn((err as Error).toString());
@@ -70,7 +70,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
-  await removeAirnode(airnodeAddressShort, stage, cloudProvider);
+  await removeAirnode({ airnodeAddressShort, stage, cloudProvider });
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
