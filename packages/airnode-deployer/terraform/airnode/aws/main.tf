@@ -5,16 +5,14 @@
 module "run" {
   source = "./modules/function"
 
-  name               = "${local.name_prefix}-run"
-  handler            = "index.run"
-  source_dir         = var.handler_dir
-  memory_size        = 768
-  timeout            = 30
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  environment_variables = {
-    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
-  }
+  name                           = "${local.name_prefix}-run"
+  handler                        = "index.run"
+  source_dir                     = var.handler_dir
+  memory_size                    = 768
+  timeout                        = 32
+  configuration_file             = var.configuration_file
+  secrets_file                   = var.secrets_file
+  reserved_concurrent_executions = var.max_concurrency
 }
 
 module "startCoordinator" {

@@ -35,6 +35,7 @@ module "run" {
   secrets_file       = var.secrets_file
   region             = var.gcp_region
   project            = var.gcp_project
+  max_instances      = var.max_concurrency
 
   depends_on = [
     google_project_service.management_apis
@@ -86,7 +87,7 @@ module "testApi" {
     HTTP_GATEWAY_API_KEY = var.api_key
   }
 
-  max_instances     = var.api_max_concurrency
+  max_instances = var.api_max_concurrency
 
   depends_on = [
     google_project_service.management_apis,
