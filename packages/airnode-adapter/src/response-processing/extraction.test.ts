@@ -149,7 +149,7 @@ describe('extract and encode multiple values', () => {
       expect(escapeAwareSplit('simple,string', '.')).toEqual(['simple,string']);
     });
 
-    it('correctly removes the escape delimeter', () => {
+    it('correctly removes the escape delimiter', () => {
       expect(escapeAwareSplit('simple\\,string', ',')).toEqual(['simple,string']);
       expect(escapeAwareSplit('simple\\\\\\,string', ',')).toEqual(['simple\\\\,string']);
       expect(escapeAwareSplit('\\a....' + '\\'.repeat(6), ',')).toEqual(['\\a....' + '\\'.repeat(6)]);
@@ -159,15 +159,15 @@ describe('extract and encode multiple values', () => {
       // empty splits
       expect(escapeAwareSplit('simple,,,string', ',')).toEqual(['simple', '', '', 'string']);
 
-      // only cares about specific delimeter
+      // only cares about specific delimiter
       expect(escapeAwareSplit('super.simple,string', '.')).toEqual(['super', 'simple,string']);
 
-      // skips escaped delimeter
+      // skips escaped delimiter
       expect(escapeAwareSplit('simple\\\\,string', ',')).toEqual(['simple\\\\', 'string']);
     });
   });
 
-  describe('spliting reserved parameters', () => {
+  describe('splitting reserved parameters', () => {
     it('correctly splits reserved parameters containing multiple values', () => {
       expect(splitReservedParameters({ _type: 'uint256' })).toEqual([{ _type: 'uint256' }]);
       expect(splitReservedParameters({ _type: 'uint256,string', _path: 'key,anotherKey' })).toEqual([
@@ -192,6 +192,8 @@ describe('extract and encode multiple values', () => {
       expect(splitReservedParameters({ _type: 'uint256', _times: '100' })).toEqual([
         { _type: 'uint256', _times: '100' },
       ]);
+      // empty string is ignored in splitting for backward compatibility
+      expect(splitReservedParameters({ _type: 'uint256', _path: '', _times: '' })).toEqual([{ _type: 'uint256' }]);
     });
 
     it('throws when there are different number of splits', () => {
@@ -206,6 +208,9 @@ describe('extract and encode multiple values', () => {
       );
       expect(() => splitReservedParameters({ _path: 'strange\\.key', _type: 'string,address' })).toThrow(
         'Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_path" has only 1'
+      );
+      expect(() => splitReservedParameters({ _type: 'uint256,uint256', _times: '5' })).toThrow(
+        `Unexpected number of parsed reserved parameters. Number of "_types" parameters = 2, but "_times" has only 1`
       );
     });
 
