@@ -7,7 +7,7 @@ export const runCommand = (command: string) => {
   });
 
   if (result.status !== 0 || result.error) {
-    throw new Error(result.error?.message ?? 'Command failed with non-zero status code');
+    throw new Error(`Command failed with non-zero status code. Output:\n${result.stdout.toString()}`);
   }
 
   return result.stdout.toString();
