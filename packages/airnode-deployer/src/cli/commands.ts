@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { CloudProvider } from '@api3/airnode-node';
+import size from 'lodash/size';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
@@ -32,6 +33,20 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     throw new Error('Invalid mnemonic');
   }
 
+  // TODO: This should be check by validator
+  const maxConcurrency = config.chains.reduce((concurrency: number, chain) => {
+    if (chain.maxConcurrency <= 0) {
+      logger.fail(`Concurrency limit must be more than 0 for chain with ID ${chain.id}`);
+      throw new Error('Invalid concurrency limit');
+    }
+    if (chain.maxConcurrency < size(chain.providers)) {
+      logger.fail(`Concurrency limit can't be lower than number of providers for chain with ID ${chain.id}`);
+      throw new Error('Invalid concurrency limit');
+    }
+
+    return concurrency + chain.maxConcurrency;
+  }, 0);
+
   const httpGateway = config.nodeSettings.httpGateway;
   if (httpGateway.enabled) {
     if (httpGateway.maxConcurrency !== undefined && httpGateway.maxConcurrency <= 0) {
@@ -57,6 +72,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       httpGateway,
       configPath,
       secretsPath: tmpSecretsPath,
+      maxConcurrency,
     });
   } catch (err) {
     logger.warn(`Failed deploying configuration, skipping`);

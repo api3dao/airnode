@@ -124,6 +124,7 @@ interface AirnodeVariables {
   configPath?: string;
   secretsPath?: string;
   httpGateway?: HttpGateway;
+  maxConcurrency?: number;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -146,7 +147,7 @@ async function terraformAirnodeManage(
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway } = variables;
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, maxConcurrency } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -160,6 +161,11 @@ async function terraformAirnodeManage(
     ['input', 'false'],
     'no-color',
   ];
+
+  // In case of Airnode removal the concurrency information is not available so can't be passed as a variable
+  if (maxConcurrency) {
+    commonArguments.push(['var', 'max_concurrency', `${maxConcurrency}`]);
+  }
 
   if (httpGateway?.enabled) {
     commonArguments.push(['var', 'api_key', httpGateway.apiKey!]);
@@ -194,6 +200,7 @@ interface AirnodeDeployParams {
   readonly httpGateway: HttpGateway;
   readonly configPath: string;
   readonly secretsPath: string;
+  readonly maxConcurrency: number;
 }
 
 export async function deployAirnode(params: AirnodeDeployParams) {
@@ -217,6 +224,7 @@ async function deploy({
   httpGateway,
   configPath,
   secretsPath,
+  maxConcurrency,
 }: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
   if (logger.inDebugMode()) {
     spinner.info();
@@ -254,6 +262,7 @@ async function deploy({
     configPath,
     secretsPath,
     httpGateway,
+    maxConcurrency,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;
