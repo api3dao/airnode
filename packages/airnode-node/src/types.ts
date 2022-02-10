@@ -472,12 +472,14 @@ export interface LocalProvider {
 export interface AwsCloudProvider {
   readonly type: 'aws';
   readonly region: string;
+  readonly disableConcurrencyReservations: boolean;
 }
 
 export interface GcpCloudProvider {
   readonly type: 'gcp';
   readonly region: string;
   readonly projectId: string;
+  readonly disableConcurrencyReservations: boolean;
 }
 
 export type CloudProvider = AwsCloudProvider | GcpCloudProvider;

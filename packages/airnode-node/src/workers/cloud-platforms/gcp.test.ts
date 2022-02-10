@@ -17,7 +17,12 @@ describe('spawn', () => {
     requestMock.mockImplementationOnce(() => ({ data: { value: 7777 } }));
     const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: {
+        type: 'gcp',
+        region: 'us-east1',
+        projectId: 'projectId123',
+        disableConcurrencyReservations: false,
+      },
     });
     const parameters: WorkerParameters = {
       ...workerOpts,
@@ -43,7 +48,12 @@ describe('spawn', () => {
     requestMock.mockRejectedValueOnce(new Error('Something went wrong'));
     const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: {
+        type: 'gcp',
+        region: 'us-east1',
+        projectId: 'projectId123',
+        disableConcurrencyReservations: false,
+      },
     });
     const parameters: WorkerParameters = {
       ...workerOpts,

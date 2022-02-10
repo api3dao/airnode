@@ -43,6 +43,9 @@
       "region": {
         "__type": "string"
       },
+      "disableConcurrencyReservations": {
+        "__type": "boolean"
+      },
       "__optional": {
         "projectId": {
           "__type": "string"

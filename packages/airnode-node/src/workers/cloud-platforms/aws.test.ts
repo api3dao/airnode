@@ -18,7 +18,9 @@ describe('spawn', () => {
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ value: 7777 }) }) })
     );
     const state = fixtures.buildEVMProviderState();
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({
+      cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
+    });
     const parameters: WorkerParameters = {
       ...workerOpts,
       payload: { functionName: 'initializeProvider', state },
@@ -40,7 +42,9 @@ describe('spawn', () => {
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
     const state = fixtures.buildEVMProviderState();
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({
+      cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
+    });
     const parameters: WorkerParameters = {
       ...workerOpts,
       payload: { functionName: 'initializeProvider', state },

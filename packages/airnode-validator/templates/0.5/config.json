@@ -213,6 +213,17 @@
         },
         {
           "__if": {
+            "type": "^(aws|gcp)$"
+          },
+          "__then": {
+            "disableConcurrencyReservations": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.disableConcurrencyReservations"
+          }
+        },
+        {
+          "__if": {
             "type": "^gcp$"
           },
           "__then": {
@@ -230,6 +241,51 @@
             {
               "__if": {
                 "__this": ".*"
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
+        },
+        "disableConcurrencyReservations": {
+          "__type": "boolean",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": false
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            },
+            {
+              "__if": {
+                "__this": true
               },
               "__rootThen": {
                 "nodeSettings": {

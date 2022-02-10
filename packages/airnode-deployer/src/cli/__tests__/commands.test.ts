@@ -31,7 +31,11 @@ describe('deployer commands', () => {
   });
 
   it('can remove Airnode', async () => {
-    await remove('airnodeAddressShort', 'stage', { type: 'aws', region: 'region' });
+    await remove('airnodeAddressShort', 'stage', {
+      type: 'aws',
+      region: 'region',
+      disableConcurrencyReservations: false,
+    });
 
     expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
   });
@@ -52,6 +56,7 @@ describe('deployer commands', () => {
           type: 'gcp',
           region: 'us-east1',
           projectId: 'airnode-4',
+          disableConcurrencyReservations: false,
         },
         nodeVersion: '0.5.0',
         stage: 'stage',
