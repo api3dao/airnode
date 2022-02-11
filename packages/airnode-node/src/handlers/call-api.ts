@@ -216,7 +216,6 @@ async function processSuccessfulApiCall(
       const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
       return [[log], { success: false, errorMessage: RequestErrorMessage.ResponseValueNotFound }];
     } else if (e instanceof adapter.SizeLimitError) {
-      console.log('HERE SizeLimitError');
       const log = logger.pend('ERROR', e.message);
       return [[log], { success: false, errorMessage: RequestErrorMessage.EncodedValueLimitExceeded }];
     } else if (e instanceof adapter.InvalidTypeError) {
