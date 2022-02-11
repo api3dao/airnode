@@ -10,7 +10,15 @@ import {
   MULTIPLE_PARAMETERS_DELIMETER,
   PATH_DELIMETER,
 } from '../constants';
-import { ReservedParameters, ValueType, ExtractedAndEncodedResponse, ReservedParametersDelimeter } from '../types';
+import {
+  ReservedParameters,
+  ValueType,
+  ExtractedAndEncodedResponse,
+  ReservedParametersDelimeter,
+  SizeLimitError,
+  MissingValueError,
+  InvalidTypeError,
+} from '../types';
 
 export function unescape(value: string, delimeter: ReservedParametersDelimeter) {
   const escapedEscapeCharacter = ESCAPE_CHARACTER.repeat(2);
@@ -60,7 +68,7 @@ export function extractValue(data: unknown, path?: string) {
   const rawValue = getRawValue(data, path);
 
   if (isUndefined(rawValue)) {
-    throw new Error(`Unable to find value from path: '${path}'`);
+    throw new MissingValueError(`Unable to find value from path: '${path}'`);
   }
 
   return rawValue;
@@ -105,10 +113,10 @@ function extractSingleResponse(data: unknown, parameters: ReservedParameters) {
   const type = parsedArrayType?.baseType ?? parameters._type;
 
   if (!isNumericType(type) && parameters._times) {
-    throw new Error(`Parameter "_times" can only be used with numeric types, but "_type" was "${type}"`);
+    throw new InvalidTypeError(`Parameter "_times" can only be used with numeric types, but "_type" was "${type}"`);
   }
   if (type === 'timestamp' && parameters._path) {
-    throw new Error(
+    throw new InvalidTypeError(
       `Parameter "_path" must be empty string or undefined when "_type" is "timestamp", but it was "${parameters._path}"`
     );
   }
@@ -150,7 +158,7 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
   const encodedValue = encodeValue(extractedValue, parameters._type);
 
   if (exceedsMaximumEncodedResponseSize(encodedValue)) {
-    throw new Error(`Encoded value exceeds the maximum allowed size (${MAX_ENCODED_RESPONSE_SIZE} bytes)`);
+    throw new SizeLimitError(`Encoded value exceeds the maximum allowed size (${MAX_ENCODED_RESPONSE_SIZE} bytes)`);
   }
 
   return { rawValue: data, encodedValue, values: [extractedValue] };

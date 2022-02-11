@@ -78,3 +78,48 @@ export interface ExtractedAndEncodedResponse {
 }
 
 export type ReservedParametersDelimeter = typeof MULTIPLE_PARAMETERS_DELIMETER | typeof PATH_DELIMETER;
+
+export class SizeLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    // Note: Setting prototype is needed in Typescript versions after 2.2 to check the error instance
+    // https://github.com/Microsoft/TypeScript/issues/13965#issuecomment-278570200
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = 'SizeLimitError';
+    this.message = message;
+  }
+}
+
+export class MissingValueError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = 'MissingValueError';
+    this.message = message;
+  }
+}
+
+export class InvalidTypeError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = 'InvalidTypeError';
+    this.message = message;
+  }
+}
+export class ValueConversionError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = 'ValueConversionError';
+    this.message = message;
+  }
+}
+export class EncodingError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = 'EncodingError';
+    this.message = message;
+  }
+}

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { artificialTypes } from '../constants';
-import { ResponseType, ValueType } from '../types';
+import { ResponseType, ValueType, EncodingError } from '../types';
 
 type ArtificialTypeMapping = {
   readonly [key in typeof artificialTypes[number]]: string;
@@ -21,12 +21,20 @@ export function getSolidityType(type: ResponseType) {
 
 export function encodeValue(value: ValueType, type: ResponseType): string {
   const solidityType = getSolidityType(type);
-
-  return ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
+  try {
+    const encodedValue = ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
+    return encodedValue;
+  } catch (e) {
+    throw new EncodingError((e as Error).message);
+  }
 }
 
 export function encodeMultipleValues(values: ValueType[], types: ResponseType[]): string {
   const solidityTypes = types.map(getSolidityType);
-
-  return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
+  try {
+    const encodedValue = ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
+    return encodedValue;
+  } catch (e) {
+    throw new EncodingError((e as Error).message);
+  }
 }

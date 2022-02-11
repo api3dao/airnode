@@ -39,6 +39,10 @@ export enum RequestErrorMessage {
   ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
+  EncodedValueLimitExceeded = 'Encoded value limit exceeded',
+  ParameterTypeInvalid = 'Invalid parameter type',
+  ValueConversionFailed = 'Value conversion failed',
+  ValueEncodingFailed = 'Value encoding failed',
 }
 
 export enum RequestStatus {
