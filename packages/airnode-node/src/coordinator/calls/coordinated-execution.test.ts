@@ -66,7 +66,7 @@ describe('callApis', () => {
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const extractSpy = jest.spyOn(adapter, 'extractAndEncodeResponse') as jest.SpyInstance;
     extractSpy.mockImplementation(() => {
-      throw new Error('Unable to convert response');
+      throw new Error(RequestErrorMessage.ValueConversionFailed);
     });
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
@@ -76,14 +76,14 @@ describe('callApis', () => {
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ResponseValueNotFound}`);
+    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ValueConversionFailed}`);
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorMessage: RequestErrorMessage.ResponseValueNotFound,
+        errorMessage: RequestErrorMessage.ValueConversionFailed,
       },
     ]);
     expect(executeSpy).toHaveBeenCalledTimes(1);
