@@ -12,7 +12,7 @@ module "run" {
   timeout                        = 32
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
-  reserved_concurrent_executions = var.max_concurrency
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.max_concurrency
 }
 
 module "startCoordinator" {
@@ -31,7 +31,7 @@ module "startCoordinator" {
 
   invoke_targets                 = [module.run.lambda_arn]
   schedule_interval              = 1
-  reserved_concurrent_executions = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
 
   depends_on = [module.run]
 }
@@ -47,7 +47,7 @@ module "testApi" {
   timeout                        = 15
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
-  reserved_concurrent_executions = var.api_max_concurrency
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.api_max_concurrency
 }
 
 module "testApiGateway" {

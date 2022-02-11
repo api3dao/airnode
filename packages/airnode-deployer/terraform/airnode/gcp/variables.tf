@@ -39,7 +39,12 @@ variable "handler_dir" {
 
 variable "max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode Run Cloud function"
-  default = 0
+  default     = 0
+}
+
+variable "disable_concurrency_reservation" {
+  description = "Flag to disable any concurrency reservations"
+  default     = false
 }
 
 variable "api_key" {
