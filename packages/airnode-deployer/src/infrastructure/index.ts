@@ -124,7 +124,6 @@ interface AirnodeVariables {
   configPath?: string;
   secretsPath?: string;
   httpGateway?: HttpGateway;
-  maxConcurrency?: number;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -142,12 +141,12 @@ function getBucketName(airnodeAddressShort: string, stage: string) {
 async function terraformAirnodeManage(
   command: string,
   execOptions: child.ExecOptions,
-  cloudProvider: CloudProvider,
+  cloudProvider: CloudProviderExtended,
   bucket: string,
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, maxConcurrency } = variables;
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -158,13 +157,14 @@ async function terraformAirnodeManage(
     ['var', 'configuration_file', configPath ? path.resolve(configPath) : 'NULL'],
     ['var', 'secrets_file', secretsPath ? path.resolve(secretsPath) : 'NULL'],
     ['var', 'handler_dir', handlerDir],
+    ['var', 'disable_concurrency_reservation', `${!!cloudProvider.disableConcurrencyReservations}`],
     ['input', 'false'],
     'no-color',
   ];
 
   // In case of Airnode removal the concurrency information is not available so can't be passed as a variable
-  if (maxConcurrency) {
-    commonArguments.push(['var', 'max_concurrency', `${maxConcurrency}`]);
+  if (cloudProvider.maxConcurrency) {
+    commonArguments.push(['var', 'max_concurrency', `${cloudProvider.maxConcurrency}`]);
   }
 
   if (httpGateway?.enabled) {
@@ -193,14 +193,18 @@ async function terraformAirnodeManage(
   await execTerraform(execOptions, command, prepareAirnodeManageArguments(cloudProvider, commonArguments));
 }
 
+// `maxConcurrency` field is required for deployment but missing for removal. This is the easiest way to type it.
+type CloudProviderExtended = CloudProvider & {
+  readonly maxConcurrency?: number;
+};
+
 interface AirnodeDeployParams {
   readonly airnodeAddressShort: string;
   readonly stage: string;
-  readonly cloudProvider: CloudProvider;
+  readonly cloudProvider: CloudProviderExtended;
   readonly httpGateway: HttpGateway;
   readonly configPath: string;
   readonly secretsPath: string;
-  readonly maxConcurrency: number;
 }
 
 export async function deployAirnode(params: AirnodeDeployParams) {
@@ -224,7 +228,6 @@ async function deploy({
   httpGateway,
   configPath,
   secretsPath,
-  maxConcurrency,
 }: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
   if (logger.inDebugMode()) {
     spinner.info();
@@ -262,7 +265,6 @@ async function deploy({
     configPath,
     secretsPath,
     httpGateway,
-    maxConcurrency,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;

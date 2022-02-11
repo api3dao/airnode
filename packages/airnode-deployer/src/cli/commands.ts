@@ -68,11 +68,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     output = await deployAirnode({
       airnodeAddressShort,
       stage: config.nodeSettings.stage,
-      cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
+      cloudProvider: { maxConcurrency, ...config.nodeSettings.cloudProvider },
       httpGateway,
       configPath,
       secretsPath: tmpSecretsPath,
-      maxConcurrency,
     });
   } catch (err) {
     logger.warn(`Failed deploying configuration, skipping`);
