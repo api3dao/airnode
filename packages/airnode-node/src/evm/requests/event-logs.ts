@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
 import * as events from './events';
-import { retryOperation } from '../../utils/promise-utils';
 import { AirnodeRrpFactory } from '../contracts';
-import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import {
   EVMEventLog,
   EVMMadeRequestLog,
@@ -45,11 +43,8 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     topics: [null, ethers.utils.hexZeroPad(options.airnodeAddress, 32)],
   };
 
-  const operation = () => options.provider.getLogs(filter);
-  const retryableOperation = retryOperation(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-
   // Let this throw if something goes wrong
-  const rawLogs = await retryableOperation;
+  const rawLogs = await options.provider.getLogs(filter);
 
   const logsWithBlocks = rawLogs.map((log) => ({
     address: log.address,
