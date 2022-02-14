@@ -1,5 +1,5 @@
 ---
-'@api3/airnode-abi': patch
+'@api3/airnode-abi': minor
 ---
 
-throw error if abi encoded data has trailing bytes
+Throw error if abi encoded data has trailing bytes
