@@ -25,6 +25,16 @@ function buildDecodedMap(types: ParameterType[], nameValuePairs: [string, string
   }, {});
 }
 
+// Checks if the original encoded data has trailing bytes by re-encoding it and comparing the string lengths
+function reEncodedLengthMatches(
+  decodingTypes: string[],
+  decodedData: ethers.utils.Result,
+  encodedDataLength: number
+): boolean {
+  const reEncodedData = ethers.utils.defaultAbiCoder.encode(decodingTypes, decodedData);
+  return reEncodedData.length === encodedDataLength;
+}
+
 export function decode(encodedData: string): DecodedMap {
   // Special cases for empty parameters
   if (encodedData === '0x') {
@@ -62,6 +72,10 @@ export function decode(encodedData: string): DecodedMap {
   // 32 bytes (i.e. the header) because that results in the decoding failing. So decode
   // exactly what you got from the contract, including the header.
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
+
+  if (!reEncodedLengthMatches(decodingTypes, decodedData, encodedData.length)) {
+    throw new Error('Trailing bytes in encoded data are not allowed');
+  }
 
   const [_version, ...decodedParameters] = decodedData;
   const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
