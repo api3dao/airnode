@@ -7,11 +7,11 @@ const main = async () => {
   const airnodeWallet = getAirnodeWallet();
   const provider = getProvider();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);
-  // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' from the admin CLI package
+  // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' command from the admin CLI package
   const airnodeXpub = deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
 
   // Derive the sponsor wallet address programatically
-  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' from the admin CLI package
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' command from the admin CLI package
   const sponsorWalletAddress = await deriveSponsorWalletAddress(airnodeXpub, airnodeWallet.address, sponsor.address);
 
   // Fund the derived sponsor wallet using sponsor account

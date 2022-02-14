@@ -55,9 +55,6 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install Dependencies
         run: yarn run bootstrap
-      - name: Prepare config
-        run: |
-          cp packages/airnode-deployer/config/config.json.example packages/airnode-deployer/config/config.json
       - name: Build
         run: yarn run build
       - name: Lint code
