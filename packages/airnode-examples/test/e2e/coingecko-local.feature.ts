@@ -50,7 +50,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
       expect(Number(price)).toEqual(expect.any(Number));
       expect(Number(price).toString()).toBe(price);
 
-      console.log(`FYI: The Ethereum price is ${price} USD.`);
+      console.log(`The Ethereum price is ${price} USD.`);
     } catch (e) {
       killBackgroundProcess(airnodeDocker);
       throw e;

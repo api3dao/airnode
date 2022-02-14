@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import isWsl from 'is-wsl';
-import { cliPrint, readIntegrationInfo, runAndHandleErrors } from '../src';
+import { readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const isMacOrWindows = () => process.platform === 'win32' || process.platform === 'darwin' || isWsl;
 
@@ -20,14 +20,6 @@ const main = async () => {
     writeFileSync(
       secretsPath,
       rawSecrets.replace('PROVIDER_URL=http://127.0.0.1:8545/', 'PROVIDER_URL=http://host.docker.internal:8545')
-    );
-
-    cliPrint.warning(
-      [
-        '',
-        `We have detected that you are on Windows/WSL or MacOS platform and have set the PROVIDER_URL to http://host.docker.internal:8545.`,
-        `See: https://stackoverflow.com/a/24326540 for more information.`,
-      ].join('\n')
     );
   }
 };
