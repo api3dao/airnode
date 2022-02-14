@@ -24,11 +24,8 @@ export function encodeValue(value: ValueType, type: ResponseType): string {
   try {
     return ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
   } catch (e) {
-    if (e instanceof Error) {
-      throw new EncodingError((e as Error).message);
-    } else {
-      throw new EncodingError(String(e));
-    }
+    if (e instanceof Error) throw new EncodingError((e as Error).message);
+    throw new EncodingError(String(e));
   }
 }
 
@@ -37,10 +34,7 @@ export function encodeMultipleValues(values: ValueType[], types: ResponseType[])
   try {
     return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
   } catch (e) {
-    if (e instanceof Error) {
-      throw new EncodingError((e as Error).message);
-    } else {
-      throw new EncodingError(String(e));
-    }
+    if (e instanceof Error) throw new EncodingError((e as Error).message);
+    throw new EncodingError(String(e));
   }
 }
