@@ -82,10 +82,10 @@ describe('callApi', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
+      { level: 'ERROR', message: `Unable to find response value from {"price":1000}. Path: 'unknown'` },
     ]);
     expect(res).toEqual({
-      errorMessage: RequestErrorMessage.ResponseValueNotFound,
+      errorMessage: `Unable to find response value from {"price":1000}. Path: 'unknown'`,
       success: false,
     });
   });
@@ -106,7 +106,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorMessage: RequestErrorMessage.ValueEncodingFailed,
+      errorMessage: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
       success: false,
     });
   });
@@ -127,7 +127,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorMessage: RequestErrorMessage.ParameterTypeInvalid,
+      errorMessage: `Parameter "_times" can only be used with numeric types, but "_type" was "${parameters._type}"`,
       success: false,
     });
   });
@@ -148,7 +148,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorMessage: RequestErrorMessage.ValueConversionFailed,
+      errorMessage: `Unable to convert: 'string' to 'int256'. Reason: Invalid number value`,
       success: false,
     });
   });

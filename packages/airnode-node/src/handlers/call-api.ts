@@ -211,29 +211,8 @@ async function processSuccessfulApiCall(
     const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
     return [[], { success: true, value: response.encodedValue, signature }];
   } catch (e) {
-    if (e instanceof adapter.MissingValueError) {
-      const data = JSON.stringify(rawResponse.data);
-      const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
-      return [[log], { success: false, errorMessage: RequestErrorMessage.ResponseValueNotFound }];
-    } else if (e instanceof adapter.SizeLimitError) {
-      const log = logger.pend('ERROR', e.message);
-      return [[log], { success: false, errorMessage: RequestErrorMessage.EncodedValueLimitExceeded }];
-    } else if (e instanceof adapter.InvalidTypeError) {
-      const log = logger.pend('ERROR', e.message);
-      return [[log], { success: false, errorMessage: RequestErrorMessage.ParameterTypeInvalid }];
-    } else if (e instanceof adapter.ValueConversionError) {
-      const log = logger.pend('ERROR', e.message);
-      return [[log], { success: false, errorMessage: RequestErrorMessage.ValueConversionFailed }];
-    } else if (e instanceof adapter.EncodingError) {
-      const log = logger.pend('ERROR', e.message);
-      return [[log], { success: false, errorMessage: RequestErrorMessage.ValueEncodingFailed }];
-    } else if (e instanceof Error) {
-      const log = logger.pend('ERROR', e.message);
-      return [[log], { success: false, errorMessage: e.message }];
-    } else {
-      const log = logger.pend('ERROR', String(e));
-      return [[log], { success: false, errorMessage: String(e) }];
-    }
+    const log = logger.pend('ERROR', (e as Error).message);
+    return [[log], { success: false, errorMessage: (e as Error).message }];
   }
 }
 

@@ -289,7 +289,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       const dynamicKey = 'strange.key';
 
       expect(() => extractAndEncode({ _type: 'int256', _times: '100', _path: `json.${dynamicKey}` })).to.Throw(
-        "Unable to find value from path: 'json.strange.key'"
+        `Unable to find response value from ${JSON.stringify(apiResponse)}. Path: 'json.strange.key'`
       );
     });
 

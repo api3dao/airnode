@@ -3,7 +3,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
-import { ResponseType, ValueType, InvalidTypeError, ValueConversionError } from '../types';
+import { ResponseType, ValueType } from '../types';
 import { baseResponseTypes } from '../constants';
 
 interface SpecialNumber {
@@ -104,7 +104,7 @@ function toHumanReadableString(value: unknown) {
 }
 
 export function castValue(value: unknown, type: ResponseType): ValueType {
-  if (!isValidType(type)) throw new InvalidTypeError(`Invalid type: ${type}`);
+  if (!isValidType(type)) throw new Error(`Invalid type: ${type}`);
 
   try {
     if (isNumericType(type)) return castNumber(value);
@@ -130,13 +130,11 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
     }
 
     // NOTE: Should not happen, we should throw on invalid type sooner
-    throw new InvalidTypeError('Conversion for the given type is not defined');
+    throw new Error('Conversion for the given type is not defined');
   } catch (nativeError) {
     const nativeErrorMessage = String(nativeError).replace(/^Error: /, '');
 
-    throw new ValueConversionError(
-      `Unable to convert: '${toHumanReadableString(value)}' to '${type}'. Reason: ${nativeErrorMessage}`
-    );
+    throw new Error(`Unable to convert: '${toHumanReadableString(value)}' to '${type}'. Reason: ${nativeErrorMessage}`);
   }
 }
 
