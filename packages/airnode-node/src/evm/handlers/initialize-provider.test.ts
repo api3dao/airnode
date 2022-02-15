@@ -120,6 +120,6 @@ describe('initializeProvider', () => {
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
-    expect(getLogsSpy).toHaveBeenCalledTimes(2);
+    expect(getLogsSpy).toHaveBeenCalledTimes(1);
   });
 });

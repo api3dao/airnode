@@ -28,6 +28,8 @@
     "build:protocol": "(cd packages/airnode-protocol && yarn run build)",
     "build:validator": "(cd packages/airnode-validator && yarn run build)",
     "changeset": "changeset",
+    "changeset:check": "changeset status --since=origin/master",
+    "changeset:empty": "changeset --empty",
     "clean": "lerna run clean --stream",
     "cli:deployer": "lerna run --scope @api3/airnode-deployer cli -- --",
     "dev:api": "(cd packages/airnode-operation && yarn run dev:api)",
