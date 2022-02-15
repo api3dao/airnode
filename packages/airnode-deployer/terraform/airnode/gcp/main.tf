@@ -56,7 +56,7 @@ module "startCoordinator" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_URL = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
   }
 
   schedule_interval = 1

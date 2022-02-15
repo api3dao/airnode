@@ -63,7 +63,7 @@ security:
   - apiKey: []
 
 paths:
-  /test/{endpointId}:
+  /{endpointId}:
     post:
       parameters:
         - $ref: "#/components/parameters/endpointId"
