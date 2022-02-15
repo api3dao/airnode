@@ -66,24 +66,25 @@ describe('callApis', () => {
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const extractSpy = jest.spyOn(adapter, 'extractAndEncodeResponse') as jest.SpyInstance;
     extractSpy.mockImplementation(() => {
-      throw new Error(RequestErrorMessage.ValueConversionFailed);
+      throw new Error('Unable to convert');
     });
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
-    expect(logs.length).toEqual(4);
+    expect(logs.length).toEqual(5);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
-    expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ValueConversionFailed}`);
-    expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
-    expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
+    expect(logs[1].message).toContain('Unable to call API endpoint:convertToUSD');
+    expect(logs[2].level).toEqual('ERROR');
+    expect(logs[2].message).toContain('API call to Endpoint:convertToUSD failed after ');
+    expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
+    expect(logs[4]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorMessage: RequestErrorMessage.ValueConversionFailed,
+        errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
       },
     ]);
     expect(executeSpy).toHaveBeenCalledTimes(1);
@@ -100,15 +101,14 @@ describe('callApis', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
-    expect(logs.length).toEqual(4);
+    expect(logs.length).toEqual(5);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
-    // TODO: Change this error message since it does not read nice
-    expect(logs[1].message).toMatch(
-      /API call to Endpoint:convertToUSD errored after \d+ms with error message:API call failed/
-    );
-    expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
-    expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
+    expect(logs[1].message).toContain('Unable to call API endpoint:convertToUSD');
+    expect(logs[2].level).toEqual('ERROR');
+    expect(logs[2].message).toContain('API call to Endpoint:convertToUSD failed after ');
+    expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
+    expect(logs[4]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
