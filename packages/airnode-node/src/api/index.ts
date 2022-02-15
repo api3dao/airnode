@@ -30,6 +30,16 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     .map((c) => removeKey(c, 'oisTitle')) as adapter.ApiCredentials[];
 
   switch (aggregatedApiCall.type) {
+    case 'http-signed-relayed-gateway': {
+      const removedHttpParams = removeKeys(sanitizedParameters, ['_id', '_relayer']);
+      return {
+        endpointName,
+        parameters: removedHttpParams,
+        ois,
+        apiCredentials,
+        metadata: null,
+      };
+    }
     case 'testing-gateway': {
       return {
         endpointName,
@@ -76,6 +86,28 @@ async function signResponseMessage(requestId: string, responseValue: string, con
   );
 }
 
+async function signRelayedResponseMessage(
+  requestId: string,
+  timestamp: string,
+  relayerAddress: string,
+  responseValue: string,
+  config: Config
+) {
+  const masterHDNode = getMasterHDNode(config);
+  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
+
+  return await airnodeWallet.signMessage(
+    ethers.utils.arrayify(
+      ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ['bytes32', 'uint256', 'address', 'bytes'],
+          [requestId, timestamp, responseValue || '0x', relayerAddress]
+        )
+      )
+    )
+  );
+}
+
 export interface CallApiPayload {
   readonly config: Config;
   readonly aggregatedApiCall: AggregatedApiCall;
@@ -83,7 +115,7 @@ export interface CallApiPayload {
 
 function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type === 'testing-gateway') return null;
+  if (aggregatedApiCall.type !== 'regular') return null;
 
   const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
   const hdNode = getMasterHDNode(config);
@@ -103,7 +135,7 @@ function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResp
 
 function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type === 'testing-gateway') return null;
+  if (aggregatedApiCall.type !== 'regular') return null;
 
   if (isValidRequestId(aggregatedApiCall)) return null;
 
@@ -120,7 +152,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type === 'testing-gateway') return null;
+  if (aggregatedApiCall.type !== 'regular') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -130,7 +162,13 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
   if (!template) {
     const message = `Ignoring Request:${id} as the template could not be found for verification`;
     const log = logger.pend('ERROR', message);
-    return [[log], { success: false, errorMessage: message }];
+    return [
+      [log],
+      {
+        success: false,
+        errorMessage: message,
+      },
+    ];
   }
 
   const expectedTemplateId = getExpectedTemplateId(template);
@@ -171,7 +209,7 @@ async function performApiCall(
   );
 
   const [err, res] = await go(() => retryableCall);
-  if (err || !res) {
+  if (err) {
     const { aggregatedApiCall } = payload;
     const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, err);
     return [[log], { success: false, errorMessage: `${RequestErrorMessage.ApiCallFailed}` }];
@@ -196,14 +234,27 @@ async function processSuccessfulApiCall(
       reservedParameters as adapter.ReservedParameters
     );
 
-    if (aggregatedApiCall.type === 'testing-gateway') {
-      // NOTE: Testing gateway will use only the value and ignore the signature so there is no need
-      // to compute it, since it is performance heavy operation.
-      return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];
+    switch (aggregatedApiCall.type) {
+      case 'testing-gateway':
+        // NOTE: Testing gateway will use only the value and ignore the signature so there is no need
+        // to compute it, since it is performance heavy operation.
+        return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];
+      case 'regular': {
+        const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
+        return [[], { success: true, value: response.encodedValue, signature }];
+      }
+      case 'http-signed-relayed-gateway': {
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const signature = await signRelayedResponseMessage(
+          aggregatedApiCall.id, // Same as parameters._id
+          timestamp,
+          parameters._relayer,
+          response.encodedValue,
+          config
+        );
+        return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
+      }
     }
-
-    const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
-    return [[], { success: true, value: response.encodedValue, signature }];
   } catch (e) {
     const log = logger.pend('ERROR', (e as Error).message);
     return [[log], { success: false, errorMessage: (e as Error).message }];

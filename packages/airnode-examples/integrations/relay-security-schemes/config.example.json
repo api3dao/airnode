@@ -47,7 +47,8 @@
         "oisTitle": "Relay Security Schemes via httpbin",
         "endpointName": "httpbinRelaySecuritySchemes"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "ois": [
     {

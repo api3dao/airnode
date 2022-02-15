@@ -239,7 +239,10 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+export type AggregatedApiCall =
+  | RegularAggregatedApiCall
+  | TestingGatewayAggregatedApiCall
+  | SignedRelayedAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   id: string;
@@ -275,6 +278,10 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'testing-gateway';
+}
+
+export interface SignedRelayedAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-signed-relayed-gateway';
 }
 
 // ===========================================
@@ -371,6 +378,7 @@ export interface Triggers {
   // For now the attribute is optional, because http gateway is supported only on AWS.
   // TODO: Make this required once it is supported everywhere.
   http?: Trigger[];
+  httpSignedRelayed: Trigger[];
 }
 
 // ===========================================

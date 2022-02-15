@@ -55,6 +55,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'histLatLonData',
       },
     ],
+    httpSignedRelayed: [],
   },
   ois: [
     {

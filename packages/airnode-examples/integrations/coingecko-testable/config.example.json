@@ -56,7 +56,8 @@
         "oisTitle": "CoinGecko basic request",
         "endpointName": "coinMarketData"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "ois": [
     {

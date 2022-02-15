@@ -47,7 +47,8 @@
         "oisTitle": "CoinMarketCap Basic Authenticated Request",
         "endpointName": "coinMarketCapData"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "ois": [
     {

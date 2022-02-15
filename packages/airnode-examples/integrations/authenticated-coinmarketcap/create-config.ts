@@ -55,6 +55,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'coinMarketCapData',
       },
     ],
+    httpSignedRelayed: [],
   },
   ois: [
     {
