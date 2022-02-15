@@ -168,9 +168,9 @@ async function terraformAirnodeManage(
   }
 
   if (httpGateway?.enabled) {
-    commonArguments.push(['var', 'api_key', httpGateway.apiKey!]);
+    commonArguments.push(['var', 'http_api_key', httpGateway.apiKey!]);
     if (httpGateway.maxConcurrency) {
-      commonArguments.push(['var', 'api_max_concurrency', `${httpGateway.maxConcurrency}`]);
+      commonArguments.push(['var', 'http_max_concurrency', `${httpGateway.maxConcurrency}`]);
     }
   }
 

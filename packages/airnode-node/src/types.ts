@@ -274,7 +274,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
 }
 
 export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'testing-gateway';
+  type: 'http-gateway';
 }
 
 export interface SignedRelayedAggregatedApiCall extends BaseAggregatedApiCall {

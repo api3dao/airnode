@@ -43,14 +43,14 @@ variable "disable_concurrency_reservation" {
   default     = false
 }
 
-variable "api_key" {
-  description = "API key to access Airnode Test Gateway"
+variable "http_api_key" {
+  description = "API key to access Airnode HTTP Gateway"
   type        = string
   default     = null
 }
 
-variable "api_max_concurrency" {
-  description = "Maximum amount of concurrent executions for Airnode Test Gateway Lambda"
+variable "http_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode HTTP Gateway Lambda"
   # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#reserved_concurrent_executions
   default = -1
 }

@@ -40,7 +40,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
         metadata: null,
       };
     }
-    case 'testing-gateway': {
+    case 'http-gateway': {
       return {
         endpointName,
         parameters: sanitizedParameters,
@@ -235,7 +235,7 @@ async function processSuccessfulApiCall(
     );
 
     switch (aggregatedApiCall.type) {
-      case 'testing-gateway':
+      case 'http-gateway':
         // NOTE: Testing gateway will use only the value and ignore the signature so there is no need
         // to compute it, since it is performance heavy operation.
         return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];

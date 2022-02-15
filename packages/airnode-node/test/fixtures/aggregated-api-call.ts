@@ -40,7 +40,7 @@ export function buildAggregatedTestingGatewayApiCall(
   params?: Partial<TestingGatewayAggregatedApiCall>
 ): TestingGatewayAggregatedApiCall {
   return {
-    type: 'testing-gateway',
+    type: 'http-gateway',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',

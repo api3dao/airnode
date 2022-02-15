@@ -7,14 +7,14 @@ schemes:
   - "https"
 
 definitions:
-  TestEndpointRequest:
+  EndpointRequest:
     type: object
     required:
       - parameters
     properties:
       parameters:
         type: object
-  TestEndpointResponse:
+  EndpointResponse:
     type: object
     required:
       - response
@@ -43,12 +43,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: "#/definitions/TestEndpointRequest"
+            $ref: "#/definitions/EndpointRequest"
       responses:
         "200":
-          description: Test request called
+          description: Request called
           schema:
-            $ref: "#/definitions/TestEndpointResponse"
+            $ref: "#/definitions/EndpointResponse"
       x-google-backend:
         address: https://${region}-${project}.cloudfunctions.net/${cloud_function_name}
         path_translation: CONSTANT_ADDRESS

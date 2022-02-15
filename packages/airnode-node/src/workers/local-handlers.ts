@@ -68,9 +68,9 @@ export async function processTransactions({
   return { ok: true, data: scrubbedState };
 }
 
-export async function testApi(endpointId: string, parameters: any) {
+export async function processHttpRequest(endpointId: string, parameters: any) {
   const config = loadConfig();
-  const [err, result] = await handlers.testApi(config, endpointId, parameters);
+  const [err, result] = await handlers.processHttpRequest(config, endpointId, parameters);
   if (err) {
     throw err;
   }

@@ -79,7 +79,7 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
   res.status(200).send(body);
 }
 
-export async function testApi(req: Request, res: Response) {
+export async function processHttpRequest(req: Request, res: Response) {
   // We need to check for an API key manually because GCP HTTP Gateway
   // doesn't support managing API keys via API
   const apiKey = req.header('x-api-key');
@@ -95,7 +95,7 @@ export async function testApi(req: Request, res: Response) {
     return;
   }
 
-  const [err, result] = await handlers.testApi(parsedConfig, endpointId as string, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId as string, parameters);
   if (err) {
     res.status(400).send({ error: err.toString() });
     return;

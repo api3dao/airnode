@@ -77,7 +77,9 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
   return { statusCode: 200, body };
 }
 
-export async function testApi(event: AWSLambda.APIGatewayProxyEvent): Promise<AWSLambda.APIGatewayProxyResult> {
+export async function processHttpRequest(
+  event: AWSLambda.APIGatewayProxyEvent
+): Promise<AWSLambda.APIGatewayProxyResult> {
   if (!event.body) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing request body' }) };
   }
@@ -89,7 +91,7 @@ export async function testApi(event: AWSLambda.APIGatewayProxyEvent): Promise<AW
   const parameters = JSON.parse(event.body).parameters;
   const endpointId = event.pathParameters.endpointId;
 
-  const [err, result] = await handlers.testApi(parsedConfig, endpointId, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }

@@ -14,14 +14,14 @@ x-amazon-apigateway-minimum-compression-size: 2097152
 
 components:
   schemas:
-    TestEndpointRequest:
+    EndpointRequest:
       type: object
       required:
         - parameters
       properties:
         parameters:
           type: object
-    TestEndpointResponse:
+    EndpointResponse:
       type: object
       required:
         - response
@@ -33,11 +33,11 @@ components:
       summary: Endpoint name
       value: 0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353
 
-    TestEndpointRequestExample:
-      summary: Test endpoint request example
+    EndpointRequestExample:
+      summary: Endpoint request example
       value: { "parameters": { "from": "EUR", "amount": 5 } }
-    TestEndpointResponseExample:
-      summary: Test endpoint response example
+    EndpointResponseExample:
+      summary: Endpoint response example
       value: { "response": 20 }
 
   parameters:
@@ -71,20 +71,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TestEndpointRequest"
+              $ref: "#/components/schemas/EndpointRequest"
             examples:
               example:
-                $ref: "#/components/examples/TestEndpointRequestExample"
+                $ref: "#/components/examples/EndpointRequestExample"
       responses:
         "200":
-          description: Test request called
+          description: Request called
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TestEndpointResponse"
+                $ref: "#/components/schemas/EndpointResponse"
               examples:
                 example:
-                  $ref: "#/components/examples/TestEndpointResponseExample"
+                  $ref: "#/components/examples/EndpointResponseExample"
       security:
         - apiKey: []
       x-amazon-apigateway-integration:
