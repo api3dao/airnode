@@ -1,18 +1,15 @@
-import { getDeployedContract, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { sponsorRequester, useAirnodeRrp } from '@api3/airnode-admin';
+import { cliPrint, getDeployedContract, getUserWallet, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
+  const userWallet = getUserWallet();
 
-  const command = [
-    `yarn airnode-admin sponsor-requester`,
-    `--provider-url ${integrationInfo.providerUrl}`,
-    `--airnode-rrp-address ${airnodeRrp.address}`,
-    `--requester-address ${requester.address}`,
-    `--sponsor-mnemonic "${integrationInfo.mnemonic}"`,
-  ].join(' ');
-  runShellCommand(command);
+  // NOTE: When doing this manually, you can use the 'sponsor-requester' command from the admin CLI package
+  const requesterAddress = await sponsorRequester(useAirnodeRrp(airnodeRrp).connect(userWallet), requester.address);
+  cliPrint.info(`Requester address: ${requesterAddress} is now sponsored`);
 };
 
 runAndHandleErrors(main);

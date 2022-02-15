@@ -24,14 +24,14 @@ const makeWithdrawalRequest = async (): Promise<string> => {
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   const sponsorWalletAddress = await deriveSponsorWalletAddress(
-    // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' from
-    // the admin CLI package
+    // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub'
+    // commands from the admin CLI package
     deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
     sponsor.address
   );
 
-  // NOTE: You can use 'request-withdrawal' from the admin CLI package
+  // NOTE: You can use 'request-withdrawal' command from the admin CLI package
   const withdrawalRequestId = await requestWithdrawal(
     useAirnodeRrp(airnodeRrp),
     airnodeWallet.address,
@@ -45,8 +45,8 @@ const printWalletBalances = async () => {
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   const sponsorWalletAddress = await deriveSponsorWalletAddress(
-    // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' from
-    // the admin CLI package
+    // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub'
+    // commands from the admin CLI package
     deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
     sponsor.address
