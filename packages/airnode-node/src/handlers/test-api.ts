@@ -8,6 +8,7 @@ import { callApi } from '../api';
 export async function testApi(
   config: Config,
   endpointId: string,
+  // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
   const testCallId = randomHexString(16);

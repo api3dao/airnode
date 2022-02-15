@@ -34,19 +34,11 @@ describe('testApi', () => {
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${ENDPOINT_ID}'`));
   });
 
-  it('returns an error if endpoint testability is turned off', async () => {
-    const endpoint = fixtures.buildOIS().endpoints[0];
-    const config = buildConfigWithEndpoint(endpoint);
-    config.triggers.http = [];
-
-    const [err, res] = await testApi(buildConfigWithEndpoint(endpoint), ENDPOINT_ID, {});
-    expect(res).toBeNull();
-    expect(err).not.toBeNull();
-  });
-
   it('calls the API with given parameters', async () => {
     const spy = jest.spyOn(api, 'callApi');
-    spy.mockResolvedValueOnce([[], { success: true, value: '1000', signature: 'not used' }]);
+    // What exactly the API returns doesn't matter for this test
+    const mockedResponse = { success: true, value: 'value', signature: 'signature' } as const;
+    spy.mockResolvedValueOnce([[], mockedResponse]);
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const [err, res] = await testApi(fixtures.buildConfig(), ENDPOINT_ID, parameters);
@@ -60,7 +52,7 @@ describe('testApi', () => {
     });
 
     expect(err).toBeNull();
-    expect(res).toEqual({ value: '1000', signature: 'not used', success: true });
+    expect(res).toEqual(mockedResponse);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({ config, aggregatedApiCall });
   });

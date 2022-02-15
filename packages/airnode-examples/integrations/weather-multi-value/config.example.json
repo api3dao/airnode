@@ -47,7 +47,8 @@
         "oisTitle": "OpenWeather Multiple Encoded Values",
         "endpointName": "histLatLonData"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "ois": [
     {

@@ -77,3 +77,13 @@ export async function testApi(endpointId: string, parameters: any) {
 
   return result;
 }
+
+export async function processHttpSignedRelayedRequests(endpointId: string, parameters: any) {
+  const config = loadConfig();
+  const [err, result] = await handlers.processHttpSignedRelayedRequests(config, endpointId, parameters);
+  if (err) {
+    throw err;
+  }
+
+  return result;
+}
