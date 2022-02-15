@@ -72,7 +72,7 @@ describe('callApis', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
-    // expect(logs.length).toEqual(5);
+    expect(logs.length).toEqual(5);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('Unable to call API endpoint:convertToUSD');
@@ -101,7 +101,7 @@ describe('callApis', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
-    // expect(logs.length).toEqual(5);
+    expect(logs.length).toEqual(5);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('Unable to call API endpoint:convertToUSD');
