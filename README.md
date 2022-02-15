@@ -69,9 +69,9 @@ We use [changesets](https://github.com/atlassian/changesets) to manage the chang
 contributors is that you need to add a changeset by running `yarn changeset` which contains what packages should be
 bumped, their associated semver bump types and some markdown which will be inserted into changelogs.
 
-Changeset is required to merge a PR if it changes one of the monorepo packages. If you really do not want to include a
-changeset, you have to generate an empty one by running `yarn changeset:empty`. Note, that changeset is not required for
-dependabot PRs.
+A changeset is required to merge a PR if it changes one of the monorepo packages. If you really do not want to include a
+changeset, you have to generate an empty one by running `yarn changeset:empty`. Note that a changeset is not required
+for dependabot PRs.
 
 > Tip: Add `export EDITOR="code --wait"` to `.bashrc` to make it possible to write changelog description in VS Code (you
 > can adapt the configuration for other editor similarly).
