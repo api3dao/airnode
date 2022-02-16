@@ -211,9 +211,8 @@ async function processSuccessfulApiCall(
     const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
     return [[], { success: true, value: response.encodedValue, signature }];
   } catch (e) {
-    const data = JSON.stringify(rawResponse.data);
-    const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
-    return [[log], { success: false, errorMessage: RequestErrorMessage.ResponseValueNotFound }];
+    const log = logger.pend('ERROR', (e as Error).message);
+    return [[log], { success: false, errorMessage: (e as Error).message }];
   }
 }
 

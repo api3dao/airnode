@@ -82,10 +82,73 @@ describe('callApi', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
+      { level: 'ERROR', message: `Unable to find response value from {"price":1000}. Path: 'unknown'` },
     ]);
     expect(res).toEqual({
-      errorMessage: RequestErrorMessage.ResponseValueNotFound,
+      errorMessage: `Unable to find response value from {"price":1000}. Path: 'unknown'`,
+      success: false,
+    });
+  });
+
+  it('returns an error if the value encoding fails', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: -1000 } });
+    const parameters = { _type: 'uint256', _path: 'price', from: 'ETH' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const [logs, res] = await callApi({
+      config: fixtures.buildConfig(),
+      aggregatedApiCall,
+    });
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+      },
+    ]);
+    expect(res).toEqual({
+      errorMessage: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+      success: false,
+    });
+  });
+
+  it('returns an error if the parameter type is invalid', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: '1000' } });
+    const parameters = { _type: 'string', _path: 'price', from: 'ETH', test: 'new' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const [logs, res] = await callApi({
+      config: fixtures.buildConfig(),
+      aggregatedApiCall,
+    });
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Parameter "_times" can only be used with numeric types, but "_type" was "${parameters._type}"`,
+      },
+    ]);
+    expect(res).toEqual({
+      errorMessage: `Parameter "_times" can only be used with numeric types, but "_type" was "${parameters._type}"`,
+      success: false,
+    });
+  });
+
+  it('returns an error if the parameter type cannot be converted', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 'string' } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH', test: 'new' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const [logs, res] = await callApi({
+      config: fixtures.buildConfig(),
+      aggregatedApiCall,
+    });
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Unable to convert: 'string' to 'int256'. Reason: Invalid number value`,
+      },
+    ]);
+    expect(res).toEqual({
+      errorMessage: `Unable to convert: 'string' to 'int256'. Reason: Invalid number value`,
       success: false,
     });
   });

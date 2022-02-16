@@ -36,7 +36,6 @@ export enum RequestErrorMessage {
   NoMatchingAggregatedApiCall = 'No matching aggregated API call',
   ApiCallFailed = 'API call failed',
   ReservedParametersInvalid = 'Reserved parameters are invalid',
-  ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
