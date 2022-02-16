@@ -27,7 +27,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const apiCredentials = config.apiCredentials
     .filter((c) => c.oisTitle === oisTitle)
-    .map((c) => removeKey(c, 'oisTitle')) as adapter.ApiCredentials[];
+    .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
 
   switch (aggregatedApiCall.type) {
     case 'testing-gateway': {
