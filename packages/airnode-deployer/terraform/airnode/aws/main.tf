@@ -5,16 +5,14 @@
 module "run" {
   source = "./modules/function"
 
-  name               = "${local.name_prefix}-run"
-  handler            = "index.run"
-  source_dir         = var.handler_dir
-  memory_size        = 768
-  timeout            = 30
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  environment_variables = {
-    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
-  }
+  name                           = "${local.name_prefix}-run"
+  handler                        = "index.run"
+  source_dir                     = var.handler_dir
+  memory_size                    = 768
+  timeout                        = 32
+  configuration_file             = var.configuration_file
+  secrets_file                   = var.secrets_file
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.max_concurrency
 }
 
 module "startCoordinator" {
@@ -33,7 +31,7 @@ module "startCoordinator" {
 
   invoke_targets                 = [module.run.lambda_arn]
   schedule_interval              = 1
-  reserved_concurrent_executions = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
 
   depends_on = [module.run]
 }
@@ -49,7 +47,7 @@ module "testApi" {
   timeout                        = 15
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
-  reserved_concurrent_executions = var.api_max_concurrency
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.api_max_concurrency
 }
 
 module "testApiGateway" {

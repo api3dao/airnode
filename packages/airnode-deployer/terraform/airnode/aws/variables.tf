@@ -33,6 +33,16 @@ variable "handler_dir" {
   description = "Airnode handler source code directory"
 }
 
+variable "max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Run Lambda"
+  default     = -1
+}
+
+variable "disable_concurrency_reservation" {
+  description = "Flag to disable any concurrency reservations"
+  default     = false
+}
+
 variable "api_key" {
   description = "API key to access Airnode Test Gateway"
   type        = string

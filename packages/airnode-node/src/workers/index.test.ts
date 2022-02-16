@@ -16,7 +16,9 @@ describe('spawn', () => {
   it('spawns for aws', async () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
     const state = fixtures.buildEVMProviderState();
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({
+      cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
+    });
     const parameters: WorkerParameters = {
       ...workerOpts,
       payload: { functionName: 'initializeProvider', state },
