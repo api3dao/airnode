@@ -6,7 +6,7 @@ import { go } from '../utils/promise-utils';
 import { spawnNewApiCall } from '../adapters/http/worker';
 import { WORKER_CALL_API_TIMEOUT } from '../constants';
 
-export async function processHttpSignedRelayedRequests(
+export async function processHttpSignedRelayedRequest(
   config: Config,
   endpointId: string,
   // TODO: This should be typed as Record<string, string | undefined>
