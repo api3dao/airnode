@@ -1,4 +1,5 @@
 import { RequesterAuthorizerWithAirnode, AirnodeRrp } from '@api3/airnode-protocol';
+import { ethers } from 'ethers';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -23,14 +24,17 @@ export class AdminSdk {
   deriveSponsorWalletAddress = (airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) =>
     admin.deriveSponsorWalletAddress(airnodeXpub, airnodeAddress, sponsorAddress);
 
-  sponsorRequester = (requesterAddress: string) => admin.sponsorRequester(this.airnodeRrp, requesterAddress);
+  sponsorRequester = (requesterAddress: string, overrides?: ethers.Overrides) =>
+    admin.sponsorRequester(this.airnodeRrp, requesterAddress, overrides);
 
-  unsponsorRequester = (requesterAddress: string) => admin.unsponsorRequester(this.airnodeRrp, requesterAddress);
+  unsponsorRequester = (requesterAddress: string, overrides?: ethers.Overrides) =>
+    admin.unsponsorRequester(this.airnodeRrp, requesterAddress, overrides);
 
-  createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
+  createTemplate = (template: admin.Template, overrides?: ethers.Overrides) =>
+    admin.createTemplate(this.airnodeRrp, template, overrides);
 
-  requestWithdrawal = (airnodeAddress: string, sponsorWallet: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnodeAddress, sponsorWallet);
+  requestWithdrawal = (airnodeAddress: string, sponsorWallet: string, overrides?: ethers.Overrides) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnodeAddress, sponsorWallet, overrides);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
@@ -48,49 +52,62 @@ export class AdminSdk {
   sponsorToWithdrawalRequestCount = (sponsorAddress: string) =>
     admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsorAddress);
 
-  fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
-    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
+  // fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
+  //   admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
+  // TODO: check overrides here that amount (i.e. overrides.value) is passed on correctly
+  fulfillWithdrawal = (
+    requestId: string,
+    airnodeAddress: string,
+    sponsorAddress: string,
+    overrides?: ethers.PayableOverrides
+  ) => admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, overrides);
 
   setWhitelistExpiration = (
     airnodeAddress: string,
     endpointId: string,
     requesterAddress: string,
-    expirationTimestamp: number
+    expirationTimestamp: number,
+    overrides?: ethers.Overrides
   ) =>
     admin.setWhitelistExpiration(
       this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
       requesterAddress,
-      expirationTimestamp
+      expirationTimestamp,
+      overrides
     );
 
   extendWhitelistExpiration = (
     airnodeAddress: string,
     endpointId: string,
     requesterAddress: string,
-    expirationTimestamp: number
+    expirationTimestamp: number,
+    overrides?: ethers.Overrides
   ) =>
     admin.extendWhitelistExpiration(
       this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
       requesterAddress,
-      expirationTimestamp
+      expirationTimestamp,
+      overrides
     );
 
   setIndefiniteWhitelistStatus = (
     airnodeAddress: string,
     endpointId: string,
     requesterAddress: string,
-    status: boolean
+    status: boolean,
+    overrides?: ethers.Overrides
   ) =>
     admin.setIndefiniteWhitelistStatus(
       this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
       requesterAddress,
-      status
+      status,
+      overrides
     );
 
   getWhitelistStatus = (airnodeAddress: string, endpointId: string, requesterAddress: string) =>
