@@ -179,7 +179,8 @@
         "oisTitle": "ois2",
         "endpointName": "endpt2"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "chains": [
     {

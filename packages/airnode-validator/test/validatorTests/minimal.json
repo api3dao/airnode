@@ -16,7 +16,8 @@
     }
   ],
   "triggers": {
-    "rrp": []
+    "rrp": [],
+    "httpSignedRelayed": []
   },
   "chains": [],
   "nodeSettings": {
