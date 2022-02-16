@@ -144,7 +144,7 @@ export const endpointSchema = z.object({
   reservedParameters: z.array(reservedParameterSchema),
   summary: z.string().optional(),
 });
-export type Endpoint = SchemaType<typeof oisSchema>;
+export type Endpoint = SchemaType<typeof endpointSchema>;
 
 export const oisSchema = z.object({
   oisFormat: z.string(),

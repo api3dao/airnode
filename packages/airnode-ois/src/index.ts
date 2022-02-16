@@ -1,2 +1,2 @@
 export * from './constants';
-export * from './types';
+export * from '@api3/airnode-validator';
