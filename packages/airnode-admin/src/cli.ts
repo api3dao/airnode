@@ -104,6 +104,28 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Indefinite whitelist status that the requester will have',
   },
+  transactionOverrides: {
+    'gas-limit': {
+      type: 'string',
+      describe: 'Transaction gas limit override',
+    },
+    'gas-price': {
+      type: 'string',
+      describe: 'Transaction gas price override (in gwei)',
+    },
+    'max-fee': {
+      type: 'string',
+      describe: 'Transaction maximum fee (in gwei)',
+    },
+    'max-priority-fee': {
+      type: 'string',
+      describe: 'Transaction maximum priority fee (in gwei)',
+    },
+    value: {
+      type: 'string',
+      describe: 'Transaction value to send (in ethers)',
+    },
+  },
 } as const;
 
 const {
@@ -120,6 +142,7 @@ const {
   withdrawalRequestId,
   expirationTimestamp,
   indefiniteWhitelistStatus,
+  transactionOverrides,
 } = COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
@@ -176,13 +199,15 @@ yargs
       ...airnodeRrpCommands,
       ...sponsorWallet,
       'requester-address': requesterAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
-      const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address']);
+      const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address'], overrides);
       console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
@@ -193,13 +218,15 @@ yargs
       ...airnodeRrpCommands,
       ...sponsorWallet,
       'requester-address': requesterAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
-      const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address']);
+      const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address'], overrides);
       console.log(
         `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
       );
@@ -236,14 +263,16 @@ yargs
         demandOption: true,
         describe: 'Path of the template JSON file',
       },
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const template = JSON.parse(fs.readFileSync(args['template-file-path']).toString());
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
-      const templateId = await admin.createTemplate(airnodeRrp, template);
+      const templateId = await admin.createTemplate(airnodeRrp, template, overrides);
       console.log(`Template ID: ${templateId}`);
     }
   )
@@ -274,8 +303,10 @@ yargs
       ...sponsorWallet,
       'airnode-address': airnodeAddress,
       'sponsor-wallet-address': sponsorWalletAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
@@ -284,7 +315,8 @@ yargs
       const withdrawalRequestId = await admin.requestWithdrawal(
         airnodeRrp,
         args['airnode-address'],
-        args['sponsor-wallet-address']
+        args['sponsor-wallet-address'],
+        overrides
       );
       console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
@@ -336,8 +368,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -348,7 +382,8 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['expiration-timestamp']
+        args['expiration-timestamp'],
+        overrides
       );
       console.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
@@ -365,8 +400,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -376,7 +413,8 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['expiration-timestamp']
+        args['expiration-timestamp'],
+        overrides
       );
       console.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
@@ -393,8 +431,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'indefinite-whitelist-status': indefiniteWhitelistStatus,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseTransactionOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -404,7 +444,8 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['indefinite-whitelist-status']
+        args['indefinite-whitelist-status'],
+        overrides
       );
       console.log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
     }
