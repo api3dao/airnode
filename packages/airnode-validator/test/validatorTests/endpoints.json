@@ -242,7 +242,8 @@
         "oisTitle": "myOisTitle",
         "endpointName": "endpt4"
       }
-    ]
+    ],
+    "httpSignedRelayed": []
   },
   "chains": [],
   "nodeSettings": {
