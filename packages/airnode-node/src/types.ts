@@ -7,6 +7,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+// TODO: Make this nicer
 import {
   LogLevel,
   Config,
@@ -14,8 +15,31 @@ import {
   ChainType,
   ChainOptions,
   LocalOrCloudProvider,
-} from '@api3/airnode-validator/dist/src/v2/config';
-export * from '@api3/airnode-validator/dist/src/v2/config';
+  PriorityFee,
+  Trigger,
+  ChainConfig,
+  GcpCloudProvider,
+  ApiCredentials,
+  CloudProvider,
+  AwsCloudProvider,
+  HttpGateway,
+} from '@api3/airnode-validator';
+export {
+  LogLevel,
+  Config,
+  LogFormat,
+  ChainType,
+  ChainOptions,
+  LocalOrCloudProvider,
+  PriorityFee,
+  Trigger,
+  ChainConfig,
+  GcpCloudProvider,
+  ApiCredentials,
+  CloudProvider,
+  AwsCloudProvider,
+  HttpGateway,
+};
 import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
