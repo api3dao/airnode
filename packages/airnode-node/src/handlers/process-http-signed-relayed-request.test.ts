@@ -1,5 +1,5 @@
 import { Endpoint } from '@api3/airnode-ois';
-import { processHttpSignedRelayedRequests } from './process-http-signed-relayed-requests';
+import { processHttpSignedRelayedRequests } from './process-http-signed-relayed-request';
 import * as worker from '../adapters/http/worker';
 import * as fixtures from '../../test/fixtures';
 
