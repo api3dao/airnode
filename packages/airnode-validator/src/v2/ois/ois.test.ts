@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
-import { oisSchema } from './index';
+import { oisSchema } from './ois';
 
 it('successfully parses OIS spec', () => {
   const ois = JSON.parse(readFileSync(join(__dirname, '../../../exampleSpecs/ois.specs.json')).toString());
