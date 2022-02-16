@@ -3,7 +3,7 @@ const removeAirnodeSpy = jest.fn();
 
 jest.mock('@api3/airnode-node', () => ({
   ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.4.0'),
+  version: jest.fn().mockReturnValue('0.5.0'),
 }));
 jest.mock('../../infrastructure', () => ({
   deployAirnode: deployAirnodeSpy,
@@ -53,7 +53,7 @@ describe('deployer commands', () => {
           region: 'us-east1',
           projectId: 'airnode-4',
         },
-        nodeVersion: '0.4.0',
+        nodeVersion: '0.5.0',
         stage: 'stage',
       },
     };

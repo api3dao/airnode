@@ -42,3 +42,8 @@ variable "api_key" {
   type        = string
   default     = null
 }
+
+variable "api_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Test Gateway Lambda"
+  default = 0
+}

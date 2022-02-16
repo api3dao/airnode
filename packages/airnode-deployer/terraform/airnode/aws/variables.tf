@@ -38,3 +38,9 @@ variable "api_key" {
   type        = string
   default     = null
 }
+
+variable "api_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Test Gateway Lambda"
+  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#reserved_concurrent_executions
+  default = -1
+}

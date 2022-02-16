@@ -286,11 +286,26 @@ export interface WorkerOptions {
   readonly stage: string;
 }
 
-export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+export interface InitializeProviderPayload {
+  readonly functionName: 'initializeProvider';
+  readonly state: ProviderState<EVMProviderState>;
+}
+
+export interface ProcessTransactionsPayload {
+  readonly functionName: 'processTransactions';
+  readonly state: ProviderState<EVMProviderSponsorState>;
+}
+
+export interface CallApiPayload {
+  readonly functionName: 'callApi';
+  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly logOptions: LogOptions;
+}
+
+export type WorkerPayload = InitializeProviderPayload | ProcessTransactionsPayload | CallApiPayload;
 
 export interface WorkerParameters extends WorkerOptions {
-  readonly functionName: WorkerFunctionName;
-  readonly payload: any;
+  readonly payload: WorkerPayload;
 }
 
 export interface WorkerResponse {
@@ -440,6 +455,7 @@ export interface ChainConfig {
 export interface HttpGateway {
   readonly enabled: boolean;
   readonly apiKey?: string;
+  readonly maxConcurrency?: number;
 }
 
 export interface Heartbeat {
