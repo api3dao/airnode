@@ -57,3 +57,14 @@ variable "http_max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode HTTP Gateway Cloud Function"
   default     = 0
 }
+
+variable "http_signed_relayed_api_key" {
+  description = "API key to access Airnode HTTP Signed Relayed Gateway"
+  type        = string
+  default     = null
+}
+
+variable "http_signed_relayed_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode HTTP Signed Relayed Gateway Cloud Function"
+  default     = 0
+}

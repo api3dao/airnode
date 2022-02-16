@@ -57,6 +57,7 @@ module "startCoordinator" {
 
   environment_variables = {
     HTTP_GATEWAY_URL = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
+    HTTP_SIGNED_RELAYED_GATEWAY_URL = var.http_signed_relayed_api_key == null ? null : "${module.httpSignedRelayedApiGateway[0].api_url}"
   }
 
   schedule_interval = 1
@@ -66,6 +67,32 @@ module "startCoordinator" {
   depends_on = [
     google_project_service.management_apis,
     module.run,
+  ]
+}
+
+resource "google_project_service" "apigateway_api" {
+  count = var.http_api_key == null || var.http_signed_relayed_api_key == null ? 0 : 1
+
+  service = "apigateway.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = true
+
+  depends_on = [
+    google_project_service.resourcemanager_api
+  ]
+}
+
+resource "google_project_service" "servicecontrol_api" {
+  count = var.http_api_key == null || var.http_signed_relayed_api_key == null ? 0 : 1
+
+  service = "servicecontrol.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = true
+
+  depends_on = [
+    google_project_service.resourcemanager_api
   ]
 }
 
@@ -94,32 +121,6 @@ module "processHttp" {
   ]
 }
 
-resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null ? 0 : 1
-
-  service = "apigateway.googleapis.com"
-
-  disable_dependent_services = true
-  disable_on_destroy         = true
-
-  depends_on = [
-    google_project_service.resourcemanager_api
-  ]
-}
-
-resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null ? 0 : 1
-
-  service = "servicecontrol.googleapis.com"
-
-  disable_dependent_services = true
-  disable_on_destroy         = true
-
-  depends_on = [
-    google_project_service.resourcemanager_api
-  ]
-}
-
 module "httpApiGateway" {
   source = "./modules/apigateway"
   count  = var.http_api_key == null ? 0 : 1
@@ -141,5 +142,54 @@ module "httpApiGateway" {
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
     module.processHttp,
+  ]
+}
+
+module "processHttpSignedRelayedRequest" {
+  source = "./modules/function"
+  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+
+  name               = "${local.name_prefix}-processHttpSignedRelayedRequest"
+  entry_point        = "processHttpSignedRelayedRequest"
+  source_dir         = var.handler_dir
+  memory_size        = 256
+  timeout            = 15
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+  region             = var.gcp_region
+  project            = var.gcp_project
+
+  environment_variables = {
+    HTTP_SIGNED_RELAYED_GATEWAY_API_KEY = var.http_signed_relayed_api_key
+  }
+
+  max_instances = var.disable_concurrency_reservation ? null : var.http_signed_relayed_max_concurrency
+
+  depends_on = [
+    google_project_service.management_apis,
+  ]
+}
+
+module "httpSignedRelayedApiGateway" {
+  source = "./modules/apigateway"
+  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+
+  name          = "${local.name_prefix}-httpSignedRelayedApiGateway"
+  template_file = "./templates/httpSignedRelayedApiGateway.yaml.tpl"
+  template_variables = {
+    project             = var.gcp_project
+    region              = var.gcp_region
+    cloud_function_name = module.processHttpSignedRelayedRequest[0].function_name
+  }
+  project = var.gcp_project
+
+  invoke_targets = [
+    module.processHttpSignedRelayedRequest[0].function_name
+  ]
+
+  depends_on = [
+    google_project_service.apigateway_api,
+    google_project_service.servicecontrol_api,
+    module.processHttpSignedRelayedRequest,
   ]
 }

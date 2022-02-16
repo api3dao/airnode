@@ -27,6 +27,7 @@ module "startCoordinator" {
   secrets_file       = var.secrets_file
   environment_variables = {
     HTTP_GATEWAY_URL = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
+    HTTP_SIGNED_RELAYED_GATEWAY_URL = var.http_signed_relayed_api_key == null ? null : "${module.httpSignedRelayedApiGateway[0].api_url}"
   }
 
   invoke_targets                 = [module.run.lambda_arn]
@@ -65,4 +66,35 @@ module "httpApiGateway" {
     module.processHttpRequest[0].lambda_arn
   ]
   api_key = var.http_api_key
+}
+
+module "processHttpSignedRelayedRequest" {
+  source = "./modules/function"
+  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+
+  name                           = "${local.name_prefix}-processHttpSignedRelayedRequest"
+  handler                        = "index.processHttpSignedRelayedRequest"
+  source_dir                     = var.handler_dir
+  memory_size                    = 256
+  timeout                        = 15
+  configuration_file             = var.configuration_file
+  secrets_file                   = var.secrets_file
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_signed_relayed_max_concurrency
+}
+
+module "httpSignedRelayedApiGateway" {
+  source = "./modules/apigateway"
+  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+
+  name          = "${local.name_prefix}-httpSignedRelayedApiGateway"
+  stage         = "v1"
+  template_file = "./templates/httpSignedRelayedApiGateway.yaml.tpl"
+  template_variables = {
+    proxy_lambda = module.processHttpSignedRelayedRequest[0].lambda_arn
+    region       = var.aws_region
+  }
+  lambdas = [
+    module.processHttpSignedRelayedRequest[0].lambda_arn
+  ]
+  api_key = var.http_signed_relayed_api_key
 }
