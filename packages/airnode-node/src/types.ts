@@ -494,6 +494,7 @@ export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
+  readonly httpSignedRelayedGateway: HttpGateway;
   readonly airnodeAddressShort?: string;
   readonly stage: string;
   readonly cloudProvider: LocalOrCloudProvider;

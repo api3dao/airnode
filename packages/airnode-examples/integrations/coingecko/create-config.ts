@@ -41,6 +41,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpGateway: {
       enabled: false,
     },
+    httpSignedRelayedGateway: {
+      enabled: false,
+    },
     logFormat: 'plain',
     logLevel: 'INFO',
     nodeVersion: createNodeVersion(),

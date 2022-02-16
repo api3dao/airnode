@@ -34,6 +34,9 @@
     "httpGateway": {
       "enabled": false
     },
+    "httpSignedRelayedGateway": {
+      "enabled": false
+    },
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.5.0",

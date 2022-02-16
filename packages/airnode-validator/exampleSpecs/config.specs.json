@@ -28,6 +28,11 @@
       "apiKey": "012345678901234567890123456789",
       "maxConcurrency": 20
     },
+    "httpSignedRelayedGateway": {
+      "enabled": true,
+      "apiKey": "012345678901234567890123456789",
+      "maxConcurrency": 20
+    },
     "logFormat": "json",
     "logLevel": "INFO",
     "nodeVersion": "0.4.0",

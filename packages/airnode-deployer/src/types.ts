@@ -19,6 +19,7 @@ export interface Deployment {
 
 export interface Api {
   httpGatewayUrl?: string;
+  httpSignedRelayedGatewayUrl?: string;
   heartbeatId?: string;
 }
 

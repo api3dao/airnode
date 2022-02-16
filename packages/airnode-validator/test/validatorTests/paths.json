@@ -225,6 +225,9 @@
     },
     "httpGateway": {
       "enabled": false
+    },
+    "httpSignedRelayedGateway": {
+      "enabled": false
     }
   },
   "apiCredentials": []

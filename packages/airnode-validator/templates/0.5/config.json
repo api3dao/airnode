@@ -455,6 +455,38 @@
         }
       }
     },
+    "httpSignedRelayedGateway": {
+      "enabled": {
+        "__type": "boolean"
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "apiKey": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If httpSignedRelayedGateway is enabled parameter apiKey is required"
+          }
+        }
+      ],
+      "__optional": {
+        "apiKey": {
+          "__regexp": "^.{30,60}$",
+          "__catch": {
+            "__message": "__fullPath: The key must have a length of between 30 - 120 characters."
+          }
+        },
+        "maxConcurrency": {
+          "__type": "number",
+          "__catch": {
+            "__message": "__fullPath: This field must be an integer"
+          }
+        }
+      }
+    },
     "__optional": {
       "skipValidation": {
         "__type": "boolean"
