@@ -20,9 +20,17 @@ it('provides same API', async () => {
   expect(requesterAuthorizerWithAirnode.address).toBeDefined();
 
   const sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
-  const sdkApi = difference(Object.keys(sdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
+  const sdkApi = difference(Object.keys(sdk), [
+    'airnodeRrp',
+    'requesterAuthorizerWithAirnode',
+    'parseTransactionOverrides',
+  ]).sort();
   const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
-  const adminApi = difference(Object.keys(admin), ['deriveWalletPathFromSponsorAddress', 'deriveEndpointId']).sort();
+  const adminApi = difference(Object.keys(admin), [
+    'deriveWalletPathFromSponsorAddress',
+    'deriveEndpointId',
+    'parseTransactionOverrides',
+  ]).sort();
 
   expect(sdkApi).toEqual(adminApi);
   expect(sdkStaticApi).toEqual([

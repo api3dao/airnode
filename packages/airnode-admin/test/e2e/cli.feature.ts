@@ -335,7 +335,9 @@ describe('CLI', () => {
 
       const balanceBefore = await sponsorBalance();
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
-      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, '0.8');
+      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, {
+        value: ethers.utils.parseEther('0.8'),
+      });
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
       expect((await sponsorBalance()).toString()).toBe(
         balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()
