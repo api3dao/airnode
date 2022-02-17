@@ -114,8 +114,9 @@ describe('decode', () => {
       [decodedWithTrailingBytes.toString()]
     );
     expect(decoded).toEqual(decodedWithTrailingBytes);
-    expect(reEncodedData.length === encodedData.length).toBeTruthy();
-    expect(reEncodedDataFromTrailingBytesData.length === encodedDataWithTrailingBytes.length).toBeFalsy();
+    expect(reEncodedData === encodedData).toBeTruthy();
+    expect(reEncodedDataFromTrailingBytesData === encodedData).toBeTruthy();
+    expect(reEncodedDataFromTrailingBytesData === encodedDataWithTrailingBytes).toBeFalsy();
   });
 
   it('throws an error when data has trailing bytes', () => {
