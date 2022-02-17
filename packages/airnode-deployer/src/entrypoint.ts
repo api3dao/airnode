@@ -22,3 +22,8 @@ export async function processHttpRequest(...args: unknown[]) {
   const handler = await cloudHandler();
   return handler.processHttpRequest(...args);
 }
+
+export async function processHttpSignedRelayedRequest(...args: unknown[]) {
+  const handler = await cloudHandler();
+  return handler.processHttpSignedRelayedRequest(...args);
+}

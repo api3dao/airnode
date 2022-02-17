@@ -7,6 +7,8 @@ import { Ora } from 'ora';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider, HttpGateway } from '@api3/airnode-node';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
+import omitBy from 'lodash/omitBy';
+import isNil from 'lodash/isNil';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
@@ -16,10 +18,14 @@ type TerraformAirnodeOutput = {
   http_gateway_url?: {
     value: string;
   };
+  http_signed_relayed_gateway_url?: {
+    value: string;
+  };
 };
 
 export type DeployAirnodeOutput = {
   httpGatewayUrl?: string;
+  httpSignedRelayedGatewayUrl?: string;
 };
 
 const exec = util.promisify(child.exec);
@@ -124,6 +130,7 @@ interface AirnodeVariables {
   configPath?: string;
   secretsPath?: string;
   httpGateway?: HttpGateway;
+  httpSignedRelayedGateway?: HttpGateway;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -146,7 +153,7 @@ async function terraformAirnodeManage(
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway } = variables;
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, httpSignedRelayedGateway } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -171,6 +178,17 @@ async function terraformAirnodeManage(
     commonArguments.push(['var', 'http_api_key', httpGateway.apiKey!]);
     if (httpGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_max_concurrency', `${httpGateway.maxConcurrency}`]);
+    }
+  }
+
+  if (httpSignedRelayedGateway?.enabled) {
+    commonArguments.push(['var', 'http_signed_relayed_api_key', httpSignedRelayedGateway.apiKey!]);
+    if (httpSignedRelayedGateway.maxConcurrency) {
+      commonArguments.push([
+        'var',
+        'http_signed_relayed_max_concurrency',
+        `${httpSignedRelayedGateway.maxConcurrency}`,
+      ]);
     }
   }
 
@@ -203,6 +221,7 @@ interface AirnodeDeployParams {
   readonly stage: string;
   readonly cloudProvider: CloudProviderExtended;
   readonly httpGateway: HttpGateway;
+  readonly httpSignedRelayedGateway: HttpGateway;
   readonly configPath: string;
   readonly secretsPath: string;
 }
@@ -221,11 +240,23 @@ export async function deployAirnode(params: AirnodeDeployParams) {
   }
 }
 
+function transformTerraformOutput(terraformOutput: string): DeployAirnodeOutput {
+  const parsedOutput = JSON.parse(terraformOutput) as TerraformAirnodeOutput;
+  return omitBy(
+    {
+      httpGatewayUrl: parsedOutput.http_gateway_url?.value,
+      httpSignedRelayedGatewayUrl: parsedOutput.http_signed_relayed_gateway_url?.value,
+    },
+    isNil
+  );
+}
+
 async function deploy({
   airnodeAddressShort,
   stage,
   cloudProvider,
   httpGateway,
+  httpSignedRelayedGateway,
   configPath,
   secretsPath,
 }: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
@@ -265,10 +296,10 @@ async function deploy({
     configPath,
     secretsPath,
     httpGateway,
+    httpSignedRelayedGateway,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
-  const parsedOutput = JSON.parse(output) as TerraformAirnodeOutput;
-  return parsedOutput.http_gateway_url ? { httpGatewayUrl: parsedOutput.http_gateway_url.value } : {};
+  return transformTerraformOutput(output);
 }
 
 interface AirnodeRemoveParams {

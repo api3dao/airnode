@@ -104,3 +104,31 @@ export async function processHttpRequest(req: Request, res: Response) {
   // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
   res.status(200).send(result!.value);
 }
+
+// TODO: Copy&paste for now, will refactor as part of
+// https://api3dao.atlassian.net/browse/AN-527
+export async function processHttpSignedRelayedRequest(req: Request, res: Response) {
+  // We need to check for an API key manually because GCP HTTP Gateway
+  // doesn't support managing API keys via API
+  const apiKey = req.header('x-api-key');
+  if (!apiKey || apiKey !== config.getEnvValue('HTTP_SIGNED_RELAYED_GATEWAY_API_KEY')) {
+    res.status(401).send({ error: 'Wrong API key' });
+  }
+
+  const { parameters } = req.body;
+  const { endpointId } = req.query;
+
+  if (!endpointId) {
+    res.status(400).send({ error: 'Missing endpointId' });
+    return;
+  }
+
+  const [err, result] = await handlers.processHttpSignedRelayedRequest(parsedConfig, endpointId as string, parameters);
+  if (err) {
+    res.status(400).send({ error: err.toString() });
+    return;
+  }
+
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
+  res.status(200).send(result!.value);
+}
