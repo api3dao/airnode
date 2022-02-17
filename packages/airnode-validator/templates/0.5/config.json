@@ -1,0 +1,464 @@
+{
+  "ois": {
+    "__arrayItem": {
+      "__template": "../1.0/ois.json",
+      "apiSpecifications": {
+        "components": {
+          "securitySchemes": {}
+        }
+      }
+    }
+  },
+  "triggers": {
+    "rrp": {
+      "__arrayItem": {
+        "endpointId": {
+          "__regexp": "^0x[a-fA-F0-9]{64}$"
+        },
+        "oisTitle": {
+          "__type": "string"
+        },
+        "endpointName": {
+          "__type": "string"
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "oisTitle": ".*"
+            },
+            "__rootThen": {
+              "ois": {
+                "__any": {
+                  "title": {
+                    "__regexp": "^__match$"
+                  },
+                  "endpoints": {
+                    "__any": {
+                      "name": {
+                        "__regexp": "[['endpointName']]"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "__catch": {
+              "__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in {{0}}.{{1}}.{{2}}.{{3}}"
+            }
+          }
+        ]
+      }
+    },
+    "__optional": {
+      "http": {
+        "__arrayItem": {
+          "endpointId": {
+            "__regexp": "^0x[a-fA-F0-9]{64}$"
+          },
+          "oisTitle": {
+            "__type": "string"
+          },
+          "endpointName": {
+            "__type": "string"
+          },
+          "__conditions": [
+            {
+              "__if": {
+                "oisTitle": ".*"
+              },
+              "__rootThen": {
+                "ois": {
+                  "__any": {
+                    "title": {
+                      "__regexp": "^__match$"
+                    },
+                    "endpoints": {
+                      "__any": {
+                        "name": {
+                          "__regexp": "[['endpointName']]"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in {{0}}.{{1}}.{{2}}.{{3}}"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "chains": {
+    "__arrayItem": {
+      "id": {
+        "__type": "string"
+      },
+      "type": {
+        "__regexp": "^evm$",
+        "__catch": {
+          "__message": "__fullPath: Currently only \"evm\" is supported"
+        }
+      },
+      "options": {
+        "txType": {
+          "__type": "string",
+          "__regexp": "^(legacy|eip1559)$",
+          "__catch": {
+            "__message": "__fullPath: Available transaction types are 'legacy' and 'eip1559'"
+          }
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "txType": "legacy"
+            },
+            "__then": {
+            },
+            "__catch": {
+              "__message": "EIP-1559-related fields are only valid when txType is eip1559: __fullPath"
+            }
+          },
+          {
+            "__if": {
+              "txType": "eip1559"
+            },
+            "__then": {
+              "__optional": {
+                "baseFeeMultiplier": {},
+                "priorityFee": {}
+              }
+            }
+          }
+        ],
+        "__optional": {
+          "baseFeeMultiplier": {
+            "__type": "string",
+            "__regexp": "^[0-9]$",
+            "__catch": {
+              "__message": "__fullPath: Base Fee multiplier must be a whole number"
+            }
+          },
+          "priorityFee": {
+            "value": {
+              "__type": "string",
+              "__regexp": "^\\d*\\.?\\d*$",
+              "__catch": {
+                "__message": "__fullPath: Priority Fee must be a whole or decimal number"
+              }
+            },
+            "unit": {
+              "__type": "string",
+              "__regexp": "^(wei|kwei|mwei|gwei|szabo|finney|ether)$",
+              "__catch": {
+                "__message": "__fullPath: The unit must be one of: wei, kwei, mwei, gwei, szabo, finney and ether"
+              }
+            }
+          }
+        }
+      },
+      "providers": {
+        "__objectItem": {
+          "url": {
+            "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
+          }
+        }
+      },
+      "contracts": {
+        "AirnodeRrp": {
+          "__regexp": "^0x[a-fA-F0-9]{40}$"
+        }
+      },
+      "authorizers": {
+        "__arrayItem": {
+          "__regexp": "^0x[a-fA-F0-9]{40}$"
+        }
+      },
+      "maxConcurrency": {
+        "__type": "number",
+        "__catch": {
+          "__message": "__fullPath: This field must be an integer"
+        }
+      }
+    }
+  },
+  "nodeSettings": {
+    "nodeVersion": {
+      "__regexp": "^0\\.5\\.[0-9]+$",
+      "__catch": {
+        "__level": "error",
+        "__message": "__fullPath: nodeVersion should be set to 0.5.*"
+      }
+    },
+    "cloudProvider": {
+      "type": {
+        "__regexp": "^(aws|gcp|local)$",
+        "__catch": {
+          "__message": "__fullPath: Available cloud providers are only aws, gcp or local"
+        }
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "type": "^(aws|gcp)$"
+          },
+          "__then": {
+            "region": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.region"
+          }
+        },
+        {
+          "__if": {
+            "type": "^(aws|gcp)$"
+          },
+          "__then": {
+            "disableConcurrencyReservations": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.disableConcurrencyReservations"
+          }
+        },
+        {
+          "__if": {
+            "type": "^gcp$"
+          },
+          "__then": {
+            "projectId": {}
+          },
+          "__catch": {
+            "__message": "Missing parameter nodeSettings.cloudProvider.projectId"
+          }
+        }
+      ],
+      "__optional": {
+        "region": {
+          "__type": "string",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": ".*"
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
+        },
+        "disableConcurrencyReservations": {
+          "__type": "boolean",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": false
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            },
+            {
+              "__if": {
+                "__this": true
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^(aws|gcp)$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
+        },
+        "projectId": {
+          "__type": "string",
+          "__conditions": [
+            {
+              "__if": {
+                "__this": ".*"
+              },
+              "__rootThen": {
+                "nodeSettings": {
+                  "cloudProvider": {
+                    "type": {
+                      "__regexp": "^gcp$",
+                      "__catch": {
+                        "__level": "error"
+                      }
+                    }
+                  }
+                }
+              },
+              "__catch": {
+                "__message": "Extra field: __fullPath"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "stage": {
+      "__regexp": "^[a-z0-9-_]{1,16}$",
+      "__catch": {
+        "__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
+      }
+    },
+    "logFormat": {
+      "__regexp": "^(json|plain)$",
+      "__catch": {
+        "__message": "__fullPath: Allowed values are \"json\" or \"plain\""
+      }
+    },
+    "logLevel": {
+      "__regexp": "^(DEBUG|INFO|WARN|ERROR)$",
+      "__catch": {
+        "__message": "__fullPath: Allowed values are \"DEBUG\", \"INFO\", \"WARN\" or \"ERROR\""
+      }
+    },
+    "airnodeWalletMnemonic": {
+      "__type": "string"
+    },
+    "heartbeat": {
+      "enabled": {
+        "__type": "boolean"
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "url": {},
+            "apiKey": {},
+            "id": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If heartbeat is enabled parameters url, apiKey and id are required"
+          }
+        }
+      ],
+      "__optional": {
+        "url": {
+          "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
+        },
+        "apiKey": {
+          "__type": "string"
+        },
+        "id": {
+          "__type": "string"
+        }
+      }
+    },
+    "httpGateway": {
+      "enabled": {
+        "__type": "boolean"
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "apiKey": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If httpGateway is enabled parameter apiKey is required"
+          }
+        }
+      ],
+      "__optional": {
+        "apiKey": {
+          "__regexp": "^.{30,60}$",
+          "__catch": {
+            "__message": "__fullPath: The key must have a length of between 30 - 120 characters."
+          }
+        },
+        "maxConcurrency": {
+          "__type": "number",
+          "__catch": {
+            "__message": "__fullPath: This field must be an integer"
+          }
+        }
+      }
+    },
+    "__optional": {
+      "skipValidation": {
+        "__type": "boolean"
+      }
+    }
+  },
+  "apiCredentials": {
+    "__arrayItem": {
+      "oisTitle": {
+        "__type": "string"
+      },
+      "securitySchemeName": {
+        "__type": "string"
+      },
+      "securitySchemeValue": {
+        "__type": "string"
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "oisTitle": ".*"
+          },
+          "__rootThen": {
+            "ois": {
+              "__any": {
+                "title": {
+                  "__regexp": "^__match$"
+                },
+                "apiSpecifications": {
+                  "components": {
+                    "securitySchemes": {
+                      "[['securitySchemeName']]": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "__catch": {
+            "__message": "OIS \"[['oisTitle']]\" must contain security scheme \"[['securitySchemeName']]\", as it is specified in {{0}}.{{1}}"
+          }
+        }
+      ]
+    }
+  }
+}

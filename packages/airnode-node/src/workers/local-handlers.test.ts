@@ -30,7 +30,7 @@ describe('initializeProvider', () => {
     jest.spyOn(handlers, 'initializeProvider').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
-    const res = await local.initializeProvider({ state });
+    const res = await local.initializeProvider({ state, functionName: 'initializeProvider' });
     expect(res).toEqual({ ok: true, data: scrubbed });
   });
 
@@ -44,7 +44,7 @@ describe('initializeProvider', () => {
     jest.spyOn(handlers, 'initializeProvider').mockRejectedValue(error);
 
     const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to initialize provider:Ganache test' };
-    const res = await local.initializeProvider({ state });
+    const res = await local.initializeProvider({ state, functionName: 'initializeProvider' });
     expect(res).toEqual({ ok: false, errorLog });
   });
 });
@@ -64,12 +64,12 @@ describe('callApi', () => {
 
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const logOptions = fixtures.buildLogOptions();
-    const res = await local.callApi({ aggregatedApiCall, logOptions });
+    const res = await local.callApi({ aggregatedApiCall, logOptions, functionName: 'callApi' });
     expect(res).toEqual({ ok: true, data: callResponse });
   });
 });
 
-describe('processProviderRequests', () => {
+describe('processTransactions', () => {
   it('processes provider requests', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
@@ -79,7 +79,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(handlers, 'processTransactions').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
-    const res = await local.processProviderRequests({ state });
+    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
     expect(res).toEqual({ ok: true, data: scrubbed });
   });
 
@@ -93,7 +93,7 @@ describe('processProviderRequests', () => {
     jest.spyOn(handlers, 'processTransactions').mockRejectedValue(error);
 
     const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to process provider requests:Ganache test' };
-    const res = await local.processProviderRequests({ state });
+    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
     expect(res).toEqual({ ok: false, errorLog });
   });
 });
