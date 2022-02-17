@@ -63,6 +63,12 @@ export function decode(encodedData: string): DecodedMap {
   // exactly what you got from the contract, including the header.
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
 
+  // Checks if the original encoded data matches the re-encoded data
+  const reEncodedData = ethers.utils.defaultAbiCoder.encode(decodingTypes, decodedData);
+  if (reEncodedData !== encodedData) {
+    throw new Error('Re-encoding mismatch');
+  }
+
   const [_version, ...decodedParameters] = decodedData;
   const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
 

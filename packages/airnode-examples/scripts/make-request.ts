@@ -73,7 +73,7 @@ const main = async () => {
   cliPrint.info('Making request...');
   const requestId = await makeRequest();
   cliPrint.info('Waiting for fulfillment...');
-  await setMaxPromiseTimeout(waitForFulfillment(requestId), 80 * 1000);
+  await setMaxPromiseTimeout(waitForFulfillment(requestId), 180 * 1000);
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();
