@@ -102,4 +102,26 @@ describe('decode', () => {
   it('throws an error when invalid data is provided', () => {
     expect(() => decoding.decode('0x123456')).toThrowError();
   });
+
+  it('shows the need to check for trailing bytes', () => {
+    const encodedData = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const encodedDataWithTrailingBytes = '0x000000000000000000000000000000000000000000000000000000000000000100';
+    const decoded = ethers.utils.defaultAbiCoder.decode(['uint256'], encodedData);
+    const decodedWithTrailingBytes = ethers.utils.defaultAbiCoder.decode(['uint256'], encodedDataWithTrailingBytes);
+    const reEncodedData = ethers.utils.defaultAbiCoder.encode(['uint256'], [decoded.toString()]);
+    const reEncodedDataFromTrailingBytesData = ethers.utils.defaultAbiCoder.encode(
+      ['uint256'],
+      [decodedWithTrailingBytes.toString()]
+    );
+    expect(decoded).toEqual(decodedWithTrailingBytes);
+    expect(reEncodedData === encodedData).toBeTruthy();
+    expect(reEncodedDataFromTrailingBytesData === encodedData).toBeTruthy();
+    expect(reEncodedDataFromTrailingBytesData === encodedDataWithTrailingBytes).toBeFalsy();
+  });
+
+  it('throws an error when data has trailing bytes', () => {
+    const data =
+      '0x316900000000000000000000000000000000000000000000000000000000000054657374496e744e616d65000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc1800';
+    expect(() => decoding.decode(data)).toThrowError('Re-encoding mismatch');
+  });
 });
