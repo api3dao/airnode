@@ -52,9 +52,6 @@ export class AdminSdk {
   sponsorToWithdrawalRequestCount = (sponsorAddress: string) =>
     admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsorAddress);
 
-  // fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
-  //   admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
-  // TODO: check overrides here that amount (i.e. overrides.value) is passed on correctly
   fulfillWithdrawal = (
     requestId: string,
     airnodeAddress: string,
