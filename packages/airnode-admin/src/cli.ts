@@ -125,6 +125,10 @@ const COMMON_COMMAND_ARGUMENTS = {
       type: 'string',
       describe: 'Transaction value to send (in ethers)',
     },
+    nonce: {
+      type: 'string',
+      describe: 'Transaction nonce',
+    },
   },
 } as const;
 

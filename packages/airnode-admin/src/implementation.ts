@@ -34,6 +34,7 @@ export const parseTransactionOverrides = (
       parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei'),
     },
     { name: 'value', key: 'value', parseValue: (value: string) => ethers.utils.parseEther(value) },
+    { name: 'nonce', key: 'nonce', parseValue: parseInt },
   ];
 
   const overrides: ethers.Overrides | ethers.PayableOverrides = overrideMap.reduce((acc, override) => {

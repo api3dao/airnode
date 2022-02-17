@@ -75,11 +75,17 @@ describe('generate mnemonic', () => {
       });
     });
     it('parses payable (value) transaction override', () => {
-      const overrides = parseTransactionOverrides({ value: '1.23', 'gas-price': '10', 'gas-limit': '200000' });
+      const overrides = parseTransactionOverrides({
+        value: '1.23',
+        'gas-price': '10',
+        'gas-limit': '200000',
+        nonce: '6',
+      });
       expect(overrides).toEqual({
         gasPrice: ethers.utils.parseUnits('10', 'gwei'),
         gasLimit: ethers.BigNumber.from('200000'),
         value: ethers.utils.parseEther('1.23'),
+        nonce: 6,
       });
     });
     it('throws error if an EIP-1559 transaction does not specify both maxFeePerGas and maxPriorityFeePerGas', () => {
