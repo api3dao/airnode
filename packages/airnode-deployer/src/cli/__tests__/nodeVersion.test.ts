@@ -22,8 +22,8 @@ describe('deployer commands - invalid node version', () => {
   it.skip('fails deployment when the node version does not match the config version', async () => {
     await expect(
       deploy(
-        join(__dirname, '../../../config/config.json.example'),
-        join(__dirname, '../../../config/secrets.env.example'),
+        join(__dirname, '../../../config/config.example.json'),
+        join(__dirname, '../../../config/secrets.example.env'),
         'mocked receipt filename'
       )
     ).rejects.toThrow();
