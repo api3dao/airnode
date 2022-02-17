@@ -25,6 +25,9 @@ RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
     ln -s ${appDir}/bin/deployer.js ${appBin} && \
     chmod +x ${appBin}
 
+# Git swaps out LF with CRLF on Windows but only in the working directory
+RUN sed -i $'s/\r$//' /entrypoint.sh
+
 # Default placement for GCP credentials
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp.json
 
