@@ -10,6 +10,7 @@ export const airnodeWalletSchema = z.object({
 export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
 
 export const deploymentSchema = z.object({
+  // TODO: This must match the version of validator
   nodeVersion: z.string(),
   airnodeAddressShort: z.string(),
   stage: z.string(),
@@ -19,7 +20,7 @@ export type Deployment = SchemaType<typeof deploymentSchema>;
 
 export const apiSchema = z.object({
   httpGatewayUrl: z.string().optional(),
-  heartbeatId: z.string(),
+  heartbeatId: z.string().optional(),
 });
 export type Api = SchemaType<typeof apiSchema>;
 

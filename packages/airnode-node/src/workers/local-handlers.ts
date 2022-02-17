@@ -7,20 +7,13 @@ import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTrans
 import { go } from '../utils/promise-utils';
 
 function loadConfig() {
-  const { config, shouldSkipValidation, validationOutput } = parseConfig(
-    path.resolve(`${__dirname}/../../config/config.json`),
-    process.env,
-    true
-  );
+  // TODO: Solve how to skip validation
+  const parsedConfigRes = parseConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 
-  // TODO: Log debug that validation is skipped
-  if (shouldSkipValidation) return config;
-  if (!validationOutput.valid) {
-    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationOutput.messages, null, 2)}`);
+  if (!parsedConfigRes.success) {
+    throw new Error(`Invalid Airnode configuration file: ${parsedConfigRes.error}`);
   }
-  // TODO: Log validation warnings - currently not possible since we have troubles constructing logger options
-
-  return config;
+  return parsedConfigRes.data;
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {

@@ -23,6 +23,8 @@ import {
   CloudProvider,
   AwsCloudProvider,
   HttpGateway,
+  Heartbeat,
+  NodeSettings,
 } from '@api3/airnode-validator';
 export {
   LogLevel,
@@ -39,6 +41,8 @@ export {
   CloudProvider,
   AwsCloudProvider,
   HttpGateway,
+  Heartbeat,
+  NodeSettings,
 };
 import { AirnodeRrp } from './evm/contracts';
 

@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
-import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
-import { version as getNodeVersion } from '../index';
+import { parseConfigWithSecrets, ValidationResult } from '@api3/airnode-validator';
 import { Config } from '../types';
 import { randomHexString } from '../utils/string-utils';
 
@@ -24,27 +23,15 @@ const readConfig = (configPath: string): unknown => {
   }
 };
 
-export interface ParseConfigResult {
-  config: Config;
-  validationOutput: Result;
-  shouldSkipValidation: boolean;
-}
-
-export function parseConfig(
-  configPath: string,
-  secrets: Record<string, string | undefined>,
-  shouldValidate: boolean
-): ParseConfigResult {
+export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): ValidationResult<Config> {
   const config = readConfig(configPath);
-  const validationResult = validateConfig(config, secrets, shouldValidate);
-  const parsedConfig: Config = validationResult.specs as Config;
+  const parseResult = parseConfigWithSecrets(config, secrets);
+  if (!parseResult.success) return parseResult;
+
+  const parsedConfig = parseResult.data;
   const ois = parseOises(parsedConfig.ois);
 
-  return {
-    config: { ...parsedConfig, ois },
-    shouldSkipValidation: !!parsedConfig.nodeSettings.skipValidation,
-    validationOutput: validationResult,
-  };
+  return { success: true, data: { ...parsedConfig, ois } };
 }
 
 export function getMasterKeyMnemonic(config: Config): string {
@@ -58,19 +45,4 @@ export function getMasterKeyMnemonic(config: Config): string {
 
 export function getEnvValue(envName: string) {
   return process.env[envName];
-}
-
-function validateConfig(
-  supposedConfig: unknown,
-  secrets: Record<string, string | undefined>,
-  shouldValidate: boolean
-): Result {
-  // TODO: Improve TS types
-  return validateJsonWithTemplate(
-    supposedConfig as object,
-    `config@${getNodeVersion()}`,
-    shouldValidate,
-    secrets,
-    true
-  );
 }
