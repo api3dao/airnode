@@ -14,9 +14,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  * @param args The yargs inferred CLI arguments object
  * @returns The parsed overrides object with values compatible with ethers
  */
-export const parseTransactionOverrides = (
-  args: Arguments | { [key: string]: string }
-): ethers.Overrides | ethers.PayableOverrides => {
+export const parseTransactionOverrides = (args: Arguments): ethers.Overrides | ethers.PayableOverrides => {
   if ((args['max-fee'] || args['max-priority-fee']) && args['gas-price'])
     throw new Error('EIP-1559 transactions cannot have gas-price argument');
   if ((args['max-fee'] && !args['max-priority-fee']) || (!args['max-fee'] && args['max-priority-fee']))
