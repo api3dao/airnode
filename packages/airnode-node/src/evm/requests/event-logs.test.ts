@@ -91,7 +91,6 @@ describe('EVM event logs - fetch', () => {
   it('throws an exception if the logs cannot be fetched', async () => {
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
-    getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',

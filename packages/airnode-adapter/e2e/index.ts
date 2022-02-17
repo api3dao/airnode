@@ -38,6 +38,10 @@ const apiResponse = {
   bytes: '0x72616e646f6d20737472696e6700000000000000000000000000000000000000',
   big: {
     decimal: '11223344556677889900',
+    // The maximum number that fits in int256
+    largeDecimal: '57896044618658097711785492504343953926634992332820282019728792003956564819967',
+    // A number that does not fit in int256 but fits in uint256
+    tooLargeDecimal: '57896044618658097711785492504343953926634992332820282019728792003956564819968',
     float: '112233445566.778899',
     string: 'very large string that can NOT be encoded to bytes32',
     // The string above encoded to UTF8 bytes
@@ -125,6 +129,15 @@ describe('Extraction, encoding and simple on chain decoding', () => {
           })
         )
       ).to.equal(ethers.BigNumber.from('12345678900'));
+
+      expect(
+        await testDecoder[methodName](
+          extractAndEncode({
+            _type: type,
+            _path: 'big.largeDecimal',
+          })
+        )
+      ).to.equal(apiResponse.big.largeDecimal);
     });
   });
 
@@ -132,6 +145,12 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     expect(
       await testDecoder.decodeSignedInt256(extractAndEncode({ _type: 'int256', _times: '100', _path: 'float' }))
     ).to.equal(1234567);
+  });
+
+  it('decodes a large number as uint256', async () => {
+    expect(
+      await testDecoder.decodeUnsignedInt256(extractAndEncode({ _type: 'uint256', _path: 'big.tooLargeDecimal' }))
+    ).to.equal(apiResponse.big.tooLargeDecimal);
   });
 
   it('floors the number without using "_times" parameter', async () => {
@@ -270,8 +289,22 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       const dynamicKey = 'strange.key';
 
       expect(() => extractAndEncode({ _type: 'int256', _times: '100', _path: `json.${dynamicKey}` })).to.Throw(
-        "Unable to find value from path: 'json.strange.key'"
+        `Unable to find response value from ${JSON.stringify(apiResponse)}. Path: 'json.strange.key'`
       );
+    });
+
+    it('throws on int256 max number', async () => {
+      try {
+        await testDecoder['decodeSignedInt256'](
+          extractAndEncode({
+            _type: 'int256',
+            _path: 'big.tooLargeDecimal',
+          })
+        );
+        expect.fail();
+      } catch (e: any) {
+        expect(e.message).to.contain('out-of-bounds');
+      }
     });
   });
 });

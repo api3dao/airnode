@@ -1,4 +1,5 @@
 import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { cliPrint } from '../src';
 
 export const runCommand = (command: string) => {
   console.log(`Running command:\n${command}`);
@@ -7,10 +8,16 @@ export const runCommand = (command: string) => {
   });
 
   if (result.status !== 0 || result.error) {
-    throw new Error(result.error?.message ?? 'Command failed with non-zero status code');
+    throw new Error(`Command failed with non-zero status code. Output:\n${result.stdout.toString()}`);
   }
 
-  return result.stdout.toString();
+  const stderr = result.stderr.toString();
+  if (stderr) {
+    cliPrint.warning(`Stderr output:\n${stderr}`);
+  }
+
+  const stdout = result.stdout.toString();
+  return stdout;
 };
 
 export const runCommandInBackground = (command: string) => {
@@ -22,9 +29,14 @@ export const runCommandInBackground = (command: string) => {
 };
 
 export const killBackgroundProcess = (processToKill: ChildProcessWithoutNullStreams) => {
-  // Only the following reliably kills the Airnode process. See:
-  // https://azimi.me/2014/12/31/kill-child_process-node-js.html
-  //
   // We need to gracefully kill the Airnode docker otherwise it remains running on background
-  process.kill(-processToKill.pid!);
+  //
+  // The following reliably kills the Airnode process for unix, but it throws for windows.
+  // See: https://azimi.me/2014/12/31/kill-child_process-node-js.html
+  try {
+    process.kill(-processToKill.pid!);
+  } catch (e) {
+    // See: https://stackoverflow.com/a/28163919
+    spawn('taskkill', ['/pid', processToKill.pid!.toString(), '/f', '/t']);
+  }
 };

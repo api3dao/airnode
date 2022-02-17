@@ -40,8 +40,8 @@ const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' from the
-  // admin CLI package
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' and 'derive-airnode-xpub' commands
+  // from the admin CLI package
   const sponsorWalletAddress = await deriveSponsorWalletAddress(
     deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
@@ -73,7 +73,7 @@ const main = async () => {
   cliPrint.info('Making request...');
   const requestId = await makeRequest();
   cliPrint.info('Waiting for fulfillment...');
-  await setMaxPromiseTimeout(waitForFulfillment(requestId), 80 * 1000);
+  await setMaxPromiseTimeout(waitForFulfillment(requestId), 180 * 1000);
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();

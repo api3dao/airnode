@@ -76,14 +76,14 @@ describe('callApis', () => {
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ResponseValueNotFound}`);
+    expect(logs[1].message).toContain(`with error message:Unable to convert response`);
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorMessage: RequestErrorMessage.ResponseValueNotFound,
+        errorMessage: 'Unable to convert response',
       },
     ]);
     expect(executeSpy).toHaveBeenCalledTimes(1);

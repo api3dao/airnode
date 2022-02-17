@@ -8,7 +8,7 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
     const lambda = new AWS.Lambda();
 
     // AWS doesn't allow uppercase letters in lambda function names
-    const resolvedName = `airnode-${params.airnodeAddressShort}-${params.stage}-${params.functionName}`;
+    const resolvedName = `airnode-${params.airnodeAddressShort}-${params.stage}-run`;
 
     const options = {
       FunctionName: resolvedName,

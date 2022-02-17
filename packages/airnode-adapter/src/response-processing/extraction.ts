@@ -60,7 +60,7 @@ export function extractValue(data: unknown, path?: string) {
   const rawValue = getRawValue(data, path);
 
   if (isUndefined(rawValue)) {
-    throw new Error(`Unable to find value from path: '${path}'`);
+    throw new Error(`Unable to find response value from ${JSON.stringify(data)}. Path: '${path}'`);
   }
 
   return rawValue;

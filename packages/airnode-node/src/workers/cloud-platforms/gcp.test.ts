@@ -10,20 +10,25 @@ jest.mock('google-auth-library', () => ({
 
 import * as gcp from './gcp';
 import * as fixtures from '../../../test/fixtures';
-import { WorkerFunctionName } from '../../types';
+import { WorkerParameters } from '../../types';
 
 describe('spawn', () => {
   it('derives the function URL, authenticates, invokes and returns the response', async () => {
     requestMock.mockImplementationOnce(() => ({ data: { value: 7777 } }));
+    const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: {
+        type: 'gcp',
+        region: 'us-east1',
+        projectId: 'projectId123',
+        disableConcurrencyReservations: false,
+      },
     });
-    const parameters = {
+    const parameters: WorkerParameters = {
       ...workerOpts,
-      functionName: 'some-function' as WorkerFunctionName,
-      payload: { from: 'ETH', to: 'USD' },
+      payload: { functionName: 'initializeProvider', state },
     };
-    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-some-function';
+    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
 
     const res = await gcp.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
@@ -41,15 +46,20 @@ describe('spawn', () => {
 
   it('throws an error if the cloud function returns an error', async () => {
     requestMock.mockRejectedValueOnce(new Error('Something went wrong'));
+    const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({
-      cloudProvider: { type: 'gcp', region: 'us-east1', projectId: 'projectId123' },
+      cloudProvider: {
+        type: 'gcp',
+        region: 'us-east1',
+        projectId: 'projectId123',
+        disableConcurrencyReservations: false,
+      },
     });
-    const parameters = {
+    const parameters: WorkerParameters = {
       ...workerOpts,
-      functionName: 'some-function' as WorkerFunctionName,
-      payload: { from: 'ETH', to: 'USD' },
+      payload: { functionName: 'initializeProvider', state },
     };
-    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-some-function';
+    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
 
     await expect(gcp.spawn(parameters)).rejects.toThrow(new Error('Something went wrong'));
 
