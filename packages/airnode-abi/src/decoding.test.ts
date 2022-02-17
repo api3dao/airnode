@@ -121,6 +121,6 @@ describe('decode', () => {
   it('throws an error when data has trailing bytes', () => {
     const data =
       '0x316900000000000000000000000000000000000000000000000000000000000054657374496e744e616d65000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc1800';
-    expect(() => decoding.decode(data)).toThrowError('Trailing bytes in encoded data are not allowed');
+    expect(() => decoding.decode(data)).toThrowError('Re-encoding mismatch');
   });
 });
