@@ -84,7 +84,8 @@ const chains: ChainConfig[] = [
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
-    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
+    jest.spyOn(console, 'log').mockImplementation();
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumber.mockResolvedValueOnce(123456);
