@@ -1,10 +1,8 @@
 import find from 'lodash/find';
 import * as wallet from '../evm/wallet';
-import { AggregatedApiCall, Config, WorkerOptions, ApiCallSuccessResponse } from '../types';
+import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
-import { go } from '../utils/promise-utils';
-import { spawnNewApiCall } from '../adapters/http/worker';
-import { WORKER_CALL_API_TIMEOUT } from '../constants';
+import { callApi } from '../api';
 
 export async function processHttpSignedRelayedRequest(
   config: Config,
@@ -35,11 +33,6 @@ export async function processHttpSignedRelayedRequest(
   const requestId = parameters._id;
   const logOptions = logger.buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
-  const workerOpts: WorkerOptions = {
-    cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeAddressShort: wallet.getAirnodeAddressShort(airnodeAddress),
-    stage: config.nodeSettings.stage,
-  };
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-signed-relayed-gateway',
     id: requestId,
@@ -50,16 +43,14 @@ export async function processHttpSignedRelayedRequest(
     parameters,
   };
 
-  const [err, logData] = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts), {
-    timeoutMs: WORKER_CALL_API_TIMEOUT,
-  });
+  const [logs, response] = await callApi({ config, aggregatedApiCall });
 
-  const resLogs = logData ? logData[0] : [];
-  logger.logPending(resLogs, logOptions);
+  logger.logPending(logs, logOptions);
 
-  if (err || !logData || !logData[1]?.success) {
-    return [err || new Error('An unknown error occurred'), null];
+  if (!response.success) {
+    const err = new Error(response.errorMessage || 'An unknown error occurred');
+    return [err, null];
   }
 
-  return [null, logData[1]];
+  return [null, response];
 }

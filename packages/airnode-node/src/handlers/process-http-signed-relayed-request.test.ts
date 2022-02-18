@@ -1,6 +1,6 @@
 import { Endpoint } from '@api3/airnode-ois';
 import { processHttpSignedRelayedRequest } from './process-http-signed-relayed-request';
-import * as worker from '../adapters/http/worker';
+import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
 
 const ENDPOINT_ID = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
@@ -55,7 +55,7 @@ describe('processHttpSignedRelayedRequests', () => {
   });
 
   it('calls the API with given parameters', async () => {
-    const spy = jest.spyOn(worker, 'spawnNewApiCall');
+    const spy = jest.spyOn(api, 'callApi');
     // What exactly the API returns doesn't matter for this test
     const mockedResponse = { success: true, value: 'value', signature: 'signature' } as const;
     spy.mockResolvedValueOnce([[], mockedResponse]);
@@ -69,30 +69,17 @@ describe('processHttpSignedRelayedRequests', () => {
     };
     const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
+    const config = fixtures.buildConfig();
     const aggregatedApiCall = fixtures.buildAggregatedSignedRelayedApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
       id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
       parameters,
     });
-    const logOptions = {
-      format: 'plain',
-      level: 'DEBUG',
-      meta: {
-        requestId: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
-      },
-    };
-    const workerOptions = {
-      cloudProvider: {
-        type: 'local',
-      },
-      airnodeAddressShort: expect.any(String),
-      stage: 'test',
-    };
 
     expect(err).toBeNull();
     expect(res).toEqual(mockedResponse);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(aggregatedApiCall, logOptions, workerOptions);
+    expect(spy).toHaveBeenCalledWith({ config, aggregatedApiCall });
   });
 });
