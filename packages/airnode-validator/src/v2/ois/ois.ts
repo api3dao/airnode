@@ -23,7 +23,8 @@ export type OperationParameter = SchemaType<typeof operationParameterSchema>;
 
 export const fixedParameterSchema = z.object({
   operationParameter: operationParameterSchema,
-  value: z.unknown(),
+  // TODO: It would be nicer to type this as unknown
+  value: z.any(),
 });
 export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
 
