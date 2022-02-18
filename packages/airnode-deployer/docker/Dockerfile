@@ -16,7 +16,7 @@ COPY packages/airnode-deployer/docker/entrypoint.sh /entrypoint.sh
 
     # Install external dependencies
 RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
-    apk add --update --no-cache su-exec git && \
+    apk add --update --no-cache su-exec git dos2unix && \
     # Download Terraform binary
     wget ${baseTerraformURL}${ARCH}.zip && \
     unzip *.zip -d /bin && \
@@ -26,7 +26,8 @@ RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
     chmod +x ${appBin}
 
 # Git swaps out LF with CRLF on Windows but only in the working directory
-RUN sed -i $'s/\r$//' /entrypoint.sh
+RUN dos2unix /entrypoint.sh
+RUN find ${appDir}/terraform -type f -exec dos2unix -q {} {} \;
 
 # Default placement for GCP credentials
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp.json
