@@ -94,16 +94,6 @@ function isValidType(type: ResponseType) {
   return baseResponseTypes.includes(type as any) || parseArrayType(type) !== null;
 }
 
-// NOTE: this is no longer used and can be removed if not needed elsewhere
-// function toHumanReadableString(value: unknown) {
-//   // Objects convert to "[object Object]" which isn't very useful
-//   if (isArray(value) || isPlainObject(value)) {
-//     return JSON.stringify(value);
-//   }
-
-//   return String(value);
-// }
-
 export function castValue(value: unknown, type: ResponseType): ValueType {
   if (!isValidType(type)) throw new Error(`Invalid type: ${type}`);
 
