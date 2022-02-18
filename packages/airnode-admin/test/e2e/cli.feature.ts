@@ -50,14 +50,7 @@ describe('CLI', () => {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
     } catch (e: any) {
       // rethrow the output of the CLI
-      const error = e.stdout.toString().trim();
-      // Checking for ethers errors and throwing a custom error message here because
-      // the ethers error will contain transaction information which is not constant,
-      if (error.includes('eip-1559 transaction do not support gasPrice')) {
-        throw new Error('eip-1559 transaction do not support gasPrice');
-      }
-
-      throw new Error(error);
+      throw new Error(e.stdout.toString().trim());
     }
   };
 
