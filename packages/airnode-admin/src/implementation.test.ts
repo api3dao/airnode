@@ -85,7 +85,6 @@ describe('generate mnemonic', () => {
 
     it('parses payable (value) transaction override', () => {
       const overrides = parseTransactionOverrides({
-        value: '1.23',
         'gas-price': '10',
         'gas-limit': '200000',
         nonce: '6',
@@ -94,39 +93,8 @@ describe('generate mnemonic', () => {
       expect(overrides).toEqual({
         gasPrice: ethers.utils.parseUnits('10', 'gwei'),
         gasLimit: ethers.BigNumber.from('200000'),
-        value: ethers.utils.parseEther('1.23'),
         nonce: 6,
       });
-    });
-
-    it('throws error if an EIP-1559 transaction does not specify both maxFeePerGas and maxPriorityFeePerGas', () => {
-      expect(() => parseTransactionOverrides({ 'max-fee': '20', 'gas-limit': '200000' } as any)).toThrow(
-        'EIP-1559 transactions require both max-fee and max-priority-fee arguments'
-      );
-
-      expect(() => parseTransactionOverrides({ 'max-priority-fee': '10', 'gas-limit': '200000' } as any)).toThrow(
-        'EIP-1559 transactions require both max-fee and max-priority-fee arguments'
-      );
-    });
-
-    it('throws error if a transaction specifies gas-price and max-fee or max-priority-fee', () => {
-      expect(() =>
-        parseTransactionOverrides({ 'gas-price': '20', 'max-fee': '10', 'gas-limit': '200000' } as any)
-      ).toThrow('EIP-1559 transactions cannot have gas-price argument');
-
-      expect(() =>
-        parseTransactionOverrides({ 'gas-price': '20', 'max-priority-fee': '10', 'gas-limit': '200000' } as any)
-      ).toThrow('EIP-1559 transactions cannot have gas-price argument');
-    });
-
-    it('throws error value is negative', () => {
-      expect(() =>
-        parseTransactionOverrides({ 'gas-price': '20', 'max-fee': '10', 'gas-limit': '200000' } as any)
-      ).toThrow('EIP-1559 transactions cannot have gas-price argument');
-
-      expect(() =>
-        parseTransactionOverrides({ value: '-1.23', 'gas-price': '20', 'gas-limit': '200000' } as any)
-      ).toThrow('Value argument cannot be negative');
     });
   });
 });

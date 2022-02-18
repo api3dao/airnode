@@ -24,7 +24,6 @@ export const parseTransactionOverrides = (args: Arguments): ethers.Overrides | e
       key: 'maxPriorityFeePerGas',
       parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei'),
     },
-    { name: 'value', key: 'value', parseValue: (value: string) => ethers.utils.parseEther(value) },
     { name: 'nonce', key: 'nonce', parseValue: parseInt },
   ];
 
