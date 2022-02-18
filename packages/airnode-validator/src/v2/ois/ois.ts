@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { SchemaType } from '../types';
+import intersection from 'lodash/intersection';
+import { SchemaType, ValidatorRefinement } from '../types';
 import { zodDiscriminatedUnion } from '../zod-discriminated-union';
 
 export const paremeterTargetSchema = z.union([
@@ -154,7 +155,23 @@ export const endpointSchema = z.object({
 });
 export type Endpoint = SchemaType<typeof endpointSchema>;
 
-export const oisSchema = z.object({
+const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<OIS> = (ois, ctx) => {
+  ois.endpoints.forEach((endpoint, index) => {
+    const params = endpoint.parameters.map((p) => p.operationParameter.name);
+    const fixedParams = endpoint.fixedOperationParameters.map((p) => p.operationParameter.name);
+
+    const both = intersection(params, fixedParams);
+    if (both.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Parameters "${both.join(',')}" are used in both "parameters" and "fixedOperationOperations"`,
+        path: ['ois', 'endpoints', index],
+      });
+    }
+  });
+};
+
+export const baseOisSchema = z.object({
   oisFormat: z.literal('1.0.0'),
   // TODO: Validate title
   title: z.string(),
@@ -162,4 +179,5 @@ export const oisSchema = z.object({
   apiSpecifications: apiSpecificationSchema,
   endpoints: z.array(endpointSchema),
 });
-export type OIS = SchemaType<typeof oisSchema>;
+export type OIS = SchemaType<typeof baseOisSchema>;
+export const oisSchema = baseOisSchema.superRefine(ensureSingleParameterUsagePerEndpoint);
