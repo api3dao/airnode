@@ -121,10 +121,6 @@ const COMMON_COMMAND_ARGUMENTS = {
       type: 'string',
       describe: 'Transaction maximum priority fee (in gwei)',
     },
-    value: {
-      type: 'string',
-      describe: 'Transaction value to send (in ethers)',
-    },
     nonce: {
       type: 'string',
       describe: 'Transaction nonce',

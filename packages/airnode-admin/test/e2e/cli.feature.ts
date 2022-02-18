@@ -50,7 +50,14 @@ describe('CLI', () => {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
     } catch (e: any) {
       // rethrow the output of the CLI
-      throw new Error(e.stdout.toString().trim());
+      const error = e.stdout.toString().trim();
+      // Checking for ethers errors and throwing a custom error message here because
+      // the ethers error will contain transaction information which is not constant,
+      if (error.includes('eip-1559 transaction do not support gasPrice')) {
+        throw new Error('eip-1559 transaction do not support gasPrice');
+      }
+
+      throw new Error(error);
     }
   };
 
@@ -204,6 +211,27 @@ describe('CLI', () => {
         ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--requester-address', requesterAddress]
+      );
+      expect(out).toBe(`Requester address ${requesterAddress} is now sponsored by ${sponsorAddress}`);
+
+      const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsorAddress, requesterAddress);
+      expect(sponsored).toBe(true);
+    });
+
+    it('uses transaction overrides', async () => {
+      const sponsorAddress = alice.address;
+      const requesterAddress = bob.address;
+
+      const out = execCommand(
+        'sponsor-requester',
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp-address', airnodeRrp.address],
+        ['--sponsor-mnemonic', mnemonic],
+        ['--derivation-path', aliceDerivationPath],
+        ['--requester-address', requesterAddress],
+        ['--gas-limit', 234000],
+        ['--max-fee', 20],
+        ['--max-priority-fee', 10]
       );
       expect(out).toBe(`Requester address ${requesterAddress} is now sponsored by ${sponsorAddress}`);
 
@@ -375,6 +403,25 @@ describe('CLI', () => {
       expect(() =>
         execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--provider-url', PROVIDER_URL])
       ).toThrow('Unknown arguments: mnemonic, provider-url, providerUrl, not-existent-command');
+    });
+
+    it('mixes legacy and EIP-1559 arguments', async () => {
+      const requesterAddress = bob.address;
+
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 234000],
+          ['--gas-price', 20],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow(`eip-1559 transaction do not support gasPrice`);
     });
   });
 
