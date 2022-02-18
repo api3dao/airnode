@@ -10,15 +10,19 @@ export const paremeterTargetSchema = z.union([
 ]);
 export type ParameterTarget = SchemaType<typeof paremeterTargetSchema>;
 
+const nonReservedParameterNameSchema = z.string().refine(
+  (val) => reservedParameterNameSchema.safeParse(val).success === false,
+  (val) => ({ message: `"${val}" cannot be used because it is a name of a reserved parameter` })
+);
 export const operationParameterSchema = z.object({
   in: paremeterTargetSchema,
-  name: z.string(),
+  name: nonReservedParameterNameSchema,
 });
 export type OperationParameter = SchemaType<typeof operationParameterSchema>;
 
 export const fixedParameterSchema = z.object({
   operationParameter: operationParameterSchema,
-  value: z.string(),
+  value: z.unknown(),
 });
 export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
 
@@ -27,16 +31,18 @@ export type Method = SchemaType<typeof methodSchema>;
 
 export const endpointOperationSchema = z.object({
   method: methodSchema,
+  // TODO: Validate URL path
   path: z.string(),
 });
 export type EndpointOperation = SchemaType<typeof endpointOperationSchema>;
 
 export const endpointParameterSchema = z.object({
+  // TODO: Endpoint name validation
+  name: z.string(),
+  operationParameter: operationParameterSchema,
   default: z.string().optional(),
   description: z.string().optional(),
   example: z.string().optional(),
-  name: z.string(),
-  operationParameter: operationParameterSchema,
   required: z.boolean().optional(),
 });
 export type EndpointParameter = SchemaType<typeof endpointParameterSchema>;
@@ -45,13 +51,15 @@ export const reservedParameterNameSchema = z.union([z.literal('_type'), z.litera
 export type ReservedParameterName = SchemaType<typeof reservedParameterNameSchema>;
 
 export const reservedParameterSchema = z.object({
+  name: reservedParameterNameSchema,
+  // TODO: Is this correct? Shouldn't one of them always exist?
   default: z.string().optional(),
   fixed: z.string().optional(),
-  name: reservedParameterNameSchema,
 });
 export type ReservedParameter = SchemaType<typeof reservedParameterSchema>;
 
 export const serverSchema = z.object({
+  // TODO: Validate URL
   url: z.string(),
 });
 export type Server = SchemaType<typeof serverSchema>;
@@ -147,7 +155,8 @@ export const endpointSchema = z.object({
 export type Endpoint = SchemaType<typeof endpointSchema>;
 
 export const oisSchema = z.object({
-  oisFormat: z.string(),
+  oisFormat: z.literal('1.0.0'),
+  // TODO: Validate title
   title: z.string(),
   version: z.string(),
   apiSpecifications: apiSpecificationSchema,
