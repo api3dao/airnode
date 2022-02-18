@@ -110,9 +110,7 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template,
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  const tx = await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters, {
-    ...overrides,
-  });
+  const tx = await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters, overrides ?? {});
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
