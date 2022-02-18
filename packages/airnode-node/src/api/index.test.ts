@@ -70,11 +70,9 @@ describe('callApi', () => {
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
-    expect(logs).toEqual([
-      { level: 'ERROR', message: `Unable to find response value from {"price":1000}. Path: 'unknown'` },
-    ]);
+    expect(logs).toEqual([{ level: 'ERROR', message: `Unable to find value at path: 'unknown'` }]);
     expect(res).toEqual({
-      errorMessage: `Unable to find response value from {"price":1000}. Path: 'unknown'`,
+      errorMessage: `Unable to find value at path: 'unknown'`,
       success: false,
     });
   });
@@ -133,11 +131,11 @@ describe('callApi', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Unable to convert: 'string' to 'int256'. Reason: Invalid number value`,
+        message: `Unable to cast value to int256`,
       },
     ]);
     expect(res).toEqual({
-      errorMessage: `Unable to convert: 'string' to 'int256'. Reason: Invalid number value`,
+      errorMessage: `Unable to cast value to int256`,
       success: false,
     });
   });
