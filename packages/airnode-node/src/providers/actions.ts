@@ -15,7 +15,7 @@ import {
   ProviderStates,
   WorkerOptions,
 } from '../types';
-import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT } from '../constants';
+import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROCESS_TRANSACTIONS_TIMEOUT } from '../constants';
 
 async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,
@@ -71,7 +71,7 @@ async function processEvmProviderRequests(
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
   const initialization = () => spawnProviderRequestProcessor(state, workerOpts);
-  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT });
+  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROCESS_TRANSACTIONS_TIMEOUT });
   if (err || !logsWithRes) {
     const log = logger.pend('ERROR', `Unable to process provider:${state.settings.name} requests`, err);
     return [[log], null];

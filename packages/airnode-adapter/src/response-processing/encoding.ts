@@ -21,12 +21,20 @@ export function getSolidityType(type: ResponseType) {
 
 export function encodeValue(value: ValueType, type: ResponseType): string {
   const solidityType = getSolidityType(type);
-
-  return ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
+  try {
+    return ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
+  } catch (e) {
+    if (e instanceof Error) throw new Error((e as Error).message);
+    throw new Error(String(e));
+  }
 }
 
 export function encodeMultipleValues(values: ValueType[], types: ResponseType[]): string {
   const solidityTypes = types.map(getSolidityType);
-
-  return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
+  try {
+    return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
+  } catch (e) {
+    if (e instanceof Error) throw new Error((e as Error).message);
+    throw new Error(String(e));
+  }
 }
