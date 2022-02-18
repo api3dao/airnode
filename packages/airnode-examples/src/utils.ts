@@ -21,6 +21,11 @@ export interface IntegrationInfo {
 export const isMacOrWindows = () => process.platform === 'win32' || process.platform === 'darwin' || isWsl;
 
 /**
+ * @returns true if platform is Windows or WSL
+ */
+export const isWindows = () => process.platform === 'win32' || isWsl;
+
+/**
  * @returns The contents of the "integration-info.json" file (throws if it doesn't exist)
  */
 export const readIntegrationInfo = (): IntegrationInfo =>

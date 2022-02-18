@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { cliPrint, isMacOrWindows, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, isWindows, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -12,7 +12,7 @@ const main = async () => {
   const secretsFilePath = join(__dirname, '../aws.env');
   const deployCommand = [
     `docker run -it --rm`,
-    isMacOrWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
+    isWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     integrationInfo.airnodeType === 'aws' && `--env-file ${secretsFilePath}`,
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
     `-v ${integrationPath}:/app/config`,
