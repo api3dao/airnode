@@ -136,7 +136,6 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xtransactionId' },
-          status: RequestStatus.Submitted,
         });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
         expect(staticFulfillMock).toHaveBeenCalledWith(
@@ -246,7 +245,7 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Submitted,
+          status: RequestStatus.Errored,
           errorMessage: 'Fulfill transaction failed',
         });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
@@ -303,7 +302,7 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Submitted,
+          status: RequestStatus.Errored,
           errorMessage: 'Fulfill transaction failed',
         });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
@@ -461,7 +460,6 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Submitted,
           errorMessage: 'API call failed',
         });
         expect(failMock).toHaveBeenCalledTimes(1);
@@ -508,7 +506,6 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Submitted,
           errorMessage: longError,
         });
         expect(failMock).toHaveBeenCalledTimes(1);
