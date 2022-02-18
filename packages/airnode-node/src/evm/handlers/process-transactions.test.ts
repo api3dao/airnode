@@ -22,7 +22,7 @@ mockEthers({
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests, RequestStatus } from '../../types';
+import { GroupedRequests } from '../../types';
 
 const createConfig = (txType: 'legacy' | 'eip1559') => {
   const initialConfig = fixtures.buildConfig();
@@ -101,7 +101,6 @@ describe('processTransactions', () => {
         ...apiCall,
         nonce: 79,
         fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
-        status: RequestStatus.Submitted,
       });
 
       // API call was submitted
@@ -145,7 +144,6 @@ describe('processTransactions', () => {
         ...withdrawal,
         nonce: 212,
         fulfillment: { hash: '0xcbb3f9dc6a24e8b6f5427dcf960b1da01c3df0636cb25a292f8dcaad78755c8d' },
-        status: RequestStatus.Submitted,
       });
       expect(res.gasTarget).toEqual(gasTarget);
 

@@ -63,9 +63,7 @@ describe('extractValue', () => {
 
   it('throws an error if a value cannot be found', () => {
     const obj = { a: 1 };
-    expect(() => extractValue(obj, 'unknown')).toThrow(
-      new Error(`Unable to find response value from ${JSON.stringify(obj)}. Path: 'unknown'`)
-    );
+    expect(() => extractValue(obj, 'unknown')).toThrow(new Error(`Unable to find value at path: 'unknown'`));
   });
 });
 

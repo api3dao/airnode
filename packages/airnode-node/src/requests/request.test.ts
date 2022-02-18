@@ -148,7 +148,7 @@ describe('hasNoActionableRequests', () => {
 
 describe('getStatusNames', () => {
   it('returns a list of all status names', () => {
-    expect(request.getStatusNames()).toEqual(['Pending', 'Fulfilled', 'Submitted', 'Ignored', 'Blocked', 'Errored']);
+    expect(request.getStatusNames()).toEqual(['Pending', 'Fulfilled', 'Ignored', 'Blocked', 'Errored']);
   });
 });
 
