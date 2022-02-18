@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
+import isWsl from 'is-wsl';
 
 export interface IntegrationInfo {
   integration: string;
@@ -13,6 +14,11 @@ export interface IntegrationInfo {
   providerUrl: string;
   gcpProjectId?: string;
 }
+
+/**
+ * @returns true if this platform is MacOS, Windows or WSL
+ */
+export const isMacOrWindows = () => process.platform === 'win32' || process.platform === 'darwin' || isWsl;
 
 /**
  * @returns The contents of the "integration-info.json" file (throws if it doesn't exist)
