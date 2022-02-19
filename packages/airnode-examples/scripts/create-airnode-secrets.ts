@@ -1,9 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import isWsl from 'is-wsl';
-import { readIntegrationInfo, runAndHandleErrors } from '../src';
-
-const isMacOrWindows = () => process.platform === 'win32' || process.platform === 'darwin' || isWsl;
+import { isMacOrWindows, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
