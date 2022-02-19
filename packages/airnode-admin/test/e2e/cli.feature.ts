@@ -212,24 +212,20 @@ describe('CLI', () => {
     });
 
     it('uses transaction overrides', async () => {
-      const sponsorAddress = alice.address;
       const requesterAddress = bob.address;
-
-      const out = execCommand(
-        'sponsor-requester',
-        ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp-address', airnodeRrp.address],
-        ['--sponsor-mnemonic', mnemonic],
-        ['--derivation-path', aliceDerivationPath],
-        ['--requester-address', requesterAddress],
-        ['--gas-limit', 234000],
-        ['--max-fee', 20],
-        ['--max-priority-fee', 10]
-      );
-      expect(out).toBe(`Requester address ${requesterAddress} is now sponsored by ${sponsorAddress}`);
-
-      const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsorAddress, requesterAddress);
-      expect(sponsored).toBe(true);
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 1],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow('Transaction requires at least 21560 gas but got 1');
     });
 
     it('stops sponsoring requester', async () => {
@@ -356,9 +352,7 @@ describe('CLI', () => {
 
       const balanceBefore = await sponsorBalance();
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
-      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, {
-        value: ethers.utils.parseEther('0.8'),
-      });
+      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, '0.8');
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
       expect((await sponsorBalance()).toString()).toBe(
         balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()

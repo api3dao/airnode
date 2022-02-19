@@ -56,8 +56,9 @@ export class AdminSdk {
     requestId: string,
     airnodeAddress: string,
     sponsorAddress: string,
-    overrides?: ethers.PayableOverrides
-  ) => admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, overrides);
+    amount: string,
+    overrides?: ethers.Overrides
+  ) => admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount, overrides);
 
   setWhitelistExpiration = (
     airnodeAddress: string,

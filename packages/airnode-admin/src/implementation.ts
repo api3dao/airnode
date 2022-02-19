@@ -14,7 +14,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  * @param args The yargs inferred CLI arguments object
  * @returns The parsed overrides object with values compatible with ethers
  */
-export const parseTransactionOverrides = (args: Arguments): ethers.Overrides | ethers.PayableOverrides => {
+export const parseTransactionOverrides = (args: Arguments): ethers.Overrides => {
   const overrideMap = [
     { name: 'gas-limit', key: 'gasLimit', parseValue: (value: string) => ethers.BigNumber.from(value) },
     { name: 'gas-price', key: 'gasPrice', parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei') },
@@ -27,7 +27,7 @@ export const parseTransactionOverrides = (args: Arguments): ethers.Overrides | e
     { name: 'nonce', key: 'nonce', parseValue: parseInt },
   ];
 
-  const overrides: ethers.Overrides | ethers.PayableOverrides = overrideMap.reduce((acc, override) => {
+  const overrides: ethers.Overrides = overrideMap.reduce((acc, override) => {
     if (args[override.name]) return { ...acc, [override.key]: override.parseValue(args[override.name] as string) };
     return acc;
   }, {});
@@ -222,9 +222,13 @@ export async function fulfillWithdrawal(
   requestId: string,
   airnodeAddress: string,
   sponsorAddress: string,
-  overrides?: ethers.PayableOverrides
+  amount: string,
+  overrides?: ethers.Overrides
 ) {
-  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnodeAddress, sponsorAddress, overrides ?? {});
+  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnodeAddress, sponsorAddress, {
+    ...overrides,
+    value: ethers.utils.parseEther(amount),
+  });
   const filter = airnodeRrp.filters.FulfilledWithdrawal(airnodeAddress, sponsorAddress, requestId, null, null);
 
   return new Promise<FulfillWithdrawalReturnValue | null>((resolve) =>
