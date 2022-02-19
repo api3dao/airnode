@@ -31,6 +31,7 @@ import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
+  console.log('startCoordinator');
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
