@@ -1,4 +1,11 @@
-import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers } from '@api3/airnode-protocol';
+import {
+  AccessControlRegistry,
+  AccessControlRegistryFactory,
+  RequesterAuthorizerWithAirnode,
+  AirnodeRrp,
+  AirnodeRrpFactory,
+  authorizers,
+} from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import difference from 'lodash/difference';
 import * as admin from '../../src/implementation';
@@ -6,38 +13,69 @@ import { AdminSdk } from '../../src/sdk';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 
-it('provides same API', async () => {
-  const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
-  const deployer = provider.getSigner(0);
-  const airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
-  const accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
-  const requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
-    accessControlRegistry.address,
-    'RequesterAuthorizerWithAirnode admin'
-  );
-  expect(airnodeRrp.address).toBeDefined();
-  expect(accessControlRegistry.address).toBeDefined();
-  expect(requesterAuthorizerWithAirnode.address).toBeDefined();
+describe('SDK', () => {
+  let provider: ethers.providers.JsonRpcProvider;
+  let deployer: ethers.providers.JsonRpcSigner;
+  let airnodeRrp: AirnodeRrp;
+  let accessControlRegistry: AccessControlRegistry;
+  let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
+  let sdk: AdminSdk;
+  let wallet: ethers.Wallet;
+  const mnemonic = 'test test test test test test test test test test test junk';
 
-  const sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
-  const sdkApi = difference(Object.keys(sdk), [
-    'airnodeRrp',
-    'requesterAuthorizerWithAirnode',
-    'parseTransactionOverrides',
-  ]).sort();
-  const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
-  const adminApi = difference(Object.keys(admin), [
-    'deriveWalletPathFromSponsorAddress',
-    'deriveEndpointId',
-    'parseTransactionOverrides',
-  ]).sort();
+  beforeAll(() => {
+    jest.setTimeout(45_000);
 
-  expect(sdkApi).toEqual(adminApi);
-  expect(sdkStaticApi).toEqual([
-    'deriveEndpointId',
-    'deriveWalletPathFromSponsorAddress',
-    'getAirnodeRrp',
-    'getRequesterAuthorizerWithAirnode',
-    'useAirnodeRrp',
-  ]);
+    provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
+    deployer = provider.getSigner();
+    wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
+  });
+
+  beforeEach(async () => {
+    airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
+    accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
+    requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
+      accessControlRegistry.address,
+      'RequesterAuthorizerWithAirnode admin'
+    );
+    sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
+  });
+
+  it('provides same API', async () => {
+    expect(airnodeRrp.address).toBeDefined();
+    expect(accessControlRegistry.address).toBeDefined();
+    expect(requesterAuthorizerWithAirnode.address).toBeDefined();
+
+    const sdkApi = difference(Object.keys(sdk), [
+      'airnodeRrp',
+      'requesterAuthorizerWithAirnode',
+      'parseTransactionOverrides',
+    ]).sort();
+    const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
+    const adminApi = difference(Object.keys(admin), [
+      'deriveWalletPathFromSponsorAddress',
+      'deriveEndpointId',
+      'parseTransactionOverrides',
+    ]).sort();
+
+    expect(sdkApi).toEqual(adminApi);
+    expect(sdkStaticApi).toEqual([
+      'deriveEndpointId',
+      'deriveWalletPathFromSponsorAddress',
+      'getAirnodeRrp',
+      'getRequesterAuthorizerWithAirnode',
+      'useAirnodeRrp',
+    ]);
+  });
+
+  it('starts sponsoring with undefined overrides', async () => {
+    const requesterAddress = await sdk.sponsorRequester(wallet.address, undefined);
+    expect(requesterAddress).toEqual(wallet.address);
+  });
+
+  it('uses transaction overrides', async () => {
+    await expect(sdk.sponsorRequester(wallet.address, { gasLimit: 1 })).rejects.toThrow(
+      'Transaction requires at least 21572 gas but got 1'
+    );
+  });
 });
