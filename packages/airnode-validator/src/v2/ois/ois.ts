@@ -9,7 +9,6 @@ export const paremeterTargetSchema = z.union([
   z.literal('header'),
   z.literal('cookie'),
 ]);
-export type ParameterTarget = SchemaType<typeof paremeterTargetSchema>;
 
 const nonReservedParameterNameSchema = z.string().refine(
   (val) => reservedParameterNameSchema.safeParse(val).success === false,
@@ -19,24 +18,20 @@ export const operationParameterSchema = z.object({
   in: paremeterTargetSchema,
   name: nonReservedParameterNameSchema,
 });
-export type OperationParameter = SchemaType<typeof operationParameterSchema>;
 
 export const fixedParameterSchema = z.object({
   operationParameter: operationParameterSchema,
-  // TODO: It would be nicer to type this as unknown
-  value: z.any(),
+  // TODO: This could be any JSON value
+  value: z.string(),
 });
-export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
 
 export const methodSchema = z.union([z.literal('get'), z.literal('post')]);
-export type Method = SchemaType<typeof methodSchema>;
 
 export const endpointOperationSchema = z.object({
   method: methodSchema,
   // TODO: Validate URL path
   path: z.string(),
 });
-export type EndpointOperation = SchemaType<typeof endpointOperationSchema>;
 
 export const endpointParameterSchema = z.object({
   // TODO: Endpoint name validation
@@ -47,10 +42,8 @@ export const endpointParameterSchema = z.object({
   example: z.string().optional(),
   required: z.boolean().optional(),
 });
-export type EndpointParameter = SchemaType<typeof endpointParameterSchema>;
 
 export const reservedParameterNameSchema = z.union([z.literal('_type'), z.literal('_path'), z.literal('_times')]);
-export type ReservedParameterName = SchemaType<typeof reservedParameterNameSchema>;
 
 export const reservedParameterSchema = z.object({
   name: reservedParameterNameSchema,
@@ -58,56 +51,45 @@ export const reservedParameterSchema = z.object({
   default: z.string().optional(),
   fixed: z.string().optional(),
 });
-export type ReservedParameter = SchemaType<typeof reservedParameterSchema>;
 
 export const serverSchema = z.object({
   // TODO: Validate URL
   url: z.string(),
 });
-export type Server = SchemaType<typeof serverSchema>;
 
 export const httpSecuritySchemeScheme = z.object({
   scheme: z.union([z.literal('bearer'), z.literal('basic')]),
   type: z.literal('http'),
 });
-export type HttpSecurityScheme = SchemaType<typeof httpSecuritySchemeScheme>;
 
 export const securitySchemeTargetSchema = z.union([z.literal('query'), z.literal('header'), z.literal('cookie')]);
-export type SecuritySchemeTarget = SchemaType<typeof securitySchemeTargetSchema>;
 
 export const configurableSecuritySchemeScheme = z.object({
   in: securitySchemeTargetSchema,
   name: z.string(),
 });
-export type ConfigurableSecurityScheme = SchemaType<typeof configurableSecuritySchemeScheme>;
 
 export const apiKeySecuritySchemeScheme = configurableSecuritySchemeScheme.extend({ type: z.literal('apiKey') });
-export type ApiKeySecurityScheme = SchemaType<typeof apiKeySecuritySchemeScheme>;
 
 export const relayChainIdSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
   type: z.literal('relayChainId'),
 });
-export type RelayChainIdSecurityScheme = SchemaType<typeof relayChainIdSecuritySchemeScheme>;
 
 export const relayChainTypeSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
   type: z.literal('relayChainType'),
 });
-export type RelayChainTypeSecurityScheme = SchemaType<typeof relayChainTypeSecuritySchemeScheme>;
 
 export const relayRequesterAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
   type: z.literal('relayRequesterAddress'),
 });
-export type RelayRequesterAddressSecurityScheme = SchemaType<typeof relayRequesterAddressSecuritySchemeScheme>;
 
 export const relaySponsorAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
   type: z.literal('relaySponsorAddress'),
 });
-export type RelaySponsorAddressSecurityScheme = SchemaType<typeof relaySponsorAddressSecuritySchemeScheme>;
 
 export const relaySponsorWalletAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
   type: z.literal('relaySponsorWalletAddress'),
 });
-export type RelaySponsorWalletAddressSecurityScheme = SchemaType<typeof relaySponsorWalletAddressSecuritySchemeScheme>;
 
 export const apiSecuritySchemeScheme = zodDiscriminatedUnion('type', [
   apiKeySecuritySchemeScheme,
@@ -118,23 +100,18 @@ export const apiSecuritySchemeScheme = zodDiscriminatedUnion('type', [
   relaySponsorAddressSecuritySchemeScheme,
   relaySponsorWalletAddressSecuritySchemeScheme,
 ]);
-export type ApiSecurityScheme = SchemaType<typeof apiSecuritySchemeScheme>;
 
 // OAS supports also "oauth2" and "openIdConnect", but we don't
-export type SecuritySchemeType = ApiSecurityScheme['type'];
 
 export const apiComponentsSchema = z.object({
   securitySchemes: z.record(apiSecuritySchemeScheme),
 });
-export type ApiComponents = SchemaType<typeof apiComponentsSchema>;
 
 export const operationSchema = z.object({
   parameters: z.array(operationParameterSchema),
 });
-export type Operation = SchemaType<typeof operationSchema>;
 
 export const pathSchema = z.record(operationSchema);
-export type Path = SchemaType<typeof pathSchema>;
 
 export const apiSpecificationSchema = z.object({
   components: apiComponentsSchema,
@@ -142,7 +119,6 @@ export const apiSpecificationSchema = z.object({
   servers: z.array(serverSchema),
   security: z.record(z.tuple([])),
 });
-export type ApiSpecification = SchemaType<typeof apiSpecificationSchema>;
 
 export const endpointSchema = z.object({
   description: z.string().optional(),
@@ -154,7 +130,6 @@ export const endpointSchema = z.object({
   reservedParameters: z.array(reservedParameterSchema),
   summary: z.string().optional(),
 });
-export type Endpoint = SchemaType<typeof endpointSchema>;
 
 const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<OIS> = (ois, ctx) => {
   ois.endpoints.forEach((endpoint, index) => {
@@ -180,5 +155,5 @@ export const baseOisSchema = z.object({
   apiSpecifications: apiSpecificationSchema,
   endpoints: z.array(endpointSchema),
 });
-export type OIS = SchemaType<typeof baseOisSchema>;
+type OIS = SchemaType<typeof baseOisSchema>;
 export const oisSchema = baseOisSchema.superRefine(ensureSingleParameterUsagePerEndpoint);
