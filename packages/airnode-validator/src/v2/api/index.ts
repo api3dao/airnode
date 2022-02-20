@@ -2,7 +2,7 @@ import template from 'lodash/template';
 import { z } from 'zod';
 import { Config, configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
-import { ValidationResult, ValidatorError } from '../error';
+import { ValidationResult, ValidatorError } from '../validation-result';
 
 export type Secrets = Record<string, string | undefined>;
 
