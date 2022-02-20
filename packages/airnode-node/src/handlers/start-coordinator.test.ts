@@ -31,6 +31,8 @@ import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
+const originalConsoleLog = console.log;
+
 describe('startCoordinator', () => {
   beforeEach(() => {
     global.console = console;
@@ -48,7 +50,10 @@ describe('startCoordinator', () => {
         },
       })),
     };
+    // console.log = jest.fn();
+    jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
+    global.console.log = originalConsoleLog;
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
