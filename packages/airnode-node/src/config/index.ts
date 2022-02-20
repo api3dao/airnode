@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
-import { unsafeParseConfigWithSecrets, ValidationResult } from '@api3/airnode-validator';
+import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import { Config } from '../types';
 import { randomHexString } from '../utils/string-utils';
 
@@ -23,12 +23,12 @@ const readConfig = (configPath: string): unknown => {
   }
 };
 
-export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): ValidationResult<Config> {
+export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
   const rawConfig = readConfig(configPath);
   const config = unsafeParseConfigWithSecrets(rawConfig, secrets);
 
   const ois = parseOises(config.ois);
-  return { success: true, data: { ...config, ois } };
+  return { ...config, ois };
 }
 
 export function getMasterKeyMnemonic(config: Config): string {

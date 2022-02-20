@@ -125,6 +125,7 @@ export const nodeSettingsSchema = z.object({
   logLevel: logLevelSchema,
   // TODO: This must match validator version
   nodeVersion: z.string(),
+  // TODO: https://api3dao.atlassian.net/browse/AN-556
   skipValidation: z.boolean().optional(),
 });
 export type NodeSettings = SchemaType<typeof nodeSettingsSchema>;

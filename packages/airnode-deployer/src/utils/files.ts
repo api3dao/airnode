@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { CloudProvider, Config } from '@api3/airnode-node';
-import { parseReceipt, parseConfigWithSecrets } from '@api3/airnode-validator';
+import { parseReceipt, parseConfigWithSecrets, unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
@@ -15,8 +15,7 @@ const readConfig = (configPath: string): unknown => {
   }
 };
 
-// TODO: Solve how to skip validation
-export function loadConfig(configPath: string, secrets: Record<string, string | undefined>, _shouldValidate: boolean) {
+export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {
   const rawConfig = readConfig(configPath);
   const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
   if (!parsedConfigRes.success) {
@@ -25,6 +24,11 @@ export function loadConfig(configPath: string, secrets: Record<string, string | 
 
   const config = parsedConfigRes.data;
   return config;
+}
+
+export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>) {
+  const rawConfig = readConfig(configPath);
+  return unsafeParseConfigWithSecrets(rawConfig, secrets);
 }
 
 export function parseSecretsFile(secretsPath: string) {

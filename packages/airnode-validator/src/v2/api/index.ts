@@ -13,10 +13,10 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
   const interpolateConfigRes = interpolateSecrets(config, parseSecretsRes.data);
   if (!interpolateConfigRes.success) return interpolateConfigRes;
 
-  return parseConfig(interpolateConfigRes.data);
+  return loadTrustedConfig(interpolateConfigRes.data);
 }
 
-export function parseConfig(config: unknown): ValidationResult<Config> {
+export function loadTrustedConfig(config: unknown): ValidationResult<Config> {
   const parseConfigRes = configSchema.safeParse(config);
 
   // TODO: Implement dynamic checks
