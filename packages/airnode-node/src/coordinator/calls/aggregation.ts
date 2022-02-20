@@ -1,4 +1,5 @@
-import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request, Config, RequestStatus } from '../../types';
+import { Config } from '../../config/types';
+import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request, RequestStatus } from '../../types';
 
 function buildAggregatedCall(config: Config, request: Request<ApiCall>): AggregatedApiCall {
   const {

@@ -1,10 +1,12 @@
 import template from 'lodash/template';
 import { z } from 'zod';
-import { Config, configSchema } from '../config';
+import { SchemaType } from '../types';
+import { configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
 import { ValidationResult, ValidatorError } from '../validation-result';
 
-export type Secrets = Record<string, string | undefined>;
+type Secrets = Record<string, string | undefined>;
+type Config = SchemaType<typeof configSchema>;
 
 export function parseConfigWithSecrets(config: unknown, secrets: unknown): ValidationResult<Config> {
   const parseSecretsRes = parseSecrets(secrets);

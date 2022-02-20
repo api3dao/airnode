@@ -30,7 +30,8 @@ import { ethers } from 'ethers';
 import { range } from 'lodash';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
+import { GroupedRequests, RequestStatus } from '../types';
+import { ChainConfig } from '../config/types';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';

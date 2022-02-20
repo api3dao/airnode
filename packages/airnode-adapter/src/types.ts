@@ -1,5 +1,4 @@
 import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
-import { BaseApiCredentials } from '@api3/airnode-validator';
 import { BigNumber } from 'bignumber.js';
 import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
@@ -15,7 +14,11 @@ export interface RequestMetadata {
   airnodeRrpAddress: string;
 }
 
-export type { BaseApiCredentials };
+export interface BaseApiCredentials {
+  readonly securitySchemeName: string;
+  readonly securitySchemeValue: string;
+}
+
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;

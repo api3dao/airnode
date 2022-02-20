@@ -1,6 +1,6 @@
 import * as ois from './ois';
 import * as settings from './node-settings';
-import { Config, Trigger, ApiCredentials } from '../../../src/types';
+import { ApiCredentials, Config, Trigger } from '../../../src/config/types';
 
 export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
   return {

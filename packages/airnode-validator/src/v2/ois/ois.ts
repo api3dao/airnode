@@ -148,7 +148,8 @@ const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<OIS> = (ois, ct
 };
 
 export const baseOisSchema = z.object({
-  oisFormat: z.literal('1.0.0'),
+  // TODO: Expect semver (and for now only possible value os 1.0.0)
+  oisFormat: z.string(),
   // TODO: Validate title
   title: z.string(),
   version: z.string(),

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
-import { Config } from '../types';
+import { Config } from './types';
 import { randomHexString } from '../utils/string-utils';
 
 // TODO: Is this needed?

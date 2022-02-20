@@ -1,6 +1,7 @@
 import * as wallet from '../evm/wallet';
 import { randomHexString } from '../utils/string-utils';
-import { Config, CoordinatorSettings, CoordinatorState } from '../types';
+import { CoordinatorSettings, CoordinatorState } from '../types';
+import { Config } from '../config/types';
 
 export function create(config: Config): CoordinatorState {
   const coordinatorId = randomHexString(16);
