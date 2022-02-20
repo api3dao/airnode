@@ -20,15 +20,12 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
 
 export function loadTrustedConfig(config: unknown): ValidationResult<Config> {
   const parseConfigRes = configSchema.safeParse(config);
-
-  // TODO: Implement dynamic checks
   return parseConfigRes;
 }
 
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
   const secretsSchema = z.record(z.string());
 
-  // TODO: Validate invisible characters in secrets
   const result = secretsSchema.safeParse(secrets);
   return result;
 }

@@ -1,4 +1,3 @@
-// TODO: Dynamic checks
 import { z } from 'zod';
 import { oisSchema } from '../ois';
 import { zodDiscriminatedUnion } from '../zod-discriminated-union';
