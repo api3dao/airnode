@@ -24,6 +24,7 @@ mockEthers({
 });
 
 import fs from 'fs';
+import console from 'console';
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
@@ -31,7 +32,10 @@ import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
-  console.log('startCoordinator');
+  beforeEach(() => {
+    global.console = console;
+  });
+
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
