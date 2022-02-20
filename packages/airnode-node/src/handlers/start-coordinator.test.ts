@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockConsole } from '../../test/mock-utils';
 
 const checkAuthorizationStatusesMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -22,6 +22,7 @@ mockEthers({
     getTemplates: getTemplatesMock,
   },
 });
+mockConsole();
 
 import fs from 'fs';
 import { ethers } from 'ethers';
@@ -43,13 +44,7 @@ describe('startCoordinator', () => {
         },
       })),
     };
-    if (process.env.SILENCE_LOGGER) {
-      // Mock console log for github
-      jest.spyOn(console, 'log').mockImplementation();
-    } else {
-      // Workaround to fix broken console for local tests
-      console.log('Running test with console enabled');
-    }
+
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -103,7 +98,7 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);

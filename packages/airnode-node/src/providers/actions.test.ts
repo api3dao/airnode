@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockConsole } from '../../test/mock-utils';
 
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
@@ -18,6 +18,7 @@ mockEthers({
     fulfillWithdrawal: fulfillWithdrawalMock,
   },
 });
+mockConsole();
 
 const spawnAwsMock = jest.fn();
 jest.mock('../workers/cloud-platforms/aws', () => ({
@@ -84,7 +85,6 @@ const chains: ChainConfig[] = [
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
-    jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
