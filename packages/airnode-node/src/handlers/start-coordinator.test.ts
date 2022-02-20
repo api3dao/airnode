@@ -24,20 +24,13 @@ mockEthers({
 });
 
 import fs from 'fs';
-import console from 'console';
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
-const originalConsoleLog = console.log;
-
 describe('startCoordinator', () => {
-  beforeEach(() => {
-    global.console = console;
-  });
-
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
@@ -50,10 +43,14 @@ describe('startCoordinator', () => {
         },
       })),
     };
-    // console.log = jest.fn();
-    jest.spyOn(console, 'log').mockImplementation();
+    if (process.env.SILENCE_LOGGER) {
+      // Mock console log for github
+      jest.spyOn(console, 'log').mockImplementation();
+    } else {
+      // Workaround to fix broken console for local tests
+      console.log('Running test with console enabled');
+    }
     jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
-    global.console.log = originalConsoleLog;
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
