@@ -1,15 +1,24 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config, parseConfig } from '@api3/airnode-node';
-import { parseReceipt } from '@api3/airnode-validator';
+import { CloudProvider, Config } from '@api3/airnode-node';
+import { parseReceipt, parseConfigWithSecrets } from '@api3/airnode-validator';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
 
+const readConfig = (configPath: string): unknown => {
+  try {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    throw new Error('Failed to parse config file');
+  }
+};
+
 // TODO: Solve how to skip validation
 export function loadConfig(configPath: string, secrets: Record<string, string | undefined>, _shouldValidate: boolean) {
-  const parsedConfigRes = parseConfig(configPath, secrets);
+  const rawConfig = readConfig(configPath);
+  const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
   if (!parsedConfigRes.success) {
     throw new Error(`Invalid Airnode configuration file: ${parsedConfigRes.error}`);
   }

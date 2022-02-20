@@ -64,3 +64,14 @@ export function interpolateSecrets(config: unknown, secrets: Secrets): Validatio
     };
   }
 }
+
+/**
+ * Used to interpolate secrets into config. This function only interpolates the secrets and does not perform any
+ * validation. Only use this function when you are sure the interpolation result is a valid Airnode config.
+ */
+export function unsafeParseConfigWithSecrets(config: unknown, secrets: Secrets): Config {
+  const interpolationResult = interpolateSecrets(config, secrets);
+  if (!interpolationResult.success) throw interpolationResult.error;
+
+  return interpolationResult.data as Config;
+}

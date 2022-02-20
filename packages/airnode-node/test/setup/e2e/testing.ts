@@ -21,7 +21,7 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
   // TODO: This is caused by duplicated mnemonic in Airnode state
   (config.nodeSettings as any).airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-  jest.spyOn(validator, 'parseConfigWithSecrets').mockReturnValue({ success: true, data: config });
+  jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
 
   return { deployment, provider: buildProvider(), config };
 };

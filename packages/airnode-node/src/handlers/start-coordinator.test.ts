@@ -44,7 +44,7 @@ describe('startCoordinator', () => {
       })),
     };
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'parseConfigWithSecrets').mockReturnValue({ success: true, data: config });
+    jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);
