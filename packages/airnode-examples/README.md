@@ -2,17 +2,23 @@
 
 > A public list of examples showcasing the features of Airnode
 
-The project will contain many runnable scripts to guide you through the necessary steps. You are recommended to read the
-contents of the scripts as you run them.
+This project contains runnable scripts that will guide you through the necessary steps to run an Airnode instance. We
+recommend that you read the contents of the scripts as you run them.
 
-Airnode is very flexible and can be used in various ways. For example, you may:
+Airnode is flexible and can be used in a variety of ways on multiple Ethereum Virtual Machine (EVM) compatible chains.
 
-- Run Airnode as a docker container locally while connected to Rinkeby network
-- Run Airnode as a docker container locally, but connected to the hardhat (local) network
-- Deploy Airnode on AWS or GCP and use the Rinkeby network
+We support running Airnode locally as a Docker container and on cloud services, specifically AWS Lambda and GCP Cloud
+Functions.
 
-You can run these examples with any of the combination above. We have decided to support Rinkeby just for simplicity,
-but you may adapt the configuration to work for your target chain.
+This guide supports a subset of common EVM chains, namely:
+
+- Ropsten
+- Rinkeby
+- Kovan
+- Polygon Mumbai
+- and Goerli
+
+You can optionally adapt the configuration to support your target chain.
 
 ## Request-Response protocol (RRP)
 
@@ -22,7 +28,7 @@ Currently, all of the examples utilize the RRP protocol. The example RRP flow co
 2. Deploy Airnode on a cloud provider, or run locally in a docker container, and make a request using the deployed
    requester
 
-If you would like to know more about RRP, read the [API3 docs](https://docs.api3.org/airnode/v0.3/concepts/).
+If you would like to know more about RRP, read the [API3 docs](https://docs.api3.org/airnode/latest/concepts/).
 
 ## Available examples
 
@@ -53,15 +59,15 @@ installed. If you want to run Airnode as a docker container, you'll also need to
 
 The following instructions will guide you step by step with the RRP flow. Please note, that some steps may be skipped
 depending on how you want to run the example - e.g. you don't need to start a hardhat network locally when you intend to
-run the example with Rinkeby.
+run the example with a public network.
 
 ### 1. Choose an example
 
 The first step is to choose an integration and network.
 
-If you intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and
-trigger an Airnode request. For hardhat network you can use the account derived by hardhat default mnemonic which is
-already funded.
+If you intend to run an integration on a public network, you will also need a funded account to deploy the necessary
+contracts and trigger an Airnode request. For a hardhat network you can use the account derived by hardhat's default
+mnemonic which is already funded.
 
 Run the following script to interactively choose your integration:
 
@@ -95,11 +101,11 @@ deploy the contracts and make transactions, so make sure it is funded. The recom
 
 ### 4. Deploy the RRP contract
 
-The [RRP contract](https://docs.api3.org/airnode/v0.3/concepts/#airnoderrp-sol) is a contract through which the
+The [RRP contract](https://docs.api3.org/airnode/latest/concepts/#airnoderrp-sol) is a contract through which the
 [requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
 is common for all Airnodes and requesters on a chain.
 
-API3 team will deploy this contract for the most popular chains at some point, but for now you have to deploy it
+The API3 team will deploy this contract for the most popular chains at some point, but for now you have to deploy it
 yourself using:
 
 ```sh
@@ -111,7 +117,7 @@ yarn deploy-rrp
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
 [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
 these or how to create an AWS account, see
-[the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#aws).
+[the following docs section](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html#aws).
 
 After you know the secrets, run the following script to specify them:
 
@@ -123,7 +129,7 @@ yarn create-aws-secrets
 
 If you intend to deploy Airnode on GCP, you will need to create a service account for your project and add and download
 an access key for this account. If you are not sure how to do this or how to create a GCP account, see
-[the following docs section](https://docs.api3.org/airnode/v0.3/grp-providers/docker/deployer-image.html#gcp).
+[the following docs section](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html#gcp).
 
 Store the access key file as `gcp.json` into the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
@@ -226,7 +232,7 @@ Airnode request requires a [sponsor](https://docs.api3.org/airnode/latest/concep
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
 "sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the
 [admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
-[documentation](https://docs.api3.org/airnode/v0.3/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
+[documentation](https://docs.api3.org/airnode/latest/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 
 Run:
@@ -279,10 +285,10 @@ This will use the deployer to remove the Airnode lambdas from the cloud provider
 
 ## For developers
 
-When pulling or creating a new integration you need to run `yarn build` to create necessary contract artifacts.
+When pulling or creating a new integration you need to run `yarn build` to create the necessary contract artifacts.
 
-The main point of these examples is to demonstrate the flexibility and features of Airnode, while being easy to
-maintain. The main design choice is that all integrations share the same instructions. This has several trade offs,
+The main purpose of these examples is to demonstrate the flexibility and features of Airnode, whilst being easy to
+maintain. The main design choice is that all integrations share the same instructions. This has several trade-offs,
 notably:
 
 1. Some instructions may be skipped depending on the setup.
@@ -300,10 +306,10 @@ notably:
 
 The examples package is also a nice fit for an end to end test of the whole Airnode infrastructure. There are two tests:
 
-1. An integration using Airnode docker on localhost - This test also builds the necessary docker images and runs on as
-   part of end to end test suite on CI.
-2. An integration using the Airnode deployed on AWS with Rinkeby network - This is intended to be run by a developer
-   before making a release. This test is located in the `scripts` directory, because it should not be run on CI because
-   if its performance and complexity.
+1. An integration using Airnode docker on localhost - This test also builds the necessary docker images and runs as part
+   of an end to end test suite on CI.
+2. An integration using the Airnode deployed on AWS with the Rinkeby network - This is intended to be run by a developer
+   before making a release. This test is located in the `scripts` directory. It should not be run on CI due to
+   performance and complexity implications.
 
    Be sure to define the necessary secrets before running this test.

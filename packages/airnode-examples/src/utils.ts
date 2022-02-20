@@ -8,7 +8,7 @@ export interface IntegrationInfo {
   airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
-  network: 'rinkeby' | 'localhost';
+  network: 'rinkeby' | 'ropsten' | 'polygon-mumbai' | 'goerli' | 'kovan' | 'localhost';
   mnemonic: string;
   providerUrl: string;
   gcpProjectId?: string;
