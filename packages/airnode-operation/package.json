@@ -32,7 +32,7 @@
     "@api3/airnode-protocol": "^0.4.0",
     "ethers": "^5.4.5",
     "express": "^4.17.1",
-    "hardhat": "^2.6.1",
+    "hardhat": "^2.6.5",
     "morgan": "^1.10.0",
     "pm2": "^5.1.2"
   },
