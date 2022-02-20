@@ -12,7 +12,7 @@ mockConsole();
 describe('startCoordinator', () => {
   it('starts the coordinator', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     // @ts-ignore
@@ -26,7 +26,7 @@ describe('startCoordinator', () => {
 describe('initializeProvider', () => {
   it('returns the provider state', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
@@ -39,7 +39,7 @@ describe('initializeProvider', () => {
 
   it('handles initialize provider errors', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderState();
@@ -55,7 +55,7 @@ describe('initializeProvider', () => {
 describe('callApi', () => {
   it('returns the API response', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const callResponse = {
@@ -75,7 +75,7 @@ describe('callApi', () => {
 describe('processTransactions', () => {
   it('processes provider requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderSponsorState();
@@ -88,7 +88,7 @@ describe('processTransactions', () => {
 
   it('handles process provider requests errors', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const state = fixtures.buildEVMProviderSponsorState();
