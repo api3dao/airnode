@@ -87,7 +87,7 @@
     "eslint": "^7.32.0",
     "eslint-plugin-functional": "^3.5.0",
     "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-jest": "^26.1.1",
     "husky": "^7.0.2",
     "lerna": "^4.0.0",
     "prettier": "^2.3.2",
