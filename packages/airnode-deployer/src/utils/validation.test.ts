@@ -1,9 +1,12 @@
+import { mockConsole } from '../../test/mock-utils';
 import fs from 'fs';
 import { loadConfig } from './files';
 import * as fixtures from '../../test/fixtures';
 
+mockConsole();
+
 describe('deployer-validation', () => {
-  it('loads the config without validation', () => {
+  it('loads the config without validation', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
 
@@ -11,7 +14,7 @@ describe('deployer-validation', () => {
     expect(notThrowingFunction).not.toThrow();
   });
 
-  it('loads the config with validation and fails because the config is invalid', () => {
+  it('loads the config with validation and fails because the config is invalid', async () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
 

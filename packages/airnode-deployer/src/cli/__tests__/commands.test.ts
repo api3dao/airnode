@@ -1,3 +1,5 @@
+import { mockConsole } from '../../../test/mock-utils';
+
 const deployAirnodeSpy = jest.fn();
 const removeAirnodeSpy = jest.fn();
 
@@ -13,6 +15,7 @@ jest.mock('../../utils', () => ({
   ...jest.requireActual('../../utils'),
   writeReceiptFile: jest.fn(),
 }));
+mockConsole();
 
 import { join } from 'path';
 import fs from 'fs';
