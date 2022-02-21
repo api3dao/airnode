@@ -39,17 +39,17 @@
     "chai": "^4.3.4",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.4.0",
-    "hardhat": "^2.6.0",
+    "hardhat": "^2.6.5",
     "hardhat-deploy": "^0.9.0",
     "hardhat-gas-reporter": "^1.0.4",
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
-    "ts-node": "^10.4.0",
+    "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
-    "typescript": "^4.3.5"
+    "typescript": "^4.2.4"
   },
   "dependencies": {
-    "ethers": "^5.4.4"
+    "ethers": "^5.4.5"
   }
 }
