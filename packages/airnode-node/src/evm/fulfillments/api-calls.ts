@@ -4,7 +4,7 @@ import { applyTransactionResult } from './requests';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
-import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
+import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH, GAS_LIMIT } from '../../constants';
 import {
   ApiCall,
   Request,
@@ -16,8 +16,6 @@ import {
 } from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { decodeRevertString } from '../utils';
-
-const GAS_LIMIT = 500_000;
 
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
 

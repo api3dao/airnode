@@ -19,7 +19,7 @@ import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { GasTarget, RequestErrorMessage, RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
-import { MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
+import { MAXIMUM_ONCHAIN_ERROR_LENGTH, GAS_LIMIT } from '../../constants';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
 const config = fixtures.buildConfig();
@@ -111,7 +111,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `successfully tests and submits a fulfill transaction for pending requests - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: true, callData: '0x' });
         fulfillMock.mockResolvedValueOnce({ hash: '0xtransactionId' });
@@ -164,7 +164,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `returns an error if the fulfill transaction for pending requests fails - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: true, callData: '0x' });
         (fulfillMock as any).mockRejectedValueOnce(new Error('Server did not respond'));
@@ -221,7 +221,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction if the fulfill call would revert with empty string - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: false, callData: '0x' });
         (failMock as jest.Mock).mockResolvedValueOnce({ hash: '0xfailtransaction' });
@@ -274,7 +274,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction if the fulfill call would revert with a revert string - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({
           callSuccess: false,
@@ -331,7 +331,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `does nothing if the fulfill test returns nothing - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce(null);
         const apiCall = fixtures.requests.buildApiCall({
@@ -373,7 +373,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `returns an error if everything fails - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
         staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
@@ -437,7 +437,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction with errorMessage for errored requests - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         failMock.mockResolvedValueOnce({ hash: '0xfailtransaction' });
         const apiCall = fixtures.requests.buildApiCall({
@@ -479,7 +479,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction with a trimmed errorMessage for errored requests - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         const longError = 'This very long error message should get trimmed'.repeat(10);
         const trimmedError = longError.substring(0, MAXIMUM_ONCHAIN_ERROR_LENGTH - 3).concat('...');
@@ -525,7 +525,7 @@ describe('submitApiCall', () => {
     test.each([gasPrice, gasPriceFallback])(
       `returns an error if the error transaction fails - %#`,
       async (gasTarget: GasTarget) => {
-        const txOpts = { gasLimit: 500_000, ...gasTarget, nonce: 5 };
+        const txOpts = { gasLimit: GAS_LIMIT, ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         failMock.mockRejectedValueOnce(new Error('Server did not respond'));
         // We need to do this twice because promise-utils will retry
