@@ -1,4 +1,4 @@
-import { NodeSettings } from '@api3/airnode-validator';
+import { NodeSettings } from '@api3/airnode-node';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
