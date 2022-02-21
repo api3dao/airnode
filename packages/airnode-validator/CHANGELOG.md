@@ -1,5 +1,11 @@
 # @api3/airnode-validator
 
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,5 +1,20 @@
 # @api3/airnode-node
 
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#840](https://github.com/api3dao/airnode/pull/840) [`8ef930cb`](https://github.com/api3dao/airnode/commit/8ef930cbb89a2a4fe0d4ff13d553cb2d9f9e5ba4) Thanks [@amarthadan](https://github.com/amarthadan)! - Move heartbeat API key to a request header
+
+* Updated dependencies [[`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc)]:
+  - @api3/airnode-abi@0.4.1
+  - @api3/airnode-adapter@0.4.1
+  - @api3/airnode-ois@0.4.1
+  - @api3/airnode-protocol@0.4.1
+  - @api3/airnode-validator@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
