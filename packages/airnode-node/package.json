@@ -30,7 +30,7 @@
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.992.0",
     "date-fns": "^2.16.1",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.0",
     "ethers": "^5.4.5",
     "google-auth-library": "^7.10.2",
     "lodash": "^4.17.21",
