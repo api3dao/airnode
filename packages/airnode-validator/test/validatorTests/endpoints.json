@@ -246,10 +246,11 @@
   },
   "chains": [],
   "nodeSettings": {
-    "nodeVersion": "0.4.0",
+    "nodeVersion": "0.5.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "us-east-1"
+      "region": "us-east-1",
+      "disableConcurrencyReservations": false
     },
     "stage": "testnet",
     "logFormat": "json",

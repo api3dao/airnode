@@ -33,8 +33,8 @@ export const EVM_PROVIDER_TIMEOUT = 10_000;
 // The maximum amount of time the "initialize provider" worker is allowed before being timed out
 export const WORKER_PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
-// The maximum amount of time the "process requests" worker is allowed before being timed out
-export const WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT = 10_000;
+// The maximum amount of time the "process transactions" worker is allowed before being timed out
+export const WORKER_PROCESS_TRANSACTIONS_TIMEOUT = 10_000;
 
 // The maximum amount of time the "call API" worker is allowed before being timed out
 export const WORKER_CALL_API_TIMEOUT = 30_000;

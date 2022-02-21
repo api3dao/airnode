@@ -36,7 +36,6 @@ export enum RequestErrorMessage {
   NoMatchingAggregatedApiCall = 'No matching aggregated API call',
   ApiCallFailed = 'API call failed',
   ReservedParametersInvalid = 'Reserved parameters are invalid',
-  ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
@@ -47,9 +46,6 @@ export enum RequestStatus {
   // Request was already processed by previous Airnode run (fulfilled or failed)
   // TODO: We should just have "Processed" status or just drop these immediately
   Fulfilled = 'Fulfilled',
-  // The fulfillment for this request was submitted on chain during the current Airnode run
-  // TODO: Not really needed for anything
-  Submitted = 'Submitted',
   // Request is not valid and should be ignored (e.g. sponsor and sponsorWallet do not match).
   // Any request after the ignored request is processed as if this request didn't exist at all
   // TODO: We should just drop these requests immediately
@@ -287,11 +283,26 @@ export interface WorkerOptions {
   readonly stage: string;
 }
 
-export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+export interface InitializeProviderPayload {
+  readonly functionName: 'initializeProvider';
+  readonly state: ProviderState<EVMProviderState>;
+}
+
+export interface ProcessTransactionsPayload {
+  readonly functionName: 'processTransactions';
+  readonly state: ProviderState<EVMProviderSponsorState>;
+}
+
+export interface CallApiPayload {
+  readonly functionName: 'callApi';
+  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly logOptions: LogOptions;
+}
+
+export type WorkerPayload = InitializeProviderPayload | ProcessTransactionsPayload | CallApiPayload;
 
 export interface WorkerParameters extends WorkerOptions {
-  readonly functionName: WorkerFunctionName;
-  readonly payload: any;
+  readonly payload: WorkerPayload;
 }
 
 export interface WorkerResponse {
@@ -441,6 +452,7 @@ export interface ChainConfig {
 export interface HttpGateway {
   readonly enabled: boolean;
   readonly apiKey?: string;
+  readonly maxConcurrency?: number;
 }
 
 export interface Heartbeat {
@@ -457,12 +469,14 @@ export interface LocalProvider {
 export interface AwsCloudProvider {
   readonly type: 'aws';
   readonly region: string;
+  readonly disableConcurrencyReservations: boolean;
 }
 
 export interface GcpCloudProvider {
   readonly type: 'gcp';
   readonly region: string;
   readonly projectId: string;
+  readonly disableConcurrencyReservations: boolean;
 }
 
 export type CloudProvider = AwsCloudProvider | GcpCloudProvider;

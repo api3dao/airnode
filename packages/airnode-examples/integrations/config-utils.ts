@@ -18,6 +18,7 @@ export const createCloudProviderConfiguration = (generateExampleFile: boolean): 
       return {
         type: airnodeType,
         region: 'us-east-1',
+        disableConcurrencyReservations: false,
       };
     case 'local':
       return {
@@ -28,6 +29,7 @@ export const createCloudProviderConfiguration = (generateExampleFile: boolean): 
         type: airnodeType,
         region: 'us-east1',
         projectId: integrationInfo.gcpProjectId!,
+        disableConcurrencyReservations: false,
       };
     }
   }
@@ -44,7 +46,7 @@ export const getChainId = async (generateExampleFile: boolean) =>
   (generateExampleFile ? 31337 : await readChainId()).toString();
 
 export const createNodeVersion = () => {
-  return '0.4.0';
+  return '0.5.0';
 };
 
 export const generateConfigFile = (dirname: string, config: Config, generateExampleFile: boolean) => {

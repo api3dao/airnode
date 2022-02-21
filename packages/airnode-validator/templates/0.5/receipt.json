@@ -1,0 +1,79 @@
+{
+  "airnodeWallet": {
+    "airnodeAddress": {
+      "__regexp": "^0x[a-zA-Z0-9]{40}$"
+    },
+    "airnodeAddressShort": {
+      "__regexp": "^[a-z0-9]{7}$"
+    },
+    "airnodeXpub": {
+      "__regexp": "^xpub[a-zA-Z0-9]{107}"
+    }
+  },
+  "deployment": {
+    "airnodeAddressShort": {
+      "__conditions": [
+        {
+          "__if": {
+            "__this": ".*"
+          },
+          "__rootThen": {
+            "airnodeWallet": {
+              "airnodeAddressShort": {
+                "__regexp": "^__match$",
+                "__catch": {
+                  "__level": "error"
+                }
+              }
+            }
+          },
+          "__catch": {
+            "__message": "airnodeAddressShort should be the same in deployment and airnodeWallet"
+          }
+        }
+      ]
+    },
+    "cloudProvider": {
+      "type": {
+        "__regexp": "^(aws|gcp)$",
+        "__catch": {
+          "__message": "__fullPath: Available cloud providers are only aws or gcp"
+        }
+      },
+      "region": {
+        "__type": "string"
+      },
+      "disableConcurrencyReservations": {
+        "__type": "boolean"
+      },
+      "__optional": {
+        "projectId": {
+          "__type": "string"
+        }
+      }
+    },
+    "stage": {
+      "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
+      "__catch": {
+        "__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
+      }
+    },
+    "nodeVersion": {
+      "__regexp": "^0\\.5\\.[0-9]+$",
+      "__catch": {
+        "__level": "error",
+        "__message": "__fullPath: nodeVersion should be set to 0.5.*"
+      }
+    }
+  },
+  "api": {
+    "__optional": {
+      "heartbeatId": {
+        "__regexp": "^[a-f0-9]{12}$"
+      },
+      "httpGatewayUrl": {
+        "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
+      }
+    }
+  }
+}

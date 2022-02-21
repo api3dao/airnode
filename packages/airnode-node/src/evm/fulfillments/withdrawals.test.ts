@@ -66,7 +66,6 @@ describe('submitWithdrawal', () => {
       expect(data).toEqual({
         ...withdrawal,
         fulfillment: { hash: '0xsuccessful' },
-        status: RequestStatus.Submitted,
       });
       expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
       expect(fulfillWithdrawalMock).toHaveBeenCalledWith(

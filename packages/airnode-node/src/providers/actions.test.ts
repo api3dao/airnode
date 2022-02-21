@@ -30,7 +30,7 @@ import { ethers } from 'ethers';
 import { range } from 'lodash';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
+import { ChainConfig, GroupedRequests } from '../types';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
@@ -239,7 +239,6 @@ describe('processRequests', () => {
         ...apiCall,
         fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
         nonce: 5,
-        status: RequestStatus.Submitted,
       }))
     );
   });

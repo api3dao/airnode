@@ -1,6 +1,16 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
-import { handlers, logger, utils, providers, config } from '@api3/airnode-node';
+import {
+  handlers,
+  logger,
+  utils,
+  providers,
+  config,
+  InitializeProviderPayload,
+  CallApiPayload,
+  ProcessTransactionsPayload,
+  WorkerPayload,
+} from '@api3/airnode-node';
 import { loadConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
@@ -12,8 +22,24 @@ export async function startCoordinator(_req: Request, res: Response) {
   res.status(200).send(response);
 }
 
-export async function initializeProvider(req: Request, res: Response) {
-  const stateWithConfig = { ...req.body.state, config: parsedConfig };
+export async function run(req: Request, res: Response) {
+  const payload: WorkerPayload = req.body;
+
+  switch (payload.functionName) {
+    case 'initializeProvider':
+      return initializeProvider(payload, res);
+    case 'callApi':
+      return callApi(payload, res);
+    case 'processTransactions':
+      return processTransactions(payload, res);
+  }
+}
+
+// TODO: Refactor handlers so they are common for all the cloud providers
+// https://api3dao.atlassian.net/browse/AN-527
+
+async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
+  const stateWithConfig = { ...payload.state, config: parsedConfig };
 
   const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
@@ -29,16 +55,16 @@ export async function initializeProvider(req: Request, res: Response) {
   res.status(200).send(body);
 }
 
-export async function callApi(req: Request, res: Response) {
-  const { aggregatedApiCall, logOptions } = req.body;
+async function callApi(payload: CallApiPayload, res: Response) {
+  const { aggregatedApiCall, logOptions } = payload;
   const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
 }
 
-export async function processProviderRequests(req: Request, res: Response) {
-  const stateWithConfig = { ...req.body.state, config: parsedConfig };
+async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
+  const stateWithConfig = { ...payload.state, config: parsedConfig };
 
   const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {

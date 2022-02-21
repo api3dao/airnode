@@ -8,7 +8,9 @@ import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({
+      cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
+    });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
@@ -19,18 +21,20 @@ describe('spawnNewProvider', () => {
       cloudProvider: {
         type: 'aws',
         region: 'us-east-1',
+        disableConcurrencyReservations: false,
       },
-      functionName: 'initializeProvider',
-      payload: { state },
+      payload: { state, functionName: 'initializeProvider' },
       airnodeAddressShort: '19255a4',
       stage: 'test',
     });
   });
 });
 
-describe('spawnProviderRequestProcessor', () => {
+describe('spawnTransactionsProcessor', () => {
   it('returns an EVM provider state for AWS', async () => {
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'aws', region: 'us-east-1' } });
+    const workerOpts = fixtures.buildWorkerOptions({
+      cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
+    });
     const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
@@ -41,9 +45,9 @@ describe('spawnProviderRequestProcessor', () => {
       cloudProvider: {
         type: 'aws',
         region: 'us-east-1',
+        disableConcurrencyReservations: false,
       },
-      functionName: 'processProviderRequests',
-      payload: { state },
+      payload: { state, functionName: 'processTransactions' },
       airnodeAddressShort: '19255a4',
       stage: 'test',
     });
