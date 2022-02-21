@@ -13,13 +13,21 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
 describe('processHttpSignedRelayedRequests', () => {
   it('returns an error if no endpoint trigger with given ID is found', async () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
-    const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), nonExistentEndpointId, {});
+    const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), nonExistentEndpointId, {
+      relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
+      id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      parameters: {},
+    });
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${nonExistentEndpointId}'`));
   });
 
   it('returns an error if no endpoint with given ID is found', async () => {
-    const [err, res] = await processHttpSignedRelayedRequest(buildConfigWithEndpoint(), ENDPOINT_ID, {});
+    const [err, res] = await processHttpSignedRelayedRequest(buildConfigWithEndpoint(), ENDPOINT_ID, {
+      relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
+      id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      parameters: {},
+    });
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`No endpoint definition for endpoint ID '${ENDPOINT_ID}'`));
   });
@@ -29,14 +37,22 @@ describe('processHttpSignedRelayedRequests', () => {
     const config = buildConfigWithEndpoint(endpoint);
     config.triggers.httpSignedRelayed = [];
 
-    const [err, res] = await processHttpSignedRelayedRequest(config, ENDPOINT_ID, {});
+    const [err, res] = await processHttpSignedRelayedRequest(config, ENDPOINT_ID, {
+      relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
+      id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      parameters: {},
+    });
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${ENDPOINT_ID}'`));
   });
 
+  // TODO: Replace with just one test when we validate this using zod
   describe('returns an error for missing parameters', () => {
     it('missing relayer parameter', async () => {
-      const parameters = { _id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf' };
+      const parameters = {
+        id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+        parameters: {},
+      } as any;
       const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
       expect(res).toBeNull();
@@ -44,13 +60,24 @@ describe('processHttpSignedRelayedRequests', () => {
     });
 
     it('missing id parameter', async () => {
-      const parameters = { _relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706' };
+      const parameters = { relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706', parameters: {} } as any;
       const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
       expect(res).toBeNull();
       expect(err).toEqual(
         new Error('You must specify "id" for the requestId/subscriptionId in the request parameters.')
       );
+    });
+
+    it('missing parameters parameter', async () => {
+      const parameters = {
+        id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+        relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
+      } as any;
+      const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
+
+      expect(res).toBeNull();
+      expect(err).toEqual(new Error('You must specify "parameters" for the API request in the request parameters.'));
     });
   });
 
@@ -63,9 +90,9 @@ describe('processHttpSignedRelayedRequests', () => {
     const parameters = {
       _type: 'int256',
       _path: 'price',
-      from: 'ETH',
-      _relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
-      _id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      parameters: { from: 'ETH' },
+      relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
+      id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
     };
     const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
@@ -74,7 +101,7 @@ describe('processHttpSignedRelayedRequests', () => {
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
       id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
-      parameters,
+      parameters: parameters.parameters,
     });
 
     expect(err).toBeNull();

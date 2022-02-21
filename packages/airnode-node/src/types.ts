@@ -279,6 +279,8 @@ export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface SignedRelayedAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-relayed-gateway';
+  id: string;
+  relayer: string;
 }
 
 // ===========================================

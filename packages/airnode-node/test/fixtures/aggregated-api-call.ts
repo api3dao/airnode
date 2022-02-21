@@ -60,6 +60,7 @@ export function buildAggregatedSignedRelayedApiCall(
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
+    relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
     ...params,
