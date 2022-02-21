@@ -76,7 +76,7 @@ const questions: PromptObject[] = [
         case 'ropsten':
         case 'goerli':
         case 'kovan':
-          return getExampleUrl(values.network);
+          return getExamplePocketNetwork(values.network);
         case 'polygon-mumbai':
           return `https://polygon-mumbai.g.alchemy.com/v2/`;
         default:
