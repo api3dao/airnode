@@ -24,7 +24,7 @@ export const chainContractsSchema = z.object({
 });
 
 export const providerSchema = z.object({
-  url: z.string(),
+  url: z.string().url(),
 });
 
 export const priorityFeeSchema = z.object({
