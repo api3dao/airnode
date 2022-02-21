@@ -67,7 +67,7 @@ const questions: PromptObject[] = [
     initial: (_prev, values) => {
       // Hardhat network runs by default run on http://127.0.0.1:8545/
 
-      const getExampleUrl = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
+      const getExamplePocketNetwork = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
 
       switch (values.network) {
         case 'localhost':
