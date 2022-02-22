@@ -48,7 +48,8 @@
     "docker:build:artifacts": "docker rmi --force api3/airnode-artifacts && docker build --tag api3/airnode-artifacts:latest --file docker/Dockerfile .",
     "docker:build:deployer": "docker build --tag api3/airnode-deployer:latest --file packages/airnode-deployer/docker/Dockerfile .",
     "docker:build:node": "docker build --tag api3/airnode-client:latest --file packages/airnode-node/docker/Dockerfile .",
-    "lint": "yarn run lint:eslint && yarn run lint:solhint && yarn prettier:check",
+    "lint": "yarn run lint:eslint && yarn run lint:solhint && yarn prettier:check && yarn lint:deps-versions",
+    "lint:deps-versions": "syncpack list-mismatches",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
@@ -76,32 +77,24 @@
     "test:node:watch": "cd packages/airnode-node && yarn run test:watch",
     "test:validator": "(cd packages/airnode-validator && yarn run test)"
   },
-  "dependencies": {
-    "ethers": "^5.4.5",
-    "lodash": "^4.17.21"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.1",
     "@changesets/cli": "^2.17.0",
-    "@types/jest": "^27.0.2",
-    "@types/lodash": "^4.14.165",
-    "@types/node": "^15.12.2",
+    "@types/node": "^17.0.18",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
-    "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-functional": "^3.5.0",
     "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-jest": "^26.1.1",
     "husky": "^7.0.2",
-    "jest": "^26.4.2",
     "lerna": "^4.0.0",
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.18",
-    "rimraf": "^3.0.2",
     "solhint": "^3.3.6",
-    "ts-jest": "^26.3.0",
-    "ts-node": "^10.0.0",
+    "syncpack": "^6.2.0",
+    "ts-node": "^10.1.0",
     "typescript": "^4.2.4"
   }
 }
