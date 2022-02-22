@@ -6,17 +6,21 @@ const DIR = 'packages/airnode-deployer/terraform';
 const CMD_CHECK = `${BINARY} fmt -list=true -write=false -recursive ${DIR}`;
 const CMD_WRITE = `${BINARY} fmt -list=true -write=true -recursive ${DIR}`;
 
+const EC_ARGUMENTS = 22; // Invalid arguments
+const EC_TERRAFORM = 23; // Terraform command failed
+const EC_FORMATTING = 24; // Formatting issue
+
 if (process.argv.length !== 3) {
   console.error('Wrong script usage!');
   console.error('terraform-fmt.ts check | write');
-  exit(3);
+  exit(EC_ARGUMENTS);
 }
 
 const command = process.argv[2];
 
 if (!['check', 'write'].includes(command)) {
   console.error(`Unknown command '${command}'`);
-  exit(3);
+  exit(EC_ARGUMENTS);
 }
 
 exec(`command -v ${BINARY}`, (err, _stdout, _stderr) => {
@@ -33,7 +37,7 @@ exec(`command -v ${BINARY}`, (err, _stdout, _stderr) => {
         console.log('Found unformatted TF files:');
         console.log(stdout);
         // We have unformatted files, we have to fail
-        exit(1);
+        exit(EC_FORMATTING);
       }
 
       console.log('All TF files formatted correctly!');
@@ -61,6 +65,6 @@ function failOnError(message: string, err: ExecException | null, stderr: string)
     console.error(message);
     console.error(err);
     console.error(stderr);
-    exit(2);
+    exit(EC_TERRAFORM);
   }
 }
