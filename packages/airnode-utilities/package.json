@@ -1,0 +1,25 @@
+{
+  "name": "@api3/airnode-utilities",
+  "version": "0.5.0",
+  "description": "Airnode utilities",
+  "homepage": "https://github.com/api3dao/airnode#readme",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index",
+  "main": "dist/index",
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rimraf -rf ./dist *.tgz",
+    "compile": "tsc -p tsconfig.build.json",
+    "pack": "yarn pack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^17.0.18",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.2.4"
+  }
+}

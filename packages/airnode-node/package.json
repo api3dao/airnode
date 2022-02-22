@@ -26,6 +26,7 @@
     "@api3/airnode-adapter": "^0.4.0",
     "@api3/airnode-ois": "^0.4.0",
     "@api3/airnode-protocol": "^0.4.0",
+    "@api3/airnode-utilities": "^0.5.0",
     "@api3/airnode-validator": "^0.4.0",
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.992.0",

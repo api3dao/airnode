@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import omitBy from 'lodash/omitBy';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { log } from '@api3/airnode-utilities';
 import * as local from '../workers/local-handlers';
 
 // yargs prepares the args object with both long and short version of arguments.
@@ -32,12 +33,12 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
-      console.debug(`Running API test call with arguments ${longArguments(args)}`);
+      log(`Running API test call with arguments ${longArguments(args)}`);
       const parameters = JSON.parse(args.parameters);
       if (!parameters) {
         throw new Error('Missing request parameters');
       }
-      console.log(JSON.stringify(await local.testApi(args['endpoint-id'], parameters)));
+      log(JSON.stringify(await local.testApi(args['endpoint-id'], parameters)));
     }
   )
   .help()

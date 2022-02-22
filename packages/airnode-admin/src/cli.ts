@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
+import { log } from '@api3/airnode-utilities';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -156,7 +157,7 @@ yargs
     },
     async (args) => {
       const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
-      console.log(`Airnode xpub: ${xpub}`);
+      log(`Airnode xpub: ${xpub}`);
     }
   )
   .command(
@@ -169,9 +170,9 @@ yargs
     async (args) => {
       try {
         admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
-        console.log(`Airnode xpub is: VALID`);
+        log(`Airnode xpub is: VALID`);
       } catch {
-        console.log(`Airnode xpub is: INVALID`);
+        log(`Airnode xpub is: INVALID`);
       }
     }
   )
@@ -189,7 +190,7 @@ yargs
         args['airnode-address'],
         args['sponsor-address']
       );
-      console.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
+      log(`Sponsor wallet address: ${sponsorWalletAddress}`);
     }
   )
   .command(
@@ -208,7 +209,7 @@ yargs
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address'], overrides);
-      console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
   .command(
@@ -227,9 +228,7 @@ yargs
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address'], overrides);
-      console.log(
-        `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
-      );
+      log(`Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
   .command(
@@ -249,7 +248,7 @@ yargs
         args['sponsor-address'],
         args['requester-address']
       );
-      console.log(`Requester address sponsored: ${status}`);
+      log(`Requester address sponsored: ${status}`);
     }
   )
   .command(
@@ -273,7 +272,7 @@ yargs
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       const templateId = await admin.createTemplate(airnodeRrp, template, overrides);
-      console.log(`Template ID: ${templateId}`);
+      log(`Template ID: ${templateId}`);
     }
   )
   .command(
@@ -292,7 +291,7 @@ yargs
         airnodeRrpAddress: args['airnode-rrp-address'],
       });
       const parameters = await admin.getTemplate(airnodeRrp, args['template-id']);
-      console.log(toJSON(parameters));
+      log(toJSON(parameters));
     }
   )
   .command(
@@ -318,7 +317,7 @@ yargs
         args['sponsor-wallet-address'],
         overrides
       );
-      console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
+      log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
   .command(
@@ -334,9 +333,9 @@ yargs
       });
       const response = await admin.checkWithdrawalRequest(airnodeRrp, args['withdrawal-request-id']);
       if (response) {
-        console.log(`Withdrawn amount: ${response.amount}`);
+        log(`Withdrawn amount: ${response.amount}`);
       } else {
-        console.log(`Withdrawal request is not fulfilled yet`);
+        log(`Withdrawal request is not fulfilled yet`);
       }
     }
   )
@@ -357,7 +356,7 @@ yargs
     },
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args['ois-title'], args['endpoint-name']);
-      console.log(`Endpoint ID: ${endpointId}`);
+      log(`Endpoint ID: ${endpointId}`);
     }
   )
   .command(
@@ -385,7 +384,7 @@ yargs
         args['expiration-timestamp'],
         overrides
       );
-      console.log(
+      log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -416,7 +415,7 @@ yargs
         args['expiration-timestamp'],
         overrides
       );
-      console.log(
+      log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -447,7 +446,7 @@ yargs
         args['indefinite-whitelist-status'],
         overrides
       );
-      console.log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
+      log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
     }
   )
   .command(
@@ -467,7 +466,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      console.log(toJSON(whitelistStatus));
+      log(toJSON(whitelistStatus));
     }
   )
   .command(
@@ -487,7 +486,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      console.log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
+      log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
     }
   )
   .command(
@@ -501,7 +500,7 @@ yargs
         '',
         mnemonic,
       ];
-      lines.forEach((line) => console.log(line));
+      lines.forEach(log);
     }
   )
   .command(
@@ -510,15 +509,16 @@ yargs
     { 'airnode-mnemonic': airnodeMnemonic },
     async (args) => {
       const airnodeAddress = await admin.deriveAirnodeAddress(args['airnode-mnemonic']);
-      console.log(`Airnode address: ${airnodeAddress}`);
+      log(`Airnode address: ${airnodeAddress}`);
     }
   )
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
-    if (message) console.log(message);
-    else if (err instanceof Error) console.log(`Command failed with unexpected error:\n\n${err.message}`);
-    else console.log(`Command failed with unexpected error:\n\n${err}`);
+    if (message) log(message);
+    else {
+      log(`Command failed with unexpected error:\n\n${err.message}`);
+    }
 
     exit(1);
   })

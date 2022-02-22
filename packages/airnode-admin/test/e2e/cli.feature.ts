@@ -9,6 +9,7 @@ import {
   AccessControlRegistryFactory,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
+import { log } from '@api3/airnode-utilities';
 import * as admin from '../../src';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
@@ -45,7 +46,7 @@ describe('CLI', () => {
       })
       .join(' ');
     const formattedCommand = `${command} ${formattedArgs}`;
-    if (DEBUG_COMMANDS) console.log(`Executing command: ${formattedCommand}`);
+    if (DEBUG_COMMANDS) log(`Executing command: ${formattedCommand}`);
     try {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
     } catch (e: any) {

@@ -1,8 +1,9 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { log } from '@api3/airnode-utilities';
 import * as utils from './utils';
 import { validate, validateWithTemplate } from '../validator';
-import { Log, Result } from '../types';
+import { Log } from '../types';
 
 const messages: Log[] = [];
 
@@ -26,12 +27,8 @@ const args = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-let res: Result;
+const res = utils.parseTemplateName(args.template, messages)
+  ? validateWithTemplate(args.specification, args.template, args.secrets)
+  : validate(args.specification, args.template, args.secrets);
 
-if (utils.parseTemplateName(args.template, messages)) {
-  res = validateWithTemplate(args.specification, args.template, args.secrets);
-} else {
-  res = validate(args.specification, args.template, args.secrets);
-}
-
-console.log(JSON.stringify(res, null, 2));
+log(JSON.stringify(res, null, 2));

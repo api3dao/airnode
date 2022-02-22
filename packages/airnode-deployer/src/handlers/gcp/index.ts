@@ -44,7 +44,6 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
   const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
-    console.log(err!.toString());
     const errorLog = logger.pend('ERROR', msg, err);
     const body = { ok: false, errorLog };
     res.status(500).send(body);
