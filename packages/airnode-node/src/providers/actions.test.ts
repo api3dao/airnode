@@ -80,7 +80,7 @@ const chains: ChainConfig[] = [
     },
   },
 ];
-const original = fs.readFileSync;
+const originalFs = fs.readFileSync;
 
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
@@ -90,7 +90,7 @@ describe('initialize', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');

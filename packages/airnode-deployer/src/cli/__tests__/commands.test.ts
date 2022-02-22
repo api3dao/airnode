@@ -19,7 +19,7 @@ import fs from 'fs';
 import { deploy, remove, removeWithReceipt } from '../commands';
 import { Receipt } from '../../types';
 
-const original = fs.readFileSync;
+const originalFs = fs.readFileSync;
 
 describe('deployer commands', () => {
   it('can deploy Airnode', async () => {
@@ -69,7 +69,7 @@ describe('deployer commands', () => {
       if (path.includes('mockedReceiptFile')) {
         return JSON.stringify(receipt, null, 2);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     await removeWithReceipt(receiptFile);
 

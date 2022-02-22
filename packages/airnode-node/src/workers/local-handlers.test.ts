@@ -6,7 +6,7 @@ import { scrub } from '../providers/state';
 import { PendingLog } from '../types';
 import * as fixtures from '../../test/fixtures';
 
-const original = fs.readFileSync;
+const originalFs = fs.readFileSync;
 
 describe('startCoordinator', () => {
   it('starts the coordinator', async () => {
@@ -16,7 +16,7 @@ describe('startCoordinator', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -36,7 +36,7 @@ describe('initializeProvider', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -55,7 +55,7 @@ describe('initializeProvider', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -77,7 +77,7 @@ describe('callApi', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -103,7 +103,7 @@ describe('processTransactions', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -122,7 +122,7 @@ describe('processTransactions', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 

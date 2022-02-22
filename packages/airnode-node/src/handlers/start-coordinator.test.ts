@@ -30,7 +30,7 @@ import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
-const original = fs.readFileSync;
+const originalFs = fs.readFileSync;
 
 describe('startCoordinator', () => {
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
@@ -51,7 +51,7 @@ describe('startCoordinator', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
@@ -110,7 +110,7 @@ describe('startCoordinator', () => {
       if (path.includes('config.json')) {
         return JSON.stringify(config);
       }
-      return original(...args);
+      return originalFs(...args);
     });
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');

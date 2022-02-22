@@ -5,6 +5,7 @@ import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';
 
+const originalFs = fs.readFileSync;
 export const increaseTestTimeout = (timeoutMs = 120_000) => jest.setTimeout(timeoutMs);
 
 export const deployAirnodeAndMakeRequests = async (filename: string, requests?: Request[]) => {
@@ -20,7 +21,13 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
   });
   // TODO: This is caused by duplicated mnemonic in Airnode state
   (config.nodeSettings as any).airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+  jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
+    const path = args[0].toString();
+    if (path.includes('config.json')) {
+      return JSON.stringify(config);
+    }
+    return originalFs(...args);
+  });
   jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
   return { deployment, provider: buildProvider(), config };
