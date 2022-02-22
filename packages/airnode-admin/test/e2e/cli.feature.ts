@@ -211,6 +211,23 @@ describe('CLI', () => {
       expect(sponsored).toBe(true);
     });
 
+    it('uses transaction overrides', async () => {
+      const requesterAddress = bob.address;
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 1],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow('Transaction requires at least 21560 gas but got 1');
+    });
+
     it('stops sponsoring requester', async () => {
       const sponsorAddress = alice.address;
       const requesterAddress = bob.address;
@@ -373,6 +390,25 @@ describe('CLI', () => {
       expect(() =>
         execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--provider-url', PROVIDER_URL])
       ).toThrow('Unknown arguments: mnemonic, provider-url, providerUrl, not-existent-command');
+    });
+
+    it('mixes legacy and EIP-1559 arguments', async () => {
+      const requesterAddress = bob.address;
+
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 234000],
+          ['--gas-price', 20],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow(`eip-1559 transaction do not support gasPrice`);
     });
   });
 
