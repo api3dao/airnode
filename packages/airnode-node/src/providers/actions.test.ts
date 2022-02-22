@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockReadFileSync } from '../../test/mock-utils';
 
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
@@ -24,7 +24,6 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-import fs from 'fs';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
 import { range } from 'lodash';
@@ -80,18 +79,11 @@ const chains: ChainConfig[] = [
     },
   },
 ];
-const originalFs = fs.readFileSync;
 
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
-    jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
-      const path = args[0].toString();
-      if (path.includes('config.json')) {
-        return JSON.stringify(config);
-      }
-      return originalFs(...args);
-    });
+    mockReadFileSync('config.json', config);
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumber.mockResolvedValueOnce(123456);

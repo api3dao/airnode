@@ -1,3 +1,4 @@
+import { mockReadFileSync } from '../../../test/mock-utils';
 const deployAirnodeSpy = jest.fn();
 const removeAirnodeSpy = jest.fn();
 
@@ -15,11 +16,8 @@ jest.mock('../../utils', () => ({
 }));
 
 import { join } from 'path';
-import fs from 'fs';
 import { deploy, remove, removeWithReceipt } from '../commands';
 import { Receipt } from '../../types';
-
-const originalFs = fs.readFileSync;
 
 describe('deployer commands', () => {
   it('can deploy Airnode', async () => {
@@ -64,13 +62,7 @@ describe('deployer commands', () => {
         stage: 'stage',
       },
     };
-    jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
-      const path = args[0].toString();
-      if (path.includes('mockedReceiptFile')) {
-        return JSON.stringify(receipt, null, 2);
-      }
-      return originalFs(...args);
-    });
+    mockReadFileSync('mockedReceiptFile', receipt, { replacer: null, space: 2 });
     await removeWithReceipt(receiptFile);
 
     expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
