@@ -51,5 +51,5 @@ export const BASE_FEE_MULTIPLIER = 2;
 // The maximum character length of an error message sent on-chain
 export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
 
-// The default gas limit
-export const GAS_LIMIT = 500_000;
+// The default gas limit for API fulfillment transactions
+export const API_CALL_FULFILLMENT_GAS_LIMIT = 500_000;

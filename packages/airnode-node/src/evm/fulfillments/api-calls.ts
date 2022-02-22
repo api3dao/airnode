@@ -4,7 +4,11 @@ import { applyTransactionResult } from './requests';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
-import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH, GAS_LIMIT } from '../../constants';
+import {
+  DEFAULT_RETRY_TIMEOUT_MS,
+  MAXIMUM_ONCHAIN_ERROR_LENGTH,
+  API_CALL_FULFILLMENT_GAS_LIMIT,
+} from '../../constants';
 import {
   ApiCall,
   Request,
@@ -59,7 +63,7 @@ async function testFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: GAS_LIMIT,
+        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -88,7 +92,7 @@ async function submitFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: GAS_LIMIT,
+        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -172,7 +176,7 @@ async function submitFail(
       request.fulfillFunctionId,
       trimmedErrorMessage,
       {
-        gasLimit: GAS_LIMIT,
+        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
