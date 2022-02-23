@@ -3,6 +3,7 @@ import { exit } from 'process';
 
 const BINARY = 'terraform';
 const DIR = 'packages/airnode-deployer/terraform';
+const BINARY_TEST = `${BINARY} -version`;
 const CMD_CHECK = `${BINARY} fmt -list=true -write=false -recursive ${DIR}`;
 const CMD_WRITE = `${BINARY} fmt -list=true -write=true -recursive ${DIR}`;
 
@@ -23,7 +24,7 @@ if (!['check', 'write'].includes(command)) {
   exit(EC_ARGUMENTS);
 }
 
-exec(`command -v ${BINARY}`, (err, _stdout, _stderr) => {
+exec(BINARY_TEST, (err, _stdout, _stderr) => {
   if (err) {
     console.log('Missing Terraform binary, skipping formatting.');
     exit();
