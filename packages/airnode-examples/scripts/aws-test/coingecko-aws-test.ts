@@ -6,7 +6,7 @@ import { formatSecrets, cliPrint, runAndHandleErrors, runShellCommand } from '..
 interface Secrets {
   // Make sure the mnemonic is funded
   MNEMONIC: string;
-  RINKEBY_PROVIDER_URL: string;
+  PROVIDER_URL: string;
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_SESSION_TOKEN?: string;
@@ -22,7 +22,7 @@ const chooseIntegration = () => {
       airnodeType: 'aws',
       network: 'rinkeby',
       mnemonic: secrets.MNEMONIC,
-      providerUrl: secrets.RINKEBY_PROVIDER_URL,
+      providerUrl: secrets.PROVIDER_URL,
     },
     null,
     2
@@ -41,7 +41,7 @@ const createAwsSecrets = () => {
 };
 
 const main = async () => {
-  cliPrint.info('Running coingecko integration with Airnode deployed on AWS and rinkeby');
+  cliPrint.info('Running the coingecko integration with Airnode deployed on AWS and a public network');
 
   // See: coingecko-aws-secrets.example
   const secretsFile = readFileSync(join(__dirname, './coingecko-aws-secrets.env')).toString();
