@@ -62,7 +62,7 @@ describe('deployer commands', () => {
         stage: 'stage',
       },
     };
-    mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt, null, 2));
+    mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt));
     await removeWithReceipt(receiptFile);
 
     expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
