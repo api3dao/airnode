@@ -29,6 +29,7 @@ import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
+import { API_CALL_FULFILLMENT_GAS_LIMIT } from '../constants';
 
 describe('startCoordinator', () => {
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
@@ -90,7 +91,7 @@ describe('startCoordinator', () => {
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0x69567b16514c2b799597247462cc6c3d9ac9dce88c0bc97c17db45dfb572cacb0fc7b38b2a73cf1fd78279251e5ef75b5e6fb06f4b0f0d023c4b215609e2e38f1b',
-      { gasLimit: 500_000, ...gasTarget, nonce: 212 }
+      { gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT, ...gasTarget, nonce: 212 }
     );
   });
 
