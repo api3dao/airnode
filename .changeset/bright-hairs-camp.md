@@ -9,4 +9,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Refactored console.log/warn/error calls to point to an abstracted version of the function in a new package, airnode-utilities
+Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
