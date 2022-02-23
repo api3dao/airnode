@@ -28,7 +28,7 @@ describe('callApis', () => {
 
   it('returns each API call with the response if successful', async () => {
     const config = fixtures.buildConfig();
-    mockReadFileSync('config.json', config);
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValueOnce({ valid: true, messages: [], specs: config });
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
@@ -60,7 +60,7 @@ describe('callApis', () => {
 
   it('returns an error if the adapter fails to extract and encode the response value', async () => {
     const config = fixtures.buildConfig();
-    mockReadFileSync('config.json', config);
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
@@ -92,7 +92,7 @@ describe('callApis', () => {
 
   it('returns an error if the API call fails', async () => {
     const config = fixtures.buildConfig();
-    mockReadFileSync('config.json', config);
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('Unexpected error'));

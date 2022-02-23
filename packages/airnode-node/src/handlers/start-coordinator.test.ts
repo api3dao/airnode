@@ -44,7 +44,7 @@ describe('startCoordinator', () => {
       })),
     };
 
-    mockReadFileSync('config.json', config);
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
@@ -97,7 +97,7 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    mockReadFileSync('config.json', config);
+    mockReadFileSync('config.json', JSON.stringify(config));
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);
