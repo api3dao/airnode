@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockReadFileSync } from '../../test/mock-utils';
 
 const checkAuthorizationStatusesMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -23,7 +23,6 @@ mockEthers({
   },
 });
 
-import fs from 'fs';
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
@@ -44,7 +43,8 @@ describe('startCoordinator', () => {
         },
       })),
     };
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
@@ -97,7 +97,7 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    mockReadFileSync('config.json', JSON.stringify(config));
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);

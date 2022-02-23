@@ -1,5 +1,6 @@
 // NOTE: This file is referenced as a pathGroup pattern in .eslintrc (import/order)
 
+import fs from 'fs';
 import { AirnodeRrp } from '@api3/airnode-protocol';
 import { BigNumber, ethers } from 'ethers';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../src/constants';
@@ -60,4 +61,21 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
 
   return { gasTarget: { maxPriorityFeePerGas, maxFeePerGas }, blockSpy, gasPriceSpy };
+};
+
+// Declare originalFs outside of mockReadFileSync to prevent infinite recursion errors in mockReadFileSync.
+const originalFs = fs.readFileSync;
+
+/**
+ * Mocks the fs library if the file path includes the specified file path substring
+ * and otherwise returns the original content.
+ */
+export const mockReadFileSync = (filePathSubstr: string, mockValue: string) => {
+  return jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
+    const path = args[0].toString();
+    if (path.includes(filePathSubstr)) {
+      return mockValue;
+    }
+    return originalFs(...args);
+  });
 };
