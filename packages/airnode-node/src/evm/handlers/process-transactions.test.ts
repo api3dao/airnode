@@ -23,6 +23,7 @@ import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests } from '../../types';
+import { API_CALL_FULFILLMENT_GAS_LIMIT } from '../../constants';
 
 const createConfig = (txType: 'legacy' | 'eip1559') => {
   const initialConfig = fixtures.buildConfig();
@@ -112,7 +113,7 @@ describe('processTransactions', () => {
         apiCall.fulfillFunctionId,
         '0x000000000000000000000000000000000000000000000000000000000001252b',
         '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
-        { gasLimit: 500_000, ...gasTarget, nonce: 79 }
+        { gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT, ...gasTarget, nonce: 79 }
       );
 
       // Transactions for sponsor address 0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E

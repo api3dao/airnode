@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EVMProviderState, ProviderState } from '../types';
+import { EVMProviderState, ProviderState } from '../types';
+import { ChainConfig } from '../config/types';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {

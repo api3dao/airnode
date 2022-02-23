@@ -1,9 +1,10 @@
 import find from 'lodash/find';
 import * as wallet from '../evm/wallet';
 import { randomHexString } from '../utils/string-utils';
-import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
+import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
 import { callApi } from '../api';
+import { Config } from '../config/types';
 
 export async function processHttpRequest(
   config: Config,

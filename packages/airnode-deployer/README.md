@@ -45,8 +45,8 @@ yarn build
 
 ```bash
 # From this package (/packages/airnode-deployer)
-cp config/config.json.example config/config.json
-cp config/secrets.env.example config/secrets.env
+cp config/config.example.json config/config.json
+cp config/secrets.example.env config/secrets.env
 # Edit both `config.json` and `secrets.env` to reflect your configuration
 ```
 

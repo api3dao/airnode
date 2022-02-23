@@ -1,8 +1,9 @@
 import find from 'lodash/find';
 import * as wallet from '../evm/wallet';
-import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
+import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
 import { callApi } from '../api';
+import { Config } from '../config/types';
 
 export async function processHttpSignedRelayedRequest(
   config: Config,

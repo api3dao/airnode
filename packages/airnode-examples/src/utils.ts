@@ -2,17 +2,28 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
+import isWsl from 'is-wsl';
 
 export interface IntegrationInfo {
   integration: string;
   airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
-  network: 'rinkeby' | 'localhost';
+  network: 'rinkeby' | 'ropsten' | 'polygon-mumbai' | 'goerli' | 'kovan' | 'localhost';
   mnemonic: string;
   providerUrl: string;
   gcpProjectId?: string;
 }
+
+/**
+ * @returns true if this platform is MacOS, Windows or WSL
+ */
+export const isMacOrWindows = () => process.platform === 'win32' || process.platform === 'darwin' || isWsl;
+
+/**
+ * @returns true if platform is Windows or WSL
+ */
+export const isWindows = () => process.platform === 'win32' || isWsl;
 
 /**
  * @returns The contents of the "integration-info.json" file (throws if it doesn't exist)

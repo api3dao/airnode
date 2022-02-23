@@ -2,53 +2,55 @@
   "chains": [
     {
       "maxConcurrency": 100,
-      "authorizers": ["0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"],
+      "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
-      "id": "1",
+      "id": "31337",
       "providers": {
-        "provider": {
-          "url": "CHAIN_PROVIDER_URL"
+        "exampleProvider": {
+          "url": "${PROVIDER_URL}"
         }
       },
-      "type": "evm"
+      "type": "evm",
+      "options": {
+        "txType": "eip1559",
+        "baseFeeMultiplier": "2",
+        "priorityFee": {
+          "value": "3.12",
+          "unit": "gwei"
+        }
+      }
     }
   ],
   "nodeSettings": {
-    "airnodeWalletMnemonic": "<FILL_*>",
+    "cloudProvider": {
+      "type": "local"
+    },
+    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
-      "enabled": true,
-      "url": "<FILL_*>",
-      "apiKey": "<FILL_*>",
-      "id": "<FILL_*>"
+      "enabled": false
     },
     "httpGateway": {
-      "enabled": true,
-      "apiKey": "012345678901234567890123456789",
-      "maxConcurrency": 20
+      "enabled": false
     },
     "httpSignedRelayedGateway": {
       "enabled": true,
       "apiKey": "012345678901234567890123456789",
       "maxConcurrency": 20
     },
-    "logFormat": "json",
+    "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.4.0",
-    "cloudProvider": {
-      "type": "aws",
-      "region": ""
-    },
-    "stage": "FILL",
+    "stage": "dev",
     "skipValidation": true
   },
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xe1da7948e4dd95c04b2aaa10f4de115e67d9e109ce618750a3d8111b855a5ee5",
-        "oisTitle": "ois",
-        "endpointName": "path"
+        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
       }
     ],
     "httpSignedRelayed": [
@@ -62,78 +64,126 @@
   "ois": [
     {
       "oisFormat": "1.0.0",
+      "title": "CoinGecko basic request",
       "version": "1.0.0",
-      "title": "ois",
       "apiSpecifications": {
         "servers": [
           {
-            "url": "url"
+            "url": "https://api.coingecko.com/api/v3"
           }
         ],
         "paths": {
-          "/path": {
+          "/coins/{id}": {
             "get": {
               "parameters": [
                 {
-                  "in": "query",
-                  "name": "param1"
+                  "in": "path",
+                  "name": "id"
                 },
                 {
-                  "in": "path",
-                  "name": "param2"
+                  "in": "query",
+                  "name": "localization"
+                },
+                {
+                  "in": "query",
+                  "name": "tickers"
+                },
+                {
+                  "in": "query",
+                  "name": "market_data"
+                },
+                {
+                  "in": "query",
+                  "name": "community_data"
+                },
+                {
+                  "in": "query",
+                  "name": "developer_data"
+                },
+                {
+                  "in": "query",
+                  "name": "sparkline"
                 }
               ]
             }
           }
         },
         "components": {
-          "securitySchemes": {
-            "sec": {
-              "in": "query",
-              "type": "apiKey",
-              "name": "sec"
-            }
-          }
+          "securitySchemes": {}
         },
         "security": {}
       },
       "endpoints": [
         {
-          "name": "path",
+          "name": "coinMarketData",
           "operation": {
             "method": "get",
-            "path": "/path"
+            "path": "/coins/{id}"
           },
           "fixedOperationParameters": [
             {
               "operationParameter": {
                 "in": "query",
-                "name": "param1"
+                "name": "localization"
               },
-              "value": "<FILL_*>"
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "tickers"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "market_data"
+              },
+              "value": "true"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "community_data"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "developer_data"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "sparkline"
+              },
+              "value": "false"
             }
           ],
           "reservedParameters": [
             {
-              "name": "_path",
-              "fixed": "<FILL_*>"
+              "name": "_type",
+              "fixed": "int256"
             },
             {
-              "name": "_type",
-              "fixed": "<FILL_*>"
+              "name": "_path",
+              "fixed": "market_data.current_price.usd"
             },
             {
               "name": "_times",
-              "default": "<FILL_*>"
+              "fixed": "1000000"
             }
           ],
           "parameters": [
             {
-              "name": "param2",
-              "default": "<FILL_*>",
+              "name": "coinId",
               "operationParameter": {
                 "in": "path",
-                "name": "param2"
+                "name": "id"
               }
             }
           ]
@@ -141,11 +191,5 @@
       ]
     }
   ],
-  "apiCredentials": [
-    {
-      "oisTitle": "ois",
-      "securitySchemeName": "sec",
-      "securitySchemeValue": "secVal"
-    }
-  ]
+  "apiCredentials": []
 }

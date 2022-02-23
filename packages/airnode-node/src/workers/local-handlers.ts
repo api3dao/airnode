@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { parseConfig } from '../config';
+import { loadTrustedConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
@@ -7,20 +7,7 @@ import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTrans
 import { go } from '../utils/promise-utils';
 
 function loadConfig() {
-  const { config, shouldSkipValidation, validationOutput } = parseConfig(
-    path.resolve(`${__dirname}/../../config/config.json`),
-    process.env,
-    true
-  );
-
-  // TODO: Log debug that validation is skipped
-  if (shouldSkipValidation) return config;
-  if (!validationOutput.valid) {
-    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationOutput.messages, null, 2)}`);
-  }
-  // TODO: Log validation warnings - currently not possible since we have troubles constructing logger options
-
-  return config;
+  return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {

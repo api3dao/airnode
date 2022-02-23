@@ -6,7 +6,7 @@ jest.mock('@api3/airnode-adapter', () => ({
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
-import { Heartbeat } from '../types';
+import { Heartbeat } from '../config/types';
 
 const heartbeatOptions: Array<keyof Heartbeat> = ['id', 'apiKey', 'url'];
 
@@ -47,10 +47,11 @@ describe('reportHeartbeat', () => {
     expect(executeMock).toHaveBeenCalledWith({
       url: 'https://example.com',
       method: 'post',
+      headers: {
+        'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
+      },
       data: {
-        api_key: '3a7af83f-6450-46d3-9937-5f9773ce2849',
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
-        payload: {},
       },
       timeout: 5_000,
     });
@@ -69,10 +70,11 @@ describe('reportHeartbeat', () => {
     expect(executeMock).toHaveBeenCalledWith({
       url: 'https://example.com',
       method: 'post',
+      headers: {
+        'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
+      },
       data: {
-        api_key: '3a7af83f-6450-46d3-9937-5f9773ce2849',
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
-        payload: {},
       },
       timeout: 5_000,
     });
