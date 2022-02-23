@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockReadFileSync } from '../../test/mock-utils';
 
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
@@ -24,13 +24,12 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-import fs from 'fs';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
 import { range } from 'lodash';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { GroupedRequests, RequestStatus } from '../types';
+import { GroupedRequests } from '../types';
 import { ChainConfig } from '../config/types';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
@@ -85,7 +84,7 @@ const chains: ChainConfig[] = [
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    mockReadFileSync('config.json', JSON.stringify(config));
     jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumber.mockResolvedValueOnce(123456);
@@ -240,7 +239,6 @@ describe('processRequests', () => {
         ...apiCall,
         fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
         nonce: 5,
-        status: RequestStatus.Submitted,
       }))
     );
   });

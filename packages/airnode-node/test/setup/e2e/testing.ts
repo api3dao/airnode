@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { mockReadFileSync } from '../../../test/mock-utils';
 import { Request } from '@api3/airnode-operation';
 import * as validator from '@api3/airnode-validator';
 import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
@@ -20,7 +20,7 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
   });
   // TODO: This is caused by duplicated mnemonic in Airnode state
   (config.nodeSettings as any).airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+  mockReadFileSync('config.json', JSON.stringify(config));
   jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
 
   return { deployment, provider: buildProvider(), config };

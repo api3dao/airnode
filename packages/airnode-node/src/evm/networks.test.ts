@@ -8,6 +8,8 @@ describe('NETWORKS', () => {
       4: { chainId: 4, name: 'rinkeby' },
       5: { chainId: 5, name: 'goerli' },
       42: { chainId: 42, name: 'kovan' },
+      137: { chainId: 137, name: 'polygon' },
+      80001: { chainId: 80001, name: 'polygon-mumbai' },
     });
   });
 });

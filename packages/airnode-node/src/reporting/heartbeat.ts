@@ -20,17 +20,15 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
 
   const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
 
-  // TODO: add statistics here
-  const payload = {};
-
   const request = {
     url,
     method: 'post' as const,
+    headers: {
+      'airnode-heartbeat-api-key': apiKey,
+    },
     data: {
-      api_key: apiKey,
       deployment_id: id,
       ...(httpGatewayUrl ? {} : { http_gateway_url: httpGatewayUrl }),
-      payload,
     },
     timeout: 5_000,
   };

@@ -1,14 +1,14 @@
 import { ethers } from 'ethers';
 import { applyTransactionResult } from './requests';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
+import { API_CALL_FULFILLMENT_GAS_LIMIT } from '../../constants';
 
 describe('applyTransactionResult', () => {
   const hash = '0xtransactionId';
   const invalidData01: ethers.Transaction = {
     chainId: 31337,
     data: '0xdata',
-    gasLimit: ethers.BigNumber.from(500_000),
+    gasLimit: ethers.BigNumber.from(API_CALL_FULFILLMENT_GAS_LIMIT),
     gasPrice: ethers.BigNumber.from(1000),
     nonce: 5,
     value: ethers.BigNumber.from(1000),
@@ -27,7 +27,6 @@ describe('applyTransactionResult', () => {
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
-        status: RequestStatus.Submitted,
       });
     });
 
@@ -47,7 +46,6 @@ describe('applyTransactionResult', () => {
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
-        status: RequestStatus.Submitted,
       });
     });
 

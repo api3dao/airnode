@@ -40,7 +40,7 @@ const questions: PromptObject[] = [
     name: 'network',
     message: 'Select target blockchain network',
     choices: (prev) => {
-      const options = [createCliOption('rinkeby')];
+      const options = ['rinkeby', 'ropsten', 'polygon-mumbai', 'goerli', 'kovan'].map(createCliOption);
       // Only allow running on localhost if running Airnode locally
       if (prev === 'local') options.push(createCliOption('localhost'));
       return options;
@@ -50,7 +50,7 @@ const questions: PromptObject[] = [
     type: 'text',
     name: 'mnemonic',
     message: [
-      'Since you chose testnet network, we need an account with testnet funds to connect to the blockchain.',
+      'Since you chose a testnet network, we need an account with testnet funds to connect to the blockchain.',
       '',
       'IMPORTANT: DO NOT ENTER A MNEMONIC LINKED WITH MAINNET ACCOUNTS!!!',
       '',
@@ -66,9 +66,22 @@ const questions: PromptObject[] = [
     message: 'Enter a provider URL',
     initial: (_prev, values) => {
       // Hardhat network runs by default run on http://127.0.0.1:8545/
-      if (values.network === 'localhost') return 'http://127.0.0.1:8545/';
-      if (values.network === 'rinkeby') return 'https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>';
-      return '';
+
+      const getExamplePocketNetwork = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
+
+      switch (values.network) {
+        case 'localhost':
+          return 'http://127.0.0.1:8545/';
+        case 'rinkeby':
+        case 'ropsten':
+        case 'goerli':
+        case 'kovan':
+          return getExamplePocketNetwork(values.network);
+        case 'polygon-mumbai':
+          return `https://polygon-mumbai.g.alchemy.com/v2/`;
+        default:
+          return '';
+      }
     },
   },
 ];
