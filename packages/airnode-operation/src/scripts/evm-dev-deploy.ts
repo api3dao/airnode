@@ -1,40 +1,40 @@
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import * as deploy from '../evm/deploy';
 import * as io from '../evm/io';
 
 async function run() {
-  log('--> Loading configuration...');
+  logger.log('--> Loading configuration...');
   const config = io.loadConfig();
 
   const state1 = deploy.buildDeployState(config);
 
-  log('--> Deploying contracts...');
+  logger.log('--> Deploying contracts...');
   const state2 = await deploy.deployAirnodeRrp(state1);
   const state3 = await deploy.deployRequesters(state2);
   const state4 = await deploy.deployAccessControlRegistry(state3);
   const state5 = await deploy.deployAuthorizers(state4);
 
-  log('--> Assigning wallets...');
+  logger.log('--> Assigning wallets...');
   const state6 = await deploy.assignAirnodeAccounts(state5);
   const state7 = await deploy.assignRequesterAccounts(state6);
   const state8 = await deploy.assignSponsorWallets(state7);
 
-  log('--> Funding wallets...');
+  logger.log('--> Funding wallets...');
   const state9 = await deploy.fundAirnodeAccounts(state8);
   const state10 = await deploy.fundSponsorAccounts(state9);
   const state11 = await deploy.fundSponsorWallets(state10);
 
-  log('--> Sponsoring requester contracts...');
+  logger.log('--> Sponsoring requester contracts...');
   const state12 = await deploy.sponsorRequesters(state11);
 
-  log('--> Creating templates...');
+  logger.log('--> Creating templates...');
   const state13 = await deploy.createTemplates(state12);
 
-  log('--> Deployment successful!');
+  logger.log('--> Deployment successful!');
 
-  log('--> Saving deployment...');
+  logger.log('--> Saving deployment...');
   io.saveDeployment(state13);
-  log('--> Deployment saved!');
+  logger.log('--> Deployment saved!');
 
   return state13;
 }

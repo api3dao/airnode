@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -157,7 +157,7 @@ yargs
     },
     async (args) => {
       const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
-      log(`Airnode xpub: ${xpub}`);
+      logger.log(`Airnode xpub: ${xpub}`);
     }
   )
   .command(
@@ -170,9 +170,9 @@ yargs
     async (args) => {
       try {
         admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
-        log(`Airnode xpub is: VALID`);
+        logger.log(`Airnode xpub is: VALID`);
       } catch {
-        log(`Airnode xpub is: INVALID`);
+        logger.error(`Airnode xpub is: INVALID`);
       }
     }
   )
@@ -190,7 +190,7 @@ yargs
         args['airnode-address'],
         args['sponsor-address']
       );
-      log(`Sponsor wallet address: ${sponsorWalletAddress}`);
+      logger.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
     }
   )
   .command(
@@ -209,7 +209,7 @@ yargs
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address'], overrides);
-      log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      logger.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
   .command(
@@ -228,7 +228,9 @@ yargs
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address'], overrides);
-      log(`Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      logger.log(
+        `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
+      );
     }
   )
   .command(
@@ -248,7 +250,7 @@ yargs
         args['sponsor-address'],
         args['requester-address']
       );
-      log(`Requester address sponsored: ${status}`);
+      logger.log(`Requester address sponsored: ${status}`);
     }
   )
   .command(
@@ -272,7 +274,7 @@ yargs
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       const templateId = await admin.createTemplate(airnodeRrp, template, overrides);
-      log(`Template ID: ${templateId}`);
+      logger.log(`Template ID: ${templateId}`);
     }
   )
   .command(
@@ -291,7 +293,7 @@ yargs
         airnodeRrpAddress: args['airnode-rrp-address'],
       });
       const parameters = await admin.getTemplate(airnodeRrp, args['template-id']);
-      log(toJSON(parameters));
+      logger.log(toJSON(parameters));
     }
   )
   .command(
@@ -317,7 +319,7 @@ yargs
         args['sponsor-wallet-address'],
         overrides
       );
-      log(`Withdrawal request ID: ${withdrawalRequestId}`);
+      logger.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
   .command(
@@ -333,9 +335,9 @@ yargs
       });
       const response = await admin.checkWithdrawalRequest(airnodeRrp, args['withdrawal-request-id']);
       if (response) {
-        log(`Withdrawn amount: ${response.amount}`);
+        logger.log(`Withdrawn amount: ${response.amount}`);
       } else {
-        log(`Withdrawal request is not fulfilled yet`);
+        logger.log(`Withdrawal request is not fulfilled yet`);
       }
     }
   )
@@ -356,7 +358,7 @@ yargs
     },
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args['ois-title'], args['endpoint-name']);
-      log(`Endpoint ID: ${endpointId}`);
+      logger.log(`Endpoint ID: ${endpointId}`);
     }
   )
   .command(
@@ -384,7 +386,7 @@ yargs
         args['expiration-timestamp'],
         overrides
       );
-      log(
+      logger.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -415,7 +417,7 @@ yargs
         args['expiration-timestamp'],
         overrides
       );
-      log(
+      logger.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -446,7 +448,7 @@ yargs
         args['indefinite-whitelist-status'],
         overrides
       );
-      log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
+      logger.log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
     }
   )
   .command(
@@ -466,7 +468,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      log(toJSON(whitelistStatus));
+      logger.log(toJSON(whitelistStatus));
     }
   )
   .command(
@@ -486,7 +488,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
+      logger.log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
     }
   )
   .command(
@@ -500,7 +502,7 @@ yargs
         '',
         mnemonic,
       ];
-      lines.forEach(log);
+      lines.forEach(logger.log);
     }
   )
   .command(
@@ -509,15 +511,15 @@ yargs
     { 'airnode-mnemonic': airnodeMnemonic },
     async (args) => {
       const airnodeAddress = await admin.deriveAirnodeAddress(args['airnode-mnemonic']);
-      log(`Airnode address: ${airnodeAddress}`);
+      logger.log(`Airnode address: ${airnodeAddress}`);
     }
   )
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
-    if (message) log(message);
+    if (message) logger.log(message);
     else {
-      log(`Command failed with unexpected error:\n\n${err.message}`);
+      logger.error(`Command failed with unexpected error:\n\n${err.message}`);
     }
 
     exit(1);

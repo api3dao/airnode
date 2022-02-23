@@ -6,30 +6,32 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
-import { log, logError } from '@api3/airnode-utilities';
+import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';
 import { longArguments, printableArguments } from '../utils/cli';
 
 function drawHeader() {
-  log(
-    '  ___  _                      _      \n' +
-      ' / _ \\(_)                    | |     \n' +
-      '/ /_\\ \\_ _ __ _ __   ___   __| | ___ \n' +
-      "|  _  | | '__| '_ \\ / _ \\ / _` |/ _ \\\n" +
-      '| | | | | |  | | | | (_) | (_| |  __/\n' +
-      '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|\n'
+  loggerUtils.log(
+    [
+      '  ___  _                      _      ',
+      ' / _ \\(_)                    | |     ',
+      '/ /_\\ \\_ _ __ _ __   ___   __| | ___ ',
+      "|  _  | | '__| '_ \\ / _ \\ / _` |/ _ \\",
+      '| | | | | |  | | | | (_) | (_| |  __/',
+      '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|',
+      `          Airnode v${getNodeVersion()}`,
+      `        Deployer CLI v${packageVersion}`,
+    ].join('\n')
   );
-  log(`\n          Airnode v${getNodeVersion()}`);
-  log(`        Deployer CLI v${packageVersion}\n`);
 }
 
 async function runCommand(command: () => Promise<void>) {
   try {
     await command();
   } catch (err) {
-    logError(err);
+    loggerUtils.error(err);
     process.exit(1);
   }
 }

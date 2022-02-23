@@ -1,4 +1,4 @@
-import { createLogMessage, log as consoleLog } from '@api3/airnode-utilities';
+import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { formatDateTimeMs } from './utils';
 import { Config, LogLevel, LogOptions, PendingLog, LogMetadata } from './types';
 
@@ -15,10 +15,6 @@ export function buildBaseOptions(config: Config, meta: LogMetadata) {
     level: config.nodeSettings.logLevel,
     meta,
   };
-}
-
-export function genericLog(...args: any[]) {
-  log('DEBUG', createLogMessage(args), { format: 'plain', level: 'DEBUG', meta: {} });
 }
 
 export function debug(message: string, options: LogOptions) {
@@ -81,7 +77,7 @@ export function plain(level: LogLevel, message: string, options: LogOptions) {
     return `${acc}, ${key}: ${options.additional[key]}`;
   }, '');
 
-  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
+  loggerUtils.log(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
@@ -93,7 +89,7 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
     ...(options.meta || {}),
     ...(options.additional || {}),
   };
-  consoleLog(JSON.stringify(logObject));
+  loggerUtils.log(JSON.stringify(logObject));
 }
 
 // NOTE: In many cases it is not ideal to pass the entire state in to a

@@ -1,6 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 
 const PORT = 5000;
 
@@ -22,5 +22,5 @@ app.get('/convert', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  log(`Server is running at http://localhost:${PORT}`);
+  logger.log(`Server is running at http://localhost:${PORT}`);
 });

@@ -8,7 +8,7 @@ import { assert } from 'console';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ethers from 'ethers';
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 
 // From https://stackoverflow.com/a/20525865/14558682
 // Gets a list of files in the directory recursively
@@ -59,7 +59,7 @@ async function main() {
       } else {
         doesMatch = creationData === artifact.bytecode;
       }
-      log(`${contract} deployment on ${network} ${doesMatch ? 'matches' : 'DOES NOT match'} the local build!`);
+      logger.log(`${contract} deployment on ${network} ${doesMatch ? 'matches' : 'DOES NOT match'} the local build!`);
     }
   }
 }

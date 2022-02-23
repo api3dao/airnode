@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import { convert, convertWithTemplate } from '../convertor';
 
 const args = yargs(hideBin(process.argv))
@@ -46,8 +46,8 @@ const args = yargs(hideBin(process.argv))
   .parseSync();
 
 if (args.template) {
-  log(JSON.stringify(convert(args.specification, args.template, args.secrets), null, 2));
+  logger.log(JSON.stringify(convert(args.specification, args.template, args.secrets), null, 2));
   process.exit();
 }
 
-log(JSON.stringify(convertWithTemplate(args.specification, args.from, args.to, args.secrets), null, 2));
+logger.log(JSON.stringify(convertWithTemplate(args.specification, args.from, args.to, args.secrets), null, 2));

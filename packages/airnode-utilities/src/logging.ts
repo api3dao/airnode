@@ -1,8 +1,10 @@
-// @ts-ignore
-// eslint-disable-next-line no-console
-const callConsoleFn = (functionName: string, arg: any) => console[functionName](arg);
+import { TextEncoder } from 'util';
 
-export const createLogMessage = (args: any[]) =>
+type LogType = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+
+const encoder = new TextEncoder();
+
+const createLogMessage = (args: any[]) =>
   args
     .map((arg) => {
       if (arg instanceof Object) {
@@ -13,7 +15,22 @@ export const createLogMessage = (args: any[]) =>
     })
     .join(' ');
 
-export const log = (...args: any[]) => callConsoleFn('log', createLogMessage(args));
-export const logWarn = (...args: any[]) => callConsoleFn('warn', createLogMessage(args));
-export const logError = (...args: any[]) => callConsoleFn('error', createLogMessage(args));
-export const logTrace = (...args: any[]) => callConsoleFn('trace', createLogMessage(args));
+const writeLogMessage = (logType: LogType, args: any[]) => {
+  const formattedArgs = createLogMessage(args);
+
+  if (logType === 'ERROR') {
+    process.stderr.write(encoder.encode(`${formattedArgs}\n`));
+    return;
+  }
+
+  process.stdout.write(encoder.encode(`${formattedArgs}\n`));
+};
+
+export const logger = {
+  log: (...args: any[]) => writeLogMessage('INFO', args),
+  debug: (...args: any[]) => writeLogMessage('DEBUG', args),
+  info: (...args: any[]) => writeLogMessage('INFO', args),
+  warn: (...args: any[]) => writeLogMessage('WARN', args),
+  error: (...args: any[]) => writeLogMessage('DEBUG', args),
+  trace: (...args: any[]) => writeLogMessage('DEBUG', [...args, (new Error() as Error).stack?.toString()]),
+};

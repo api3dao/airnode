@@ -1,9 +1,9 @@
 import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { log } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import { cliPrint } from '../src';
 
 export const runCommand = (command: string) => {
-  log(`Running command:\n${command}`);
+  logger.log(`Running command:\n${command}`);
   const result = spawnSync(command, {
     shell: true,
   });
@@ -21,7 +21,7 @@ export const runCommand = (command: string) => {
 };
 
 export const runCommandInBackground = (command: string) => {
-  log(`Running background command:\n${command}`);
+  logger.log(`Running background command:\n${command}`);
   return spawn(command, {
     detached: true,
     shell: true,
