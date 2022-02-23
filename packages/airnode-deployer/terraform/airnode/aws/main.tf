@@ -26,7 +26,7 @@ module "startCoordinator" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    HTTP_GATEWAY_URL = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
+    HTTP_GATEWAY_URL                = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
     HTTP_SIGNED_RELAYED_GATEWAY_URL = var.http_signed_relayed_api_key == null ? null : "${module.httpSignedRelayedApiGateway[0].api_url}"
   }
 
