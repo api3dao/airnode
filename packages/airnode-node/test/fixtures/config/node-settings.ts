@@ -1,4 +1,4 @@
-import { NodeSettings } from '../../../src/types';
+import { NodeSettings } from '../../../src/config/types';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {

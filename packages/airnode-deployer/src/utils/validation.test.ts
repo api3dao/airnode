@@ -1,13 +1,13 @@
 import { mockReadFileSync } from '../../test/mock-utils';
-import { loadConfig } from './files';
+import { loadTrustedConfig, loadConfig } from './files';
 import * as fixtures from '../../test/fixtures';
 
-describe('deployer-validation', () => {
+describe('config validation', () => {
   it('loads the config without validation', () => {
     const config = fixtures.buildConfig();
     mockReadFileSync('config.json', JSON.stringify(config));
 
-    const notThrowingFunction = () => loadConfig('config.json', process.env, false);
+    const notThrowingFunction = () => loadTrustedConfig('config.json', process.env);
     expect(notThrowingFunction).not.toThrow();
   });
 
@@ -15,7 +15,7 @@ describe('deployer-validation', () => {
     const config = fixtures.buildConfig();
     mockReadFileSync('config.json', JSON.stringify(config));
 
-    const throwingFunction = () => loadConfig('config.json', process.env, true);
+    const throwingFunction = () => loadConfig('config.json', process.env);
     expect(throwingFunction).toThrow();
   });
 });

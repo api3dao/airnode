@@ -3,9 +3,10 @@ import groupBy from 'lodash/groupBy';
 import map from 'lodash/map';
 import zipWith from 'lodash/zipWith';
 import * as logger from '../../logger';
-import { Config, ProviderStates, PendingLog, GroupedRequests } from '../../types';
+import { ProviderStates, PendingLog, GroupedRequests } from '../../types';
 import { flattenRequests, groupRequests } from '../../requests/grouping';
 import { sortRequests } from '../../requests/sorting';
+import { Config } from '../../config/types';
 
 function flattenAndSortRequests(grouped: GroupedRequests) {
   return sortRequests(flattenRequests(grouped));

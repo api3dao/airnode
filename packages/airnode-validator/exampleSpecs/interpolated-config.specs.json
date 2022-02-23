@@ -4,12 +4,12 @@
       "maxConcurrency": 100,
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
-      "id": "4",
+      "id": "31337",
       "providers": {
-        "rinkeby": {
-          "url": "${PROVIDER_URL}"
+        "exampleProvider": {
+          "url": "http://127.0.0.1:8545/"
         }
       },
       "type": "evm",
@@ -24,27 +24,21 @@
     }
   ],
   "nodeSettings": {
-    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
+    "cloudProvider": {
+      "type": "local"
+    },
+    "airnodeWalletMnemonic": "test test test test test test test test test test test junk",
     "heartbeat": {
-      "enabled": true,
-      "apiKey": "${HEARTBEAT_API_KEY}",
-      "id": "${HEARTBEAT_ID}",
-      "url": "${HEARTBEAT_URL}"
+      "enabled": false
     },
     "httpGateway": {
-      "enabled": true,
-      "apiKey": "${HTTP_GATEWAY_API_KEY}",
-      "maxConcurrency": 20
+      "enabled": false
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.5.0",
-    "cloudProvider": {
-      "type": "aws",
-      "region": "us-east-1",
-      "disableConcurrencyReservations": false
-    },
-    "stage": "dev"
+    "nodeVersion": "0.4.0",
+    "stage": "dev",
+    "skipValidation": true
   },
   "triggers": {
     "rrp": [

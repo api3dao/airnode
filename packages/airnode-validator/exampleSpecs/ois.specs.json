@@ -36,7 +36,8 @@
       "securitySchemes": {
         "coinlayerSecurityScheme": {
           "in": "query",
-          "type": "relayChainId"
+          "type": "relayChainId",
+          "name": "chainId"
         }
       }
     },

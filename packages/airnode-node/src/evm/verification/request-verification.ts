@@ -3,7 +3,8 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, Trigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
+import { Trigger } from '../../config/types';
 
 export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
   const derivedSponsorWallet = wallet.deriveSponsorWallet(hdNode, sponsor);

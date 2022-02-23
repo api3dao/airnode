@@ -7,16 +7,10 @@ import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateId } from '../evm/templates';
 import * as logger from '../logger';
-import {
-  AggregatedApiCall,
-  ApiCallResponse,
-  Config,
-  LogsData,
-  RequestErrorMessage,
-  ApiCallErrorResponse,
-} from '../types';
+import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
 import { removeKeys, removeKey } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
+import { Config } from '../config/types';
 
 function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const { config, aggregatedApiCall } = payload;
@@ -27,7 +21,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const apiCredentials = config.apiCredentials
     .filter((c) => c.oisTitle === oisTitle)
-    .map((c) => removeKey(c, 'oisTitle')) as adapter.ApiCredentials[];
+    .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
 
   switch (aggregatedApiCall.type) {
     case 'testing-gateway': {

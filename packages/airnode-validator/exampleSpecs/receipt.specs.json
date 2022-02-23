@@ -6,7 +6,11 @@
   },
   "deployment": {
     "airnodeAddressShort": "a30ca71",
-    "cloudProvider": "aws",
+    "cloudProvider": {
+      "type": "aws",
+      "region": "us-east-1",
+      "disableConcurrencyReservations": false
+    },
     "region": "us-east-1",
     "stage": "starter-example",
     "nodeVersion": "0.2.0"

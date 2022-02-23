@@ -22,8 +22,8 @@ import { Receipt } from '../../types';
 describe('deployer commands', () => {
   it('can deploy Airnode', async () => {
     await deploy(
-      join(__dirname, '../../../config/config.json.example'),
-      join(__dirname, '../../../config/secrets.env.example'),
+      join(__dirname, '../../../config/config.example.json'),
+      join(__dirname, '../../../config/secrets.example.env'),
       'mocked receipt filename'
     );
 
