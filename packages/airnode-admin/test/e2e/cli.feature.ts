@@ -420,9 +420,7 @@ describe('CLI', () => {
       'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
       'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
       '',
-    ]
-      .map((str) => `${str}\n`)
-      .join('');
+    ].join('\n');
 
     expect(out.startsWith(explanationInfo)).toBe(true);
     const mnemonic = out.split(explanationInfo)[1];
