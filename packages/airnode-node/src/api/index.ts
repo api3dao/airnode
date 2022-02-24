@@ -95,7 +95,7 @@ async function signRelayedResponseMessage(
       ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ['bytes32', 'uint256', 'address', 'bytes'],
-          [requestId, timestamp, responseValue || '0x', relayerAddress]
+          [requestId, timestamp, relayerAddress, responseValue || '0x']
         )
       )
     )
