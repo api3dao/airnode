@@ -495,11 +495,18 @@ yargs
     'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
+      const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+      const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+
       const lines = [
         'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
         'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
         '',
         mnemonic,
+        '',
+        `The Airnode address for this mnemonic is: ${airnodeAddress}`,
+        `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,
+        '',
       ];
       lines.forEach((line) => console.log(line));
     }
