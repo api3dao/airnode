@@ -504,7 +504,7 @@ yargs
         '',
         mnemonic,
         '',
-        `The airnode address for this mnemonic is: ${airnodeAddress}`,
+        `The Airnode address for this mnemonic is: ${airnodeAddress}`,
         `The airnode xpub for this mnemonic is: ${airnodeXpub}`,
         '',
       ];
