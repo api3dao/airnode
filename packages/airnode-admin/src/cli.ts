@@ -505,7 +505,7 @@ yargs
         mnemonic,
         '',
         `The Airnode address for this mnemonic is: ${airnodeAddress}`,
-        `The airnode xpub for this mnemonic is: ${airnodeXpub}`,
+        `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,
         '',
       ];
       lines.forEach((line) => console.log(line));

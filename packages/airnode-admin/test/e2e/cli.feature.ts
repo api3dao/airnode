@@ -428,10 +428,10 @@ describe('CLI', () => {
     words.forEach((word) => expect(word).toMatch(/\w+/));
 
     const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
-    expect(out[5]).toEqual(`The airnode address for this mnemonic is: ${airnodeAddress}`);
+    expect(out[5]).toEqual(`The Airnode address for this mnemonic is: ${airnodeAddress}`);
 
     const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
-    expect(out[6]).toEqual(`The airnode xpub for this mnemonic is: ${airnodeXpub}`);
+    expect(out[6]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
 
     expect(() => admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress)).not.toThrow();
   });
