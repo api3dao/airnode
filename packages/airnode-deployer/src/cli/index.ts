@@ -159,8 +159,9 @@ yargs(hideBin(process.argv))
     }
   )
   .example([
-    ['$0 deploy -c config/config.json -s config/secrets.env -r output/receipt.json\n', 'Deploys or updates an airnode'],
-    ['$0 remove -r output/receipt.json\n', 'Removes a deployed airnode'],
+    ['$0 deploy -c myConfig/config.json -s myConfig/secrets.env -r myOutput/receipt.json'],
+    ['$0 remove -r myOutput/receipt.json'],
+    ['$0 remove --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1'],
   ])
   .help()
   .demandCommand(1)
