@@ -660,4 +660,24 @@ describe('CLI', () => {
       expect(out).toEqual(`Airnode address: ${airnodeWallet.address}`);
     });
   });
+
+  describe('has valid examples', () => {
+    const examples = [
+      'derive-airnode-address --airnode-mnemonic "test test test test test test test test test test test junk"',
+      'derive-sponsor-wallet-address --airnode-xpub xpub6Ce9NcJvTk36xtLSrJLZqE7wtgA5deCeYs7rSQtreh4cj6ByPtrg9sD7V2FNFLPnf8heNP3FGkeV9qwfzvZNSd54JoNXVsXFYSYwHsnJxqP --airnode-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --sponsor-address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      'derive-endpoint-id --ois-title "title" --endpoint-name "endpoint"',
+    ];
+    const exampleOutcomes = [
+      'Airnode address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      'Sponsor wallet address: 0x61cF9Eb3691A715e7B2697a36e9e60FdA40A8617',
+      'Endpoint ID: 0x901843fb332b24a9a71a2234f2a7c82214b7b70e99ab412e7d1827b743f63f61',
+    ];
+
+    test.each(examples)(`example command: %# is valid`, (example: string) => {
+      const out = execSync(`node ${CLI_EXECUTABLE} ${example}`).toString().trim();
+      console.log('OUT', out);
+      const exampleIndex = examples.findIndex((command) => command === example);
+      expect(out).toEqual(exampleOutcomes[exampleIndex]);
+    });
+  });
 });
