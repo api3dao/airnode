@@ -412,23 +412,28 @@ describe('CLI', () => {
     });
   });
 
-  it('generates mnemonic', () => {
-    const out = execCommand('generate-mnemonic');
+  it('generates mnemonic', async () => {
+    const out = execCommand('generate-mnemonic').split('\n');
 
     const explanationInfo = [
       'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
       'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
       '',
-    ]
-      .map((str) => `${str}\n`)
-      .join('');
+    ];
+    expect(out.slice(0, 3)).toEqual(explanationInfo);
 
-    expect(out.startsWith(explanationInfo)).toBe(true);
-    const mnemonic = out.split(explanationInfo)[1];
-
+    const mnemonic = out[3];
     const words = mnemonic.split(' ');
     expect(words).toHaveLength(12);
     words.forEach((word) => expect(word).toMatch(/\w+/));
+
+    const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+    expect(out[5]).toEqual(`The airnode address for this mnemonic is: ${airnodeAddress}`);
+
+    const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+    expect(out[6]).toEqual(`The airnode xpub for this mnemonic is: ${airnodeXpub}`);
+
+    expect(() => admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress)).not.toThrow();
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
