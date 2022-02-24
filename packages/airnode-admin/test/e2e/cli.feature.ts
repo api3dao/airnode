@@ -433,7 +433,9 @@ describe('CLI', () => {
     const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
     expect(out[6]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
 
-    expect(() => admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress)).not.toThrow();
+    const verifyXpubResult = admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
+    const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+    expect(verifyXpubResult).toEqual(hdNode);
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
