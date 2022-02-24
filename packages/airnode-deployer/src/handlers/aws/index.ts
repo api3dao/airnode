@@ -121,6 +121,6 @@ export async function processHttpSignedRelayedRequest(
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
-  return { statusCode: 200, body: result!.value };
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
+  return { statusCode: 200, body: JSON.stringify({ data: result!.value, signature: result!.signature }) };
 }

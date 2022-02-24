@@ -40,7 +40,7 @@ describe('processHttpSignedRelayedRequests', () => {
       const [err, res] = await processHttpSignedRelayedRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
       expect(res).toBeNull();
-      expect(err).toEqual(new Error('You must specify "relayer" address in the request parameters.'));
+      expect(err).toEqual(new Error('You must specify "_relayer" address in the request parameters.'));
     });
 
     it('missing id parameter', async () => {
@@ -49,7 +49,7 @@ describe('processHttpSignedRelayedRequests', () => {
 
       expect(res).toBeNull();
       expect(err).toEqual(
-        new Error('You must specify "id" for the requestId/subscriptionId in the request parameters.')
+        new Error('You must specify "_id" for the requestId/subscriptionId in the request parameters.')
       );
     });
   });

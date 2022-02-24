@@ -25,10 +25,10 @@ export async function processHttpSignedRelayedRequest(
   // Check that the required relayer parameters have been supplied
   // TODO: There should be an TS interface for required params
   if (!parameters._id) {
-    return [new Error(`You must specify "id" for the requestId/subscriptionId in the request parameters.`), null];
+    return [new Error(`You must specify "_id" for the requestId/subscriptionId in the request parameters.`), null];
   }
   if (!parameters._relayer) {
-    return [new Error(`You must specify "relayer" address in the request parameters.`), null];
+    return [new Error(`You must specify "_relayer" address in the request parameters.`), null];
   }
 
   const requestId = parameters._id;

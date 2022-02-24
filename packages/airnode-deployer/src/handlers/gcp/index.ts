@@ -129,6 +129,6 @@ export async function processHttpSignedRelayedRequest(req: Request, res: Respons
     return;
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
-  res.status(200).send(result!.value);
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
+  res.status(200).send(JSON.stringify({ data: result!.value, signature: result!.signature }));
 }
