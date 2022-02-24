@@ -159,7 +159,7 @@ yargs(hideBin(process.argv))
     }
   )
   .example([
-    ['$0 deploy -c myConfig/config.json -s myConfig/secrets.env -r myOutput/receipt.json'],
+    ['$0 deploy -c pathTo/config.json -s pathTo/secrets.env -r myOutput/receipt.json'],
     ['$0 remove -r myOutput/receipt.json'],
     ['$0 remove --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1'],
   ])
