@@ -6,7 +6,7 @@ import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { CoordinatorState, WorkerOptions } from '../types';
+import { CoordinatorState, CoordinatorStateWithApiResponses, WorkerOptions } from '../types';
 import { Config } from '../config/types';
 
 export async function startCoordinator(config: Config) {
@@ -91,10 +91,12 @@ async function executeApiCalls(state: CoordinatorState) {
 
   logger.info('Executed API calls', logOptions);
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
-  return coordinatorState.update(state, { aggregatedApiCallsById: processedAggregatedApiCallsById });
+  return coordinatorState.update(state, {
+    aggregatedApiCallsById: processedAggregatedApiCallsById,
+  }) as CoordinatorStateWithApiResponses;
 }
 
-function disaggregateApiCalls(state: CoordinatorState) {
+function disaggregateApiCalls(state: CoordinatorStateWithApiResponses) {
   const { config, coordinatorId } = state;
   const logOptions = buildBaseOptions(config, { coordinatorId });
 
@@ -106,7 +108,7 @@ function disaggregateApiCalls(state: CoordinatorState) {
   return coordinatorState.update(state, { providerStates: { evm: evmProvidersWithApiResponses } });
 }
 
-async function initiateTransactions(state: CoordinatorState) {
+async function initiateTransactions(state: CoordinatorStateWithApiResponses) {
   const { providerStates, config, coordinatorId } = state;
   const logOptions = buildBaseOptions(config, { coordinatorId });
 
@@ -173,17 +175,17 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   // =================================================================
   // STEP 6: Execute API calls and save the responses
   // =================================================================
-  state = await executeApiCalls(state);
+  let stateWithResponses = await executeApiCalls(state);
 
   // =================================================================
   // STEP 7: Map API responses back to each provider's API requests
   // =================================================================
-  state = disaggregateApiCalls(state);
+  stateWithResponses = disaggregateApiCalls(stateWithResponses);
 
   // ======================================================================
   // STEP 8: Initiate transactions for each provider, sponsor pair
   // ======================================================================
-  state = await initiateTransactions(state);
+  stateWithResponses = await initiateTransactions(stateWithResponses);
 
-  return state;
+  return stateWithResponses;
 }

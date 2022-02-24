@@ -1,6 +1,6 @@
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { AggregatedApiCallsById } from '../types';
+import { RegularAggregatedApiCallsById } from '../types';
 
 describe('create', () => {
   it('returns a new coordinator state object', () => {
@@ -22,7 +22,7 @@ describe('create', () => {
 
 describe('update', () => {
   it('updates and returns the new state', () => {
-    const aggregatedApiCallsById: AggregatedApiCallsById = {
+    const aggregatedApiCallsById: RegularAggregatedApiCallsById = {
       apiCallId: fixtures.buildAggregatedRegularApiCall(),
     };
     const config = fixtures.buildConfig();

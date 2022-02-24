@@ -2,7 +2,7 @@ import * as disaggregation from './disaggregation';
 import * as fixtures from '../../../test/fixtures';
 import * as coordinatorState from '../state';
 import * as providerState from '../../providers/state';
-import { GroupedRequests, RequestErrorMessage } from '../../types';
+import { GroupedRequests, RegularApiCallSuccessResponse, RequestErrorMessage } from '../../types';
 
 describe('disaggregate - Requests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
@@ -19,26 +19,30 @@ describe('disaggregate - Requests', () => {
     mutableProvider1 = providerState.update(mutableProvider1, { requests });
     mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
-      responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCallWithResponse({
+      data: {
+        encodedValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
+        signature: 'does-not-matter',
+      },
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let mutableState = coordinatorState.create(config);
+    const state = coordinatorState.create(config);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+    const stateWithResponses = coordinatorState.addResponses(state, { aggregatedApiCallsById, providerStates });
 
-    const [logs, res] = disaggregation.disaggregate(mutableState);
+    const [logs, res] = disaggregation.disaggregate(stateWithResponses);
     expect(logs).toEqual([]);
-    expect(res[0].requests.apiCalls[0].responseValue).toEqual(
+    // TODO: avoid any (requires state types to change)
+    expect((res[0].requests.apiCalls[0] as any).data.encodedValue).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000000001b9'
     );
-    expect(res[1].requests.apiCalls[0].responseValue).toEqual(
+    expect((res[1].requests.apiCalls[0] as any).data.encodedValue).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000000001b9'
     );
-    expect(res[2].requests.apiCalls[0].responseValue).toEqual(
+    expect((res[2].requests.apiCalls[0] as any).data.encodedValue).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000000001b9'
     );
   });
@@ -59,25 +63,28 @@ describe('disaggregate - Requests', () => {
     mutableProvider0 = providerState.update(mutableProvider0, { requests: requests0 });
     mutableProvider1 = providerState.update(mutableProvider1, { requests: requests1 });
 
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCallWithResponse({
       id: 'btcCall',
       parameters: { from: 'BTC' },
-      responseValue: '0x123',
+      data: {
+        encodedValue: '0x123',
+        signature: 'does-not-matter',
+      },
     });
     const aggregatedApiCallsById = { btcCall: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let mutableState = coordinatorState.create(config);
+    const state = coordinatorState.create(config);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+    const stateWithResponses = coordinatorState.addResponses(state, { aggregatedApiCallsById, providerStates });
 
-    const [logs, res] = disaggregation.disaggregate(mutableState);
+    const [logs, res] = disaggregation.disaggregate(stateWithResponses);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find matching aggregated API calls for Request:ethCall' },
     ]);
     expect(res[0].requests.apiCalls.length).toEqual(0);
-    expect(res[1].requests.apiCalls[0].responseValue).toEqual('0x123');
+    expect((res[1].requests.apiCalls[0] as any as RegularApiCallSuccessResponse).data.encodedValue).toEqual('0x123');
     expect(res[1].requests.apiCalls[0].errorMessage).toEqual(undefined);
   });
 
@@ -93,21 +100,31 @@ describe('disaggregate - Requests', () => {
     mutableProvider1 = providerState.update(mutableProvider1, { requests });
     mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCallWithResponse({
       errorMessage: RequestErrorMessage.ApiCallFailed,
+      success: false,
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let mutableState = coordinatorState.create(config);
+    const state = coordinatorState.create(config);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+    const stateWithResponses = coordinatorState.addResponses(state, {
+      aggregatedApiCallsById,
+      providerStates,
+    });
 
-    const [logs, res] = disaggregation.disaggregate(mutableState);
+    const [logs, res] = disaggregation.disaggregate(stateWithResponses);
     expect(logs).toEqual([]);
-    expect(res[0].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
-    expect(res[1].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
-    expect(res[2].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
+    expect(res[0].requests.apiCalls).toEqual([
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, success: false },
+    ]);
+    expect(res[1].requests.apiCalls).toEqual([
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, success: false },
+    ]);
+    expect(res[2].requests.apiCalls).toEqual([
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, success: false },
+    ]);
   });
 });

@@ -11,6 +11,7 @@ import {
   ApiCall,
   Withdrawal,
   SubmitRequest,
+  ApiCallWithResponse,
 } from '../../types';
 import { AirnodeRrpV0Factory, AirnodeRrpV0 } from '../contracts';
 import * as verification from '../verification';
@@ -83,7 +84,9 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
   // Prepare transactions for API calls
   const preparedApiCallSubmissions = prepareRequestSubmissions(
     state,
-    requests.apiCalls,
+    // The "apiCalls" must be "ApiCallWithResponse" at this point.
+    // TODO: Change the types to avoid the assertion
+    requests.apiCalls as Request<ApiCallWithResponse>[],
     RequestType.ApiCall,
     submitApiCall,
     contract
