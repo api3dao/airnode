@@ -518,10 +518,7 @@ yargs
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
-    if (message) logger.log(message);
-    else {
-      logger.error(`Command failed with unexpected error:\n\n${err.message}`);
-    }
+    logger.error(message ? message : `Command failed with unexpected error:\n\n${err.message}`);
 
     exit(1);
   })

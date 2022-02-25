@@ -2,10 +2,11 @@ import fs from 'fs';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
+import { LogOptions } from '@api3/airnode-utilities';
 import * as coordinatedExecution from './coordinated-execution';
 import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
-import { LogOptions, RequestErrorMessage } from '../../types';
+import { RequestErrorMessage } from '../../types';
 
 describe('callApis', () => {
   const logOptions: LogOptions = {

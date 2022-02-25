@@ -31,8 +31,9 @@ async function runCommand(command: () => Promise<void>) {
   try {
     await command();
   } catch (err) {
-    loggerUtils.error(err);
-    process.exit(1);
+    loggerUtils.error((err as Error).message);
+    // eslint-disable-next-line functional/immutable-data
+    process.exitCode = 1;
   }
 }
 

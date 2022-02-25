@@ -1,9 +1,9 @@
 import fs from 'fs';
 import * as validator from '@api3/airnode-validator';
+import { PendingLog } from '@api3/airnode-utilities';
 import * as local from './local-handlers';
 import * as handlers from '../handlers';
 import { scrub } from '../providers/state';
-import { PendingLog } from '../types';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {

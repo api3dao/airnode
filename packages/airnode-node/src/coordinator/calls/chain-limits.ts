@@ -2,8 +2,8 @@ import flatMap from 'lodash/flatMap';
 import groupBy from 'lodash/groupBy';
 import map from 'lodash/map';
 import zipWith from 'lodash/zipWith';
-import * as logger from '../../logger';
-import { Config, ProviderStates, PendingLog, GroupedRequests } from '../../types';
+import { logger, PendingLog } from '@api3/airnode-utilities';
+import { Config, ProviderStates, GroupedRequests } from '../../types';
 import { flattenRequests, groupRequests } from '../../requests/grouping';
 import { sortRequests } from '../../requests/sorting';
 

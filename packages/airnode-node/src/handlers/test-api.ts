@@ -1,8 +1,7 @@
 import find from 'lodash/find';
+import { logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
-import { randomHexString } from '../utils/string-utils';
 import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
-import * as logger from '../logger';
 import { callApi } from '../api';
 
 export async function testApi(

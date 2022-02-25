@@ -1,12 +1,11 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
+import { logger, go, formatDateTime } from '@api3/airnode-utilities';
 import * as calls from '../coordinator/calls';
-import * as logger from '../logger';
 import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { formatDateTime, go } from '../utils';
 import { Config, CoordinatorState, WorkerOptions } from '../types';
 
 export async function startCoordinator(config: Config) {

@@ -1,23 +1,25 @@
 {
   "name": "@api3/airnode-utilities",
-  "version": "0.4.0",
-  "description": "Airnode utilities",
-  "homepage": "https://github.com/api3dao/airnode#readme",
   "license": "MIT",
+  "version": "0.4.0",
+  "private": false,
+  "description": "General utilities to support Airnode packages",
   "files": [
     "dist"
   ],
+  "scripts": {
+    "test": "SILENCE_LOGGER=true jest --selectProjects unit"
+  },
   "types": "dist/index",
   "main": "dist/index",
-  "scripts": {
-    "build": "yarn clean && yarn compile",
-    "clean": "rimraf -rf ./dist *.tgz",
-    "compile": "tsc -p tsconfig.build.json",
-    "pack": "yarn pack"
+  "dependencies": {
+    "@api3/airnode-ois": "^0.4.0",
+    "@api3/airnode-adapter": "^0.4.0"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^17.0.18",
+    "@types/jest": "^27.0.2",
+    "jest": "^26.6.3",
     "rimraf": "^3.0.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.2.4"

@@ -1,10 +1,9 @@
 import * as path from 'path';
+import { logger, go } from '@api3/airnode-utilities';
 import { parseConfig } from '../config';
 import * as handlers from '../handlers';
-import * as logger from '../logger';
 import * as state from '../providers/state';
 import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
-import { go } from '../utils/promise-utils';
 
 function loadConfig() {
   const { config, shouldSkipValidation, validationOutput } = parseConfig(

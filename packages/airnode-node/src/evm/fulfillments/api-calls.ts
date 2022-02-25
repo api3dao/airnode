@@ -1,8 +1,7 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
+import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
-import { go } from '../../utils/promise-utils';
-import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 import {

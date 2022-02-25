@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import map from 'lodash/map';
+import { randomHexString, removeKeys } from '@api3/airnode-utilities';
 import * as evm from '../evm';
-import { randomHexString, removeKeys } from '../utils';
 import {
   ChainConfig,
   ChainType,

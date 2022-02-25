@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
-import * as logger from '../../logger';
+import { logger } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
 import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, Trigger } from '../../types';
 

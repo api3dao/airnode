@@ -9,6 +9,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
+import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
 import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
@@ -368,35 +369,6 @@ export interface Triggers {
   // For now the attribute is optional, because http gateway is supported only on AWS.
   // TODO: Make this required once it is supported everywhere.
   http?: Trigger[];
-}
-
-// ===========================================
-// Logging
-// ===========================================
-export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
-
-export type LogFormat = 'json' | 'plain';
-
-export interface LogMetadata {
-  readonly coordinatorId?: string;
-  readonly chainId?: string;
-  readonly chainType?: ChainType;
-  readonly providerName?: string;
-  readonly requestId?: string;
-}
-
-export interface LogOptions {
-  readonly additional?: any;
-  readonly error?: Error | null;
-  readonly format: LogFormat;
-  readonly level: LogLevel;
-  readonly meta: LogMetadata;
-}
-
-export interface PendingLog {
-  readonly error?: Error;
-  readonly level: LogLevel;
-  readonly message: string;
 }
 
 // There are many places throughout the app where we need the context of the current
