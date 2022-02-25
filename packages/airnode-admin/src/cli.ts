@@ -3,6 +3,7 @@ import { exit } from 'process';
 import * as yargs from 'yargs';
 import * as evm from './evm';
 import * as admin from './implementation';
+import { cliExamples } from './cli-examples';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -520,13 +521,7 @@ yargs
       console.log(`Airnode address: ${airnodeAddress}`);
     }
   )
-  .example(
-    [
-      '$0 derive-airnode-address --airnode-mnemonic "test test test test test test test test test test test junk"',
-      '$0 derive-sponsor-wallet-address --airnode-xpub xpub6Ce9NcJvTk36xtLSrJLZqE7wtgA5deCeYs7rSQtreh4cj6ByPtrg9sD7V2FNFLPnf8heNP3FGkeV9qwfzvZNSd54JoNXVsXFYSYwHsnJxqP --airnode-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --sponsor-address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      '$0 derive-endpoint-id --ois-title "title" --endpoint-name "endpoint"',
-    ].map((line) => [line + '\n'])
-  )
+  .example(cliExamples.map((line) => [`$0 ${line}\n`]))
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
