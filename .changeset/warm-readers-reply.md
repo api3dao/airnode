@@ -2,4 +2,4 @@
 '@api3/airnode-examples': minor
 ---
 
-Add signed relayed data example
+Add signed data endpoint example

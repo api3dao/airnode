@@ -41,7 +41,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpGateway: {
       enabled: false,
     },
-    httpSignedRelayedGateway: {
+    signedDataGateway: {
       enabled: true,
       apiKey: '${SIGNED_DATA_GATEWAY_API_KEY}',
       maxConcurrency: 20,
@@ -61,7 +61,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       },
     ],
     http: [],
-    httpSignedRelayed: [
+    signedData: [
       {
         endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
         oisTitle: 'CoinGecko basic request',
