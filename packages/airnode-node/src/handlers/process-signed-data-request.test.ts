@@ -35,21 +35,13 @@ describe('processsignedDataRequests', () => {
   });
 
   describe('returns an error for missing parameters', () => {
-    it('missing relayer parameter', async () => {
-      const parameters = { _id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf' };
-      const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
-
-      expect(res).toBeNull();
-      expect(err).toEqual(new Error('You must specify "_relayer" address in the request parameters.'));
-    });
-
-    it('missing id parameter', async () => {
-      const parameters = { _relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706' };
+    it('missing "_templateId" parameter', async () => {
+      const parameters = {};
       const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
       expect(res).toBeNull();
       expect(err).toEqual(
-        new Error('You must specify "_id" for the requestId/subscriptionId in the request parameters.')
+        new Error('You must specify "_templateId" for the requestId/subscriptionId in the request parameters.')
       );
     });
   });
@@ -64,8 +56,7 @@ describe('processsignedDataRequests', () => {
       _type: 'int256',
       _path: 'price',
       from: 'ETH',
-      _relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
-      _id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      _templateId: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
     };
     const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 

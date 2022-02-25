@@ -25,7 +25,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
 
   switch (aggregatedApiCall.type) {
     case 'signed-data-gateway': {
-      const removedHttpParams = removeKeys(sanitizedParameters, ['_id', '_relayer']);
+      const removedHttpParams = removeKeys(sanitizedParameters, ['_templateId']);
       return {
         endpointName,
         parameters: removedHttpParams,
@@ -69,34 +69,25 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   }
 }
 
-async function signResponseMessage(requestId: string, responseValue: string, config: Config) {
+async function signResponseMessage(requestId: string, data: string, config: Config) {
   const masterHDNode = getMasterHDNode(config);
   const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
-      ethers.utils.keccak256(ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, responseValue || '0x']))
+      ethers.utils.keccak256(ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data || '0x']))
     )
   );
 }
 
-async function signDataForBeaconUpdate(
-  requestId: string,
-  timestamp: string,
-  relayerAddress: string,
-  responseValue: string,
-  config: Config
-) {
+async function signDataForBeaconUpdate(templateId: string, timestamp: string, data: string, config: Config) {
   const masterHDNode = getMasterHDNode(config);
   const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
       ethers.utils.keccak256(
-        ethers.utils.solidityPack(
-          ['bytes32', 'uint256', 'address', 'bytes'],
-          [requestId, timestamp, relayerAddress, responseValue || '0x']
-        )
+        ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [templateId, timestamp, data || '0x'])
       )
     )
   );
@@ -240,9 +231,8 @@ async function processSuccessfulApiCall(
       case 'signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const signature = await signDataForBeaconUpdate(
-          aggregatedApiCall.id, // Same as parameters._id
+          parameters._templateId,
           timestamp,
-          parameters._relayer,
           response.encodedValue,
           config
         );

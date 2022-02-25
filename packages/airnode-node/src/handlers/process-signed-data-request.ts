@@ -4,11 +4,11 @@ import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
 import * as logger from '../logger';
 import { callApi } from '../api';
 import { Config } from '../config/types';
+import { randomHexString } from '../utils';
 
 export async function processSignedDataRequest(
   config: Config,
   endpointId: string,
-  // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
   const trigger = find(config.triggers.signedData, ['endpointId', endpointId]);
@@ -22,16 +22,15 @@ export async function processSignedDataRequest(
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
 
-  // Check that the required relayer parameters have been supplied
   // TODO: There should be an TS interface for required params
-  if (!parameters._id) {
-    return [new Error(`You must specify "_id" for the requestId/subscriptionId in the request parameters.`), null];
-  }
-  if (!parameters._relayer) {
-    return [new Error(`You must specify "_relayer" address in the request parameters.`), null];
+  if (!parameters._templateId) {
+    return [
+      new Error(`You must specify "_templateId" for the requestId/subscriptionId in the request parameters.`),
+      null,
+    ];
   }
 
-  const requestId = parameters._id;
+  const requestId = randomHexString(16);
   const logOptions = logger.buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const aggregatedApiCall: AggregatedApiCall = {
