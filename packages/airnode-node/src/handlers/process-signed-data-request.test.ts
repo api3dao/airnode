@@ -10,7 +10,7 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
   return fixtures.buildConfig({ ois: [fixtures.buildOIS({ endpoints })] });
 }
 
-describe('processsignedDataRequests', () => {
+describe('processSignedDataRequests', () => {
   it('returns an error if no endpoint trigger with given ID is found', async () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
     const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), nonExistentEndpointId, {});
@@ -64,7 +64,7 @@ describe('processsignedDataRequests', () => {
     const aggregatedApiCall = fixtures.buildAggregatedSignedDataApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
-      id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+      id: expect.any(String),
       parameters,
     });
 
