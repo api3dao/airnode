@@ -7,6 +7,7 @@ import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { deploy, removeWithReceipt, remove } from './commands';
+import { cliExamples } from './cli-examples';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';
 import { longArguments, printableArguments } from '../utils/cli';
@@ -158,6 +159,7 @@ yargs(hideBin(process.argv))
       }
     }
   )
+  .example(cliExamples.map((line) => [`$0 ${line}\n`]))
   .help()
   .demandCommand(1)
   .strict()
