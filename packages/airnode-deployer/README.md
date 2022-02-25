@@ -76,7 +76,7 @@ Options:
   -r, --receipt                          Output path for receipt file          [string] [default: "output/receipt.json"]
 
 Examples:
-  deployer.ts deploy -c pathTo/config.json -s pathTo/secrets.env -r myOutput/receipt.json
+  airnode-deployer deploy -c pathTo/config.json -s pathTo/secrets.env -r myOutput/receipt.json
 ```
 
 #### remove
@@ -96,7 +96,7 @@ Options:
   -p, --project-id             Project ID (GCP only)                                                            [string]
 
 Examples:
-  deployer.ts remove -r myOutput/receipt.json
+  airnode-deployer remove -r myOutput/receipt.json
 
-  deployer.ts remove --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1
+  airnode-deployer remove --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1
 ```

@@ -669,11 +669,11 @@ describe('CLI', () => {
       'Endpoint ID: 0x901843fb332b24a9a71a2234f2a7c82214b7b70e99ab412e7d1827b743f63f61',
     ];
 
-    test.each(cliExamples)(`example command: %# is valid`, (example: string) => {
-      const out = execSync(`node ${CLI_EXECUTABLE} ${example}`).toString().trim();
-      const exampleIndex = cliExamples.findIndex((command) => command === example);
-
-      expect(out).toEqual(exampleOutcomes[exampleIndex]);
+    cliExamples.forEach((command: string, index: number) => {
+      it(`tests example command ${index}`, () => {
+        const out = execSync(`node ${CLI_EXECUTABLE} ${command}`).toString().trim();
+        expect(out).toEqual(exampleOutcomes[index]);
+      });
     });
   });
 });
