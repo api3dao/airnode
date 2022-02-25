@@ -2,7 +2,7 @@ import * as adapter from '@api3/airnode-adapter';
 import { processSignedDataRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
-it('makes a call for signed relayed API data', async () => {
+it('makes a call for signed API data', async () => {
   // Set a fake time so that the generated timestamp of the test is always the same
   const mockedTimestamp = new Date(`2021-02-14`).valueOf();
   jest.spyOn(global.Date, 'now').mockImplementationOnce(() => mockedTimestamp);

@@ -1,5 +1,5 @@
 import { Endpoint } from '@api3/airnode-ois';
-import { processSignedDataRequest } from './process-http-signed-relayed-request';
+import { processSignedDataRequest } from './process-signed-data-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
 
