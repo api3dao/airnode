@@ -1,6 +1,4 @@
 import { AttemptOptions, retry, sleep } from '@lifeomic/attempt';
-// import { DEFAULT_RETRY_DELAY_MS } from '../constants';
-// This is being moved out into a separate package anyway.
 const DEFAULT_RETRY_DELAY_MS = 50;
 
 // Adapted from:

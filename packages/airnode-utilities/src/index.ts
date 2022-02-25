@@ -4,4 +4,4 @@ export * from './utils/array-utils';
 export * from './utils/date-utils';
 export * from './utils/promise-utils';
 export * from './utils/string-utils';
-export * from './types';
+export * from './logging-types';

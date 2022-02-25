@@ -1,5 +1,5 @@
 import { formatDateTimeMs } from './utils';
-import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './types';
+import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './logging-types';
 
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -8,12 +8,15 @@ const logLevels: { readonly [key in LogLevel]: number } = {
   ERROR: 3,
 };
 
-export const logger = {
-  buildBaseOptions: (config: LogConfig, meta: LogMetadata) => ({
+export function buildBaseOptions(config: LogConfig, meta: LogMetadata) {
+  return {
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
     meta,
-  }),
+  };
+}
+
+export const logger = {
   log: (message: string, options?: LogOptions) => {
     if (options) {
       logFull('INFO', message, options);

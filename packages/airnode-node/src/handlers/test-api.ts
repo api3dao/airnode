@@ -1,5 +1,5 @@
 import find from 'lodash/find';
-import { logger, randomHexString } from '@api3/airnode-utilities';
+import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
@@ -12,7 +12,7 @@ export async function testApi(
   const testCallId = randomHexString(16);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
-  const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
+  const logOptions = buildBaseOptions(config, { requestId: testCallId });
 
   const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!httpTrigger) {
