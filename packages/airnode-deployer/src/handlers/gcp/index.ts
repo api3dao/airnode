@@ -1,6 +1,5 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
-import { logger, go } from '@api3/airnode-utilities';
 import {
   handlers,
   providers,
@@ -10,6 +9,7 @@ import {
   ProcessTransactionsPayload,
   WorkerPayload,
 } from '@api3/airnode-node';
+import { logger, go } from '@api3/airnode-utilities';
 import { loadConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);

@@ -2045,7 +2045,7 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@lifeomic/attempt@^3.0.0":
+"@lifeomic/attempt@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.0.2.tgz#6920d6fa76e911c2d27e5a7c9a5f42aff2292733"
   integrity sha512-JHRfM7fUit2UroC0xRnuzMGegSTbfvz6X/1PgcIvahXC+A7UsKa8XfR1YrBsvoSu669iMTeNkDb26pSkGOzXKw==
@@ -5966,7 +5966,7 @@ date-and-time@^2.0.0:
   resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-2.0.1.tgz#bc8b72704980e8a0979bb186118d30d02059ef04"
   integrity sha512-O7Xe5dLaqvY/aF/MFWArsAM1J4j7w1CSZlPCX9uHgmb+6SbkPd8Q4YOvfvH/cZGvFlJFfHOZKxQtmMUOoZhc/w==
 
-date-fns@^2.16.1:
+date-fns@^2.28.0:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
   integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==

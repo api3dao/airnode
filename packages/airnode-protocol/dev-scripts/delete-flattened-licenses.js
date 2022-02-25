@@ -1,5 +1,4 @@
 const replace = require('replace-in-file');
-const { log } = require('@api3/airnode-utilities');
 
 const results = replace.sync({
   files: '*.flat.sol',
@@ -7,4 +6,5 @@ const results = replace.sync({
   to: '',
 });
 
-log(results);
+// eslint-disable-next-line no-console
+console.log(results);
