@@ -55,14 +55,14 @@ variable "http_max_concurrency" {
   default = -1
 }
 
-variable "http_signed_relayed_api_key" {
-  description = "API key to access Airnode HTTP Signed Relayed Gateway"
+variable "signed_data_api_key" {
+  description = "API key to access Airnode Signed Data Gateway"
   type        = string
   default     = null
 }
 
-variable "http_signed_relayed_max_concurrency" {
-  description = "Maximum amount of concurrent executions for Airnode HTTP Signed Relayed Gateway Lambda"
+variable "signed_data_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Lambda"
   # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#reserved_concurrent_executions
   default = -1
 }

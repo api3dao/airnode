@@ -102,7 +102,7 @@ export async function processHttpRequest(
 
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
-export async function processHttpSignedRelayedRequest(
+export async function processSignedDataRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
   if (!event.body) {
@@ -116,7 +116,7 @@ export async function processHttpSignedRelayedRequest(
   const parameters = JSON.parse(event.body).parameters;
   const endpointId = event.pathParameters.endpointId;
 
-  const [err, result] = await handlers.processHttpSignedRelayedRequest(parsedConfig, endpointId, parameters);
+  const [err, result] = await handlers.processSignedDataRequest(parsedConfig, endpointId, parameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }

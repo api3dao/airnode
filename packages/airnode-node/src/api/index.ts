@@ -24,7 +24,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
 
   switch (aggregatedApiCall.type) {
-    case 'http-signed-relayed-gateway': {
+    case 'signed-data-gateway': {
       const removedHttpParams = removeKeys(sanitizedParameters, ['_id', '_relayer']);
       return {
         endpointName,
@@ -80,7 +80,7 @@ async function signResponseMessage(requestId: string, responseValue: string, con
   );
 }
 
-async function signRelayedResponseMessage(
+async function signDataForBeaconUpdate(
   requestId: string,
   timestamp: string,
   relayerAddress: string,
@@ -237,9 +237,9 @@ async function processSuccessfulApiCall(
         const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
         return [[], { success: true, value: response.encodedValue, signature }];
       }
-      case 'http-signed-relayed-gateway': {
+      case 'signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const signature = await signRelayedResponseMessage(
+        const signature = await signDataForBeaconUpdate(
           aggregatedApiCall.id, // Same as parameters._id
           timestamp,
           parameters._relayer,

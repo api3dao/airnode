@@ -1,5 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
-import { processHttpSignedRelayedRequest } from '../../src/workers/local-handlers';
+import { processSignedDataRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
 it('makes a call for signed relayed API data', async () => {
@@ -21,7 +21,7 @@ it('makes a call for signed relayed API data', async () => {
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await processHttpSignedRelayedRequest(endpointId, parameters);
+  const result = await processSignedDataRequest(endpointId, parameters);
 
   const expected = {
     // Value is returned by the mock server from the operation package

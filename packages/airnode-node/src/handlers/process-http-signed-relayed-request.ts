@@ -5,13 +5,13 @@ import * as logger from '../logger';
 import { callApi } from '../api';
 import { Config } from '../config/types';
 
-export async function processHttpSignedRelayedRequest(
+export async function processSignedDataRequest(
   config: Config,
   endpointId: string,
   // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
-  const trigger = find(config.triggers.httpSignedRelayed, ['endpointId', endpointId]);
+  const trigger = find(config.triggers.signedData, ['endpointId', endpointId]);
   if (!trigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }
@@ -35,7 +35,7 @@ export async function processHttpSignedRelayedRequest(
   const logOptions = logger.buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const aggregatedApiCall: AggregatedApiCall = {
-    type: 'http-signed-relayed-gateway',
+    type: 'signed-data-gateway',
     id: requestId,
     airnodeAddress,
     endpointId,

@@ -5,4 +5,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Add support for signed relayed HTTP gateway
+Add endpoint for getting signed data for beacon updates

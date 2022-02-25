@@ -57,7 +57,7 @@ module "startCoordinator" {
 
   environment_variables = {
     HTTP_GATEWAY_URL                = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    HTTP_SIGNED_RELAYED_GATEWAY_URL = var.http_signed_relayed_api_key == null ? null : "${module.httpSignedRelayedApiGateway[0].api_url}"
+    SIGNED_DATA_GATEWAY_URL = var.signed_data_api_key == null ? null : "${module.signedDataApiGateway[0].api_url}"
   }
 
   schedule_interval = 1
@@ -71,7 +71,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null || var.http_signed_relayed_api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.signed_data_api_key == null ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -84,7 +84,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null || var.http_signed_relayed_api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.signed_data_api_key == null ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
@@ -145,12 +145,12 @@ module "httpApiGateway" {
   ]
 }
 
-module "processHttpSignedRelayedRequest" {
+module "processSignedDataRequest" {
   source = "./modules/function"
-  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+  count  = var.signed_data_api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-processHttpSignedRelayedRequest"
-  entry_point        = "processHttpSignedRelayedRequest"
+  name               = "${local.name_prefix}-processSignedDataRequest"
+  entry_point        = "processSignedDataRequest"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 15
@@ -160,36 +160,36 @@ module "processHttpSignedRelayedRequest" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_SIGNED_RELAYED_GATEWAY_API_KEY = var.http_signed_relayed_api_key
+    SIGNED_DATA_GATEWAY_API_KEY = var.signed_data_api_key
   }
 
-  max_instances = var.disable_concurrency_reservation ? null : var.http_signed_relayed_max_concurrency
+  max_instances = var.disable_concurrency_reservation ? null : var.signed_data_max_concurrency
 
   depends_on = [
     google_project_service.management_apis,
   ]
 }
 
-module "httpSignedRelayedApiGateway" {
+module "signedDataApiGateway" {
   source = "./modules/apigateway"
-  count  = var.http_signed_relayed_api_key == null ? 0 : 1
+  count  = var.signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpSignedRelayedApiGateway"
-  template_file = "./templates/httpSignedRelayedApiGateway.yaml.tpl"
+  name          = "${local.name_prefix}-signedDataApiGateway"
+  template_file = "./templates/signedDataApiGateway.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.processHttpSignedRelayedRequest[0].function_name
+    cloud_function_name = module.processSignedDataRequest[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.processHttpSignedRelayedRequest[0].function_name
+    module.processSignedDataRequest[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.processHttpSignedRelayedRequest,
+    module.processSignedDataRequest,
   ]
 }

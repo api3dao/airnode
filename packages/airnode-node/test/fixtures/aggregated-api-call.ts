@@ -1,7 +1,7 @@
 import {
   TestingGatewayAggregatedApiCall,
   RegularAggregatedApiCall,
-  SignedRelayedAggregatedApiCall,
+  SignedDataAggregatedApiCall,
 } from '../../src/types';
 
 export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregatedApiCall>): RegularAggregatedApiCall {
@@ -51,11 +51,11 @@ export function buildAggregatedTestingGatewayApiCall(
   };
 }
 
-export function buildAggregatedSignedRelayedApiCall(
-  params?: Partial<SignedRelayedAggregatedApiCall>
-): SignedRelayedAggregatedApiCall {
+export function buildAggregatedSignedDataApiCall(
+  params?: Partial<SignedDataAggregatedApiCall>
+): SignedDataAggregatedApiCall {
   return {
-    type: 'http-signed-relayed-gateway',
+    type: 'signed-data-gateway',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',

@@ -11,7 +11,7 @@ export const triggerSchema = z.object({
 export const triggersSchema = z.object({
   rrp: z.array(triggerSchema),
   http: z.array(triggerSchema).optional(),
-  httpSignedRelayed: z.array(triggerSchema),
+  signedData: z.array(triggerSchema),
 });
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
@@ -100,7 +100,7 @@ export const nodeSettingsSchema = z.object({
   airnodeWalletMnemonic: z.string(),
   heartbeat: heartbeatSchema,
   httpGateway: gatewaySchema,
-  httpSignedRelayedGateway: gatewaySchema,
+  signedDataGateway: gatewaySchema,
   airnodeAddressShort: z.string().optional(),
   stage: z.string(),
   cloudProvider: localOrCloudProviderSchema,

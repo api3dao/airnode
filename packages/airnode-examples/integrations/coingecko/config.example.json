@@ -34,7 +34,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "signedDataGateway": {
       "enabled": false
     },
     "logFormat": "plain",
@@ -51,7 +51,7 @@
         "endpointName": "coinMarketData"
       }
     ],
-    "httpSignedRelayed": []
+    "signedData": []
   },
   "ois": [
     {
