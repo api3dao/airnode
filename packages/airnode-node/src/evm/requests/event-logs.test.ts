@@ -147,7 +147,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
-      minConfirmations: 99999999,
+      minConfirmations: 10,
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const res = await eventLogs.fetch(fetchOptions);
@@ -155,7 +155,7 @@ describe('EVM event logs - fetch', () => {
     expect(getLogs).toHaveBeenCalledTimes(1);
     expect(getLogs).toHaveBeenCalledWith({
       fromBlock: 0,
-      toBlock: 0,
+      toBlock: 10716074,
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       topics: [null, '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace'],
     });
