@@ -22,6 +22,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
     ignoreBlockedRequestsAfterBlocks: state.settings.ignoreBlockedRequestsAfterBlocks,
+    minConfirmations: state.settings.minConfirmations,
     provider: state.provider,
   };
   // Fetch event logs from the provider. Let this throw if something goes wrong.

@@ -23,6 +23,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: logWithMetadata.minConfirmations,
       transactionHash: logWithMetadata.transactionHash,
     },
     sponsorAddress: parsedLog.args.sponsor,

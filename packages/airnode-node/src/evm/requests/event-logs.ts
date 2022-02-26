@@ -16,6 +16,7 @@ export interface FetchOptions {
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -33,12 +34,13 @@ export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.provi
 }
 
 export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
-  // Protect against a potential negative fromBlock value
+  // Protect against a potential negative fromBlock and toBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
+  const toBlock = Math.max(0, options.currentBlock - options.minConfirmations);
 
   const filter: ethers.providers.Filter = {
     fromBlock,
-    toBlock: options.currentBlock,
+    toBlock,
     address: options.address,
     topics: [null, ethers.utils.hexZeroPad(options.airnodeAddress, 32)],
   };
@@ -51,6 +53,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
     ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
+    minConfirmations: options.minConfirmations,
     transactionHash: log.transactionHash,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),

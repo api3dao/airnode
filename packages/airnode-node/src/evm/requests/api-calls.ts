@@ -46,6 +46,7 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
       blockNumber: log.blockNumber,
       currentBlock: log.currentBlock,
       ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: log.minConfirmations,
       transactionHash: log.transactionHash,
     },
     // Parameters are decoded separately

@@ -30,6 +30,7 @@ describe('fetchPendingRequests', () => {
             blockNumber: 13,
             currentBlock: null,
             ignoreBlockedRequestsAfterBlocks: 20,
+            minConfirmations: 0,
             transactionHash: '0x420ebda3f246256ced7a58fb72d28d99548eb30de6d2e4d5c767fb547ff795ff',
           },
           parameters: {
@@ -56,6 +57,7 @@ describe('fetchPendingRequests', () => {
             blockNumber: 14,
             currentBlock: null,
             ignoreBlockedRequestsAfterBlocks: 20,
+            minConfirmations: 0,
             transactionHash: '0xcc764cd8c569d23b8b2246c80ec8e2091772140e1aafe9e326dfe37cd73454c4',
           },
           sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
