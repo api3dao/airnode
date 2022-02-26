@@ -34,9 +34,10 @@ export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.provi
 }
 
 export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
-  // Protect against a potential negative fromBlock and toBlock value
+  // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
-  const toBlock = Math.max(0, options.currentBlock - options.minConfirmations);
+  // toBlock should always be >= fromBlock
+  const toBlock = Math.max(fromBlock, options.currentBlock - options.minConfirmations);
 
   const filter: ethers.providers.Filter = {
     fromBlock,
