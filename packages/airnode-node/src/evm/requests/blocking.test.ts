@@ -1,7 +1,7 @@
 import range from 'lodash/range';
 import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests, RequestStatus, RequestErrorMessage } from '../../types';
+import { GroupedRequests, RequestStatus } from '../../types';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
@@ -24,11 +24,7 @@ describe('blockRequestsWithWithdrawals', () => {
         message: `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
       },
     ]);
-    expect(res.apiCalls.length).toEqual(1);
-    expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
-    expect(res.apiCalls[0].errorMessage).toEqual(`${RequestErrorMessage.PendingWithdrawal}: ${withdrawal.id}`);
-    expect(res.withdrawals.length).toEqual(1);
-    expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
+    expect(res.apiCalls.length).toEqual(0);
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {

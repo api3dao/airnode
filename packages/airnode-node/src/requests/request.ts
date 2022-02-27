@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import { ApiCall, Request, GroupedRequests, RequestStatus, Withdrawal } from '../types';
 
-export function blockedOrIgnored<T>(request: Request<T>): RequestStatus.Blocked | RequestStatus.Ignored {
+export function shouldDropAfterBlockLimit<T>(request: Request<T>): boolean {
   const { blockNumber, currentBlock, ignoreBlockedRequestsAfterBlocks } = request.metadata;
-  return currentBlock - blockNumber > ignoreBlockedRequestsAfterBlocks ? RequestStatus.Ignored : RequestStatus.Blocked;
+  return currentBlock - blockNumber > ignoreBlockedRequestsAfterBlocks;
 }
 
 export function filterActionableApiCalls(apiCalls: Request<ApiCall>[]): Request<ApiCall>[] {

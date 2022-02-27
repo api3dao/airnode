@@ -1,5 +1,5 @@
 import * as grouping from './grouping';
-import { blockedOrIgnored } from './request';
+import { shouldDropAfterBlockLimit } from './request';
 import * as sorting from './sorting';
 import { AnyRequest, GroupedRequests, ProviderState, Request, RequestStatus, EVMProviderSponsorState } from '../types';
 
@@ -28,12 +28,15 @@ function assignWalletNonces(flatRequests: Request<AnyRequest>[], transactionCoun
     }
 
     if (request.status === RequestStatus.Blocked) {
-      const status = blockedOrIgnored(request);
-      const assignmentBlocked = status === RequestStatus.Blocked;
-
+      if (shouldDropAfterBlockLimit(request)) {
+        return {
+          ...acc,
+          requests: [...acc.requests],
+        };
+      }
       return {
         ...acc,
-        assignmentBlocked,
+        assignmentBlocked: true,
         requests: [...acc.requests, request],
       };
     }

@@ -3,7 +3,7 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, PendingLog } from '../../types';
 import { Trigger } from '../../config/types';
 
 export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
@@ -16,32 +16,34 @@ export function verifySponsorWallets<T>(
   requests: Request<T>[],
   masterHDNode: ethers.utils.HDNode
 ): LogsData<Request<T>[]> {
-  const logsWithVerifiedRequests: LogsData<Request<T>>[] = requests.map((request) => {
+  const logs: PendingLog[] = [];
+  const verifiedRequests: Request<T>[] = [];
+
+  requests.forEach(function (request) {
     if (request.status !== RequestStatus.Pending) {
       const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
-      return [[log], request];
+      logs.push(log);
+      verifiedRequests.push(request);
+      return;
     }
 
     const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
     if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
+      // Drop request, but log error
       const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
       const log = logger.pend('ERROR', message);
-      const updatedRequest: Request<T> = {
-        ...request,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${request.sponsorWalletAddress}`,
-      };
-      return [[log], updatedRequest];
+      logs.push(log);
+      return;
     }
 
     const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWalletAddress}`;
     const log = logger.pend('DEBUG', message);
-    return [[log], request];
+    logs.push(log);
+    verifiedRequests.push(request);
+    return;
   });
 
-  const logs = flatMap(logsWithVerifiedRequests, (r) => r[0]);
-  const verifiedRequests = flatMap(logsWithVerifiedRequests, (r) => r[1]);
   return [logs, verifiedRequests];
 }
 
