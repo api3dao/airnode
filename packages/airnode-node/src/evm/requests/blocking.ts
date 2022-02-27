@@ -41,7 +41,7 @@ export function blockRequestsWithWithdrawals([
     return {
       ...acc,
       logs: [...acc.logs, warningLog],
-      apiCalls,
+      apiCalls: [...acc.apiCalls],
     };
   }, initialState);
 
