@@ -1,5 +1,5 @@
 import {
-  TestingGatewayAggregatedApiCall,
+  HttpGatewayAggregatedApiCall,
   RegularAggregatedApiCall,
   HttpSignedDataAggregatedApiCall,
 } from '../../src/types';
@@ -36,9 +36,9 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
   };
 }
 
-export function buildAggregatedTestingGatewayApiCall(
-  params?: Partial<TestingGatewayAggregatedApiCall>
-): TestingGatewayAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(
+  params?: Partial<HttpGatewayAggregatedApiCall>
+): HttpGatewayAggregatedApiCall {
   return {
     type: 'http-gateway',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',

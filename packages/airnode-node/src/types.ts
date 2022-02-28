@@ -237,7 +237,7 @@ export interface ApiCallErrorResponse {
 
 export type AggregatedApiCall =
   | RegularAggregatedApiCall
-  | TestingGatewayAggregatedApiCall
+  | HttpGatewayAggregatedApiCall
   | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
@@ -272,7 +272,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   template?: ApiCallTemplate;
 }
 
-export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-gateway';
 }
 

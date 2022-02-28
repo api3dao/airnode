@@ -54,7 +54,7 @@ describe('processHttpRequest', () => {
     const [err, res] = await processHttpRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
     const config = fixtures.buildConfig();
-    const aggregatedApiCall = fixtures.buildAggregatedTestingGatewayApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedHttpGatewayApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),
