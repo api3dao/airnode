@@ -1,6 +1,5 @@
-import { formatDateTimeMs } from './utils/date-utils';
-import { LogOptions, PendingLog, LogMetadata } from './types';
-import { Config, LogLevel } from './config/types';
+import { formatDateTimeMs } from './utils';
+import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './logging-types';
 
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -9,7 +8,7 @@ const logLevels: { readonly [key in LogLevel]: number } = {
   ERROR: 3,
 };
 
-export function buildBaseOptions(config: Config, meta: LogMetadata) {
+export function buildBaseOptions(config: LogConfig, meta: LogMetadata) {
   return {
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
@@ -17,23 +16,61 @@ export function buildBaseOptions(config: Config, meta: LogMetadata) {
   };
 }
 
-export function debug(message: string, options: LogOptions) {
-  log('DEBUG', message, options);
-}
+export const logger = {
+  log: (message: string, options?: LogOptions) => {
+    if (options) {
+      logFull('INFO', message, options);
+      return;
+    }
+    consoleLog(message);
+  },
+  debug: (message: string, options?: LogOptions) => {
+    if (options) {
+      logFull('DEBUG', message, options);
+      return;
+    }
+    consoleLog(message);
+  },
+  info: (message: string, options?: LogOptions) => {
+    if (options) {
+      logFull('INFO', message, options);
+      return;
+    }
+    consoleLog(message);
+  },
+  warn: (message: string, options?: LogOptions) => {
+    if (options) {
+      logFull('WARN', message, options);
+      return;
+    }
+    consoleLog(message);
+  },
+  error: (message: string, options?: LogOptions) => {
+    if (options) {
+      logFull('ERROR', message, options);
+      return;
+    }
+    consoleLog(message);
+  },
+  logPending: (pendingLogs: PendingLog[], options: LogOptions) => {
+    pendingLogs.forEach((pendingLog) => {
+      logFull(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
+    });
+  },
+  // NOTE: In many cases it is not ideal to pass the entire state in to a
+  // function just to have access to the provider name. This would tightly
+  // couple many parts of the application together. For this reason, functions
+  // can build up a list of "pending" logs and have them all output at once
+  // (from a higher level function).
+  pend: (level: LogLevel, message: string, error?: Error | null): PendingLog => {
+    if (error) {
+      return { error, level, message };
+    }
+    return { level, message };
+  },
+};
 
-export function info(message: string, options: LogOptions) {
-  log('INFO', message, options);
-}
-
-export function warn(message: string, options: LogOptions) {
-  log('WARN', message, options);
-}
-
-export function error(message: string, options: LogOptions) {
-  log('ERROR', message, options);
-}
-
-export function log(level: LogLevel, message: string, options: LogOptions) {
+export function logFull(level: LogLevel, message: string, options: LogOptions) {
   if (process.env.SILENCE_LOGGER) {
     return;
   }
@@ -77,7 +114,7 @@ export function plain(level: LogLevel, message: string, options: LogOptions) {
     return `${acc}, ${key}: ${options.additional[key]}`;
   }, '');
 
-  console.log(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
+  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
@@ -89,23 +126,11 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
     ...(options.meta || {}),
     ...(options.additional || {}),
   };
-  console.log(JSON.stringify(logObject));
+
+  consoleLog(JSON.stringify(logObject));
 }
 
-// NOTE: In many cases it is not ideal to pass the entire state in to a
-// function just to have access to the provider name. This would tightly
-// couple many parts of the application together. For this reason, functions
-// can build up a list of "pending" logs and have them all output at once
-// (from a higher level function).
-export function pend(level: LogLevel, message: string, error?: Error | null): PendingLog {
-  if (error) {
-    return { error, level, message };
-  }
-  return { level, message };
-}
-
-export function logPending(pendingLogs: PendingLog[], options: LogOptions) {
-  pendingLogs.forEach((pendingLog) => {
-    log(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
-  });
+export function consoleLog(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(message);
 }

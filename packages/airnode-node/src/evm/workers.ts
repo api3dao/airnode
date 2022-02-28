@@ -1,5 +1,4 @@
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
+import { logger, go } from '@api3/airnode-utilities';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
 import {

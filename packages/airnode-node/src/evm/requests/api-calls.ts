@@ -1,8 +1,8 @@
 import flatMap from 'lodash/flatMap';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as events from './events';
 import * as encoding from '../abi-encoding';
 import { airnodeRrpTopics } from '../contracts';
-import * as logger from '../../logger';
 import {
   ApiCall,
   ApiCallType,
@@ -11,7 +11,6 @@ import {
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
   LogsData,
-  PendingLog,
   RequestErrorMessage,
   RequestStatus,
 } from '../../types';

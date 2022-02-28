@@ -27,6 +27,7 @@
     "build:operation": "(cd packages/airnode-operation && yarn run build)",
     "build:protocol": "(cd packages/airnode-protocol && yarn run build)",
     "build:validator": "(cd packages/airnode-validator && yarn run build)",
+    "build:utilities": "(cd packages/airnode-utilities && yarn run build)",
     "changeset": "changeset",
     "changeset:check": "changeset status --since=origin/master",
     "changeset:empty": "changeset --empty",
@@ -79,6 +80,7 @@
     "test:protocol": "cd packages/airnode-protocol && yarn run test",
     "test:node": "(cd packages/airnode-node && yarn run test)",
     "test:node:watch": "cd packages/airnode-node && yarn run test:watch",
+    "test:utilities": "(cd packages/airnode-utilities && yarn run test)",
     "test:validator": "(cd packages/airnode-validator && yarn run test)"
   },
   "dependencies": {},

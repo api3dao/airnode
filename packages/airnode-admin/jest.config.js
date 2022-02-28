@@ -7,7 +7,6 @@ module.exports = {
       // Add custom settings below
       name: 'e2e',
       displayName: 'e2e',
-      setupFiles: ['<rootDir>/test/setup/init/set-define-property.ts'],
       testMatch: ['**/?(*.)+(feature).[tj]s?(x)'],
     },
     {
@@ -15,7 +14,6 @@ module.exports = {
       // Add custom settings below
       displayName: 'unit',
       name: 'unit',
-      setupFiles: ['<rootDir>/test/setup/init/set-define-property.ts'],
       testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
     },
   ],

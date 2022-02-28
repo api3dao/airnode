@@ -1,6 +1,6 @@
+import { logger } from '@api3/airnode-utilities';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
-import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import {
   Request,

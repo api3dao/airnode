@@ -1,8 +1,7 @@
 import { execute } from '@api3/airnode-adapter';
+import { logger, PendingLog, go } from '@api3/airnode-utilities';
 import { getEnvValue } from '../config';
-import * as logger from '../logger';
-import { go } from '../utils';
-import { CoordinatorState, PendingLog } from '../types';
+import { CoordinatorState } from '../types';
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
   const heartbeat = state.config.nodeSettings.heartbeat;

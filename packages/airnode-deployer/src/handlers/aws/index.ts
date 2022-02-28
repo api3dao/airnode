@@ -1,8 +1,7 @@
 import * as path from 'path';
+import { logger, go } from '@api3/airnode-utilities';
 import {
   handlers,
-  logger,
-  utils,
   providers,
   WorkerResponse,
   WorkerPayload,
@@ -42,9 +41,10 @@ export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayP
 async function initializeProvider(payload: InitializeProviderPayload) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
+    logger.error(err!.toString());
     const errorLog = logger.pend('ERROR', msg, err);
     const body = encodeBody({ ok: false, errorLog });
     return { statusCode: 500, body };
@@ -65,9 +65,10 @@ async function callApi(payload: CallApiPayload) {
 async function processTransactions(payload: ProcessTransactionsPayload) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
+    logger.error(err!.toString());
     const errorLog = logger.pend('ERROR', msg, err);
     const body = encodeBody({ ok: false, errorLog });
     return { statusCode: 500, body };
