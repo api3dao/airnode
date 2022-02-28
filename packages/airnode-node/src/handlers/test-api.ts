@@ -1,8 +1,9 @@
 import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
-import { AggregatedApiCall, Config, ApiCallSuccessResponse } from '../types';
+import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
+import { Config } from '../config/types';
 
 export async function testApi(
   config: Config,

@@ -1,6 +1,7 @@
 import { randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
-import { Config, CoordinatorSettings, CoordinatorState } from '../types';
+import { CoordinatorSettings, CoordinatorState } from '../types';
+import { Config } from '../config/types';
 
 export function create(config: Config): CoordinatorState {
   const coordinatorId = randomHexString(16);

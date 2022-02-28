@@ -1,29 +1,34 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config, parseConfig, version as getNodeVersion } from '@api3/airnode-node';
-import { validateReceipt } from './validation';
+import { CloudProvider, Config } from '@api3/airnode-node';
+import { parseReceipt, parseConfigWithSecrets, unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
 
-export function loadConfig(configPath: string, secrets: Record<string, string | undefined>, shouldValidate: boolean) {
-  const { shouldSkipValidation, config, validationOutput } = parseConfig(configPath, secrets, shouldValidate);
-  const { messages, valid } = validationOutput;
+const readConfig = (configPath: string): unknown => {
+  try {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    throw new Error('Failed to parse config file');
+  }
+};
 
-  if (shouldSkipValidation) {
-    logger.warn('Skipping the config validation');
-    return config;
-  }
-  if (!valid) {
-    logger.fail(JSON.stringify(messages, null, 2));
-    throw new Error('Validation of config failed');
-  }
-  if (messages.length) {
-    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(messages, null, 2)}`);
+export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {
+  const rawConfig = readConfig(configPath);
+  const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
+  if (!parsedConfigRes.success) {
+    throw new Error(`Invalid Airnode configuration file: ${parsedConfigRes.error}`);
   }
 
+  const config = parsedConfigRes.data;
   return config;
+}
+
+export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>) {
+  const rawConfig = readConfig(configPath);
+  return unsafeParseConfigWithSecrets(rawConfig, secrets);
 }
 
 export function parseSecretsFile(secretsPath: string) {
@@ -79,10 +84,10 @@ export function parseReceiptFile(receiptFilename: string) {
     throw e;
   }
 
-  const validationResult = validateReceipt(receipt, getNodeVersion());
-  if (!validationResult.valid) {
+  const validationResult = parseReceipt(receipt);
+  if (!validationResult.success) {
     logger.fail('Failed to validate receipt file');
-    throw new Error(`Invalid Airnode receipt file: ${JSON.stringify(validationResult.messages)}`);
+    throw new Error(`Invalid Airnode receipt file: ${validationResult.error}`);
   }
 
   return receipt as Receipt;

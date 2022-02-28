@@ -7,7 +7,7 @@ import {
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
 import merge from 'lodash/merge';
-import { CachedBuildRequestOptions, Parameters, ApiCredentials } from '../types';
+import { CachedBuildRequestOptions, Parameters, BaseApiCredentials } from '../types';
 
 interface Authentication {
   readonly query: Parameters;
@@ -44,7 +44,7 @@ function getAuthenticationSection(apiSecurityScheme: ConfigurableSecurityScheme)
 
 function getApiKeyAuth(
   apiSecurityScheme: ApiKeySecurityScheme,
-  credentials: ApiCredentials | null
+  credentials: BaseApiCredentials | null
 ): Partial<Authentication> {
   if (!credentials) return {};
   const { name } = apiSecurityScheme;
@@ -57,7 +57,7 @@ function getApiKeyAuth(
 
 function getHttpAuth(
   httpSecurityScheme: HttpSecurityScheme,
-  credentials: ApiCredentials | null
+  credentials: BaseApiCredentials | null
 ): Partial<Authentication> {
   if (!credentials) return {};
   const value = credentials.securitySchemeValue;
@@ -90,7 +90,7 @@ function getRelayAuthSchemeFromMetadata(
 
 function getSchemeAuthentication(
   apiSecurityScheme: ApiSecurityScheme,
-  credentials: ApiCredentials | null,
+  credentials: BaseApiCredentials | null,
   options: CachedBuildRequestOptions
 ): Partial<Authentication> {
   switch (apiSecurityScheme.type) {

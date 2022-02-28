@@ -3,9 +3,10 @@ import groupBy from 'lodash/groupBy';
 import map from 'lodash/map';
 import zipWith from 'lodash/zipWith';
 import { logger, PendingLog } from '@api3/airnode-utilities';
-import { Config, ProviderStates, GroupedRequests } from '../../types';
+import { ProviderStates, GroupedRequests } from '../../types';
 import { flattenRequests, groupRequests } from '../../requests/grouping';
 import { sortRequests } from '../../requests/sorting';
+import { Config } from '../../config/types';
 
 function flattenAndSortRequests(grouped: GroupedRequests) {
   return sortRequests(flattenRequests(grouped));

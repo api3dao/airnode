@@ -10,10 +10,10 @@ import {
   WorkerPayload,
 } from '@api3/airnode-node';
 import { logger, go } from '@api3/airnode-utilities';
-import { loadConfig } from '../../utils';
+import { loadTrustedConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env, false);
+const parsedConfig = loadTrustedConfig(configFile, process.env);
 
 export async function startCoordinator(_req: Request, res: Response) {
   await handlers.startCoordinator(parsedConfig);

@@ -2045,7 +2045,7 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@lifeomic/attempt@^3.0.2":
+"@lifeomic/attempt@^3.0.0":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.0.2.tgz#6920d6fa76e911c2d27e5a7c9a5f42aff2292733"
   integrity sha512-JHRfM7fUit2UroC0xRnuzMGegSTbfvz6X/1PgcIvahXC+A7UsKa8XfR1YrBsvoSu669iMTeNkDb26pSkGOzXKw==
@@ -5966,7 +5966,7 @@ date-and-time@^2.0.0:
   resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-2.0.1.tgz#bc8b72704980e8a0979bb186118d30d02059ef04"
   integrity sha512-O7Xe5dLaqvY/aF/MFWArsAM1J4j7w1CSZlPCX9uHgmb+6SbkPd8Q4YOvfvH/cZGvFlJFfHOZKxQtmMUOoZhc/w==
 
-date-fns@^2.28.0:
+date-fns@^2.16.1:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
   integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
@@ -17133,3 +17133,8 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zod@^3.11.6:
+  version "3.11.6"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.11.6.tgz#e43a5e0c213ae2e02aefe7cb2b1a6fa3d7f1f483"
+  integrity sha512-daZ80A81I3/9lIydI44motWe6n59kRBfNzTuS2bfzVh1nAXi667TOTWWtatxyG+fwgNUiagSj/CWZwRRbevJIg==

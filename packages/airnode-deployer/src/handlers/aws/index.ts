@@ -9,10 +9,10 @@ import {
   ProcessTransactionsPayload,
   CallApiPayload,
 } from '@api3/airnode-node';
-import { loadConfig } from '../../utils';
+import { loadTrustedConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env, false);
+const parsedConfig = loadTrustedConfig(configFile, process.env);
 
 function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);

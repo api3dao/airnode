@@ -16,8 +16,6 @@
   "types": "dist/index",
   "main": "dist/index.js",
   "dependencies": {
-    "@api3/airnode-adapter": "^0.4.0",
-    "@api3/airnode-ois": "^0.4.0",
     "@lifeomic/attempt": "^3.0.0",
     "date-fns": "^2.16.1"
   },

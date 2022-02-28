@@ -11,6 +11,7 @@ import {
 import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
 import * as admin from '../../src';
+import { cliExamples } from '../../src/cli-examples';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/src/cli.js`;
@@ -413,21 +414,30 @@ describe('CLI', () => {
     });
   });
 
-  it('generates mnemonic', () => {
-    const out = execCommand('generate-mnemonic');
+  it('generates mnemonic', async () => {
+    const out = execCommand('generate-mnemonic').split('\n');
 
     const explanationInfo = [
       'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
       'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
       '',
-    ].join('\n');
+    ];
+    expect(out.slice(0, 3)).toEqual(explanationInfo);
 
-    expect(out.startsWith(explanationInfo)).toBe(true);
-    const mnemonic = out.split(explanationInfo)[1];
-
+    const mnemonic = out[3];
     const words = mnemonic.split(' ');
     expect(words).toHaveLength(12);
     words.forEach((word) => expect(word).toMatch(/\w+/));
+
+    const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+    expect(out[5]).toEqual(`The Airnode address for this mnemonic is: ${airnodeAddress}`);
+
+    const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+    expect(out[6]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
+
+    const verifyXpubResult = admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
+    const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+    expect(verifyXpubResult).toEqual(hdNode);
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
@@ -650,6 +660,21 @@ describe('CLI', () => {
     it('can derive airnode address', () => {
       const out = execCommand('derive-airnode-address', ['--airnode-mnemonic', airnodeWallet.mnemonic.phrase]);
       expect(out).toEqual(`Airnode address: ${airnodeWallet.address}`);
+    });
+  });
+
+  describe('has valid examples', () => {
+    const exampleOutcomes = [
+      'Airnode address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      'Sponsor wallet address: 0x61cF9Eb3691A715e7B2697a36e9e60FdA40A8617',
+      'Endpoint ID: 0x901843fb332b24a9a71a2234f2a7c82214b7b70e99ab412e7d1827b743f63f61',
+    ];
+
+    cliExamples.forEach((command: string, index: number) => {
+      it(`tests example command ${index}`, () => {
+        const out = execSync(`node ${CLI_EXECUTABLE} ${command}`).toString().trim();
+        expect(out).toEqual(exampleOutcomes[index]);
+      });
     });
   });
 });

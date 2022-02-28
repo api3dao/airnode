@@ -28,21 +28,21 @@ describe('validator tests', () => {
 });
 
 describe('fixture tests', () => {
-  it('node (airnode-node/config/config.json.example)', () =>
+  it('node (airnode-node/config/config.example.json)', () =>
     expect(
       validateWithTemplate(
-        path.resolve(__dirname, '../../airnode-node/config/config.json.example'),
+        path.resolve(__dirname, '../../airnode-node/config/config.example.json'),
         'config',
-        path.resolve(__dirname, '../../airnode-node/config/secrets.env.example')
+        path.resolve(__dirname, '../../airnode-node/config/secrets.example.env')
       )
     ).toEqual(validOutput));
 
-  it('deployer (airnode-deployer/config/config.json.example)', () =>
+  it('deployer (airnode-deployer/config/config.example.json)', () =>
     expect(
       validateWithTemplate(
-        path.resolve(__dirname, '../../airnode-deployer/config/config.json.example'),
+        path.resolve(__dirname, '../../airnode-deployer/config/config.example.json'),
         'config',
-        path.resolve(__dirname, '../../airnode-deployer/config/secrets.env.example')
+        path.resolve(__dirname, '../../airnode-deployer/config/secrets.example.env')
       )
     ).toEqual(validOutput));
 

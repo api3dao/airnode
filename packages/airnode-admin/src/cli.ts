@@ -4,6 +4,7 @@ import * as yargs from 'yargs';
 import { logger } from '@api3/airnode-utilities';
 import * as evm from './evm';
 import * as admin from './implementation';
+import { cliExamples } from './cli-examples';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -496,12 +497,19 @@ yargs
     'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
+      const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+      const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+
       logger.log(
         [
           'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
           'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
           '',
           mnemonic,
+          '',
+          `The Airnode address for this mnemonic is: ${airnodeAddress}`,
+          `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,
+          '',
         ].join('\n')
       );
     }
@@ -515,6 +523,7 @@ yargs
       logger.log(`Airnode address: ${airnodeAddress}`);
     }
   )
+  .example(cliExamples.map((line) => [`$0 ${line}\n`]))
   .demandCommand(1)
   .strict()
   .fail((message, err) => {

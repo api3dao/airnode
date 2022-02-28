@@ -1,7 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
 import { go, logger, PendingLog } from '@api3/airnode-utilities';
 import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
-import { ChainOptions, GasTarget, LogsData, PriorityFee } from '../types';
+import { GasTarget, LogsData } from '../types';
+import { ChainOptions, PriorityFee } from '../config/types';
 
 export interface FetchOptions {
   readonly provider: ethers.providers.JsonRpcProvider;

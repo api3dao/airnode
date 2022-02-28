@@ -2,11 +2,6 @@ import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
 import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
-export interface ApiCredentials {
-  readonly securitySchemeName: string;
-  readonly securitySchemeValue: string;
-}
-
 export interface RequestMetadata {
   airnodeAddress: string;
   requesterAddress: string;
@@ -19,11 +14,16 @@ export interface RequestMetadata {
   airnodeRrpAddress: string;
 }
 
+export interface BaseApiCredentials {
+  readonly securitySchemeName: string;
+  readonly securitySchemeValue: string;
+}
+
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: Parameters;
-  readonly apiCredentials: ApiCredentials[];
+  readonly apiCredentials: BaseApiCredentials[];
   // NOTE: Metadata is "null" in case the request was triggered by testing gateway
   readonly metadata: RequestMetadata | null;
 }

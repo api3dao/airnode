@@ -6,7 +6,8 @@ import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { Config, CoordinatorState, WorkerOptions } from '../types';
+import { CoordinatorState, WorkerOptions } from '../types';
+import { Config } from '../config/types';
 
 export async function startCoordinator(config: Config) {
   const startedAt = new Date();

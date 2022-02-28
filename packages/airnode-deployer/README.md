@@ -45,8 +45,8 @@ yarn build
 
 ```bash
 # From this package (/packages/airnode-deployer)
-cp config/config.json.example config/config.json
-cp config/secrets.env.example config/secrets.env
+cp config/config.example.json config/config.json
+cp config/secrets.example.env config/secrets.env
 # Edit both `config.json` and `secrets.env` to reflect your configuration
 ```
 
@@ -74,6 +74,9 @@ Options:
   -c, --configuration, --config, --conf  Path to configuration file             [string] [default: "config/config.json"]
   -s, --secrets                          Path to secrets file                   [string] [default: "config/secrets.env"]
   -r, --receipt                          Output path for receipt file          [string] [default: "output/receipt.json"]
+
+Examples:
+  airnode-deployer deploy -c pathTo/config.json -s pathTo/secrets.env -r myOutput/receipt.json
 ```
 
 #### remove
@@ -91,4 +94,9 @@ Options:
   -c, --cloud-provider         Cloud provider                                                    [choices: "aws", "gcp"]
   -e, --region                 Region                                                                           [string]
   -p, --project-id             Project ID (GCP only)                                                            [string]
+
+Examples:
+  airnode-deployer remove -r myOutput/receipt.json
+
+  airnode-deployer remove --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1
 ```
