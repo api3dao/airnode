@@ -17,31 +17,27 @@ export function verifySponsorWallets<T>(
   masterHDNode: ethers.utils.HDNode
 ): LogsData<Request<T>[]> {
   const logs: PendingLog[] = [];
-  const verifiedRequests: Request<T>[] = [];
 
-  requests.forEach(function (request) {
+  const verifiedRequests = requests.filter((request) => {
     if (request.status !== RequestStatus.Pending) {
       const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
       logs.push(log);
-      verifiedRequests.push(request);
-      return;
+      return true;
     }
 
     const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
     if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
-      // Drop request, but log error
       const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
       const log = logger.pend('ERROR', message);
       logs.push(log);
-      return;
+      return false;
     }
 
     const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWalletAddress}`;
     const log = logger.pend('DEBUG', message);
     logs.push(log);
-    verifiedRequests.push(request);
-    return;
+    return true;
   });
 
   return [logs, verifiedRequests];
