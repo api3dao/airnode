@@ -1,15 +1,13 @@
 import * as adapter from '@api3/airnode-adapter';
 import { RESERVED_PARAMETERS } from '@api3/airnode-ois';
 import { ethers } from 'ethers';
+import { logger, removeKeys, removeKey, go, retryOnTimeout } from '@api3/airnode-utilities';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateId } from '../evm/templates';
-import * as logger from '../logger';
 import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
-import { removeKeys, removeKey } from '../utils/object-utils';
-import { go, retryOnTimeout } from '../utils/promise-utils';
 import { Config } from '../config/types';
 
 function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
