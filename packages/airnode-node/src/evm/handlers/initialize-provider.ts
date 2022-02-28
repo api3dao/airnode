@@ -1,13 +1,12 @@
+import { go, logger, PendingLog } from '@api3/airnode-utilities';
 import { fetchPendingRequests } from './fetch-pending-requests';
-import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
-import * as logger from '../../logger';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
 import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
 import * as verification from '../verification';
-import { EVMProviderState, PendingLog, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState } from '../../types';
 
 type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 

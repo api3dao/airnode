@@ -2,10 +2,9 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
-import { buildEVMState } from '../providers/state';
-import { spawnNewProvider, spawnProviderRequestProcessor } from '../providers/worker';
+import { logger, go } from '@api3/airnode-utilities';
+import { buildEVMState } from './state';
+import { spawnNewProvider, spawnProviderRequestProcessor } from './worker';
 import {
   EVMProviderState,
   EVMProviderSponsorState,

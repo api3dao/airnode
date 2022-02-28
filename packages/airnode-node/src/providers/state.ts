@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import map from 'lodash/map';
+import { randomHexString, removeKeys } from '@api3/airnode-utilities';
 import * as evm from '../evm';
-import { randomHexString, removeKeys } from '../utils';
 import { EVMProviderState, ProviderSettings, ProviderState, ProviderStates, EVMProviderSponsorState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { groupRequestsBySponsorAddress } from '../requests/grouping';

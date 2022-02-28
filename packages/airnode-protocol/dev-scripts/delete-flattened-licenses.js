@@ -6,4 +6,5 @@ const results = replace.sync({
   to: '',
 });
 
-console.info(results);
+// eslint-disable-next-line no-console
+console.log(results);

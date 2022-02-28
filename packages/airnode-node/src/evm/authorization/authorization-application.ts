@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import isNil from 'lodash/isNil';
-import * as logger from '../../logger';
+import { logger } from '@api3/airnode-utilities';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 
 function applyAuthorization(
