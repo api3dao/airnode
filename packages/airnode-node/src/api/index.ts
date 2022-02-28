@@ -69,7 +69,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   }
 }
 
-async function signResponseMessage(requestId: string, data: string, config: Config) {
+async function signWithRequestId(requestId: string, data: string, config: Config) {
   const masterHDNode = getMasterHDNode(config);
   const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
 
@@ -80,7 +80,7 @@ async function signResponseMessage(requestId: string, data: string, config: Conf
   );
 }
 
-async function signDataForBeaconUpdate(templateId: string, timestamp: string, data: string, config: Config) {
+async function signWithTemplateId(templateId: string, timestamp: string, data: string, config: Config) {
   const masterHDNode = getMasterHDNode(config);
   const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
 
@@ -225,17 +225,12 @@ async function processSuccessfulApiCall(
         // to compute it, since it is performance heavy operation.
         return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];
       case 'regular': {
-        const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
+        const signature = await signWithRequestId(aggregatedApiCall.id, response.encodedValue, config);
         return [[], { success: true, value: response.encodedValue, signature }];
       }
       case 'http-signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const signature = await signDataForBeaconUpdate(
-          parameters._templateId,
-          timestamp,
-          response.encodedValue,
-          config
-        );
+        const signature = await signWithTemplateId(parameters._templateId, timestamp, response.encodedValue, config);
         return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
       }
     }
