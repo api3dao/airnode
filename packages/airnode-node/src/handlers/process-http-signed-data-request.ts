@@ -6,12 +6,12 @@ import { callApi } from '../api';
 import { Config } from '../config/types';
 import { randomHexString } from '../utils';
 
-export async function processSignedDataRequest(
+export async function processHttpSignedDataRequest(
   config: Config,
   endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
-  const trigger = find(config.triggers.signedData, ['endpointId', endpointId]);
+  const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }
@@ -34,7 +34,7 @@ export async function processSignedDataRequest(
   const logOptions = logger.buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const aggregatedApiCall: AggregatedApiCall = {
-    type: 'signed-data-gateway',
+    type: 'http-signed-data-gateway',
     id: requestId,
     airnodeAddress,
     endpointId,

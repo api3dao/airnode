@@ -74,7 +74,7 @@
       "httpGatewayUrl": {
         "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
       },
-      "signedDataGatewayUrl": {
+      "httpSignedDataGatewayUrl": {
         "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
       }
     }

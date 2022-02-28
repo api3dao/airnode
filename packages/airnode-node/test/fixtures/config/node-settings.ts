@@ -9,7 +9,7 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     httpGateway: {
       enabled: false,
     },
-    signedDataGateway: {
+    httpSignedDataGateway: {
       enabled: false,
     },
     heartbeat: {

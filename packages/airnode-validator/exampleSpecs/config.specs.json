@@ -34,7 +34,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "signedDataGateway": {
+    "httpSignedDataGateway": {
       "enabled": true,
       "apiKey": "012345678901234567890123456789",
       "maxConcurrency": 20
@@ -53,7 +53,7 @@
         "endpointName": "coinMarketData"
       }
     ],
-    "signedData": [
+    "httpSignedData": [
       {
         "endpointId": "0xe1da7948e4dd95c04b2aaa10f4de115e67d9e109ce618750a3d8111b855a5ee5",
         "oisTitle": "ois",
