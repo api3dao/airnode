@@ -54,9 +54,9 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     }
   }
 
-  const httpSignedRelayedGateway = config.nodeSettings.httpSignedRelayedGateway;
-  if (httpSignedRelayedGateway.enabled) {
-    if (httpSignedRelayedGateway.maxConcurrency !== undefined && httpSignedRelayedGateway.maxConcurrency <= 0) {
+  const httpSignedDataGateway = config.nodeSettings.httpSignedDataGateway;
+  if (httpSignedDataGateway.enabled) {
+    if (httpSignedDataGateway.maxConcurrency !== undefined && httpSignedDataGateway.maxConcurrency <= 0) {
       throw new Error('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
     }
   }
@@ -77,7 +77,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       stage: config.nodeSettings.stage,
       cloudProvider: { maxConcurrency, ...config.nodeSettings.cloudProvider },
       httpGateway,
-      httpSignedRelayedGateway,
+      httpSignedDataGateway,
       configPath,
       secretsPath: tmpSecretsPath,
     });

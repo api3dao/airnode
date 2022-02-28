@@ -180,7 +180,7 @@
         "endpointName": "endpt2"
       }
     ],
-    "httpSignedRelayed": []
+    "httpSignedData": []
   },
   "chains": [
     {
@@ -223,7 +223,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

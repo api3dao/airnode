@@ -206,7 +206,7 @@
   ],
   "triggers": {
     "rrp": [],
-    "httpSignedRelayed": []
+    "httpSignedData": []
   },
   "chains": [],
   "nodeSettings": {
@@ -226,7 +226,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

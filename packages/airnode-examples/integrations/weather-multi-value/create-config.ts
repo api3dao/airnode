@@ -41,7 +41,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpGateway: {
       enabled: false,
     },
-    httpSignedRelayedGateway: {
+    httpSignedDataGateway: {
       enabled: false,
     },
     logFormat: 'plain',
@@ -58,7 +58,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'histLatLonData',
       },
     ],
-    httpSignedRelayed: [],
+    httpSignedData: [],
   },
   ois: [
     {

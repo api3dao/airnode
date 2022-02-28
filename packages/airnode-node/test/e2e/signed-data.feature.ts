@@ -1,8 +1,8 @@
 import * as adapter from '@api3/airnode-adapter';
-import { processHttpSignedRelayedRequest } from '../../src/workers/local-handlers';
+import { processHttpSignedDataRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
-it('makes a call for signed relayed API data', async () => {
+it('makes a call for signed API data', async () => {
   // Set a fake time so that the generated timestamp of the test is always the same
   const mockedTimestamp = new Date(`2021-02-14`).valueOf();
   jest.spyOn(global.Date, 'now').mockImplementationOnce(() => mockedTimestamp);
@@ -15,13 +15,12 @@ it('makes a call for signed relayed API data', async () => {
     from: 'ETH',
     _type: 'int256',
     _path: 'result',
-    _relayer: '0xA7b4c9bf0AF030a171c49400d3299703d3E97706',
-    _id: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
+    _templateId: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
   };
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await processHttpSignedRelayedRequest(endpointId, parameters);
+  const result = await processHttpSignedDataRequest(endpointId, parameters);
 
   const expected = {
     // Value is returned by the mock server from the operation package

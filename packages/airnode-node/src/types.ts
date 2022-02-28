@@ -238,7 +238,7 @@ export interface ApiCallErrorResponse {
 export type AggregatedApiCall =
   | RegularAggregatedApiCall
   | TestingGatewayAggregatedApiCall
-  | SignedRelayedAggregatedApiCall;
+  | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   id: string;
@@ -276,8 +276,8 @@ export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-gateway';
 }
 
-export interface SignedRelayedAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'http-signed-relayed-gateway';
+export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-signed-data-gateway';
 }
 
 // ===========================================

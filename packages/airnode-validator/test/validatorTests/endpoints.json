@@ -243,7 +243,7 @@
         "endpointName": "endpt4"
       }
     ],
-    "httpSignedRelayed": []
+    "httpSignedData": []
   },
   "chains": [],
   "nodeSettings": {
@@ -263,7 +263,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

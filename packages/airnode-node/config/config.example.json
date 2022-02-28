@@ -28,7 +28,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     },
     "heartbeat": {
@@ -57,7 +57,7 @@
         "endpointName": "convertToUSD"
       }
     ],
-    "httpSignedRelayed": [
+    "httpSignedData": [
       {
         "endpointId": "0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6",
         "oisTitle": "Currency Converter API",

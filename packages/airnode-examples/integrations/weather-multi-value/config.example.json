@@ -34,7 +34,7 @@
     "httpGateway": {
       "enabled": false
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     },
     "logFormat": "plain",
@@ -51,7 +51,7 @@
         "endpointName": "histLatLonData"
       }
     ],
-    "httpSignedRelayed": []
+    "httpSignedData": []
   },
   "ois": [
     {

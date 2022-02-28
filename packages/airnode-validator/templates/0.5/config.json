@@ -49,7 +49,7 @@
         ]
       }
     },
-    "httpSignedRelayed": {
+    "httpSignedData": {
       "__arrayItem": {
         "endpointId": {
           "__regexp": "^0x[a-fA-F0-9]{64}$"
@@ -455,7 +455,7 @@
         }
       }
     },
-    "httpSignedRelayedGateway": {
+    "httpSignedDataGateway": {
       "enabled": {
         "__type": "boolean"
       },
@@ -468,7 +468,7 @@
             "apiKey": {}
           },
           "__catch": {
-            "__message": "{{0}}.{{1}}: If httpSignedRelayedGateway is enabled parameter apiKey is required"
+            "__message": "{{0}}.{{1}}: If httpSignedDataGateway is enabled parameter apiKey is required"
           }
         }
       ],

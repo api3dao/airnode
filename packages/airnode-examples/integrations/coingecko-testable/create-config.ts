@@ -43,7 +43,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       apiKey: '${HTTP_GATEWAY_API_KEY}',
       maxConcurrency: 20,
     },
-    httpSignedRelayedGateway: {
+    httpSignedDataGateway: {
       enabled: false,
     },
     logFormat: 'plain',
@@ -67,7 +67,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'coinMarketData',
       },
     ],
-    httpSignedRelayed: [],
+    httpSignedData: [],
   },
   ois: [
     {
