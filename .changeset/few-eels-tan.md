@@ -5,4 +5,4 @@
 '@api3/airnode-validator': patch
 ---
 
-Update EIP1559 values to numbers in config.json
+Revert of eip1559-related changes
