@@ -32,13 +32,13 @@ export interface Provider {
 }
 
 export interface PriorityFee {
-  readonly value: string;
+  readonly value: number;
   readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
 }
 
 export interface ChainOptions {
   readonly txType: 'legacy' | 'eip1559';
-  readonly baseFeeMultiplier?: string;
+  readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;
 }
 
