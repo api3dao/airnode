@@ -25,9 +25,9 @@ describe('create', () => {
       type: chainType,
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: 2,
+        baseFeeMultiplier: '2',
         priorityFee: {
-          value: 3.12,
+          value: '3.12',
           unit: 'gwei',
         },
       },
@@ -47,9 +47,9 @@ describe('create', () => {
         chainType: 'evm',
         chainOptions: {
           txType: 'eip1559',
-          baseFeeMultiplier: 2,
+          baseFeeMultiplier: '2',
           priorityFee: {
-            value: 3.12,
+            value: '3.12',
             unit: 'gwei',
           },
         },
@@ -102,9 +102,9 @@ describe('create', () => {
       type: chainType,
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: 2,
+        baseFeeMultiplier: '2',
         priorityFee: {
-          value: 3.12,
+          value: '3.12',
           unit: 'gwei',
         },
       },
@@ -123,9 +123,9 @@ describe('create', () => {
         chainId: '1337',
         chainOptions: {
           txType: 'eip1559',
-          baseFeeMultiplier: 2,
+          baseFeeMultiplier: '2',
           priorityFee: {
-            value: 3.12,
+            value: '3.12',
             unit: 'gwei',
           },
         },

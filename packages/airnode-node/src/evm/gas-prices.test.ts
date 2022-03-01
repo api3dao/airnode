@@ -35,9 +35,9 @@ const createEip1559BaseOptions = () => {
   const eip1559ChainOptions = [
     {
       txType: 'eip1559',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: {
-        value: 3.12,
+        value: '3.12',
         unit: 'gwei',
       },
     },
@@ -45,13 +45,13 @@ const createEip1559BaseOptions = () => {
       txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: {
-        value: 3.12,
+        value: '3.12',
         unit: 'gwei',
       },
     },
     {
       txType: 'eip1559',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
       priorityFee: undefined,
     },
     {
