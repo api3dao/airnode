@@ -31,9 +31,9 @@ describe('OwnableCallForwarder', () => {
     roleDescription = 'Role description unique to adminRole';
   });
 
-  describe('initializeRole', function () {
-    describe('Sender is forwarder owner', function () {
-      it('initializesRole', async function () {
+  describe('initializeRole', () => {
+    describe('Sender is forwarder owner', () => {
+      it('initializesRole', async () => {
         const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
           managerRootRole,
           roleDescription,
@@ -47,8 +47,8 @@ describe('OwnableCallForwarder', () => {
           .withArgs(role, managerRootRole, roleDescription, ownableCallForwarder.address);
       });
     });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
+    describe('Sender is not forwarder owner', () => {
+      it('reverts', async () => {
         const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
           managerRootRole,
           roleDescription,
@@ -60,9 +60,9 @@ describe('OwnableCallForwarder', () => {
     });
   });
 
-  describe('initializeAndGrantRoles', function () {
-    describe('Sender is forwarder owner', function () {
-      it('initializes role', async function () {
+  describe('initializeAndGrantRoles', () => {
+    describe('Sender is forwarder owner', () => {
+      it('initializes role', async () => {
         const calldata = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -78,8 +78,8 @@ describe('OwnableCallForwarder', () => {
         expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(true);
       });
     });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
+    describe('Sender is not forwarder owner', () => {
+      it('reverts', async () => {
         const calldata = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -92,9 +92,9 @@ describe('OwnableCallForwarder', () => {
     });
   });
 
-  describe('grantRole', function () {
-    describe('Sender is forwarder owner', function () {
-      it('grants role', async function () {
+  describe('grantRole', () => {
+    describe('Sender is forwarder owner', () => {
+      it('grants role', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
           managerRootRole,
           roleDescription,
@@ -113,8 +113,8 @@ describe('OwnableCallForwarder', () => {
           .withArgs(role, roles.account.address, ownableCallForwarder.address);
       });
     });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
+    describe('Sender is not forwarder owner', () => {
+      it('reverts', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
           managerRootRole,
           roleDescription,
@@ -133,9 +133,9 @@ describe('OwnableCallForwarder', () => {
     });
   });
 
-  describe('revokeRole', function () {
-    describe('Sender is forwarder owner', function () {
-      it('revokes role', async function () {
+  describe('revokeRole', () => {
+    describe('Sender is forwarder owner', () => {
+      it('revokes role', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -155,8 +155,8 @@ describe('OwnableCallForwarder', () => {
           .withArgs(role, roles.account.address, ownableCallForwarder.address);
       });
     });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
+    describe('Sender is not forwarder owner', () => {
+      it('reverts', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -171,9 +171,9 @@ describe('OwnableCallForwarder', () => {
     });
   });
 
-  describe('renounceRole', function () {
-    describe('Sender is forwarder owner', function () {
-      it('renounces role', async function () {
+  describe('renounceRole', () => {
+    describe('Sender is forwarder owner', () => {
+      it('renounces role', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -193,8 +193,8 @@ describe('OwnableCallForwarder', () => {
           .withArgs(role, ownableCallForwarder.address, ownableCallForwarder.address);
       });
     });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
+    describe('Sender is not forwarder owner', () => {
+      it('reverts', async () => {
         const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
           [managerRootRole],
           [roleDescription],
@@ -214,13 +214,13 @@ describe('OwnableCallForwarder', () => {
     });
   });
 
-  describe('MockCallForwarderTarget', function () {
-    context('Target address belongs to a contract', function () {
-      context('Target function exists', function () {
-        context('Target function is payable', function () {
-          context('Message value is zero', function () {
-            context('Target function does not revert', function () {
-              it('forwards call', async function () {
+  describe('MockCallForwarderTarget', () => {
+    context('Target address belongs to a contract', () => {
+      context('Target function exists', () => {
+        context('Target function is payable', () => {
+          context('Message value is zero', () => {
+            context('Target function does not revert', () => {
+              it('forwards call', async () => {
                 const input1 = 'input1';
                 const input2 = 123;
                 const value = 0;
@@ -245,8 +245,8 @@ describe('OwnableCallForwarder', () => {
                 expect(await hre.ethers.provider.getBalance(mockCallForwarderTarget.address)).to.equal(value);
               });
             });
-            context('Target function reverts', function () {
-              it('reverts', async function () {
+            context('Target function reverts', () => {
+              it('reverts', async () => {
                 const input1 = 'this will make the call revert';
                 const input2 = 123;
                 const value = 0;
@@ -263,9 +263,9 @@ describe('OwnableCallForwarder', () => {
               });
             });
           });
-          context('Message value is not zero', function () {
-            context('Target function does not revert', function () {
-              it('forwards call', async function () {
+          context('Message value is not zero', () => {
+            context('Target function does not revert', () => {
+              it('forwards call', async () => {
                 const input1 = 'input1';
                 const input2 = 123;
                 const value = 456;
@@ -290,8 +290,8 @@ describe('OwnableCallForwarder', () => {
                 expect(await hre.ethers.provider.getBalance(mockCallForwarderTarget.address)).to.equal(value);
               });
             });
-            context('Target function reverts', function () {
-              it('reverts', async function () {
+            context('Target function reverts', () => {
+              it('reverts', async () => {
                 const input1 = 'this will make the call revert';
                 const input2 = 123;
                 const value = 456;
@@ -309,10 +309,10 @@ describe('OwnableCallForwarder', () => {
             });
           });
         });
-        context('Target function is not payable', function () {
-          context('Message value is zero', function () {
-            context('Target function does not revert', function () {
-              it('forwards call', async function () {
+        context('Target function is not payable', () => {
+          context('Message value is zero', () => {
+            context('Target function does not revert', () => {
+              it('forwards call', async () => {
                 const input1 = 'input1';
                 const input2 = 123;
                 const calldata = mockCallForwarderTarget.interface.encodeFunctionData('nonpayableTargetFunction', [
@@ -334,8 +334,8 @@ describe('OwnableCallForwarder', () => {
                 expect(await mockCallForwarderTarget.storage2()).to.equal(input2);
               });
             });
-            context('Target function reverts', function () {
-              it('reverts', async function () {
+            context('Target function reverts', () => {
+              it('reverts', async () => {
                 const input1 = 'this will make the call revert';
                 const input2 = 123;
                 const calldata = mockCallForwarderTarget.interface.encodeFunctionData('nonpayableTargetFunction', [
@@ -350,8 +350,8 @@ describe('OwnableCallForwarder', () => {
               });
             });
           });
-          context('Message value is not zero', function () {
-            it('reverts', async function () {
+          context('Message value is not zero', () => {
+            it('reverts', async () => {
               const input1 = 'input1';
               const input2 = 123;
               const value = 456;
@@ -368,8 +368,8 @@ describe('OwnableCallForwarder', () => {
           });
         });
       });
-      context('Target function does not exist', function () {
-        it('reverts', async function () {
+      context('Target function does not exist', () => {
+        it('reverts', async () => {
           const nonexistentFunctionSelector = '0x12345678';
           await expect(
             ownableCallForwarder
@@ -379,16 +379,16 @@ describe('OwnableCallForwarder', () => {
         });
       });
     });
-    context('Target address does not belong to a contract', function () {
-      it('reverts', async function () {
+    context('Target address does not belong to a contract', () => {
+      it('reverts', async () => {
         await expect(
           ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(hre.ethers.constants.AddressZero, '0x')
         ).to.be.revertedWith('Address: call to non-contract');
       });
     });
 
-    context('Target function does not revert', function () {
-      it('forwards value', async function () {
+    context('Target function does not revert', () => {
+      it('forwards value', async () => {
         const input1 = 'input1';
         const input2 = 123;
         const value = 456;
@@ -410,15 +410,15 @@ describe('OwnableCallForwarder', () => {
         expect(await hre.ethers.provider.getBalance(mockCallForwarderTarget.address)).to.equal(value);
       });
     });
-    context('Target function does not exist', function () {
-      it('reverts', async function () {
+    context('Target function does not exist', () => {
+      it('reverts', async () => {
         await expect(
           ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(mockCallForwarderTarget.address, '0xabcd')
         ).to.be.revertedWith('Address: low-level call with value failed');
       });
     });
-    context('Target function reverts', function () {
-      it('reverts', async function () {
+    context('Target function reverts', () => {
+      it('reverts', async () => {
         const input1 = 'this will make the call revert';
         const input2 = 123;
         const value = 456;

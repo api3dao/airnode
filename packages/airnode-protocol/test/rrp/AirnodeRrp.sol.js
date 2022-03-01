@@ -33,8 +33,8 @@ describe('AirnodeRrp', () => {
     });
   });
 
-  describe('setSponsorshipStatus', function () {
-    it('sets sponsorship status', async function () {
+  describe('setSponsorshipStatus', () => {
+    it('sets sponsorship status', async () => {
       expect(
         await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
       ).to.equal(false);
@@ -58,11 +58,11 @@ describe('AirnodeRrp', () => {
     });
   });
 
-  describe('makeTemplateRequest', function () {
-    context('Template exists', function () {
-      context('Fulfill address not AirnodeRrp', function () {
-        context('Requester sponsored', function () {
-          it('makes template request', async function () {
+  describe('makeTemplateRequest', () => {
+    context('Template exists', () => {
+      context('Fulfill address not AirnodeRrp', () => {
+        context('Requester sponsored', () => {
+          it('makes template request', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -138,8 +138,8 @@ describe('AirnodeRrp', () => {
             );
           });
         });
-        context('Requester not sponsored', function () {
-          it('reverts', async function () {
+        context('Requester not sponsored', () => {
+          it('reverts', async () => {
             // Create the template
             const endpointId = utils.generateRandomBytes32();
             const parameters = utils.generateRandomBytes();
@@ -163,8 +163,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Fulfill address AirnodeRrp', function () {
-        it('reverts', async function () {
+      context('Fulfill address AirnodeRrp', () => {
+        it('reverts', async () => {
           // Create the template
           const endpointId = utils.generateRandomBytes32();
           const parameters = utils.generateRandomBytes();
@@ -188,8 +188,8 @@ describe('AirnodeRrp', () => {
         });
       });
     });
-    context('Template does not exist', function () {
-      it('reverts', async function () {
+    context('Template does not exist', () => {
+      it('reverts', async () => {
         const templateId = utils.generateRandomBytes32();
         const requestTimeParameters = utils.generateRandomBytes();
         await expect(
@@ -208,11 +208,11 @@ describe('AirnodeRrp', () => {
     });
   });
 
-  describe('makeFullRequest', function () {
-    context('Airnode address not zero', function () {
-      context('Fulfill address not AirnodeRrp', function () {
-        context('Requester sponsored', function () {
-          it('makes template request', async function () {
+  describe('makeFullRequest', () => {
+    context('Airnode address not zero', () => {
+      context('Fulfill address not AirnodeRrp', () => {
+        context('Requester sponsored', () => {
+          it('makes template request', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Compute the expected request ID
@@ -285,8 +285,8 @@ describe('AirnodeRrp', () => {
             );
           });
         });
-        context('Requester not sponsored', function () {
-          it('reverts', async function () {
+        context('Requester not sponsored', () => {
+          it('reverts', async () => {
             const endpointId = utils.generateRandomBytes32();
             const requestTimeParameters = utils.generateRandomBytes();
             await expect(
@@ -305,8 +305,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Fulfill address AirnodeRrp', function () {
-        it('reverts', async function () {
+      context('Fulfill address AirnodeRrp', () => {
+        it('reverts', async () => {
           const endpointId = utils.generateRandomBytes32();
           const requestTimeParameters = utils.generateRandomBytes();
           await expect(
@@ -325,8 +325,8 @@ describe('AirnodeRrp', () => {
         });
       });
     });
-    context('Airnode address zero', function () {
-      it('reverts', async function () {
+    context('Airnode address zero', () => {
+      it('reverts', async () => {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         const endpointId = utils.generateRandomBytes32();
@@ -349,13 +349,13 @@ describe('AirnodeRrp', () => {
     });
   });
 
-  describe('fulfill', function () {
-    context('Template request made', function () {
-      context('Caller is sponsor wallet', function () {
-        context('Fulfillment parameters are correct', function () {
-          context('Signature is valid', function () {
-            context('Fulfill function does not revert', function () {
-              it('returns `true` and fulfills', async function () {
+  describe('fulfill', () => {
+    context('Template request made', () => {
+      context('Caller is sponsor wallet', () => {
+        context('Fulfillment parameters are correct', () => {
+          context('Signature is valid', () => {
+            context('Fulfill function does not revert', () => {
+              it('returns `true` and fulfills', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Create the template
@@ -471,8 +471,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function reverts with string', function () {
-              it('returns `false` and the revert string and fails', async function () {
+            context('Fulfill function reverts with string', () => {
+              it('returns `false` and the revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Create the template
@@ -586,8 +586,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function reverts with string v2', function () {
-              it('returns `false` and the revert string and fails', async function () {
+            context('Fulfill function reverts with string v2', () => {
+              it('returns `false` and the revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
                 // Create the template
@@ -687,8 +687,8 @@ describe('AirnodeRrp', () => {
                 expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
               });
             });
-            context('Fulfill function reverts without string', function () {
-              it('returns `false` and no revert string and fails', async function () {
+            context('Fulfill function reverts without string', () => {
+              it('returns `false` and no revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Create the template
@@ -802,8 +802,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function does not return', function () {
-              it('returns `false` and no revert string and fails', async function () {
+            context('Fulfill function does not return', () => {
+              it('returns `false` and no revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Create the template
@@ -904,8 +904,8 @@ describe('AirnodeRrp', () => {
               });
             });
           });
-          context('Signature is invalid', function () {
-            it('reverts', async function () {
+          context('Signature is invalid', () => {
+            it('reverts', async () => {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Create the template
@@ -1019,8 +1019,8 @@ describe('AirnodeRrp', () => {
             });
           });
         });
-        context('Request ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Request ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -1099,8 +1099,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Airnode address is incorrect', function () {
-          it('reverts', async function () {
+        context('Airnode address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -1179,8 +1179,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill address is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -1259,8 +1259,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill function ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill function ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -1334,8 +1334,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Caller not sponsor wallet', function () {
-        it('reverts', async function () {
+      context('Caller not sponsor wallet', () => {
+        it('reverts', async () => {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
@@ -1410,12 +1410,12 @@ describe('AirnodeRrp', () => {
         });
       });
     });
-    context('Full request made', function () {
-      context('Caller is sponsor wallet', function () {
-        context('Fulfillment parameters are correct', function () {
-          context('Signature is valid', function () {
-            context('Fulfill function does not revert', function () {
-              it('returns `true` and fulfills', async function () {
+    context('Full request made', () => {
+      context('Caller is sponsor wallet', () => {
+        context('Fulfillment parameters are correct', () => {
+          context('Signature is valid', () => {
+            context('Fulfill function does not revert', () => {
+              it('returns `true` and fulfills', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Make the request
@@ -1524,8 +1524,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function reverts with string', function () {
-              it('returns `false` and the revert string and fails', async function () {
+            context('Fulfill function reverts with string', () => {
+              it('returns `false` and the revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Make the request
@@ -1633,8 +1633,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function reverts with string v2', function () {
-              it('returns `false` and the revert string and fails', async function () {
+            context('Fulfill function reverts with string v2', () => {
+              it('returns `false` and the revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
                 // Make the request
@@ -1728,8 +1728,8 @@ describe('AirnodeRrp', () => {
                 expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
               });
             });
-            context('Fulfill function reverts without string', function () {
-              it('returns `false` and no revert string and fails', async function () {
+            context('Fulfill function reverts without string', () => {
+              it('returns `false` and no revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Make the request
@@ -1837,8 +1837,8 @@ describe('AirnodeRrp', () => {
                 ).to.be.revertedWith('Invalid request fulfillment');
               });
             });
-            context('Fulfill function does not return', function () {
-              it('returns `false` and no revert string and fails', async function () {
+            context('Fulfill function does not return', () => {
+              it('returns `false` and no revert string and fails', async () => {
                 // Endorse the requester
                 await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
                 // Make the request
@@ -1933,8 +1933,8 @@ describe('AirnodeRrp', () => {
               });
             });
           });
-          context('Signature is invalid', function () {
-            it('reverts', async function () {
+          context('Signature is invalid', () => {
+            it('reverts', async () => {
               // Endorse the requester
               await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
               // Make the request
@@ -2045,8 +2045,8 @@ describe('AirnodeRrp', () => {
             });
           });
         });
-        context('Request ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Request ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2122,8 +2122,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Airnode address is incorrect', function () {
-          it('reverts', async function () {
+        context('Airnode address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2199,8 +2199,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill address is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2276,8 +2276,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill function ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill function ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2348,8 +2348,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Caller not sponsor wallet', function () {
-        it('reverts', async function () {
+      context('Caller not sponsor wallet', () => {
+        it('reverts', async () => {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
@@ -2423,11 +2423,11 @@ describe('AirnodeRrp', () => {
     });
   });
 
-  describe('fail', function () {
-    context('Template request made', function () {
-      context('Caller is sponsor wallet', function () {
-        context('Fulfillment parameters are correct', function () {
-          it('fails successfully', async function () {
+  describe('fail', () => {
+    context('Template request made', () => {
+      context('Caller is sponsor wallet', () => {
+        context('Fulfillment parameters are correct', () => {
+          it('fails successfully', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -2518,8 +2518,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Request ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Request ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -2560,8 +2560,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Airnode address is incorrect', function () {
-          it('reverts', async function () {
+        context('Airnode address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -2630,8 +2630,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill address is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -2700,8 +2700,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill function ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill function ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Create the template
@@ -2764,8 +2764,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Caller not sponsor wallet', function () {
-        it('reverts', async function () {
+      context('Caller not sponsor wallet', () => {
+        it('reverts', async () => {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
@@ -2834,10 +2834,10 @@ describe('AirnodeRrp', () => {
         });
       });
     });
-    context('Full request made', function () {
-      context('Caller is sponsor wallet', function () {
-        context('Fulfillment parameters are correct', function () {
-          it('fails successfully', async function () {
+    context('Full request made', () => {
+      context('Caller is sponsor wallet', () => {
+        context('Fulfillment parameters are correct', () => {
+          it('fails successfully', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2925,8 +2925,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Request ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Request ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -2962,8 +2962,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Airnode address is incorrect', function () {
-          it('reverts', async function () {
+        context('Airnode address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -3029,8 +3029,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill address is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill address is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -3096,8 +3096,8 @@ describe('AirnodeRrp', () => {
             ).to.be.revertedWith('Invalid request fulfillment');
           });
         });
-        context('Fulfill function ID is incorrect', function () {
-          it('reverts', async function () {
+        context('Fulfill function ID is incorrect', () => {
+          it('reverts', async () => {
             // Endorse the requester
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
             // Make the request
@@ -3157,8 +3157,8 @@ describe('AirnodeRrp', () => {
           });
         });
       });
-      context('Caller not sponsor wallet', function () {
-        it('reverts', async function () {
+      context('Caller not sponsor wallet', () => {
+        it('reverts', async () => {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request

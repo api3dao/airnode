@@ -28,8 +28,8 @@ describe('WithdrawalUtils', () => {
     });
   });
 
-  describe('requestWithdrawal', function () {
-    it('requests withdrawal', async function () {
+  describe('requestWithdrawal', () => {
+    it('requests withdrawal', async () => {
       const initialSponsorToWithdrawalRequestCount = await airnodeRrp.sponsorToWithdrawalRequestCount(
         roles.sponsor.address
       );
@@ -65,9 +65,9 @@ describe('WithdrawalUtils', () => {
     });
   });
 
-  describe('fulfillWithdrawal', function () {
-    context('Caller is sponsor wallet', function () {
-      it('fulfills withdrawal when parameters are correct', async function () {
+  describe('fulfillWithdrawal', () => {
+    context('Caller is sponsor wallet', () => {
+      it('fulfills withdrawal when parameters are correct', async () => {
         // Make the withdrawal request
         await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         const withdrawalRequestId = hre.ethers.utils.keccak256(
@@ -110,7 +110,7 @@ describe('WithdrawalUtils', () => {
           .withArgs(airnodeAddress, roles.sponsor.address, withdrawalRequestId, sponsorWalletAddress, fundsToSend);
         expect(await hre.ethers.provider.getBalance(roles.sponsor.address)).to.equal(sponsorBalance.add(fundsToSend));
       });
-      it('reverts if withdrawal request ID is incorrect', async function () {
+      it('reverts if withdrawal request ID is incorrect', async () => {
         // Make the withdrawal request
         await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         // Attempt to fulfill the withdrawal request
@@ -126,7 +126,7 @@ describe('WithdrawalUtils', () => {
             })
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
       });
-      it('reverts if airnode address is incorrect', async function () {
+      it('reverts if airnode address is incorrect', async () => {
         // Make the withdrawal request
         await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         const withdrawalRequestId = hre.ethers.utils.keccak256(
@@ -153,7 +153,7 @@ describe('WithdrawalUtils', () => {
             })
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
       });
-      it('reverts if sponsor address is incorrect', async function () {
+      it('reverts if sponsor address is incorrect', async () => {
         // Make the withdrawal request
         await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         const withdrawalRequestId = hre.ethers.utils.keccak256(
@@ -180,7 +180,7 @@ describe('WithdrawalUtils', () => {
             })
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
       });
-      it('reverts if transfer fails', async function () {
+      it('reverts if transfer fails', async () => {
         // Make the withdrawal request
         await rrpRequester.requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         const withdrawalRequestId = hre.ethers.utils.keccak256(
@@ -209,8 +209,8 @@ describe('WithdrawalUtils', () => {
         ).to.be.revertedWith('Transfer failed');
       });
     });
-    context('Caller is not sponsor wallet', function () {
-      it('reverts', async function () {
+    context('Caller is not sponsor wallet', () => {
+      it('reverts', async () => {
         // Make the withdrawal request
         await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
         const withdrawalRequestId = hre.ethers.utils.keccak256(

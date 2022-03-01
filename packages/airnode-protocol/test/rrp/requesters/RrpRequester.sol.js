@@ -33,20 +33,20 @@ describe('RrpRequester', () => {
     });
   });
 
-  describe('constructor', function () {
-    it('sets AirnodeRrp', async function () {
+  describe('constructor', () => {
+    it('sets AirnodeRrp', async () => {
       expect(await rrpRequester.airnodeRrp()).to.equal(airnodeRrp.address);
     });
-    it('sponsors itself', async function () {
+    it('sponsors itself', async () => {
       expect(
         await airnodeRrp.sponsorToRequesterToSponsorshipStatus(rrpRequester.address, rrpRequester.address)
       ).to.equal(true);
     });
   });
 
-  describe('onlyAirnodeRrp', function () {
-    context('Caller AirnodeRrp', function () {
-      it('does not revert', async function () {
+  describe('onlyAirnodeRrp', () => {
+    context('Caller AirnodeRrp', () => {
+      it('does not revert', async () => {
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         const endpointId = utils.generateRandomBytes32();
         const parameters = utils.generateRandomBytes();
@@ -113,8 +113,8 @@ describe('RrpRequester', () => {
         expect(staticCallResult.callSuccess).to.equal(true);
       });
     });
-    context('Caller not AirnodeRrp', function () {
-      it('reverts', async function () {
+    context('Caller not AirnodeRrp', () => {
+      it('reverts', async () => {
         await expect(
           rrpRequester.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, '0x')
         ).to.be.revertedWith('Caller not Airnode RRP');

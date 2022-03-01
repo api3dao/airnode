@@ -18,9 +18,9 @@ describe('TemplateUtils', () => {
     airnodeRrp = await airnodeRrpFactory.deploy();
   });
 
-  describe('createTemplate', function () {
-    context('Airnode address not zero', function () {
-      it('creates template', async function () {
+  describe('createTemplate', () => {
+    context('Airnode address not zero', () => {
+      it('creates template', async () => {
         const airnode = utils.generateRandomAddress();
         const endpointId = utils.generateRandomBytes32();
         const parameters = utils.generateRandomBytes();
@@ -40,8 +40,8 @@ describe('TemplateUtils', () => {
         expect(templateAfterCreation.parameters).to.equal(parameters);
       });
     });
-    context('Airnode address zero', function () {
-      it('reverts', async function () {
+    context('Airnode address zero', () => {
+      it('reverts', async () => {
         const airnode = hre.ethers.constants.AddressZero;
         const endpointId = utils.generateRandomBytes32();
         const parameters = utils.generateRandomBytes();
@@ -59,8 +59,8 @@ describe('TemplateUtils', () => {
     });
   });
 
-  describe('getTemplates', function () {
-    it('gets templates', async function () {
+  describe('getTemplates', () => {
+    it('gets templates', async () => {
       // Create the templates
       const noTemplates = 10;
       const airnodes = Array.from({ length: noTemplates }, () => utils.generateRandomAddress());
