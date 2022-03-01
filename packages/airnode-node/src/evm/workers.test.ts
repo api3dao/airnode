@@ -5,8 +5,8 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
+import { logger } from '@api3/airnode-utilities';
 import * as worker from './workers';
-import * as logger from '../logger';
 import * as fixtures from '../../test/fixtures';
 
 const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as ReadonlyArray<keyof typeof worker>;

@@ -1,7 +1,7 @@
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
+import { removeKey } from '@api3/airnode-utilities';
 import { AnyRequest, ApiCall, GroupedRequests, Request, RequestType, Withdrawal } from '../types';
-import { removeKey } from '../utils/object-utils';
 
 export interface RequestsBySponsorAddress {
   readonly [sponsorAddress: string]: GroupedRequests;

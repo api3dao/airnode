@@ -5,10 +5,9 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
+import { logger, LogOptions } from '@api3/airnode-utilities';
 import * as worker from './worker';
-import * as logger from '../../logger';
 import * as fixtures from '../../../test/fixtures';
-import { LogOptions } from '../../types';
 
 describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {

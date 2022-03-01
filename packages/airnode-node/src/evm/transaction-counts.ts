@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
 import uniq from 'lodash/uniq';
 import flatMap from 'lodash/flatMap';
+import { logger, go } from '@api3/airnode-utilities';
 import * as wallet from './wallet';
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 

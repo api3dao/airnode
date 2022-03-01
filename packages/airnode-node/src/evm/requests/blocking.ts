@@ -1,16 +1,8 @@
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
-import * as logger from '../../logger';
-import {
-  ApiCall,
-  Request,
-  GroupedRequests,
-  LogsData,
-  PendingLog,
-  RequestStatus,
-  RequestErrorMessage,
-} from '../../types';
+import { ApiCall, Request, GroupedRequests, LogsData, RequestStatus, RequestErrorMessage } from '../../types';
 
 interface ApiCallsWithLogs {
   readonly apiCalls: Request<ApiCall>[];
