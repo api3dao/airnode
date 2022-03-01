@@ -1,5 +1,5 @@
 ---
-'@api3/airnode-node': patch
+'@api3/airnode-node': minor
 ---
 
 use minConfirmations when fetching blocks
