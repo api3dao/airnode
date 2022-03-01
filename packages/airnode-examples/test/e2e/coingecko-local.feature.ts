@@ -23,6 +23,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
   it('works', () => {
     chooseIntegration();
 
+    runCommand(`docker system prune -f --all`);
     runCommand('yarn deploy-rrp');
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
