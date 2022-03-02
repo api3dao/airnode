@@ -6,6 +6,7 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '@api3/airnode-utilities';
 
 async function walk(directory: string) {
   let fileList: string[] = [];
@@ -39,6 +40,6 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch((err) => {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
   });

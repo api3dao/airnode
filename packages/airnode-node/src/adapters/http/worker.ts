@@ -1,7 +1,6 @@
-import * as logger from '../../logger';
+import { logger, go, LogOptions } from '@api3/airnode-utilities';
 import * as workers from '../../workers';
-import { go } from '../../utils/promise-utils';
-import { AggregatedApiCall, ApiCallResponse, LogOptions, LogsData, WorkerOptions, CallApiPayload } from '../../types';
+import { AggregatedApiCall, ApiCallResponse, LogsData, WorkerOptions, CallApiPayload } from '../../types';
 
 export async function spawnNewApiCall(
   aggregatedApiCall: AggregatedApiCall,
