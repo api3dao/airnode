@@ -86,10 +86,10 @@ describe('RequesterAuthorizerWithAirnode', () => {
       );
   });
 
-  describe('constructor', () => {
-    context('AccessControlRegistry address is not zero', () => {
-      context('Admin role description string is not empty', () => {
-        it('constructs', async () => {
+  describe('constructor', function () {
+    context('AccessControlRegistry address is not zero', function () {
+      context('Admin role description string is not empty', function () {
+        it('constructs', async function () {
           const requesterAuthorizerWithAirnodeFactory = await hre.ethers.getContractFactory(
             'RequesterAuthorizerWithAirnode',
             roles.deployer
@@ -104,8 +104,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           );
         });
       });
-      context('Admin role description string is empty', () => {
-        it('reverts', async () => {
+      context('Admin role description string is empty', function () {
+        it('reverts', async function () {
           const requesterAuthorizerWithAirnodeFactory = await hre.ethers.getContractFactory(
             'RequesterAuthorizerWithAirnode',
             roles.deployer
@@ -116,8 +116,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('AccessControlRegistry address is zero', () => {
-      it('reverts', async () => {
+    context('AccessControlRegistry address is zero', function () {
+      it('reverts', async function () {
         const requesterAuthorizerWithAirnodeFactory = await hre.ethers.getContractFactory(
           'RequesterAuthorizerWithAirnode',
           roles.deployer
@@ -132,10 +132,10 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('extendWhitelistExpiration', () => {
-    context('Sender has whitelist expiration extender role', () => {
-      context('Timestamp extends whitelist expiration', () => {
-        it('extends whitelist expiration', async () => {
+  describe('extendWhitelistExpiration', function () {
+    context('Sender has whitelist expiration extender role', function () {
+      context('Timestamp extends whitelist expiration', function () {
+        it('extends whitelist expiration', async function () {
           let whitelistStatus;
           whitelistStatus = await requesterAuthorizerWithAirnode.airnodeToEndpointIdToRequesterToWhitelistStatus(
             airnodeAddress,
@@ -167,8 +167,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         });
       });
-      context('Timestamp does not extend whitelist expiration', () => {
-        it('reverts', async () => {
+      context('Timestamp does not extend whitelist expiration', function () {
+        it('reverts', async function () {
           await expect(
             requesterAuthorizerWithAirnode
               .connect(roles.whitelistExpirationExtender)
@@ -177,9 +177,9 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('Sender is the Airnode address', () => {
-      context('Timestamp extends whitelist expiration', () => {
-        it('extends whitelist expiration', async () => {
+    context('Sender is the Airnode address', function () {
+      context('Timestamp extends whitelist expiration', function () {
+        it('extends whitelist expiration', async function () {
           await accessControlRegistry
             .connect(airnodeWallet)
             .renounceRole(whitelistExpirationExtenderRole, airnodeAddress, { gasLimit: 1000000 });
@@ -210,8 +210,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         });
       });
-      context('Timestamp does not extend whitelist expiration', () => {
-        it('reverts', async () => {
+      context('Timestamp does not extend whitelist expiration', function () {
+        it('reverts', async function () {
           await accessControlRegistry
             .connect(airnodeWallet)
             .renounceRole(whitelistExpirationExtenderRole, airnodeAddress, { gasLimit: 1000000 });
@@ -223,8 +223,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('Sender does not have the whitelist extender role and is not the Airnode address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the whitelist extender role and is not the Airnode address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationSetter)
@@ -244,9 +244,9 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('setWhitelistExpiration', () => {
-    context('Sender has whitelist expiration setter role', () => {
-      it('sets whitelist expiration', async () => {
+  describe('setWhitelistExpiration', function () {
+    context('Sender has whitelist expiration setter role', function () {
+      it('sets whitelist expiration', async function () {
         let whitelistStatus;
         const expirationTimestamp = 1000;
         await expect(
@@ -285,8 +285,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
     });
-    context('Sender is the Airnode address', () => {
-      it('sets whitelist expiration', async () => {
+    context('Sender is the Airnode address', function () {
+      it('sets whitelist expiration', async function () {
         await accessControlRegistry
           .connect(airnodeWallet)
           .renounceRole(whitelistExpirationSetterRole, airnodeAddress, { gasLimit: 1000000 });
@@ -324,8 +324,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
     });
-    context('Sender does not have the whitelist expiration setter role and is not the Airnode address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the whitelist expiration setter role and is not the Airnode address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationExtender)
@@ -345,9 +345,9 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('setIndefiniteWhitelistStatus', () => {
-    context('Sender has indefinite whitelister role', () => {
-      it('sets indefinite whitelist status', async () => {
+  describe('setIndefiniteWhitelistStatus', function () {
+    context('Sender has indefinite whitelister role', function () {
+      it('sets indefinite whitelist status', async function () {
         let whitelistStatus;
         // Whitelist indefinitely
         await expect(
@@ -443,8 +443,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         ).to.equal(false);
       });
     });
-    context('Sender is the Airnode address', () => {
-      it('sets indefinite whitelist status', async () => {
+    context('Sender is the Airnode address', function () {
+      it('sets indefinite whitelist status', async function () {
         await accessControlRegistry
           .connect(airnodeWallet)
           .renounceRole(indefiniteWhitelisterRole, airnodeAddress, { gasLimit: 1000000 });
@@ -551,8 +551,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         ).to.equal(false);
       });
     });
-    context('Sender does not have the indefinite whitelister role and is not the Airnode address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the indefinite whitelister role and is not the Airnode address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationExtender)
@@ -572,10 +572,10 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('revokeIndefiniteWhitelistStatus', () => {
-    context('setter does not have the indefinite whitelister role', () => {
-      context('setter is not the Airnode address', () => {
-        it('revokes indefinite whitelist status', async () => {
+  describe('revokeIndefiniteWhitelistStatus', function () {
+    context('setter does not have the indefinite whitelister role', function () {
+      context('setter is not the Airnode address', function () {
+        it('revokes indefinite whitelist status', async function () {
           // Grant indefinite whitelist status
           await requesterAuthorizerWithAirnode
             .connect(roles.indefiniteWhitelister)
@@ -624,8 +624,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           ).to.not.emit(requesterAuthorizerWithAirnode, 'RevokedIndefiniteWhitelistStatus');
         });
       });
-      context('setter is the Airnode address', () => {
-        it('reverts', async () => {
+      context('setter is the Airnode address', function () {
+        it('reverts', async function () {
           await accessControlRegistry
             .connect(airnodeWallet)
             .renounceRole(indefiniteWhitelisterRole, airnodeAddress, { gasLimit: 1000000 });
@@ -637,8 +637,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('setter has the indefinite whitelister role', () => {
-      it('reverts', async () => {
+    context('setter has the indefinite whitelister role', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithAirnode
             .connect(roles.randomPerson)
@@ -653,40 +653,40 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('deriveAdminRole', () => {
-    it('derives admin role for the Airnode', async () => {
+  describe('deriveAdminRole', function () {
+    it('derives admin role for the Airnode', async function () {
       expect(await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeAddress)).to.equal(adminRole);
     });
   });
 
-  describe('deriveWhitelistExpirationExtenderRole', () => {
-    it('derives whitelist expiration extender role for the Airnode', async () => {
+  describe('deriveWhitelistExpirationExtenderRole', function () {
+    it('derives whitelist expiration extender role for the Airnode', async function () {
       expect(await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(airnodeAddress)).to.equal(
         whitelistExpirationExtenderRole
       );
     });
   });
 
-  describe('deriveWhitelistExpirationSetterRole', () => {
-    it('derives whitelist expiration setter role for the Airnode', async () => {
+  describe('deriveWhitelistExpirationSetterRole', function () {
+    it('derives whitelist expiration setter role for the Airnode', async function () {
       expect(await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(airnodeAddress)).to.equal(
         whitelistExpirationSetterRole
       );
     });
   });
 
-  describe('deriveIndefiniteWhitelisterRole', () => {
-    it('derives indefinite whitelister role for the Airnode', async () => {
+  describe('deriveIndefiniteWhitelisterRole', function () {
+    it('derives indefinite whitelister role for the Airnode', async function () {
       expect(await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(airnodeAddress)).to.equal(
         indefiniteWhitelisterRole
       );
     });
   });
 
-  describe('requesterIsWhitelisted', () => {
-    context('Requester is whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+  describe('requesterIsWhitelisted', function () {
+    context('Requester is whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -702,8 +702,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns true', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -748,9 +748,9 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('Requester is not whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+    context('Requester is not whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationSetter)
             .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
@@ -763,8 +763,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns false', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns false', async function () {
           expect(
             await requesterAuthorizerWithAirnode.requesterIsWhitelisted(
               airnodeAddress,
@@ -777,10 +777,10 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
   });
 
-  describe('isAuthorized', () => {
-    context('Requester is whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+  describe('isAuthorized', function () {
+    context('Requester is whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -798,8 +798,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns true', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -815,9 +815,9 @@ describe('RequesterAuthorizerWithAirnode', () => {
         });
       });
     });
-    context('Requester is not whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+    context('Requester is not whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithAirnode
             .connect(roles.whitelistExpirationSetter)
             .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
@@ -832,8 +832,8 @@ describe('RequesterAuthorizerWithAirnode', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns false', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns false', async function () {
           expect(
             await requesterAuthorizerWithAirnode.isAuthorized(
               utils.generateRandomBytes32(),

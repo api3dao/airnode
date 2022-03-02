@@ -71,11 +71,11 @@ describe('RequesterAuthorizerWithManager', () => {
       );
   });
 
-  describe('constructor', () => {
-    context('AccessControlRegistry address is not zero', () => {
-      context('Admin role description string is not empty', () => {
-        context('Manager address is not zero', () => {
-          it('constructs', async () => {
+  describe('constructor', function () {
+    context('AccessControlRegistry address is not zero', function () {
+      context('Admin role description string is not empty', function () {
+        context('Manager address is not zero', function () {
+          it('constructs', async function () {
             const requesterAuthorizerWithManagerFactory = await hre.ethers.getContractFactory(
               'RequesterAuthorizerWithManager',
               roles.deployer
@@ -94,8 +94,8 @@ describe('RequesterAuthorizerWithManager', () => {
             expect(await requesterAuthorizerWithManager.manager()).to.equal(roles.manager.address);
           });
         });
-        context('Manager address is zero', () => {
-          it('reverts', async () => {
+        context('Manager address is zero', function () {
+          it('reverts', async function () {
             const requesterAuthorizerWithManagerFactory = await hre.ethers.getContractFactory(
               'RequesterAuthorizerWithManager',
               roles.deployer
@@ -110,8 +110,8 @@ describe('RequesterAuthorizerWithManager', () => {
           });
         });
       });
-      context('Admin role description string is empty', () => {
-        it('reverts', async () => {
+      context('Admin role description string is empty', function () {
+        it('reverts', async function () {
           const requesterAuthorizerWithManagerFactory = await hre.ethers.getContractFactory(
             'RequesterAuthorizerWithManager',
             roles.deployer
@@ -122,8 +122,8 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('AccessControlRegistry address is zero', () => {
-      it('reverts', async () => {
+    context('AccessControlRegistry address is zero', function () {
+      it('reverts', async function () {
         const requesterAuthorizerWithManagerFactory = await hre.ethers.getContractFactory(
           'RequesterAuthorizerWithManager',
           roles.deployer
@@ -139,10 +139,10 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('extendWhitelistExpiration', () => {
-    context('Sender has whitelist expiration extender role', () => {
-      context('Timestamp extends whitelist expiration', () => {
-        it('extends whitelist expiration', async () => {
+  describe('extendWhitelistExpiration', function () {
+    context('Sender has whitelist expiration extender role', function () {
+      context('Timestamp extends whitelist expiration', function () {
+        it('extends whitelist expiration', async function () {
           let whitelistStatus;
           whitelistStatus = await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
             airnodeAddress,
@@ -174,8 +174,8 @@ describe('RequesterAuthorizerWithManager', () => {
           expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         });
       });
-      context('Timestamp does not extend whitelist expiration', () => {
-        it('reverts', async () => {
+      context('Timestamp does not extend whitelist expiration', function () {
+        it('reverts', async function () {
           await expect(
             requesterAuthorizerWithManager
               .connect(roles.whitelistExpirationExtender)
@@ -184,9 +184,9 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('Sender is the manager address', () => {
-      context('Timestamp extends whitelist expiration', () => {
-        it('extends whitelist expiration', async () => {
+    context('Sender is the manager address', function () {
+      context('Timestamp extends whitelist expiration', function () {
+        it('extends whitelist expiration', async function () {
           await accessControlRegistry
             .connect(roles.manager)
             .renounceRole(whitelistExpirationExtenderRole, roles.manager.address);
@@ -215,8 +215,8 @@ describe('RequesterAuthorizerWithManager', () => {
           expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         });
       });
-      context('Timestamp does not extend whitelist expiration', () => {
-        it('reverts', async () => {
+      context('Timestamp does not extend whitelist expiration', function () {
+        it('reverts', async function () {
           await accessControlRegistry
             .connect(roles.manager)
             .renounceRole(whitelistExpirationExtenderRole, roles.manager.address);
@@ -228,8 +228,8 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('Sender does not have the whitelist extender role and is not the manager address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the whitelist extender role and is not the manager address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithManager
             .connect(roles.whitelistExpirationSetter)
@@ -249,9 +249,9 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('setWhitelistExpiration', () => {
-    context('Sender has whitelist expiration setter role', () => {
-      it('sets whitelist expiration', async () => {
+  describe('setWhitelistExpiration', function () {
+    context('Sender has whitelist expiration setter role', function () {
+      it('sets whitelist expiration', async function () {
         let whitelistStatus;
         const expirationTimestamp = 1000;
         await expect(
@@ -290,8 +290,8 @@ describe('RequesterAuthorizerWithManager', () => {
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
     });
-    context('Sender is tha manager address', () => {
-      it('sets whitelist expiration', async () => {
+    context('Sender is tha manager address', function () {
+      it('sets whitelist expiration', async function () {
         await accessControlRegistry
           .connect(roles.manager)
           .renounceRole(whitelistExpirationSetterRole, roles.manager.address);
@@ -327,8 +327,8 @@ describe('RequesterAuthorizerWithManager', () => {
         expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
       });
     });
-    context('Sender does not have the whitelist expiration setter role and is not the manager address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the whitelist expiration setter role and is not the manager address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithManager
             .connect(roles.whitelistExpirationExtender)
@@ -348,9 +348,9 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('setIndefiniteWhitelistStatus', () => {
-    context('Sender has indefinite whitelister role', () => {
-      it('sets indefinite whitelist status', async () => {
+  describe('setIndefiniteWhitelistStatus', function () {
+    context('Sender has indefinite whitelister role', function () {
+      it('sets indefinite whitelist status', async function () {
         let whitelistStatus;
         // Whitelist indefinitely
         await expect(
@@ -446,8 +446,8 @@ describe('RequesterAuthorizerWithManager', () => {
         ).to.equal(false);
       });
     });
-    context('Sender is the manager address', () => {
-      it('sets indefinite whitelist status', async () => {
+    context('Sender is the manager address', function () {
+      it('sets indefinite whitelist status', async function () {
         await accessControlRegistry
           .connect(roles.manager)
           .renounceRole(indefiniteWhitelisterRole, roles.manager.address);
@@ -546,8 +546,8 @@ describe('RequesterAuthorizerWithManager', () => {
         ).to.equal(false);
       });
     });
-    context('Sender does not have the indefinite whitelister role and is not the manager address', () => {
-      it('reverts', async () => {
+    context('Sender does not have the indefinite whitelister role and is not the manager address', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithManager
             .connect(roles.whitelistExpirationExtender)
@@ -567,10 +567,10 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('revokeIndefiniteWhitelistStatus', () => {
-    context('setter does not have the indefinite whitelister role', () => {
-      context('setter is not the manager address', () => {
-        it('revokes indefinite whitelist status', async () => {
+  describe('revokeIndefiniteWhitelistStatus', function () {
+    context('setter does not have the indefinite whitelister role', function () {
+      context('setter is not the manager address', function () {
+        it('revokes indefinite whitelist status', async function () {
           // Grant indefinite whitelist status
           await requesterAuthorizerWithManager
             .connect(roles.indefiniteWhitelister)
@@ -619,8 +619,8 @@ describe('RequesterAuthorizerWithManager', () => {
           ).to.not.emit(requesterAuthorizerWithManager, 'RevokedIndefiniteWhitelistStatus');
         });
       });
-      context('setter is the manager address', () => {
-        it('reverts', async () => {
+      context('setter is the manager address', function () {
+        it('reverts', async function () {
           await accessControlRegistry
             .connect(roles.manager)
             .renounceRole(indefiniteWhitelisterRole, roles.manager.address);
@@ -637,8 +637,8 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('setter has the indefinite whitelister role', () => {
-      it('reverts', async () => {
+    context('setter has the indefinite whitelister role', function () {
+      it('reverts', async function () {
         await expect(
           requesterAuthorizerWithManager
             .connect(roles.randomPerson)
@@ -653,10 +653,10 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('requesterIsWhitelisted', () => {
-    context('Requester is whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+  describe('requesterIsWhitelisted', function () {
+    context('Requester is whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -672,8 +672,8 @@ describe('RequesterAuthorizerWithManager', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns true', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -718,9 +718,9 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('Requester is not whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+    context('Requester is not whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.whitelistExpirationSetter)
             .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
@@ -733,8 +733,8 @@ describe('RequesterAuthorizerWithManager', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns false', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns false', async function () {
           expect(
             await requesterAuthorizerWithManager.requesterIsWhitelisted(
               airnodeAddress,
@@ -747,10 +747,10 @@ describe('RequesterAuthorizerWithManager', () => {
     });
   });
 
-  describe('isAuthorized', () => {
-    context('Requester is whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+  describe('isAuthorized', function () {
+    context('Requester is whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -768,8 +768,8 @@ describe('RequesterAuthorizerWithManager', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns true', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.indefiniteWhitelister)
             .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
@@ -785,9 +785,9 @@ describe('RequesterAuthorizerWithManager', () => {
         });
       });
     });
-    context('Requester is not whitelisted indefinitely', () => {
-      context('Requester is whitelisted temporarily', () => {
-        it('returns true', async () => {
+    context('Requester is not whitelisted indefinitely', function () {
+      context('Requester is whitelisted temporarily', function () {
+        it('returns true', async function () {
           await requesterAuthorizerWithManager
             .connect(roles.whitelistExpirationSetter)
             .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 2000000000);
@@ -802,8 +802,8 @@ describe('RequesterAuthorizerWithManager', () => {
           ).to.equal(true);
         });
       });
-      context('Requester is not whitelisted temporarily', () => {
-        it('returns false', async () => {
+      context('Requester is not whitelisted temporarily', function () {
+        it('returns false', async function () {
           expect(
             await requesterAuthorizerWithManager.isAuthorized(
               utils.generateRandomBytes32(),

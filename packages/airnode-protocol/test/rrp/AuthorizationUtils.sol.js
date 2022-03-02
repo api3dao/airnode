@@ -30,9 +30,9 @@ describe('AuthorizationUtils', () => {
     ({ airnodeAddress: airnodeAddress } = utils.generateRandomAirnodeWallet());
   });
 
-  describe('checkAuthorizationStatus', () => {
-    context('authorizers array is empty', () => {
-      it('returns false', async () => {
+  describe('checkAuthorizationStatus', function () {
+    context('authorizers array is empty', function () {
+      it('returns false', async function () {
         const requestId = utils.generateRandomBytes32();
         const endpointId = utils.generateRandomBytes32();
         const sponsor = utils.generateRandomAddress();
@@ -42,8 +42,8 @@ describe('AuthorizationUtils', () => {
         ).to.equal(false);
       });
     });
-    context('All authorizers return false', () => {
-      it('returns false', async () => {
+    context('All authorizers return false', function () {
+      it('returns false', async function () {
         const requestId = utils.generateRandomBytes32();
         const endpointId = utils.generateRandomBytes32();
         const sponsor = utils.generateRandomAddress();
@@ -60,8 +60,8 @@ describe('AuthorizationUtils', () => {
         ).to.equal(false);
       });
     });
-    context('At least one of the authorizers returns true', () => {
-      it('returns true', async () => {
+    context('At least one of the authorizers returns true', function () {
+      it('returns true', async function () {
         const requestId = utils.generateRandomBytes32();
         const endpointId = utils.generateRandomBytes32();
         const sponsor = utils.generateRandomAddress();
@@ -80,9 +80,9 @@ describe('AuthorizationUtils', () => {
     });
   });
 
-  describe('checkAuthorizationStatuses', () => {
-    context('Parameter lengths equal', () => {
-      it('checks authorization statuses', async () => {
+  describe('checkAuthorizationStatuses', function () {
+    context('Parameter lengths equal', function () {
+      it('checks authorization statuses', async function () {
         const noRequests = 10;
         const authorizers = Array(5).fill(authorizerAlwaysFalse.address);
         const requestIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
@@ -111,8 +111,8 @@ describe('AuthorizationUtils', () => {
         ).to.deep.equal(Array(noRequests).fill(true));
       });
     });
-    context('Parameter lengths not equal', () => {
-      it('reverts', async () => {
+    context('Parameter lengths not equal', function () {
+      it('reverts', async function () {
         const noRequests = 10;
         const authorizers = Array(5).fill(authorizerAlwaysFalse.address);
         const requestIds = Array.from({ length: noRequests }, () => utils.generateRandomBytes32());
