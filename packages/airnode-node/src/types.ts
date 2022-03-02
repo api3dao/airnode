@@ -73,6 +73,7 @@ export interface RequestMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -319,6 +320,7 @@ interface EVMEventLogMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
