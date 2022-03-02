@@ -25,6 +25,8 @@ describe('blockRequestsWithWithdrawals', () => {
       },
     ]);
     expect(res.apiCalls.length).toEqual(0);
+    expect(res.withdrawals.length).toEqual(1);
+    expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {

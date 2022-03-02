@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import { ApiCall, Request, GroupedRequests, RequestStatus, Withdrawal } from '../types';
 
-export function shouldDropAfterBlockLimit<T>(request: Request<T>): boolean {
+export function hasExceededIgnoredBlockLimit<T>(request: Request<T>): boolean {
   const { blockNumber, currentBlock, ignoreBlockedRequestsAfterBlocks } = request.metadata;
   return currentBlock - blockNumber > ignoreBlockedRequestsAfterBlocks;
 }

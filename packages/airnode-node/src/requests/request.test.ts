@@ -6,14 +6,14 @@ describe('dropRequestsAfterLimit', () => {
   it('drops requests that have passed the specified block limit', () => {
     const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 1 });
     const apiCall = fixtures.requests.buildApiCall({ metadata });
-    const res = request.shouldDropAfterBlockLimit(apiCall);
+    const res = request.hasExceededIgnoredBlockLimit(apiCall);
     expect(res).toEqual(true);
   });
 
   it('blocks requests that are within the specified block limit', () => {
     const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 100 });
     const apiCall = fixtures.requests.buildApiCall({ metadata });
-    const res = request.shouldDropAfterBlockLimit(apiCall);
+    const res = request.hasExceededIgnoredBlockLimit(apiCall);
     expect(res).toEqual(false);
   });
 });
