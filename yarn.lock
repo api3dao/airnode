@@ -1107,12 +1107,13 @@
     retry-request "^4.2.2"
     teeny-request "^7.0.0"
 
-"@google-cloud/functions-framework@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-2.0.0.tgz#9dd73ce7ee971c59e71267e7545177749c758fab"
-  integrity sha512-ekimQYvTFjVLZiSGXWOGMj56DU2mXzQdaK57x20EPeDdG6BxwLuCCBxIC/N5EYX+y/2SbvGs0K9hBaFYHP9n2A==
+"@google-cloud/functions-framework@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-3.0.0.tgz#2b7e6454ee9fe4d1eaaa08384fc01de4a72cd081"
+  integrity sha512-+K9+y39/5ig4QrbnaCM8BOzt4+Qx5SRMu2dj5QDTNFc5s8f/Lubty8u3aBQN6JC86M0NuHL9zIj8xs8Awj7C+w==
   dependencies:
     body-parser "^1.18.3"
+    cloudevents "^5.1.0"
     express "^4.16.4"
     minimist "^1.2.5"
     on-finished "^2.3.0"
@@ -3479,7 +3480,7 @@ ajv-keywords@^5.0.0:
   dependencies:
     fast-deep-equal "^3.1.3"
 
-ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.5, ajv@^6.6.1, ajv@^6.9.1:
+ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.5, ajv@^6.6.1, ajv@^6.9.1, ajv@~6.12.3:
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
@@ -5334,6 +5335,15 @@ clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
   integrity sha1-2jCcwmPfFZlMaIypAheco8fNfH4=
+
+cloudevents@^5.1.0:
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/cloudevents/-/cloudevents-5.3.2.tgz#1338f0d51a2baac40ef7ea2b3577394447994d49"
+  integrity sha512-ZjEFjx0BJnio8SED1TzD7GHA118zCk04Mz6aDMMii+4/ZvX5LPgn1D4lT5Jj7HodCbdeRS6dX88unH06Qc3mkA==
+  dependencies:
+    ajv "~6.12.3"
+    util "^0.12.4"
+    uuid "~8.3.0"
 
 cmd-shim@^4.1.0:
   version "4.1.0"
@@ -15746,7 +15756,7 @@ util.promisify@^1.0.0:
     has-symbols "^1.0.1"
     object.getownpropertydescriptors "^2.1.1"
 
-util@^0.12.0:
+util@^0.12.0, util@^0.12.4:
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/util/-/util-0.12.4.tgz#66121a31420df8f01ca0c464be15dfa1d1850253"
   integrity sha512-bxZ9qtSlGUWSOy9Qa9Xgk11kSslpuZwaxCg4sNIDj6FLucDab2JxnHwyNTCpHMtK1MjoQiWQ6DiUMZYbSrO+Sw==
@@ -15778,7 +15788,7 @@ uuid@^3.2.1, uuid@^3.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
-uuid@^8.0.0, uuid@^8.3.0, uuid@^8.3.2:
+uuid@^8.0.0, uuid@^8.3.0, uuid@^8.3.2, uuid@~8.3.0:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
