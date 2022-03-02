@@ -49,7 +49,7 @@ describe('create', () => {
           txType: 'eip1559',
           baseFeeMultiplier: 2,
           priorityFee: {
-            value: '3.12',
+            value: 3.12,
             unit: 'gwei',
           },
         },
@@ -125,7 +125,7 @@ describe('create', () => {
           txType: 'eip1559',
           baseFeeMultiplier: 2,
           priorityFee: {
-            value: '3.12',
+            value: 3.12,
             unit: 'gwei',
           },
         },

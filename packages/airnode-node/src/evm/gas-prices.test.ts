@@ -80,9 +80,9 @@ describe('parsePriorityFee', () => {
   });
 
   test.each([
-    { value: '3.12', unit: 'pence' },
+    { value: 3.12, unit: 'pence' },
     { value: '3.1p', unit: 'gwei' },
-    { value: '3.12', unit: 'wei' },
+    { value: 3.12, unit: 'wei' },
   ])('throws an error for an invalid decimal denominated string - %#', (input: any) => {
     const throwingFunction = () => gasPrices.parsePriorityFee(input);
     expect(throwingFunction).toThrow();
