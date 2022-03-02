@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
-import { logger } from '@api3/airnode-utilities';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, PendingLog } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 import { Trigger } from '../../config/types';
 
 export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
