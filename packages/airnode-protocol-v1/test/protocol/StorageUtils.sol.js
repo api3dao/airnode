@@ -39,17 +39,17 @@ beforeEach(async () => {
   fulfillFunctionId = '0x12345678';
   subscriptionId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'address', 'bytes4', 'bytes'],
       [
         chainId,
         airnodeAddress,
         templateId,
         subscriptionParameters,
-        subscriptionConditions,
         relayer,
         sponsor,
         requester,
         fulfillFunctionId,
+        subscriptionConditions,
       ]
     )
   );
@@ -85,11 +85,11 @@ describe('storeSubscription', function () {
   context('Chain ID is not zero', function () {
     context('Airnode address is not zero', function () {
       context('Subscription parameters are not too long', function () {
-        context('Subscription conditions are not too long', function () {
-          context('Relayer address is not zero', function () {
-            context('Sponsor address is not zero', function () {
-              context('Requester address is not zero', function () {
-                context('Fulfill function ID is not zero', function () {
+        context('Relayer address is not zero', function () {
+          context('Sponsor address is not zero', function () {
+            context('Requester address is not zero', function () {
+              context('Fulfill function ID is not zero', function () {
+                context('Subscription conditions are not too long', function () {
                   it('stores subscription', async function () {
                     await expect(
                       airnodeProtocol
@@ -99,11 +99,11 @@ describe('storeSubscription', function () {
                           airnodeAddress,
                           templateId,
                           subscriptionParameters,
-                          subscriptionConditions,
                           relayer,
                           sponsor,
                           requester,
-                          fulfillFunctionId
+                          fulfillFunctionId,
+                          subscriptionConditions
                         )
                     )
                       .to.emit(airnodeProtocol, 'StoredSubscription')
@@ -113,25 +113,25 @@ describe('storeSubscription', function () {
                         airnodeAddress,
                         templateId,
                         subscriptionParameters,
-                        subscriptionConditions,
                         relayer,
                         sponsor,
                         requester,
-                        fulfillFunctionId
+                        fulfillFunctionId,
+                        subscriptionConditions
                       );
                     const subscription = await airnodeProtocol.subscriptions(subscriptionId);
                     expect(subscription.chainId).to.equal(chainId);
                     expect(subscription.airnode).to.equal(airnodeAddress);
                     expect(subscription.templateId).to.equal(templateId);
                     expect(subscription.parameters).to.equal(subscriptionParameters);
-                    expect(subscription.conditions).to.equal(subscriptionConditions);
                     expect(subscription.relayer).to.equal(relayer);
                     expect(subscription.sponsor).to.equal(sponsor);
                     expect(subscription.requester).to.equal(requester);
                     expect(subscription.fulfillFunctionId).to.equal(fulfillFunctionId);
+                    expect(subscription.conditions).to.equal(subscriptionConditions);
                   });
                 });
-                context('Fulfill function ID is zero', function () {
+                context('Subscription conditions are too long', function () {
                   it('reverts', async function () {
                     await expect(
                       airnodeProtocol
@@ -141,17 +141,17 @@ describe('storeSubscription', function () {
                           airnodeAddress,
                           templateId,
                           subscriptionParameters,
-                          subscriptionConditions,
                           relayer,
                           sponsor,
                           requester,
-                          '0x00000000'
+                          fulfillFunctionId,
+                          `0x${'12'.repeat(4096 + 1)}`
                         )
-                    ).to.be.revertedWith('Fulfill function ID zero');
+                    ).to.be.revertedWith('Conditions too long');
                   });
                 });
               });
-              context('Requester address is zero', function () {
+              context('Fulfill function ID is zero', function () {
                 it('reverts', async function () {
                   await expect(
                     airnodeProtocol
@@ -161,17 +161,17 @@ describe('storeSubscription', function () {
                         airnodeAddress,
                         templateId,
                         subscriptionParameters,
-                        subscriptionConditions,
                         relayer,
                         sponsor,
-                        hre.ethers.constants.AddressZero,
-                        fulfillFunctionId
+                        requester,
+                        '0x00000000',
+                        subscriptionConditions
                       )
-                  ).to.be.revertedWith('Requester address zero');
+                  ).to.be.revertedWith('Fulfill function ID zero');
                 });
               });
             });
-            context('Sponsor address is zero', function () {
+            context('Requester address is zero', function () {
               it('reverts', async function () {
                 await expect(
                   airnodeProtocol
@@ -181,17 +181,17 @@ describe('storeSubscription', function () {
                       airnodeAddress,
                       templateId,
                       subscriptionParameters,
-                      subscriptionConditions,
                       relayer,
+                      sponsor,
                       hre.ethers.constants.AddressZero,
-                      requester,
-                      fulfillFunctionId
+                      fulfillFunctionId,
+                      subscriptionConditions
                     )
-                ).to.be.revertedWith('Sponsor address zero');
+                ).to.be.revertedWith('Requester address zero');
               });
             });
           });
-          context('Relayer address is zero', function () {
+          context('Sponsor address is zero', function () {
             it('reverts', async function () {
               await expect(
                 airnodeProtocol
@@ -201,17 +201,17 @@ describe('storeSubscription', function () {
                     airnodeAddress,
                     templateId,
                     subscriptionParameters,
-                    subscriptionConditions,
+                    relayer,
                     hre.ethers.constants.AddressZero,
-                    sponsor,
                     requester,
-                    fulfillFunctionId
+                    fulfillFunctionId,
+                    subscriptionConditions
                   )
-              ).to.be.revertedWith('Relayer address zero');
+              ).to.be.revertedWith('Sponsor address zero');
             });
           });
         });
-        context('Subscription conditions are too long', function () {
+        context('Relayer address is zero', function () {
           it('reverts', async function () {
             await expect(
               airnodeProtocol
@@ -221,13 +221,13 @@ describe('storeSubscription', function () {
                   airnodeAddress,
                   templateId,
                   subscriptionParameters,
-                  `0x${'12'.repeat(4096 + 1)}`,
-                  relayer,
+                  hre.ethers.constants.AddressZero,
                   sponsor,
                   requester,
-                  fulfillFunctionId
+                  fulfillFunctionId,
+                  subscriptionConditions
                 )
-            ).to.be.revertedWith('Conditions too long');
+            ).to.be.revertedWith('Relayer address zero');
           });
         });
       });
@@ -241,11 +241,11 @@ describe('storeSubscription', function () {
                 airnodeAddress,
                 templateId,
                 `0x${'12'.repeat(4096 + 1)}`,
-                subscriptionConditions,
                 relayer,
                 sponsor,
                 requester,
-                fulfillFunctionId
+                fulfillFunctionId,
+                subscriptionConditions
               )
           ).to.be.revertedWith('Parameters too long');
         });
@@ -261,11 +261,11 @@ describe('storeSubscription', function () {
               hre.ethers.constants.AddressZero,
               templateId,
               subscriptionParameters,
-              subscriptionConditions,
               relayer,
               sponsor,
               requester,
-              fulfillFunctionId
+              fulfillFunctionId,
+              subscriptionConditions
             )
         ).to.be.revertedWith('Airnode address zero');
       });
@@ -281,11 +281,11 @@ describe('storeSubscription', function () {
             airnodeAddress,
             templateId,
             subscriptionParameters,
-            subscriptionConditions,
             relayer,
             sponsor,
             requester,
-            fulfillFunctionId
+            fulfillFunctionId,
+            subscriptionConditions
           )
       ).to.be.revertedWith('Chain ID zero');
     });

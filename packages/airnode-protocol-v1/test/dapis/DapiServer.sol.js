@@ -153,17 +153,17 @@ async function setUpBeacon() {
   // Register the Beacon update subscription
   beaconUpdateSubscriptionId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'address', 'bytes4', 'bytes'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeAddress,
         templateId,
         '0x',
-        beaconUpdateSubscriptionConditions,
         airnodeAddress,
         roles.sponsor.address,
         dapiServer.address,
         dapiServer.interface.getSighash('fulfillPspBeaconUpdate'),
+        beaconUpdateSubscriptionConditions,
       ]
     )
   );
@@ -172,24 +172,24 @@ async function setUpBeacon() {
     .registerBeaconUpdateSubscription(
       airnodeAddress,
       templateId,
-      beaconUpdateSubscriptionConditions,
       airnodeAddress,
-      roles.sponsor.address
+      roles.sponsor.address,
+      beaconUpdateSubscriptionConditions
     );
   // Register the relayed Beacon update subscription
   beaconUpdateSubscriptionRelayedId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'address', 'bytes4', 'bytes'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeAddress,
         templateId,
         '0x',
-        beaconUpdateSubscriptionConditions,
         relayerAddress,
         roles.sponsor.address,
         dapiServer.address,
         dapiServer.interface.getSighash('fulfillPspBeaconUpdate'),
+        beaconUpdateSubscriptionConditions,
       ]
     )
   );
@@ -198,9 +198,9 @@ async function setUpBeacon() {
     .registerBeaconUpdateSubscription(
       airnodeAddress,
       templateId,
-      beaconUpdateSubscriptionConditions,
       relayerAddress,
-      roles.sponsor.address
+      roles.sponsor.address,
+      beaconUpdateSubscriptionConditions
     );
 }
 
@@ -232,6 +232,7 @@ async function setUpDapi() {
       dapiUpdateSubscriptionConditionParameters,
     ]
   );
+  const dapiUpdateSubscriptionRelayedConditions = dapiUpdateSubscriptionConditions;
   // Create the dAPI update template
   const dapiUpdateTemplateId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [hre.ethers.constants.HashZero, '0x'])
@@ -240,33 +241,33 @@ async function setUpDapi() {
   const dapiUpdateParameters = hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]);
   dapiUpdateSubscriptionId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'address', 'bytes4', 'bytes'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeAddress,
         dapiUpdateTemplateId,
         dapiUpdateParameters,
-        dapiUpdateSubscriptionConditions,
         airnodeAddress,
         roles.sponsor.address,
         dapiServer.address,
         dapiServer.interface.getSighash('fulfillPspDapiUpdate'),
+        dapiUpdateSubscriptionConditions,
       ]
     )
   );
   dapiUpdateSubscriptionRelayedId = hre.ethers.utils.keccak256(
     hre.ethers.utils.solidityPack(
-      ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
+      ['uint256', 'address', 'bytes32', 'bytes', 'address', 'address', 'address', 'bytes4', 'bytes'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
         airnodeAddress,
         dapiUpdateTemplateId,
         dapiUpdateParameters,
-        dapiUpdateSubscriptionConditionParameters,
         relayerAddress,
         roles.sponsor.address,
         dapiServer.address,
         dapiServer.interface.getSighash('fulfillPspDapiUpdate'),
+        dapiUpdateSubscriptionRelayedConditions,
       ]
     )
   );
@@ -1410,9 +1411,9 @@ describe('registerBeaconUpdateSubscription', function () {
             .registerBeaconUpdateSubscription(
               airnodeAddress,
               templateId,
-              beaconUpdateSubscriptionConditions,
               airnodeAddress,
-              roles.sponsor.address
+              roles.sponsor.address,
+              beaconUpdateSubscriptionConditions
             )
         )
           .to.emit(dapiServer, 'RegisteredBeaconUpdateSubscription')
@@ -1421,11 +1422,11 @@ describe('registerBeaconUpdateSubscription', function () {
             airnodeAddress,
             templateId,
             '0x',
-            beaconUpdateSubscriptionConditions,
             airnodeAddress,
             roles.sponsor.address,
             dapiServer.address,
-            dapiServer.interface.getSighash('fulfillPspBeaconUpdate')
+            dapiServer.interface.getSighash('fulfillPspBeaconUpdate'),
+            beaconUpdateSubscriptionConditions
           );
         expect(await dapiServer.subscriptionIdToBeaconId(beaconUpdateSubscriptionId)).to.equal(beaconId);
       });
@@ -1438,9 +1439,9 @@ describe('registerBeaconUpdateSubscription', function () {
             .registerBeaconUpdateSubscription(
               airnodeAddress,
               templateId,
-              beaconUpdateSubscriptionConditions,
               airnodeAddress,
-              hre.ethers.constants.AddressZero
+              hre.ethers.constants.AddressZero,
+              beaconUpdateSubscriptionConditions
             )
         ).to.be.revertedWith('Sponsor address zero');
       });
@@ -1454,9 +1455,9 @@ describe('registerBeaconUpdateSubscription', function () {
           .registerBeaconUpdateSubscription(
             airnodeAddress,
             templateId,
-            beaconUpdateSubscriptionConditions,
             hre.ethers.constants.AddressZero,
-            roles.sponsor.address
+            roles.sponsor.address,
+            beaconUpdateSubscriptionConditions
           )
       ).to.be.revertedWith('Relayer address zero');
     });
@@ -1586,9 +1587,9 @@ describe('conditionPspBeaconUpdate', function () {
               .registerBeaconUpdateSubscription(
                 airnodeAddress,
                 templateId,
-                beaconUpdateSubscriptionConditions,
                 airnodeAddress,
-                roles.sponsor.address
+                roles.sponsor.address,
+                beaconUpdateSubscriptionConditions
               );
             const data = encodeData(123);
             const shortBeaconUpdateSubscriptionConditionParameters =

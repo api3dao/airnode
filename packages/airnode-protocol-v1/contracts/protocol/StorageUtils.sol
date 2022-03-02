@@ -27,11 +27,11 @@ contract StorageUtils is IStorageUtils {
         address airnode;
         bytes32 templateId;
         bytes parameters;
-        bytes conditions;
         address relayer;
         address sponsor;
         address requester;
         bytes4 fulfillFunctionId;
+        bytes conditions;
     }
 
     /// @notice Maximum parameter length for byte strings that Airnodes will
@@ -99,24 +99,24 @@ contract StorageUtils is IStorageUtils {
     /// @param templateId Template ID (allowed to be `bytes32(0)`)
     /// @param parameters Parameters provided by the subscription in addition
     /// to the parameters in the template, encoded in Airnode ABI
-    /// @param conditions Conditions under which the subscription is requested
-    /// to be fulfilled, encoded in Airnode ABI
     /// @param relayer Relayer address
     /// @param sponsor Sponsor address
     /// @param requester Requester address
     /// @param fulfillFunctionId Selector of the function to be called for
     /// fulfillment
+    /// @param conditions Conditions under which the subscription is requested
+    /// to be fulfilled, encoded in Airnode ABI
     /// @return subscriptionId Subscription ID
     function storeSubscription(
         uint256 chainId,
         address airnode,
         bytes32 templateId,
         bytes calldata parameters,
-        bytes calldata conditions,
         address relayer,
         address sponsor,
         address requester,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes calldata conditions
     ) external override returns (bytes32 subscriptionId) {
         require(chainId != 0, "Chain ID zero");
         require(airnode != address(0), "Airnode address zero");
@@ -124,25 +124,25 @@ contract StorageUtils is IStorageUtils {
             parameters.length <= MAXIMUM_PARAMETER_LENGTH,
             "Parameters too long"
         );
-        require(
-            conditions.length <= MAXIMUM_PARAMETER_LENGTH,
-            "Conditions too long"
-        );
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         require(requester != address(0), "Requester address zero");
         require(fulfillFunctionId != bytes4(0), "Fulfill function ID zero");
+        require(
+            conditions.length <= MAXIMUM_PARAMETER_LENGTH,
+            "Conditions too long"
+        );
         subscriptionId = keccak256(
             abi.encodePacked(
                 chainId,
                 airnode,
                 templateId,
                 parameters,
-                conditions,
                 relayer,
                 sponsor,
                 requester,
-                fulfillFunctionId
+                fulfillFunctionId,
+                conditions
             )
         );
         subscriptions[subscriptionId] = Subscription({
@@ -150,11 +150,11 @@ contract StorageUtils is IStorageUtils {
             airnode: airnode,
             templateId: templateId,
             parameters: parameters,
-            conditions: conditions,
             relayer: relayer,
             sponsor: sponsor,
             requester: requester,
-            fulfillFunctionId: fulfillFunctionId
+            fulfillFunctionId: fulfillFunctionId,
+            conditions: conditions
         });
         emit StoredSubscription(
             subscriptionId,
@@ -162,11 +162,11 @@ contract StorageUtils is IStorageUtils {
             airnode,
             templateId,
             parameters,
-            conditions,
             relayer,
             sponsor,
             requester,
-            fulfillFunctionId
+            fulfillFunctionId,
+            conditions
         );
     }
 }

@@ -14,11 +14,11 @@ interface IStorageUtils {
         address airnode,
         bytes32 templateId,
         bytes parameters,
-        bytes conditions,
         address relayer,
         address sponsor,
         address requester,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes conditions
     );
 
     function storeTemplate(bytes32 endpointId, bytes calldata parameters)
@@ -30,11 +30,11 @@ interface IStorageUtils {
         address airnode,
         bytes32 templateId,
         bytes calldata parameters,
-        bytes calldata conditions,
         address relayer,
         address sponsor,
         address requester,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes calldata conditions
     ) external returns (bytes32 subscriptionId);
 
     // solhint-disable-next-line func-name-mixedcase
@@ -53,10 +53,10 @@ interface IStorageUtils {
             address airnode,
             bytes32 templateId,
             bytes memory parameters,
-            bytes memory conditions,
             address relayer,
             address sponsor,
             address requester,
-            bytes4 fulfillFunctionId
+            bytes4 fulfillFunctionId,
+            bytes memory conditions
         );
 }

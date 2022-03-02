@@ -252,17 +252,17 @@ contract DapiServer is
     /// to be used for the specific subscription.
     /// @param airnode Airnode address
     /// @param templateId Template ID
-    /// @param conditions Conditions under which the subscription is requested
-    /// to be fulfilled
     /// @param relayer Relayer address
     /// @param sponsor Sponsor address
+    /// @param conditions Conditions under which the subscription is requested
+    /// to be fulfilled
     /// @return subscriptionId Subscription ID
     function registerBeaconUpdateSubscription(
         address airnode,
         bytes32 templateId,
-        bytes memory conditions,
         address relayer,
-        address sponsor
+        address sponsor,
+        bytes memory conditions
     ) external override returns (bytes32 subscriptionId) {
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
@@ -272,11 +272,11 @@ contract DapiServer is
                 airnode,
                 templateId,
                 "",
-                conditions,
                 relayer,
                 sponsor,
                 address(this),
-                this.fulfillPspBeaconUpdate.selector
+                this.fulfillPspBeaconUpdate.selector,
+                conditions
             )
         );
         subscriptionIdToHash[subscriptionId] = keccak256(
@@ -291,11 +291,11 @@ contract DapiServer is
             airnode,
             templateId,
             "",
-            conditions,
             relayer,
             sponsor,
             address(this),
-            this.fulfillPspBeaconUpdate.selector
+            this.fulfillPspBeaconUpdate.selector,
+            conditions
         );
     }
 

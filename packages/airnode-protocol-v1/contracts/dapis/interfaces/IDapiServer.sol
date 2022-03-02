@@ -41,11 +41,11 @@ interface IDapiServer is IAirnodeRequester {
         address airnode,
         bytes32 templateId,
         bytes parameters,
-        bytes conditions,
         address relayer,
         address sponsor,
         address requester,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes conditions
     );
 
     event UpdatedBeaconWithPsp(
@@ -106,9 +106,9 @@ interface IDapiServer is IAirnodeRequester {
     function registerBeaconUpdateSubscription(
         address airnode,
         bytes32 templateId,
-        bytes memory conditions,
         address relayer,
-        address sponsor
+        address sponsor,
+        bytes memory conditions
     ) external returns (bytes32 subscriptionId);
 
     function conditionPspBeaconUpdate(
