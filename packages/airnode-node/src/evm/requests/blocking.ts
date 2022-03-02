@@ -34,7 +34,7 @@ export function blockRequestsWithWithdrawals([
 
     const warningLog = logger.pend(
       'WARN',
-      `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
+      `Dropping Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
     );
 
     return {

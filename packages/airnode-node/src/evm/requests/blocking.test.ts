@@ -7,8 +7,8 @@ import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
   range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
 
-describe('blockRequestsWithWithdrawals', () => {
-  it('blocks API calls with pending withdrawals from the same sponsor', () => {
+describe('dropRequestsWithWithdrawals', () => {
+  it('drops API calls with pending withdrawals from the same sponsor', () => {
     const apiCall = buildApiCallsWithSponsor(1, '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181')[0];
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
@@ -21,7 +21,7 @@ describe('blockRequestsWithWithdrawals', () => {
     expect(logs).toEqual([
       {
         level: 'WARN',
-        message: `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
+        message: `Dropping Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
       },
     ]);
     expect(res.apiCalls.length).toEqual(0);
@@ -152,32 +152,32 @@ describe('blockRequests', () => {
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-0 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-0 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-1 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-1 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-2 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-2 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-3 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-3 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-4 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-4 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
