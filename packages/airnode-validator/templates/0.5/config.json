@@ -49,6 +49,45 @@
         ]
       }
     },
+    "httpSignedData": {
+      "__arrayItem": {
+        "endpointId": {
+          "__regexp": "^0x[a-fA-F0-9]{64}$"
+        },
+        "oisTitle": {
+          "__type": "string"
+        },
+        "endpointName": {
+          "__type": "string"
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "oisTitle": ".*"
+            },
+            "__rootThen": {
+              "ois": {
+                "__any": {
+                  "title": {
+                    "__regexp": "^__match$"
+                  },
+                  "endpoints": {
+                    "__any": {
+                      "name": {
+                        "__regexp": "[['endpointName']]"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "__catch": {
+              "__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in {{0}}.{{1}}.{{2}}.{{3}}"
+            }
+          }
+        ]
+      }
+    },
     "__optional": {
       "http": {
         "__arrayItem": {
@@ -398,6 +437,38 @@
           },
           "__catch": {
             "__message": "{{0}}.{{1}}: If httpGateway is enabled parameter apiKey is required"
+          }
+        }
+      ],
+      "__optional": {
+        "apiKey": {
+          "__regexp": "^.{30,60}$",
+          "__catch": {
+            "__message": "__fullPath: The key must have a length of between 30 - 120 characters."
+          }
+        },
+        "maxConcurrency": {
+          "__type": "number",
+          "__catch": {
+            "__message": "__fullPath: This field must be an integer"
+          }
+        }
+      }
+    },
+    "httpSignedDataGateway": {
+      "enabled": {
+        "__type": "boolean"
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "apiKey": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If httpSignedDataGateway is enabled parameter apiKey is required"
           }
         }
       ],

@@ -38,7 +38,7 @@ yargs(hideBin(process.argv))
       if (!parameters) {
         throw new Error('Missing request parameters');
       }
-      logger.log(JSON.stringify(await local.testApi(args['endpoint-id'], parameters)));
+      logger.log(JSON.stringify(await local.processHttpRequest(args['endpoint-id'], parameters)));
     }
   )
   .help()
