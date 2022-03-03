@@ -145,12 +145,12 @@ module "httpApiGateway" {
   ]
 }
 
-module "processSignedDataRequest" {
+module "processHttpSignedDataRequest" {
   source = "./modules/function"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-processSignedDataRequest"
-  entry_point        = "processSignedDataRequest"
+  name               = "${local.name_prefix}-processHttpSignedDataRequest"
+  entry_point        = "processHttpSignedDataRequest"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 15
@@ -163,7 +163,7 @@ module "processSignedDataRequest" {
     HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
   }
 
-  max_instances = var.disable_concurrency_reservation ? null : var.signed_data_max_concurrency
+  max_instances = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
 
   depends_on = [
     google_project_service.management_apis,
@@ -179,17 +179,17 @@ module "httpSignedDataGateway" {
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.processSignedDataRequest[0].function_name
+    cloud_function_name = module.processHttpSignedDataRequest[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.processSignedDataRequest[0].function_name
+    module.processHttpSignedDataRequest[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.processSignedDataRequest,
+    module.processHttpSignedDataRequest,
   ]
 }

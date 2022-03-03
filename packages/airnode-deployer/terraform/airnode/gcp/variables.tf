@@ -58,13 +58,13 @@ variable "http_max_concurrency" {
   default     = 0
 }
 
-variable "signed_data_api_key" {
+variable "http_signed_data_api_key" {
   description = "API key to access Airnode Signed Data Gateway"
   type        = string
   default     = null
 }
 
-variable "signed_data_max_concurrency" {
+variable "http_signed_data_max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Cloud Function"
   default     = 0
 }

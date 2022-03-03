@@ -18,7 +18,7 @@ type TerraformAirnodeOutput = {
   http_gateway_url?: {
     value: string;
   };
-  signed_data_gateway_url?: {
+  http_signed_data_gateway_url?: {
     value: string;
   };
 };
@@ -182,9 +182,9 @@ async function terraformAirnodeManage(
   }
 
   if (httpSignedDataGateway?.enabled) {
-    commonArguments.push(['var', 'signed_data_api_key', httpSignedDataGateway.apiKey!]);
+    commonArguments.push(['var', 'http_signed_data_api_key', httpSignedDataGateway.apiKey!]);
     if (httpSignedDataGateway.maxConcurrency) {
-      commonArguments.push(['var', 'signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
+      commonArguments.push(['var', 'http_signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
     }
   }
 

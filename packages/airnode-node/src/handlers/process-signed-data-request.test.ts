@@ -1,5 +1,5 @@
 import { Endpoint } from '@api3/airnode-ois';
-import { processSignedDataRequest } from './process-signed-data-request';
+import { processHttpSignedDataRequest } from './process-signed-data-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
 
@@ -10,16 +10,16 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
   return fixtures.buildConfig({ ois: [fixtures.buildOIS({ endpoints })] });
 }
 
-describe('processSignedDataRequests', () => {
+describe('processHttpSignedDataRequests', () => {
   it('returns an error if no endpoint trigger with given ID is found', async () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
-    const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), nonExistentEndpointId, {});
+    const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), nonExistentEndpointId, {});
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${nonExistentEndpointId}'`));
   });
 
   it('returns an error if no endpoint with given ID is found', async () => {
-    const [err, res] = await processSignedDataRequest(buildConfigWithEndpoint(), ENDPOINT_ID, {});
+    const [err, res] = await processHttpSignedDataRequest(buildConfigWithEndpoint(), ENDPOINT_ID, {});
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`No endpoint definition for endpoint ID '${ENDPOINT_ID}'`));
   });
@@ -29,7 +29,7 @@ describe('processSignedDataRequests', () => {
     const config = buildConfigWithEndpoint(endpoint);
     config.triggers.httpSignedData = [];
 
-    const [err, res] = await processSignedDataRequest(config, ENDPOINT_ID, {});
+    const [err, res] = await processHttpSignedDataRequest(config, ENDPOINT_ID, {});
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${ENDPOINT_ID}'`));
   });
@@ -37,7 +37,7 @@ describe('processSignedDataRequests', () => {
   describe('returns an error for missing parameters', () => {
     it('missing "_templateId" parameter', async () => {
       const parameters = {};
-      const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
+      const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
       expect(res).toBeNull();
       expect(err).toEqual(
@@ -58,7 +58,7 @@ describe('processSignedDataRequests', () => {
       from: 'ETH',
       _templateId: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf',
     };
-    const [err, res] = await processSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
+    const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
     const config = fixtures.buildConfig();
     const aggregatedApiCall = fixtures.buildAggregatedSignedDataApiCall({

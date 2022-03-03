@@ -6,7 +6,7 @@ import { callApi } from '../api';
 import { Config } from '../config/types';
 import { randomHexString } from '../utils';
 
-export async function processSignedDataRequest(
+export async function processHttpSignedDataRequest(
   config: Config,
   endpointId: string,
   parameters: Record<string, string>

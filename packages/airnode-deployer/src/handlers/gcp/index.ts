@@ -107,7 +107,7 @@ export async function processHttpRequest(req: Request, res: Response) {
 
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
-export async function processSignedDataRequest(req: Request, res: Response) {
+export async function processHttpSignedDataRequest(req: Request, res: Response) {
   // We need to check for an API key manually because GCP HTTP Gateway
   // doesn't support managing API keys via API
   const apiKey = req.header('x-api-key');
@@ -123,7 +123,7 @@ export async function processSignedDataRequest(req: Request, res: Response) {
     return;
   }
 
-  const [err, result] = await handlers.processSignedDataRequest(parsedConfig, endpointId as string, parameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId as string, parameters);
   if (err) {
     res.status(400).send({ error: err.toString() });
     return;
