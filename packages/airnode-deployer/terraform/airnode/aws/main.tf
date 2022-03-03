@@ -27,7 +27,7 @@ module "startCoordinator" {
   secrets_file       = var.secrets_file
   environment_variables = {
     HTTP_GATEWAY_URL        = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataGateway[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataApiGateway[0].api_url}"
   }
 
   invoke_targets                 = [module.run.lambda_arn]
@@ -82,13 +82,13 @@ module "processHttpSignedDataRequest" {
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
 }
 
-module "httpSignedDataGateway" {
+module "httpSignedDataApiGateway" {
   source = "./modules/apigateway"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpSignedDataGateway"
+  name          = "${local.name_prefix}-httpSignedDataApiGateway"
   stage         = "v1"
-  template_file = "./templates/httpSignedDataGateway.yaml.tpl"
+  template_file = "./templates/httpSignedDataApiGateway.yaml.tpl"
   template_variables = {
     proxy_lambda = module.processHttpSignedDataRequest[0].lambda_arn
     region       = var.aws_region

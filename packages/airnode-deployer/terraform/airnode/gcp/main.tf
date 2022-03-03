@@ -57,7 +57,7 @@ module "startCoordinator" {
 
   environment_variables = {
     HTTP_GATEWAY_URL        = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataGateway[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataApiGateway[0].api_url}"
   }
 
   schedule_interval = 1
@@ -170,12 +170,12 @@ module "processHttpSignedDataRequest" {
   ]
 }
 
-module "httpSignedDataGateway" {
+module "httpSignedDataApiGateway" {
   source = "./modules/apigateway"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpSignedDataGateway"
-  template_file = "./templates/httpSignedDataGateway.yaml.tpl"
+  name          = "${local.name_prefix}-httpSignedDataApiGateway"
+  template_file = "./templates/httpSignedDataApiGateway.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
