@@ -2,8 +2,8 @@
 
 This example contains the same API integration as `../coingecko`.
 
-The only difference is that this integration allows the endpoint to return signed data that can be submitted on chain by
-the to update a beacon.
+The only difference is that this integration allows the endpoint to return signed data that can be then submitted on
+chain.
 
 <!-- TODO: Point to docs when they are finalized -->
 
