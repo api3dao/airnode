@@ -41,6 +41,10 @@ jobs:
         with:
           # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
           fetch-depth: 0
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo $(git branch | sed -n -e 's/^\* \(.*\)/\1/p'))"
+        id: extract_branch
 #      -
 #        name: Set up QEMU
 #        uses: docker/setup-qemu-action@v1
@@ -64,26 +68,26 @@ jobs:
         uses: docker/build-push-action@v2
         with:
 #          platforms: linux/amd64
-          build-args: build=local
+#          build-args: build=local
 #          context: .
           file: docker/Dockerfile
           push: true
-          tags: api3/airnode-artifacts-dev:${{github.ref_name}}
+          tags: api3/airnode-artifacts-dev:${{ steps.extract_branch.outputs.branch }}
       -
         name: Retag artifacts
-        run: docker tag api3/airnode-artifacts-dev:${{github.ref_name}} api3/airnode-artifacts:latest
+        run: docker tag api3/airnode-artifacts-dev:${{ steps.extract_branch.outputs.branch }} api3/airnode-artifacts:latest
       -
         name: Build and push airnode-deployer
         uses: docker/build-push-action@v2
         with:
 #          platforms: linux/amd64
-          context: .
+#          context: .
           file: packages/airnode-deployer/docker/Dockerfile
           push: true
-          tags: api3/airnode-deployer-dev:${{github.ref_name}}
+          tags: api3/airnode-deployer-dev:${{ steps.extract_branch.outputs.branch }}
       -
         name: Retag deployer image
-        run: docker tag api3/airnode-deployer-dev:${{github.ref_name}} api3/airnode-deployer:latest
+        run: docker tag api3/airnode-deployer-dev:${{ steps.extract_branch.outputs.branch }} api3/airnode-deployer:latest
       -
         name: Build and push airnode-client
         uses: docker/build-push-action@v2
@@ -92,10 +96,10 @@ jobs:
           context: .
           file: packages/airnode-node/docker/Dockerfile
           push: true
-          tags: api3/airnode-client-dev:${{github.ref_name}}
+          tags: api3/airnode-client-dev:${{ steps.extract_branch.outputs.branch }}
       -
         name: Retag Airnode client image
-        run: docker tag api3/airnode-client-dev:${{github.ref_name}} api3/airnode-client:latest
+        run: docker tag api3/airnode-client-dev:${{ steps.extract_branch.outputs.branch }} api3/airnode-client:latest
 #  build:
 #    name: Build and lint Airnode
 #    runs-on: ubuntu-latest
