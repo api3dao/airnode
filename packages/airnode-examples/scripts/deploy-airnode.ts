@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { getDockerImage } from '@api3/airnode-utilities/dist/utils/docker-utils';
 import { cliPrint, isWindows, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 const main = async () => {
@@ -17,7 +18,7 @@ const main = async () => {
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
     `-v ${integrationPath}:/app/config`,
     `-v ${integrationPath}:/app/output`,
-    `api3/airnode-deployer:latest deploy`,
+    `${getDockerImage('deployer')} deploy`,
   ]
     .filter(Boolean)
     .join(' ');

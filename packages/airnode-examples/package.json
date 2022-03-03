@@ -35,6 +35,7 @@
     "@api3/airnode-deployer": "^0.4.0",
     "@api3/airnode-node": "^0.4.0",
     "@api3/airnode-protocol": "^0.4.0",
+    "@api3/airnode-utilities": "^0.4.0",
     "ethers": "^5.4.5",
     "is-wsl": "^2.2.0"
   },
