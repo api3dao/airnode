@@ -14,6 +14,7 @@ describe('initialize (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
 
@@ -34,6 +35,7 @@ describe('initialize (ApiCall)', () => {
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
+        minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       parameters: {},
@@ -53,6 +55,7 @@ describe('initialize (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const template = {
@@ -81,6 +84,7 @@ describe('applyParameters', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
   });
@@ -149,6 +153,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
           blockNumber: 10716082,
           currentBlock: 10716090,
           ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: 'logTransactionHash',
         },
         parameters: { from: 'ETH' },
@@ -178,6 +183,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
@@ -200,6 +206,7 @@ describe('mapRequests (ApiCall)', () => {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         parameters: { from: 'ETH' },
@@ -223,6 +230,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
     const fulfillLogWithMetadata = {
@@ -231,6 +239,7 @@ describe('mapRequests (ApiCall)', () => {
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };
 

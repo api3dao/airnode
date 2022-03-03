@@ -1,12 +1,11 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
+import { logger, go, formatDateTime, buildBaseOptions } from '@api3/airnode-utilities';
 import * as calls from '../coordinator/calls';
-import * as logger from '../logger';
 import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { formatDateTime, go } from '../utils';
 import { CoordinatorState, WorkerOptions } from '../types';
 import { Config } from '../config/types';
 
@@ -16,7 +15,7 @@ export async function startCoordinator(config: Config) {
   const completedAt = new Date();
 
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId: endState.coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId: endState.coordinatorId });
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, logOptions);
 
   // Heartbeat is not core part of coordinator because it may return early in case there are no actionable requests
@@ -29,7 +28,7 @@ export async function startCoordinator(config: Config) {
 function createInitialCoordinatorState(config: Config) {
   const state = coordinatorState.create(config);
   const { coordinatorId } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   logger.info(`Created initial coordinator state`, logOptions);
   return state;
@@ -47,7 +46,7 @@ function getWorkerOptions(state: CoordinatorState): WorkerOptions {
 
 async function initializeProviders(state: CoordinatorState) {
   const { coordinatorId, config } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   logger.info('Forking to initialize providers', logOptions);
   const [logs, providerStates] = await providers.initialize(coordinatorId, config, getWorkerOptions(state));
@@ -69,7 +68,7 @@ function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
 
 function aggregateApiCalls(state: CoordinatorState) {
   const { providerStates, config, coordinatorId } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   const flatApiCalls = flatMap(providerStates.evm, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(config, flatApiCalls);
@@ -80,7 +79,7 @@ function aggregateApiCalls(state: CoordinatorState) {
 
 async function executeApiCalls(state: CoordinatorState) {
   const { aggregatedApiCallsById, config, coordinatorId } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   const aggregatedApiCalls = Object.values(aggregatedApiCallsById);
   const [logs, processedAggregatedApiCalls] = await calls.callApis(
@@ -97,7 +96,7 @@ async function executeApiCalls(state: CoordinatorState) {
 
 function disaggregateApiCalls(state: CoordinatorState) {
   const { config, coordinatorId } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   // TODO: Disaggregation should be chain agnostic - currently only updated EVM providers are returned
   const [logs, evmProvidersWithApiResponses] = calls.disaggregate(state);
@@ -109,7 +108,7 @@ function disaggregateApiCalls(state: CoordinatorState) {
 
 async function initiateTransactions(state: CoordinatorState) {
   const { providerStates, config, coordinatorId } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   const sponsorProviderStates = providers.splitStatesBySponsorAddress(providerStates);
   sponsorProviderStates.forEach((sponsorProviderState) => {
@@ -130,7 +129,7 @@ async function initiateTransactions(state: CoordinatorState) {
 
 function applyChainRequestLimits(state: CoordinatorState) {
   const { config, coordinatorId, providerStates } = state;
-  const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+  const logOptions = buildBaseOptions(config, { coordinatorId });
 
   logger.info('Applying chain request limits', logOptions);
   const [logs, processedProviders] = calls.applyChainLimits(config, providerStates);
@@ -156,7 +155,7 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   // =================================================================
   if (hasCoordinatorNoActionableRequests(state)) {
     const { coordinatorId } = state;
-    const logOptions = logger.buildBaseOptions(config, { coordinatorId });
+    const logOptions = buildBaseOptions(config, { coordinatorId });
     logger.info('No actionable requests detected. Returning', logOptions);
     return state;
   }

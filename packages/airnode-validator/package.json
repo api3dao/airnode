@@ -23,6 +23,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@api3/airnode-utilities": "^0.4.0",
     "dotenv": "^16.0.0",
     "lodash": "^4.17.21",
     "yargs": "^17.0.1",

@@ -9,7 +9,9 @@ import {
   AccessControlRegistryFactory,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
+import { logger } from '@api3/airnode-utilities';
 import * as admin from '../../src';
+import { cliExamples } from '../../src/cli-examples';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/src/cli.js`;
@@ -45,7 +47,7 @@ describe('CLI', () => {
       })
       .join(' ');
     const formattedCommand = `${command} ${formattedArgs}`;
-    if (DEBUG_COMMANDS) console.log(`Executing command: ${formattedCommand}`);
+    if (DEBUG_COMMANDS) logger.log(`Executing command: ${formattedCommand}`);
     try {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
     } catch (e: any) {
@@ -658,6 +660,21 @@ describe('CLI', () => {
     it('can derive airnode address', () => {
       const out = execCommand('derive-airnode-address', ['--airnode-mnemonic', airnodeWallet.mnemonic.phrase]);
       expect(out).toEqual(`Airnode address: ${airnodeWallet.address}`);
+    });
+  });
+
+  describe('has valid examples', () => {
+    const exampleOutcomes = [
+      'Airnode address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      'Sponsor wallet address: 0x61cF9Eb3691A715e7B2697a36e9e60FdA40A8617',
+      'Endpoint ID: 0x901843fb332b24a9a71a2234f2a7c82214b7b70e99ab412e7d1827b743f63f61',
+    ];
+
+    cliExamples.forEach((command: string, index: number) => {
+      it(`tests example command ${index}`, () => {
+        const out = execSync(`node ${CLI_EXECUTABLE} ${command}`).toString().trim();
+        expect(out).toEqual(exampleOutcomes[index]);
+      });
     });
   });
 });

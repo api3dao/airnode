@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
+import { randomHexString } from '@api3/airnode-utilities';
 import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import { Config } from './types';
-import { randomHexString } from '../utils/string-utils';
 
 // TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {

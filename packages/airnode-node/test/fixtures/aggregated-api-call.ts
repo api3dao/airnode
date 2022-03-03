@@ -1,5 +1,5 @@
 import {
-  TestingGatewayAggregatedApiCall,
+  HttpGatewayAggregatedApiCall,
   RegularAggregatedApiCall,
   HttpSignedDataAggregatedApiCall,
 } from '../../src/types';
@@ -28,6 +28,7 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
       blockNumber: 11,
       currentBlock: 12,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: '0x40b93a1e81c7162460af066be96266ff692515a2f6b54bd622aa9f82ee00670f',
     },
     requestCount: '1',
@@ -36,9 +37,9 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
   };
 }
 
-export function buildAggregatedTestingGatewayApiCall(
-  params?: Partial<TestingGatewayAggregatedApiCall>
-): TestingGatewayAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(
+  params?: Partial<HttpGatewayAggregatedApiCall>
+): HttpGatewayAggregatedApiCall {
   return {
     type: 'http-gateway',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',

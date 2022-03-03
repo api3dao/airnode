@@ -468,7 +468,7 @@
             "apiKey": {}
           },
           "__catch": {
-            "__message": "{{0}}.{{1}}: If httpSignedData is enabled parameter apiKey is required"
+            "__message": "{{0}}.{{1}}: If httpSignedDataGateway is enabled parameter apiKey is required"
           }
         }
       ],

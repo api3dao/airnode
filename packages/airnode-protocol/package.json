@@ -24,8 +24,7 @@
     "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol",
     "flatten:delete-license-lines": "node dev-scripts/delete-flattened-licenses.js",
     "pack": "yarn pack",
-    "test": "ts-node scripts/run-hardhat-tests.ts",
-    "test:hardhat": "hardhat test",
+    "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test",
     "verify-deployment": "yarn run build:contracts && ts-node scripts/verify-deployment.ts"
@@ -40,7 +39,7 @@
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.5",
-    "hardhat-deploy": "^0.9.0",
+    "hardhat-deploy": "^0.10.5",
     "hardhat-gas-reporter": "^1.0.4",
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",

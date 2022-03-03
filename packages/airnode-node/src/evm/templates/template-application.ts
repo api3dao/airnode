@@ -1,5 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import * as logger from '../../logger';
+import { logger } from '@api3/airnode-utilities';
 import * as evm from '..';
 import {
   ApiCall,

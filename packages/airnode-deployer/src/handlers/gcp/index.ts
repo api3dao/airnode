@@ -2,8 +2,6 @@ import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
 import {
   handlers,
-  logger,
-  utils,
   providers,
   config,
   InitializeProviderPayload,
@@ -11,6 +9,7 @@ import {
   ProcessTransactionsPayload,
   WorkerPayload,
 } from '@api3/airnode-node';
+import { logger, go } from '@api3/airnode-utilities';
 import { loadTrustedConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
@@ -41,10 +40,10 @@ export async function run(req: Request, res: Response) {
 async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
-    console.log(err!.toString());
+    logger.log(err!.toString());
     const errorLog = logger.pend('ERROR', msg, err);
     const body = { ok: false, errorLog };
     res.status(500).send(body);
@@ -66,7 +65,7 @@ async function callApi(payload: CallApiPayload, res: Response) {
 async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);

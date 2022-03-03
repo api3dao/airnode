@@ -1,5 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import * as logger from '../../logger';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import {
   AggregatedApiCallsById,
   ApiCall,
@@ -8,7 +8,6 @@ import {
   EVMProviderState,
   GroupedRequests,
   LogsData,
-  PendingLog,
   ProviderState,
   RequestErrorMessage,
   RequestStatus,
