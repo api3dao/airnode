@@ -1,5 +1,5 @@
 import { Endpoint } from '@api3/airnode-ois';
-import { processHttpSignedDataRequest } from './process-signed-data-request';
+import { processHttpSignedDataRequest } from './process-http-signed-data-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
 
@@ -61,7 +61,7 @@ describe('processHttpSignedDataRequests', () => {
     const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
     const config = fixtures.buildConfig();
-    const aggregatedApiCall = fixtures.buildAggregatedSignedDataApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedHttpSignedDataApiCall({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),

@@ -3,4 +3,4 @@ export * from './initialize-provider';
 export * from './process-transactions';
 export * from './start-coordinator';
 export * from './process-http-request';
-export * from './process-signed-data-request';
+export * from './process-http-signed-data-request';

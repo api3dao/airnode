@@ -34,7 +34,7 @@ export async function processHttpSignedDataRequest(
   const logOptions = logger.buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const aggregatedApiCall: AggregatedApiCall = {
-    type: 'signed-data-gateway',
+    type: 'http-signed-data-gateway',
     id: requestId,
     airnodeAddress,
     endpointId,

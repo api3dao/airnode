@@ -24,7 +24,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
 
   switch (aggregatedApiCall.type) {
-    case 'signed-data-gateway': {
+    case 'http-signed-data-gateway': {
       const removedHttpParams = removeKeys(sanitizedParameters, ['_templateId']);
       return {
         endpointName,
@@ -228,7 +228,7 @@ async function processSuccessfulApiCall(
         const signature = await signResponseMessage(aggregatedApiCall.id, response.encodedValue, config);
         return [[], { success: true, value: response.encodedValue, signature }];
       }
-      case 'signed-data-gateway': {
+      case 'http-signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const signature = await signDataForBeaconUpdate(
           parameters._templateId,
