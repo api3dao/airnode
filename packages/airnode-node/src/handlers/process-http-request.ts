@@ -5,15 +5,15 @@ import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config/types';
 
-export async function testApi(
+export async function processHttpRequest(
   config: Config,
   endpointId: string,
+  // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
-  const testCallId = randomHexString(16);
+  const requestId = randomHexString(16);
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
-
-  const logOptions = buildBaseOptions(config, { requestId: testCallId });
+  const logOptions = buildBaseOptions(config, { requestId });
 
   const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!httpTrigger) {
@@ -28,8 +28,8 @@ export async function testApi(
   }
 
   const aggregatedApiCall: AggregatedApiCall = {
-    type: 'testing-gateway',
-    id: testCallId,
+    type: 'http-gateway',
+    id: requestId,
     airnodeAddress,
     endpointId,
     endpointName: httpTrigger.endpointName,

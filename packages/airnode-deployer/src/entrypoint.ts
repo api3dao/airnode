@@ -18,7 +18,12 @@ export async function run(...args: unknown[]) {
   return handler.run(...args);
 }
 
-export async function testApi(...args: unknown[]) {
+export async function processHttpRequest(...args: unknown[]) {
   const handler = await cloudHandler();
-  return handler.testApi(...args);
+  return handler.processHttpRequest(...args);
+}
+
+export async function processHttpSignedDataRequest(...args: unknown[]) {
+  const handler = await cloudHandler();
+  return handler.processHttpSignedDataRequest(...args);
 }

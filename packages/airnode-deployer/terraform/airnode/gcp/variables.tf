@@ -47,13 +47,24 @@ variable "disable_concurrency_reservation" {
   default     = false
 }
 
-variable "api_key" {
-  description = "API key to access Airnode Test Gateway"
+variable "http_api_key" {
+  description = "API key to access Airnode HTTP Gateway"
   type        = string
   default     = null
 }
 
-variable "api_max_concurrency" {
-  description = "Maximum amount of concurrent executions for Airnode Test Gateway Cloud Function"
+variable "http_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode HTTP Gateway Cloud Function"
+  default     = 0
+}
+
+variable "http_signed_data_api_key" {
+  description = "API key to access Airnode Signed Data Gateway"
+  type        = string
+  default     = null
+}
+
+variable "http_signed_data_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Cloud Function"
   default     = 0
 }

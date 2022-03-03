@@ -1,4 +1,8 @@
-import { TestingGatewayAggregatedApiCall, RegularAggregatedApiCall } from '../../src/types';
+import {
+  HttpGatewayAggregatedApiCall,
+  RegularAggregatedApiCall,
+  HttpSignedDataAggregatedApiCall,
+} from '../../src/types';
 
 export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregatedApiCall>): RegularAggregatedApiCall {
   return {
@@ -33,11 +37,26 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
   };
 }
 
-export function buildAggregatedTestingGatewayApiCall(
-  params?: Partial<TestingGatewayAggregatedApiCall>
-): TestingGatewayAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(
+  params?: Partial<HttpGatewayAggregatedApiCall>
+): HttpGatewayAggregatedApiCall {
   return {
-    type: 'testing-gateway',
+    type: 'http-gateway',
+    airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+    endpointId: 'endpointId',
+    endpointName: 'convertToUSD',
+    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
+    oisTitle: 'Currency Converter API',
+    parameters: { from: 'ETH' },
+    ...params,
+  };
+}
+
+export function buildAggregatedHttpSignedDataApiCall(
+  params?: Partial<HttpSignedDataAggregatedApiCall>
+): HttpSignedDataAggregatedApiCall {
+  return {
+    type: 'http-signed-data-gateway',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',

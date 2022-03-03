@@ -11,6 +11,7 @@ export const triggerSchema = z.object({
 export const triggersSchema = z.object({
   rrp: z.array(triggerSchema),
   http: z.array(triggerSchema).optional(),
+  httpSignedData: z.array(triggerSchema),
 });
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
@@ -61,7 +62,7 @@ export const chainConfigSchema = z.object({
   maxConcurrency: z.number(),
 });
 
-export const httpGatewaySchema = z.object({
+export const gatewaySchema = z.object({
   enabled: z.boolean(),
   apiKey: z.string().optional(),
   maxConcurrency: z.number().optional(),
@@ -98,7 +99,8 @@ export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudPro
 export const nodeSettingsSchema = z.object({
   airnodeWalletMnemonic: z.string(),
   heartbeat: heartbeatSchema,
-  httpGateway: httpGatewaySchema,
+  httpGateway: gatewaySchema,
+  httpSignedDataGateway: gatewaySchema,
   airnodeAddressShort: z.string().optional(),
   stage: z.string(),
   cloudProvider: localOrCloudProviderSchema,

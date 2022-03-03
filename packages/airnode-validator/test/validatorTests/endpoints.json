@@ -242,7 +242,8 @@
         "oisTitle": "myOisTitle",
         "endpointName": "endpt4"
       }
-    ]
+    ],
+    "httpSignedData": []
   },
   "chains": [],
   "nodeSettings": {
@@ -260,6 +261,9 @@
       "enabled": false
     },
     "httpGateway": {
+      "enabled": false
+    },
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },
