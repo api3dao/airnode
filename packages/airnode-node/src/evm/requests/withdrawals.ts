@@ -1,5 +1,5 @@
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as events from './events';
-import * as logger from '../../logger';
 import {
   Request,
   EVMEventLog,
@@ -7,7 +7,6 @@ import {
   EVMRequestedWithdrawalLog,
   LogsData,
   RequestStatus,
-  PendingLog,
   Withdrawal,
 } from '../../types';
 
@@ -23,6 +22,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: logWithMetadata.minConfirmations,
       transactionHash: logWithMetadata.transactionHash,
     },
     sponsorAddress: parsedLog.args.sponsor,

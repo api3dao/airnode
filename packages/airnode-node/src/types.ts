@@ -7,7 +7,8 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
-import { Config, ChainOptions, ChainType, LogFormat, LogLevel, LocalOrCloudProvider } from './config/types';
+import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
+import { Config, ChainOptions, ChainType, LocalOrCloudProvider } from './config/types';
 import { AirnodeRrp } from './evm/contracts';
 
 // ===========================================
@@ -72,6 +73,7 @@ export interface RequestMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -325,6 +327,7 @@ interface EVMEventLogMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -359,28 +362,6 @@ export type EVMEventLog =
   | EVMFulfilledRequestLog
   | EVMRequestedWithdrawalLog
   | EVMFulfilledWithdrawalLog;
-
-export interface LogMetadata {
-  readonly coordinatorId?: string;
-  readonly chainId?: string;
-  readonly chainType?: ChainType;
-  readonly providerName?: string;
-  readonly requestId?: string;
-}
-
-export interface LogOptions {
-  readonly additional?: any;
-  readonly error?: Error | null;
-  readonly format: LogFormat;
-  readonly level: LogLevel;
-  readonly meta: LogMetadata;
-}
-
-export interface PendingLog {
-  readonly error?: Error;
-  readonly level: LogLevel;
-  readonly message: string;
-}
 
 // There are many places throughout the app where we need the context of the current
 // (provider) state, mostly for logging purposes. It doesn't really make sense to

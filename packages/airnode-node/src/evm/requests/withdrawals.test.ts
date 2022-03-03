@@ -14,6 +14,7 @@ describe('initialize (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
@@ -26,6 +27,7 @@ describe('initialize (Withdrawal)', () => {
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
+        minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
@@ -55,6 +57,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           blockNumber: 10716082,
           currentBlock: 10716090,
           ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: 'logTransactionHash',
         },
         sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
@@ -81,6 +84,7 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const [logs, res] = withdrawals.mapRequests([parsedLogWithMetadata]);
@@ -95,6 +99,7 @@ describe('mapRequests (Withdrawal)', () => {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
@@ -115,6 +120,7 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
     const fulfillLogWithMetadata = {
@@ -123,6 +129,7 @@ describe('mapRequests (Withdrawal)', () => {
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };
 

@@ -1,8 +1,8 @@
 import flatMap from 'lodash/flatMap';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as events from './events';
 import * as encoding from '../abi-encoding';
 import { airnodeRrpTopics } from '../contracts';
-import * as logger from '../../logger';
 import {
   ApiCall,
   ApiCallType,
@@ -11,7 +11,6 @@ import {
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
   LogsData,
-  PendingLog,
   RequestErrorMessage,
   RequestStatus,
 } from '../../types';
@@ -46,6 +45,7 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
       blockNumber: log.blockNumber,
       currentBlock: log.currentBlock,
       ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: log.minConfirmations,
       transactionHash: log.transactionHash,
     },
     // Parameters are decoded separately

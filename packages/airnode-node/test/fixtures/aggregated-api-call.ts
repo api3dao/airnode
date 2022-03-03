@@ -28,6 +28,7 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
       blockNumber: 11,
       currentBlock: 12,
       ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: '0x40b93a1e81c7162460af066be96266ff692515a2f6b54bd622aa9f82ee00670f',
     },
     requestCount: '1',

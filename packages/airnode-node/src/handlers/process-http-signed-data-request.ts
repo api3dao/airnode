@@ -1,10 +1,9 @@
 import find from 'lodash/find';
+import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
-import * as logger from '../logger';
 import { callApi } from '../api';
 import { Config } from '../config/types';
-import { randomHexString } from '../utils';
 
 export async function processHttpSignedDataRequest(
   config: Config,
@@ -31,7 +30,7 @@ export async function processHttpSignedDataRequest(
   }
 
   const requestId = randomHexString(16);
-  const logOptions = logger.buildBaseOptions(config, { requestId });
+  const logOptions = buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-signed-data-gateway',

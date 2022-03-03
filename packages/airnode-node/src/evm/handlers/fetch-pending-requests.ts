@@ -1,7 +1,7 @@
+import { logger } from '@api3/airnode-utilities';
 import * as apiCalls from '../requests/api-calls';
 import * as blocking from '../requests/blocking';
 import * as eventLogs from '../requests/event-logs';
-import * as logger from '../../logger';
 import * as withdrawals from '../requests/withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
 import { FetchOptions } from '../requests/event-logs';
@@ -22,6 +22,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
     ignoreBlockedRequestsAfterBlocks: state.settings.ignoreBlockedRequestsAfterBlocks,
+    minConfirmations: state.settings.minConfirmations,
     provider: state.provider,
   };
   // Fetch event logs from the provider. Let this throw if something goes wrong.

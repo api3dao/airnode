@@ -1,5 +1,6 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { logger } from '@api3/airnode-utilities';
 import { killBackgroundProcess, runCommand, runCommandInBackground } from '../utils';
 
 const chooseIntegration = () => {
@@ -50,7 +51,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
       expect(Number(price)).toEqual(expect.any(Number));
       expect(Number(price).toString()).toBe(price);
 
-      console.log(`The Ethereum price is ${price} USD.`);
+      logger.log(`The Ethereum price is ${price} USD.`);
     } catch (e) {
       killBackgroundProcess(airnodeDocker);
       throw e;
