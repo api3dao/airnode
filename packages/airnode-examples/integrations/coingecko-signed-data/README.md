@@ -12,7 +12,7 @@ the to update a beacon.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin","\_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin","\_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 Before making the request, you need to replace the example values:
