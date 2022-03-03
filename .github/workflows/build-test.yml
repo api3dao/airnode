@@ -8,175 +8,237 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  documentation:
-    name: Check documentation
+#  documentation:
+#    name: Check documentation
+#    runs-on: ubuntu-latest
+#    # Don't run twice for a push within an internal PR
+#    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+#    steps:
+#      - name: Clone airnode
+#        uses: actions/checkout@v2
+#      # Temporarily disabled while we fix the docs routing issue.
+#      #      - name: Check hyperlinks
+#      #        uses: gaurav-nelson/github-action-markdown-link-check@v1
+#      #        with:
+#      #          config-file: .github/workflows/mlc_config.json
+#      - name: Slack Notification
+#        uses: lazy-actions/slatify@master
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+#        with:
+#          channel: '#technical-notifications'
+#          commit: true
+#          job_name: 'Airnode - Documentation'
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          type: ${{ job.status }}
+#          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+  docker-build:
     runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    steps:
-      - name: Clone airnode
-        uses: actions/checkout@v2
-      # Temporarily disabled while we fix the docs routing issue.
-      #      - name: Check hyperlinks
-      #        uses: gaurav-nelson/github-action-markdown-link-check@v1
-      #        with:
-      #          config-file: .github/workflows/mlc_config.json
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Documentation'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  build:
-    name: Build and lint Airnode
-    runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
         with:
           # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
           fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2
+#      -
+#        name: Set up QEMU
+#        uses: docker/setup-qemu-action@v1
+#      -
+#        name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
-          node-version: '14.17.1'
-      - name: restore lerna
-        id: cache
-        uses: actions/cache@v2
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: ls directory
+        run: ls
+      -
+        name: ls directory more
+        run: ls -lar *
+      -
+        name: Build and push airnode-artifacts-dev
+        uses: docker/build-push-action@v2
         with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install Dependencies
-        run: yarn run bootstrap
-      - name: Build
-        run: yarn run build
-      - name: Lint code
-        run: yarn run lint
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+#          platforms: linux/amd64
+          build-args: build=local
+#          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: api3/airnode-artifacts-dev:${{github.ref_name}}
+      -
+        name: Retag artifacts
+        run: docker tag api3/airnode-artifacts-dev:${{github.ref_name}} api3/airnode-artifacts:latest
+      -
+        name: Build and push airnode-deployer
+        uses: docker/build-push-action@v2
         with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Build'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
-      - uses: actions/cache@v2
-        id: cache-build
+#          platforms: linux/amd64
+          context: .
+          file: packages/airnode-deployer/docker/Dockerfile
+          push: true
+          tags: api3/airnode-deployer-dev:${{github.ref_name}}
+      -
+        name: Retag deployer image
+        run: docker tag api3/airnode-deployer-dev:${{github.ref_name}} api3/airnode-deployer:latest
+      -
+        name: Build and push airnode-client
+        uses: docker/build-push-action@v2
         with:
-          path: ./*
-          key: ${{ github.sha }}
+          platforms: linux/amd64
+          context: .
+          file: packages/airnode-node/docker/Dockerfile
+          push: true
+          tags: api3/airnode-client-dev:${{github.ref_name}}
+      -
+        name: Retag Airnode client image
+        run: docker tag api3/airnode-client-dev:${{github.ref_name}} api3/airnode-client:latest
+#  build:
+#    name: Build and lint Airnode
+#    runs-on: ubuntu-latest
+#    # Don't run twice for a push within an internal PR
+#    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+#    steps:
+#      - name: Clone airnode
+#        uses: actions/checkout@v2
+#        with:
+#          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
+#          fetch-depth: 0
+#      - name: Setup Node
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: '14.17.1'
+#      - name: restore lerna
+#        id: cache
+#        uses: actions/cache@v2
+#        with:
+#          path: |
+#            node_modules
+#            */*/node_modules
+#          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+#      - name: Install Dependencies
+#        run: yarn run bootstrap
+#      - name: Build
+#        run: yarn run build
+#      - name: Lint code
+#        run: yarn run lint
+#      - name: Slack Notification
+#        uses: lazy-actions/slatify@master
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+#        with:
+#          channel: '#technical-notifications'
+#          commit: true
+#          job_name: 'Airnode - Build'
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          type: ${{ job.status }}
+#          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+#      - uses: actions/cache@v2
+#        id: cache-build
+#        with:
+#          path: ./*
+#          key: ${{ github.sha }}
+#
+#  unit-tests:
+#    name: Unit tests
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - uses: actions/cache@v2
+#        id: restore-build
+#        with:
+#          path: ./*
+#          key: ${{ github.sha }}
+#      - name: Setup Node
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: '14.17.1'
+#      - run: yarn run test
+#      - name: Slack Notification
+#        uses: lazy-actions/slatify@master
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+#        with:
+#          channel: '#technical-notifications'
+#          commit: true
+#          job_name: 'Airnode - Unit tests'
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          type: ${{ job.status }}
+#          url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  unit-tests:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/cache@v2
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.17.1'
-      - run: yarn run test
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Unit tests'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+#  e2e-tests:
+#    name: E2E tests
+#    runs-on: ubuntu-latest
+#    needs: build
+#    strategy:
+#      matrix:
+#        package: [admin, node, examples]
+#    steps:
+#      - uses: actions/cache@v2
+#        id: restore-build
+#        with:
+#          path: ./*
+#          key: ${{ github.sha }}
+#      - name: Setup Node
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: '14.17.1'
+#      - name: Start background services
+#        run: yarn run dev:background
+#      - run: yarn run test:e2e-${{ matrix.package }}
+#      - name: Slack Notification
+#        uses: lazy-actions/slatify@master
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+#        with:
+#          channel: '#technical-notifications'
+#          commit: true
+#          job_name: 'Airnode - E2E tests'
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          type: ${{ job.status }}
+#          url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  e2e-tests:
-    name: E2E tests
-    runs-on: ubuntu-latest
-    needs: build
-    strategy:
-      matrix:
-        package: [admin, node, examples]
-    steps:
-      - uses: actions/cache@v2
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.17.1'
-      - name: Start background services
-        run: yarn run dev:background
-      - run: yarn run test:e2e-${{ matrix.package }}
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - E2E tests'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+#  require-changeset:
+#    name: Require a changeset
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - uses: actions/cache@v2
+#        id: restore-build
+#        with:
+#          path: ./*
+#          key: ${{ github.sha }}
+#      - name: Setup Node
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: '14.17.1'
+#      - name: Require a changeset
+#        # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#responding-to-events
+#        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+#        run: yarn changeset:check
 
-  require-changeset:
-    name: Require a changeset
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/cache@v2
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.17.1'
-      - name: Require a changeset
-        # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#responding-to-events
-        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
-        run: yarn changeset:check
-
-  build-complete:
-    name: All tests passed
-    runs-on: ubuntu-latest
-    needs: [unit-tests, e2e-tests, require-changeset]
-    steps:
-      - run: exit 0
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # env.SLACK_WEBHOOK_URL != null is a workaround dependabot not having access to secrets
-        if: ${{ always() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Continuous Build'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+#  build-complete:
+#    name: All tests passed
+#    runs-on: ubuntu-latest
+#    needs: [docker]
+#    steps:
+#      - run: exit 0
+#      - name: Slack Notification
+#        uses: lazy-actions/slatify@master
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        # env.SLACK_WEBHOOK_URL != null is a workaround dependabot not having access to secrets
+#        if: ${{ always() && env.SLACK_WEBHOOK_URL != null }}
+#        with:
+#          channel: '#technical-notifications'
+#          commit: true
+#          job_name: 'Airnode - Continuous Build'
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          type: ${{ job.status }}
+#          url: ${{ secrets.SLACK_WEBHOOK_URL }}
