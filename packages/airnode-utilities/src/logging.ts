@@ -1,6 +1,8 @@
 import { formatDateTimeMs } from './utils';
 import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './logging-types';
 
+export const isJest = () => process.env.JEST_WORKER_ID !== undefined;
+
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
   INFO: 1,
@@ -45,7 +47,11 @@ export const logger = {
     }
     consoleLog(message);
   },
-  error: (message: string, options?: LogOptions) => {
+  error: (message?: string, options?: LogOptions) => {
+    if (!message) {
+      return;
+    }
+
     if (options) {
       logFull('ERROR', message, options);
       return;

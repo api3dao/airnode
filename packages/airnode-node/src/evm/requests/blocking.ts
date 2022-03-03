@@ -1,8 +1,9 @@
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
-import { logger, PendingLog } from '@api3/airnode-utilities';
+import { logger, caching, PendingLog } from '@api3/airnode-utilities';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 import { ApiCall, Request, GroupedRequests, LogsData, RequestStatus, RequestErrorMessage } from '../../types';
+import { getCachedBlockedKey } from '../handlers';
 
 interface ApiCallsWithLogs {
   readonly apiCalls: Request<ApiCall>[];
@@ -88,8 +89,38 @@ export function applySponsorAndSponsorWalletRequestLimit([
   return [[...prevLogs, ...logs], { ...requests, apiCalls: allowedApiCalls }];
 }
 
+export function applyCachedBlocks([prevLogs, requests]: LogsData<GroupedRequests>): LogsData<GroupedRequests> {
+  const blockedRequestIds = caching.getKeys(getCachedBlockedKey()).map((key) => key.replace(getCachedBlockedKey(), ''));
+
+  const filteredApiCalls = requests.apiCalls.filter((req) => !blockedRequestIds.includes(req.id));
+  const filteredWithdrawals = requests.withdrawals.filter((req) => !blockedRequestIds.includes(req.id));
+
+  const apiCallLogs = requests.apiCalls
+    .filter((req) => blockedRequestIds.includes(req.id))
+    .map((request) =>
+      logger.pend('WARN', `Ignoring API request ID:${request.id} as the cache contains a block for it`)
+    );
+  const withdrawalLogs = requests.withdrawals
+    .filter((req) => blockedRequestIds.includes(req.id))
+    .map((request) =>
+      logger.pend('WARN', `Ignoring withdrawal request ID:${request.id} as the cache contains a block for it`)
+    );
+
+  return [
+    [...prevLogs, ...apiCallLogs, ...withdrawalLogs],
+    {
+      apiCalls: filteredApiCalls,
+      withdrawals: filteredWithdrawals,
+    },
+  ];
+}
+
 // TODO: Merge with verification/api-call-verification.ts
 export const blockRequests = (requests: GroupedRequests): LogsData<GroupedRequests> => {
-  const filterRequests = flow(blockRequestsWithWithdrawals, applySponsorAndSponsorWalletRequestLimit);
+  const filterRequests = flow(
+    applyCachedBlocks,
+    blockRequestsWithWithdrawals,
+    applySponsorAndSponsorWalletRequestLimit
+  );
   return filterRequests([[], requests]);
 };

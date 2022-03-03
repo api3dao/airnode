@@ -5,3 +5,4 @@ export * from './utils/date-utils';
 export * from './utils/promise-utils';
 export * from './utils/string-utils';
 export * from './logging-types';
+export * as caching from './utils/caching-utils';

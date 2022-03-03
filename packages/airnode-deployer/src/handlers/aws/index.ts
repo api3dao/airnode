@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger, go, caching } from '@api3/airnode-utilities';
 import {
   handlers,
   providers,
@@ -11,6 +11,8 @@ import {
 } from '@api3/airnode-node';
 import { loadTrustedConfig } from '../../utils';
 
+caching.init();
+
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
 
@@ -21,6 +23,7 @@ function encodeBody(data: WorkerResponse): string {
 export async function startCoordinator() {
   await handlers.startCoordinator(parsedConfig);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
+  caching.syncFsSync();
   return { statusCode: 200, body: encodeBody(response) };
 }
 

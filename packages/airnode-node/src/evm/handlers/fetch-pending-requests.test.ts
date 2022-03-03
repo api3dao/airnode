@@ -1,7 +1,12 @@
 import { ethers } from 'ethers';
-import { fetchPendingRequests } from './fetch-pending-requests';
+import { caching } from '@api3/airnode-utilities';
+import range from 'lodash/range';
+import { cacheBlockedRequests, fetchPendingRequests } from './fetch-pending-requests';
 import * as blocking from '../requests/blocking';
 import * as fixtures from '../../../test/fixtures';
+
+const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
+  range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
 
 describe('fetchPendingRequests', () => {
   it('maps and groups requests', async () => {
@@ -74,5 +79,49 @@ describe('fetchPendingRequests', () => {
     const state = fixtures.buildEVMProviderState();
     await fetchPendingRequests(state);
     expect(blockingSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('adds blocked requests to cache', async () => {
+    const sponsorAddresses = [
+      '0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6',
+      '0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9',
+      '0x26B3dA8C6B45b1e917a7670C8E091D032f31538E',
+    ];
+    const apiCalls = [
+      ...buildApiCallsWithSponsor(7, sponsorAddresses[0]),
+      ...buildApiCallsWithSponsor(6, sponsorAddresses[1]),
+      ...buildApiCallsWithSponsor(4, sponsorAddresses[2]),
+    ];
+    const withdrawals = [
+      fixtures.requests.buildWithdrawal({
+        sponsorAddress: sponsorAddresses[1],
+      }),
+    ];
+    const allRequests = {
+      apiCalls,
+      withdrawals,
+    };
+
+    const allowedRequests = {
+      apiCalls: apiCalls.slice(1),
+      withdrawals: withdrawals.slice(1),
+    };
+
+    const state = fixtures.buildEVMProviderState();
+    const removeKeySpy = jest.spyOn(caching, 'removeKey');
+    const addKeySpy = jest.spyOn(caching, 'addKey');
+    const getKeysSpy = jest.spyOn(caching, 'getKeys');
+    getKeysSpy.mockReturnValueOnce([]);
+
+    cacheBlockedRequests(state, allRequests, allowedRequests);
+
+    // Called by applyCachedBlocks and then again by cacheBlockedRequests
+    expect(getKeysSpy).toHaveBeenCalledTimes(1);
+    expect(addKeySpy).toHaveBeenCalledTimes(2);
+    expect(addKeySpy.mock.calls).toEqual([
+      ['blockedWithdrawalRequest-withdrawalId', 300, false],
+      ['blockedWithdrawalRequest-id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-0', 300, false],
+    ]);
+    expect(removeKeySpy).toHaveBeenCalledTimes(0);
   });
 });

@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
+import { logger, go, caching } from '@api3/airnode-utilities';
 import {
   handlers,
   providers,
@@ -9,8 +10,9 @@ import {
   ProcessTransactionsPayload,
   WorkerPayload,
 } from '@api3/airnode-node';
-import { logger, go } from '@api3/airnode-utilities';
 import { loadTrustedConfig } from '../../utils';
+
+caching.init();
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);

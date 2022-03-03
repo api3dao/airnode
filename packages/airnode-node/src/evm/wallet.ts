@@ -46,9 +46,44 @@ export function getAirnodeAddressShort(airnodeAddress: string): string {
   return airnodeAddress.substring(2, 9).toLowerCase();
 }
 
+interface CachedWallet {
+  readonly privateKey: string;
+  readonly inputParameters: {
+    readonly sponsorAddress: string;
+    readonly masterPrivateKey: string;
+  };
+}
+
+/**
+ * The derivedSponsorWalletsCache relies on the caching nature of various cloud providers' serverless functions
+ * implementation.
+ *
+ * The caching below will only work where the execution context is re-used by the cloud provider. In situations where
+ * the host is not serverless or where this task is executed in a concurrent manner, caching will be ineffective, but
+ * shouldn't have any notable impact on performance (if the cache is empty, it's empty).
+ */
+const derivedSponsorWalletsCache = new Array<CachedWallet>();
+
 export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): ethers.Wallet {
-  const sponsorWalletHdNode = masterHDNode.derivePath(
-    `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+  const cachedWallet = derivedSponsorWalletsCache.find(
+    (cachedWallet) =>
+      cachedWallet.inputParameters.masterPrivateKey === masterHDNode.privateKey &&
+      cachedWallet.inputParameters.sponsorAddress === sponsorAddress
   );
-  return new ethers.Wallet(sponsorWalletHdNode.privateKey);
+
+  if (cachedWallet) {
+    return new ethers.Wallet(cachedWallet.privateKey);
+  }
+
+  const { privateKey } = masterHDNode.derivePath(`m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`);
+
+  derivedSponsorWalletsCache.push({
+    privateKey,
+    inputParameters: {
+      sponsorAddress,
+      masterPrivateKey: masterHDNode.privateKey,
+    },
+  });
+
+  return new ethers.Wallet(privateKey);
 }

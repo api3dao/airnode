@@ -1,10 +1,45 @@
-import { logger } from '@api3/airnode-utilities';
+import { logger, caching } from '@api3/airnode-utilities';
 import * as apiCalls from '../requests/api-calls';
 import * as blocking from '../requests/blocking';
 import * as eventLogs from '../requests/event-logs';
 import * as withdrawals from '../requests/withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
 import { FetchOptions } from '../requests/event-logs';
+
+export const getCachedBlockedKey = (id = '') => `blockedWithdrawalRequest-${id}`;
+
+export const cacheBlockedRequests = (
+  state: ProviderState<EVMProviderState>,
+  incomingRequests: GroupedRequests,
+  allowedRequests: GroupedRequests
+) => {
+  const combinedIncomingRequests = [
+    ...incomingRequests.withdrawals.map((req) => req.id),
+    ...incomingRequests.apiCalls.map((req) => req.id),
+  ];
+  const combinedAllowedRequests = [
+    ...allowedRequests.withdrawals.map((req) => req.id),
+    ...allowedRequests.apiCalls.map((req) => req.id),
+  ];
+  const blockedRequests = combinedIncomingRequests.filter((req) => !combinedAllowedRequests.includes(req));
+
+  const expiryBlock = state.currentBlock! + state.settings.blockHistoryLimit;
+
+  // Sweep the cache
+  const currentKeys = caching.getKeys(getCachedBlockedKey());
+  currentKeys.forEach((key) => {
+    const expiryBlock = caching.getValueForKey(key) as number;
+    if (expiryBlock < state.currentBlock!) {
+      caching.removeKey(key);
+    }
+  });
+
+  blockedRequests
+    .filter((req) => !currentKeys.includes(req))
+    .forEach((req) => {
+      caching.addKey(getCachedBlockedKey(req), expiryBlock, false);
+    });
+};
 
 export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {
   const { chainId, chainType, name: providerName } = state.settings;
@@ -45,6 +80,8 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   // TODO: Better naming
   const [blockRequestsLogs, allowedRequests] = blocking.blockRequests(groupedRequests);
   logger.logPending(blockRequestsLogs, baseLogOptions);
+
+  cacheBlockedRequests(state, groupedRequests, allowedRequests);
 
   return allowedRequests;
 }
