@@ -1,7 +1,5 @@
 # Coingecko-testable example integration
 
-> This feature is only available when Airnode is deployed on AWS
-
 This example contains the same API integration as `../coingecko`.
 
 The only difference is that this integration allows the endpoint to be tested. This means you can deploy the Airnode and
