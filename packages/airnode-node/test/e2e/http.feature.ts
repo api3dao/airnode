@@ -1,4 +1,4 @@
-import { testApi } from '../../src/workers/local-handlers';
+import { processHttpRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
 it('makes a call to test the API', async () => {
@@ -13,7 +13,7 @@ it('makes a call to test the API', async () => {
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await testApi(endpointId, parameters);
+  const result = await processHttpRequest(endpointId, parameters);
 
   const expected = {
     // Value is returned by the mock server from the operation package

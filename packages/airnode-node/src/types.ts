@@ -73,6 +73,7 @@ export interface RequestMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -236,7 +237,10 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+export type AggregatedApiCall =
+  | RegularAggregatedApiCall
+  | HttpGatewayAggregatedApiCall
+  | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   id: string;
@@ -270,8 +274,12 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   template?: ApiCallTemplate;
 }
 
-export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'testing-gateway';
+export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-gateway';
+}
+
+export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-signed-data-gateway';
 }
 
 // ===========================================
@@ -319,6 +327,7 @@ interface EVMEventLogMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 

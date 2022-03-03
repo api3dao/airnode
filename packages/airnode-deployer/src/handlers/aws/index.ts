@@ -81,7 +81,9 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
   return { statusCode: 200, body };
 }
 
-export async function testApi(event: AWSLambda.APIGatewayProxyEvent): Promise<AWSLambda.APIGatewayProxyResult> {
+export async function processHttpRequest(
+  event: AWSLambda.APIGatewayProxyEvent
+): Promise<AWSLambda.APIGatewayProxyResult> {
   if (!event.body) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing request body' }) };
   }
@@ -93,11 +95,36 @@ export async function testApi(event: AWSLambda.APIGatewayProxyEvent): Promise<AW
   const parameters = JSON.parse(event.body).parameters;
   const endpointId = event.pathParameters.endpointId;
 
-  const [err, result] = await handlers.testApi(parsedConfig, endpointId, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
 
   // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
   return { statusCode: 200, body: result!.value };
+}
+
+// TODO: Copy&paste for now, will refactor as part of
+// https://api3dao.atlassian.net/browse/AN-527
+export async function processHttpSignedDataRequest(
+  event: AWSLambda.APIGatewayProxyEvent
+): Promise<AWSLambda.APIGatewayProxyResult> {
+  if (!event.body) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Missing request body' }) };
+  }
+
+  if (!event.pathParameters || !event.pathParameters.endpointId) {
+    return { statusCode: 400, body: JSON.stringify({ error: `Missing 'endpointId' path parameter` }) };
+  }
+
+  const parameters = JSON.parse(event.body).parameters;
+  const endpointId = event.pathParameters.endpointId;
+
+  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, parameters);
+  if (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
+  }
+
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
+  return { statusCode: 200, body: JSON.stringify({ data: result!.value, signature: result!.signature }) };
 }

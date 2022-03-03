@@ -41,6 +41,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpGateway: {
       enabled: false,
     },
+    httpSignedDataGateway: {
+      enabled: false,
+    },
     logFormat: 'plain',
     logLevel: 'INFO',
     nodeVersion: createNodeVersion(),
@@ -55,6 +58,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'httpbinRelaySecuritySchemes',
       },
     ],
+    httpSignedData: [],
   },
   ois: [
     {

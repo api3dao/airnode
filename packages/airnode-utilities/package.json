@@ -11,7 +11,8 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
-    "test": "SILENCE_LOGGER=true jest --selectProjects unit"
+    "test": "SILENCE_LOGGER=true jest --selectProjects unit",
+    "pack": "yarn pack"
   },
   "types": "dist/index",
   "main": "dist/index.js",
