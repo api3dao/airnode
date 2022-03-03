@@ -133,7 +133,7 @@ contract StorageUtils is IStorageUtils {
         require(requester != address(0), "Requester address zero");
         require(fulfillFunctionId != bytes4(0), "Fulfill function ID zero");
         subscriptionId = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 chainId,
                 airnode,
                 templateId,

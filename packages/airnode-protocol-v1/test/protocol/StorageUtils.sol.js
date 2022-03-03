@@ -38,7 +38,7 @@ beforeEach(async () => {
   requester = testUtils.generateRandomAddress();
   fulfillFunctionId = '0x12345678';
   subscriptionId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
+    hre.ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         chainId,
