@@ -11,7 +11,7 @@ export async function processSignedDataRequest(
   endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
-  const trigger = find(config.triggers.signedData, ['endpointId', endpointId]);
+  const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }

@@ -10,7 +10,7 @@ const createSignedDataGatewayApiKey = (generateExampleFile: boolean) => {
 
 const createSecrets = async (generateExampleFile = false) => {
   const secrets = await getCommonSecrets(generateExampleFile);
-  secrets.push(`SIGNED_DATA_GATEWAY_API_KEY=${createSignedDataGatewayApiKey(generateExampleFile)}`);
+  secrets.push(`HTTP_SIGNED_DATA_GATEWAY_API_KEY=${createSignedDataGatewayApiKey(generateExampleFile)}`);
 
   writeSecrets(__dirname, secrets, generateExampleFile);
 };

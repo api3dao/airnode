@@ -18,6 +18,6 @@
   "api": {
     "heartbeatId": "74dc44a1ee65",
     "httpGatewayUrl": "https://some.aws.api.gateway.url/v1",
-    "signedDataGatewayUrl": "https://some.aws.api.gateway.url/v1"
+    "httpSignedDataGatewayUrl": "https://some.aws.api.gateway.url/v1"
   }
 }

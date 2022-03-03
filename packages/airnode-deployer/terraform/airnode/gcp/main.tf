@@ -57,7 +57,7 @@ module "startCoordinator" {
 
   environment_variables = {
     HTTP_GATEWAY_URL        = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    SIGNED_DATA_GATEWAY_URL = var.signed_data_api_key == null ? null : "${module.signedDataApiGateway[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataGateway[0].api_url}"
   }
 
   schedule_interval = 1
@@ -71,7 +71,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null || var.signed_data_api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -84,7 +84,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null || var.signed_data_api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
@@ -147,7 +147,7 @@ module "httpApiGateway" {
 
 module "processSignedDataRequest" {
   source = "./modules/function"
-  count  = var.signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_api_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-processSignedDataRequest"
   entry_point        = "processSignedDataRequest"
@@ -160,7 +160,7 @@ module "processSignedDataRequest" {
   project            = var.gcp_project
 
   environment_variables = {
-    SIGNED_DATA_GATEWAY_API_KEY = var.signed_data_api_key
+    HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
   }
 
   max_instances = var.disable_concurrency_reservation ? null : var.signed_data_max_concurrency
@@ -170,12 +170,12 @@ module "processSignedDataRequest" {
   ]
 }
 
-module "signedDataApiGateway" {
+module "httpSignedDataGateway" {
   source = "./modules/apigateway"
-  count  = var.signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-signedDataApiGateway"
-  template_file = "./templates/signedDataApiGateway.yaml.tpl"
+  name          = "${local.name_prefix}-httpSignedDataGateway"
+  template_file = "./templates/httpSignedDataGateway.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region

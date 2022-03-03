@@ -25,7 +25,7 @@ type TerraformAirnodeOutput = {
 
 export type DeployAirnodeOutput = {
   httpGatewayUrl?: string;
-  signedDataGatewayUrl?: string;
+  httpSignedDataGatewayUrl?: string;
 };
 
 const exec = util.promisify(child.exec);
@@ -130,7 +130,7 @@ interface AirnodeVariables {
   configPath?: string;
   secretsPath?: string;
   httpGateway?: HttpGateway;
-  signedDataGateway?: HttpGateway;
+  httpSignedDataGateway?: HttpGateway;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -153,7 +153,7 @@ async function terraformAirnodeManage(
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, signedDataGateway } = variables;
+  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, httpSignedDataGateway } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -181,10 +181,10 @@ async function terraformAirnodeManage(
     }
   }
 
-  if (signedDataGateway?.enabled) {
-    commonArguments.push(['var', 'signed_data_api_key', signedDataGateway.apiKey!]);
-    if (signedDataGateway.maxConcurrency) {
-      commonArguments.push(['var', 'signed_data_max_concurrency', `${signedDataGateway.maxConcurrency}`]);
+  if (httpSignedDataGateway?.enabled) {
+    commonArguments.push(['var', 'signed_data_api_key', httpSignedDataGateway.apiKey!]);
+    if (httpSignedDataGateway.maxConcurrency) {
+      commonArguments.push(['var', 'signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
     }
   }
 
@@ -217,7 +217,7 @@ interface AirnodeDeployParams {
   readonly stage: string;
   readonly cloudProvider: CloudProviderExtended;
   readonly httpGateway: HttpGateway;
-  readonly signedDataGateway: HttpGateway;
+  readonly httpSignedDataGateway: HttpGateway;
   readonly configPath: string;
   readonly secretsPath: string;
 }
@@ -241,7 +241,7 @@ function transformTerraformOutput(terraformOutput: string): DeployAirnodeOutput 
   return omitBy(
     {
       httpGatewayUrl: parsedOutput.http_gateway_url?.value,
-      signedDataGatewayUrl: parsedOutput.signed_data_gateway_url?.value,
+      httpSignedDataGatewayUrl: parsedOutput.http_signed_data_gateway_url?.value,
     },
     isNil
   );
@@ -252,7 +252,7 @@ async function deploy({
   stage,
   cloudProvider,
   httpGateway,
-  signedDataGateway,
+  httpSignedDataGateway,
   configPath,
   secretsPath,
 }: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
@@ -292,7 +292,7 @@ async function deploy({
     configPath,
     secretsPath,
     httpGateway,
-    signedDataGateway,
+    httpSignedDataGateway,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   return transformTerraformOutput(output);

@@ -36,7 +36,7 @@
       "apiKey": "${HTTP_GATEWAY_API_KEY}",
       "maxConcurrency": 20
     },
-    "signedDataGateway": {
+    "httpSignedDataGateway": {
       "enabled": false
     },
     "logFormat": "plain",
@@ -60,7 +60,7 @@
         "endpointName": "coinMarketData"
       }
     ],
-    "signedData": []
+    "httpSignedData": []
   },
   "ois": [
     {

@@ -27,7 +27,7 @@ describe('processSignedDataRequests', () => {
   it("returns an error if endpoint doesn't allow getting signed data", async () => {
     const endpoint = fixtures.buildOIS().endpoints[0];
     const config = buildConfigWithEndpoint(endpoint);
-    config.triggers.signedData = [];
+    config.triggers.httpSignedData = [];
 
     const [err, res] = await processSignedDataRequest(config, ENDPOINT_ID, {});
     expect(res).toBeNull();

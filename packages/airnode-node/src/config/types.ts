@@ -12,7 +12,7 @@ export interface Triggers {
   // For now the attribute is optional, because http gateway is supported only on AWS.
   // TODO: Make this required once it is supported everywhere.
   http?: Trigger[];
-  signedData: Trigger[];
+  httpSignedData: Trigger[];
 }
 
 // ===========================================
@@ -93,7 +93,7 @@ export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
-  readonly signedDataGateway: HttpGateway;
+  readonly httpSignedDataGateway: HttpGateway;
   readonly airnodeAddressShort?: string;
   readonly stage: string;
   readonly cloudProvider: LocalOrCloudProvider;

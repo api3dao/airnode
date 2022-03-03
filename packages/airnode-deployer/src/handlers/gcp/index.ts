@@ -111,7 +111,7 @@ export async function processSignedDataRequest(req: Request, res: Response) {
   // We need to check for an API key manually because GCP HTTP Gateway
   // doesn't support managing API keys via API
   const apiKey = req.header('x-api-key');
-  if (!apiKey || apiKey !== config.getEnvValue('SIGNED_DATA_GATEWAY_API_KEY')) {
+  if (!apiKey || apiKey !== config.getEnvValue('HTTP_SIGNED_DATA_GATEWAY_API_KEY')) {
     res.status(401).send({ error: 'Wrong API key' });
   }
 

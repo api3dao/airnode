@@ -12,14 +12,14 @@ the to update a beacon.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <SIGNED_DATA_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin","\_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin","\_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 Before making the request, you need to replace the example values:
 
-- `<SIGNED_DATA_GATEWAY_API_KEY>` - You can find this value in `secrets.env`
-- `<SIGNED_DATA_GATEWAY_URL>` - You can find this value in `receipt.json` under `api.signedDataGatewayUrl` path
-- `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.signedData[0].endpointId` path
+- `<HTTP_SIGNED_DATA_GATEWAY_API_KEY>` - You can find this value in `secrets.env`
+- `<HTTP_SIGNED_DATA_GATEWAY_URL>` - You can find this value in `receipt.json` under `api.httpSignedDataGatewayUrl` path
+- `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path
 
 The correct command may look like this:
 
