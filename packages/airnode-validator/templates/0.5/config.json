@@ -174,16 +174,14 @@
         ],
         "__optional": {
           "baseFeeMultiplier": {
-            "__type": "string",
-            "__regexp": "^[0-9]$",
+            "__type": "number",
             "__catch": {
               "__message": "__fullPath: Base Fee multiplier must be a whole number"
             }
           },
           "priorityFee": {
             "value": {
-              "__type": "string",
-              "__regexp": "^\\d*\\.?\\d*$",
+              "__type": "number",
               "__catch": {
                 "__message": "__fullPath: Priority Fee must be a whole or decimal number"
               }
