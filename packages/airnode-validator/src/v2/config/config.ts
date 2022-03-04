@@ -29,7 +29,7 @@ export const providerSchema = z.object({
 });
 
 export const priorityFeeSchema = z.object({
-  value: z.string(),
+  value: z.number(),
   unit: z
     .union([
       z.literal('wei'),
@@ -45,7 +45,7 @@ export const priorityFeeSchema = z.object({
 
 export const chainOptionsSchema = z.object({
   txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
-  baseFeeMultiplier: z.string().optional(),
+  baseFeeMultiplier: z.number().int().optional(),
   priorityFee: priorityFeeSchema.optional(),
 });
 

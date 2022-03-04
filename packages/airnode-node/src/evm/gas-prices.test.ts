@@ -35,9 +35,9 @@ const createEip1559BaseOptions = () => {
   const eip1559ChainOptions = [
     {
       txType: 'eip1559',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
       priorityFee: {
-        value: '3.12',
+        value: 3.12,
         unit: 'gwei',
       },
     },
@@ -45,13 +45,13 @@ const createEip1559BaseOptions = () => {
       txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: {
-        value: '3.12',
+        value: 3.12,
         unit: 'gwei',
       },
     },
     {
       txType: 'eip1559',
-      baseFeeMultiplier: BASE_FEE_MULTIPLIER.toString(),
+      baseFeeMultiplier: BASE_FEE_MULTIPLIER,
       priorityFee: undefined,
     },
     {
@@ -66,24 +66,24 @@ const createEip1559BaseOptions = () => {
 
 describe('parsePriorityFee', () => {
   test.each([
-    [{ value: '123', unit: 'wei' }, BigNumber.from('123')],
-    [{ value: '123' }, BigNumber.from('123')],
-    [{ value: '123.4', unit: 'kwei' }, BigNumber.from('123400')],
-    [{ value: '123.4', unit: 'mwei' }, BigNumber.from('123400000')],
-    [{ value: '123.4', unit: 'gwei' }, BigNumber.from('123400000000')],
-    [{ value: '123.4', unit: 'szabo' }, BigNumber.from('123400000000000')],
-    [{ value: '123.4', unit: 'finney' }, BigNumber.from('123400000000000000')],
-    [{ value: '123.4', unit: 'ether' }, BigNumber.from('123400000000000000000')],
-  ])('returns parsed wei from decimal denominated string - %#', (input: any, result: BigNumber) => {
+    [{ value: 123, unit: 'wei' }, BigNumber.from('123')],
+    [{ value: 123 }, BigNumber.from('123')],
+    [{ value: 123.4, unit: 'kwei' }, BigNumber.from('123400')],
+    [{ value: 123.4, unit: 'mwei' }, BigNumber.from('123400000')],
+    [{ value: 123.4, unit: 'gwei' }, BigNumber.from('123400000000')],
+    [{ value: 123.4, unit: 'szabo' }, BigNumber.from('123400000000000')],
+    [{ value: 123.4, unit: 'finney' }, BigNumber.from('123400000000000000')],
+    [{ value: 123.4, unit: 'ether' }, BigNumber.from('123400000000000000000')],
+  ])('returns parsed wei from numbers - %#', (input: any, result: BigNumber) => {
     const priorityFeeInWei = gasPrices.parsePriorityFee(input);
     expect(priorityFeeInWei).toEqual(result);
   });
 
   test.each([
-    { value: '3.12', unit: 'pence' },
+    { value: 3.12, unit: 'pence' },
     { value: '3.1p', unit: 'gwei' },
-    { value: '3.12', unit: 'wei' },
-  ])('throws an error for an invalid decimal denominated string - %#', (input: any) => {
+    { value: 3.12, unit: 'wei' },
+  ])('throws an error for an invalid decimal denominated string, number and unit - %#', (input: any) => {
     const throwingFunction = () => gasPrices.parsePriorityFee(input);
     expect(throwingFunction).toThrow();
   });
