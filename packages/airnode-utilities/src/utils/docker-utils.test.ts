@@ -58,7 +58,7 @@ describe('docker utilities', () => {
         case 'git rev-parse HEAD':
           return 'something';
         case 'git status':
-          return 'an output'; // lacking `Changes to be committed`
+          return 'an output';
         case 'docker manifest inspect api3/airnode-deployer-dev:something > /dev/null ; echo $?':
           return '0';
         default:
@@ -100,7 +100,7 @@ describe('docker utilities', () => {
         case 'git rev-parse HEAD':
           return 'something';
         case 'git status':
-          return 'an output'; // Changes to be committed
+          return 'an output';
         case 'docker manifest inspect api3/airnode-deployer-dev:something > /dev/null ; echo $?':
           return '1';
         default:

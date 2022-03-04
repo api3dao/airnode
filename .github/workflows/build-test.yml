@@ -76,23 +76,6 @@ jobs:
           docker push api3/airnode-deployer-dev:${{ github.sha }}
           docker push api3/airnode-client-dev:${{ github.sha }}
           docker push api3/airnode-admin-dev:${{ github.sha }}
-      - name: 'Comment on PR with docker pull commands'
-        uses: actions/github-script@0.3.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
-            const { issues } = github;
-            github.issues.createComment({ issue_number, owner, repo, 
-            body: 
-            `
-            \`\`\`
-            docker pull airnode-artifacts-dev:${{github.sha}}
-            docker run -ti --rm airnode-deployer-dev:${{github.sha}}
-            docker run -ti --rm airnode-client-dev:${{github.sha}}
-            docker run -ti --rm airnode-admin-dev:${{github.sha}}
-            \`\`\`
-            `});
   build:
     name: Build and lint Airnode
     runs-on: ubuntu-latest
