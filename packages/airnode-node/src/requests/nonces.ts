@@ -29,9 +29,7 @@ function assignWalletNonces(flatRequests: Request<AnyRequest>[], transactionCoun
 
     if (request.status === RequestStatus.Blocked) {
       if (hasExceededIgnoredBlockLimit(request)) {
-        return {
-          ...acc,
-        };
+        return acc;
       }
       return {
         ...acc,
