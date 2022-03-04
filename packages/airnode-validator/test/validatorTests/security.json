@@ -34,7 +34,8 @@
     }
   ],
   "triggers": {
-    "rrp": []
+    "rrp": [],
+    "httpSignedData": []
   },
   "chains": [],
   "nodeSettings": {
@@ -52,6 +53,9 @@
       "enabled": false
     },
     "httpGateway": {
+      "enabled": false
+    },
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

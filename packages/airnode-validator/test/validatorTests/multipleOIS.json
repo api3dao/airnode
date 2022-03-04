@@ -179,7 +179,8 @@
         "oisTitle": "ois2",
         "endpointName": "endpt2"
       }
-    ]
+    ],
+    "httpSignedData": []
   },
   "chains": [
     {
@@ -220,6 +221,9 @@
       "enabled": false
     },
     "httpGateway": {
+      "enabled": false
+    },
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

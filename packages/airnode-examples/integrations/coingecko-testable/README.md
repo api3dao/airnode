@@ -1,7 +1,5 @@
 # Coingecko-testable example integration
 
-> This feature is only available when Airnode is deployed on AWS
-
 This example contains the same API integration as `../coingecko`.
 
 The only difference is that this integration allows the endpoint to be tested. This means you can deploy the Airnode and
@@ -26,5 +24,5 @@ Before making the request, you need to replace the example values:
 The correct command may look like this:
 
 ```sh
-curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -d '{"parameters": {"coinId": "bitcoin"}}' 'https://x9sidy9ln0.execute-api.us-east-1.amazonaws.com/v1/test/0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153'
+curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -d '{"parameters": {"coinId": "bitcoin"}}' 'https://x9sidy9ln0.execute-api.us-east-1.amazonaws.com/v1/0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153'
 ```

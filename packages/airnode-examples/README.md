@@ -42,6 +42,9 @@ reserved parameters. The following list orders integrations alphabetically:
   temperature, and a description of the weather.
 - [Relay security schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
   demonstration of how to relay multiple request metadata like chain ID and sponsor address to the API endpoint.
+- [CoinGecko signed data](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-signed-data) -
+  same price request as the CoinGecko example above. However, the endpoint can be used to retrieve signed data for
+  beacon updates.
 
 ## Setup
 

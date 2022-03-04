@@ -42,7 +42,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       enabled: false,
     },
     httpSignedDataGateway: {
-      enabled: false,
+      enabled: true,
+      apiKey: '${HTTP_SIGNED_DATA_GATEWAY_API_KEY}',
+      maxConcurrency: 20,
     },
     logFormat: 'plain',
     logLevel: 'INFO',
@@ -53,102 +55,143 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   triggers: {
     rrp: [
       {
-        endpointId: '0x9f08d41575e84684d7aa111e91597595606212ee3ae200a5f95ad8efc572d72c',
-        oisTitle: 'OpenWeather Multiple Encoded Values',
-        endpointName: 'histLatLonData',
+        endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
       },
     ],
-    httpSignedData: [],
+    http: [],
+    httpSignedData: [
+      {
+        endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
+      },
+    ],
   },
   ois: [
     {
       oisFormat: '1.0.0',
-      title: 'OpenWeather Multiple Encoded Values',
+      title: 'CoinGecko basic request',
       version: '1.0.0',
       apiSpecifications: {
         servers: [
           {
-            url: 'https://api.openweathermap.org/data/2.5',
+            url: 'https://api.coingecko.com/api/v3',
           },
         ],
         paths: {
-          '/onecall/timemachine': {
+          '/coins/{id}': {
             get: {
               parameters: [
                 {
-                  in: 'query',
-                  name: 'lat',
+                  in: 'path',
+                  name: 'id',
                 },
                 {
                   in: 'query',
-                  name: 'lon',
+                  name: 'localization',
                 },
                 {
                   in: 'query',
-                  name: 'dt',
+                  name: 'tickers',
+                },
+                {
+                  in: 'query',
+                  name: 'market_data',
+                },
+                {
+                  in: 'query',
+                  name: 'community_data',
+                },
+                {
+                  in: 'query',
+                  name: 'developer_data',
+                },
+                {
+                  in: 'query',
+                  name: 'sparkline',
                 },
               ],
             },
           },
         },
         components: {
-          securitySchemes: {
-            openWeatherSecurityScheme: {
-              in: 'query',
-              type: 'apiKey',
-              name: 'appid',
-            },
-          },
+          securitySchemes: {},
         },
-        security: {
-          openWeatherSecurityScheme: [],
-        },
+        security: {},
       },
       endpoints: [
         {
-          name: 'histLatLonData',
+          name: 'coinMarketData',
           operation: {
             method: 'get',
-            path: '/onecall/timemachine',
+            path: '/coins/{id}',
           },
-          fixedOperationParameters: [],
+          fixedOperationParameters: [
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'localization',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'tickers',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'market_data',
+              },
+              value: 'true',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'community_data',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'developer_data',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'sparkline',
+              },
+              value: 'false',
+            },
+          ],
           reservedParameters: [
             {
               name: '_type',
-              fixed: 'uint256,int256,string,timestamp',
+              fixed: 'int256',
             },
             {
               name: '_path',
-              fixed: 'current.sunset,current.temp,current.weather.0.main,',
+              fixed: 'market_data.current_price.usd',
             },
             {
               name: '_times',
-              fixed: ',100,,',
+              fixed: '1000000',
             },
           ],
           parameters: [
             {
-              name: 'lat',
-              required: true,
+              name: 'coinId',
               operationParameter: {
-                in: 'query',
-                name: 'lat',
-              },
-            },
-            {
-              name: 'lon',
-              required: true,
-              operationParameter: {
-                in: 'query',
-                name: 'lon',
-              },
-            },
-            {
-              name: 'dt',
-              required: true,
-              operationParameter: {
-                in: 'query',
-                name: 'dt',
+                in: 'path',
+                name: 'id',
               },
             },
           ],
@@ -156,13 +199,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       ],
     },
   ],
-  apiCredentials: [
-    {
-      oisTitle: 'OpenWeather Multiple Encoded Values',
-      securitySchemeName: 'openWeatherSecurityScheme',
-      securitySchemeValue: '${OPENWEATHER_API_KEY}',
-    },
-  ],
+  apiCredentials: [],
 });
 
 const generateConfig = async (generateExampleFile = false) => {

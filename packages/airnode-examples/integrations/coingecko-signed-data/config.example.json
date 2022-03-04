@@ -36,7 +36,7 @@
     },
     "httpSignedDataGateway": {
       "enabled": true,
-      "apiKey": "012345678901234567890123456789",
+      "apiKey": "${HTTP_SIGNED_DATA_GATEWAY_API_KEY}",
       "maxConcurrency": 20
     },
     "logFormat": "plain",
@@ -53,11 +53,12 @@
         "endpointName": "coinMarketData"
       }
     ],
+    "http": [],
     "httpSignedData": [
       {
-        "endpointId": "0xe1da7948e4dd95c04b2aaa10f4de115e67d9e109ce618750a3d8111b855a5ee5",
-        "oisTitle": "ois",
-        "endpointName": "path"
+        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
       }
     ]
   },

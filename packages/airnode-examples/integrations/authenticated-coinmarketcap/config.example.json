@@ -34,6 +34,9 @@
     "httpGateway": {
       "enabled": false
     },
+    "httpSignedDataGateway": {
+      "enabled": false
+    },
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.4.0",
@@ -47,7 +50,8 @@
         "oisTitle": "CoinMarketCap Basic Authenticated Request",
         "endpointName": "coinMarketCapData"
       }
-    ]
+    ],
+    "httpSignedData": []
   },
   "ois": [
     {

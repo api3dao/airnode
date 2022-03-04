@@ -54,6 +54,13 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     }
   }
 
+  const httpSignedDataGateway = config.nodeSettings.httpSignedDataGateway;
+  if (httpSignedDataGateway.enabled) {
+    if (httpSignedDataGateway.maxConcurrency !== undefined && httpSignedDataGateway.maxConcurrency <= 0) {
+      throw new Error('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
+    }
+  }
+
   logger.debug('Creating a temporary secrets.json file');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   const tmpSecretsPath = path.join(tmpDir, 'secrets.json');
@@ -70,6 +77,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       stage: config.nodeSettings.stage,
       cloudProvider: { maxConcurrency, ...config.nodeSettings.cloudProvider },
       httpGateway,
+      httpSignedDataGateway,
       configPath,
       secretsPath: tmpSecretsPath,
     });
