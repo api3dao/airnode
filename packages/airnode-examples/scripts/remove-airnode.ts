@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { getDockerImage } from '@api3/airnode-utilities/dist/utils/docker-utils';
+import { getDockerImage } from '@api3/airnode-utilities';
 import { cliPrint, isWindows, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 const main = async () => {

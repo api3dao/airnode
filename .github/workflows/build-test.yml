@@ -9,6 +9,7 @@ on:
 
 env:
   DOCKER_BUILDKIT: 1
+  TARGET_NODE_VERSION: '14.17.1'
 
 jobs:
   documentation:
@@ -54,7 +55,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
       - name: restore lerna
         id: cache
         uses: actions/cache@v2
@@ -100,7 +101,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
       - name: restore lerna
         id: cache
         uses: actions/cache@v2
@@ -145,7 +146,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
       - run: yarn run test
       - name: Slack Notification
         uses: lazy-actions/slatify@master
@@ -175,7 +176,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
       - name: Start background services
         run: yarn run dev:background
       - run: yarn run test:e2e-${{ matrix.package }}
@@ -207,7 +208,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
       - name: Require a changeset
         # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#responding-to-events
         if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'

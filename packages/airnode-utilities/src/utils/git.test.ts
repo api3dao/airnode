@@ -1,5 +1,5 @@
 import child_process from 'child_process';
-import { getCommitHash, getTag, isStagingClean } from './git-utils';
+import { getCommitHash, getTag, isStagingClean } from './git';
 
 describe('git utilities', () => {
   it('returns a commit hash', () => {

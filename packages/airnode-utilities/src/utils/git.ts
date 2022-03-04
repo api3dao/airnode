@@ -13,7 +13,7 @@ export const getTag = () => {
     .find((line) => line.indexOf(commitHash) !== -1);
 
   if (!tagAndHash) {
-    return undefined;
+    return;
   }
 
   try {
@@ -21,8 +21,6 @@ export const getTag = () => {
   } catch (e) {
     logger.error((e as Error).message);
   }
-
-  return undefined;
 };
 
 export const isStagingClean = () => execSync('git status').toString().trim().indexOf('Changes to be committed') === -1;

@@ -5,5 +5,5 @@ export * from './utils/date-utils';
 export * from './utils/promise-utils';
 export * from './utils/string-utils';
 export * from './logging-types';
-export * as gitUtils from './utils/git-utils';
-export * as dockerUtils from './utils/docker-utils';
+export * from './utils/git';
+export * from './utils/docker';

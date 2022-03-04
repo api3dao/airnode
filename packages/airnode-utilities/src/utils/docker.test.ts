@@ -1,7 +1,6 @@
 import child_process from 'child_process';
-import { getDockerImage, imageAvailableOnDockerHub } from './docker-utils';
-import { getTag } from './git-utils';
-import { gitUtils } from '../index';
+import { getDockerImage, imageAvailableOnDockerHub } from './docker';
+import * as git from './git';
 
 describe('docker utilities', () => {
   const OLD_ENV = process.env;
@@ -65,7 +64,7 @@ describe('docker utilities', () => {
           return '';
       }
     });
-    const getTagSpy = jest.spyOn(gitUtils, 'getTag');
+    const getTagSpy = jest.spyOn(git, 'getTag');
     getTagSpy.mockReturnValueOnce(undefined);
 
     const result = getDockerImage('deployer');
@@ -86,7 +85,7 @@ describe('docker utilities', () => {
           return '';
       }
     });
-    const getTagSpy = jest.spyOn(gitUtils, 'getTag');
+    const getTagSpy = jest.spyOn(git, 'getTag');
     getTagSpy.mockReturnValueOnce(undefined);
 
     const result = getDockerImage('deployer');
@@ -107,7 +106,7 @@ describe('docker utilities', () => {
           return '';
       }
     });
-    const getTagSpy = jest.spyOn(gitUtils, 'getTag');
+    const getTagSpy = jest.spyOn(git, 'getTag');
     getTagSpy.mockReturnValueOnce(undefined);
 
     const result = getDockerImage('deployer');
@@ -116,7 +115,7 @@ describe('docker utilities', () => {
 
   it('returns a tagged image when the current commit is tagged', () => {
     // Must be called to make the mock work
-    getTag();
+    git.getTag();
 
     const execSyncSpy = jest.spyOn(child_process, 'execSync');
     execSyncSpy.mockImplementation((command: string) => {

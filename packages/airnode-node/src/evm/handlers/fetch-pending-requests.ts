@@ -25,6 +25,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     minConfirmations: state.settings.minConfirmations,
     provider: state.provider,
   };
+  logger.log(`fetchOptions: ${JSON.stringify(fetchOptions, null, 2)}`);
   // Fetch event logs from the provider. Let this throw if something goes wrong.
   // We can't do anything if logs cannot be fetched or parsed successfully.
   const flatLogs = await eventLogs.fetch(fetchOptions);
