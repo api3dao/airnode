@@ -13,7 +13,7 @@ export const getTag = () => {
     .find((line) => line.indexOf(commitHash) !== -1);
 
   if (!tagAndHash) {
-    return undefined;
+    return;
   }
 
   try {
