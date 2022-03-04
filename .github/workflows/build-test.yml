@@ -180,7 +180,7 @@ jobs:
         run: yarn run dev:background
       - run: yarn run test:e2e-${{ matrix.package }}
         env:
-          COMMIT: ${{ github.sha}}
+          COMMIT: ${{ github.sha }}
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
