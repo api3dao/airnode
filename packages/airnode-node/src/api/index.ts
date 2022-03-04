@@ -23,10 +23,9 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
 
   switch (aggregatedApiCall.type) {
     case 'http-signed-data-gateway': {
-      const removedHttpParams = removeKeys(sanitizedParameters, ['_templateId']);
       return {
         endpointName,
-        parameters: removedHttpParams,
+        parameters: sanitizedParameters,
         ois,
         apiCredentials,
         metadata: null,
@@ -135,7 +134,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type !== 'regular') return null;
+  if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -228,7 +227,12 @@ async function processSuccessfulApiCall(
       }
       case 'http-signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
-        const signature = await signWithTemplateId(parameters._templateId, timestamp, response.encodedValue, config);
+        const signature = await signWithTemplateId(
+          aggregatedApiCall.templateId,
+          timestamp,
+          response.encodedValue,
+          config
+        );
         return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
       }
     }

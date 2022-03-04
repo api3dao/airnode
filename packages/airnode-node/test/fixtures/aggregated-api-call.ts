@@ -63,6 +63,7 @@ export function buildAggregatedHttpSignedDataApiCall(
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
+    templateId: '0x600975681b98422eee1146d4b835a8103689ae4cddb76069925a929caf0eb79f',
     ...params,
   };
 }

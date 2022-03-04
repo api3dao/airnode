@@ -280,6 +280,8 @@ export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-data-gateway';
+  templateId: string;
+  template?: ApiCallTemplate;
 }
 
 // ===========================================
