@@ -16,11 +16,18 @@ jobs:
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
-      # Temporarily disabled while we fix the docs routing issue.
-      #      - name: Check hyperlinks
-      #        uses: gaurav-nelson/github-action-markdown-link-check@v1
-      #        with:
-      #          config-file: .github/workflows/mlc_config.json
+      - name: Update latest paths
+        run: |
+          wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
+          for i in latestVersion latestBeaconVersion latestOisVersion; do
+            path=$(grep $i config.js | cut -d\' -f2);
+            echo "Renaming: $i --> $path";
+            sed -i "s@$i@$path@" .github/workflows/mlc_config.json;
+          done
+      - name: Check hyperlinks
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: .github/workflows/mlc_config.json
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:

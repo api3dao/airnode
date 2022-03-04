@@ -1,4 +1,18 @@
 {
+  "replacementPatterns": [
+    {
+      "pattern": "/airnode/latest/",
+      "replacement": "latestVersion"
+    },
+    {
+      "pattern": "/beacon/latest/",
+      "replacement": "latestBeaconVersion"
+    },
+    {
+      "pattern": "/ois/latest/",
+      "replacement": "latestOisVersion"
+    }
+  ],
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "10s"
