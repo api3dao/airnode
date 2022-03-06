@@ -12,6 +12,7 @@ export interface Triggers {
   // For now the attribute is optional, because http gateway is supported only on AWS.
   // TODO: Make this required once it is supported everywhere.
   http?: Trigger[];
+  httpSignedData: Trigger[];
 }
 
 // ===========================================
@@ -32,13 +33,13 @@ export interface Provider {
 }
 
 export interface PriorityFee {
-  readonly value: string;
+  readonly value: number;
   readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
 }
 
 export interface ChainOptions {
   readonly txType: 'legacy' | 'eip1559';
-  readonly baseFeeMultiplier?: string;
+  readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;
 }
 
@@ -92,6 +93,7 @@ export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
+  readonly httpSignedDataGateway: HttpGateway;
   readonly airnodeAddressShort?: string;
   readonly stage: string;
   readonly cloudProvider: LocalOrCloudProvider;

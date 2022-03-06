@@ -11,6 +11,7 @@ export const triggerSchema = z.object({
 export const triggersSchema = z.object({
   rrp: z.array(triggerSchema),
   http: z.array(triggerSchema).optional(),
+  httpSignedData: z.array(triggerSchema),
 });
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
@@ -28,7 +29,7 @@ export const providerSchema = z.object({
 });
 
 export const priorityFeeSchema = z.object({
-  value: z.string(),
+  value: z.number(),
   unit: z
     .union([
       z.literal('wei'),
@@ -44,7 +45,7 @@ export const priorityFeeSchema = z.object({
 
 export const chainOptionsSchema = z.object({
   txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
-  baseFeeMultiplier: z.string().optional(),
+  baseFeeMultiplier: z.number().int().optional(),
   priorityFee: priorityFeeSchema.optional(),
 });
 
@@ -61,7 +62,7 @@ export const chainConfigSchema = z.object({
   maxConcurrency: z.number(),
 });
 
-export const httpGatewaySchema = z.object({
+export const gatewaySchema = z.object({
   enabled: z.boolean(),
   apiKey: z.string().optional(),
   maxConcurrency: z.number().optional(),
@@ -98,7 +99,8 @@ export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudPro
 export const nodeSettingsSchema = z.object({
   airnodeWalletMnemonic: z.string(),
   heartbeat: heartbeatSchema,
-  httpGateway: httpGatewaySchema,
+  httpGateway: gatewaySchema,
+  httpSignedDataGateway: gatewaySchema,
   airnodeAddressShort: z.string().optional(),
   stage: z.string(),
   cloudProvider: localOrCloudProviderSchema,
