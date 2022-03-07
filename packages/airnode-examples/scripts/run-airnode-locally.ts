@@ -8,10 +8,10 @@ const main = async () => {
     return;
   }
 
+  const imageName = process.env.CI ? `api3/airnode-client-dev:${process.env.GITHUB_SHA}` : `api3/airnode-client:latest`;
+
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
-  runShellCommand(
-    `docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode api3/airnode-client:latest`
-  );
+  runShellCommand(`docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode ${imageName}`);
 };
 
 runAndHandleErrors(main);
