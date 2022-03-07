@@ -168,7 +168,7 @@ API3 makes docker container builds for releases available on
 [Docker Hub](https://hub.docker.com/u/api3/airnode-deployer). API3 also makes development builds available; if this
 repository represents a clone of the clean state of a recent commit it is likely that an image will be available for it
 on Docker Hub. In this scenario you will not need to rebuild any containers and can skip container build steps,
-specifically steps 10 and 11.
+specifically steps 10, 11, and 13.
 
 Development images will be automatically selected by the `run-airnode-locally` and `deploy-airnode` commands.
 
