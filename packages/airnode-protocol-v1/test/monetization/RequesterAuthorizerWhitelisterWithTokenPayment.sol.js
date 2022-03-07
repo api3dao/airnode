@@ -446,7 +446,7 @@ describe('setPriceCoefficient', function () {
 describe('setAirnodeParticipationStatus', function () {
   context('Airnode address is not zero', function () {
     context('Sender is Airnode', function () {
-      context('Status is OptedOut', function () {
+      context('Status is not Active', function () {
         it('sets Airnode participation status', async function () {
           await expect(
             requesterAuthorizerWhitelisterWithTokenPayment
@@ -458,20 +458,25 @@ describe('setAirnodeParticipationStatus', function () {
           expect(
             await requesterAuthorizerWhitelisterWithTokenPayment.airnodeToParticipationStatus(roles.airnode.address)
           ).to.equal(AirnodeParticipationStatus.OptedOut);
+          await expect(
+            requesterAuthorizerWhitelisterWithTokenPayment
+              .connect(roles.airnode)
+              .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Inactive)
+          )
+            .to.emit(requesterAuthorizerWhitelisterWithTokenPayment, 'SetAirnodeParticipationStatus')
+            .withArgs(roles.airnode.address, AirnodeParticipationStatus.Inactive, roles.airnode.address);
+          expect(
+            await requesterAuthorizerWhitelisterWithTokenPayment.airnodeToParticipationStatus(roles.airnode.address)
+          ).to.equal(AirnodeParticipationStatus.Inactive);
         });
       });
-      context('Status is not OptedOut', function () {
+      context('Status is Active', function () {
         it('reverts', async function () {
           await expect(
             requesterAuthorizerWhitelisterWithTokenPayment
               .connect(roles.airnode)
               .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active)
-          ).to.be.revertedWith('Airnode can only opt out');
-          await expect(
-            requesterAuthorizerWhitelisterWithTokenPayment
-              .connect(roles.airnode)
-              .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Inactive)
-          ).to.be.revertedWith('Airnode can only opt out');
+          ).to.be.revertedWith('Airnode cannot activate itself');
         });
       });
     });
