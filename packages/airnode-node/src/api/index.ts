@@ -22,15 +22,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
 
   switch (aggregatedApiCall.type) {
-    case 'http-signed-data-gateway': {
-      return {
-        endpointName,
-        parameters: sanitizedParameters,
-        ois,
-        apiCredentials,
-        metadata: null,
-      };
-    }
+    case 'http-signed-data-gateway':
     case 'http-gateway': {
       return {
         endpointName,

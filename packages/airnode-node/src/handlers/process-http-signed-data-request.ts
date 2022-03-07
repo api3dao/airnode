@@ -19,12 +19,12 @@ export async function processHttpSignedDataRequest(
 
   const endpoints = find(config.ois, ['title', trigger.oisTitle])?.endpoints;
   const endpoint = find(endpoints, ['name', trigger.endpointName]);
-  const decodedParameters = evm.encoding.safeDecode(parameters);
 
   if (!endpoint) {
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
 
+  const decodedParameters = evm.encoding.safeDecode(parameters);
   // TODO: There should be an TS interface for required params
   if (!decodedParameters) {
     return [new Error(`Request contains invalid encodedParameters: ${parameters}`), null];
@@ -34,11 +34,11 @@ export async function processHttpSignedDataRequest(
   const logOptions = buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
-  const template = <ApiCallTemplate>{
+  const template = {
     airnodeAddress,
     endpointId,
     encodedParameters: parameters,
-  };
+  } as ApiCallTemplate;
   const templateId = getExpectedTemplateId(template);
 
   const aggregatedApiCall: AggregatedApiCall = {
