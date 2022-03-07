@@ -267,7 +267,7 @@ contract DapiServer is
         require(relayer != address(0), "Relayer address zero");
         require(sponsor != address(0), "Sponsor address zero");
         subscriptionId = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 block.chainid,
                 airnode,
                 templateId,

@@ -152,7 +152,7 @@ async function setUpBeacon() {
   );
   // Register the Beacon update subscription
   beaconUpdateSubscriptionId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
+    hre.ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
@@ -178,7 +178,7 @@ async function setUpBeacon() {
     );
   // Register the relayed Beacon update subscription
   beaconUpdateSubscriptionRelayedId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
+    hre.ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
@@ -239,7 +239,7 @@ async function setUpDapi() {
   // Calculate the dAPI update subscription ID
   const dapiUpdateParameters = hre.ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [dapiBeaconIds]);
   dapiUpdateSubscriptionId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
+    hre.ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
@@ -255,7 +255,7 @@ async function setUpDapi() {
     )
   );
   dapiUpdateSubscriptionRelayedId = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(
+    hre.ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', 'bytes32', 'bytes', 'bytes', 'address', 'address', 'address', 'bytes4'],
       [
         (await hre.ethers.provider.getNetwork()).chainId,
