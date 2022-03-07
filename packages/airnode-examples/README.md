@@ -217,7 +217,7 @@ you can then run locally.
 This command runs Airnode locally. If the local git state is clean and a prebuilt image is available on Docker Hub, this
 command will pull the necessary images from Docker Hub.
 
-If it fails to pull the image, please build the necessary images (refer to step 10).
+If it fails to pull the image, please build the necessary images (refer to steps 10 and 13).
 
 Note that the containerized version of Airnode runs as a cron job which is triggered every minute - this means that
 Airnode logs won't start appearing immediately.
