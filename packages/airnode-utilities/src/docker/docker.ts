@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { getTag, getCommitHash, isStagingClean } from './git';
+import { getTag, getCommitHash, isStagingClean } from '../git';
 import { logger } from '../logging';
 
 export const imageAvailableOnDockerHub = (imagePath: string) =>

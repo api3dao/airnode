@@ -1,4 +1,4 @@
-import * as utils from './object-utils';
+import * as utils from './object';
 
 describe('removeKeys', () => {
   it('returns the object without the specified key', () => {

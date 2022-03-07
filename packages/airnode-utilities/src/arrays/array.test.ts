@@ -1,4 +1,4 @@
-import * as utils from './array-utils';
+import * as utils from './array';
 
 describe('updateArrayAt', () => {
   it('updates the element at the given index', () => {

@@ -1,4 +1,4 @@
-import * as dateUtils from './date-utils';
+import * as dateUtils from './date';
 
 describe('formatDateTime', () => {
   it('returns the formatted string', () => {

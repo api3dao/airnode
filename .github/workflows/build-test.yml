@@ -44,17 +44,16 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-  build:
-    name: Build and lint Airnode
+  pre-build:
+    name: Prepare build envrionment
     runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
         with:
-          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
-          fetch-depth: 0
+        # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
+        fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -69,6 +68,53 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install Dependencies
         run: yarn run bootstrap
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: pre-build
+    steps:
+      - uses: actions/cache@v2
+        id: cache-restore-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+      - name: yarn docker
+        env:
+          DOCKER_BUILDKIT: 1
+        run: yarn docker
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Retag docker images to dev repositories
+        run: |
+          docker tag api3/airnode-artifacts:latest api3/airnode-artifacts-dev:${{ github.sha }}
+          docker tag api3/airnode-deployer:latest api3/airnode-deployer-dev:${{ github.sha }}
+          docker tag api3/airnode-client:latest api3/airnode-client-dev:${{ github.sha }}
+          docker tag api3/airnode-admin:latest api3/airnode-admin-dev:${{ github.sha }}
+      - name: Push docker images to Docker Hub
+        run: |
+          docker push api3/airnode-artifacts-dev:${{ github.sha }}
+          docker push api3/airnode-deployer-dev:${{ github.sha }}
+          docker push api3/airnode-client-dev:${{ github.sha }}
+          docker push api3/airnode-admin-dev:${{ github.sha }}
+  build:
+    name: Build and lint Airnode
+    runs-on: ubuntu-latest
+    # Don't run twice for a push within an internal PR
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    needs: pre-build
+    steps:
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
       - name: Build
         run: yarn run build
       - name: Lint code
@@ -117,50 +163,6 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: [unit-tests]
-    steps:
-      - name: Clone airnode
-        uses: actions/checkout@v2
-        with:
-          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.TARGET_NODE_VERSION }}
-      - name: restore lerna
-        id: cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install Dependencies
-        run: yarn run bootstrap
-      - name: yarn docker
-        env:
-          DOCKER_BUILDKIT: 1
-        run: yarn docker
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Retag docker images to dev repositories
-        run: |
-          docker tag api3/airnode-artifacts:latest api3/airnode-artifacts-dev:${{ github.sha }}
-          docker tag api3/airnode-deployer:latest api3/airnode-deployer-dev:${{ github.sha }}
-          docker tag api3/airnode-client:latest api3/airnode-client-dev:${{ github.sha }}
-          docker tag api3/airnode-admin:latest api3/airnode-admin-dev:${{ github.sha }}
-      - name: Push docker images to Docker Hub
-        run: |
-          docker push api3/airnode-artifacts-dev:${{ github.sha }}
-          docker push api3/airnode-deployer-dev:${{ github.sha }}
-          docker push api3/airnode-client-dev:${{ github.sha }}
-          docker push api3/airnode-admin-dev:${{ github.sha }}
   e2e-tests:
     name: E2E tests
     runs-on: ubuntu-latest
@@ -195,7 +197,6 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   require-changeset:
     name: Require a changeset
     runs-on: ubuntu-latest
@@ -217,7 +218,7 @@ jobs:
   build-complete:
     name: All tests passed
     runs-on: ubuntu-latest
-    needs: [documentation, docker-build, build, unit-tests, e2e-tests, require-changeset]
+    needs: [documentation, pre-build, docker-build, build, unit-tests, e2e-tests, require-changeset]
     steps:
       - run: exit 0
       - name: Slack Notification

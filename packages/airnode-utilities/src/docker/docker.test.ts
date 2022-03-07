@@ -1,6 +1,6 @@
 import child_process from 'child_process';
 import { getDockerImage, imageAvailableOnDockerHub } from './docker';
-import * as git from './git';
+import * as git from '../git';
 
 describe('docker utilities', () => {
   const OLD_ENV = process.env;
