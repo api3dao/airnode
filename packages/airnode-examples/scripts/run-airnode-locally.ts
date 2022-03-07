@@ -8,6 +8,7 @@ const main = async () => {
     return;
   }
 
+  // Check if we're executing in Github CI - if we are, run the airnode-client development image
   const imageName = process.env.CI ? `api3/airnode-client-dev:${process.env.GITHUB_SHA}` : `api3/airnode-client:latest`;
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
