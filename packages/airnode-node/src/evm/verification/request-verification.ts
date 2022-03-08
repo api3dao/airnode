@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/airnode-ois';
-import { logger } from '@api3/airnode-utilities';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
 import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 import { Trigger } from '../../config/types';
@@ -16,32 +16,30 @@ export function verifySponsorWallets<T>(
   requests: Request<T>[],
   masterHDNode: ethers.utils.HDNode
 ): LogsData<Request<T>[]> {
-  const logsWithVerifiedRequests: LogsData<Request<T>>[] = requests.map((request) => {
+  const logs: PendingLog[] = [];
+
+  const verifiedRequests = requests.filter((request) => {
     if (request.status !== RequestStatus.Pending) {
       const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
-      return [[log], request];
+      logs.push(log);
+      return true;
     }
 
     const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
     if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
       const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
       const log = logger.pend('ERROR', message);
-      const updatedRequest: Request<T> = {
-        ...request,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${request.sponsorWalletAddress}`,
-      };
-      return [[log], updatedRequest];
+      logs.push(log);
+      return false;
     }
 
     const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWalletAddress}`;
     const log = logger.pend('DEBUG', message);
-    return [[log], request];
+    logs.push(log);
+    return true;
   });
 
-  const logs = flatMap(logsWithVerifiedRequests, (r) => r[0]);
-  const verifiedRequests = flatMap(logsWithVerifiedRequests, (r) => r[1]);
   return [logs, verifiedRequests];
 }
 
