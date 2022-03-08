@@ -235,9 +235,8 @@ contract RequesterAuthorizerWhitelisterWithToken is
     ) external override onlyNonZeroAirnode(airnode) {
         if (msg.sender == airnode) {
             require(
-                airnodeParticipationStatus ==
-                    AirnodeParticipationStatus.OptedOut,
-                "Airnode can only opt out"
+                airnodeParticipationStatus != AirnodeParticipationStatus.Active,
+                "Airnode cannot activate itself"
             );
         } else {
             require(
