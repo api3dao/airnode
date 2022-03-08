@@ -15,7 +15,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  * @param args The yargs inferred CLI arguments object
  * @returns The parsed overrides object with values compatible with ethers
  */
-export const parseTransactionOverrides = (args: Arguments): ethers.Overrides => {
+export const parseCliOverrides = (args: Arguments): ethers.Overrides => {
   const overrideMap = [
     { name: 'gas-limit', key: 'gasLimit', parseValue: (value: string) => ethers.BigNumber.from(value) },
     { name: 'gas-price', key: 'gasPrice', parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei') },

@@ -49,13 +49,13 @@ describe('SDK', () => {
     const sdkApi = difference(Object.keys(sdk), [
       'airnodeRrp',
       'requesterAuthorizerWithAirnode',
-      'parseTransactionOverrides',
+      'parseCliOverrides',
     ]).sort();
     const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
     const adminApi = difference(Object.keys(admin), [
       'deriveWalletPathFromSponsorAddress',
       'deriveEndpointId',
-      'parseTransactionOverrides',
+      'parseCliOverrides',
     ]).sort();
 
     expect(sdkApi).toEqual(adminApi);
