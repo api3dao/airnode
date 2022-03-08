@@ -2,7 +2,7 @@ import * as airnodeAbi from '@api3/airnode-abi';
 import { AirnodeRrp, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
-export const PRIORITY_FEE = 3120000000;
+const PRIORITY_FEE = 3120000000;
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   if (Object.keys(params).length !== ethersParams.length) {
