@@ -88,10 +88,13 @@ jobs:
       - name: Push airnode artifacts to Docker Hub
         run: |
           docker push api3/airnode-artifacts-dev:${{ github.sha }}
-  docker-airnode-admin:
-    name: Build airnode-admin and push to Docker Hub
+  docker-build-general:
+    name: Build non-artifact docker images
     runs-on: ubuntu-latest
     needs: docker-artifacts
+    strategy:
+      matrix:
+        package: [deployer, admin, client]
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
@@ -100,66 +103,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Pull airnode-artifacts
+      - name: Pull airnode-artifacts-dev
         run: |
           docker pull api3/airnode-artifacts-dev:${{ github.sha }}
-      - name: Retag airnode-artifacts
+      - name: Retag input image
         run: |
           docker tag api3/airnode-artifacts-dev:${{ github.sha }} api3/airnode-artifacts:latest
-      - name: Build airnode-admin docker image
+      - name: Build docker image
         run: |
-          docker build --tag api3/airnode-admin-dev:${{ github.sha }} --file packages/airnode-admin/docker/Dockerfile .
-      - name: Push airnode-admin to Docker Hub
+          yarn docker:build:${{ matrix.package }}
+      - name: Retag output image
         run: |
-          docker push api3/airnode-admin-dev:${{ github.sha }}
-  docker-airnode-deployer:
-    name: Build airnode-deployer and push to Docker Hub
-    runs-on: ubuntu-latest
-    needs: docker-artifacts
-    steps:
-      - name: Clone airnode
-        uses: actions/checkout@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Pull airnode-artifacts
+          docker tag api3/airnode-${{ matrix.package }}:latest api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}
+      - name: Push to Docker Hub
         run: |
-          docker pull api3/airnode-artifacts-dev:${{ github.sha }}
-      - name: Retag airnode-artifacts
-        run: |
-          docker tag api3/airnode-artifacts-dev:${{ github.sha }} api3/airnode-artifacts:latest
-      - name: Build airnode-deployer docker image
-        run: |
-          docker build --tag api3/airnode-deployer-dev:${{ github.sha }} --file packages/airnode-deployer/docker/Dockerfile .
-      - name: Push airnode-deployer image to Docker Hub
-        run: |
-          docker push api3/airnode-deployer-dev:${{ github.sha }}
-  docker-airnode-client:
-    name: Build airnode-client and push to Docker Hub
-    runs-on: ubuntu-latest
-    needs: docker-artifacts
-    steps:
-      - name: Clone airnode
-        uses: actions/checkout@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Pull airnode-artifacts
-        run: |
-          docker pull api3/airnode-artifacts-dev:${{ github.sha }}
-      - name: Retag airnode-artifacts
-        run: |
-          docker tag api3/airnode-artifacts-dev:${{ github.sha }} api3/airnode-artifacts:latest
-      - name: Build airnode-client docker image
-        run: |
-          docker build --tag api3/airnode-client-dev:${{ github.sha }} --file packages/airnode-node/docker/Dockerfile .
-      - name: Push airnode-client image to Docker Hub
-        run: |
-          docker push api3/airnode-client-dev:${{ github.sha }}
+          docker push api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}
   build:
     name: Build and lint Airnode
     runs-on: ubuntu-latest
@@ -229,7 +187,7 @@ jobs:
   e2e-tests:
     name: E2E tests - admin and node
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: build
     strategy:
       matrix:
         package: [admin, node]
@@ -265,9 +223,6 @@ jobs:
     name: E2E Tests - examples
     runs-on: ubuntu-latest
     needs: [build, docker-airnode-client]
-    strategy:
-      matrix:
-        package: [examples]
     steps:
       - uses: actions/cache@v2
         id: restore-build
@@ -281,15 +236,9 @@ jobs:
           cache: yarn
       - name: Start background services
         run: yarn run dev:background
-      - run: yarn run test:e2e-${{ matrix.package }}
+      - run: yarn run test:e2e-examples
         env:
           COMMIT: ${{ github.sha }}
-  e2e-tests-report:
-    name: All tests passed
-    runs-on: ubuntu-latest
-    needs: [e2e-tests, e2e-tests-examples]
-    steps:
-      - run: exit 0
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
@@ -324,7 +273,7 @@ jobs:
   build-complete:
     name: All tests passed
     runs-on: ubuntu-latest
-    needs: [documentation, unit-tests, e2e-tests, require-changeset, docker-airnode-deployer, docker-airnode-admin]
+    needs: [documentation, docker-build-general, unit-tests, e2e-tests, e2e-tests-examples, require-changeset]
     steps:
       - run: exit 0
       - name: Slack Notification
