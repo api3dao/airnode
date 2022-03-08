@@ -227,13 +227,12 @@ jobs:
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
   e2e-tests:
-    name: E2E tests
+    name: E2E tests - admin and node
     runs-on: ubuntu-latest
-    needs: [build, docker-airnode-client]
+    needs: [build]
     strategy:
-      max-parallel: 3
       matrix:
-        package: [admin, node, examples]
+        package: [admin, node]
     steps:
       - uses: actions/cache@v2
         id: restore-build
@@ -250,6 +249,47 @@ jobs:
       - run: yarn run test:e2e-${{ matrix.package }}
         env:
           COMMIT: ${{ github.sha }}
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - E2E tests'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+  e2e-tests-examples:
+    name: E2E Tests - examples
+    runs-on: ubuntu-latest
+    needs: [build, docker-airnode-client]
+    strategy:
+      matrix:
+        package: [examples]
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
+      - name: Start background services
+        run: yarn run dev:background
+      - run: yarn run test:e2e-${{ matrix.package }}
+        env:
+          COMMIT: ${{ github.sha }}
+  e2e-tests-report:
+    name: All tests passed
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, e2e-tests-examples]
+    steps:
+      - run: exit 0
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
