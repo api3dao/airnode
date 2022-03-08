@@ -45,7 +45,7 @@ jobs:
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
   pre-build:
-    name: Prepare build envrionment
+    name: Prepare build environment
     runs-on: ubuntu-latest
     # Don't run twice for a push within an internal PR
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
@@ -231,6 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, docker-airnode-client]
     strategy:
+      max-parallel: 3
       matrix:
         package: [admin, node, examples]
     steps:
