@@ -45,8 +45,8 @@ export const parseCliOverrides = (args: Arguments): ethers.Overrides => {
 export const parseOverrides = (feeData: ethers.providers.FeeData, overrides?: ethers.Overrides): ethers.Overrides => {
   if (!overrides) return {};
 
-  const { gasPrice, ...rest } = overrides;
-  if (gasPrice && feeData.maxFeePerGas) {
+  const { gasPrice, maxFeePerGas, maxPriorityFeePerGas, ...rest } = overrides;
+  if (gasPrice && !maxFeePerGas && !maxPriorityFeePerGas && feeData.maxFeePerGas) {
     return {
       maxFeePerGas: gasPrice,
       maxPriorityFeePerGas: ethers.BigNumber.from(PRIORITY_FEE),
