@@ -6,6 +6,8 @@ import "./IRequesterAuthorizerWhitelisterWithToken.sol";
 interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
     IRequesterAuthorizerWhitelisterWithToken
 {
+    event SetWithdrawalLeadTime(uint256 withdrawalLeadTime, address sender);
+
     event DepositedTokens(
         address airnode,
         uint256 chainId,
@@ -14,6 +16,15 @@ interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
         address sender,
         uint256 tokenDepositsCount,
         uint256 tokenDepositAmount
+    );
+
+    event SignaledWithdrawalIntent(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId,
+        address requester,
+        address sender,
+        uint256 tokenDepositsCount
     );
 
     event WithdrewTokens(
@@ -36,7 +47,16 @@ interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
         uint256 tokenWithdrawAmount
     );
 
+    function setWithdrawalLeadTime(uint256 _withdrawalLeadTime) external;
+
     function depositTokens(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId,
+        address requester
+    ) external;
+
+    function signalWithdrawalIntent(
         address airnode,
         uint256 chainId,
         bytes32 endpointId,
@@ -72,4 +92,14 @@ interface IRequesterAuthorizerWhitelisterWithTokenDeposit is
         address requester,
         address depositor
     ) external view returns (uint256);
+
+    function airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToEarliestWithdrawalTime(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId,
+        address requester,
+        address depositor
+    ) external view returns (uint256);
+
+    function withdrawalLeadTime() external view returns (uint256);
 }
