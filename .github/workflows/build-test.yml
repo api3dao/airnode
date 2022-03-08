@@ -222,7 +222,7 @@ jobs:
   e2e-tests-examples:
     name: E2E Tests - examples
     runs-on: ubuntu-latest
-    needs: [build, docker-airnode-client]
+    needs: [build, docker-build-general]
     steps:
       - uses: actions/cache@v2
         id: restore-build
