@@ -7,7 +7,7 @@ const main = async () => {
     return;
   }
 
-  runShellCommand(`yarn --cwd ../../ docker:build:node`);
+  runShellCommand(`yarn --cwd ../../ docker:build:client`);
 };
 
 runAndHandleErrors(main);
