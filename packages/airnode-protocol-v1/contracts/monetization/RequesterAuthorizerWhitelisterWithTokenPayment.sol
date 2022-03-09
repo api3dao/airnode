@@ -12,6 +12,8 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
     RequesterAuthorizerWhitelisterWithToken,
     IRequesterAuthorizerWhitelisterWithTokenPayment
 {
+    using SafeERC20 for IERC20;
+
     /// @notice Minimum whitelist extension
     uint64 public override minimumWhitelistExtension = 1 days;
 
@@ -162,13 +164,10 @@ contract RequesterAuthorizerWhitelisterWithTokenPayment is
             requester,
             newExpirationTimestamp
         );
-        require(
-            IERC20(token).transferFrom(
-                msg.sender,
-                proceedsDestination,
-                tokenPaymentAmount
-            ),
-            "Transfer unsuccesful"
+        IERC20(token).safeTransferFrom(
+            msg.sender,
+            proceedsDestination,
+            tokenPaymentAmount
         );
     }
 
