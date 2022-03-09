@@ -7,7 +7,6 @@ describe('aggregate (API calls)', () => {
     const apiCalls = [
       fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
       fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
     ];
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({});

@@ -126,48 +126,22 @@ describe('applyParameters', () => {
 });
 
 describe('updateFulfilledRequests (ApiCall)', () => {
-  it('updates the status of fulfilled API calls', () => {
+  it('drops fulfilled API calls', () => {
     const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
     const apiCall = fixtures.requests.buildApiCall({ id });
-    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
+    const [logs, requests] = apiCalls.dropFulfilledRequests([apiCall], [id]);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
         message: `Request ID:${id} (API call) has already been fulfilled`,
       },
     ]);
-    expect(requests).toEqual([
-      {
-        id,
-        airnodeAddress: 'airnodeAddress',
-        chainId: '31337',
-        requesterAddress: 'requesterAddress',
-        sponsorAddress: 'sponsorAddress',
-        sponsorWalletAddress: 'sponsorWalletAddress',
-        endpointId: 'endpointId',
-        fulfillAddress: 'fulfillAddress',
-        fulfillFunctionId: 'fulfillFunctionId',
-        encodedParameters: 'encodedParameters',
-        metadata: {
-          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-          blockNumber: 10716082,
-          currentBlock: 10716090,
-          ignoreBlockedRequestsAfterBlocks: 20,
-          minConfirmations: 0,
-          transactionHash: 'logTransactionHash',
-        },
-        parameters: { from: 'ETH' },
-        requestCount: '12',
-        status: RequestStatus.Fulfilled,
-        templateId: null,
-        type: 'template',
-      },
-    ]);
+    expect(requests.length).toEqual(0);
   });
 
   it('returns the request if it is not fulfilled', () => {
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], []);
+    const [logs, requests] = apiCalls.dropFulfilledRequests([apiCall], []);
     expect(logs).toEqual([]);
     expect(requests).toEqual([apiCall]);
   });
@@ -218,7 +192,7 @@ describe('mapRequests (ApiCall)', () => {
     ]);
   });
 
-  it('updates the status of fulfilled ApiCall requests', () => {
+  it('drops fulfilled ApiCall requests', () => {
     const requestEvent = fixtures.evm.logs.buildMadeTemplateRequest();
     const fulfillEvent = fixtures.evm.logs.buildTemplateFulfilledRequest();
     const requestLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(requestEvent);
@@ -250,8 +224,6 @@ describe('mapRequests (ApiCall)', () => {
         message: `Request ID:${requestLog.args.requestId} (API call) has already been fulfilled`,
       },
     ]);
-    expect(requests.length).toEqual(1);
-    expect(requests[0].id).toEqual(requestLog.args.requestId);
-    expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
+    expect(requests.length).toEqual(0);
   });
 });

@@ -37,38 +37,22 @@ describe('initialize (Withdrawal)', () => {
 });
 
 describe('updateFulfilledRequests (Withdrawal)', () => {
-  it('updates the status of fulfilled withdrawals', () => {
+  it('drops fulfilled withdrawals', () => {
     const id = '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124';
     const withdrawal = fixtures.requests.buildWithdrawal({ id });
-    const [logs, requests] = withdrawals.updateFulfilledRequests([withdrawal], [id]);
+    const [logs, requests] = withdrawals.dropFulfilledRequests([withdrawal], [id]);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
         message: `Request ID:${id} (withdrawal) has already been fulfilled`,
       },
     ]);
-    expect(requests).toEqual([
-      {
-        airnodeAddress: 'airnodeAddress',
-        sponsorWalletAddress: '0xdBFe14C250643DEFE92C9AbC52103bf4978C7113',
-        id,
-        metadata: {
-          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-          blockNumber: 10716082,
-          currentBlock: 10716090,
-          ignoreBlockedRequestsAfterBlocks: 20,
-          minConfirmations: 0,
-          transactionHash: 'logTransactionHash',
-        },
-        sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-        status: RequestStatus.Fulfilled,
-      },
-    ]);
+    expect(requests.length).toEqual(0);
   });
 
   it('returns the request as is if it is not fulfilled', () => {
     const withdrawal = fixtures.requests.buildWithdrawal();
-    const [logs, requests] = withdrawals.updateFulfilledRequests([withdrawal], ['0xunknownid']);
+    const [logs, requests] = withdrawals.dropFulfilledRequests([withdrawal], ['0xunknownid']);
     expect(logs).toEqual([]);
     expect(requests).toEqual([withdrawal]);
   });
@@ -108,7 +92,7 @@ describe('mapRequests (Withdrawal)', () => {
     ]);
   });
 
-  it('updates the status of fulfilled withdrawal requests', () => {
+  it('drops fulfilled withdrawal requests', () => {
     const requestEvent = fixtures.evm.logs.buildRequestedWithdrawal();
     const fulfillEvent = fixtures.evm.logs.buildFulfilledWithdrawal();
     const requestLog = parseAirnodeRrpLog<RequestedWithdrawalEvent>(requestEvent);
@@ -140,8 +124,6 @@ describe('mapRequests (Withdrawal)', () => {
         message: `Request ID:${requestLog.args.withdrawalRequestId} (withdrawal) has already been fulfilled`,
       },
     ]);
-    expect(requests.length).toEqual(1);
-    expect(requests[0].id).toEqual(requestLog.args.withdrawalRequestId);
-    expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
+    expect(requests.length).toEqual(0);
   });
 });
