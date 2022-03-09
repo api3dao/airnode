@@ -194,9 +194,8 @@ async function submitFail(
 // =================================================================
 export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
   if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
-    const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
     const log = logger.pend(
-      logStatus,
+      'INFO',
       `API call for Request:${request.id} not actioned as it has status:${request.status}`
     );
     return [[log], null, null];
