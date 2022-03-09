@@ -129,6 +129,8 @@ export interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
 }
 
+export type ApiCallTemplateWithoutId = Omit<ApiCallTemplate, 'id'>;
+
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
   readonly withdrawals: Request<Withdrawal>[];

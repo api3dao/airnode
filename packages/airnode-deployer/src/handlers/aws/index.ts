@@ -114,10 +114,10 @@ export async function processHttpSignedDataRequest(
     return { statusCode: 400, body: JSON.stringify({ error: `Missing 'endpointId' path parameter` }) };
   }
 
-  const parameters = JSON.parse(event.body).parameters;
+  const encodedParameters = JSON.parse(event.body).encodedParameters;
   const endpointId = event.pathParameters.endpointId;
 
-  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, parameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }

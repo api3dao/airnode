@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
-import { AggregatedApiCall, ApiCallSuccessResponse, ApiCallTemplate } from '../types';
+import { AggregatedApiCall, ApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config/types';
 import { getExpectedTemplateId } from '../evm/templates';
@@ -10,7 +10,7 @@ import { getExpectedTemplateId } from '../evm/templates';
 export async function processHttpSignedDataRequest(
   config: Config,
   endpointId: string,
-  parameters: string
+  encodedParameters: string
 ): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
   const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
@@ -24,21 +24,21 @@ export async function processHttpSignedDataRequest(
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
 
-  const decodedParameters = evm.encoding.safeDecode(parameters);
+  const decodedParameters = evm.encoding.safeDecode(encodedParameters);
   // TODO: There should be an TS interface for required params
   if (!decodedParameters) {
-    return [new Error(`Request contains invalid encodedParameters: ${parameters}`), null];
+    return [new Error(`Request contains invalid encodedParameters: ${encodedParameters}`), null];
   }
 
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
   const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
-  const template = {
+  const template: ApiCallTemplateWithoutId = {
     airnodeAddress,
     endpointId,
-    encodedParameters: parameters,
-  } as ApiCallTemplate;
+    encodedParameters,
+  };
   const templateId = getExpectedTemplateId(template);
 
   const aggregatedApiCall: AggregatedApiCall = {
@@ -51,10 +51,8 @@ export async function processHttpSignedDataRequest(
     parameters: decodedParameters,
     templateId: templateId,
     template: {
-      airnodeAddress,
-      endpointId,
       id: templateId,
-      encodedParameters: parameters,
+      ...template,
     },
   };
 

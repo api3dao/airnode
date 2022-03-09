@@ -37,28 +37,28 @@ describe('processHttpSignedDataRequests', () => {
 
   describe('returns an error for missing parameters', () => {
     it('missing "encodedParameters" parameter', async () => {
-      const parameters = '';
-      const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
+      const encodedParameters = '';
+      const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, encodedParameters);
 
       expect(res).toBeNull();
-      expect(err).toEqual(new Error(`Request contains invalid encodedParameters: ${parameters}`));
+      expect(err).toEqual(new Error(`Request contains invalid encodedParameters: ${encodedParameters}`));
     });
   });
 
-  it('calls the API with given parameters', async () => {
+  it('calls the API with given encodedParameters', async () => {
     const spy = jest.spyOn(api, 'callApi');
     // What exactly the API returns doesn't matter for this test
     const mockedResponse = { success: true, value: 'value', signature: 'signature' } as const;
     spy.mockResolvedValueOnce([[], mockedResponse]);
 
-    const parameters =
+    const encodedParameters =
       '0x317373730000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000045544800000000000000000000000000000000000000000000000000000000005f74797065000000000000000000000000000000000000000000000000000000696e7432353600000000000000000000000000000000000000000000000000005f706174680000000000000000000000000000000000000000000000000000007072696365000000000000000000000000000000000000000000000000000000';
     const decodedParameters = {
       from: 'ETH',
       _type: 'int256',
       _path: 'price',
     };
-    const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, parameters);
+    const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), ENDPOINT_ID, encodedParameters);
 
     const config = fixtures.buildConfig();
     const aggregatedApiCall = fixtures.buildAggregatedHttpSignedDataApiCall({
@@ -71,7 +71,7 @@ describe('processHttpSignedDataRequests', () => {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         endpointId: ENDPOINT_ID,
         id: TEMPLATE_ID,
-        encodedParameters: parameters,
+        encodedParameters,
       },
     });
 

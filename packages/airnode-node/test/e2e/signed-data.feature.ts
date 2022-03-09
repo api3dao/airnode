@@ -11,12 +11,12 @@ it('makes a call for signed API data', async () => {
   increaseTestTimeout();
   await deployAirnodeAndMakeRequests(__filename);
 
-  const parameters =
+  const encodedParameters =
     '0x317373730000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000045544800000000000000000000000000000000000000000000000000000000005f74797065000000000000000000000000000000000000000000000000000000696e7432353600000000000000000000000000000000000000000000000000005f70617468000000000000000000000000000000000000000000000000000000726573756c740000000000000000000000000000000000000000000000000000';
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await processHttpSignedDataRequest(endpointId, parameters);
+  const result = await processHttpSignedDataRequest(endpointId, encodedParameters);
 
   const expected = {
     // Value is returned by the mock server from the operation package
