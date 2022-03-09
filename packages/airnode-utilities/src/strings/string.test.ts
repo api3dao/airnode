@@ -1,4 +1,4 @@
-import * as stringUtils from './string-utils';
+import * as stringUtils from './string';
 
 describe('randomHexString', () => {
   it('returns the hex value of length X', () => {

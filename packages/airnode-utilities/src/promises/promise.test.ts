@@ -1,4 +1,4 @@
-import { go, promiseTimeout, retryOnTimeout, retryOperation } from './promise-utils';
+import { go, promiseTimeout, retryOnTimeout, retryOperation } from './promise';
 
 describe('go', () => {
   it('resolves successful asynchronous functions', async () => {
