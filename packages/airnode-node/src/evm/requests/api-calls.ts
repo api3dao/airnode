@@ -88,21 +88,19 @@ export interface UpdatedFulfilledRequests {
   readonly requests: Request<ApiCall>[];
 }
 
-export function updateFulfilledRequests(
+export function dropFulfilledRequests(
   apiCalls: Request<ApiCall>[],
   fulfilledRequestIds: string[]
 ): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
+        // Drop request
         const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
-
-        const fulfilledApiCall = { ...apiCall, status: RequestStatus.Fulfilled };
 
         return {
           ...acc,
           logs: [...acc.logs, log],
-          requests: [...acc.requests, fulfilledApiCall],
         };
       }
 
@@ -131,7 +129,7 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<A
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
-  const [fulfilledLogs, apiCallsWithFulfillments] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
+  const [fulfilledLogs, apiCallsWithFulfillments] = dropFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
 
   const logs = [...parameterLogs, ...fulfilledLogs];
   return [logs, apiCallsWithFulfillments];

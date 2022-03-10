@@ -18,6 +18,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
+  const httpSignedDataGatewayUrl = getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 
   const request = {
     url,
@@ -27,7 +28,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     },
     data: {
       deployment_id: id,
-      ...(httpGatewayUrl ? {} : { http_gateway_url: httpGatewayUrl }),
+      ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
+      ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
     },
     timeout: 5_000,
   };

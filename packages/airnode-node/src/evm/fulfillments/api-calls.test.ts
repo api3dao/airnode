@@ -34,32 +34,6 @@ describe('submitApiCall', () => {
     maxFeePerGas: ethers.BigNumber.from(1000),
   };
 
-  describe('Fulfilled API calls', () => {
-    test.each([gasPrice, gasPriceFallback])(
-      `does nothing for API call requests that have already been fulfilled - %#`,
-      async (gasTarget: GasTarget) => {
-        const provider = new ethers.providers.JsonRpcProvider();
-        const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled });
-        const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
-          gasTarget,
-          masterHDNode,
-          provider,
-        });
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `API call for Request:${apiCall.id} not actioned as it has status:${apiCall.status}`,
-          },
-        ]);
-        expect(err).toEqual(null);
-        expect(data).toEqual(null);
-        expect(staticFulfillMock).not.toHaveBeenCalled();
-        expect(fulfillMock).not.toHaveBeenCalled();
-        expect(failMock).not.toHaveBeenCalled();
-      }
-    );
-  });
-
   describe('Blocked API calls non-EIP-1559', () => {
     test.each([gasPrice, gasPriceFallback])(`does not action blocked requests - %#`, async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();

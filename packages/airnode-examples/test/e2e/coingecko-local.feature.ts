@@ -27,12 +27,10 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
 
-    runCommand('yarn rebuild-artifacts-container');
-    runCommand('yarn rebuild-airnode-container');
     const airnodeDocker = runCommandInBackground('yarn run-airnode-locally');
 
-    // Try running rest of the commands, but make sure to kill the Airnode running in backround process gracefully.
-    // We need to do this otherwise Airnode will be running in background forever
+    // Try running the rest of the commands, but make sure to kill the Airnode running in background process gracefully.
+    // We need to do this otherwise Airnode will continue running in the background forever
     try {
       runCommand('yarn deploy-requester');
       runCommand('yarn derive-and-fund-sponsor-wallet');
