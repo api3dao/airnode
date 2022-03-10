@@ -32,7 +32,7 @@ contract AccessControlRegistry is
         require(manager != address(0), "Manager address zero");
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
-            _setupRole(rootRole, manager);
+            _grantRole(rootRole, manager);
             emit InitializedManager(rootRole, manager);
         }
     }
