@@ -193,8 +193,8 @@ describe('registerDefaultChainPrice', function () {
 });
 
 describe('registerAirnodePrice', function () {
-  context('Sender has the registrar role', function () {
-    context('Airnode address is not zero', function () {
+  context('Airnode address is not zero', function () {
+    context('Sender has the registrar role', function () {
       context('Price is not zero', function () {
         it('sets Airnode price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
@@ -222,18 +222,7 @@ describe('registerAirnodePrice', function () {
         });
       });
     });
-    context('Airnode address is zero', function () {
-      it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const price = 123;
-        await expect(
-          airnodeEndpointPriceRegistry.connect(roles.registrar).registerAirnodePrice(airnodeAddress, price)
-        ).to.be.revertedWith('Airnode address zero');
-      });
-    });
-  });
-  context('Sender is the manager', function () {
-    context('Airnode address is not zero', function () {
+    context('Sender is the manager', function () {
       context('Price is not zero', function () {
         it('sets Airnode price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
@@ -259,31 +248,31 @@ describe('registerAirnodePrice', function () {
         });
       });
     });
-    context('Airnode address is zero', function () {
+    context('Sender does not have the registrar role and is not the manager', function () {
       it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
+        const airnodeAddress = testUtils.generateRandomAddress();
         const price = 123;
         await expect(
-          airnodeEndpointPriceRegistry.connect(roles.manager).registerAirnodePrice(airnodeAddress, price)
-        ).to.be.revertedWith('Airnode address zero');
+          airnodeEndpointPriceRegistry.connect(roles.randomPerson).registerAirnodePrice(airnodeAddress, price)
+        ).to.be.revertedWith('Sender cannot register');
       });
     });
   });
-  context('Sender does not have the registrar role and is not the manager', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
-      const airnodeAddress = testUtils.generateRandomAddress();
+      const airnodeAddress = hre.ethers.constants.AddressZero;
       const price = 123;
       await expect(
         airnodeEndpointPriceRegistry.connect(roles.randomPerson).registerAirnodePrice(airnodeAddress, price)
-      ).to.be.revertedWith('Sender cannot register');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
 
 describe('registerAirnodeChainPrice', function () {
-  context('Sender has the registrar role', function () {
-    context('Airnode address is not zero', function () {
-      context('Chain ID is not zero', function () {
+  context('Airnode address is not zero', function () {
+    context('Chain ID is not zero', function () {
+      context('Sender has the registrar role', function () {
         context('Price is not zero', function () {
           it('sets Airnode, chain price', async function () {
             const airnodeAddress = testUtils.generateRandomAddress();
@@ -320,35 +309,7 @@ describe('registerAirnodeChainPrice', function () {
           });
         });
       });
-      context('Chain ID is zero', function () {
-        it('reverts', async function () {
-          const airnodeAddress = testUtils.generateRandomAddress();
-          const chainId = 0;
-          const price = 123;
-          await expect(
-            airnodeEndpointPriceRegistry
-              .connect(roles.registrar)
-              .registerAirnodeChainPrice(airnodeAddress, chainId, price)
-          ).to.be.revertedWith('Chain ID zero');
-        });
-      });
-    });
-    context('Airnode address is zero', function () {
-      it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const chainId = 3;
-        const price = 123;
-        await expect(
-          airnodeEndpointPriceRegistry
-            .connect(roles.registrar)
-            .registerAirnodeChainPrice(airnodeAddress, chainId, price)
-        ).to.be.revertedWith('Airnode address zero');
-      });
-    });
-  });
-  context('Sender is the manager', function () {
-    context('Airnode address is not zero', function () {
-      context('Chain ID is not zero', function () {
+      context('Sender is the manager', function () {
         context('Price is not zero', function () {
           it('sets Airnode, chain price', async function () {
             const airnodeAddress = testUtils.generateRandomAddress();
@@ -385,47 +346,49 @@ describe('registerAirnodeChainPrice', function () {
           });
         });
       });
-      context('Chain ID is zero', function () {
+      context('Sender does not have the registrar role and is not the manager', function () {
         it('reverts', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
-          const chainId = 0;
+          const chainId = 3;
           const price = 123;
           await expect(
             airnodeEndpointPriceRegistry
-              .connect(roles.manager)
+              .connect(roles.randomPerson)
               .registerAirnodeChainPrice(airnodeAddress, chainId, price)
-          ).to.be.revertedWith('Chain ID zero');
+          ).to.be.revertedWith('Sender cannot register');
         });
       });
     });
-    context('Airnode address is zero', function () {
+    context('Chain ID is zero', function () {
       it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const chainId = 3;
+        const airnodeAddress = testUtils.generateRandomAddress();
+        const chainId = 0;
         const price = 123;
         await expect(
-          airnodeEndpointPriceRegistry.connect(roles.manager).registerAirnodeChainPrice(airnodeAddress, chainId, price)
-        ).to.be.revertedWith('Airnode address zero');
+          airnodeEndpointPriceRegistry
+            .connect(roles.randomPerson)
+            .registerAirnodeChainPrice(airnodeAddress, chainId, price)
+        ).to.be.revertedWith('Chain ID zero');
       });
     });
   });
-  context('Sender does not have the registrar role and is not the manager', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
-      const airnodeAddress = testUtils.generateRandomAddress();
+      const airnodeAddress = hre.ethers.constants.AddressZero;
       const chainId = 3;
       const price = 123;
       await expect(
         airnodeEndpointPriceRegistry
           .connect(roles.randomPerson)
           .registerAirnodeChainPrice(airnodeAddress, chainId, price)
-      ).to.be.revertedWith('Sender cannot register');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
 
 describe('registerAirnodeEndpointPrice', function () {
-  context('Sender has the registrar role', function () {
-    context('Airnode address is not zero', function () {
+  context('Airnode address is not zero', function () {
+    context('Sender has the registrar role', function () {
       context('Price is not zero', function () {
         it('sets Airnode, endpoint price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
@@ -465,21 +428,7 @@ describe('registerAirnodeEndpointPrice', function () {
         });
       });
     });
-    context('Airnode address is zero', function () {
-      it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const endpointId = testUtils.generateRandomBytes32();
-        const price = 123;
-        await expect(
-          airnodeEndpointPriceRegistry
-            .connect(roles.registrar)
-            .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-        ).to.be.revertedWith('Airnode address zero');
-      });
-    });
-  });
-  context('Sender is the manager', function () {
-    context('Airnode address is not zero', function () {
+    context('Sender is the manager', function () {
       context('Price is not zero', function () {
         it('sets Airnode, endpoint price', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
@@ -519,37 +468,37 @@ describe('registerAirnodeEndpointPrice', function () {
         });
       });
     });
-    context('Airnode address is zero', function () {
+    context('Sender does not have the registrar role and is not the manager', function () {
       it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
+        const airnodeAddress = testUtils.generateRandomAddress();
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
           airnodeEndpointPriceRegistry
-            .connect(roles.manager)
+            .connect(roles.randomPerson)
             .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-        ).to.be.revertedWith('Airnode address zero');
+        ).to.be.revertedWith('Sender cannot register');
       });
     });
   });
-  context('Sender does not have the registrar role and is not the manager', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
-      const airnodeAddress = testUtils.generateRandomAddress();
+      const airnodeAddress = hre.ethers.constants.AddressZero;
       const endpointId = testUtils.generateRandomBytes32();
       const price = 123;
       await expect(
         airnodeEndpointPriceRegistry
           .connect(roles.randomPerson)
           .registerAirnodeEndpointPrice(airnodeAddress, endpointId, price)
-      ).to.be.revertedWith('Sender cannot register');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
 
 describe('registerAirnodeChainEndpointPrice', function () {
-  context('Sender has the registrar role', function () {
-    context('Airnode address is not zero', function () {
-      context('Chain ID is not zero', function () {
+  context('Airnode address is not zero', function () {
+    context('Chain ID is not zero', function () {
+      context('Sender has the registrar role', function () {
         context('Price is not zero', function () {
           it('sets Airnode, chain, endpoint price', async function () {
             const airnodeAddress = testUtils.generateRandomAddress();
@@ -593,37 +542,7 @@ describe('registerAirnodeChainEndpointPrice', function () {
           });
         });
       });
-      context('Chain ID is zero', function () {
-        it('reverts', async function () {
-          const airnodeAddress = testUtils.generateRandomAddress();
-          const chainId = 0;
-          const endpointId = testUtils.generateRandomBytes32();
-          const price = 123;
-          await expect(
-            airnodeEndpointPriceRegistry
-              .connect(roles.registrar)
-              .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-          ).to.be.revertedWith('Chain ID zero');
-        });
-      });
-    });
-    context('Airnode address is zero', function () {
-      it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const chainId = 3;
-        const endpointId = testUtils.generateRandomBytes32();
-        const price = 123;
-        await expect(
-          airnodeEndpointPriceRegistry
-            .connect(roles.registrar)
-            .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-        ).to.be.revertedWith('Airnode address zero');
-      });
-    });
-  });
-  context('Sender is the manager', function () {
-    context('Airnode address is not zero', function () {
-      context('Chain ID is not zero', function () {
+      context('Sender is the manager', function () {
         context('Price is not zero', function () {
           it('sets Airnode, chain, endpoint price', async function () {
             const airnodeAddress = testUtils.generateRandomAddress();
@@ -667,37 +586,37 @@ describe('registerAirnodeChainEndpointPrice', function () {
           });
         });
       });
-      context('Chain ID is zero', function () {
+      context('Sender does not have the registrar role and is not the manager', function () {
         it('reverts', async function () {
           const airnodeAddress = testUtils.generateRandomAddress();
-          const chainId = 0;
+          const chainId = 3;
           const endpointId = testUtils.generateRandomBytes32();
           const price = 123;
           await expect(
             airnodeEndpointPriceRegistry
-              .connect(roles.manager)
+              .connect(roles.randomPerson)
               .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-          ).to.be.revertedWith('Chain ID zero');
+          ).to.be.revertedWith('Sender cannot register');
         });
       });
     });
-    context('Airnode address is zero', function () {
+    context('Chain ID is zero', function () {
       it('reverts', async function () {
-        const airnodeAddress = hre.ethers.constants.AddressZero;
-        const chainId = 3;
+        const airnodeAddress = testUtils.generateRandomAddress();
+        const chainId = 0;
         const endpointId = testUtils.generateRandomBytes32();
         const price = 123;
         await expect(
           airnodeEndpointPriceRegistry
-            .connect(roles.manager)
+            .connect(roles.randomPerson)
             .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-        ).to.be.revertedWith('Airnode address zero');
+        ).to.be.revertedWith('Chain ID zero');
       });
     });
   });
-  context('Sender does not have the registrar role and is not the manager', function () {
+  context('Airnode address is zero', function () {
     it('reverts', async function () {
-      const airnodeAddress = testUtils.generateRandomAddress();
+      const airnodeAddress = hre.ethers.constants.AddressZero;
       const chainId = 3;
       const endpointId = testUtils.generateRandomBytes32();
       const price = 123;
@@ -705,7 +624,7 @@ describe('registerAirnodeChainEndpointPrice', function () {
         airnodeEndpointPriceRegistry
           .connect(roles.randomPerson)
           .registerAirnodeChainEndpointPrice(airnodeAddress, chainId, endpointId, price)
-      ).to.be.revertedWith('Sender cannot register');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
