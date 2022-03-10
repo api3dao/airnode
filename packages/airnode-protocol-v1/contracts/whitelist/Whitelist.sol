@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-/// @title Contract that implements temporary and permanent whitelists for
-/// multiple services identified with a hash
+/// @title Contract to be inherited by contracts that need temporary and
+/// permanent whitelists for services identified by hashes
 /// @notice This contract implements two kinds of whitelisting:
 ///   (1) Temporary, ends when the expiration timestamp is in the past
 ///   (2) Indefinite, ends when the indefinite whitelist count is zero

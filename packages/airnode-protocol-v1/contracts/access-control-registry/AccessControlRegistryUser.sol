@@ -4,8 +4,8 @@ pragma solidity 0.8.9;
 import "./interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAccessControlRegistryUser.sol";
 
-/// @title Contract that should be inherited by contracts that will interact
-/// with AccessControlRegistry
+/// @title Contract to be inherited by contracts that will interact with
+/// AccessControlRegistry
 contract AccessControlRegistryUser is IAccessControlRegistryUser {
     /// @notice AccessControlRegistry contract address
     address public immutable override accessControlRegistry;

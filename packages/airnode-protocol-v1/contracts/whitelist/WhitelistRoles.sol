@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "./interfaces/IWhitelistRoles.sol";
 
-/// @title Contract that implements generic AccessControlRegistry roles for a
-/// whitelist contract
+/// @title Contract to be inherited by Whitelist contracts that will use
+/// generic AccessControlRegistry roles
 contract WhitelistRoles is IWhitelistRoles {
     // There are four roles implemented in this contract:
     // Root

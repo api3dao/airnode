@@ -6,8 +6,8 @@ import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol"
 import "./interfaces/IWhitelistRolesWithManager.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
-/// @title Contract that implements AccessControlRegistry roles for a whitelist
-/// contract controlled by a manager
+/// @title Contract to be inherited by Whitelist contracts that will use
+/// roles where there is a single manager
 contract WhitelistRolesWithManager is
     WhitelistRoles,
     AccessControlRegistryAdminnedWithManager,

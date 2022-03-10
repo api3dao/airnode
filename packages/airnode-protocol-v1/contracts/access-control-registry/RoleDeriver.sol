@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-/// @title Contract that implements the AccessControlRegistry role derivation
-/// logic
+/// @title Contract to be inherited by contracts that will derive
+/// AccessControlRegistry roles
 /// @notice If a contract interfaces with AccessControlRegistry and needs to
 /// derive roles, it should inherit this contract instead of re-implementing
 /// the logic

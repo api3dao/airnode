@@ -6,8 +6,8 @@ import "../access-control-registry/AccessControlRegistryAdminned.sol";
 import "./interfaces/IWhitelistRolesWithAirnode.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
-/// @title Contract that implements AccessControlRegistry roles for a whitelist
-/// contract where each individual Airnode address is its own manager
+/// @title Contract to be inherited by Whitelist contracts that will use
+/// roles where each individual Airnode address is its own manager
 contract WhitelistRolesWithAirnode is
     WhitelistRoles,
     AccessControlRegistryAdminned,

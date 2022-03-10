@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-/// @title Contract that calculates the index of the k-th and optionally
-/// (k+1)-th largest elements in the array
+/// @title Contract to be inherited by contracts that will calculate the index
+/// of the k-th and optionally (k+1)-th largest elements in the array
 /// @notice Uses quickselect, which operates in-place, i.e., the array provided
 /// as the argument will be modified.
 contract Quickselect {
