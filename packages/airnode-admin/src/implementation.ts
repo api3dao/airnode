@@ -13,7 +13,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
 /**
  * Parses Ethers transaction override options from CLI arguments.
  * @param args The yargs inferred CLI arguments object
- * @returns The parsed overrides object with values compatible with ethers
+ * @returns The parsed overrides object with values compatible with Ethers
  */
 export const parseCliOverrides = (args: Arguments): ethers.Overrides => {
   const overrideMap = [
@@ -37,10 +37,10 @@ export const parseCliOverrides = (args: Arguments): ethers.Overrides => {
 };
 
 /**
- * Parses Ethers transaction override options and sets maxPriorityFeePerGas to a default value if a chain supports EIP1559 transactions to prevent requesters from overpaying.
+ * Parses Ethers transaction override options and sets them based on the transaction type supported by the network and user inputs.
  * @param provider Ethers provider
  * @param overrides Overrides object passed into the function
- * @returns The parsed overrides object with values compatible with ethers
+ * @returns The parsed overrides object with values compatible with Ethers
  */
 export const parseOverrides = async (
   provider: ethers.providers.Provider,
