@@ -139,14 +139,14 @@ describe('assign', () => {
     expect(res.apiCalls[2]).toEqual({ ...third, nonce: undefined });
   });
 
-  it('ignores blocked requests if the ignore blocked requests limit has passed', () => {
+  it('drops blocked requests if the ignore blocked requests limit has passed', () => {
     const meta = { currentBlock: 110, ignoreBlockedRequestsAfterBlocks: 1 };
     const firstMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 100, transactionHash: '0xa' });
     const secondMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xc' });
 
     const sponsorAddress = '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E';
-    // The second request is blocked
+    // The second request is dropped
     const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
@@ -178,52 +178,8 @@ describe('assign', () => {
       sponsorAddress,
     });
     const res = nonces.assign(state);
+    expect(res.apiCalls.length).toEqual(2);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
-    expect(res.apiCalls[1]).toEqual({ ...second, nonce: undefined });
-    expect(res.apiCalls[2]).toEqual({ ...third, nonce: 8 });
-  });
-
-  it('does not assign nonces to fulfilled requests', () => {
-    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa' });
-    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
-    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
-
-    const sponsorAddress = '0x1d822613f7cC57Be9c9b6C3cC0Bf41b4FB4D97f9';
-    const first = fixtures.requests.buildWithdrawal({
-      id: '0x1',
-      nonce: undefined,
-      metadata: firstMeta,
-      sponsorAddress,
-      status: RequestStatus.Pending,
-    });
-    const second = fixtures.requests.buildWithdrawal({
-      id: '0x2',
-      nonce: undefined,
-      metadata: secondMeta,
-      sponsorAddress,
-      status: RequestStatus.Fulfilled,
-    });
-    const third = fixtures.requests.buildWithdrawal({
-      id: '0x3',
-      nonce: undefined,
-      metadata: thirdMeta,
-      sponsorAddress,
-      status: RequestStatus.Pending,
-    });
-
-    const requests: GroupedRequests = {
-      apiCalls: [],
-      withdrawals: shuffle([first, third, second]),
-    };
-    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = { [sponsorAddress]: 11 };
-    const state = providerState.update(mutableInitialState, {
-      requests,
-      transactionCountsBySponsorAddress,
-      sponsorAddress,
-    });
-    const res = nonces.assign(state);
-    expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
-    expect(res.withdrawals[1]).toEqual({ ...second, nonce: undefined });
-    expect(res.withdrawals[2]).toEqual({ ...third, nonce: 12 });
+    expect(res.apiCalls[1]).toEqual({ ...third, nonce: 8 });
   });
 });

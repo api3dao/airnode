@@ -1,5 +1,5 @@
-import { formatDateTimeMs } from './utils';
-import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './logging-types';
+import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './types';
+import { formatDateTimeMs } from '../date';
 
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,

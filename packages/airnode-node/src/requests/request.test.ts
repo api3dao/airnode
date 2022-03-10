@@ -2,19 +2,19 @@ import * as request from './request';
 import * as fixtures from '../../test/fixtures';
 import { GroupedRequests, RequestErrorMessage, RequestStatus } from '../types';
 
-describe('blockdOrIgnored', () => {
-  it('ignores requests that have passed the specified block limit', () => {
+describe('dropRequestsAfterLimit', () => {
+  it('drops requests that have passed the specified block limit', () => {
     const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 1 });
     const apiCall = fixtures.requests.buildApiCall({ metadata });
-    const res = request.blockedOrIgnored(apiCall);
-    expect(res).toEqual(RequestStatus.Ignored);
+    const res = request.hasExceededIgnoredBlockLimit(apiCall);
+    expect(res).toEqual(true);
   });
 
   it('blocks requests that are within the specified block limit', () => {
     const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 100 });
     const apiCall = fixtures.requests.buildApiCall({ metadata });
-    const res = request.blockedOrIgnored(apiCall);
-    expect(res).toEqual(RequestStatus.Blocked);
+    const res = request.hasExceededIgnoredBlockLimit(apiCall);
+    expect(res).toEqual(false);
   });
 });
 
@@ -23,9 +23,7 @@ describe('filterActionableApiCalls', () => {
     const apiCalls = [
       fixtures.requests.buildApiCall({ status: RequestStatus.Pending }),
       fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Ignored }),
       fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
     ];
     expect(request.filterActionableApiCalls(apiCalls)).toEqual([
       fixtures.requests.buildApiCall({ status: RequestStatus.Pending }),
@@ -39,9 +37,7 @@ describe('filterActionableWithdrawals', () => {
     const withdrawals = [
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending }),
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
     ];
     expect(request.filterActionableWithdrawals(withdrawals)).toEqual([
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending }),
@@ -61,11 +57,7 @@ describe('hasActionableApiCalls', () => {
   });
 
   it('returns false if there are no pending or errored API calls', () => {
-    const apiCalls = [
-      fixtures.requests.buildApiCall({ status: RequestStatus.Ignored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
-    ];
+    const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })];
     expect(request.hasActionableApiCalls(apiCalls)).toEqual(false);
   });
 
@@ -83,9 +75,7 @@ describe('hasActionableWithdrawals', () => {
   it('returns false if there are no pending withdrawals', () => {
     const withdrawals = [
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
     ];
     expect(request.hasActionableWithdrawals(withdrawals)).toEqual(false);
   });
@@ -114,16 +104,10 @@ describe('hasNoActionableRequests', () => {
 
   it('returns true if there are no actionable API calls or withdrawals', () => {
     const requests: GroupedRequests = {
-      apiCalls: [
-        fixtures.requests.buildApiCall({ status: RequestStatus.Ignored }),
-        fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-        fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
-      ],
+      apiCalls: [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })],
       withdrawals: [
         fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
-        fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
         fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
-        fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
       ],
     };
     expect(request.hasNoActionableRequests(requests)).toEqual(true);
@@ -148,7 +132,7 @@ describe('hasNoActionableRequests', () => {
 
 describe('getStatusNames', () => {
   it('returns a list of all status names', () => {
-    expect(request.getStatusNames()).toEqual(['Pending', 'Fulfilled', 'Ignored', 'Blocked', 'Errored']);
+    expect(request.getStatusNames()).toEqual(['Pending', 'Blocked', 'Errored']);
   });
 });
 

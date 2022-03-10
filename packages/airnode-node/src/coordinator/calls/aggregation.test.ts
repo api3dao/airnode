@@ -6,9 +6,7 @@ describe('aggregate (API calls)', () => {
   it('ignores requests that are not pending', () => {
     const apiCalls = [
       fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Ignored }),
       fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
     ];
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({});
