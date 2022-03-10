@@ -410,7 +410,7 @@ describe('CLI', () => {
           ['--max-fee', 20],
           ['--max-priority-fee', 10]
         )
-      ).toThrow(`eip-1559 transaction do not support gasPrice`);
+      ).toThrow(`Both legacy and EIP1559 override pricing options specified - ambiguous`);
     });
   });
 

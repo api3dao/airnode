@@ -1,5 +1,6 @@
 ---
 '@api3/airnode-admin': minor
+'@api3/airnode-node': patch
 ---
 
-Always use EIP1559 transaction pricing if supported by the chain
+Add airnode-node gas prices implementation to airnode-admin
