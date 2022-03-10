@@ -14,7 +14,7 @@ contract RegistryRolesWithManager is
     string public constant override REGISTRAR_ROLE_DESCRIPTION = "Registrar";
 
     /// @notice Registrar role
-    bytes32 public registrarRole;
+    bytes32 public immutable registrarRole;
 
     /// @dev Reverts if the sender is not the manager and does not have the
     /// registrar role
