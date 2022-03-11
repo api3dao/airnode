@@ -410,7 +410,7 @@ describe('CLI', () => {
           ['--max-fee', 20],
           ['--max-priority-fee', 10]
         )
-      ).toThrow(`eip-1559 transaction do not support gasPrice`);
+      ).toThrow(`Both legacy and EIP1559 override pricing options specified - ambiguous`);
     });
   });
 
@@ -675,6 +675,69 @@ describe('CLI', () => {
         const out = execSync(`node ${CLI_EXECUTABLE} ${command}`).toString().trim();
         expect(out).toEqual(exampleOutcomes[index]);
       });
+    });
+  });
+
+  describe('parse transaction overrides', () => {
+    it('returns EIP1559 overrides on EIP1559 network with empty input', async () => {
+      const overrides = await admin.parseOverrides(provider);
+      expect(overrides.maxFeePerGas).toBeDefined();
+      expect(overrides.maxPriorityFeePerGas).toBeDefined();
+      expect(overrides.gasPrice).toBeUndefined();
+    });
+
+    it('returns legacy overrides on legacy network with empty input', async () => {
+      jest
+        .spyOn(provider, 'getFeeData')
+        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      const overrides = await admin.parseOverrides(provider);
+
+      expect(overrides.gasPrice).toBeDefined();
+      expect(overrides.maxFeePerGas).toBeUndefined();
+      expect(overrides.maxPriorityFeePerGas).toBeUndefined();
+    });
+
+    it('returns unmodified eip1559 override inputs', async () => {
+      const inputOverrides = {
+        maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+        maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        gasLimit: ethers.BigNumber.from('200000'),
+      };
+      const overrides = await admin.parseOverrides(provider, inputOverrides);
+      expect(overrides).toEqual(inputOverrides);
+    });
+
+    it('returns unmodified legacy override inputs', async () => {
+      const inputOverrides = {
+        gasPrice: ethers.utils.parseUnits('10', 'gwei'),
+        gasLimit: ethers.BigNumber.from('200000'),
+      };
+      const overrides = await admin.parseOverrides(provider, inputOverrides);
+      expect(overrides).toEqual(inputOverrides);
+    });
+
+    it('throws on mixed overrides', async () => {
+      await expect(
+        admin.parseOverrides(provider, {
+          gasPrice: ethers.utils.parseUnits('10', 'gwei'),
+          gasLimit: ethers.BigNumber.from('200000'),
+          maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+          maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        })
+      ).rejects.toThrow('Both legacy and EIP1559 override pricing options specified - ambiguous');
+    });
+
+    it('throws when providing EIP1559 overrides on legacy network', async () => {
+      jest
+        .spyOn(provider, 'getFeeData')
+        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      await expect(
+        admin.parseOverrides(provider, {
+          gasLimit: ethers.BigNumber.from('200000'),
+          maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+          maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        })
+      ).rejects.toThrow('EIP1559 override pricing specified on legacy network');
     });
   });
 });

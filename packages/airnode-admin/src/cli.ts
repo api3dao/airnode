@@ -204,7 +204,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
@@ -223,7 +223,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
@@ -268,7 +268,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const template = JSON.parse(fs.readFileSync(args['template-file-path']).toString());
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
@@ -308,7 +308,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
@@ -373,7 +373,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -405,7 +405,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -436,7 +436,7 @@ yargs
       ...transactionOverrides,
     },
     async (args) => {
-      const overrides = admin.parseTransactionOverrides(args);
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },

@@ -5,14 +5,14 @@ import { GasTarget, LogsData } from '../types';
 import { ChainOptions, PriorityFee } from '../config/types';
 
 export interface FetchOptions {
-  readonly provider: ethers.providers.JsonRpcProvider;
+  readonly provider: ethers.providers.JsonRpcProvider | ethers.providers.Provider;
   readonly chainOptions: ChainOptions;
 }
 
 export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
   ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
 
-const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
+export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider } = options;
 
   const [err, gasPrice] = await go(() => provider.getGasPrice(), { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
@@ -24,7 +24,7 @@ const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTar
   return [[], { gasPrice }];
 };
 
-const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
+export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider, chainOptions } = options;
   const logs = Array<PendingLog>();
 
