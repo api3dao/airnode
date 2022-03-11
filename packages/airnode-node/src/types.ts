@@ -122,6 +122,8 @@ export interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
 }
 
+export type ApiCallTemplateWithoutId = Omit<ApiCallTemplate, 'id'>;
+
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
   readonly withdrawals: Request<Withdrawal>[];
@@ -273,6 +275,8 @@ export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-data-gateway';
+  templateId: string;
+  template: ApiCallTemplate;
 }
 
 // ===========================================

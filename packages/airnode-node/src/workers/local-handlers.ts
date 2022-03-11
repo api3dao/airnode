@@ -64,9 +64,9 @@ export async function processHttpRequest(endpointId: string, parameters: any) {
   return result;
 }
 
-export async function processHttpSignedDataRequest(endpointId: string, parameters: any) {
+export async function processHttpSignedDataRequest(endpointId: string, encodedParameters: any) {
   const config = loadConfig();
-  const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, parameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
   if (err) {
     throw err;
   }
