@@ -26,19 +26,12 @@ export function blockRequestsWithWithdrawals([
 
     const warningLog = logger.pend(
       'WARN',
-      `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
+      `Dropping Request ID:${apiCall.id} as it has a pending Withdrawal ID:${pendingWithdrawal.id}`
     );
-    const blockedCall: Request<ApiCall> = {
-      ...apiCall,
-      status: RequestStatus.Ignored,
-      // TODO: These error messages should be functions accepting id parameter and creating the error string
-      errorMessage: `${RequestErrorMessage.PendingWithdrawal}: ${pendingWithdrawal.id}`,
-    };
 
     return {
       ...acc,
       logs: [...acc.logs, warningLog],
-      apiCalls: [...acc.apiCalls, blockedCall],
     };
   }, initialState);
 
