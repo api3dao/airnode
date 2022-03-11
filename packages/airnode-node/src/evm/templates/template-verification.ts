@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
-import { ApiCallTemplate } from '../../types';
+import { ApiCallTemplateWithoutId } from '../../types';
 
 interface ValidatedField {
   readonly type: string;
   readonly value: any;
 }
 
-function getTemplateIdValidationFields(template: ApiCallTemplate): ValidatedField[] {
+function getTemplateIdValidationFields(template: ApiCallTemplateWithoutId): ValidatedField[] {
   return [
     { type: 'address', value: template.airnodeAddress },
     { type: 'bytes32', value: template.endpointId },
@@ -14,7 +14,7 @@ function getTemplateIdValidationFields(template: ApiCallTemplate): ValidatedFiel
   ];
 }
 
-export function getExpectedTemplateId(template: ApiCallTemplate): string {
+export function getExpectedTemplateId(template: ApiCallTemplateWithoutId): string {
   const validatedFields = getTemplateIdValidationFields(template);
   const types = validatedFields.map((v) => v.type);
   const values = validatedFields.map((v) => v.value);
