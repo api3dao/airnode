@@ -1,15 +1,21 @@
 import { BigNumber, ethers } from 'ethers';
-import { go, logger, PendingLog } from '@api3/airnode-utilities';
-import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
-import { GasTarget, LogsData } from '../types';
-import { ChainOptions, PriorityFee } from '../config/types';
+import { ChainOptions, PriorityFee, GasTarget } from './types';
+import { go, logger, PendingLog } from '../';
+import { LogsData } from '../logging';
+
+// The default amount of time before a "retryable" promise is timed out and retried
+export const DEFAULT_RETRY_TIMEOUT_MS = 5_000;
+// The Priority Fee in Wei
+export const PRIORITY_FEE = 3120000000;
+// The Base Fee to Max Fee multiplier
+export const BASE_FEE_MULTIPLIER = 2;
 
 export interface FetchOptions {
   readonly provider: ethers.providers.JsonRpcProvider | ethers.providers.Provider;
   readonly chainOptions: ChainOptions;
 }
 
-export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
+export const parsePriorityFee = ({ value, unit }: PriorityFee): BigNumber =>
   ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
 
 export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {

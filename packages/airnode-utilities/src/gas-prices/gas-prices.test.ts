@@ -1,8 +1,18 @@
-import { mockEthers } from '../../test/mock-utils';
+/**
+ * Mocks ethers library and to return a mocked ethers provider with mocked gas prices and block data.
+ */
+function mockEthers({ ethersMocks = {} }) {
+  jest.mock('ethers', () => ({
+    ...jest.requireActual('ethers'),
+    ethers: {
+      ...jest.requireActual('ethers').ethers,
+      ...ethersMocks,
+    },
+  }));
+}
 
 const getBlockMock = jest.fn();
 const getGasPriceMock = jest.fn();
-const latestAnswerMock = jest.fn();
 mockEthers({
   ethersMocks: {
     providers: {
@@ -11,16 +21,13 @@ mockEthers({
         getBlock: getBlockMock,
       })),
     },
-    Contract: jest.fn().mockImplementation(() => ({
-      latestAnswer: latestAnswerMock,
-    })),
   },
 });
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
 import { FetchOptions } from './gas-prices';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from './';
 
 const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
