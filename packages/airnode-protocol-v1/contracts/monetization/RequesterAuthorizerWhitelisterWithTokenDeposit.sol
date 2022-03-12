@@ -219,12 +219,12 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                 earliestWithdrawalTime != 0,
                 "Withdrawal intent not signaled"
             );
-        }
-        if (earliestWithdrawalTime != 0) {
             require(
                 earliestWithdrawalTime <= block.timestamp,
                 "Not withdrawal time yet"
             );
+        }
+        if (earliestWithdrawalTime != 0) {
             uint256 tokenDepositsCount = tokenDeposits.count;
             emit WithdrewTokens(
                 airnode,
