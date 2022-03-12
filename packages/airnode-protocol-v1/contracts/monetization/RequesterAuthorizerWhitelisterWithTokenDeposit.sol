@@ -288,24 +288,38 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Depositor has not deposited");
         tokenDeposits.depositorToAmount[depositor] = 0;
-        uint256 tokenDepositsCount = --tokenDeposits.count;
-        emit WithdrewTokensDepositedForBlockedRequester(
-            airnode,
-            chainId,
-            endpointId,
-            requester,
-            depositor,
-            tokenDepositsCount,
-            tokenWithdrawAmount
-        );
-        if (tokenDepositsCount == 0) {
-            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
-                .setIndefiniteWhitelistStatus(
-                    airnode,
-                    endpointId,
-                    requester,
-                    false
-                );
+        if (tokenDeposits.depositorToEarliestWithdrawalTime[depositor] == 0) {
+            uint256 tokenDepositsCount = --tokenDeposits.count;
+            emit WithdrewTokensDepositedForBlockedRequester(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                depositor,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
+            if (tokenDepositsCount == 0) {
+                IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+                    .setIndefiniteWhitelistStatus(
+                        airnode,
+                        endpointId,
+                        requester,
+                        false
+                    );
+            }
+        } else {
+            uint256 tokenDepositsCount = tokenDeposits.count;
+            tokenDeposits.depositorToEarliestWithdrawalTime[depositor] = 0;
+            emit WithdrewTokensDepositedForBlockedRequester(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                depositor,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
         }
         assert(
             IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount)
