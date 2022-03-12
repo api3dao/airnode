@@ -12,6 +12,8 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
     RequesterAuthorizerWhitelisterWithToken,
     IRequesterAuthorizerWhitelisterWithTokenDeposit
 {
+    using SafeERC20 for IERC20;
+
     struct TokenDeposits {
         uint256 count;
         mapping(address => uint256) depositorToAmount;
@@ -131,13 +133,10 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                     true
                 );
         }
-        require(
-            IERC20(token).transferFrom(
-                msg.sender,
-                address(this),
-                tokenDepositAmount
-            ),
-            "Transfer unsuccesful"
+        IERC20(token).safeTransferFrom(
+            msg.sender,
+            address(this),
+            tokenDepositAmount
         );
     }
 
@@ -257,7 +256,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                     );
             }
         }
-        assert(IERC20(token).transfer(msg.sender, tokenWithdrawAmount));
+        IERC20(token).safeTransfer(msg.sender, tokenWithdrawAmount);
     }
 
     /// @notice Withdraws tokens previously deposited for the blocked requester
@@ -321,9 +320,7 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
                 tokenWithdrawAmount
             );
         }
-        assert(
-            IERC20(token).transfer(proceedsDestination, tokenWithdrawAmount)
-        );
+        IERC20(token).safeTransfer(proceedsDestination, tokenWithdrawAmount);
     }
 
     /// @notice Number of deposits made for the requester to be whitelisted for
