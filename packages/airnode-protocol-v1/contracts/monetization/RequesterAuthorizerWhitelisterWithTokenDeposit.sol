@@ -15,9 +15,16 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
     using SafeERC20 for IERC20;
 
     struct TokenDeposits {
-        mapping(address => uint256) depositorToAmount;
         uint256 count;
+        mapping(address => uint256) depositorToAmount;
+        mapping(address => uint256) depositorToEarliestWithdrawalTime;
     }
+
+    /// @notice Time the token depositors have to wait after signaling
+    /// withdrawal intent to be able to withdraw
+    /// @dev The depositors can withdraw tokens without signaling intent if the
+    /// withdrawal lead time is zero
+    uint256 public override withdrawalLeadTime = 0;
 
     /// @notice Token deposits made for Airnode, chain, endpoint, requester
     mapping(address => mapping(uint256 => mapping(bytes32 => mapping(address => TokenDeposits))))
@@ -58,6 +65,21 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             _proceedsDestination
         )
     {}
+
+    /// @notice Called by the manager to set the withdrawal lead time
+    /// @param _withdrawalLeadTime Withdrawal lead time
+    function setWithdrawalLeadTime(uint256 _withdrawalLeadTime)
+        external
+        override
+        onlyMaintainerOrManager
+    {
+        require(
+            _withdrawalLeadTime <= 30 days,
+            "Withdrawal lead time too long"
+        );
+        withdrawalLeadTime = _withdrawalLeadTime;
+        emit SetWithdrawalLeadTime(_withdrawalLeadTime, msg.sender);
+    }
 
     /// @notice Deposits tokens for the requester to be whitelisted for the
     /// Airnode–endpoint pair on the chain
@@ -118,6 +140,57 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         );
     }
 
+    /// @notice Signals intent to withdraw tokens previously deposited for the
+    /// requester to be whitelisted for the Airnode–endpoint pair on the chain
+    /// @dev Withdrawal intent can be signaled for tokens deposited for blocked
+    /// requesters.
+    /// Consider calling `withdrawTokens()` directly if `withdrawalLeadTime` is
+    /// zero.
+    /// @param airnode Airnode address
+    /// @param chainId Chain ID
+    /// @param endpointId Endpoint ID
+    /// @param requester Requester address
+    function signalWithdrawalIntent(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId,
+        address requester
+    ) external override {
+        TokenDeposits
+            storage tokenDeposits = airnodeToChainIdToEndpointIdToRequesterToTokenDeposits[
+                airnode
+            ][chainId][endpointId][requester];
+        require(
+            tokenDeposits.depositorToAmount[msg.sender] != 0,
+            "Sender has not deposited tokens"
+        );
+        require(
+            tokenDeposits.depositorToEarliestWithdrawalTime[msg.sender] == 0,
+            "Intent already signaled"
+        );
+        tokenDeposits.depositorToEarliestWithdrawalTime[msg.sender] =
+            block.timestamp +
+            withdrawalLeadTime;
+        uint256 tokenDepositsCount = --tokenDeposits.count;
+        emit SignaledWithdrawalIntent(
+            airnode,
+            chainId,
+            endpointId,
+            requester,
+            msg.sender,
+            tokenDepositsCount
+        );
+        if (tokenDepositsCount == 0) {
+            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+                .setIndefiniteWhitelistStatus(
+                    airnode,
+                    endpointId,
+                    requester,
+                    false
+                );
+        }
+    }
+
     /// @notice Withdraws tokens previously deposited for the requester to be
     /// whitelisted for the Airnode–endpoint pair on the chain
     /// @param airnode Airnode address
@@ -139,24 +212,49 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Sender has not deposited tokens");
         tokenDeposits.depositorToAmount[msg.sender] = 0;
-        uint256 tokenDepositsCount = --tokenDeposits.count;
-        emit WithdrewTokens(
-            airnode,
-            chainId,
-            endpointId,
-            requester,
-            msg.sender,
-            tokenDepositsCount,
-            tokenWithdrawAmount
-        );
-        if (tokenDepositsCount == 0) {
-            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
-                .setIndefiniteWhitelistStatus(
-                    airnode,
-                    endpointId,
-                    requester,
-                    false
-                );
+        uint256 earliestWithdrawalTime = tokenDeposits
+            .depositorToEarliestWithdrawalTime[msg.sender];
+        if (withdrawalLeadTime != 0) {
+            require(
+                earliestWithdrawalTime != 0,
+                "Withdrawal intent not signaled"
+            );
+            require(
+                earliestWithdrawalTime <= block.timestamp,
+                "Not withdrawal time yet"
+            );
+        }
+        if (earliestWithdrawalTime != 0) {
+            uint256 tokenDepositsCount = tokenDeposits.count;
+            emit WithdrewTokens(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                msg.sender,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
+        } else {
+            uint256 tokenDepositsCount = --tokenDeposits.count;
+            emit WithdrewTokens(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                msg.sender,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
+            if (tokenDepositsCount == 0) {
+                IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+                    .setIndefiniteWhitelistStatus(
+                        airnode,
+                        endpointId,
+                        requester,
+                        false
+                    );
+            }
         }
         IERC20(token).safeTransfer(msg.sender, tokenWithdrawAmount);
     }
@@ -189,24 +287,38 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
         ];
         require(tokenWithdrawAmount != 0, "Depositor has not deposited");
         tokenDeposits.depositorToAmount[depositor] = 0;
-        uint256 tokenDepositsCount = --tokenDeposits.count;
-        emit WithdrewTokensDepositedForBlockedRequester(
-            airnode,
-            chainId,
-            endpointId,
-            requester,
-            depositor,
-            tokenDepositsCount,
-            tokenWithdrawAmount
-        );
-        if (tokenDepositsCount == 0) {
-            IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
-                .setIndefiniteWhitelistStatus(
-                    airnode,
-                    endpointId,
-                    requester,
-                    false
-                );
+        if (tokenDeposits.depositorToEarliestWithdrawalTime[depositor] == 0) {
+            uint256 tokenDepositsCount = --tokenDeposits.count;
+            emit WithdrewTokensDepositedForBlockedRequester(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                depositor,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
+            if (tokenDepositsCount == 0) {
+                IRequesterAuthorizer(getRequesterAuthorizerAddress(chainId))
+                    .setIndefiniteWhitelistStatus(
+                        airnode,
+                        endpointId,
+                        requester,
+                        false
+                    );
+            }
+        } else {
+            uint256 tokenDepositsCount = tokenDeposits.count;
+            tokenDeposits.depositorToEarliestWithdrawalTime[depositor] = 0;
+            emit WithdrewTokensDepositedForBlockedRequester(
+                airnode,
+                chainId,
+                endpointId,
+                requester,
+                depositor,
+                tokenDepositsCount,
+                tokenWithdrawAmount
+            );
         }
         IERC20(token).safeTransfer(proceedsDestination, tokenWithdrawAmount);
     }
@@ -247,5 +359,28 @@ contract RequesterAuthorizerWhitelisterWithTokenDeposit is
             airnodeToChainIdToEndpointIdToRequesterToTokenDeposits[airnode][
                 chainId
             ][endpointId][requester].depositorToAmount[depositor];
+    }
+
+    /// @notice Earliest time the depositor is allowed to withdraw tokens
+    /// deposited for the requester to be whitelisted for the Airnode–endpoint
+    /// pair on the chain after the withdrawal intent is signaled
+    /// @param airnode Airnode address
+    /// @param chainId Chain ID
+    /// @param endpointId Endpoint ID
+    /// @param requester Requester address
+    /// @param depositor Depositor address
+    function airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToEarliestWithdrawalTime(
+        address airnode,
+        uint256 chainId,
+        bytes32 endpointId,
+        address requester,
+        address depositor
+    ) external view override returns (uint256) {
+        return
+            airnodeToChainIdToEndpointIdToRequesterToTokenDeposits[airnode][
+                chainId
+            ][endpointId][requester].depositorToEarliestWithdrawalTime[
+                    depositor
+                ];
     }
 }
