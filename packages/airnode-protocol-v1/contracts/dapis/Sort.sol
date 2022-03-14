@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-/// @title Contract that sorts an array using an unrolled implementation
+/// @title Contract to be inherited by contracts that will sort an array using
+/// an unrolled implementation
 /// @notice The operation will be in-place, i.e., the array provided as the
 /// argument will be modified.
 contract Sort {

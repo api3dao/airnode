@@ -40,8 +40,8 @@ beforeEach(async () => {
 });
 
 describe('registerChainRequesterAuthorizer', function () {
-  context('Sender has the registrar role', function () {
-    context('Chain ID is not zero', function () {
+  context('Chain ID is not zero', function () {
+    context('Sender has the registrar role', function () {
       context('RequesterAuthorizer has not been set before', function () {
         context('RequesterAuthorizer address is not zero', function () {
           it('sets RequesterAuthorizer address for the chain', async function () {
@@ -94,20 +94,7 @@ describe('registerChainRequesterAuthorizer', function () {
         });
       });
     });
-    context('Chain ID is zero', function () {
-      it('reverts', async function () {
-        const chainId = 0;
-        const requesterAuthorizerAddress = testUtils.generateRandomAddress();
-        await expect(
-          requesterAuthorizerRegistry
-            .connect(roles.registrar)
-            .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
-        ).to.be.revertedWith('Chain ID zero');
-      });
-    });
-  });
-  context('Sender is the manager', function () {
-    context('Chain ID is not zero', function () {
+    context('Sender is the manager', function () {
       context('RequesterAuthorizer address is not zero', function () {
         it('sets default price', async function () {
           const chainId = 3;
@@ -142,27 +129,27 @@ describe('registerChainRequesterAuthorizer', function () {
         });
       });
     });
-    context('Chain ID is zero', function () {
+    context('Sender does not have the registrar role and is not the manager', function () {
       it('reverts', async function () {
-        const chainId = 0;
+        const chainId = 3;
         const requesterAuthorizerAddress = testUtils.generateRandomAddress();
         await expect(
           requesterAuthorizerRegistry
-            .connect(roles.manager)
+            .connect(roles.randomPerson)
             .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
-        ).to.be.revertedWith('Chain ID zero');
+        ).to.be.revertedWith('Sender cannot register');
       });
     });
   });
-  context('Sender does not have the registrar role and is not the manager', function () {
+  context('Chain ID is zero', function () {
     it('reverts', async function () {
-      const chainId = 3;
+      const chainId = 0;
       const requesterAuthorizerAddress = testUtils.generateRandomAddress();
       await expect(
         requesterAuthorizerRegistry
           .connect(roles.randomPerson)
           .registerChainRequesterAuthorizer(chainId, requesterAuthorizerAddress)
-      ).to.be.revertedWith('Sender cannot register');
+      ).to.be.revertedWith('Chain ID zero');
     });
   });
 });

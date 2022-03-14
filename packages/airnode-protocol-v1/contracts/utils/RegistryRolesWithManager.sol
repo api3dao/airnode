@@ -4,8 +4,8 @@ pragma solidity 0.8.9;
 import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol";
 import "./interfaces/IRegistryRolesWithManager.sol";
 
-/// @title Contract that implements generic AccessControlRegistry roles for a
-/// registry contract
+/// @title Contract to be inherited by registry contracts that will use generic
+/// AccessControlRegistry roles
 contract RegistryRolesWithManager is
     AccessControlRegistryAdminnedWithManager,
     IRegistryRolesWithManager
@@ -14,7 +14,7 @@ contract RegistryRolesWithManager is
     string public constant override REGISTRAR_ROLE_DESCRIPTION = "Registrar";
 
     /// @notice Registrar role
-    bytes32 public registrarRole;
+    bytes32 public immutable registrarRole;
 
     /// @dev Reverts if the sender is not the manager and does not have the
     /// registrar role

@@ -4,7 +4,8 @@ pragma solidity 0.8.9;
 import "./RegistryRolesWithManager.sol";
 import "./interfaces/IAddressRegistry.sol";
 
-/// @title Registry with manager that maps IDs to addresses
+/// @title Contract to be inherited by contracts that need a registry wit
+/// manager that maps IDs to addresses
 contract AddressRegistry is RegistryRolesWithManager, IAddressRegistry {
     mapping(bytes32 => address) private idToAddress;
 

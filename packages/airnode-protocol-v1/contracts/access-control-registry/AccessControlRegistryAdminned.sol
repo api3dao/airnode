@@ -5,8 +5,8 @@ import "./RoleDeriver.sol";
 import "./AccessControlRegistryUser.sol";
 import "./interfaces/IAccessControlRegistryAdminned.sol";
 
-/// @title Contract that should be inherited by contracts whose adminship
-/// functionality will be implemented using AccessControlRegistry
+/// @title Contract to be inherited by contracts whose adminship functionality
+/// will be implemented using AccessControlRegistry
 contract AccessControlRegistryAdminned is
     RoleDeriver,
     AccessControlRegistryUser,

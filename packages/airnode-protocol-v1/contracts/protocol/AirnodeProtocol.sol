@@ -36,8 +36,6 @@ contract AirnodeProtocol is
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @notice Called by the requester to make a request
-    /// @dev If the `templateId` is zero, the fulfillment will be made with
-    /// `parameters` being used as fulfillment data
     /// @param templateId Template ID
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template

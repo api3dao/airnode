@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Multicall.sol";
 import "../whitelist/Whitelist.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
 
-/// @title Abstract contract that can be used to build Airnode authorizers that
+/// @title Abstract contract to be inherited by Authorizer contracts that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
 abstract contract RequesterAuthorizer is
     Multicall,

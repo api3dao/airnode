@@ -60,11 +60,7 @@ contract AirnodeEndpointPriceRegistry is
     /// @notice Called by registrars or the manager to register the
     /// default price
     /// @param price 30 day price in USD (times 10^18)
-    function registerDefaultPrice(uint256 price)
-        external
-        override
-        onlyRegistrarOrManager
-    {
+    function registerDefaultPrice(uint256 price) external override {
         _registerUint256(DEFAULT_PRICE_ID, price);
         emit RegisterDefaultPrice(price, msg.sender);
     }
@@ -76,7 +72,6 @@ contract AirnodeEndpointPriceRegistry is
     function registerDefaultChainPrice(uint256 chainId, uint256 price)
         external
         override
-        onlyRegistrarOrManager
         onlyNonZeroChainId(chainId)
     {
         _registerUint256(
@@ -93,7 +88,6 @@ contract AirnodeEndpointPriceRegistry is
     function registerAirnodePrice(address airnode, uint256 price)
         external
         override
-        onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
     {
         _registerUint256(keccak256(abi.encodePacked(airnode)), price);
@@ -112,7 +106,6 @@ contract AirnodeEndpointPriceRegistry is
     )
         external
         override
-        onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
         onlyNonZeroChainId(chainId)
     {
@@ -132,7 +125,7 @@ contract AirnodeEndpointPriceRegistry is
         address airnode,
         bytes32 endpointId,
         uint256 price
-    ) external override onlyRegistrarOrManager onlyNonZeroAirnode(airnode) {
+    ) external override onlyNonZeroAirnode(airnode) {
         _registerUint256(
             keccak256(abi.encodePacked(SALT, airnode, endpointId)),
             price
@@ -159,7 +152,6 @@ contract AirnodeEndpointPriceRegistry is
     )
         external
         override
-        onlyRegistrarOrManager
         onlyNonZeroAirnode(airnode)
         onlyNonZeroChainId(chainId)
     {

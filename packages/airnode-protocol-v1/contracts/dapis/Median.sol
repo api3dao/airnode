@@ -4,7 +4,8 @@ pragma solidity 0.8.9;
 import "./Sort.sol";
 import "./QuickSelect.sol";
 
-/// @title Contract that calculates the median of an array
+/// @title Contract to be inherited by contracts that will calculate the median
+/// of an array
 /// @notice The operation will be in-place, i.e., the array provided as the
 /// argument will be modified.
 contract Median is Sort, Quickselect {

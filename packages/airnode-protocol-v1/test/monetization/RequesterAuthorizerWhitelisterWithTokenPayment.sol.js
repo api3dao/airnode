@@ -1147,7 +1147,7 @@ describe('payTokens', function () {
                   requesterAuthorizerWhitelisterWithTokenPayment
                     .connect(roles.payer)
                     .payTokens(roles.airnode.address, chainId, endpointId, requester, whitelistExtension)
-                ).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+                ).to.be.revertedWith('ERC20: insufficient allowance');
               });
             });
           });

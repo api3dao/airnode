@@ -4,8 +4,8 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/Multicall.sol";
 import "./interfaces/IAllocator.sol";
 
-/// @title Abstract contract that is inherited by contracts that temporarily
-/// allocate subscription slots for Airnodes/relayers
+/// @title Abstract contract to be inherited by Allocator contracts that
+/// temporarily allocate subscription slots for Airnodes/relayers
 /// @dev An Airnode/relayer calls a number of Allocators to retrieve a number
 /// of slots to serve the respective subscriptions. What these Allocators and
 /// slot numbers are expected to be communicated off-chain. The Airnode/relayer

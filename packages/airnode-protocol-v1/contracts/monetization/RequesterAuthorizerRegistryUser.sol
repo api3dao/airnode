@@ -4,8 +4,8 @@ pragma solidity 0.8.9;
 import "./interfaces/IRequesterAuthorizerRegistry.sol";
 import "./interfaces/IRequesterAuthorizerRegistryUser.sol";
 
-/// @title Contract that should be inherited by contracts that will interact
-/// with RequesterAuthorizerRegistry
+/// @title Contract to be inherited by contracts that will interact with
+/// RequesterAuthorizerRegistry
 contract RequesterAuthorizerRegistryUser is IRequesterAuthorizerRegistryUser {
     /// @notice RequesterAuthorizerRegistry contract address
     address public immutable override requesterAuthorizerRegistry;

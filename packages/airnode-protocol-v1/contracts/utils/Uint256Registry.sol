@@ -4,7 +4,8 @@ pragma solidity 0.8.9;
 import "./RegistryRolesWithManager.sol";
 import "./interfaces/IUint256Registry.sol";
 
-/// @title Registry with manager that maps IDs to unsigned integers
+/// @title Contract to be inherited by contracts that need a registry with
+/// manager that maps IDs to unsigned integers
 /// @dev Does not allow zero to be registered as a number
 contract Uint256Registry is RegistryRolesWithManager, IUint256Registry {
     mapping(bytes32 => uint256) private idToUint256;

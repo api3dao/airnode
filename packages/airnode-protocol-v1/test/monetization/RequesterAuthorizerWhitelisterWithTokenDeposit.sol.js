@@ -1120,7 +1120,7 @@ describe('depositTokens', function () {
                   requesterAuthorizerWhitelisterWithTokenDeposit
                     .connect(roles.depositor)
                     .depositTokens(roles.airnode.address, chainId, endpointId, requester)
-                ).to.be.revertedWith('ERC20: transfer amount exceeds allowance');
+                ).to.be.revertedWith('ERC20: insufficient allowance');
               });
             });
           });

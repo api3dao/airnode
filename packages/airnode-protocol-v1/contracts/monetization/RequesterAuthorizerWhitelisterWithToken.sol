@@ -10,8 +10,8 @@ import "./RequesterAuthorizerRegistryUser.sol";
 import "./interfaces/IRequesterAuthorizerWhitelisterWithToken.sol";
 import "../authorizers/interfaces/IRequesterAuthorizer.sol";
 
-/// @title Base contract for RequesterAuthorizer whitelister contracts that
-/// will whitelist based on token interaction
+/// @title Contract to be inherited by RequesterAuthorizer contracts that will
+/// whitelist based on token interaction
 contract RequesterAuthorizerWhitelisterWithToken is
     Multicall,
     AccessControlRegistryAdminnedWithManager,

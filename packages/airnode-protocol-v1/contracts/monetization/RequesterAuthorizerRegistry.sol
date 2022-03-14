@@ -29,7 +29,7 @@ contract RequesterAuthorizerRegistry is
     function registerChainRequesterAuthorizer(
         uint256 chainId,
         address requesterAuthorizer
-    ) external override onlyRegistrarOrManager {
+    ) external override {
         require(chainId != 0, "Chain ID zero");
         (bool success, ) = tryReadChainRequesterAuthorizer(chainId);
         require(!success, "Chain Authorizer already set");
