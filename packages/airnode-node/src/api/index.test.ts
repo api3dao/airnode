@@ -89,11 +89,11 @@ describe('callApi', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+        message: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.6.0)',
       },
     ]);
     expect(res).toEqual({
-      errorMessage: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+      errorMessage: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.6.0)',
       success: false,
     });
   });
