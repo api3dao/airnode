@@ -56,12 +56,12 @@
   "ois": [
     {
       "oisFormat": "1.0.0",
-      "title": "CoinGecko basic request",
+      "title": "Failure Example",
       "version": "1.0.0",
       "apiSpecifications": {
         "servers": [
           {
-            "url": "https://api.coingecko.com/api/v3"
+            "url": "https://thisurldoesntexist.abc"
           }
         ],
         "paths": {
