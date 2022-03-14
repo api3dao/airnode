@@ -1,5 +1,5 @@
 /**
- * Mocks ethers library and to return a mocked ethers provider with mocked gas prices and block data.
+ * Mocks ethers library to return a mocked ethers provider with mocked gas prices and block data.
  */
 function mockEthers({ ethersMocks = {} }) {
   jest.mock('ethers', () => ({
@@ -26,8 +26,8 @@ mockEthers({
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
-import { FetchOptions } from './gas-prices';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from './';
+import { FetchOptions } from './types';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '../../constants';
 
 const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
@@ -98,7 +98,7 @@ describe('parsePriorityFee', () => {
 
 describe('getGasPrice', () => {
   const baseFeePerGas = ethers.BigNumber.from('93000000000');
-  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE_IN_WEI);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
 
