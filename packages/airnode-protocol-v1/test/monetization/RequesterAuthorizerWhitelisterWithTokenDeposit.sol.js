@@ -1302,84 +1302,89 @@ describe('signalWithdrawalIntent', function () {
           expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
         });
       });
-      context('Not signaling intent to withdraw the last deposit for the requester-endpoint pair', function () {
-        it('decrements the number of times tokens were deposited for the requester-endpoint pair and signals intent', async function () {
-          const oneWeek = 7 * 24 * 60 * 60;
-          await requesterAuthorizerWhitelisterWithTokenDeposit.connect(roles.maintainer).setWithdrawalLeadTime(oneWeek);
-          const endpointId = testUtils.generateRandomBytes32();
-          const requester = testUtils.generateRandomAddress();
-          const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
-          const expectedTokenAmount = price.mul(priceCoefficient).div(tokenPrice);
-          await airnodeEndpointPriceRegistry
-            .connect(roles.manager)
-            .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
-          await requesterAuthorizerWhitelisterWithTokenDeposit
-            .connect(roles.maintainer)
-            .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
-          await token
-            .connect(roles.depositor)
-            .approve(requesterAuthorizerWhitelisterWithTokenDeposit.address, hre.ethers.utils.parseEther('1'));
-          await requesterAuthorizerWhitelisterWithTokenDeposit
-            .connect(roles.depositor)
-            .depositTokens(roles.airnode.address, chainId, endpointId, requester);
-          await token
-            .connect(roles.anotherDepositor)
-            .approve(requesterAuthorizerWhitelisterWithTokenDeposit.address, hre.ethers.utils.parseEther('1'));
-          await requesterAuthorizerWhitelisterWithTokenDeposit
-            .connect(roles.anotherDepositor)
-            .depositTokens(roles.airnode.address, chainId, endpointId, requester);
-          let whitelistStatus = await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-            roles.airnode.address,
-            endpointId,
-            requester
-          );
-          expect(whitelistStatus.expirationTimestamp).to.equal(0);
-          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-          const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
-          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
-          const earliestWithdrawalTime = now + 1 + oneWeek;
-          await expect(
-            requesterAuthorizerWhitelisterWithTokenDeposit
+      context(
+        'Signaling intent to withdraw a deposit that is not the last for the requester-endpoint pair',
+        function () {
+          it('decrements the number of times tokens were deposited for the requester-endpoint pair and signals intent', async function () {
+            const oneWeek = 7 * 24 * 60 * 60;
+            await requesterAuthorizerWhitelisterWithTokenDeposit
+              .connect(roles.maintainer)
+              .setWithdrawalLeadTime(oneWeek);
+            const endpointId = testUtils.generateRandomBytes32();
+            const requester = testUtils.generateRandomAddress();
+            const price = hre.ethers.BigNumber.from(`100${'0'.repeat(18)}`); // $100
+            const expectedTokenAmount = price.mul(priceCoefficient).div(tokenPrice);
+            await airnodeEndpointPriceRegistry
+              .connect(roles.manager)
+              .registerAirnodeChainEndpointPrice(roles.airnode.address, chainId, endpointId, price);
+            await requesterAuthorizerWhitelisterWithTokenDeposit
+              .connect(roles.maintainer)
+              .setAirnodeParticipationStatus(roles.airnode.address, AirnodeParticipationStatus.Active);
+            await token
               .connect(roles.depositor)
-              .signalWithdrawalIntent(roles.airnode.address, chainId, endpointId, requester)
-          )
-            .to.emit(requesterAuthorizerWhitelisterWithTokenDeposit, 'SignaledWithdrawalIntent')
-            .withArgs(roles.airnode.address, chainId, endpointId, requester, roles.depositor.address, 1);
-          expect(
-            await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositsCount(
+              .approve(requesterAuthorizerWhitelisterWithTokenDeposit.address, hre.ethers.utils.parseEther('1'));
+            await requesterAuthorizerWhitelisterWithTokenDeposit
+              .connect(roles.depositor)
+              .depositTokens(roles.airnode.address, chainId, endpointId, requester);
+            await token
+              .connect(roles.anotherDepositor)
+              .approve(requesterAuthorizerWhitelisterWithTokenDeposit.address, hre.ethers.utils.parseEther('1'));
+            await requesterAuthorizerWhitelisterWithTokenDeposit
+              .connect(roles.anotherDepositor)
+              .depositTokens(roles.airnode.address, chainId, endpointId, requester);
+            let whitelistStatus = await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
               roles.airnode.address,
-              chainId,
               endpointId,
               requester
+            );
+            expect(whitelistStatus.expirationTimestamp).to.equal(0);
+            expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+            const now = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber())).timestamp;
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [now + 1]);
+            const earliestWithdrawalTime = now + 1 + oneWeek;
+            await expect(
+              requesterAuthorizerWhitelisterWithTokenDeposit
+                .connect(roles.depositor)
+                .signalWithdrawalIntent(roles.airnode.address, chainId, endpointId, requester)
             )
-          ).to.equal(1);
-          expect(
-            await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToAmount(
+              .to.emit(requesterAuthorizerWhitelisterWithTokenDeposit, 'SignaledWithdrawalIntent')
+              .withArgs(roles.airnode.address, chainId, endpointId, requester, roles.depositor.address, 1);
+            expect(
+              await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositsCount(
+                roles.airnode.address,
+                chainId,
+                endpointId,
+                requester
+              )
+            ).to.equal(1);
+            expect(
+              await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToAmount(
+                roles.airnode.address,
+                chainId,
+                endpointId,
+                requester,
+                roles.depositor.address
+              )
+            ).to.equal(expectedTokenAmount);
+            expect(
+              await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToEarliestWithdrawalTime(
+                roles.airnode.address,
+                chainId,
+                endpointId,
+                requester,
+                roles.depositor.address
+              )
+            ).to.equal(earliestWithdrawalTime);
+            whitelistStatus = await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
               roles.airnode.address,
-              chainId,
               endpointId,
-              requester,
-              roles.depositor.address
-            )
-          ).to.equal(expectedTokenAmount);
-          expect(
-            await requesterAuthorizerWhitelisterWithTokenDeposit.airnodeToChainIdToEndpointIdToRequesterToTokenDepositorToEarliestWithdrawalTime(
-              roles.airnode.address,
-              chainId,
-              endpointId,
-              requester,
-              roles.depositor.address
-            )
-          ).to.equal(earliestWithdrawalTime);
-          whitelistStatus = await requesterAuthorizerWithManager.airnodeToEndpointIdToRequesterToWhitelistStatus(
-            roles.airnode.address,
-            endpointId,
-            requester
-          );
-          expect(whitelistStatus.expirationTimestamp).to.equal(0);
-          expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
-        });
-      });
+              requester
+            );
+            expect(whitelistStatus.expirationTimestamp).to.equal(0);
+            expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+          });
+        }
+      );
     });
     context('Sender has signaled an unfulfilled withdrawal intent', function () {
       it('reverts', async function () {
