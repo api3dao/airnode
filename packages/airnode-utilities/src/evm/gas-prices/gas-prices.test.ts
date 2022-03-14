@@ -1,28 +1,21 @@
 /**
  * Mocks ethers library to return a mocked ethers provider with mocked gas prices and block data.
  */
-function mockEthers({ ethersMocks = {} }) {
+function mockEthers() {
   jest.mock('ethers', () => ({
     ...jest.requireActual('ethers'),
     ethers: {
       ...jest.requireActual('ethers').ethers,
-      ...ethersMocks,
+      providers: {
+        JsonRpcProvider: jest.fn().mockImplementation(() => ({
+          getGasPrice: jest.fn(),
+          getBlock: jest.fn(),
+        })),
+      },
     },
   }));
 }
-
-const getBlockMock = jest.fn();
-const getGasPriceMock = jest.fn();
-mockEthers({
-  ethersMocks: {
-    providers: {
-      JsonRpcProvider: jest.fn().mockImplementation(() => ({
-        getGasPrice: getGasPriceMock,
-        getBlock: getBlockMock,
-      })),
-    },
-  },
-});
+mockEthers();
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';

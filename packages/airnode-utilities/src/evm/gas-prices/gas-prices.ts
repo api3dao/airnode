@@ -11,9 +11,9 @@ export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData
   const { provider, chainOptions } = options;
 
   const [err, gasPrice] = await go(() => provider.getGasPrice(), {
-    retries: 1,
-    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
-    ...chainOptions.promiseOptions,
+    retries: chainOptions.retries || 1,
+    timeoutMs: chainOptions.timeoutMs || DEFAULT_RETRY_TIMEOUT_MS,
+    retryDelayMs: chainOptions.retryDelayMs,
   });
   if (err || !gasPrice) {
     const log = logger.pend('ERROR', 'All attempts to get legacy gasPrice from provider failed');
@@ -28,9 +28,9 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
   const logs = Array<PendingLog>();
 
   const [err, blockHeader] = await go(() => provider.getBlock('latest'), {
-    retries: 1,
-    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
-    ...chainOptions.promiseOptions,
+    retries: chainOptions.retries || 1,
+    timeoutMs: chainOptions.timeoutMs || DEFAULT_RETRY_TIMEOUT_MS,
+    retryDelayMs: chainOptions.retryDelayMs,
   });
   if (err || !blockHeader?.baseFeePerGas) {
     logs.push(logger.pend('ERROR', 'All attempts to get EIP-1559 gas pricing from provider failed'));

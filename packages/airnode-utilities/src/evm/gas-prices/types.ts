@@ -12,11 +12,10 @@ export interface PriorityFee {
   unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
 }
 
-export interface ChainOptions {
+export interface ChainOptions extends PromiseOptions {
   txType: 'legacy' | 'eip1559';
   baseFeeMultiplier?: number;
   priorityFee?: PriorityFee;
-  promiseOptions?: PromiseOptions;
 }
 
 export interface FetchOptions {
