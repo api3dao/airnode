@@ -1,26 +1,26 @@
-import { mockEthers } from '../../test/mock-utils';
-
-const getBlockMock = jest.fn();
-const getGasPriceMock = jest.fn();
-const latestAnswerMock = jest.fn();
-mockEthers({
-  ethersMocks: {
-    providers: {
-      JsonRpcProvider: jest.fn().mockImplementation(() => ({
-        getGasPrice: getGasPriceMock,
-        getBlock: getBlockMock,
-      })),
+/**
+ * Mocks ethers library to return a mocked ethers provider with mocked gas prices and block data.
+ */
+function mockEthers() {
+  jest.mock('ethers', () => ({
+    ...jest.requireActual('ethers'),
+    ethers: {
+      ...jest.requireActual('ethers').ethers,
+      providers: {
+        JsonRpcProvider: jest.fn().mockImplementation(() => ({
+          getGasPrice: jest.fn(),
+          getBlock: jest.fn(),
+        })),
+      },
     },
-    Contract: jest.fn().mockImplementation(() => ({
-      latestAnswer: latestAnswerMock,
-    })),
-  },
-});
+  }));
+}
+mockEthers();
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
-import { FetchOptions } from './gas-prices';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../constants';
+import { FetchOptions } from './types';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '../../constants';
 
 const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
@@ -91,7 +91,7 @@ describe('parsePriorityFee', () => {
 
 describe('getGasPrice', () => {
   const baseFeePerGas = ethers.BigNumber.from('93000000000');
-  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE_IN_WEI);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
 

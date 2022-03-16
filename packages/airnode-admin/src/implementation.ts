@@ -1,6 +1,6 @@
 import * as airnodeAbi from '@api3/airnode-abi';
 import { AirnodeRrp, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
-import { evm } from '@api3/airnode-node';
+import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
 
@@ -64,7 +64,7 @@ export const parseOverrides = async (
 
   // EIP1559 network and no EIP1559 overrides or legacy overrides
   if (supportsEip1559 && !hasEip1559Overrides && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await evm.getEip1559GasPricing({
+    const [_gasPriceLogs, gasTarget] = await getEip1559GasPricing({
       provider: provider,
       chainOptions: { txType: 'eip1559' },
     });
@@ -77,7 +77,7 @@ export const parseOverrides = async (
 
   // Legacy network and no legacy overrides
   if (!supportsEip1559 && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await evm.getLegacyGasPrice({
+    const [_gasPriceLogs, gasTarget] = await getLegacyGasPrice({
       provider: provider,
       chainOptions: { txType: 'legacy' },
     });
