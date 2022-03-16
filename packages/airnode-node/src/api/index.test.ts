@@ -1,4 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
+import { version } from 'ethers';
 import { RequestErrorMessage } from '../types';
 import * as fixtures from '../../test/fixtures';
 import { callApi } from '.';
@@ -86,14 +87,16 @@ describe('callApi', () => {
       config: fixtures.buildConfig(),
       aggregatedApiCall,
     });
+
+    const ethersVersion = version.split('ethers/')[1];
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+        message: `value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/${ethersVersion})`,
       },
     ]);
     expect(res).toEqual({
-      errorMessage: 'value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/5.5.0)',
+      errorMessage: `value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/${ethersVersion})`,
       success: false,
     });
   });

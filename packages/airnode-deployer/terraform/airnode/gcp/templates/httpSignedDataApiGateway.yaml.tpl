@@ -10,10 +10,10 @@ definitions:
   EndpointRequest:
     type: object
     required:
-      - parameters
+      - encodedParameters
     properties:
-      parameters:
-        type: object
+      encodedParameters:
+        type: string
   EndpointResponse:
     type: object
     required:
