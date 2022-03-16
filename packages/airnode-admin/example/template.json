@@ -1,5 +1,5 @@
 {
-  "airnodeAddress": "0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace",
+  "airnode": "0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace",
   "endpointId": "0x2605589dfc93c8f9c35eecdfe1e666c2193df30a8b13e1e0dd72941f59f9064c",
   "parameters": [
     {
