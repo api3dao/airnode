@@ -1,6 +1,6 @@
 import * as application from './template-application';
 import * as fixtures from '../../../test/fixtures';
-import { ApiCallTemplate, RequestErrorMessage, RequestStatus } from '../../types';
+import { ApiCallTemplate } from '../../types';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
@@ -89,17 +89,16 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].parameters).toEqual({ from: 'BTC', amount: '5000' });
   });
 
-  it('blocks API calls where the template cannot be found', () => {
+  it('drops API calls where the template cannot be found', () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], {});
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
     ]);
-    expect(res[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateNotFound}: templateId-0`);
+    expect(res.length).toEqual(0);
   });
 
-  it('invalidates API calls with invalid template parameters', () => {
+  it('drops API calls with invalid template parameters', () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
 
     const templatesById: { readonly [id: string]: ApiCallTemplate } = {
@@ -115,7 +114,6 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Template ID:templateId-0 contains invalid parameters: invalid-parameters' },
     ]);
-    expect(res[0].status).toEqual(RequestStatus.Errored);
-    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateParameterDecodingFailed}: invalid-parameters`);
+    expect(res.length).toEqual(0);
   });
 });

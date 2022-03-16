@@ -219,7 +219,6 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Errored,
           errorMessage: 'Fulfill transaction failed',
         });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
@@ -276,7 +275,6 @@ describe('submitApiCall', () => {
         expect(data).toEqual({
           ...apiCall,
           fulfillment: { hash: '0xfailtransaction' },
-          status: RequestStatus.Errored,
           errorMessage: 'Fulfill transaction failed',
         });
         expect(staticFulfillMock).toHaveBeenCalledTimes(1);
@@ -416,7 +414,6 @@ describe('submitApiCall', () => {
         failMock.mockResolvedValueOnce({ hash: '0xfailtransaction' });
         const apiCall = fixtures.requests.buildApiCall({
           errorMessage: RequestErrorMessage.ApiCallFailed,
-          status: RequestStatus.Errored,
           nonce: 5,
         });
         const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
@@ -460,7 +457,6 @@ describe('submitApiCall', () => {
         failMock.mockResolvedValueOnce({ hash: '0xfailtransaction' });
         const apiCall = fixtures.requests.buildApiCall({
           errorMessage: longError,
-          status: RequestStatus.Errored,
           nonce: 5,
         });
 
@@ -507,7 +503,6 @@ describe('submitApiCall', () => {
         const apiCall = fixtures.requests.buildApiCall({
           id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
           errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Server did not respond`,
-          status: RequestStatus.Errored,
           nonce: 5,
         });
         const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {

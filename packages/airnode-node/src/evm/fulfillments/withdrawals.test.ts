@@ -84,20 +84,14 @@ describe('submitWithdrawal', () => {
   );
 
   test.each([gasTarget, gasTargetFallback])(
-    `does nothing if the request is blocked or errored - %#`,
+    `does nothing if the request is blocked - %#`,
     async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       // NOTE: a withdrawal should not be able to become "errored" or "blocked", but this
       // is just in case that changes
       const blocked = fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked });
-      const errored = fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored });
 
       const blockedRes = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), blocked, {
-        gasTarget,
-        masterHDNode,
-        provider,
-      });
-      const erroredRes = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), errored, {
         gasTarget,
         masterHDNode,
         provider,
@@ -111,14 +105,6 @@ describe('submitWithdrawal', () => {
       ]);
       expect(blockedRes[1]).toEqual(null);
       expect(blockedRes[2]).toEqual(null);
-      expect(erroredRes[0]).toEqual([
-        {
-          level: 'INFO',
-          message: `Withdrawal sponsor address:${errored.sponsorAddress} for Request:${errored.id} not actioned as it has status:${errored.status}`,
-        },
-      ]);
-      expect(erroredRes[1]).toEqual(null);
-      expect(erroredRes[2]).toEqual(null);
       expect(fulfillWithdrawalMock).not.toHaveBeenCalled();
     }
   );

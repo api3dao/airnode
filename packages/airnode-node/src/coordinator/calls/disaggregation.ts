@@ -1,63 +1,59 @@
 import flatMap from 'lodash/flatMap';
-import { logger, PendingLog } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import {
   AggregatedApiCallsById,
   ApiCall,
   Request,
   CoordinatorState,
   EVMProviderState,
-  GroupedRequests,
   LogsData,
   ProviderState,
-  RequestErrorMessage,
   RequestStatus,
+  UpdatedRequests,
 } from '../../types';
 
-export interface RequestsWithLogs {
-  readonly logs: PendingLog[];
-  readonly requests: GroupedRequests;
-}
-
 function updateApiCallResponse(
-  apiCall: Request<ApiCall>,
+  apiCalls: Request<ApiCall>[],
   aggregatedApiCallsById: AggregatedApiCallsById
-): LogsData<Request<ApiCall>> {
-  if (apiCall.status !== RequestStatus.Pending) {
-    const message = `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`;
-    const log = logger.pend('DEBUG', message);
-    return [[log], apiCall];
-  }
+): LogsData<Request<ApiCall>[]> {
+  const { logs, requests } = apiCalls.reduce(
+    (acc, apiCall) => {
+      if (apiCall.status !== RequestStatus.Pending) {
+        const message = `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`;
+        const log = logger.pend('DEBUG', message);
+        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
+      }
 
-  const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
-  // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
-  if (!aggregatedApiCall) {
-    const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
-    const updatedCall: Request<ApiCall> = {
-      ...apiCall,
-      status: RequestStatus.Blocked,
-      errorMessage: `${RequestErrorMessage.NoMatchingAggregatedApiCall}: ${apiCall.id}`,
-    };
-    return [[log], updatedCall];
-  }
+      const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
+      // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
+      if (!aggregatedApiCall) {
+        const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
+        return { ...acc, logs: [...acc.logs, log] };
+      }
 
-  // Add the error to the ApiCall
-  if (aggregatedApiCall.errorMessage) {
-    return [[], { ...apiCall, status: RequestStatus.Errored, errorMessage: aggregatedApiCall.errorMessage }];
-  }
+      // Add the error to the ApiCall
+      if (aggregatedApiCall.errorMessage) {
+        return { ...acc, requests: [...acc.requests, { ...apiCall, errorMessage: aggregatedApiCall.errorMessage }] };
+      }
 
-  return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue, signature: aggregatedApiCall.signature }];
+      return {
+        ...acc,
+        requests: [
+          ...acc.requests,
+          { ...apiCall, responseValue: aggregatedApiCall.responseValue, signature: aggregatedApiCall.signature },
+        ],
+      };
+    },
+    { logs: [], requests: [] } as UpdatedRequests<ApiCall>
+  );
+  return [logs, requests];
 }
 
 function mapEVMProviderState(
   state: ProviderState<EVMProviderState>,
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ProviderState<EVMProviderState>> {
-  const logsWithApiCalls = state.requests.apiCalls.map((apiCall) => {
-    return updateApiCallResponse(apiCall, aggregatedApiCallsById);
-  });
-
-  const logs = flatMap(logsWithApiCalls, (a) => a[0]);
-  const apiCalls = flatMap(logsWithApiCalls, (a) => a[1]);
+  const [logs, apiCalls] = updateApiCallResponse(state.requests.apiCalls, aggregatedApiCallsById);
   const requests = { ...state.requests, apiCalls };
 
   return [logs, { ...state, requests }];

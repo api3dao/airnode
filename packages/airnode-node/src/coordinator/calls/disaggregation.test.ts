@@ -43,7 +43,7 @@ describe('disaggregate - Requests', () => {
     );
   });
 
-  it('does not update the request if the parameters are different', () => {
+  it('drops the request if the parameters are different', () => {
     const requests0: GroupedRequests = {
       apiCalls: [fixtures.requests.buildApiCall({ id: 'ethCall', parameters: { from: 'ETH' } })],
       withdrawals: [],
@@ -76,11 +76,7 @@ describe('disaggregate - Requests', () => {
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find matching aggregated API calls for Request:ethCall' },
     ]);
-    expect(res[0].requests.apiCalls[0].responseValue).toEqual(undefined);
-    expect(res[0].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].requests.apiCalls[0].errorMessage).toEqual(
-      `${RequestErrorMessage.NoMatchingAggregatedApiCall}: ethCall`
-    );
+    expect(res[0].requests.apiCalls.length).toEqual(0);
     expect(res[1].requests.apiCalls[0].responseValue).toEqual('0x123');
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].requests.apiCalls[0].errorMessage).toEqual(undefined);
@@ -88,7 +84,7 @@ describe('disaggregate - Requests', () => {
 
   it('does not update API calls if the status is not pending', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      status: RequestStatus.Errored,
+      status: RequestStatus.Blocked,
       errorMessage: RequestErrorMessage.Unauthorized,
     });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
@@ -117,7 +113,7 @@ describe('disaggregate - Requests', () => {
     expect(res[0].requests.apiCalls).toEqual([apiCall]);
   });
 
-  it('applies the error code to each individual request', () => {
+  it('drops errored requests', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
@@ -142,14 +138,8 @@ describe('disaggregate - Requests', () => {
 
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);
-    expect(res[0].requests.apiCalls).toEqual([
-      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
-    ]);
-    expect(res[1].requests.apiCalls).toEqual([
-      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
-    ]);
-    expect(res[2].requests.apiCalls).toEqual([
-      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
-    ]);
+    expect(res[0].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
+    expect(res[1].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
+    expect(res[2].requests.apiCalls).toEqual([{ ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed }]);
   });
 });
