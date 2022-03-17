@@ -114,7 +114,7 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     res.status(401).send({ error: 'Wrong API key' });
   }
 
-  const { parameters } = req.body;
+  const { encodedParameters } = req.body;
   const { endpointId } = req.query;
 
   if (!endpointId) {
@@ -122,7 +122,11 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     return;
   }
 
-  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId as string, parameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(
+    parsedConfig,
+    endpointId as string,
+    encodedParameters
+  );
   if (err) {
     res.status(400).send({ error: err.toString() });
     return;

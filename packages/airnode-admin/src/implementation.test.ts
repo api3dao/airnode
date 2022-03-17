@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { deriveWalletPathFromSponsorAddress, generateMnemonic, parseTransactionOverrides } from './implementation';
+import { deriveWalletPathFromSponsorAddress, generateMnemonic, parseCliOverrides } from './implementation';
 
 describe('deriveWalletPathFromSponsorAddress', () => {
   it('converts address to derivation path', () => {
@@ -61,7 +61,7 @@ describe('generate mnemonic', () => {
 
   describe('parse transaction overrides', () => {
     it('parses legacy transaction overrides', () => {
-      const overrides = parseTransactionOverrides({ 'gas-price': '10', 'gas-limit': '200000' } as any);
+      const overrides = parseCliOverrides({ 'gas-price': '10', 'gas-limit': '200000' } as any);
 
       expect(overrides).toEqual({
         gasPrice: ethers.utils.parseUnits('10', 'gwei'),
@@ -70,7 +70,7 @@ describe('generate mnemonic', () => {
     });
 
     it('parses EIP-1559 transaction overrides', () => {
-      const overrides = parseTransactionOverrides({
+      const overrides = parseCliOverrides({
         'max-fee': '20',
         'max-priority-fee': '10',
         'gas-limit': '200000',
@@ -84,7 +84,7 @@ describe('generate mnemonic', () => {
     });
 
     it('parses payable (value) transaction override', () => {
-      const overrides = parseTransactionOverrides({
+      const overrides = parseCliOverrides({
         'gas-price': '10',
         'gas-limit': '200000',
         nonce: '6',

@@ -17,10 +17,10 @@ components:
     EndpointRequest:
       type: object
       required:
-        - parameters
+        - encodedParameters
       properties:
-        parameters:
-          type: object
+        encodedParameters:
+          type: string
     EndpointResponse:
       type: object
       required:
@@ -35,10 +35,7 @@ components:
 
     EndpointRequestExample:
       summary: Endpoint request example
-      value: { "parameters": { "from": "EUR", "amount": 5 } }
-    EndpointResponseExample:
-      summary: Endpoint response example
-      value: { "response": 20 }
+      value: { "encodedParameters": "0x31737300000000000000000000...0000000000000000000000" }
 
   parameters:
     endpointId:
@@ -82,9 +79,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndpointResponse"
-              examples:
-                example:
-                  $ref: "#/components/examples/EndpointResponseExample"
       security:
         - apiKey: []
       x-amazon-apigateway-integration:

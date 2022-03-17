@@ -43,9 +43,6 @@ export enum RequestErrorMessage {
 export enum RequestStatus {
   // Request is valid and ready to be processed
   Pending = 'Pending',
-  // Request was already processed by previous Airnode run (fulfilled or failed)
-  // TODO: We should just have "Processed" status or just drop these immediately
-  Fulfilled = 'Fulfilled',
   // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
   // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
   // becomes unblocked
@@ -124,6 +121,8 @@ export interface ApiCallTemplate {
 export interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
 }
+
+export type ApiCallTemplateWithoutId = Omit<ApiCallTemplate, 'id'>;
 
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
@@ -276,6 +275,8 @@ export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-data-gateway';
+  templateId: string;
+  template: ApiCallTemplate;
 }
 
 // ===========================================

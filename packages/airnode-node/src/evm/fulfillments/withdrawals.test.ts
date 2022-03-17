@@ -84,28 +84,6 @@ describe('submitWithdrawal', () => {
   );
 
   test.each([gasTarget, gasTargetFallback])(
-    `does nothing if the request is already fulfilled - %#`,
-    async (gasTarget: GasTarget) => {
-      const provider = new ethers.providers.JsonRpcProvider();
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Fulfilled });
-      const [logs, err, data] = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), withdrawal, {
-        gasTarget,
-        masterHDNode,
-        provider,
-      });
-      expect(logs).toEqual([
-        {
-          level: 'DEBUG',
-          message: `Withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
-        },
-      ]);
-      expect(err).toEqual(null);
-      expect(data).toEqual(null);
-      expect(fulfillWithdrawalMock).not.toHaveBeenCalled();
-    }
-  );
-
-  test.each([gasTarget, gasTargetFallback])(
     `does nothing if the request is blocked or errored - %#`,
     async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
