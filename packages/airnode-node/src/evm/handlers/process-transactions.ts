@@ -1,5 +1,4 @@
-import { logger } from '@api3/airnode-utilities';
-import { getGasPrice } from '../gas-prices';
+import { logger, getGasPrice } from '@api3/airnode-utilities';
 import * as fulfillments from '../fulfillments';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';

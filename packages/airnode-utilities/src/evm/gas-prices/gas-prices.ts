@@ -1,21 +1,20 @@
 import { BigNumber, ethers } from 'ethers';
-import { go, logger, PendingLog } from '@api3/airnode-utilities';
-import { BASE_FEE_MULTIPLIER, DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE } from '../constants';
-import { GasTarget, LogsData } from '../types';
-import { ChainOptions, PriorityFee } from '../config/types';
-
-export interface FetchOptions {
-  readonly provider: ethers.providers.JsonRpcProvider | ethers.providers.Provider;
-  readonly chainOptions: ChainOptions;
-}
+import { PriorityFee, GasTarget, FetchOptions } from './types';
+import { go } from '../../promises';
+import { LogsData, logger, PendingLog } from '../../logging';
+import { DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE_IN_WEI, BASE_FEE_MULTIPLIER } from '../../constants';
 
 export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
   ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
 
 export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
-  const { provider } = options;
+  const { provider, chainOptions } = options;
 
-  const [err, gasPrice] = await go(() => provider.getGasPrice(), { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const [err, gasPrice] = await go(() => provider.getGasPrice(), {
+    retries: chainOptions.retries || 1,
+    timeoutMs: chainOptions.timeoutMs || DEFAULT_RETRY_TIMEOUT_MS,
+    retryDelayMs: chainOptions.retryDelayMs,
+  });
   if (err || !gasPrice) {
     const log = logger.pend('ERROR', 'All attempts to get legacy gasPrice from provider failed');
     return [[log], null];
@@ -29,8 +28,9 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
   const logs = Array<PendingLog>();
 
   const [err, blockHeader] = await go(() => provider.getBlock('latest'), {
-    retries: 1,
-    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+    retries: chainOptions.retries || 1,
+    timeoutMs: chainOptions.timeoutMs || DEFAULT_RETRY_TIMEOUT_MS,
+    retryDelayMs: chainOptions.retryDelayMs,
   });
   if (err || !blockHeader?.baseFeePerGas) {
     logs.push(logger.pend('ERROR', 'All attempts to get EIP-1559 gas pricing from provider failed'));
@@ -40,7 +40,7 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
 
   const maxPriorityFeePerGas = chainOptions.priorityFee
     ? parsePriorityFee(chainOptions.priorityFee)
-    : BigNumber.from(PRIORITY_FEE);
+    : BigNumber.from(PRIORITY_FEE_IN_WEI);
   const baseFeeMultiplier = chainOptions.baseFeeMultiplier ? chainOptions.baseFeeMultiplier : BASE_FEE_MULTIPLIER;
   const maxFeePerGas = blockHeader.baseFeePerGas.mul(BigNumber.from(baseFeeMultiplier)).add(maxPriorityFeePerGas!);
 
