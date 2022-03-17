@@ -47,13 +47,6 @@ export enum RequestStatus {
   // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
   // becomes unblocked
   Blocked = 'Blocked',
-  // A request is errorred if it is valid, but cannot be fulfilled on chain
-  // and thus should result in "fail" method called on AirnodeRrp.
-  //
-  // This can happen by multiple ways - request is unauthorized, API call fails, static call to fulfill fails
-  // TODO: The problem with this status is that we use errorMessage to distinguish errored requests
-  // and keeping this in sync is fragile - we can just drop this
-  Errored = 'Errored',
 }
 
 export enum RequestType {
@@ -178,6 +171,11 @@ export interface CoordinatorState {
   readonly providerStates: ProviderStates;
   readonly coordinatorId: string;
   readonly settings: CoordinatorSettings;
+}
+
+export interface UpdatedRequests<T> {
+  readonly logs: PendingLog[];
+  readonly requests: Request<T>[];
 }
 
 // ===========================================

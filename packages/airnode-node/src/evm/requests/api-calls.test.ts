@@ -1,7 +1,7 @@
 import { MadeTemplateRequestEvent } from '@api3/airnode-protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMMadeRequestLog, RequestErrorMessage, RequestStatus, EVMFulfilledRequestLog } from '../../types';
+import { EVMMadeRequestLog, RequestStatus, EVMFulfilledRequestLog } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
@@ -93,35 +93,31 @@ describe('applyParameters', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual(withEncodedParams);
+    expect(withDecodedParameters).toEqual([withEncodedParams]);
   });
 
   it('decodes and adds the parameters to the request', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([request]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH' } });
+    expect(withDecodedParameters).toEqual([{ ...request, parameters: { from: 'ETH' } }]);
   });
 
-  it('sets the request to errored if the parameters cannot be decoded', () => {
+  it('drops the request if the parameters cannot be decoded', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '0xincorrectparameters' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([
       {
         level: 'ERROR',
         message: `Request ID:${request.id} submitted with invalid parameters: 0xincorrectparameters`,
       },
     ]);
-    expect(withDecodedParameters).toEqual({
-      ...withEncodedParams,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: 0xincorrectparameters`,
-    });
+    expect(withDecodedParameters.length).toEqual(0);
   });
 });
 

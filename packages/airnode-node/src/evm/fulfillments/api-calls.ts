@@ -124,7 +124,6 @@ async function testAndSubmitFulfill(
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest: Request<ApiCall> = {
       ...request,
-      status: RequestStatus.Errored,
       errorMessage: testErr
         ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
         : RequestErrorMessage.FulfillTransactionFailed,
@@ -193,7 +192,7 @@ async function submitFail(
 // Main functions
 // =================================================================
 export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
-  if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
+  if (request.status !== RequestStatus.Pending) {
     const log = logger.pend(
       'INFO',
       `API call for Request:${request.id} not actioned as it has status:${request.status}`

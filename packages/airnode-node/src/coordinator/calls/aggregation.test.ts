@@ -4,10 +4,7 @@ import { RequestStatus } from '../../types';
 
 describe('aggregate (API calls)', () => {
   it('ignores requests that are not pending', () => {
-    const apiCalls = [
-      fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-    ];
+    const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })];
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({});
   });

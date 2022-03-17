@@ -7,7 +7,7 @@ export function hasExceededIgnoredBlockLimit<T>(request: Request<T>): boolean {
 }
 
 export function filterActionableApiCalls(apiCalls: Request<ApiCall>[]): Request<ApiCall>[] {
-  return apiCalls.filter((a) => a.status === RequestStatus.Pending || a.status === RequestStatus.Errored);
+  return apiCalls.filter((a) => a.status === RequestStatus.Pending);
 }
 
 export function filterActionableWithdrawals(withdrawals: Request<Withdrawal>[]): Request<Withdrawal>[] {

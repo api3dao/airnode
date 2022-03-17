@@ -22,12 +22,10 @@ describe('filterActionableApiCalls', () => {
   it('returns actionable API calls', () => {
     const apiCalls = [
       fixtures.requests.buildApiCall({ status: RequestStatus.Pending }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
       fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
     ];
     expect(request.filterActionableApiCalls(apiCalls)).toEqual([
       fixtures.requests.buildApiCall({ status: RequestStatus.Pending }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
     ]);
   });
 });
@@ -36,7 +34,6 @@ describe('filterActionableWithdrawals', () => {
   it('returns actionable withdrawals', () => {
     const withdrawals = [
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
       fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
     ];
     expect(request.filterActionableWithdrawals(withdrawals)).toEqual([
@@ -48,11 +45,6 @@ describe('filterActionableWithdrawals', () => {
 describe('hasActionableApiCalls', () => {
   it('returns true if pending API calls are present', () => {
     const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Pending })];
-    expect(request.hasActionableApiCalls(apiCalls)).toEqual(true);
-  });
-
-  it('returns true if errored API calls are present', () => {
-    const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Errored })];
     expect(request.hasActionableApiCalls(apiCalls)).toEqual(true);
   });
 
@@ -73,10 +65,7 @@ describe('hasActionableWithdrawals', () => {
   });
 
   it('returns false if there are no pending withdrawals', () => {
-    const withdrawals = [
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
-      fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
-    ];
+    const withdrawals = [fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked })];
     expect(request.hasActionableWithdrawals(withdrawals)).toEqual(false);
   });
 
@@ -96,8 +85,8 @@ describe('hasNoActionableRequests', () => {
 
   it('returns false if actionable withdrawals are present', () => {
     const requests: GroupedRequests = {
-      apiCalls: [fixtures.requests.buildApiCall({ status: RequestStatus.Errored })],
-      withdrawals: [],
+      apiCalls: [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })],
+      withdrawals: [fixtures.requests.buildWithdrawal()],
     };
     expect(request.hasNoActionableRequests(requests)).toEqual(false);
   });
@@ -105,18 +94,7 @@ describe('hasNoActionableRequests', () => {
   it('returns true if there are no actionable API calls or withdrawals', () => {
     const requests: GroupedRequests = {
       apiCalls: [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })],
-      withdrawals: [
-        fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
-        fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
-      ],
-    };
-    expect(request.hasNoActionableRequests(requests)).toEqual(true);
-  });
-
-  it('returns true if no requests are present', () => {
-    const requests: GroupedRequests = {
-      apiCalls: [],
-      withdrawals: [],
+      withdrawals: [fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked })],
     };
     expect(request.hasNoActionableRequests(requests)).toEqual(true);
   });
@@ -132,7 +110,7 @@ describe('hasNoActionableRequests', () => {
 
 describe('getStatusNames', () => {
   it('returns a list of all status names', () => {
-    expect(request.getStatusNames()).toEqual(['Pending', 'Blocked', 'Errored']);
+    expect(request.getStatusNames()).toEqual(['Pending', 'Blocked']);
   });
 });
 
