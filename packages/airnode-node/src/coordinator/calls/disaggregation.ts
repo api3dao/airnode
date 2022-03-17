@@ -12,7 +12,7 @@ import {
   UpdatedRequests,
 } from '../../types';
 
-function updateApiCallResponse(
+function updateApiCallResponses(
   apiCalls: Request<ApiCall>[],
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<Request<ApiCall>[]> {
@@ -53,7 +53,7 @@ function mapEVMProviderState(
   state: ProviderState<EVMProviderState>,
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ProviderState<EVMProviderState>> {
-  const [logs, apiCalls] = updateApiCallResponse(state.requests.apiCalls, aggregatedApiCallsById);
+  const [logs, apiCalls] = updateApiCallResponses(state.requests.apiCalls, aggregatedApiCallsById);
   const requests = { ...state.requests, apiCalls };
 
   return [logs, { ...state, requests }];

@@ -34,7 +34,7 @@ function applyTemplate(
 }
 
 // TODO: This could also be done in call-api
-function updateApiCallWithTemplate(
+function updateApiCallsWithTemplate(
   apiCalls: Request<ApiCall>[],
   templatesById: ApiCallTemplatesById
 ): LogsData<Request<ApiCall>[]> {
@@ -88,7 +88,7 @@ export function mergeApiCallsWithTemplates(
   apiCalls: Request<ApiCall>[],
   templatesById: ApiCallTemplatesById
 ): LogsData<Request<ApiCall>[]> {
-  const [logs, templatedApiCalls] = updateApiCallWithTemplate(apiCalls, templatesById);
+  const [logs, templatedApiCalls] = updateApiCallsWithTemplate(apiCalls, templatesById);
 
   return [logs, templatedApiCalls];
 }
