@@ -318,11 +318,14 @@ contract DapiServer is
         require(msg.sender == address(0), "Sender not zero address");
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
         require(beaconId != bytes32(0), "Subscription not registered");
+        DataPoint storage beacon = dataPoints[beaconId];
         return
             calculateUpdateInPercentage(
-                dataPoints[beaconId].value,
+                beacon.value,
                 decodeFulfillmentData(data)
-            ) >= decodeConditionParameters(conditionParameters);
+            ) >=
+            decodeConditionParameters(conditionParameters) ||
+            beacon.timestamp == 0;
     }
 
     /// @notice Called by the Airnode/relayer using the sponsor wallet to

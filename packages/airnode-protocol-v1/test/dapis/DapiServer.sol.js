@@ -1468,113 +1468,137 @@ describe('conditionPspBeaconUpdate', function () {
     context('Subscription is registered', function () {
       context('Data length is correct', function () {
         context('Condition parameters length is correct', function () {
-          context('Data was initially zero', function () {
-            context('Update is upwards', function () {
-              it('returns true', async function () {
-                const conditionData = encodeData(1);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(true);
-              });
-            });
-            context('Update is downwards', function () {
-              it('returns true', async function () {
-                const conditionData = encodeData(-1);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(true);
-              });
+          context('Beacon timestamp is zero', function () {
+            it('returns true', async function () {
+              // Even if the fulfillment value is zero, since the Beacon timestamp is zero,
+              // the condition will return true
+              const conditionData = encodeData(0);
+              expect(
+                await dapiServer
+                  .connect(voidSignerAddressZero)
+                  .callStatic.conditionPspBeaconUpdate(
+                    beaconUpdateSubscriptionId,
+                    conditionData,
+                    beaconUpdateSubscriptionConditionParameters
+                  )
+              ).to.equal(true);
             });
           });
-          context('Data makes a larger update than the threshold', function () {
-            context('Update is upwards', function () {
-              it('returns true', async function () {
-                // Set the Beacon to 100 first
-                const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, 100, timestamp);
-                // beaconUpdateSubscriptionConditionParameters is 10%
-                // 100 -> 110 satisfies the condition and returns true
-                const conditionData = encodeData(110);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(true);
+          context('Beacon timestamp is not zero', function () {
+            context('Data was initially zero', function () {
+              context('Update is upwards', function () {
+                it('returns true', async function () {
+                  // Set the Beacon to 0 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 0, timestamp);
+                  const conditionData = encodeData(1);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(true);
+                });
+              });
+              context('Update is downwards', function () {
+                it('returns true', async function () {
+                  // Set the Beacon to 0 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 0, timestamp);
+                  const conditionData = encodeData(-1);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(true);
+                });
               });
             });
-            context('Update is downwards', function () {
-              it('returns true', async function () {
-                // Set the Beacon to 100 first
-                const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, 100, timestamp);
-                // beaconUpdateSubscriptionConditionParameters is 10%
-                // 100 -> 90 satisfies the condition and returns true
-                const conditionData = encodeData(90);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(true);
+            context('Data makes a larger update than the threshold', function () {
+              context('Update is upwards', function () {
+                it('returns true', async function () {
+                  // Set the Beacon to 100 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 100, timestamp);
+                  // beaconUpdateSubscriptionConditionParameters is 10%
+                  // 100 -> 110 satisfies the condition and returns true
+                  const conditionData = encodeData(110);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(true);
+                });
+              });
+              context('Update is downwards', function () {
+                it('returns true', async function () {
+                  // Set the Beacon to 100 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 100, timestamp);
+                  // beaconUpdateSubscriptionConditionParameters is 10%
+                  // 100 -> 90 satisfies the condition and returns true
+                  const conditionData = encodeData(90);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(true);
+                });
               });
             });
-          });
-          context('Data does not make a larger update than the threshold', function () {
-            context('Update is upwards', function () {
-              it('returns false', async function () {
-                // Set the Beacon to 100 first
-                const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, 100, timestamp);
-                // beaconUpdateSubscriptionConditionParameters is 10%
-                // 100 -> 109 doesn't satisfy the condition and returns false
-                const conditionData = encodeData(109);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(false);
+            context('Data does not make a larger update than the threshold', function () {
+              context('Update is upwards', function () {
+                it('returns false', async function () {
+                  // Set the Beacon to 100 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 100, timestamp);
+                  // beaconUpdateSubscriptionConditionParameters is 10%
+                  // 100 -> 109 doesn't satisfy the condition and returns false
+                  const conditionData = encodeData(109);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(false);
+                });
               });
-            });
-            context('Update is downwards', function () {
-              it('returns false', async function () {
-                // Set the Beacon to 100 first
-                const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
-                await setBeacon(templateId, 100, timestamp);
-                // beaconUpdateSubscriptionConditionParameters is 10%
-                // 100 -> 91 doesn't satisfy the condition and returns false
-                const conditionData = encodeData(91);
-                expect(
-                  await dapiServer
-                    .connect(voidSignerAddressZero)
-                    .callStatic.conditionPspBeaconUpdate(
-                      beaconUpdateSubscriptionId,
-                      conditionData,
-                      beaconUpdateSubscriptionConditionParameters
-                    )
-                ).to.equal(false);
+              context('Update is downwards', function () {
+                it('returns false', async function () {
+                  // Set the Beacon to 100 first
+                  const timestamp = (await testUtils.getCurrentTimestamp(hre.ethers.provider)) + 1;
+                  await setBeacon(templateId, 100, timestamp);
+                  // beaconUpdateSubscriptionConditionParameters is 10%
+                  // 100 -> 91 doesn't satisfy the condition and returns false
+                  const conditionData = encodeData(91);
+                  expect(
+                    await dapiServer
+                      .connect(voidSignerAddressZero)
+                      .callStatic.conditionPspBeaconUpdate(
+                        beaconUpdateSubscriptionId,
+                        conditionData,
+                        beaconUpdateSubscriptionConditionParameters
+                      )
+                  ).to.equal(false);
+                });
               });
             });
           });
@@ -2052,7 +2076,7 @@ describe('conditionPspDapiUpdate', function () {
                 timestamp++;
                 await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
               }
-              // Even if the beacon values are zero, since their timestamps are not zero,
+              // Even if the Beacon values are zero, since their timestamps are not zero,
               // the condition will return true
               expect(
                 await dapiServer
