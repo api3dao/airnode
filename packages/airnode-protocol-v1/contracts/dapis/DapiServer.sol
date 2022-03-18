@@ -470,16 +470,19 @@ contract DapiServer is
     ) external override returns (bool) {
         require(msg.sender == address(0), "Sender not zero address");
         bytes32 dapiId = keccak256(data);
-        int224 currentDapiValue = dataPoints[dapiId].value;
+        DataPoint memory initialDataPoint = dataPoints[dapiId];
         require(
             dapiId == updateDapiWithBeacons(abi.decode(data, (bytes32[]))),
             "Data length not correct"
         );
+        DataPoint storage updatedDataPoint = dataPoints[dapiId];
         return
             calculateUpdateInPercentage(
-                currentDapiValue,
+                initialDataPoint.value,
                 dataPoints[dapiId].value
-            ) >= decodeConditionParameters(conditionParameters);
+            ) >=
+            decodeConditionParameters(conditionParameters) ||
+            (initialDataPoint.timestamp == 0 && updatedDataPoint.timestamp > 0);
     }
 
     /// @notice Called by the Airnode/relayer using the sponsor wallet to
