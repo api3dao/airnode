@@ -2063,6 +2063,141 @@ describe('updateDapiWithBeacons', function () {
   });
 });
 
+describe('updateDapiWithBeaconsAndReturnCondition', function () {
+  context('dAPI timestamp is zero', function () {
+    context('Update will set the dAPI timestamp to a non-zero value', function () {
+      it('returns true', async function () {
+        let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
+        const encodedData = [0, 0, 0];
+        for (let ind = 0; ind < encodedData.length; ind++) {
+          timestamp++;
+          await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
+        }
+        // Even if the Beacon values are zero, since their timestamps are not zero,
+        // the condition will return true
+        expect(
+          await dapiServer
+            .connect(roles.randomPerson)
+            .callStatic.updateDapiWithBeaconsAndReturnCondition(
+              dapiBeaconIds,
+              hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+            )
+        ).to.equal(true);
+      });
+    });
+    context('Update will not set the dAPI timestamp to a non-zero value', function () {
+      it('returns false', async function () {
+        expect(
+          await dapiServer
+            .connect(roles.randomPerson)
+            .callStatic.updateDapiWithBeaconsAndReturnCondition(
+              dapiBeaconIds,
+              hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+            )
+        ).to.equal(false);
+      });
+    });
+  });
+  context('dAPI timestamp is not zero', function () {
+    context('Data makes a larger update than the threshold', function () {
+      context('Update is upwards', function () {
+        it('returns true', async function () {
+          // Set the dAPI to 100 first
+          let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
+          timestamp++;
+          await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
+          // dapiUpdateSubscriptionConditionParameters is 5%
+          // 100 -> 105 satisfies the condition and returns true
+          const encodedData = [105, 110, 100];
+          for (let ind = 0; ind < encodedData.length; ind++) {
+            timestamp++;
+            await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
+          }
+          expect(
+            await dapiServer
+              .connect(roles.randomPerson)
+              .callStatic.updateDapiWithBeaconsAndReturnCondition(
+                dapiBeaconIds,
+                hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+              )
+          ).to.equal(true);
+        });
+      });
+      context('Update is downwards', function () {
+        it('returns true', async function () {
+          // Set the dAPI to 100 first
+          let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
+          timestamp++;
+          await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
+          // dapiUpdateSubscriptionConditionParameters is 5%
+          // 100 -> 95 satisfies the condition and returns true
+          const encodedData = [95, 100, 90];
+          for (let ind = 0; ind < encodedData.length; ind++) {
+            timestamp++;
+            await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
+          }
+          expect(
+            await dapiServer
+              .connect(roles.randomPerson)
+              .callStatic.updateDapiWithBeaconsAndReturnCondition(
+                dapiBeaconIds,
+                hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+              )
+          ).to.equal(true);
+        });
+      });
+    });
+    context('Data does not make a larger update than the threshold', function () {
+      context('Update is upwards', function () {
+        it('returns false', async function () {
+          // Set the dAPI to 100 first
+          let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
+          timestamp++;
+          await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
+          // dapiUpdateSubscriptionConditionParameters is 5%
+          // 100 -> 104 does not satisfy the condition and returns false
+          const encodedData = [110, 104, 95];
+          for (let ind = 0; ind < encodedData.length; ind++) {
+            timestamp++;
+            await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
+          }
+          expect(
+            await dapiServer
+              .connect(roles.randomPerson)
+              .callStatic.updateDapiWithBeaconsAndReturnCondition(
+                dapiBeaconIds,
+                hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+              )
+          ).to.equal(false);
+        });
+      });
+      context('Update is downwards', function () {
+        it('returns false', async function () {
+          // Set the dAPI to 100 first
+          let timestamp = await testUtils.getCurrentTimestamp(hre.ethers.provider);
+          timestamp++;
+          await setDapi(airnodeAddress, dapiTemplateIds, [100, 100, 100], [timestamp, timestamp, timestamp]);
+          // dapiUpdateSubscriptionConditionParameters is 5%
+          // 100 -> 96 does not satisfy the condition and returns false
+          const encodedData = [105, 96, 95];
+          for (let ind = 0; ind < encodedData.length; ind++) {
+            timestamp++;
+            await setBeacon(dapiTemplateIds[ind], encodedData[ind], timestamp);
+          }
+          expect(
+            await dapiServer
+              .connect(roles.randomPerson)
+              .callStatic.updateDapiWithBeaconsAndReturnCondition(
+                dapiBeaconIds,
+                hre.ethers.utils.defaultAbiCoder.decode(['uint256'], dapiUpdateSubscriptionConditionParameters)[0]
+              )
+          ).to.equal(false);
+        });
+      });
+    });
+  });
+});
+
 describe('conditionPspDapiUpdate', function () {
   context('Sender has zero address ', function () {
     context('Data length is correct', function () {
