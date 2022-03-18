@@ -2,7 +2,7 @@ import * as disaggregation from './disaggregation';
 import * as fixtures from '../../../test/fixtures';
 import * as coordinatorState from '../state';
 import * as providerState from '../../providers/state';
-import { GroupedRequests, RequestErrorMessage, RequestStatus } from '../../types';
+import { GroupedRequests, RequestErrorMessage } from '../../types';
 
 describe('disaggregate - Requests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
@@ -78,39 +78,7 @@ describe('disaggregate - Requests', () => {
     ]);
     expect(res[0].requests.apiCalls.length).toEqual(0);
     expect(res[1].requests.apiCalls[0].responseValue).toEqual('0x123');
-    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].requests.apiCalls[0].errorMessage).toEqual(undefined);
-  });
-
-  it('does not update API calls if the status is not pending', () => {
-    const apiCall = fixtures.requests.buildApiCall({
-      status: RequestStatus.Blocked,
-      errorMessage: RequestErrorMessage.Unauthorized,
-    });
-    const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
-
-    let mutableProvider0 = fixtures.buildEVMProviderState();
-    mutableProvider0 = providerState.update(mutableProvider0, { requests });
-
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
-      responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
-    });
-    const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
-
-    const config = fixtures.buildConfig();
-    let mutableState = coordinatorState.create(config);
-
-    const providerStates = { evm: [mutableProvider0] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
-
-    const [logs, res] = disaggregation.disaggregate(mutableState);
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message: `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`,
-      },
-    ]);
-    expect(res[0].requests.apiCalls).toEqual([apiCall]);
   });
 
   it('drops errored requests', () => {

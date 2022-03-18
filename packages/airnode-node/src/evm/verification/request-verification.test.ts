@@ -1,46 +1,10 @@
 import * as verification from './request-verification';
-import * as requests from '../../requests';
 import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
 
 describe('verifySponsorWallets', () => {
   const config = fixtures.buildConfig();
   const masterHDNode = wallet.getMasterHDNode(config);
-
-  requests.getStatusNames().forEach((status) => {
-    if (status !== 'Pending') {
-      it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({
-          sponsorWalletAddress: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Sponsor wallet verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`,
-          },
-        ]);
-        expect(res).toEqual([apiCall]);
-      });
-
-      it(`returns withdrawals that have status: ${status}`, () => {
-        const withdrawal = fixtures.requests.buildWithdrawal({
-          sponsorWalletAddress: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const [logs, res] = verification.verifySponsorWallets([withdrawal], masterHDNode);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Sponsor wallet verification skipped for Request:${withdrawal.id} as it has status:${withdrawal.status}`,
-          },
-        ]);
-        expect(res).toEqual([withdrawal]);
-      });
-    }
-  });
 
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
     const invalidSponsorWallet = {
@@ -120,27 +84,6 @@ describe('verifySponsorWallets', () => {
 });
 
 describe('verifyTriggers', () => {
-  requests.getStatusNames().forEach((status) => {
-    if (status !== 'Pending') {
-      it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({
-          endpointId: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const config = fixtures.buildConfig();
-        const rrpTriggers = config.triggers.rrp;
-        const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers, config.ois);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`,
-          },
-        ]);
-        expect(res).toEqual([apiCall]);
-      });
-    }
-  });
-
   it('drops API calls that have an unknown endpointId', () => {
     const apiCall = fixtures.requests.buildApiCall({ endpointId: '0xinvalid' });
     const config = fixtures.buildConfig();

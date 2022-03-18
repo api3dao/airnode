@@ -21,7 +21,6 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     airnodeAddress: state.settings.airnodeAddress,
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
-    ignoreBlockedRequestsAfterBlocks: state.settings.ignoreBlockedRequestsAfterBlocks,
     minConfirmations: state.settings.minConfirmations,
     provider: state.provider,
   };

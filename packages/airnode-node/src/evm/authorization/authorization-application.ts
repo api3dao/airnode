@@ -1,14 +1,6 @@
 import isNil from 'lodash/isNil';
 import { logger } from '@api3/airnode-utilities';
-import {
-  ApiCall,
-  AuthorizationByRequestId,
-  Request,
-  LogsData,
-  RequestErrorMessage,
-  RequestStatus,
-  UpdatedRequests,
-} from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData, UpdatedRequests } from '../../types';
 
 function applyAuthorization(
   apiCalls: Request<ApiCall>[],
@@ -17,7 +9,7 @@ function applyAuthorization(
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       // Don't overwrite any existing error codes or statuses
-      if (apiCall.errorMessage || apiCall.status !== RequestStatus.Pending) {
+      if (apiCall.errorMessage) {
         return { ...acc, requests: [...acc.requests, apiCall] };
       }
 
@@ -31,15 +23,10 @@ function applyAuthorization(
 
       const authorized = authorizationByRequestId[apiCall.id];
 
-      // If we couldn't fetch the authorization status, block the request until the next run
+      // If we couldn't fetch the authorization status, drop the request
       if (isNil(authorized)) {
         const log = logger.pend('WARN', `Authorization not found for Request ID:${apiCall.id}`);
-        const updatedApiCall: Request<ApiCall> = {
-          ...apiCall,
-          status: RequestStatus.Blocked,
-          errorMessage: RequestErrorMessage.AuthorizationNotFound,
-        };
-        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, updatedApiCall] };
+        return { ...acc, logs: [...acc.logs, log] };
       }
 
       if (authorized) {

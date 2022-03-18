@@ -22,7 +22,7 @@ mockEthers({
 import { ethers } from 'ethers';
 import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
-import { GasTarget, RequestStatus } from '../../types';
+import { GasTarget } from '../../types';
 import * as wallet from '../wallet';
 import { AirnodeRrp } from '../contracts';
 
@@ -48,7 +48,7 @@ describe('submitWithdrawal', () => {
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
       fulfillWithdrawalMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
 
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
         masterHDNode,
@@ -84,38 +84,12 @@ describe('submitWithdrawal', () => {
   );
 
   test.each([gasTarget, gasTargetFallback])(
-    `does nothing if the request is blocked - %#`,
-    async (gasTarget: GasTarget) => {
-      const provider = new ethers.providers.JsonRpcProvider();
-      // NOTE: a withdrawal should not be able to become "errored" or "blocked", but this
-      // is just in case that changes
-      const blocked = fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked });
-
-      const blockedRes = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), blocked, {
-        gasTarget,
-        masterHDNode,
-        provider,
-      });
-
-      expect(blockedRes[0]).toEqual([
-        {
-          level: 'INFO',
-          message: `Withdrawal sponsor address:${blocked.sponsorAddress} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
-        },
-      ]);
-      expect(blockedRes[1]).toEqual(null);
-      expect(blockedRes[2]).toEqual(null);
-      expect(fulfillWithdrawalMock).not.toHaveBeenCalled();
-    }
-  );
-
-  test.each([gasTarget, gasTargetFallback])(
     `does nothing if the withdrawal amount would be negative - %#`,
     async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000_000));
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
         masterHDNode,
@@ -139,7 +113,7 @@ describe('submitWithdrawal', () => {
     `does nothing if the withdrawal does not have a nonce - %#`,
     async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: undefined, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: undefined });
       const options = {
         gasTarget,
         masterHDNode,
@@ -164,7 +138,7 @@ describe('submitWithdrawal', () => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockRejectedValueOnce(new Error('Could not fetch balance'));
       getBalanceMock.mockRejectedValueOnce(new Error('Could not fetch balance'));
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
         masterHDNode,
@@ -191,7 +165,7 @@ describe('submitWithdrawal', () => {
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
       estimateGasWithdrawalMock.mockRejectedValueOnce(new Error('Server did not respond'));
       estimateGasWithdrawalMock.mockRejectedValueOnce(new Error('Server did not respond'));
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
         masterHDNode,
@@ -219,7 +193,7 @@ describe('submitWithdrawal', () => {
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
       fulfillWithdrawalMock.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
       fulfillWithdrawalMock.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
-      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
         masterHDNode,

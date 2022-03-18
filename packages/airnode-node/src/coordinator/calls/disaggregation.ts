@@ -8,7 +8,6 @@ import {
   EVMProviderState,
   LogsData,
   ProviderState,
-  RequestStatus,
   UpdatedRequests,
 } from '../../types';
 
@@ -18,12 +17,6 @@ function updateApiCallResponses(
 ): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
-      if (apiCall.status !== RequestStatus.Pending) {
-        const message = `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`;
-        const log = logger.pend('DEBUG', message);
-        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
-      }
-
       const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
       // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
       if (!aggregatedApiCall) {
