@@ -1,6 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
-import { version } from 'ethers';
-import { RequestErrorMessage } from '../types';
+import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
 import * as fixtures from '../../test/fixtures';
 import { callApi } from '.';
 
@@ -88,17 +87,13 @@ describe('callApi', () => {
       aggregatedApiCall,
     });
 
-    const ethersVersion = version.split('ethers/')[1];
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: `value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/${ethersVersion})`,
-      },
-    ]);
-    expect(res).toEqual({
-      errorMessage: `value out-of-bounds (argument=null, value="-100000000", code=INVALID_ARGUMENT, version=abi/${ethersVersion})`,
-      success: false,
-    });
+    expect(logs[0].level).toEqual('ERROR');
+    expect(logs[0].message).toContain('value out-of-bounds');
+
+    const { errorMessage, success } = res as ApiCallErrorResponse;
+
+    expect(errorMessage).toContain('value out-of-bounds');
+    expect(success).toEqual(false);
   });
 
   it('returns an error if the parameter type is invalid', async () => {
