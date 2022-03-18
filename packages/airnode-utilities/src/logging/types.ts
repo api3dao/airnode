@@ -27,3 +27,5 @@ export interface PendingLog {
 export interface LogConfig {
   nodeSettings: { logFormat: LogFormat; logLevel: LogLevel };
 }
+
+export type LogsData<T> = readonly [PendingLog[], T];

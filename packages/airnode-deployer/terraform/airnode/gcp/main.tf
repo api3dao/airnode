@@ -96,12 +96,12 @@ resource "google_project_service" "servicecontrol_api" {
   ]
 }
 
-module "processHttp" {
+module "processHttpRequest" {
   source = "./modules/function"
   count  = var.http_api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-processHttp"
-  entry_point        = "processHttp"
+  name               = "${local.name_prefix}-processHttpRequest"
+  entry_point        = "processHttpRequest"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 15
@@ -130,18 +130,18 @@ module "httpApiGateway" {
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.processHttp[0].function_name
+    cloud_function_name = module.processHttpRequest[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.processHttp[0].function_name
+    module.processHttpRequest[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.processHttp,
+    module.processHttpRequest,
   ]
 }
 

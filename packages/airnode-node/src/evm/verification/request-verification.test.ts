@@ -2,7 +2,7 @@ import * as verification from './request-verification';
 import * as requests from '../../requests';
 import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
-import { RequestErrorMessage, RequestStatus } from '../../types';
+import { RequestStatus } from '../../types';
 
 describe('verifySponsorWallets', () => {
   const config = fixtures.buildConfig();
@@ -141,7 +141,7 @@ describe('verifyTriggers', () => {
     }
   });
 
-  it('errors API calls that have an unknown endpointId', () => {
+  it('drops API calls that have an unknown endpointId', () => {
     const apiCall = fixtures.requests.buildApiCall({ endpointId: '0xinvalid' });
     const config = fixtures.buildConfig();
     const rrpTriggers = config.triggers.rrp;
@@ -152,15 +152,10 @@ describe('verifyTriggers', () => {
         message: `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownEndpointId}: ${apiCall.endpointId}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
-  it('errors API calls that are linked to a valid trigger but unknown OIS', () => {
+  it('drops API calls that are linked to a valid trigger but unknown OIS', () => {
     const rrpTrigger = fixtures.buildTrigger({ oisTitle: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
@@ -171,15 +166,10 @@ describe('verifyTriggers', () => {
         message: `Unknown OIS:unknown received for Request:${apiCall.id}`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownOIS}: ${rrpTrigger.oisTitle}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
-  it('errors API calls that are linked to a valid trigger but unknown endpoint', () => {
+  it('drops API calls that are linked to a valid trigger but unknown endpoint', () => {
     const rrpTrigger = fixtures.buildTrigger({ endpointName: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
@@ -190,12 +180,7 @@ describe('verifyTriggers', () => {
         message: `Unknown Endpoint:unknown for OIS:${rrpTrigger.oisTitle} received for Request:${apiCall.id}`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownEndpointName}: ${rrpTrigger.endpointName} for OIS ${rrpTrigger.oisTitle}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
   it('does nothing is the API call is linked to a valid trigger and OIS endpoint', () => {
