@@ -453,12 +453,8 @@ contract DapiServer is
 
     /// @notice Returns if the respective dAPI needs to be updated based on the
     /// condition parameters
-    /// @dev This method does not allow the caller to indirectly read a dAPI,
-    /// which is why it does not require the sender to be a void signer with
-    /// zero address. This allows the implementation of incentive mechanisms
-    /// that rewards keepers that trigger valid dAPI updates.
-    /// The template ID used in the respective Subscription is expected to be
-    /// zero, which means the `parameters` field of the Subscription will be
+    /// @dev The template ID used in the respective Subscription is expected to
+    /// be zero, which means the `parameters` field of the Subscription will be
     /// forwarded to this function as `data`. This field should be the beacon
     /// ID array encoded in contract ABI.
     /// @param subscriptionId Subscription ID
@@ -472,6 +468,7 @@ contract DapiServer is
         bytes calldata data,
         bytes calldata conditionParameters
     ) external override returns (bool) {
+        require(msg.sender == address(0), "Sender not zero address");
         bytes32 dapiId = keccak256(data);
         int224 currentDapiValue = dataPoints[dapiId].value;
         require(
