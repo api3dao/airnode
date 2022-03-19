@@ -1,10 +1,8 @@
 import * as grouping from './grouping';
-import { hasExceededIgnoredBlockLimit } from './request';
 import * as sorting from './sorting';
-import { AnyRequest, GroupedRequests, ProviderState, Request, RequestStatus, EVMProviderSponsorState } from '../types';
+import { AnyRequest, GroupedRequests, ProviderState, Request, EVMProviderSponsorState } from '../types';
 
 interface AssignedNonces {
-  readonly assignmentBlocked: boolean;
   readonly nextNonce: number;
   readonly requests: Request<AnyRequest>[];
 }
@@ -17,23 +15,6 @@ function assignWalletNonces(flatRequests: Request<AnyRequest>[], transactionCoun
   };
 
   const withNonces = flatRequests.reduce((acc: AssignedNonces, request) => {
-    // If a previous request has been blocked, then the requests after
-    // it should not be assigned a nonce
-    if (acc.assignmentBlocked) {
-      return { ...acc, requests: [...acc.requests, request] };
-    }
-
-    if (request.status === RequestStatus.Blocked) {
-      if (hasExceededIgnoredBlockLimit(request)) {
-        return acc;
-      }
-      return {
-        ...acc,
-        assignmentBlocked: true,
-        requests: [...acc.requests, request],
-      };
-    }
-
     const requestWithNonce = { ...request, nonce: acc.nextNonce };
     return {
       ...acc,

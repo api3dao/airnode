@@ -6,7 +6,6 @@ import {
   ApiCallTemplate,
   Request,
   LogsData,
-  RequestStatus,
   ApiCallTemplatesById,
   UpdatedRequests,
 } from '../../types';
@@ -40,19 +39,11 @@ function updateApiCallsWithTemplate(
 ): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
-      const { id, status, templateId } = apiCall;
+      const { id, templateId } = apiCall;
 
       // If the request does not have a template to apply, skip it
       if (!templateId) {
         const log = logger.pend('DEBUG', `Request:${id} is not linked to a template`);
-        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
-      }
-
-      if (apiCall.status !== RequestStatus.Pending) {
-        const log = logger.pend(
-          'DEBUG',
-          `Skipping template application for Request:${id} as it has status code:${status}`
-        );
         return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
       }
 

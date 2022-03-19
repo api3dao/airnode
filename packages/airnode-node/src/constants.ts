@@ -7,12 +7,6 @@ export const API_CALL_TIMEOUT = 30_000;
 // The number of past blocks to lookup when fetching Airnode RRP events.
 export const BLOCK_COUNT_HISTORY_LIMIT = 300;
 
-// Certain events cause requests to be "blocked" (e.g. the template cannot be fetched)
-// In order to preserve nonce ordering, these blocked requests also cause later requests
-// to become blocked. Once this number of blocks has passed, these blocked requests will become
-// "ignored" and no longer block later requests.
-export const BLOCK_COUNT_IGNORE_LIMIT = 20;
-
 // The minimum number of block confirmations required.
 export const BLOCK_MIN_CONFIRMATIONS = 0;
 

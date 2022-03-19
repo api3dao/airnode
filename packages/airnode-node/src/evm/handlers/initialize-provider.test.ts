@@ -53,7 +53,6 @@ describe('initializeProvider', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 12,
           currentBlock: currentBlockNumber,
-          ignoreBlockedRequestsAfterBlocks: 20,
           minConfirmations: 0,
           transactionHash: '0x40b93a1e81c7162460af066be96266ff692515a2f6b54bd622aa9f82ee00670f',
         },
@@ -66,7 +65,6 @@ describe('initializeProvider', () => {
         },
         requestCount: '1',
         sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
-        status: 'Pending',
         template: {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
           encodedParameters:
@@ -92,7 +90,6 @@ describe('initializeProvider', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 13,
           currentBlock: currentBlockNumber,
-          ignoreBlockedRequestsAfterBlocks: 20,
           minConfirmations: 0,
           transactionHash: '0x420ebda3f246256ced7a58fb72d28d99548eb30de6d2e4d5c767fb547ff795ff',
         },
@@ -105,7 +102,6 @@ describe('initializeProvider', () => {
         },
         requestCount: '2',
         sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
-        status: 'Pending',
         templateId: null,
         type: 'full',
       },

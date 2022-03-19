@@ -50,7 +50,6 @@ describe('EVM event logs - fetch', () => {
       airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 1,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -60,7 +59,6 @@ describe('EVM event logs - fetch', () => {
       {
         blockNumber: 10716082,
         currentBlock: 10716084,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 1,
         parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
         transactionHash: '0x1',
@@ -68,7 +66,6 @@ describe('EVM event logs - fetch', () => {
       {
         blockNumber: 10716083,
         currentBlock: 10716084,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 1,
         parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
@@ -76,7 +73,6 @@ describe('EVM event logs - fetch', () => {
       {
         blockNumber: 10716082,
         currentBlock: 10716084,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 1,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
@@ -102,7 +98,6 @@ describe('EVM event logs - fetch', () => {
       airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 30,
       currentBlock: 10716084,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -131,7 +126,6 @@ describe('EVM event logs - fetch', () => {
       airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -146,7 +140,6 @@ describe('EVM event logs - fetch', () => {
       airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 10,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -169,7 +162,6 @@ describe('EVM event logs - fetch', () => {
       airnodeAddress: '0xa30ca71ba54e83127214d3271aea8f5d6bd4dace',
       blockHistoryLimit: 30,
       currentBlock: 10716084,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 99999999,
       provider: new ethers.providers.JsonRpcProvider(),
     };

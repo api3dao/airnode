@@ -4,17 +4,9 @@ import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
 import * as wallet from '../wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { RequestStatus, Withdrawal, SubmitRequest } from '../../types';
+import { Withdrawal, SubmitRequest } from '../../types';
 
 export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, request, options) => {
-  if (request.status !== RequestStatus.Pending) {
-    const log = logger.pend(
-      'INFO',
-      `Withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id} not actioned as it has status:${request.status}`
-    );
-    return [[log], null, null];
-  }
-
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
