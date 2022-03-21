@@ -233,8 +233,7 @@ export interface ApiCallErrorResponse {
 export type AggregatedApiCall =
   | RegularAggregatedApiCall
   | HttpGatewayAggregatedApiCall
-  | HttpSignedDataAggregatedApiCall
-  | BeaconAggregatedApiCall;
+  | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   id: string;
@@ -276,10 +275,6 @@ export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-data-gateway';
   templateId: string;
   template: ApiCallTemplate;
-}
-
-export interface BeaconAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'beacon';
 }
 
 // ===========================================

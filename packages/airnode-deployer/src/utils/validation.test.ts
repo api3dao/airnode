@@ -1,5 +1,5 @@
 import { mockReadFileSync } from '../../test/mock-utils';
-import { loadTrustedConfig, loadConfig } from './files';
+import { loadConfig, loadTrustedConfig } from '@api3/airnode-node';
 import * as fixtures from '../../test/fixtures';
 
 describe('config validation', () => {

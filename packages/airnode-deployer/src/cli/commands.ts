@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { CloudProvider } from '@api3/airnode-node';
+import { CloudProvider, loadConfig } from '@api3/airnode-node';
 import size from 'lodash/size';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
@@ -11,7 +11,6 @@ import {
   parseSecretsFile,
   shortenAirnodeAddress,
   validateMnemonic,
-  loadConfig,
 } from '../utils';
 import * as logger from '../utils/logger';
 

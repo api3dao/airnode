@@ -23,7 +23,6 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
 
   switch (aggregatedApiCall.type) {
     case 'http-signed-data-gateway':
-    case 'beacon':
     case 'http-gateway': {
       return {
         endpointName,
@@ -128,7 +127,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
   // TODO: check if beacon needs to verify templates
-  if (aggregatedApiCall.type === 'http-gateway' || aggregatedApiCall.type === 'beacon') return null;
+  if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -228,11 +227,6 @@ async function processSuccessfulApiCall(
           config
         );
         return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
-      }
-      case 'beacon': {
-        // NOTE: Beacons do not have requestId so no signature is computed
-        // TODO: check returned value: Airkeeper has: ethers.BigNumber.from(response.values[0].toString())
-        return [[], { success: true, value: JSON.stringify(response), signature: 'not-supported' }];
       }
     }
   } catch (e) {
