@@ -1,7 +1,7 @@
 import { MadeTemplateRequestEvent } from '@api3/airnode-protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMMadeRequestLog, RequestStatus, EVMFulfilledRequestLog } from '../../types';
+import { EVMMadeRequestLog, EVMFulfilledRequestLog } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
@@ -13,7 +13,6 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -34,13 +33,11 @@ describe('initialize (ApiCall)', () => {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       parameters: {},
       requestCount: '1',
-      status: RequestStatus.Pending,
       templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
       type: 'template',
     });
@@ -54,7 +51,6 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -83,7 +79,6 @@ describe('applyParameters', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -152,7 +147,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -175,13 +169,11 @@ describe('mapRequests (ApiCall)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
-          ignoreBlockedRequestsAfterBlocks: 20,
           minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
-        status: RequestStatus.Pending,
         templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
         type: 'template',
       },
@@ -199,7 +191,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
@@ -208,7 +199,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };

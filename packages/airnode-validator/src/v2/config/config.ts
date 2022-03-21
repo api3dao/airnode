@@ -54,7 +54,6 @@ export const chainConfigSchema = z.object({
   blockHistoryLimit: z.number().optional(),
   contracts: chainContractsSchema,
   id: z.string(),
-  ignoreBlockedRequestsAfterBlocks: z.number().optional(),
   minConfirmations: z.number().optional(),
   type: chainTypeSchema,
   options: chainOptionsSchema,

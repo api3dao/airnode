@@ -15,7 +15,6 @@ export interface FetchOptions {
   readonly airnodeAddress: string;
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
@@ -53,7 +52,6 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     address: log.address,
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
-    ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
     minConfirmations: options.minConfirmations,
     transactionHash: log.transactionHash,
     // If the provider returns a bad response, mapping logs could also throw

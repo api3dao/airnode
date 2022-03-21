@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { OIS } from '@api3/airnode-ois';
 import { logger } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestStatus, UpdatedRequests } from '../../types';
+import { ApiCall, Request, LogsData, UpdatedRequests } from '../../types';
 import { Trigger } from '../../config/types';
 
 export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
@@ -17,12 +17,6 @@ export function verifySponsorWallets<T>(
 ): LogsData<Request<T>[]> {
   const { logs, requests } = unverifiedRequests.reduce(
     (acc, request) => {
-      if (request.status !== RequestStatus.Pending) {
-        const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
-        const log = logger.pend('DEBUG', message);
-        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, request] };
-      }
-
       const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
       if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
         const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
@@ -46,14 +40,6 @@ export function verifyRrpTriggers(
 ): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
-      if (apiCall.status !== RequestStatus.Pending) {
-        // TODO: Do we need to log this? We do not follow the same practice in applySponsorAndSponsorWalletRequestLimit
-        // (once the request is ignored it is not further mentioned in future logs)
-        const message = `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`;
-        const log = logger.pend('DEBUG', message);
-        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
-      }
-
       const rrpTrigger = rrpTriggers.find((t) => t.endpointId === apiCall.endpointId);
       // If the request is for an unknown endpointId, the problem is with the requesting requester contract
       if (!rrpTrigger) {

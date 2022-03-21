@@ -40,15 +40,6 @@ export enum RequestErrorMessage {
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
-export enum RequestStatus {
-  // Request is valid and ready to be processed
-  Pending = 'Pending',
-  // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
-  // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
-  // becomes unblocked
-  Blocked = 'Blocked',
-}
-
 export enum RequestType {
   ApiCall,
   Withdrawal,
@@ -58,7 +49,6 @@ export interface RequestMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
 }
@@ -76,7 +66,6 @@ export type Request<T extends {}> = T & {
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly status: RequestStatus;
 };
 
 export type ApiCallType = 'template' | 'full';
@@ -132,7 +121,6 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly chainId: string;
   readonly chainType: ChainType;
   readonly chainOptions: ChainOptions;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
   readonly url: string;
@@ -321,7 +309,6 @@ interface EVMEventLogMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
 }

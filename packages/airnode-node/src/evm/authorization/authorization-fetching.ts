@@ -4,7 +4,7 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { logger, go } from '@api3/airnode-utilities';
-import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestStatus } from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
@@ -99,25 +99,21 @@ export async function fetch(
   apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<AuthorizationByRequestId>> {
-  // If an API call has a templateId but the template failed to load, then we cannot process
-  // that request. These requests will be marked as blocked.
-  const pendingApiCalls = apiCalls.filter((a) => a.status === RequestStatus.Pending);
-
   // If there are no pending API calls then there is no need to make an ETH call
-  if (isEmpty(pendingApiCalls)) {
+  if (isEmpty(apiCalls)) {
     return [[], {}];
   }
 
   // If there are no authorizer contracts then endpoint is public
   if (isEmpty(fetchOptions.authorizers)) {
-    const authorizationByRequestIds = pendingApiCalls.map((pendingApiCall) => ({
+    const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
     return [[], Object.assign({}, ...authorizationByRequestIds) as AuthorizationByRequestId];
   }
 
   // Request groups of 10 at a time
-  const groupedPairs = chunk(pendingApiCalls, CONVENIENCE_BATCH_SIZE);
+  const groupedPairs = chunk(apiCalls, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
   const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);

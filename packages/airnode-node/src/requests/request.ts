@@ -1,37 +1,9 @@
-import isEmpty from 'lodash/isEmpty';
-import { ApiCall, Request, GroupedRequests, RequestStatus, Withdrawal } from '../types';
-
-export function hasExceededIgnoredBlockLimit<T>(request: Request<T>): boolean {
-  const { blockNumber, currentBlock, ignoreBlockedRequestsAfterBlocks } = request.metadata;
-  return currentBlock - blockNumber > ignoreBlockedRequestsAfterBlocks;
-}
-
-export function filterActionableApiCalls(apiCalls: Request<ApiCall>[]): Request<ApiCall>[] {
-  return apiCalls.filter((a) => a.status === RequestStatus.Pending);
-}
-
-export function filterActionableWithdrawals(withdrawals: Request<Withdrawal>[]): Request<Withdrawal>[] {
-  return withdrawals.filter((w) => w.status === RequestStatus.Pending);
-}
-
-export function hasActionableApiCalls(apiCalls: Request<ApiCall>[]): boolean {
-  const actionableApiCalls = filterActionableApiCalls(apiCalls);
-  return !isEmpty(actionableApiCalls);
-}
-
-export function hasActionableWithdrawals(withdrawals: Request<Withdrawal>[]): boolean {
-  const actionableWithdrawals = filterActionableWithdrawals(withdrawals);
-  return !isEmpty(actionableWithdrawals);
-}
+import { Request, GroupedRequests } from '../types';
 
 export function hasNoActionableRequests(groupedRequests: GroupedRequests): boolean {
-  const noApiCalls = !hasActionableApiCalls(groupedRequests.apiCalls);
-  const noWithdrawals = !hasActionableWithdrawals(groupedRequests.withdrawals);
+  const noApiCalls = groupedRequests.apiCalls.length === 0;
+  const noWithdrawals = groupedRequests.withdrawals.length === 0;
   return noApiCalls && noWithdrawals;
-}
-
-export function getStatusNames() {
-  return Object.keys(RequestStatus).filter((s) => !(parseInt(s) >= 0));
 }
 
 export function getErrorMessage<T>(request: Request<T>): string | undefined {

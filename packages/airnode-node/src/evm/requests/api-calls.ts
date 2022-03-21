@@ -10,7 +10,6 @@ import {
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
   LogsData,
-  RequestStatus,
   UpdatedRequests,
 } from '../../types';
 
@@ -43,7 +42,6 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
       address: log.address,
       blockNumber: log.blockNumber,
       currentBlock: log.currentBlock,
-      ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
       minConfirmations: log.minConfirmations,
       transactionHash: log.transactionHash,
     },
@@ -51,7 +49,6 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
     parameters: {},
     requestCount: parsedLog.args.requesterRequestCount.toString(),
     sponsorAddress: parsedLog.args.sponsor,
-    status: RequestStatus.Pending,
     templateId: events.isTemplateApiRequest(log) ? log.parsedLog.args.templateId : null,
     type: getApiCallType(parsedLog.topic),
   };

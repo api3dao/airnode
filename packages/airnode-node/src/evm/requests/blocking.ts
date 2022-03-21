@@ -2,7 +2,7 @@ import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
-import { ApiCall, Request, GroupedRequests, LogsData, RequestStatus, RequestErrorMessage } from '../../types';
+import { ApiCall, Request, GroupedRequests, LogsData } from '../../types';
 
 interface ApiCallsWithLogs {
   readonly apiCalls: Request<ApiCall>[];
@@ -14,13 +14,12 @@ export function blockRequestsWithWithdrawals([
   requests,
 ]: LogsData<GroupedRequests>): LogsData<GroupedRequests> {
   // API calls related to a wallet with a pending withdrawal cannot be processed
-  const pendingWithdrawals = requests.withdrawals.filter((r) => r.status === RequestStatus.Pending);
-  const withdrawalsBySponsorAddress = keyBy(pendingWithdrawals, 'sponsorAddress');
+  const withdrawalsBySponsorAddress = keyBy(requests.withdrawals, 'sponsorAddress');
   const initialState: ApiCallsWithLogs = { logs: [], apiCalls: [] };
 
   const { logs, apiCalls } = requests.apiCalls.reduce((acc, apiCall) => {
     const pendingWithdrawal = withdrawalsBySponsorAddress[apiCall.sponsorAddress];
-    if (apiCall.status !== RequestStatus.Pending || !pendingWithdrawal) {
+    if (!pendingWithdrawal) {
       return { ...acc, apiCalls: [...acc.apiCalls, apiCall] };
     }
 
@@ -54,7 +53,6 @@ export function applySponsorAndSponsorWalletRequestLimit([
   const logs: PendingLog[] = [];
 
   requests.apiCalls.forEach((apiCall) => {
-    if (apiCall.status !== RequestStatus.Pending) return;
     // The "sponsor id" is a unique combination of sponsor and sponsor wallet
     const sponsorId = `${apiCall.sponsorAddress}-${apiCall.sponsorWalletAddress}`;
 
@@ -69,13 +67,7 @@ export function applySponsorAndSponsorWalletRequestLimit([
       return;
     }
 
-    logs.push(logger.pend('WARN', `Blocking Request ID:${apiCall.id} as it exceeded sponsor request limit.`));
-    const blockedCall: Request<ApiCall> = {
-      ...apiCall,
-      status: RequestStatus.Blocked,
-      errorMessage: `${RequestErrorMessage.SponsorRequestLimitExceeded}: ${apiCall.id}`,
-    };
-    allowedApiCalls.push(blockedCall);
+    logs.push(logger.pend('WARN', `Dropping Request ID:${apiCall.id} as it exceeded sponsor request limit.`));
   });
 
   return [[...prevLogs, ...logs], { ...requests, apiCalls: allowedApiCalls }];

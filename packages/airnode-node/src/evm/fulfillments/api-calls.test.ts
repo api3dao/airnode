@@ -17,7 +17,7 @@ import { ethers } from 'ethers';
 import * as apiCalls from './api-calls';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
-import { GasTarget, RequestErrorMessage, RequestStatus } from '../../types';
+import { GasTarget, RequestErrorMessage } from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { MAXIMUM_ONCHAIN_ERROR_LENGTH, API_CALL_FULFILLMENT_GAS_LIMIT } from '../../constants';
 
@@ -33,29 +33,6 @@ describe('submitApiCall', () => {
     maxPriorityFeePerGas: ethers.BigNumber.from(1),
     maxFeePerGas: ethers.BigNumber.from(1000),
   };
-
-  describe('Blocked API calls non-EIP-1559', () => {
-    test.each([gasPrice, gasPriceFallback])(`does not action blocked requests - %#`, async (gasTarget: GasTarget) => {
-      const provider = new ethers.providers.JsonRpcProvider();
-      const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus.Blocked });
-      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
-        gasTarget,
-        masterHDNode,
-        provider,
-      });
-      expect(logs).toEqual([
-        {
-          level: 'INFO',
-          message: `API call for Request:apiCallId not actioned as it has status:${RequestStatus.Blocked}`,
-        },
-      ]);
-      expect(err).toEqual(null);
-      expect(data).toEqual(null);
-      expect(staticFulfillMock).not.toHaveBeenCalled();
-      expect(fulfillMock).not.toHaveBeenCalled();
-      expect(failMock).not.toHaveBeenCalled();
-    });
-  });
 
   describe('Pending API calls', () => {
     test.each([gasPrice, gasPriceFallback])(
