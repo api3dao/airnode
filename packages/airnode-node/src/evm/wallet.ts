@@ -18,14 +18,14 @@ import { Config } from '../config/types';
  * @param protocolId An optional string representing the protocol id. Defaults to '1'.
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId?: string) => {
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = '1') => {
   const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
   for (let i = 0; i < 6; i++) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `${protocolId || '1'}/${paths.join('/')}`;
+  return `${protocolId}/${paths.join('/')}`;
 };
 
 export function getMasterHDNode(config: Config): ethers.utils.HDNode {
