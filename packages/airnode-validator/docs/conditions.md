@@ -2,13 +2,9 @@
 
 ## Basic condition
 
-Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain
-any amount of conditional objects. Object `__if` contains parameter name with regular expression, if the regular
-expression is matched in provided specification, validator will check if specification matches everything that's in the
-`__then` object.
+Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of conditional objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will check if specification matches everything that's in the `__then` object.
 
-Even if evaluation of `__then` object takes place, all messages from this validation are discarded and replaced with
-single error message.
+Even if evaluation of `__then` object takes place, all messages from this validation are discarded and replaced with single error message.
 
 ### Template
 
@@ -52,7 +48,6 @@ single error message.
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -75,7 +70,6 @@ single error message.
 ```
 
 ---
-
 ### Invalid specification
 
 ```json
@@ -144,7 +138,6 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -167,7 +160,6 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
 ```
 
 ---
-
 ### Invalid specification
 
 ```json
@@ -205,8 +197,7 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
 
 ## `__catch` in condition
 
-As the default error message in conditions is not very specific, it can be replaced with custom message by adding
-[catch](catch.md) parameter into condition object.
+As the default error message in conditions is not very specific, it can be replaced with custom message by adding [catch](catch.md) parameter into condition object.
 
 ### Template
 
@@ -256,7 +247,6 @@ As the default error message in conditions is not very specific, it can be repla
 ```
 
 ---
-
 ### Invalid specification
 
 ```json
@@ -320,7 +310,6 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -341,7 +330,6 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 ```
 
 ---
-
 ### Invalid specification
 
 ```json
@@ -365,7 +353,9 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 ```json
 {
   "valid": false,
-  "messages": [{ "level": "error", "message": "Condition in itemsList.[0].name is not met with name" }]
+  "messages": [
+    { "level": "error", "message": "Condition in itemsList.[0].name is not met with name" }
+  ]
 }
 ```
 
@@ -373,8 +363,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 
 ## `__this` and `__this_name`
 
-`__if` contains name of the parameter, but it can contain keywords `__this` or `__this_name` as well. `__this` will be
-matching value of parameter, the condition is nested in, `__this_name` will be matching the key of the parameter.
+`__if` contains name of the parameter, but it can contain keywords `__this` or `__this_name` as well. `__this` will be matching value of parameter, the condition is nested in, `__this_name` will be matching the key of the parameter.
 
 ### Template
 
@@ -421,7 +410,6 @@ matching value of parameter, the condition is nested in, `__this_name` will be m
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -442,7 +430,6 @@ matching value of parameter, the condition is nested in, `__this_name` will be m
 ```
 
 ---
-
 ### Invalid specification
 
 ```json
@@ -477,8 +464,7 @@ matching value of parameter, the condition is nested in, `__this_name` will be m
 
 ## Other types in the condition
 
-The `__if` section evaluates regular expression, but if the data type is other than string it will compare provided
-value with the value in the specification.
+The `__if` section evaluates regular expression, but if the data type is other than string it will compare provided value with the value in the specification.
 
 ### Template
 
@@ -518,7 +504,6 @@ value with the value in the specification.
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -540,7 +525,6 @@ value with the value in the specification.
 ```
 
 ---
-
 ### Invalid specification
 
 ```json

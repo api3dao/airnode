@@ -1,7 +1,6 @@
 # Nested templates
 
-Templates can be recursive. That is, a template can contain a pointer to another template in the form of a relative path
-provided in `__template`.
+Templates can be recursive. That is, a template can contain a pointer to another template in the form of a relative path provided in `__template`.
 
 ## `docs/template.json`
 
@@ -35,7 +34,6 @@ provided in `__template`.
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -48,7 +46,6 @@ provided in `__template`.
 ```
 
 ---
-
 ### Invalid specification
 
 ```json

@@ -1,8 +1,6 @@
 # Type checking
 
-If keyword `__regexp` is used in template, it is expected that type of the parameter in specification should be string,
-similarly in case of `__arrayItem` it should be an array. Other types can be specified by using keyword `__type` and
-providing a [typescript data type](https://www.typescriptlang.org/docs/handbook/basic-types.html).
+If keyword `__regexp` is used in template, it is expected that type of the parameter in specification should be string, similarly in case of `__arrayItem` it should be an array. Other types can be specified by using keyword `__type` and providing a [typescript data type](https://www.typescriptlang.org/docs/handbook/basic-types.html).
 
 ### Template
 
@@ -26,7 +24,6 @@ providing a [typescript data type](https://www.typescriptlang.org/docs/handbook/
 ```
 
 ---
-
 ### Valid specification
 
 ```json
@@ -43,7 +40,6 @@ providing a [typescript data type](https://www.typescriptlang.org/docs/handbook/
 ```
 
 ---
-
 ### Invalid specification
 
 ```json

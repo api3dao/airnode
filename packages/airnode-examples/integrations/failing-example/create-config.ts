@@ -54,7 +54,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     rrp: [
       {
         endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
-        oisTitle: 'CoinGecko basic request',
+        oisTitle: 'Failure Example',
         endpointName: 'coinMarketData',
       },
     ],
