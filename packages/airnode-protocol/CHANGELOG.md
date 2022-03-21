@@ -1,5 +1,19 @@
 # @api3/airnode-protocol
 
+## 0.5.0
+
+### Minor Changes
+
+- [#867](https://github.com/api3dao/airnode/pull/867) [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970) Thanks [@aquarat](https://github.com/aquarat)! - Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
+
+* [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+### Patch Changes
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
+* [#894](https://github.com/api3dao/airnode/pull/894) [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd) Thanks [@vponline](https://github.com/vponline)! - Fix hardhat tests by wrapping with a `describe`
+
 ## 0.4.0
 
 ### Minor Changes
