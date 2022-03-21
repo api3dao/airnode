@@ -70,6 +70,7 @@
     "test:e2e-node": "cd packages/airnode-node && yarn run test:e2e",
     "test:e2e-node:debug": "cd packages/airnode-node && yarn run test:e2e:debug",
     "test:protocol": "cd packages/airnode-protocol && yarn run test",
+    "test:protocol-v1": "cd packages/airnode-protocol-v1 && yarn run test",
     "test:node": "(cd packages/airnode-node && yarn run test)",
     "test:node:watch": "cd packages/airnode-node && yarn run test:watch",
     "test:validator": "(cd packages/airnode-validator && yarn run test)"

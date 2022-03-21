@@ -15,7 +15,15 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
+      - name: Update latest paths
+        run: |
+          wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
+          for i in latestVersion latestBeaconVersion latestOisVersion; do
+            path=$(grep $i config.js | cut -d\' -f2);
+            echo "Renaming: $i --> $path";
+            sed -i "s@$i@$path@" .github/workflows/mlc_config.json;
+          done
       - name: Check hyperlinks
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
