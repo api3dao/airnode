@@ -1,6 +1,7 @@
 # Any
 
-Specification might have a requirement on certain parameters, which at least one of these parameters might fulfill, to ensure this requirement is met, `__any` can be used.
+Specification might have a requirement on certain parameters, which at least one of these parameters might fulfill, to
+ensure this requirement is met, `__any` can be used.
 
 ### Template
 
@@ -32,6 +33,7 @@ Specification might have a requirement on certain parameters, which at least one
 ```
 
 ---
+
 ### Valid specification
 
 ```json
@@ -64,6 +66,7 @@ Specification might have a requirement on certain parameters, which at least one
 ```
 
 ---
+
 ### Invalid specification
 
 ```json
@@ -145,6 +148,7 @@ Specification might have a requirement on certain parameters, which at least one
 ```
 
 ---
+
 ### Valid specification
 
 ```json
@@ -173,6 +177,7 @@ Specification might have a requirement on certain parameters, which at least one
 ```
 
 ---
+
 ### Invalid specification
 
 ```json
@@ -205,9 +210,7 @@ Specification might have a requirement on certain parameters, which at least one
 ```json
 {
   "valid": false,
-  "messages": [
-    { "level": "error", "message": "Condition in vehicles.[1].location is not met with location" }
-  ]
+  "messages": [{ "level": "error", "message": "Condition in vehicles.[1].location is not met with location" }]
 }
 ```
 

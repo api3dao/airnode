@@ -1,6 +1,9 @@
 # Catch
 
-Validator has default error messages, that are returned in case specification is not matching template. Contents of these messages can be modified with `__catch`, to better explain why and where an error occurred and maybe even suggest a fix for this error. `__catch` will prevent all errors that occur on the same level or in parameters nested deeper in the same object from displaying and replaces them with provided message.
+Validator has default error messages, that are returned in case specification is not matching template. Contents of
+these messages can be modified with `__catch`, to better explain why and where an error occurred and maybe even suggest
+a fix for this error. `__catch` will prevent all errors that occur on the same level or in parameters nested deeper in
+the same object from displaying and replaces them with provided message.
 
 ### Specification used in following templates
 
@@ -78,9 +81,7 @@ Validator has default error messages, that are returned in case specification is
 ```json
 {
   "valid": false,
-  "messages": [
-    { "level": "error", "message": "Please write better specification" }
-  ]
+  "messages": [{ "level": "error", "message": "Please write better specification" }]
 }
 ```
 
@@ -88,7 +89,8 @@ Validator has default error messages, that are returned in case specification is
 
 ## Modifying message level
 
-In case `__catch` contains only `__level`, messages will not be replaced but their level will be set to value of `__level`.
+In case `__catch` contains only `__level`, messages will not be replaced but their level will be set to value of
+`__level`.
 
 ### Template
 
