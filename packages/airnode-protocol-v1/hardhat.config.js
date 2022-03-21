@@ -10,6 +10,7 @@ module.exports = {
   },
   mocha: {
     timeout: process.env.EXTENDED_TEST ? 3600000 : 20000,
+    parallel: true,
   },
   paths: {
     tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
