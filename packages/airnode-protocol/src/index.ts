@@ -87,5 +87,3 @@ export {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from './contracts/AirnodeRrp'; // eslint-disable-line import/no-unresolved
-
-export { TypedEventFilter } from './contracts/commons';
