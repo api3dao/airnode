@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { randomHexString } from '@api3/airnode-utilities';
-import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
+import { unsafeParseConfigWithSecrets, parseConfigWithSecrets } from '@api3/airnode-validator';
 import { Config } from './types';
 
 // TODO: Is this needed?
@@ -22,6 +22,17 @@ const readConfig = (configPath: string): unknown => {
     throw new Error('Failed to parse config file');
   }
 };
+
+export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {
+  const rawConfig = readConfig(configPath);
+  const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
+  if (!parsedConfigRes.success) {
+    throw new Error(`Invalid Airnode configuration file: ${parsedConfigRes.error}`);
+  }
+
+  const config = parsedConfigRes.data;
+  return config;
+}
 
 export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
   const rawConfig = readConfig(configPath);

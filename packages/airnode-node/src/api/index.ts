@@ -126,6 +126,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
+  // TODO: check if beacon needs to verify templates
   if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;

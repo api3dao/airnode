@@ -8,9 +8,9 @@ import {
   CallApiPayload,
   ProcessTransactionsPayload,
   WorkerPayload,
+  loadTrustedConfig,
 } from '@api3/airnode-node';
 import { logger, go } from '@api3/airnode-utilities';
-import { loadTrustedConfig } from '../../utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
