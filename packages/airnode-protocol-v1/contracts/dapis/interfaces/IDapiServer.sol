@@ -139,6 +139,11 @@ interface IDapiServer is IAirnodeRequester {
         external
         returns (bytes32 dapiId);
 
+    function updateDapiWithBeaconsAndReturnCondition(
+        bytes32[] memory beaconIds,
+        uint256 updateThresholdInPercentage
+    ) external returns (bool);
+
     function conditionPspDapiUpdate(
         bytes32 subscriptionId,
         bytes calldata data,

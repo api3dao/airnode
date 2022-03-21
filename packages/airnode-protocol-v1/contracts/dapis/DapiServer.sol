@@ -318,11 +318,14 @@ contract DapiServer is
         require(msg.sender == address(0), "Sender not zero address");
         bytes32 beaconId = subscriptionIdToBeaconId[subscriptionId];
         require(beaconId != bytes32(0), "Subscription not registered");
+        DataPoint storage beacon = dataPoints[beaconId];
         return
             calculateUpdateInPercentage(
-                dataPoints[beaconId].value,
+                beacon.value,
                 decodeFulfillmentData(data)
-            ) >= decodeConditionParameters(conditionParameters);
+            ) >=
+            decodeConditionParameters(conditionParameters) ||
+            beacon.timestamp == 0;
     }
 
     /// @notice Called by the Airnode/relayer using the sponsor wallet to
@@ -451,6 +454,32 @@ contract DapiServer is
         emit UpdatedDapiWithBeacons(dapiId, updatedValue, updatedTimestamp);
     }
 
+    /// @notice Updates the dAPI that is specified by the beacon IDs and
+    /// returns if this update was justified according to the update threshold
+    /// @dev This method does not allow the caller to indirectly read a dAPI,
+    /// which is why it does not require the sender to be a void signer with
+    /// zero address. This allows the implementation of incentive mechanisms
+    /// that rewards keepers that trigger valid dAPI updates.
+    /// @param beaconIds Beacon IDs
+    /// @param updateThresholdInPercentage Update threshold in percentage where
+    /// 100% is represented as `HUNDRED_PERCENT`
+    function updateDapiWithBeaconsAndReturnCondition(
+        bytes32[] memory beaconIds,
+        uint256 updateThresholdInPercentage
+    ) public override returns (bool) {
+        bytes32 dapiId = keccak256(abi.encode(beaconIds));
+        DataPoint memory initialDataPoint = dataPoints[dapiId];
+        updateDapiWithBeacons(beaconIds);
+        DataPoint storage updatedDataPoint = dataPoints[dapiId];
+        return
+            calculateUpdateInPercentage(
+                initialDataPoint.value,
+                dataPoints[dapiId].value
+            ) >=
+            updateThresholdInPercentage ||
+            (initialDataPoint.timestamp == 0 && updatedDataPoint.timestamp > 0);
+    }
+
     /// @notice Returns if the respective dAPI needs to be updated based on the
     /// condition parameters
     /// @dev The template ID used in the respective Subscription is expected to
@@ -469,17 +498,16 @@ contract DapiServer is
         bytes calldata conditionParameters
     ) external override returns (bool) {
         require(msg.sender == address(0), "Sender not zero address");
-        bytes32 dapiId = keccak256(data);
-        int224 currentDapiValue = dataPoints[dapiId].value;
+        bytes32[] memory beaconIds = abi.decode(data, (bytes32[]));
         require(
-            dapiId == updateDapiWithBeacons(abi.decode(data, (bytes32[]))),
+            keccak256(abi.encode(beaconIds)) == keccak256(data),
             "Data length not correct"
         );
         return
-            calculateUpdateInPercentage(
-                currentDapiValue,
-                dataPoints[dapiId].value
-            ) >= decodeConditionParameters(conditionParameters);
+            updateDapiWithBeaconsAndReturnCondition(
+                beaconIds,
+                decodeConditionParameters(conditionParameters)
+            );
     }
 
     /// @notice Called by the Airnode/relayer using the sponsor wallet to
