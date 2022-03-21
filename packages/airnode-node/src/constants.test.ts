@@ -6,12 +6,11 @@ describe('constants', () => {
 
     // Ensure all constant values are checked
     expect.assertions(constCount + 1);
-    expect(Object.keys(constants).length).toEqual(17);
+    expect(Object.keys(constants).length).toEqual(16);
 
     expect(constants.API_CALL_TIMEOUT).toEqual(30_000);
     expect(constants.API_CALL_TOTAL_TIMEOUT).toEqual(30_000);
     expect(constants.BLOCK_COUNT_HISTORY_LIMIT).toEqual(300);
-    expect(constants.BLOCK_COUNT_IGNORE_LIMIT).toEqual(20);
     expect(constants.BLOCK_MIN_CONFIRMATIONS).toEqual(0);
     expect(constants.CONVENIENCE_BATCH_SIZE).toEqual(10);
     expect(constants.DEFAULT_RETRY_DELAY_MS).toEqual(50);

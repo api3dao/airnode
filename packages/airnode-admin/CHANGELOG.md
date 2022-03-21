@@ -1,5 +1,34 @@
 # @api3/airnode-admin
 
+## 0.5.0
+
+### Minor Changes
+
+- [#867](https://github.com/api3dao/airnode/pull/867) [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970) Thanks [@aquarat](https://github.com/aquarat)! - Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
+
+* [#929](https://github.com/api3dao/airnode/pull/929) [`ff257e86`](https://github.com/api3dao/airnode/commit/ff257e8623929588587b56cb80991b68fc02e812) Thanks [@vponline](https://github.com/vponline)! - Add airnode-node gas prices implementation to airnode-admin
+
+- [#933](https://github.com/api3dao/airnode/pull/933) [`6504c3c8`](https://github.com/api3dao/airnode/commit/6504c3c88fa39026f0392f0892ab6adc85115461) Thanks [@vponline](https://github.com/vponline)! - Move gas-prices implementation to airnode-utilities
+
+* [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- [#834](https://github.com/api3dao/airnode/pull/834) [`9998bdfa`](https://github.com/api3dao/airnode/commit/9998bdfa3ccf1d179415e89d33b151bbf7843164) Thanks [@vponline](https://github.com/vponline)! - Adds support for ethers transaction overrides to airnode-admin CLI and SDK
+
+### Patch Changes
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+
+- [#868](https://github.com/api3dao/airnode/pull/868) [`23660580`](https://github.com/api3dao/airnode/commit/236605802a485fe09d1df7553d5b13fa7e6f36bf) Thanks [@vponline](https://github.com/vponline)! - Display airnode address and xpub when generating a mnemonic with CLI
+
+* [#869](https://github.com/api3dao/airnode/pull/869) [`65924669`](https://github.com/api3dao/airnode/commit/65924669e6ff3168646df3f1dfb9e1541c170474) Thanks [@vponline](https://github.com/vponline)! - Add examples to admin and deployer CLIs
+
+* Updated dependencies [[`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970), [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028), [`6504c3c8`](https://github.com/api3dao/airnode/commit/6504c3c88fa39026f0392f0892ab6adc85115461), [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312), [`da0026cb`](https://github.com/api3dao/airnode/commit/da0026cbb1c714d9b2f9af622afb858b37316217), [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b), [`8c9de3e5`](https://github.com/api3dao/airnode/commit/8c9de3e5d78fff4ee8e989ef640914bde16692b2), [`47ff09d7`](https://github.com/api3dao/airnode/commit/47ff09d788ca1f45e17e8ab0c9e5d8e26bc96b26), [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd)]:
+  - @api3/airnode-protocol@0.5.0
+  - @api3/airnode-utilities@0.5.0
+  - @api3/airnode-abi@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes

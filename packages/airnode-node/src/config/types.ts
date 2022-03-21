@@ -48,7 +48,6 @@ export interface ChainConfig {
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: string;
-  readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
   readonly type: ChainType;
   readonly options: ChainOptions;

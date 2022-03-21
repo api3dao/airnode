@@ -2,7 +2,6 @@ import { RequestedWithdrawalEvent } from '@api3/airnode-protocol';
 import * as withdrawals from './withdrawals';
 import { parseAirnodeRrpLog } from './event-logs';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
 
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
@@ -13,7 +12,6 @@ describe('initialize (Withdrawal)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -26,12 +24,10 @@ describe('initialize (Withdrawal)', () => {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
-      status: RequestStatus.Pending,
     });
   });
 });
@@ -67,7 +63,6 @@ describe('mapRequests (Withdrawal)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -82,12 +77,10 @@ describe('mapRequests (Withdrawal)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
-          ignoreBlockedRequestsAfterBlocks: 20,
           minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
-        status: RequestStatus.Pending,
       },
     ]);
   });
@@ -103,7 +96,6 @@ describe('mapRequests (Withdrawal)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
@@ -112,7 +104,6 @@ describe('mapRequests (Withdrawal)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };

@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import { randomHexString, removeKeys } from '@api3/airnode-utilities';
 import * as evm from '../evm';
 import { EVMProviderState, ProviderSettings, ProviderState, ProviderStates, EVMProviderSponsorState } from '../types';
-import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
+import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { groupRequestsBySponsorAddress } from '../requests/grouping';
 import { ChainConfig, ChainType, Config } from '../config/types';
 
@@ -28,7 +28,6 @@ export function buildEVMState(
     chainType: 'evm' as ChainType,
     chainOptions: chain.options,
     // If this number of blocks has passed, then ignore requests instead of blocking them
-    ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,

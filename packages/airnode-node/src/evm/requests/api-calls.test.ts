@@ -1,7 +1,7 @@
 import { MadeTemplateRequestEvent } from '@api3/airnode-protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMMadeRequestLog, RequestErrorMessage, RequestStatus, EVMFulfilledRequestLog } from '../../types';
+import { EVMMadeRequestLog, EVMFulfilledRequestLog } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
@@ -13,7 +13,6 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -34,13 +33,11 @@ describe('initialize (ApiCall)', () => {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
-        ignoreBlockedRequestsAfterBlocks: 20,
         minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       parameters: {},
       requestCount: '1',
-      status: RequestStatus.Pending,
       templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
       type: 'template',
     });
@@ -54,7 +51,6 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -83,7 +79,6 @@ describe('applyParameters', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -93,35 +88,31 @@ describe('applyParameters', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual(withEncodedParams);
+    expect(withDecodedParameters).toEqual([withEncodedParams]);
   });
 
   it('decodes and adds the parameters to the request', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([request]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH' } });
+    expect(withDecodedParameters).toEqual([{ ...request, parameters: { from: 'ETH' } }]);
   });
 
-  it('sets the request to errored if the parameters cannot be decoded', () => {
+  it('drops the request if the parameters cannot be decoded', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '0xincorrectparameters' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([
       {
         level: 'ERROR',
         message: `Request ID:${request.id} submitted with invalid parameters: 0xincorrectparameters`,
       },
     ]);
-    expect(withDecodedParameters).toEqual({
-      ...withEncodedParams,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: 0xincorrectparameters`,
-    });
+    expect(withDecodedParameters.length).toEqual(0);
   });
 });
 
@@ -156,7 +147,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
@@ -179,13 +169,11 @@ describe('mapRequests (ApiCall)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
-          ignoreBlockedRequestsAfterBlocks: 20,
           minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
-        status: RequestStatus.Pending,
         templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
         type: 'template',
       },
@@ -203,7 +191,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
@@ -212,7 +199,6 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
-      ignoreBlockedRequestsAfterBlocks: 20,
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };

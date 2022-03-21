@@ -15,16 +15,17 @@ import { Config } from '../config/types';
  * 1/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
+ * @param protocolId An optional string representing the protocol id. Defaults to '1'.
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): string => {
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = '1') => {
   const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
   for (let i = 0; i < 6; i++) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `1/${paths.join('/')}`;
+  return `${protocolId}/${paths.join('/')}`;
 };
 
 export function getMasterHDNode(config: Config): ethers.utils.HDNode {
@@ -46,9 +47,19 @@ export function getAirnodeAddressShort(airnodeAddress: string): string {
   return airnodeAddress.substring(2, 9).toLowerCase();
 }
 
-export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): ethers.Wallet {
+export function deriveSponsorWallet(
+  masterHDNode: ethers.utils.HDNode,
+  sponsorAddress: string,
+  protocolId?: string
+): ethers.Wallet {
   const sponsorWalletHdNode = masterHDNode.derivePath(
-    `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+    `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)}`
   );
   return new ethers.Wallet(sponsorWalletHdNode.privateKey);
 }
+
+export const deriveSponsorWalletFromMnemonic = (airnodeMnemonic: string, sponsorAddress: string, protocolId: string) =>
+  ethers.Wallet.fromMnemonic(
+    airnodeMnemonic,
+    `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)}`
+  );

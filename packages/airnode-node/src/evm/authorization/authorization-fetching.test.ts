@@ -11,8 +11,8 @@ mockEthers({
 import { ethers } from 'ethers';
 import * as authorization from './authorization-fetching';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
+import { ApiCall, Request } from '../../../src/types';
 
 describe('fetch (authorizations)', () => {
   let mutableFetchOptions: authorization.FetchOptions;
@@ -27,7 +27,7 @@ describe('fetch (authorizations)', () => {
   });
 
   it('returns an empty object if there are no pending API calls', async () => {
-    const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })];
+    const apiCalls: Request<ApiCall>[] = [];
     const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});

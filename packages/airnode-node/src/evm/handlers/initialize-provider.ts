@@ -63,8 +63,8 @@ export async function initializeProvider(
     logger.error('Unable to get pending requests', { ...baseLogOptions, error: dataErr });
     return null;
   }
-  const apiCalls = requests.filterActionableApiCalls(groupedRequests.apiCalls);
-  const withdrawals = requests.filterActionableWithdrawals(groupedRequests.withdrawals);
+  const apiCalls = groupedRequests.apiCalls;
+  const withdrawals = groupedRequests.withdrawals;
   logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`, baseLogOptions);
   const state3 = state.update(state2, { requests: groupedRequests });
 

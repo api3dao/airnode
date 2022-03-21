@@ -40,22 +40,6 @@ export enum RequestErrorMessage {
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
-export enum RequestStatus {
-  // Request is valid and ready to be processed
-  Pending = 'Pending',
-  // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
-  // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
-  // becomes unblocked
-  Blocked = 'Blocked',
-  // A request is errorred if it is valid, but cannot be fulfilled on chain
-  // and thus should result in "fail" method called on AirnodeRrp.
-  //
-  // This can happen by multiple ways - request is unauthorized, API call fails, static call to fulfill fails
-  // TODO: The problem with this status is that we use errorMessage to distinguish errored requests
-  // and keeping this in sync is fragile - we can just drop this
-  Errored = 'Errored',
-}
-
 export enum RequestType {
   ApiCall,
   Withdrawal,
@@ -65,7 +49,6 @@ export interface RequestMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
 }
@@ -83,7 +66,6 @@ export type Request<T extends {}> = T & {
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly status: RequestStatus;
 };
 
 export type ApiCallType = 'template' | 'full';
@@ -139,7 +121,6 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly chainId: string;
   readonly chainType: ChainType;
   readonly chainOptions: ChainOptions;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
   readonly url: string;
@@ -178,6 +159,11 @@ export interface CoordinatorState {
   readonly providerStates: ProviderStates;
   readonly coordinatorId: string;
   readonly settings: CoordinatorSettings;
+}
+
+export interface UpdatedRequests<T> {
+  readonly logs: PendingLog[];
+  readonly requests: Request<T>[];
 }
 
 // ===========================================
@@ -323,7 +309,6 @@ interface EVMEventLogMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
 }

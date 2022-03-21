@@ -8,15 +8,7 @@ import {
   MAXIMUM_ONCHAIN_ERROR_LENGTH,
   API_CALL_FULFILLMENT_GAS_LIMIT,
 } from '../../constants';
-import {
-  ApiCall,
-  Request,
-  LogsErrorData,
-  RequestErrorMessage,
-  RequestStatus,
-  TransactionOptions,
-  SubmitRequest,
-} from '../../types';
+import { ApiCall, Request, LogsErrorData, RequestErrorMessage, TransactionOptions, SubmitRequest } from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { decodeRevertString } from '../utils';
 
@@ -124,7 +116,6 @@ async function testAndSubmitFulfill(
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest: Request<ApiCall> = {
       ...request,
-      status: RequestStatus.Errored,
       errorMessage: testErr
         ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
         : RequestErrorMessage.FulfillTransactionFailed,
@@ -193,14 +184,6 @@ async function submitFail(
 // Main functions
 // =================================================================
 export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
-  if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
-    const log = logger.pend(
-      'INFO',
-      `API call for Request:${request.id} not actioned as it has status:${request.status}`
-    );
-    return [[log], null, null];
-  }
-
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',

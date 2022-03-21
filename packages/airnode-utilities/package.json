@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-utilities",
   "license": "MIT",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": false,
   "description": "General utilities to support Airnode packages",
   "files": [
@@ -18,7 +18,8 @@
   "main": "dist/index.js",
   "dependencies": {
     "@lifeomic/attempt": "^3.0.0",
-    "date-fns": "^2.16.1"
+    "date-fns": "^2.16.1",
+    "ethers": "^5.4.5"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

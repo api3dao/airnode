@@ -6,7 +6,6 @@ import {
   EVMFulfilledWithdrawalLog,
   EVMRequestedWithdrawalLog,
   LogsData,
-  RequestStatus,
   Withdrawal,
 } from '../../types';
 
@@ -21,12 +20,10 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
       address: logWithMetadata.address,
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
-      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       minConfirmations: logWithMetadata.minConfirmations,
       transactionHash: logWithMetadata.transactionHash,
     },
     sponsorAddress: parsedLog.args.sponsor,
-    status: RequestStatus.Pending,
   };
 
   return request;
