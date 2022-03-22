@@ -34,7 +34,7 @@ reserved parameters. The following list orders integrations alphabetically:
   unauthenticated cryptocurrency price request
 - [CoinGecko Testable](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-testable) -
   same price request as the CoinGecko example above. However, the endpoint is allowed to be tested using the
-  [HTTP gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateway.html).
+  [HTTP gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
 - [CoinMarketCap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
   authenticated cryptocurrency price request
 - [OpenWeather](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
