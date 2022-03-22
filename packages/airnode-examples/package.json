@@ -36,8 +36,7 @@
     "@api3/airnode-node": "^0.5.0",
     "@api3/airnode-protocol": "^0.5.0",
     "ethers": "^5.4.5",
-    "is-wsl": "^2.2.0",
-    "yarn": "^1.22.18"
+    "is-wsl": "^2.2.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
