@@ -27,7 +27,7 @@
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test",
-    "verify-deployment": "yarn run build:contracts && ts-node scripts/verify-deployment.ts"
+    "verify-deployment": "hardhat run scripts/verify-deployment.ts --network $NETWORK"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -44,7 +44,6 @@
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
-    "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
     "typescript": "^4.2.4"
   },
