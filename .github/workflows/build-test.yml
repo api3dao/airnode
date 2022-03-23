@@ -44,35 +44,13 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-  pre-build:
-    name: Prepare build environment
-    runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    steps:
-      - name: Clone airnode
-        uses: actions/checkout@v2
-        with:
-          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.TARGET_NODE_VERSION }}
-          cache: yarn
-      - name: Install Dependencies
-        run: yarn run bootstrap
-      - uses: actions/cache@v2
-        id: cache-pre-build
-        with:
-          path: ./*
-          key: pre-build-${{ github.sha }}
   docker-artifacts:
     name: Build airnode-artifacts and push to Docker Hub
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-arm64]
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
@@ -163,18 +141,19 @@ jobs:
     runs-on: ubuntu-latest
     # Don't run twice for a push within an internal PR
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    needs: pre-build
     steps:
-      - uses: actions/cache@v2
-        id: cache-pre-build
+      - name: Clone airnode
+        uses: actions/checkout@v2
         with:
-          path: ./*
-          key: pre-build-${{ github.sha }}
+          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
+          fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
+      - name: Install Dependencies
+        run: yarn run bootstrap
       - name: Build
         run: yarn run build
       - name: Lint code
