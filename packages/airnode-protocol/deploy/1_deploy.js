@@ -21,4 +21,4 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   });
   log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
 };
-module.exports.tags = ['Deploy'];
+module.exports.tags = ['deploy'];
