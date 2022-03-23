@@ -72,7 +72,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-arm64]
     needs: pre-build
     steps:
       - uses: actions/cache@v2
@@ -97,7 +97,7 @@ jobs:
     needs: docker-artifacts
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-arm64]
         package: [deployer, admin, client]
     steps:
       - uses: actions/cache@v2
@@ -147,9 +147,9 @@ jobs:
         run: |
           docker manifest create \
           api3/airnode-${{ matrix.package }}-dev:${{ github.sha }} \
-          --amend api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}-macos-latest \
+          --amend api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}-ubuntu-arm64-latest \
           --amend api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}-ubuntu-latest
-          docker push api3/airnode-${{ matrix.package }}-dev-${{ matrix.package }}-dev:${{ github.sha }}-${{ matrix.os }}
+          docker push api3/airnode-${{ matrix.package }}-dev-${{ matrix.package }}-dev:${{ github.sha }}
   build:
     name: Build and lint Airnode
     runs-on: ubuntu-latest
