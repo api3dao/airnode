@@ -52,6 +52,8 @@ jobs:
         os: [ubuntu-latest, ubuntu-arm64]
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
+      - name: Purge docker images
+        run: docker system prune -f --all
       - name: Clone airnode
         uses: actions/checkout@v2
         with:
