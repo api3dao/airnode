@@ -1,12 +1,11 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { logger } from '@api3/airnode-utilities';
+import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
 async function main() {
   const networks = Object.keys(JSON.parse(fs.readFileSync('credentials.example.json', 'utf8')).networks);
-  const contractNames = ['AccessControlRegistry', 'RequesterAuthorizerWithAirnode', 'AirnodeRrp'];
-
   const references: any = {};
   for (const contractName of contractNames) {
     references[contractName] = {};
@@ -24,3 +23,5 @@ main()
     logger.error(error);
     process.exit(1);
   });
+
+export { contractNames };

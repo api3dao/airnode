@@ -6,10 +6,10 @@
 
 import { assert } from 'console';
 import { logger } from '@api3/airnode-utilities';
+import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
 async function main() {
-  const contractNames = ['AccessControlRegistry', 'RequesterAuthorizerWithAirnode', 'AirnodeRrp'];
   for (const contractName of contractNames) {
     const deployment = await hre.deployments.get(contractName);
     const artifact = await hre.deployments.getArtifact(contractName);
