@@ -19,5 +19,5 @@ module.exports = async ({ deployments }) => {
     constructorArguments: [],
   });
 };
-module.exports.tags = ['Verify'];
-module.exports.dependencies = ['Deploy'];
+module.exports.tags = ['verify'];
+module.exports.dependencies = ['deploy'];
