@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-import "../interfaces/IAirnodeRrp.sol";
+import "./interfaces/IAirnodeRrp.sol";
 
 /// @title The contract to be inherited to make Airnode RRP requests
 contract RrpRequester {

@@ -5,63 +5,48 @@
 // of the local compilation.
 
 import { assert } from 'console';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as ethers from 'ethers';
 import { logger } from '@api3/airnode-utilities';
-
-// From https://stackoverflow.com/a/20525865/14558682
-// Gets a list of files in the directory recursively
-function getFiles(dir: any, files_: any) {
-  files_ = files_ || [];
-  const files = fs.readdirSync(dir);
-  for (const i in files) {
-    const name = path.join(dir, files[i] as string);
-    if (fs.statSync(name).isDirectory()) {
-      getFiles(name, files_);
-    } else {
-      files_.push(name);
-    }
-  }
-  return files_;
-}
+import { contractNames } from './contract-names';
+const hre = require('hardhat');
 
 async function main() {
-  const networks = ['mainnet', 'ropsten', 'rinkeby', 'goerli', 'kovan'];
-  const contracts = ['AccessControlRegistry', 'AirnodeRrp', 'RequesterAuthorizerWithAirnode'];
-  const credentials = JSON.parse(fs.readFileSync('credentials.json', 'utf8'));
-  const artifactFileNames = getFiles(path.join('artifacts', 'contracts'), []);
+  for (const contractName of contractNames) {
+    const deployment = await hre.deployments.get(contractName);
+    const artifact = await hre.deployments.getArtifact(contractName);
 
-  for (const network of networks) {
-    const provider = new ethers.providers.JsonRpcProvider(credentials[network].providerUrl);
-    for (const contract of contracts) {
-      const deployment = JSON.parse(fs.readFileSync(path.join('deployments', network, `${contract}.json`), 'utf8'));
-      const artifactFileName = artifactFileNames.find((artifactFileName: any) =>
-        artifactFileName.endsWith(`${contract}.json`)
+    const creationTx = await hre.ethers.provider.getTransaction(deployment.transactionHash);
+    // Verify that the creation tx hash belongs to the address
+    assert(creationTx.creates === deployment.address);
+    const creationData = creationTx.data;
+
+    // Check if the calldata in the creation tx matches with the local build
+    const constructor = artifact.abi.find((method: any) => method.type === 'constructor');
+    if (constructor) {
+      // If a constructor is defined, encode and add the constructor arguments to the contract bytecode
+      const constructorArgumentTypes = constructor.inputs.map((input: any) => input.type);
+      const encodedConstructorArguments = hre.ethers.utils.defaultAbiCoder.encode(
+        constructorArgumentTypes,
+        deployment.args
       );
-      const artifact = JSON.parse(fs.readFileSync(artifactFileName, 'utf8'));
-
-      const creationTx: any = await provider.getTransaction(deployment.transactionHash);
-      const creationData = creationTx.data;
-      // Make sure that the creation tx hash belongs to the address
-      assert(creationTx.creates === deployment.address);
-
-      let doesMatch = false;
-      const constructor = artifact.abi.find((method: any) => method.type === 'constructor');
-      if (constructor) {
-        const constructorArgumentTypes = constructor.inputs.map((input: any) => input.type);
-        const encodedConstructorArguments = ethers.utils.defaultAbiCoder.encode(
-          constructorArgumentTypes,
-          deployment.args
-        );
-        const generatedCreationData = artifact.bytecode + encodedConstructorArguments.substring(2);
-        doesMatch = creationData === generatedCreationData;
-      } else {
-        doesMatch = creationData === artifact.bytecode;
+      const generatedCreationData = hre.ethers.utils.solidityPack(
+        ['bytes', 'bytes'],
+        [artifact.bytecode, encodedConstructorArguments]
+      );
+      if (creationData !== generatedCreationData) {
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
       }
-      logger.log(`${contract} deployment on ${network} ${doesMatch ? 'matches' : 'DOES NOT match'} the local build!`);
+    } else {
+      if (creationData !== artifact.bytecode) {
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
+      }
     }
+    logger.log(`${contractName} deployment on ${hre.network.name} matches the local build!`);
   }
 }
 
-main();
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });
