@@ -34,6 +34,20 @@ yarn run test:coverage
 yarn run test:gas
 ```
 
+Deploy the contracts on a network (`<NETWORK>` must be one of the names from `credentials.example.json`), verify the
+deployment
+
+```sh
+# Deploys (use if you do not want Etherscan verification)
+NETWORK=<NETWORK> yarn run deploy
+
+# Deploys and verifies on Etherscan
+NETWORK=<NETWORK> yarn run deploy-and-verify
+
+# Verifies deployment locally
+NETWORK=<NETWORK> yarn run verify-deployment
+```
+
 ## Introduction
 
 At a high level, there are two Airnode protocols:
