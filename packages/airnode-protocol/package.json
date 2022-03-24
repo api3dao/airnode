@@ -15,19 +15,14 @@
     "build:contract-dts": "yarn typechain --target ethers-v5 --out-dir ./src/contracts \"./artifacts/contracts/**/!(*.dbg).json\"",
     "build:copy-contract-dts": "copyfiles -u 1 \"src/contracts/**/*.d.ts\" dist/src",
     "clean": "rimraf -rf ./dist *.tgz",
-    "deploy:mainnet": "hardhat deploy --network mainnet",
-    "deploy:ropsten": "hardhat deploy --network ropsten",
-    "deploy:rinkeby": "hardhat deploy --network rinkeby",
-    "deploy:goerli": "hardhat deploy --network goerli",
-    "deploy:kovan": "hardhat deploy --network kovan",
-    "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
-    "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol",
-    "flatten:delete-license-lines": "node dev-scripts/delete-flattened-licenses.js",
+    "deploy": "hardhat deploy --network $NETWORK --tags deploy && yarn run generate-references",
+    "deploy-and-verify": "hardhat deploy --network $NETWORK --tags verify && yarn run generate-references",
+    "generate-references": "hardhat run scripts/generate-references.ts",
     "pack": "yarn pack",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test",
-    "verify-deployment": "yarn run build:contracts && ts-node scripts/verify-deployment.ts"
+    "verify-deployment": "hardhat run scripts/verify-deployment.ts --network $NETWORK"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -44,7 +39,6 @@
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
-    "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
     "typescript": "^4.2.4"
   },
