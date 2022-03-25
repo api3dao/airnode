@@ -60,6 +60,7 @@ describe('deployer commands', () => {
         },
         nodeVersion: '0.5.0',
         stage: 'stage',
+        timestamp: new Date('23 March 2022 14:48 UTC').toISOString(),
       },
     };
     mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt));

@@ -85,10 +85,12 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     logger.warn((err as Error).toString());
   }
 
+  const deploymentTimestamp = new Date().toISOString();
+
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
-  writeReceiptFile(receiptFile, mnemonic, config, output);
+  writeReceiptFile(receiptFile, mnemonic, config, output, deploymentTimestamp);
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {

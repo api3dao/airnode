@@ -21,7 +21,8 @@ export function writeReceiptFile(
   receiptFilename: string,
   mnemonic: string,
   config: Config,
-  commandOutput: DeployAirnodeOutput
+  commandOutput: DeployAirnodeOutput,
+  timestamp: string
 ) {
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
@@ -36,6 +37,7 @@ export function writeReceiptFile(
       cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
       stage: config.nodeSettings.stage,
       nodeVersion: config.nodeSettings.nodeVersion,
+      timestamp,
     },
     api: {
       ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
