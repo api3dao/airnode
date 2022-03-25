@@ -1,12 +1,6 @@
-# Monorepo version: `@api3/airnode-protocol`
-
-# Stand-alone version: `@api3/airnode-protocol`
+# `@api3/airnode-protocol`
 
 > The contracts that implement the Airnode protocols
-
-**_This documents the protocol for v0. We have also published and documented the pre-alpha version widely. Pre-alpha and
-v0 are very different in implementation and the terminology they use is contradictory. If you are referring to any
-outside source, make sure that it is not referring to the pre-alpha version, or at least interpret it accordingly._**
 
 ## Instructions
 
@@ -32,6 +26,20 @@ yarn run test
 yarn run test:coverage
 # Outputs to `.gas_report`
 yarn run test:gas
+```
+
+Deploy the contracts on a network (`<NETWORK>` must be one of the names from `credentials.example.json`), verify the
+deployment
+
+```sh
+# Deploys (use if you do not want Etherscan verification)
+NETWORK=<NETWORK> yarn run deploy
+
+# Deploys and verifies on Etherscan
+NETWORK=<NETWORK> yarn run deploy-and-verify
+
+# Verifies deployment locally
+NETWORK=<NETWORK> yarn run verify-deployment
 ```
 
 ## Introduction

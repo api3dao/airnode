@@ -19,28 +19,7 @@ module.exports = {
     outputFile: 'gas_report',
     noColors: true,
   },
-  networks: {
-    mainnet: {
-      url: credentials.mainnet.providerUrl || '',
-      accounts: { mnemonic: credentials.mainnet.mnemonic || '' },
-    },
-    ropsten: {
-      url: credentials.ropsten.providerUrl || '',
-      accounts: { mnemonic: credentials.ropsten.mnemonic || '' },
-    },
-    rinkeby: {
-      url: credentials.rinkeby.providerUrl || '',
-      accounts: { mnemonic: credentials.rinkeby.mnemonic || '' },
-    },
-    goerli: {
-      url: credentials.goerli.providerUrl || '',
-      accounts: { mnemonic: credentials.goerli.mnemonic || '' },
-    },
-    kovan: {
-      url: credentials.kovan.providerUrl || '',
-      accounts: { mnemonic: credentials.kovan.mnemonic || '' },
-    },
-  },
+  networks: credentials.networks,
   paths: {
     tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
   },
