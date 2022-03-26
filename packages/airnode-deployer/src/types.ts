@@ -15,6 +15,7 @@ export interface Deployment {
   airnodeAddressShort: string;
   stage: string;
   cloudProvider: CloudProvider;
+  timestamp: string;
 }
 
 export interface Api {
