@@ -19,7 +19,7 @@
     "deploy-and-verify": "hardhat deploy --network $NETWORK --tags verify && yarn run generate-references",
     "generate-references": "hardhat run scripts/generate-references.ts",
     "pack": "yarn pack",
-    "test": "hardhat test",
+    "test": "hardhat test --parallel",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test",
     "verify-deployment": "hardhat run scripts/verify-deployment.ts --network $NETWORK"
