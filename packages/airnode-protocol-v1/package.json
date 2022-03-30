@@ -3,8 +3,18 @@
   "license": "MIT",
   "version": "0.3.1",
   "private": false,
+  "main": "dist/src/index",
+  "files": [
+    "contracts",
+    "dist"
+  ],
   "scripts": {
+    "build": "yarn clean && yarn run build:contracts && yarn run build:tsc",
     "build:contracts": "hardhat compile",
+    "build:tsc": "yarn build:contract-dts && yarn build:copy-contract-dts && tsc -p tsconfig.build.json",
+    "build:contract-dts": "yarn typechain --target ethers-v5 --out-dir ./src/contracts \"./artifacts/contracts/**/!(*.dbg).json\"",
+    "build:copy-contract-dts": "copyfiles -u 1 \"src/contracts/**/*.d.ts\" dist/src",
+    "clean": "rimraf -rf ./dist *.tgz",
     "test": "NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
     "test:extended": "EXTENDED_TEST=TRUE NODE_OPTIONS='--max-old-space-size=8192' hardhat test",
     "test:coverage": "NODE_OPTIONS='--max-old-space-size=8192' hardhat coverage",
@@ -18,7 +28,9 @@
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.5",
     "hardhat-gas-reporter": "^1.0.4",
-    "solidity-coverage": "^0.7.16"
+    "solidity-coverage": "^0.7.16",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "ethers": "^5.4.5"
