@@ -123,5 +123,5 @@ export async function processHttpSignedDataRequest(
   }
 
   // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
-  return { statusCode: 200, body: JSON.stringify({ data: result!.value, signature: result!.signature }) };
+  return { statusCode: 200, body: JSON.stringify({ data: JSON.parse(result!.value), signature: result!.signature }) };
 }
