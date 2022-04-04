@@ -1153,12 +1153,12 @@
     teeny-request "^7.0.0"
 
 "@google-cloud/functions-framework@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-3.0.0.tgz#2b7e6454ee9fe4d1eaaa08384fc01de4a72cd081"
-  integrity sha512-+K9+y39/5ig4QrbnaCM8BOzt4+Qx5SRMu2dj5QDTNFc5s8f/Lubty8u3aBQN6JC86M0NuHL9zIj8xs8Awj7C+w==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-3.1.0.tgz#7e17614dd17e70992581d382c3990c34e5445f0e"
+  integrity sha512-hdHxohi4S34H0lLMuXiEBsTXVbYBG7VH8PE4UCcGOn0mbjKXbSP4H6hBxMbQMonIPfO/JJjEeLaTCal8fiTmaA==
   dependencies:
     body-parser "^1.18.3"
-    cloudevents "^5.1.0"
+    cloudevents "^5.3.2"
     express "^4.16.4"
     minimist "^1.2.5"
     on-finished "^2.3.0"
@@ -5373,7 +5373,7 @@ clone@^1.0.2:
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
   integrity sha1-2jCcwmPfFZlMaIypAheco8fNfH4=
 
-cloudevents@^5.1.0:
+cloudevents@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/cloudevents/-/cloudevents-5.3.2.tgz#1338f0d51a2baac40ef7ea2b3577394447994d49"
   integrity sha512-ZjEFjx0BJnio8SED1TzD7GHA118zCk04Mz6aDMMii+4/ZvX5LPgn1D4lT5Jj7HodCbdeRS6dX88unH06Qc3mkA==
