@@ -42,6 +42,14 @@ NETWORK=<NETWORK> yarn run deploy-and-verify
 NETWORK=<NETWORK> yarn run verify-deployment
 ```
 
+## Integration notes
+
+- `fantom-testnet` and `arbitrum` is not verified on the respective block explorers due to hardhat-etherscan not
+  working. You can verify the contracts locally using the `verify-deployment` script.
+
+- The default Airnode `gasLimit` is not enough for `arbitrum` and `arbitrum-testnet`. Configure a suitable value in
+  `config.json` for these chains.
+
 ## Introduction
 
 At a high level, there are two Airnode protocols:
