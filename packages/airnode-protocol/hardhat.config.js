@@ -11,9 +11,7 @@ if (fs.existsSync('./credentials.json')) {
 }
 
 module.exports = {
-  etherscan: {
-    apiKey: credentials.etherscanApiKey,
-  },
+  etherscan: credentials.etherscan,
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
     outputFile: 'gas_report',
