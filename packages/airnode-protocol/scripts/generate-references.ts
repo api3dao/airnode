@@ -5,7 +5,10 @@ import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
 async function main() {
-  const networks = Object.keys(JSON.parse(fs.readFileSync('credentials.example.json', 'utf8')).networks);
+  const networks = fs
+    .readdirSync(path.join('deployments'), { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name);
   const references: any = {};
   for (const contractName of contractNames) {
     references[contractName] = {};
