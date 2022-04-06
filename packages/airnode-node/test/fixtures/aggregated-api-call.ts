@@ -41,10 +41,7 @@ export function buildAggregatedHttpGatewayApiCall(
 ): HttpGatewayAggregatedApiCall {
   return {
     type: 'http-gateway',
-    airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-    endpointId: 'endpointId',
     endpointName: 'convertToUSD',
-    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
     ...params,
@@ -56,7 +53,6 @@ export function buildAggregatedHttpSignedDataApiCall(
 ): HttpSignedDataAggregatedApiCall {
   return {
     type: 'http-signed-data-gateway',
-    airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
