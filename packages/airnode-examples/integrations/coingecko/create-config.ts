@@ -29,6 +29,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           value: 3.12,
           unit: 'gwei',
         },
+        fulfillmentGasLimit: 500000,
       },
     },
   ],

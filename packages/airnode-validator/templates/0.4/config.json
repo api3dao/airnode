@@ -133,6 +133,12 @@
             }
           }
         ],
+        "fulfillmentGasLimit": {
+          "__type": "number",
+          "__catch": {
+            "__message": "__fullPath: This field must be an integer"
+          }
+        },
         "__optional": {
           "baseFeeMultiplier": {
             "__type": "number",
