@@ -55,6 +55,7 @@ const chains: ChainConfig[] = [
         value: 3.12,
         unit: 'gwei',
       },
+      fulfillmentGasLimit: 500000,
     },
   },
   {
@@ -77,6 +78,7 @@ const chains: ChainConfig[] = [
         value: 3.12,
         unit: 'gwei',
       },
+      fulfillmentGasLimit: 600000,
     },
   },
 ];
@@ -116,6 +118,7 @@ describe('initialize', () => {
                 value: 3.12,
                 unit: 'gwei',
               },
+              fulfillmentGasLimit: 500000,
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -159,6 +162,7 @@ describe('initialize', () => {
                 value: 3.12,
                 unit: 'gwei',
               },
+              fulfillmentGasLimit: 600000,
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -221,7 +225,7 @@ describe('processRequests', () => {
         ...initialState,
         settings: {
           ...initialState.settings,
-          chainOptions: { txType },
+          chainOptions: { txType, fulfillmentGasLimit: 500000 },
         },
       }));
 

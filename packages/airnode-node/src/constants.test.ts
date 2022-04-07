@@ -6,7 +6,7 @@ describe('constants', () => {
 
     // Ensure all constant values are checked
     expect.assertions(constCount + 1);
-    expect(Object.keys(constants).length).toEqual(16);
+    expect(Object.keys(constants).length).toEqual(15);
 
     expect(constants.API_CALL_TIMEOUT).toEqual(30_000);
     expect(constants.API_CALL_TOTAL_TIMEOUT).toEqual(30_000);
@@ -23,6 +23,5 @@ describe('constants', () => {
     expect(constants.PRIORITY_FEE).toEqual(3120000000);
     expect(constants.BASE_FEE_MULTIPLIER).toEqual(2);
     expect(constants.MAXIMUM_ONCHAIN_ERROR_LENGTH).toEqual(100);
-    expect(constants.API_CALL_FULFILLMENT_GAS_LIMIT).toEqual(500_000);
   });
 });
