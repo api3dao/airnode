@@ -32,11 +32,9 @@ const config = fixtures.buildConfig();
 const gasTarget = {
   maxPriorityFeePerGas: ethers.BigNumber.from(1),
   maxFeePerGas: ethers.BigNumber.from(1000),
-  gasLimit: ethers.BigNumber.from(500000),
 };
 const gasTargetFallback = {
   gasPrice: ethers.BigNumber.from('1000'),
-  gasLimit: ethers.BigNumber.from(500000),
 };
 
 describe('submitWithdrawal', () => {
