@@ -68,6 +68,8 @@ export type ResponseType = string;
 export interface ReservedParameters {
   _path?: string;
   _times?: string;
+  _preProcess?: string;
+  _postProcess?: string;
   _type: ResponseType;
 }
 

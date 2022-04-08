@@ -1,6 +1,7 @@
 import isUndefined from 'lodash/isUndefined';
 import range from 'lodash/range';
 import { ethers } from 'ethers';
+import { logger } from '@api3/airnode-utilities';
 import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
 import { encodeMultipleValues, encodeValue } from './encoding';
@@ -134,12 +135,38 @@ export function exceedsMaximumEncodedResponseSize(encodedValue: string) {
   return encodedBytesLength > MAX_ENCODED_RESPONSE_SIZE;
 }
 
+function postProcessExtractedValues(extractedValues: ValueType[], parameters: ReservedParameters) {
+  // console.log(parameters);
+  if (parameters._postProcess) {
+    try {
+      logger.debug(`Post processing API Value: ${JSON.stringify(extractedValues, null, 2)}`);
+      const postProcessingResult = eval(parameters._postProcess);
+
+      logger.debug(`Post processing result: ${JSON.stringify(postProcessingResult, null, 2)}`);
+
+      return postProcessingResult;
+    } catch (e) {
+      const error = e as Error;
+      logger.error(`Failed to post process API response: ${error.message}\n${error.stack}`);
+
+      return undefined;
+    }
+  }
+
+  return extractedValues;
+}
+
 export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters): ExtractedAndEncodedResponse {
+  // console.log("EXTRACT");
   const reservedParameters = splitReservedParameters(parameters);
   if (reservedParameters.length > 1) {
     const extractedValues = reservedParameters.map((params) => extractSingleResponse(data, params));
+
+    // console.log("EXTRACT");
+    const processedExtractedValues = postProcessExtractedValues(extractedValues, parameters);
+
     const encodedValue = encodeMultipleValues(
-      extractedValues,
+      processedExtractedValues,
       reservedParameters.map((param) => param._type)
     );
 

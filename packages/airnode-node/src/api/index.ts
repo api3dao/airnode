@@ -193,6 +193,46 @@ async function performApiCall(
   return [[], { ...res! }];
 }
 
+function preProcessApiResponse(
+  rawResponse: PerformApiCallSuccess,
+  reservedParameters: {
+    _type: string | undefined;
+    _path: string | undefined;
+    _times: string | undefined;
+    _postProcess: string | undefined;
+    _preProcess: string | undefined;
+  }
+) {
+  if (reservedParameters._preProcess) {
+    const apiValue = rawResponse.data;
+
+    /**
+     * The eval statement should end with the value to be returned - however that line evaluates will be stored as the
+     * result.
+     *
+     * Example:
+     *
+     * console.log(apiValue); // will print the API value to the console
+     * apiValue*2; // will multiply the apiValue by 2 and return the result
+     */
+    try {
+      logger.debug(`Pre-processing API Value: ${JSON.stringify(apiValue)}`);
+      const preProcessingResult = eval(reservedParameters._preProcess);
+
+      logger.debug(`Pre-processing result: ${JSON.stringify(preProcessingResult)}`);
+
+      return preProcessingResult;
+    } catch (e) {
+      const error = e as Error;
+      logger.error(`Failed to pre-process API response: ${error.message}\n${error.stack}`);
+
+      return undefined; // we expect that this will break extractAndEncode further up the stack
+    }
+  }
+
+  return rawResponse.data;
+}
+
 async function processSuccessfulApiCall(
   payload: CallApiPayload,
   rawResponse: PerformApiCallSuccess
@@ -205,7 +245,7 @@ async function processSuccessfulApiCall(
 
   try {
     const response = adapter.extractAndEncodeResponse(
-      rawResponse.data,
+      preProcessApiResponse(rawResponse, reservedParameters),
       reservedParameters as adapter.ReservedParameters
     );
 

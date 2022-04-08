@@ -15,7 +15,7 @@
     "pack": "yarn pack"
   },
   "types": "dist/index",
-  "main": "dist/index.js",
+  "main": "dist/index",
   "dependencies": {
     "@lifeomic/attempt": "^3.0.0",
     "date-fns": "^2.16.1",

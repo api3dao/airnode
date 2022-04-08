@@ -16,6 +16,11 @@ export function getReservedParameterValue(
     return reservedParameter.fixed;
   }
 
+  // Disallow post processing parameter if submitted on chain
+  if (reservedParameter.name === '_postProcess' || reservedParameter.name === '_preProcess') {
+    return undefined;
+  }
+
   const requestParameter = requestParameters[name];
   if (!requestParameter) {
     return reservedParameter.default;
@@ -28,6 +33,8 @@ export function getReservedParameters(endpoint: Endpoint, requestParameters: Api
   const _path = getReservedParameterValue('_path', endpoint, requestParameters);
   const _times = getReservedParameterValue('_times', endpoint, requestParameters);
   const _type = getReservedParameterValue('_type', endpoint, requestParameters);
+  const _postProcess = getReservedParameterValue('_postProcess', endpoint, requestParameters);
+  const _preProcess = getReservedParameterValue('_preProcess', endpoint, requestParameters);
 
-  return { _type, _path, _times };
+  return { _type, _path, _times, _postProcess, _preProcess };
 }
