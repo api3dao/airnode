@@ -44,7 +44,6 @@ export async function processHttpSignedDataRequest(
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-signed-data-gateway',
     id: requestId,
-    airnodeAddress,
     endpointId,
     endpointName: trigger.endpointName,
     oisTitle: trigger.oisTitle,
