@@ -113,12 +113,12 @@ async function initiateTransactions(state: CoordinatorState) {
   const sponsorProviderStates = providers.splitStatesBySponsorAddress(providerStates);
   sponsorProviderStates.forEach((sponsorProviderState) => {
     logger.info(
-      `Forking to submit transactions for EVM provider:${sponsorProviderState.settings.name} and sponsor wallet: ${sponsorProviderState.sponsorAddress}...`,
+      `Forking to submit transactions for EVM provider: ${sponsorProviderState.settings.name} and sponsor: ${sponsorProviderState.sponsorAddress}...`,
       logOptions
     );
   });
 
-  // NOTE: Not merging responses and logs back (based on the provider, regardless sponsor wallet)
+  // NOTE: Not merging responses and logs back (based on the provider, regardless of sponsor)
   // as the data don't go anywhere from here but be aware if that changes in the future.
   const [logs, processedProviders] = await providers.processRequests(sponsorProviderStates, getWorkerOptions(state));
   logger.logPending(logs, logOptions);
@@ -181,7 +181,7 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   state = disaggregateApiCalls(state);
 
   // ======================================================================
-  // STEP 8: Initiate transactions for each provider, sponsor wallet pair
+  // STEP 8: Initiate transactions for each provider, sponsor pair
   // ======================================================================
   state = await initiateTransactions(state);
 
