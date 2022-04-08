@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
-import { logger, go, formatDateTime, buildBaseOptions } from '@api3/airnode-utilities';
+import { logger, go, formatDateTime, buildBaseOptions, caching } from '@api3/airnode-utilities';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
@@ -140,6 +140,8 @@ function applyChainRequestLimits(state: CoordinatorState) {
 }
 
 async function coordinator(config: Config): Promise<CoordinatorState> {
+  caching.initPath();
+
   // =================================================================
   // STEP 1: Create a blank coordinator state
   // =================================================================

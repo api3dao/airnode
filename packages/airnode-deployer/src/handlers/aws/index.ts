@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger, go, caching } from '@api3/airnode-utilities';
 import {
   handlers,
   providers,
@@ -13,6 +13,8 @@ import {
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
+
+caching.init();
 
 function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);

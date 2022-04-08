@@ -5,5 +5,6 @@ module.exports = {
   // Add custom settings below
   displayName: 'unit',
   name: 'unit',
+  setupFiles: ['<rootDir>/test/setup/init/set-define-property.ts'],
   testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
 };
