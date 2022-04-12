@@ -4,6 +4,13 @@ import { go } from '../../promises';
 import { LogsData, logger, PendingLog } from '../../logging';
 import { DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE_IN_WEI, BASE_FEE_MULTIPLIER } from '../../constants';
 
+// This will return the gasLimit with the gasTarget if getGasPrice is called from a place where the fulfillmentGasLimit
+// is available in the config.json and otherwise no gasLimit will be returned for use with other transactions
+// (e.g. withdrawal transactions and airnode-admin CLI/SDK)
+export const getGasLimit = (fulfillmentGasLimit?: number) => {
+  return fulfillmentGasLimit ? { gasLimit: BigNumber.from(fulfillmentGasLimit) } : {};
+};
+
 export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
   ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
 
@@ -20,7 +27,7 @@ export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData
     return [[log], null];
   }
 
-  return [[], { gasPrice }];
+  return [[], { gasPrice, ...getGasLimit(chainOptions.fulfillmentGasLimit) }];
 };
 
 export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
@@ -49,6 +56,7 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
     {
       maxPriorityFeePerGas,
       maxFeePerGas,
+      ...getGasLimit(chainOptions.fulfillmentGasLimit),
     },
   ];
 };

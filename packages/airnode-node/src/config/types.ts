@@ -41,6 +41,7 @@ export interface ChainOptions {
   readonly txType: 'legacy' | 'eip1559';
   readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;
+  readonly fulfillmentGasLimit: number;
 }
 
 export interface ChainConfig {

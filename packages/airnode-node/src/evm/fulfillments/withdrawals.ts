@@ -82,8 +82,8 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
 
   const withdrawalTx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
-      gasLimit: paddedGasLimit,
       ...options.gasTarget,
+      gasLimit: paddedGasLimit,
       nonce: request.nonce!,
       value: fundsToSend,
     });

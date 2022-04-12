@@ -196,6 +196,7 @@ export interface GasTarget {
   readonly maxPriorityFeePerGas?: BigNumber;
   readonly maxFeePerGas?: BigNumber;
   readonly gasPrice?: BigNumber;
+  readonly gasLimit?: BigNumber;
 }
 
 // ===========================================
