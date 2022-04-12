@@ -225,9 +225,6 @@ export type AggregatedApiCall =
   | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
-  id: string;
-  airnodeAddress: string;
-  endpointId: string;
   endpointName: string;
   oisTitle: string;
   parameters: ApiCallParameters;
@@ -241,6 +238,9 @@ export interface BaseAggregatedApiCall {
 
 export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'regular';
+  id: string;
+  airnodeAddress: string;
+  endpointId: string;
   sponsorAddress: string;
   requesterAddress: string;
   sponsorWalletAddress: string;
@@ -262,6 +262,8 @@ export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
 
 export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-signed-data-gateway';
+  id: string;
+  endpointId: string;
   templateId: string;
   template: ApiCallTemplate;
 }

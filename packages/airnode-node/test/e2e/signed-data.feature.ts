@@ -26,7 +26,7 @@ it('makes a call for signed API data', async () => {
     }),
     success: true,
     // We expect any string, because the Airnode wallet (and Airnode mnemonic) is different for every test which
-    // produces a different signature everytime.
+    // produces a different signature every time.
     signature: expect.any(String),
   };
   expect(result).toEqual(expected);

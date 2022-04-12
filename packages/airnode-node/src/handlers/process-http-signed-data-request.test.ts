@@ -63,7 +63,6 @@ describe('processHttpSignedDataRequests', () => {
     const config = fixtures.buildConfig();
     const aggregatedApiCall = fixtures.buildAggregatedHttpSignedDataApiCall({
       id: expect.any(String),
-      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: ENDPOINT_ID,
       parameters: decodedParameters,
       templateId: TEMPLATE_ID,
