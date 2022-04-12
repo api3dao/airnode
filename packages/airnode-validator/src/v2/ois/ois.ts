@@ -12,7 +12,7 @@ export const paremeterTargetSchema = z.union([
 ]);
 
 const nonReservedParameterNameSchema = z.string().refine(
-  (val) => !reservedParameterNameSchema.safeParse(val).success,
+  (val) => reservedParameterNameSchema.safeParse(val).success === false,
   (val) => ({ message: `"${val}" cannot be used because it is a name of a reserved parameter` })
 );
 export const operationParameterSchema = z.object({
