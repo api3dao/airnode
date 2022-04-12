@@ -137,4 +137,122 @@ describe('callApi', () => {
       success: false,
     });
   });
+
+  describe('pre-processing', () => {
+    it('pre-processes parameters - valid processing code', async () => {
+      const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+      spy.mockResolvedValueOnce({ data: { price: 1000 } });
+      const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const config = fixtures.buildConfig();
+      const preProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = {...input, from: `garbage-${input.from}`};',
+        },
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = {...input, from: input.from.substring(8)};',
+        },
+      ];
+
+      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+
+      const [logs, res] = await callApi({
+        config,
+        aggregatedApiCall,
+      });
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        signature:
+          '0xe92f5ee40ddb5aa42cab65fcdc025008b2bc026af80a7c93a9aac4e474f8a88f4f2bd861b9cf9a2b050bf0fd13e9714c4575cebbea658d7501e98c0963a5a38b1c',
+      });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        {
+          endpointName: 'convertToUSD',
+          ois: config.ois[0],
+          parameters: { from: 'ETH' },
+          metadata: {
+            airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+            airnodeRrpAddress: '0x197F3826040dF832481f835652c290aC7c41f073',
+            chainId: '31337',
+            chainType: 'evm',
+            endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+            requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
+            requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+            sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
+            sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
+          },
+          apiCredentials: [
+            {
+              securitySchemeName: 'My Security Scheme',
+              securitySchemeValue: 'supersecret',
+            },
+          ],
+        },
+        { timeout: 30_000 }
+      );
+    });
+
+    it('post-processes parameters - valid processing code', async () => {
+      const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+      spy.mockResolvedValueOnce({ data: { price: 1000 } });
+      const parameters = { _type: 'int256', _path: '', from: 'ETH' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const config = fixtures.buildConfig();
+      const postProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = parseInt(input.price)*1000;',
+        },
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = parseInt(input)*2;',
+        },
+      ];
+
+      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], postProcessingSpecifications };
+
+      const [logs, res] = await callApi({
+        config,
+        aggregatedApiCall,
+      });
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        value: '0x0000000000000000000000000000000000000000000000000000002e90edd000',
+        signature:
+          '0xc6cf3d400f7b49ff2738e76dfaca84e40521d20f39fb8b02a7f01b100ca9a1ef07d33de720017f5af8ed691a5e6c9a52ed17c35a38e86e8f6499b919b9debf641c',
+      });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        {
+          endpointName: 'convertToUSD',
+          ois: config.ois[0],
+          parameters: { from: 'ETH' },
+          metadata: {
+            airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+            airnodeRrpAddress: '0x197F3826040dF832481f835652c290aC7c41f073',
+            chainId: '31337',
+            chainType: 'evm',
+            endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+            requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
+            requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+            sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
+            sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
+          },
+          apiCredentials: [
+            {
+              securitySchemeName: 'My Security Scheme',
+              securitySchemeValue: 'supersecret',
+            },
+          ],
+        },
+        { timeout: 30_000 }
+      );
+    });
+  });
 });

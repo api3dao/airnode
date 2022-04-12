@@ -4,7 +4,7 @@ import { RESERVED_PARAMETERS } from './constants';
 // General
 // ===========================================
 export type Method = 'get' | 'post';
-export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
+export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie' | 'processing';
 
 export interface OperationParameter {
   in: ParameterTarget;
@@ -116,6 +116,11 @@ export interface ReservedParameter {
   name: ReservedParameterName;
 }
 
+export interface ProcessingSpecification {
+  environment: 'Node 14';
+  value: string;
+}
+
 export interface Endpoint {
   description?: string;
   externalDocs?: string;
@@ -123,6 +128,8 @@ export interface Endpoint {
   name: string;
   operation: EndpointOperation;
   parameters: EndpointParameter[];
+  preProcessingSpecifications?: ProcessingSpecification[];
+  postProcessingSpecifications?: ProcessingSpecification[];
   reservedParameters: ReservedParameter[];
   summary?: string;
 }

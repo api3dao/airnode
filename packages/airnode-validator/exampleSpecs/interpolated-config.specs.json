@@ -171,6 +171,8 @@
               "fixed": "1000000"
             }
           ],
+          "preProcessingSpecifications": [],
+          "postProcessingSpecifications": [],
           "parameters": [
             {
               "name": "coinId",
