@@ -49,9 +49,9 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
 export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
   const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-  const gasLimit = ethers.BigNumber.from(500000);
+  const gasLimit = ethers.BigNumber.from(500_000);
   if (txType === 'legacy') {
-    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPrice = ethers.BigNumber.from(1_000);
     gasPriceSpy.mockResolvedValue(gasPrice);
     return { gasTarget: { gasPrice, gasLimit }, blockSpy, gasPriceSpy };
   }

@@ -28,12 +28,12 @@ describe('submitApiCall', () => {
   const masterHDNode = wallet.getMasterHDNode(config);
   const gasPriceFallback = {
     gasPrice: ethers.BigNumber.from('1000'),
-    gasLimit: ethers.BigNumber.from(500000),
+    gasLimit: ethers.BigNumber.from(500_000),
   };
   const gasPrice = {
     maxPriorityFeePerGas: ethers.BigNumber.from(1),
     maxFeePerGas: ethers.BigNumber.from(1000),
-    gasLimit: ethers.BigNumber.from(500000),
+    gasLimit: ethers.BigNumber.from(500_000),
   };
 
   describe('Pending API calls', () => {

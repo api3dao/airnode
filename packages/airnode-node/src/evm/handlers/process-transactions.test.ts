@@ -32,7 +32,7 @@ const createConfig = (txType: 'legacy' | 'eip1559') => {
       ...chain,
       options: {
         txType,
-        fulfillmentGasLimit: 500000,
+        fulfillmentGasLimit: 500_000,
       },
     })),
   };
@@ -90,7 +90,7 @@ describe('processTransactions', () => {
           ...initialState.settings,
           chainOptions: {
             txType,
-            fulfillmentGasLimit: 500000,
+            fulfillmentGasLimit: 500_000,
           },
         },
       };
@@ -136,7 +136,7 @@ describe('processTransactions', () => {
           ...initialState.settings,
           chainOptions: {
             txType,
-            fulfillmentGasLimit: 500000,
+            fulfillmentGasLimit: 500_000,
           },
         },
       };
@@ -206,7 +206,7 @@ describe('processTransactions', () => {
           ...initialState.settings,
           chainOptions: {
             txType,
-            fulfillmentGasLimit: 500000,
+            fulfillmentGasLimit: 500_000,
           },
         },
       };

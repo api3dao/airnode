@@ -7,7 +7,7 @@ describe('applyTransactionResult', () => {
   const invalidData01: ethers.Transaction = {
     chainId: 31337,
     data: '0xdata',
-    gasLimit: ethers.BigNumber.from(500000),
+    gasLimit: ethers.BigNumber.from(500_000),
     gasPrice: ethers.BigNumber.from(1000),
     nonce: 5,
     value: ethers.BigNumber.from(1000),

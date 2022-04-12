@@ -472,7 +472,7 @@ describe('CLI', () => {
             await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
           ],
           [airnodeWallet.address, bob.address, alice.address, alice.address],
-          { gasLimit: 500000 }
+          { gasLimit: 500_000 }
         );
     });
 

@@ -39,7 +39,7 @@ describe('startCoordinator', () => {
         ...chain,
         options: {
           txType,
-          fulfillmentGasLimit: 500000,
+          fulfillmentGasLimit: 500_000,
         },
       })),
     };

@@ -26,7 +26,7 @@ const createLegacyBaseOptions = (): FetchOptions => ({
   provider: new ethers.providers.JsonRpcProvider(),
   chainOptions: {
     txType: 'legacy',
-    fulfillmentGasLimit: 500000,
+    fulfillmentGasLimit: 500_000,
   },
 });
 
@@ -41,7 +41,7 @@ const createEip1559BaseOptions = () => {
         value: 3.12,
         unit: 'gwei',
       },
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
     {
       txType: 'eip1559',
@@ -50,19 +50,19 @@ const createEip1559BaseOptions = () => {
         value: 3.12,
         unit: 'gwei',
       },
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
     {
       txType: 'eip1559',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER,
       priorityFee: undefined,
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
     {
       txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: undefined,
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
   ] as const;
 
@@ -99,7 +99,7 @@ describe('getGasPrice', () => {
   const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE_IN_WEI);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
   const testGasPrice = ethers.BigNumber.from('48000000000');
-  const gasLimit = ethers.BigNumber.from(500000);
+  const gasLimit = ethers.BigNumber.from(500_000);
 
   test.each(createEip1559BaseOptions())(
     `returns the gas price from an EIP-1559 provider - test case: %#`,

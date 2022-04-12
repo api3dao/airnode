@@ -25,7 +25,7 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
         value: 3.12,
         unit: 'gwei',
       },
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
     providers: {
       'EVM local': {

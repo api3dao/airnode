@@ -55,7 +55,7 @@ const chains: ChainConfig[] = [
         value: 3.12,
         unit: 'gwei',
       },
-      fulfillmentGasLimit: 500000,
+      fulfillmentGasLimit: 500_000,
     },
   },
   {
@@ -118,7 +118,7 @@ describe('initialize', () => {
                 value: 3.12,
                 unit: 'gwei',
               },
-              fulfillmentGasLimit: 500000,
+              fulfillmentGasLimit: 500_000,
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -225,7 +225,7 @@ describe('processRequests', () => {
         ...initialState,
         settings: {
           ...initialState.settings,
-          chainOptions: { txType, fulfillmentGasLimit: 500000 },
+          chainOptions: { txType, fulfillmentGasLimit: 500_000 },
         },
       }));
 

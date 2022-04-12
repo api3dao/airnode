@@ -30,7 +30,7 @@ describe('create', () => {
           value: 3.12,
           unit: 'gwei',
         },
-        fulfillmentGasLimit: 500000,
+        fulfillmentGasLimit: 500_000,
       },
     };
     const config = fixtures.buildConfig();
@@ -53,7 +53,7 @@ describe('create', () => {
             value: 3.12,
             unit: 'gwei',
           },
-          fulfillmentGasLimit: 500000,
+          fulfillmentGasLimit: 500_000,
         },
         logFormat: 'plain',
         logLevel: 'DEBUG',
@@ -108,7 +108,7 @@ describe('create', () => {
           value: 3.12,
           unit: 'gwei',
         },
-        fulfillmentGasLimit: 500000,
+        fulfillmentGasLimit: 500_000,
       },
     };
     const config = fixtures.buildConfig();
@@ -130,7 +130,7 @@ describe('create', () => {
             value: 3.12,
             unit: 'gwei',
           },
-          fulfillmentGasLimit: 500000,
+          fulfillmentGasLimit: 500_000,
         },
         chainType: 'evm',
         logFormat: 'plain',
