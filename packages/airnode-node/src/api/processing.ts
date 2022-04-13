@@ -8,7 +8,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const { preProcessingSpecifications } = ois.endpoints.find((e) => e.name === endpointName)!;
 
-  if (!preProcessingSpecifications || preProcessingSpecifications?.length === 0) {
+  if (!preProcessingSpecifications || preProcessingSpecifications.length === 0) {
     return payload;
   }
 
