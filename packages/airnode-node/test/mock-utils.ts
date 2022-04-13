@@ -49,10 +49,11 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
 export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
   const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
+  const gasLimit = ethers.BigNumber.from(500_000);
   if (txType === 'legacy') {
-    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPrice = ethers.BigNumber.from(1_000);
     gasPriceSpy.mockResolvedValue(gasPrice);
-    return { gasTarget: { gasPrice }, blockSpy, gasPriceSpy };
+    return { gasTarget: { gasPrice, gasLimit }, blockSpy, gasPriceSpy };
   }
 
   const baseFeePerGas = ethers.BigNumber.from(1000);
@@ -60,7 +61,11 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
 
-  return { gasTarget: { maxPriorityFeePerGas, maxFeePerGas }, blockSpy, gasPriceSpy };
+  return {
+    gasTarget: { maxPriorityFeePerGas, maxFeePerGas, gasLimit },
+    blockSpy,
+    gasPriceSpy,
+  };
 };
 
 // Declare originalFs outside of mockReadFileSync to prevent infinite recursion errors in mockReadFileSync.

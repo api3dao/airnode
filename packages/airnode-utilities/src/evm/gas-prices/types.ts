@@ -5,6 +5,7 @@ export interface GasTarget {
   maxPriorityFeePerGas?: BigNumber;
   maxFeePerGas?: BigNumber;
   gasPrice?: BigNumber;
+  gasLimit?: BigNumber;
 }
 
 export interface PriorityFee {
@@ -16,6 +17,7 @@ export interface ChainOptions extends PromiseOptions {
   txType: 'legacy' | 'eip1559';
   baseFeeMultiplier?: number;
   priorityFee?: PriorityFee;
+  fulfillmentGasLimit?: number;
 }
 
 export interface FetchOptions {

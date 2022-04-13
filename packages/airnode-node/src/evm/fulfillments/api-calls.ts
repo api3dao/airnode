@@ -3,11 +3,7 @@ import { ethers } from 'ethers';
 import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
-import {
-  DEFAULT_RETRY_TIMEOUT_MS,
-  MAXIMUM_ONCHAIN_ERROR_LENGTH,
-  API_CALL_FULFILLMENT_GAS_LIMIT,
-} from '../../constants';
+import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 import { ApiCall, Request, LogsErrorData, RequestErrorMessage, TransactionOptions, SubmitRequest } from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { decodeRevertString } from '../utils';
@@ -54,7 +50,6 @@ async function testFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -83,7 +78,6 @@ async function submitFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -166,7 +160,6 @@ async function submitFail(
       request.fulfillFunctionId,
       trimmedErrorMessage,
       {
-        gasLimit: API_CALL_FULFILLMENT_GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
