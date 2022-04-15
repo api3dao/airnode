@@ -24,6 +24,7 @@ describe('fetchBySponsor', () => {
       currentBlock: 10716084,
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
+      minConfirmations: 0,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -33,6 +34,25 @@ describe('fetchBySponsor', () => {
     expect(getTransactionCountMock).toHaveBeenCalledWith('0xdBFe14C250643DEFE92C9AbC52103bf4978C7113', 10716084);
   });
 
+  it('applies minConfirmations setting when calling getTransactionCount', async () => {
+    getTransactionCountMock.mockResolvedValueOnce(5);
+    const options = {
+      currentBlock: 10716084,
+      masterHDNode: wallet.getMasterHDNode(config),
+      provider: new ethers.providers.JsonRpcProvider(),
+      minConfirmations: 2,
+    };
+    const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
+    const [logs, res] = await transactions.fetchBySponsor(addresses, options);
+    expect(logs).toEqual([]);
+    expect(res).toEqual({ '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 5 });
+    expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
+    expect(getTransactionCountMock).toHaveBeenCalledWith(
+      '0xdBFe14C250643DEFE92C9AbC52103bf4978C7113',
+      10716084 - options.minConfirmations
+    );
+  });
+
   it('returns transaction counts for multiple wallets', async () => {
     getTransactionCountMock.mockResolvedValueOnce(45);
     getTransactionCountMock.mockResolvedValueOnce(123);
@@ -40,6 +60,7 @@ describe('fetchBySponsor', () => {
       currentBlock: 10716084,
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
+      minConfirmations: 0,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -62,6 +83,7 @@ describe('fetchBySponsor', () => {
       currentBlock: 10716084,
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
+      minConfirmations: 0,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -81,6 +103,7 @@ describe('fetchBySponsor', () => {
       currentBlock: 10716084,
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
+      minConfirmations: 0,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
