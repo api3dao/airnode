@@ -14,6 +14,7 @@ interface FetchOptions {
   readonly currentBlock: number;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
+  readonly minConfirmations: number;
 }
 
 async function getWalletTransactionCount(
@@ -21,7 +22,8 @@ async function getWalletTransactionCount(
   options: FetchOptions
 ): Promise<LogsData<TransactionCountBySponsorAddress | null>> {
   const address = wallet.deriveSponsorWallet(options.masterHDNode, sponsorAddress).address;
-  const operation = () => options.provider.getTransactionCount(address, options.currentBlock);
+  const operation = () =>
+    options.provider.getTransactionCount(address, options.currentBlock - options.minConfirmations);
   const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || count === null) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
