@@ -8,15 +8,15 @@ import {
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
 import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
+import { z } from 'zod';
 import { Config, ChainOptions, ChainType, LocalOrCloudProvider } from './config/types';
 import { AirnodeRrp } from './evm/contracts';
+import { apiCallParametersSchema } from './validation';
 
 // ===========================================
 // State
 // ===========================================
-export interface ApiCallParameters {
-  readonly [key: string]: string;
-}
+export type ApiCallParameters = z.infer<typeof apiCallParametersSchema>;
 
 // TODO: Replace these enums with string unions
 // https://stackoverflow.com/questions/40275832/typescript-has-unions-so-are-enums-redundant

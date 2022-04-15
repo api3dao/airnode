@@ -1,6 +1,7 @@
 import { Endpoint, ProcessingSpecification } from '@api3/airnode-ois';
 import { go } from '@api3/airnode-utilities';
 import { unsafeEvaluate } from './unsafe-evaluate';
+import { apiCallParametersSchema } from '../validation';
 import { CallApiPayload } from './index';
 
 export const preProcessApiSpecifications = async (payload: CallApiPayload): Promise<CallApiPayload> => {
@@ -13,7 +14,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
     return payload;
   }
 
-  const [err, parameters] = await go(
+  const [err, processedParameters] = await go(
     async () =>
       preProcessingSpecifications.reduce((input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
@@ -29,6 +30,9 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
   if (err) {
     throw err;
   }
+
+  // Let this throw if the processed parameters are invalid
+  const parameters = apiCallParametersSchema.parse(processedParameters);
 
   return {
     ...payload,
