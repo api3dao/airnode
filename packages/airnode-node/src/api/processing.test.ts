@@ -9,16 +9,16 @@ describe('processing', () => {
       const preProcessingSpecifications = [
         {
           environment: 'Node 14' as const,
-          value: 'const output = {...input, from: `garbage-${input.from}`};',
+          value: 'const output = {...input, from: "ETH"};',
         },
         {
           environment: 'Node 14' as const,
-          value: 'const output = {...input, from: input.from.substring(9)};',
+          value: 'const output = {...input, newProp: "airnode"};',
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
-      const parameters = { _type: 'int256', _path: 'price', from: '*ETH' };
+      const parameters = { _type: 'int256', _path: 'price' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
       const result = await preProcessApiSpecifications({ config, aggregatedApiCall });
@@ -27,6 +27,7 @@ describe('processing', () => {
         _path: 'price',
         _type: 'int256',
         from: 'ETH',
+        newProp: 'airnode',
       });
     });
 
@@ -35,16 +36,16 @@ describe('processing', () => {
       const preProcessingSpecifications = [
         {
           environment: 'Node 14' as const,
-          value: 'something invalid; const output = {...input, from: `garbage-${input.from}`};',
+          value: 'something invalid; const output = {...input, from: `ETH`};',
         },
         {
           environment: 'Node 14' as const,
-          value: 'const output = {...input, from: input.from.substring(8)};',
+          value: 'const output = {...input, newProp: "airnode"};',
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
-      const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
+      const parameters = { _type: 'int256', _path: 'price', from: 'TBD' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
       const throwingFunc = async () => preProcessApiSpecifications({ config, aggregatedApiCall });
