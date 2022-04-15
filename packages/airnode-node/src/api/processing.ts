@@ -1,5 +1,6 @@
 import { Endpoint, ProcessingSpecification } from '@api3/airnode-ois';
 import { go } from '@api3/airnode-utilities';
+import { unsafeEvaluate } from './unsafe-evaluate';
 import { CallApiPayload } from './index';
 
 export const preProcessApiSpecifications = async (payload: CallApiPayload): Promise<CallApiPayload> => {
@@ -17,14 +18,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
       preProcessingSpecifications.reduce((input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
-            return eval(`
-                const ethers = require('ethers');
-                const {BigNumber} = ethers;
-
-                ${currentValue.value};
-
-                output;
-            `);
+            return unsafeEvaluate(input, currentValue.value);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
@@ -59,14 +53,7 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
           postProcessingSpecifications.reduce((input: any, currentValue: ProcessingSpecification) => {
             switch (currentValue.environment) {
               case 'Node 14':
-                return eval(`
-                      const ethers = require('ethers');
-                      const {BigNumber} = ethers;
-
-                      ${currentValue.value};
-
-                      output;
-                  `);
+                return unsafeEvaluate(input, currentValue.value);
               default:
                 throw new Error(`Environment ${currentValue.environment} is not supported`);
             }
