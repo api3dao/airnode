@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "../whitelist/Whitelist.sol";
-import "./interfaces/IRequesterAuthorizer.sol";
+import "./interfaces/IRequesterAuthorizerV0.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
-abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
+abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event
     /// @param airnode Airnode address

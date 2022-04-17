@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IAuthorizationUtils.sol";
-import "../authorizers/interfaces/IAuthorizer.sol";
+import "../authorizers/interfaces/IAuthorizerV0.sol";
 
 /// @title Contract that implements authorization checks
 contract AuthorizationUtils is IAuthorizationUtils {
@@ -33,7 +33,7 @@ contract AuthorizationUtils is IAuthorizationUtils {
         address requester
     ) public view override returns (bool status) {
         for (uint256 ind = 0; ind < authorizers.length; ind++) {
-            IAuthorizer authorizer = IAuthorizer(authorizers[ind]);
+            IAuthorizerV0 authorizer = IAuthorizerV0(authorizers[ind]);
             if (
                 authorizer.isAuthorized(
                     requestId,
