@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "../../whitelist/Whitelist.sol";
 import "../../whitelist/WhitelistRolesWithManager.sol";
-import "./RrpRequester.sol";
-import "./interfaces/IRrpBeaconServer.sol";
+import "./RrpRequesterV0.sol";
+import "./interfaces/IRrpBeaconServerV0.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
 /// @notice A beacon is a live data point associated with a beacon ID, which is
@@ -20,11 +20,11 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is
+contract RrpBeaconServerV0 is
     Whitelist,
     WhitelistRolesWithManager,
-    RrpRequester,
-    IRrpBeaconServer
+    RrpRequesterV0,
+    IRrpBeaconServerV0
 {
     struct Beacon {
         int224 value;
@@ -55,7 +55,7 @@ contract RrpBeaconServer is
             _adminRoleDescription,
             _manager
         )
-        RrpRequester(_airnodeRrp)
+        RrpRequesterV0(_airnodeRrp)
     {}
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`

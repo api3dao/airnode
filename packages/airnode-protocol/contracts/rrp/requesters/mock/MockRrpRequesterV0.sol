@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../RrpRequester.sol";
+import "../RrpRequesterV0.sol";
 
 /// @title A mock Airnode RRP requester contract
-contract MockRrpRequester is RrpRequester {
+contract MockRrpRequesterV0 is RrpRequesterV0 {
     event FulfilledRequest(bytes32 indexed requestId, bytes data);
 
     mapping(bytes32 => bytes) public requestIdToData;
@@ -12,7 +12,7 @@ contract MockRrpRequester is RrpRequester {
     mapping(bytes32 => bool) private expectingRequestWithIdToBeFulfilled;
 
     /// @param airnodeRrpAddress Airnode RRP contract address
-    constructor(address airnodeRrpAddress) RrpRequester(airnodeRrpAddress) {}
+    constructor(address airnodeRrpAddress) RrpRequesterV0(airnodeRrpAddress) {}
 
     /// @notice A wrapper for the respective method at AirnodeRrp.sol for
     /// testing

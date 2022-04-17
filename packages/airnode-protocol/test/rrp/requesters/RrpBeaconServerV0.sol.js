@@ -2,10 +2,10 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../../utils');
 
-describe('RrpBeaconServer', () => {
+describe('RrpBeaconServerV0', () => {
   let roles;
   let accessControlRegistry, airnodeRrp, rrpBeaconServer;
-  let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServer admin';
+  let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServerV0 admin';
   let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
   let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
   let sponsorWalletAddress, sponsorWallet;
@@ -28,9 +28,9 @@ describe('RrpBeaconServer', () => {
     };
     const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
     accessControlRegistry = await accessControlRegistryFactory.deploy();
-    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
+    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrpV0', roles.deployer);
     airnodeRrp = await airnodeRrpFactory.deploy();
-    const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+    const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
     rrpBeaconServer = await rrpBeaconServerFactory.deploy(
       accessControlRegistry.address,
       rrpBeaconServerAdminRoleDescription,
@@ -138,7 +138,7 @@ describe('RrpBeaconServer', () => {
   describe('constructor', function () {
     context('Manager address is not zero', function () {
       it('constructs', async function () {
-        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
         rrpBeaconServer = await rrpBeaconServerFactory.deploy(
           accessControlRegistry.address,
           rrpBeaconServerAdminRoleDescription,
@@ -153,7 +153,7 @@ describe('RrpBeaconServer', () => {
     });
     context('Manager address is zero', function () {
       it('reverts', async function () {
-        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
         await expect(
           rrpBeaconServerFactory.deploy(
             accessControlRegistry.address,
