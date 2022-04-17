@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IWithdrawalUtils.sol";
+import "./interfaces/IWithdrawalUtilsV0.sol";
 
 /// @title Contract that implements logic for withdrawals from sponsor wallets
-contract WithdrawalUtils is IWithdrawalUtils {
+contract WithdrawalUtilsV0 is IWithdrawalUtilsV0 {
     /// @notice Called to get the withdrawal request count of the sponsor
     /// @dev Can be used to calculate the ID of the next withdrawal request the
     /// sponsor will make

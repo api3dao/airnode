@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IAuthorizationUtils.sol";
-import "./ITemplateUtils.sol";
-import "./IWithdrawalUtils.sol";
+import "./IAuthorizationUtilsV0.sol";
+import "./ITemplateUtilsV0.sol";
+import "./IWithdrawalUtilsV0.sol";
 
-interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
+interface IAirnodeRrpV0 is
+    IAuthorizationUtilsV0,
+    ITemplateUtilsV0,
+    IWithdrawalUtilsV0
+{
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,

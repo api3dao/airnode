@@ -2,7 +2,7 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
 
-describe('TemplateUtils', () => {
+describe('TemplateUtilsV0', () => {
   let roles;
   let airnodeRrp;
 
@@ -12,7 +12,7 @@ describe('TemplateUtils', () => {
       deployer: accounts[0],
       randomPerson: accounts[9],
     };
-    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
+    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrpV0', roles.deployer);
     airnodeRrp = await airnodeRrpFactory.deploy();
   });
 

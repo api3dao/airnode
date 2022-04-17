@@ -2,7 +2,7 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
 
-describe('WithdrawalUtils', () => {
+describe('WithdrawalUtilsV0', () => {
   let roles;
   let airnodeRrp, rrpRequester;
   let airnodeAddress, airnodeMnemonic, airnodeXpub;
@@ -15,9 +15,9 @@ describe('WithdrawalUtils', () => {
       sponsor: accounts[1],
       randomPerson: accounts[9],
     };
-    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
+    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrpV0', roles.deployer);
     airnodeRrp = await airnodeRrpFactory.deploy();
-    const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
+    const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequesterV0', roles.deployer);
     rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
     ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
     sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);

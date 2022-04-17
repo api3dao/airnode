@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IAuthorizationUtils.sol";
+import "./interfaces/IAuthorizationUtilsV0.sol";
 import "../authorizers/interfaces/IAuthorizerV0.sol";
 
 /// @title Contract that implements authorization checks
-contract AuthorizationUtils is IAuthorizationUtils {
+contract AuthorizationUtilsV0 is IAuthorizationUtilsV0 {
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
