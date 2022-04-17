@@ -7,7 +7,6 @@ export const unsafeEvaluate = (input: any, code: string) => {
   return Function(`
     "use strict";
     const [ethers, input] = arguments
-    const {BigNumber} = ethers;
 
     ${code};
 
