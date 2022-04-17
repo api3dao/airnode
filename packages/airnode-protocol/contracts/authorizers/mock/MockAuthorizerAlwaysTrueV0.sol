@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "../interfaces/IAuthorizerV0.sol";
 
-/// @title A mock authorizer that always returns false
-contract MockAuthorizerAlwaysFalse is IAuthorizerV0 {
+/// @title A mock authorizer that always returns true
+contract MockAuthorizerAlwaysTrueV0 is IAuthorizerV0 {
     function isAuthorized(
         bytes32 requestId, // solhint-disable-line
         address airnode, // solhint-disable-line
@@ -12,6 +12,6 @@ contract MockAuthorizerAlwaysFalse is IAuthorizerV0 {
         address sponsor, // solhint-disable-line
         address requester // solhint-disable-line
     ) external view virtual override returns (bool status) {
-        status = false;
+        status = true;
     }
 }
