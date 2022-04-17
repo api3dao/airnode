@@ -38,40 +38,82 @@ describe('RrpBeaconServerWithManager', () => {
       airnodeRrp.address
     );
     const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
+    // Initialize the roles and grant them to respective accounts
     adminRole = await rrpBeaconServer.adminRole();
-    whitelistExpirationExtenderRole = await rrpBeaconServer.whitelistExpirationExtenderRole();
-    whitelistExpirationSetterRole = await rrpBeaconServer.whitelistExpirationSetterRole();
-    indefiniteWhitelisterRole = await rrpBeaconServer.indefiniteWhitelisterRole();
-    await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
-      [managerRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        rrpBeaconServerAdminRoleDescription,
-        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        roles.manager.address, // which will already have been granted the role
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ]
-    );
-    // Grant `roles.randomPerson` some invalid roles
     await accessControlRegistry
       .connect(roles.manager)
-      .initializeAndGrantRoles(
-        [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
-        [
-          Math.random(),
-          await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-          await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-          await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        ],
-        [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
+      .initializeRoleAndGrantToSender(managerRootRole, rrpBeaconServerAdminRoleDescription);
+    whitelistExpirationExtenderRole = await rrpBeaconServer.whitelistExpirationExtenderRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
       );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address);
+    whitelistExpirationSetterRole = await rrpBeaconServer.whitelistExpirationSetterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(adminRole, await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationSetterRole, roles.whitelistExpirationSetter.address);
+    indefiniteWhitelisterRole = await rrpBeaconServer.indefiniteWhitelisterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(adminRole, await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.anotherIndefiniteWhitelister.address);
+    // Grant `roles.randomPerson` some invalid roles
+    const randomRoleDescription = Math.random().toString();
+    const randomRole = await accessControlRegistry.deriveRole(managerRootRole, randomRoleDescription);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(managerRootRole, randomRoleDescription);
+    await accessControlRegistry.connect(roles.manager).grantRole(randomRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationExtenderRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationExtenderRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationSetterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationSetterRole, roles.randomPerson.address);
+    const invalidIndefiniteWhitelisterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(managerRootRole, await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidIndefiniteWhitelisterRole, roles.randomPerson.address);
+
     ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
     airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
     sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);

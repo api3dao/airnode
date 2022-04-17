@@ -1,7 +1,7 @@
 const hre = require('hardhat');
 const { expect } = require('chai');
 
-describe('OwnableCallForwarder', () => {
+describe('OwnableCallForwarder', function () {
   let roles;
   let accessControlRegistry, mockCallForwarderTarget, ownableCallForwarder;
   let managerRootRole, roleDescription;
@@ -30,10 +30,10 @@ describe('OwnableCallForwarder', () => {
     roleDescription = 'Role description unique to adminRole';
   });
 
-  describe('initializeRole', function () {
+  describe('initializeRoleAndGrantToSender', function () {
     describe('Sender is forwarder owner', function () {
       it('initializesRole', async function () {
-        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
+        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
           managerRootRole,
           roleDescription,
         ]);
@@ -48,41 +48,9 @@ describe('OwnableCallForwarder', () => {
     });
     describe('Sender is not forwarder owner', function () {
       it('reverts', async function () {
-        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
+        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
           managerRootRole,
           roleDescription,
-        ]);
-        await expect(
-          ownableCallForwarder.connect(roles.randomPerson).forwardCall(accessControlRegistry.address, calldata)
-        ).to.be.revertedWith('Ownable: caller is not the owner');
-      });
-    });
-  });
-
-  describe('initializeAndGrantRoles', function () {
-    describe('Sender is forwarder owner', function () {
-      it('initializes role', async function () {
-        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [roles.account.address],
-        ]);
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(ownableCallForwarder.address);
-        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-        await expect(
-          ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata)
-        )
-          .to.emit(accessControlRegistry, 'InitializedRole')
-          .withArgs(role, managerRootRole, roleDescription, ownableCallForwarder.address);
-        expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(true);
-      });
-    });
-    describe('Sender is not forwarder owner', function () {
-      it('reverts', async function () {
-        const calldata = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [roles.account.address],
         ]);
         await expect(
           ownableCallForwarder.connect(roles.randomPerson).forwardCall(accessControlRegistry.address, calldata)
@@ -94,7 +62,7 @@ describe('OwnableCallForwarder', () => {
   describe('grantRole', function () {
     describe('Sender is forwarder owner', function () {
       it('grants role', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
           managerRootRole,
           roleDescription,
         ]);
@@ -114,7 +82,7 @@ describe('OwnableCallForwarder', () => {
     });
     describe('Sender is not forwarder owner', function () {
       it('reverts', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRole', [
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
           managerRootRole,
           roleDescription,
         ]);
@@ -135,18 +103,24 @@ describe('OwnableCallForwarder', () => {
   describe('revokeRole', function () {
     describe('Sender is forwarder owner', function () {
       it('revokes role', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [roles.account.address],
+        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
+        const calldataInitializeRoleAndGrantToSender = accessControlRegistry.interface.encodeFunctionData(
+          'initializeRoleAndGrantToSender',
+          [managerRootRole, roleDescription]
+        );
+        const calldataGrantRole = accessControlRegistry.interface.encodeFunctionData('grantRole', [
+          role,
+          roles.account.address,
+        ]);
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('multicall', [
+          [calldataInitializeRoleAndGrantToSender, calldataGrantRole],
         ]);
         await accessControlRegistry.connect(roles.randomPerson).initializeManager(ownableCallForwarder.address);
-        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
+        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         const calldata2 = accessControlRegistry.interface.encodeFunctionData('revokeRole', [
           role,
           roles.account.address,
         ]);
-        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         await expect(
           ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata2)
         )
@@ -156,15 +130,26 @@ describe('OwnableCallForwarder', () => {
     });
     describe('Sender is not forwarder owner', function () {
       it('reverts', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [roles.account.address],
+        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
+        const calldataInitializeRoleAndGrantToSender = accessControlRegistry.interface.encodeFunctionData(
+          'initializeRoleAndGrantToSender',
+          [managerRootRole, roleDescription]
+        );
+        const calldataGrantRole = accessControlRegistry.interface.encodeFunctionData('grantRole', [
+          role,
+          roles.account.address,
+        ]);
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('multicall', [
+          [calldataInitializeRoleAndGrantToSender, calldataGrantRole],
         ]);
         await accessControlRegistry.connect(roles.randomPerson).initializeManager(ownableCallForwarder.address);
         await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
+        const calldata2 = accessControlRegistry.interface.encodeFunctionData('revokeRole', [
+          role,
+          roles.account.address,
+        ]);
         await expect(
-          ownableCallForwarder.connect(roles.randomPerson).forwardCall(accessControlRegistry.address, calldata1)
+          ownableCallForwarder.connect(roles.randomPerson).forwardCall(accessControlRegistry.address, calldata2)
         ).to.be.revertedWith('Ownable: caller is not the owner');
       });
     });
@@ -173,18 +158,17 @@ describe('OwnableCallForwarder', () => {
   describe('renounceRole', function () {
     describe('Sender is forwarder owner', function () {
       it('renounces role', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [ownableCallForwarder.address],
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
+          managerRootRole,
+          roleDescription,
         ]);
         await accessControlRegistry.connect(roles.randomPerson).initializeManager(ownableCallForwarder.address);
+        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
         const calldata2 = accessControlRegistry.interface.encodeFunctionData('renounceRole', [
           role,
           ownableCallForwarder.address,
         ]);
-        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         await expect(
           ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata2)
         )
@@ -194,18 +178,17 @@ describe('OwnableCallForwarder', () => {
     });
     describe('Sender is not forwarder owner', function () {
       it('reverts', async function () {
-        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeAndGrantRoles', [
-          [managerRootRole],
-          [roleDescription],
-          [ownableCallForwarder.address],
+        const calldata1 = accessControlRegistry.interface.encodeFunctionData('initializeRoleAndGrantToSender', [
+          managerRootRole,
+          roleDescription,
         ]);
         await accessControlRegistry.connect(roles.randomPerson).initializeManager(ownableCallForwarder.address);
+        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
         const calldata2 = accessControlRegistry.interface.encodeFunctionData('renounceRole', [
           role,
           ownableCallForwarder.address,
         ]);
-        await ownableCallForwarder.connect(roles.forwarderOwner).forwardCall(accessControlRegistry.address, calldata1);
         await expect(
           ownableCallForwarder.connect(roles.randomPerson).forwardCall(accessControlRegistry.address, calldata2)
         ).to.be.revertedWith('Ownable: caller is not the owner');

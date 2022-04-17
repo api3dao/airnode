@@ -34,40 +34,90 @@ describe('RequesterAuthorizerWithManager', () => {
       roles.manager.address
     );
     const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
+    // Initialize the roles and grant them to respective accounts
     adminRole = await requesterAuthorizerWithManager.adminRole();
-    whitelistExpirationExtenderRole = await requesterAuthorizerWithManager.whitelistExpirationExtenderRole();
-    whitelistExpirationSetterRole = await requesterAuthorizerWithManager.whitelistExpirationSetterRole();
-    indefiniteWhitelisterRole = await requesterAuthorizerWithManager.indefiniteWhitelisterRole();
-    await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
-      [managerRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        requesterAuthorizerWithManagerAdminRoleDescription,
-        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        roles.manager.address, // which will already have been granted the role
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ]
-    );
-    // Grant `roles.randomPerson` some invalid roles
     await accessControlRegistry
       .connect(roles.manager)
-      .initializeAndGrantRoles(
-        [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
-        [
-          Math.random(),
-          await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-          await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-          await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        ],
-        [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
+      .initializeRoleAndGrantToSender(managerRootRole, requesterAuthorizerWithManagerAdminRoleDescription);
+    whitelistExpirationExtenderRole = await requesterAuthorizerWithManager.whitelistExpirationExtenderRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
       );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address);
+    whitelistExpirationSetterRole = await requesterAuthorizerWithManager.whitelistExpirationSetterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationSetterRole, roles.whitelistExpirationSetter.address);
+    indefiniteWhitelisterRole = await requesterAuthorizerWithManager.indefiniteWhitelisterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.anotherIndefiniteWhitelister.address);
+    // Grant `roles.randomPerson` some invalid roles
+    const randomRoleDescription = Math.random().toString();
+    const randomRole = await accessControlRegistry.deriveRole(managerRootRole, randomRoleDescription);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(managerRootRole, randomRoleDescription);
+    await accessControlRegistry.connect(roles.manager).grantRole(randomRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationExtenderRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationExtenderRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationSetterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationSetterRole, roles.randomPerson.address);
+    const invalidIndefiniteWhitelisterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidIndefiniteWhitelisterRole, roles.randomPerson.address);
   });
 
   describe('constructor', function () {

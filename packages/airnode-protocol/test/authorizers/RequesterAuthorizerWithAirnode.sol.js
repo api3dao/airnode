@@ -38,51 +38,104 @@ describe('RequesterAuthorizerWithAirnode', () => {
     });
     airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
     const airnodeRootRole = await accessControlRegistry.deriveRootRole(airnodeAddress);
+    // Initialize the roles and grant them to respective accounts
     adminRole = await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeAddress);
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(airnodeRootRole, requesterAuthorizerWithAirnodeAdminRoleDescription, {
+        gasLimit: 1000000,
+      });
     whitelistExpirationExtenderRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(
       airnodeAddress
     );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+        { gasLimit: 1000000 }
+      );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address, { gasLimit: 1000000 });
     whitelistExpirationSetterRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(
       airnodeAddress
     );
-    indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(airnodeAddress);
-    await accessControlRegistry.connect(airnodeWallet).initializeAndGrantRoles(
-      [airnodeRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        requesterAuthorizerWithAirnodeAdminRoleDescription,
-        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        airnodeAddress, // which will already have been granted the role
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ],
-      { gasLimit: 1000000 }
-    );
-    // Grant `roles.randomPerson` some invalid roles
     await accessControlRegistry
       .connect(airnodeWallet)
-      .initializeAndGrantRoles(
-        [airnodeRootRole, airnodeRootRole, airnodeRootRole, airnodeRootRole],
-        [
-          Math.random(),
-          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-          await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        ],
-        [
-          roles.randomPerson.address,
-          roles.randomPerson.address,
-          roles.randomPerson.address,
-          roles.randomPerson.address,
-        ],
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
         { gasLimit: 1000000 }
       );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(whitelistExpirationSetterRole, roles.whitelistExpirationSetter.address, { gasLimit: 1000000 });
+    indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(airnodeAddress);
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+        { gasLimit: 1000000 }
+      );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address, { gasLimit: 1000000 });
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(indefiniteWhitelisterRole, roles.anotherIndefiniteWhitelister.address, { gasLimit: 1000000 });
+    // Grant `roles.randomPerson` some invalid roles
+    const randomRoleDescription = Math.random().toString();
+    const randomRole = await accessControlRegistry.deriveRole(airnodeRootRole, randomRoleDescription);
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(airnodeRootRole, randomRoleDescription, { gasLimit: 1000000 });
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(randomRole, roles.randomPerson.address, { gasLimit: 1000000 });
+    const invalidWhitelistExpirationExtenderRole = await accessControlRegistry.deriveRole(
+      airnodeRootRole,
+      await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(
+        airnodeRootRole,
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+        { gasLimit: 1000000 }
+      );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(invalidWhitelistExpirationExtenderRole, roles.randomPerson.address, { gasLimit: 1000000 });
+    const invalidWhitelistExpirationSetterRole = await accessControlRegistry.deriveRole(
+      airnodeRootRole,
+      await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(
+        airnodeRootRole,
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+        { gasLimit: 1000000 }
+      );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(invalidWhitelistExpirationSetterRole, roles.randomPerson.address, { gasLimit: 1000000 });
+    const invalidIndefiniteWhitelisterRole = await accessControlRegistry.deriveRole(
+      airnodeRootRole,
+      await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .initializeRoleAndGrantToSender(
+        airnodeRootRole,
+        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+        { gasLimit: 1000000 }
+      );
+    await accessControlRegistry
+      .connect(airnodeWallet)
+      .grantRole(invalidIndefiniteWhitelisterRole, roles.randomPerson.address, { gasLimit: 1000000 });
   });
 
   describe('constructor', function () {
