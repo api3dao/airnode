@@ -2,7 +2,7 @@
  * This package is integrated with https://github.com/ethereum-ts/TypeChain which generates TS
  * bindings and wrappers for ethers wallet (version 5). TypeChain generates two important pieces for
  * each solidity contract:
- *  1) Factories - (e.g. AirnodeRrpFactory) are used to connect to ethers Signer and deploy the
+ *  1) Factories - (e.g. AirnodeRrpV0Factory) are used to connect to ethers Signer and deploy the
  *     contract (or just connect to an already deployed contract instance). You will get a strongly
  *     typed contract instance in return.
  *  2) Typed contracts - These are returned after deployed via contract Factory. It allows you to
@@ -11,11 +11,11 @@
  * The generated code "value exports" the factories, but "type exports" the contracts.
  */
 import {
-  MockRrpRequester__factory as MockRrpRequesterFactory,
-  AirnodeRrp__factory as AirnodeRrpFactory,
+  MockRrpRequesterV0__factory as MockRrpRequesterFactory,
+  AirnodeRrpV0__factory as AirnodeRrpV0Factory,
   AccessControlRegistry__factory as AccessControlRegistryFactory,
-  RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
-  RrpBeaconServer__factory as RrpBeaconServerFactory,
+  RequesterAuthorizerWithAirnodeV0__factory as RequesterAuthorizerWithAirnodeV0Factory,
+  RrpBeaconServerV0__factory as RrpBeaconServerFactory,
 } from './contracts';
 import references from '../deployments/references.json';
 
@@ -28,14 +28,14 @@ const mocks = {
   MockRrpRequesterFactory,
 };
 const authorizers = {
-  RequesterAuthorizerWithAirnodeFactory,
+  RequesterAuthorizerWithAirnodeV0Factory,
 };
 
 export {
   AirnodeRrpAddresses,
   AccessControlRegistryAddresses,
   RequesterAuthorizerWithAirnodeAddresses,
-  AirnodeRrpFactory,
+  AirnodeRrpV0Factory,
   AccessControlRegistryFactory,
   RrpBeaconServerFactory,
   mocks,
@@ -43,11 +43,11 @@ export {
 };
 
 export type {
-  AirnodeRrp,
-  MockRrpRequester,
+  AirnodeRrpV0,
+  MockRrpRequesterV0,
   AccessControlRegistry,
-  RequesterAuthorizerWithAirnode,
-  RrpBeaconServer,
+  RequesterAuthorizerWithAirnodeV0,
+  RrpBeaconServerV0,
 } from './contracts';
 export {
   MadeTemplateRequestEvent,

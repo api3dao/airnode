@@ -1,4 +1,4 @@
-import { RequesterAuthorizerWithAirnode, AirnodeRrp } from '@api3/airnode-protocol';
+import { RequesterAuthorizerWithAirnodeV0, AirnodeRrpV0 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import * as evm from './evm';
 import * as admin from './implementation';
@@ -14,7 +14,10 @@ export class AdminSdk {
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
   static useAirnodeRrp = evm.useAirnodeRrp;
 
-  constructor(public airnodeRrp: AirnodeRrp, public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode) {}
+  constructor(
+    public airnodeRrp: AirnodeRrpV0,
+    public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0
+  ) {}
 
   deriveAirnodeXpub = (airnodeMnemonic: string) => admin.deriveAirnodeXpub(airnodeMnemonic);
 

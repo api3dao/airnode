@@ -1,8 +1,8 @@
-import { AirnodeRrpFactory, airnodeRrpTopics } from './airnodeRrp';
+import { AirnodeRrpV0Factory, airnodeRrpTopics } from './airnodeRrp';
 
 describe('AirnodeRrp', () => {
   it('exposes the contract ABI function', () => {
-    const functions = AirnodeRrpFactory.abi
+    const functions = AirnodeRrpV0Factory.abi
       .filter((fn: any) => fn.type === 'function')
       .map((fn: any) => fn.name)
       .sort();
@@ -28,7 +28,7 @@ describe('AirnodeRrp', () => {
   });
 
   it('exposes the contract ABI events', () => {
-    const events = AirnodeRrpFactory.abi
+    const events = AirnodeRrpV0Factory.abi
       .filter((fn: any) => fn.type === 'event')
       .map((fn: any) => fn.name)
       .sort();

@@ -1,11 +1,11 @@
 // NOTE: This file is referenced as a pathGroup pattern in .eslintrc (import/order)
 
 import fs from 'fs';
-import { AirnodeRrp } from '@api3/airnode-protocol';
+import { AirnodeRrpV0 } from '@api3/airnode-protocol';
 import { BigNumber, ethers } from 'ethers';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../src/constants';
 
-type AirnodeRrpMocks = { readonly [key in keyof InstanceType<typeof AirnodeRrp>['functions']]: jest.Mock };
+type AirnodeRrpMocks = { readonly [key in keyof InstanceType<typeof AirnodeRrpV0>['functions']]: jest.Mock };
 type MockProps = {
   readonly airnodeRrpMocks?:
     | Partial<AirnodeRrpMocks>
@@ -15,7 +15,7 @@ type MockProps = {
 };
 
 /**
- * Mocks ethers library and AirnodeRrpFactory (from @api3/airnode-protocol) to return contract
+ * Mocks ethers library and AirnodeRrpV0Factory (from @api3/airnode-protocol) to return contract
  * with mocked functions which are passed as arguments.
  */
 export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps) {
@@ -30,13 +30,13 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
     },
   }));
 
-  // AirnodeRrpFactory requires ethers under the hood using `require` and jest is unable to mock it
+  // AirnodeRrpV0Factory requires ethers under the hood using `require` and jest is unable to mock it
   // so we have to mock it in the protocol package
   jest.mock('@api3/airnode-protocol', () => {
     return {
       ...jest.requireActual<any>('@api3/airnode-protocol'),
-      AirnodeRrpFactory: {
-        ...jest.requireActual<any>('@api3/airnode-protocol').AirnodeRrpFactory,
+      AirnodeRrpV0Factory: {
+        ...jest.requireActual<any>('@api3/airnode-protocol').AirnodeRrpV0Factory,
         connect: jest.requireMock('ethers').ethers.Contract,
       },
     };

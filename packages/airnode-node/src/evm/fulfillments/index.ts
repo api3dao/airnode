@@ -12,7 +12,7 @@ import {
   Withdrawal,
   SubmitRequest,
 } from '../../types';
-import { AirnodeRrpFactory, AirnodeRrp } from '../contracts';
+import { AirnodeRrpV0Factory, AirnodeRrpV0 } from '../contracts';
 import * as verification from '../verification';
 
 interface OrderedRequest<T> {
@@ -45,7 +45,7 @@ function prepareRequestSubmissions<T>(
   requests: Request<T>[],
   type: RequestType,
   submitFunction: SubmitRequest<T>,
-  contract: AirnodeRrp
+  contract: AirnodeRrpV0
 ): OrderedRequest<T>[] {
   return requests.map((request) => {
     const makeRequest = async () => {
@@ -78,7 +78,7 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
   const { requests } = state;
   const sponsorWallet = wallet.deriveSponsorWallet(state.masterHDNode, state.sponsorAddress);
   const signer = sponsorWallet.connect(state.provider);
-  const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
+  const contract = AirnodeRrpV0Factory.connect(AirnodeRrp, signer);
 
   // Prepare transactions for API calls
   const preparedApiCallSubmissions = prepareRequestSubmissions(

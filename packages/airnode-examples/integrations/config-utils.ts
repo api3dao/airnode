@@ -38,7 +38,7 @@ export const createCloudProviderConfiguration = (generateExampleFile: boolean): 
 export const getAirnodeRrpAddress = async (generateExampleFile: boolean) => {
   if (generateExampleFile) return '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   return airnodeRrp.address;
 };
 

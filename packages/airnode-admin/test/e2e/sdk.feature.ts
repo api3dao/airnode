@@ -1,9 +1,9 @@
 import {
   AccessControlRegistry,
   AccessControlRegistryFactory,
-  RequesterAuthorizerWithAirnode,
-  AirnodeRrp,
-  AirnodeRrpFactory,
+  RequesterAuthorizerWithAirnodeV0,
+  AirnodeRrpV0,
+  AirnodeRrpV0Factory,
   authorizers,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
@@ -16,9 +16,9 @@ const PROVIDER_URL = 'http://127.0.0.1:8545/';
 describe('SDK', () => {
   let provider: ethers.providers.JsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
-  let airnodeRrp: AirnodeRrp;
+  let airnodeRrp: AirnodeRrpV0;
   let accessControlRegistry: AccessControlRegistry;
-  let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
+  let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0;
   let sdk: AdminSdk;
   let wallet: ethers.Wallet;
   const mnemonic = 'test test test test test test test test test test test junk';
@@ -32,11 +32,11 @@ describe('SDK', () => {
   });
 
   beforeEach(async () => {
-    airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
+    airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
     accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
-    requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
+    requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeV0Factory(deployer).deploy(
       accessControlRegistry.address,
-      'RequesterAuthorizerWithAirnode admin'
+      'RequesterAuthorizerWithAirnodeV0 admin'
     );
     sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
   });

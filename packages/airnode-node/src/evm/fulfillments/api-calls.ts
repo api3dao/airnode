@@ -5,7 +5,7 @@ import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 import { ApiCall, Request, LogsErrorData, RequestErrorMessage, TransactionOptions, SubmitRequest } from '../../types';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrpV0 } from '../contracts';
 import { decodeRevertString } from '../utils';
 
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
@@ -35,7 +35,7 @@ type StaticResponse = { readonly callSuccess: boolean; readonly callData: string
 // Fulfillments
 // =================================================================
 async function testFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
@@ -63,7 +63,7 @@ async function testFulfill(
 }
 
 async function submitFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCall>>> {
@@ -95,7 +95,7 @@ async function submitFulfill(
 }
 
 async function testAndSubmitFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCall>>> {
@@ -141,7 +141,7 @@ async function testAndSubmitFulfill(
 // Failures
 // =================================================================
 async function submitFail(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   errorMessage: string,
   options: TransactionOptions

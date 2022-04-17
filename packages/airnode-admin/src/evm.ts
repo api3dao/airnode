@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import {
-  AirnodeRrpFactory,
+  AirnodeRrpV0Factory,
   AirnodeRrpAddresses,
   RequesterAuthorizerWithAirnodeAddresses,
   authorizers,
-  AirnodeRrp,
+  AirnodeRrpV0,
 } from '@api3/airnode-protocol';
 
 async function getAirnodeRrpAddress(provider: ethers.providers.Provider) {
@@ -34,11 +34,11 @@ export async function getAirnodeRrp(
       signerOrProvider
     );
   }
-  return AirnodeRrpFactory.connect(address, signerOrProvider);
+  return AirnodeRrpV0Factory.connect(address, signerOrProvider);
 }
 
 export function useAirnodeRrp(airnodeRrpContract: ethers.Contract) {
-  return airnodeRrpContract as AirnodeRrp;
+  return airnodeRrpContract as AirnodeRrpV0;
 }
 
 export async function getRequesterAuthorizerWithAirnode(
@@ -57,5 +57,5 @@ export async function getRequesterAuthorizerWithAirnode(
     );
   }
 
-  return authorizers.RequesterAuthorizerWithAirnodeFactory.connect(address, signerOrProvider);
+  return authorizers.RequesterAuthorizerWithAirnodeV0Factory.connect(address, signerOrProvider);
 }
