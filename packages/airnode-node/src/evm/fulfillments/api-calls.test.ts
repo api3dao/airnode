@@ -18,10 +18,10 @@ import * as apiCalls from './api-calls';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { GasTarget, RequestErrorMessage } from '../../types';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrpV0 } from '../contracts';
 import { MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 
-const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();
 
 describe('submitApiCall', () => {

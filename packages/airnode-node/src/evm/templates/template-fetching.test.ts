@@ -6,7 +6,7 @@ mockEthers({ airnodeRrpMocks: { templates: templatesMock, getTemplates: getTempl
 import { ethers } from 'ethers';
 import * as templates from './template-fetching';
 import * as fixtures from '../../../test/fixtures';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrpV0 } from '../contracts';
 
 describe('fetch (templates)', () => {
   let mutableFetchOptions: templates.FetchOptions;
@@ -214,10 +214,10 @@ describe('fetch (templates)', () => {
 });
 
 describe('fetchTemplate', () => {
-  let mutableAirnodeRrp: AirnodeRrp;
+  let mutableAirnodeRrp: AirnodeRrpV0;
 
   beforeEach(() => {
-    mutableAirnodeRrp = new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+    mutableAirnodeRrp = new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
   });
 
   it('fetches the individual template', async () => {

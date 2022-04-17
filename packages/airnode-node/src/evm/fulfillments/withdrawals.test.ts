@@ -24,9 +24,9 @@ import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
 import { GasTarget } from '../../types';
 import * as wallet from '../wallet';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrpV0 } from '../contracts';
 
-const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();
 
 const gasTarget = {
