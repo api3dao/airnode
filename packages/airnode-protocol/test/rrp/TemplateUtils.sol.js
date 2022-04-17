@@ -1,5 +1,3 @@
-/* globals context */
-
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
