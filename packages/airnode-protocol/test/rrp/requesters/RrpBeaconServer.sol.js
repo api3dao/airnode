@@ -2,7 +2,7 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../../utils');
 
-describe('RrpBeaconServerWithManager', () => {
+describe('RrpBeaconServer', () => {
   let roles;
   let accessControlRegistry, airnodeRrp, rrpBeaconServer;
   let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServer admin';
