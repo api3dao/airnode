@@ -5,7 +5,7 @@ import "../interfaces/IAuthorizerV0.sol";
 
 /// @title A mock authorizer that always returns false
 contract MockAuthorizerAlwaysFalseV0 is IAuthorizerV0 {
-    function isAuthorized(
+    function isAuthorizedV0(
         bytes32 requestId, // solhint-disable-line
         address airnode, // solhint-disable-line
         bytes32 endpointId, // solhint-disable-line

@@ -4,7 +4,7 @@ import {
   AirnodeRrpV0,
   AirnodeRrpV0Factory,
   authorizers,
-  RequesterAuthorizerWithAirnodeV0,
+  RequesterAuthorizerWithAirnode,
   AccessControlRegistry,
   AccessControlRegistryFactory,
 } from '@api3/airnode-protocol';
@@ -440,7 +440,7 @@ describe('CLI', () => {
     expect(verifyXpubResult).toEqual(hdNode);
   });
 
-  describe('RequesterAuthorizerWithAirnodeV0', () => {
+  describe('RequesterAuthorizerWithAirnode', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';
     const endpointId = ethers.utils.keccak256(
@@ -448,13 +448,13 @@ describe('CLI', () => {
     );
     const expirationTimestamp = new Date('2031-09-23T13:04:13Z');
     let accessControlRegistry: AccessControlRegistry;
-    let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0;
+    let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
 
     beforeEach(async () => {
       accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
-      requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeV0Factory(deployer).deploy(
+      requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
         accessControlRegistry.address,
-        'RequesterAuthorizerWithAirnodeV0 admin'
+        'RequesterAuthorizerWithAirnode admin'
       );
 
       const airnodeRootRole = await accessControlRegistry.deriveRootRole(airnodeWallet.address);

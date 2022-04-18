@@ -57,5 +57,5 @@ export async function getRequesterAuthorizerWithAirnode(
     );
   }
 
-  return authorizers.RequesterAuthorizerWithAirnodeV0Factory.connect(address, signerOrProvider);
+  return authorizers.RequesterAuthorizerWithAirnodeFactory.connect(address, signerOrProvider);
 }

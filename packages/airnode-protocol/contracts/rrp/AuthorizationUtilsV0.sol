@@ -35,7 +35,7 @@ contract AuthorizationUtilsV0 is IAuthorizationUtilsV0 {
         for (uint256 ind = 0; ind < authorizers.length; ind++) {
             IAuthorizerV0 authorizer = IAuthorizerV0(authorizers[ind]);
             if (
-                authorizer.isAuthorized(
+                authorizer.isAuthorizedV0(
                     requestId,
                     airnode,
                     endpointId,

@@ -7,10 +7,10 @@ module.exports = async ({ deployments }) => {
     constructorArguments: [],
   });
 
-  const RequesterAuthorizerWithAirnode = await deployments.get('RequesterAuthorizerWithAirnodeV0');
+  const RequesterAuthorizerWithAirnode = await deployments.get('RequesterAuthorizerWithAirnode');
   await hre.run('verify:verify', {
     address: RequesterAuthorizerWithAirnode.address,
-    constructorArguments: [AccessControlRegistry.address, 'RequesterAuthorizerWithAirnodeV0 admin'],
+    constructorArguments: [AccessControlRegistry.address, 'RequesterAuthorizerWithAirnode admin'],
   });
 
   const AirnodeRrp = await deployments.get('AirnodeRrp');

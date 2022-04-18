@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "../../whitelist/interfaces/IWhitelistRolesWithManager.sol";
-import "./IRequesterAuthorizerV0.sol";
+import "./IRequesterAuthorizer.sol";
 
-interface IRequesterAuthorizerWithManagerV0 is
+interface IRequesterAuthorizerWithManager is
     IWhitelistRolesWithManager,
-    IRequesterAuthorizerV0
+    IRequesterAuthorizer
 {}

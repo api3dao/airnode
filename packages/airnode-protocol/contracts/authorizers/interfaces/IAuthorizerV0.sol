@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IAuthorizerV0 {
-    function isAuthorized(
+    function isAuthorizedV0(
         bytes32 requestId,
         address airnode,
         bytes32 endpointId,

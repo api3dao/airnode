@@ -1,7 +1,7 @@
 import {
   AccessControlRegistry,
   AccessControlRegistryFactory,
-  RequesterAuthorizerWithAirnodeV0,
+  RequesterAuthorizerWithAirnode,
   AirnodeRrpV0,
   AirnodeRrpV0Factory,
   authorizers,
@@ -18,7 +18,7 @@ describe('SDK', () => {
   let deployer: ethers.providers.JsonRpcSigner;
   let airnodeRrp: AirnodeRrpV0;
   let accessControlRegistry: AccessControlRegistry;
-  let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0;
+  let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
   let sdk: AdminSdk;
   let wallet: ethers.Wallet;
   const mnemonic = 'test test test test test test test test test test test junk';
@@ -34,9 +34,9 @@ describe('SDK', () => {
   beforeEach(async () => {
     airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
     accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
-    requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeV0Factory(deployer).deploy(
+    requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
       accessControlRegistry.address,
-      'RequesterAuthorizerWithAirnodeV0 admin'
+      'RequesterAuthorizerWithAirnode admin'
     );
     sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
   });

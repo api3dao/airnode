@@ -14,7 +14,7 @@ import {
   MockRrpRequesterV0__factory as MockRrpRequesterFactory,
   AirnodeRrpV0__factory as AirnodeRrpV0Factory,
   AccessControlRegistry__factory as AccessControlRegistryFactory,
-  RequesterAuthorizerWithAirnodeV0__factory as RequesterAuthorizerWithAirnodeV0Factory,
+  RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerFactory,
 } from './contracts';
 import references from '../deployments/references.json';
@@ -28,7 +28,7 @@ const mocks = {
   MockRrpRequesterFactory,
 };
 const authorizers = {
-  RequesterAuthorizerWithAirnodeV0Factory,
+  RequesterAuthorizerWithAirnodeFactory,
 };
 
 export {
@@ -46,7 +46,7 @@ export type {
   AirnodeRrpV0,
   MockRrpRequesterV0,
   AccessControlRegistry,
-  RequesterAuthorizerWithAirnodeV0,
+  RequesterAuthorizerWithAirnode,
   RrpBeaconServerV0,
 } from './contracts';
 export {

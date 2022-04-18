@@ -2,15 +2,15 @@
 pragma solidity ^0.8.0;
 
 import "../whitelist/Whitelist.sol";
-import "./interfaces/IRequesterAuthorizerV0.sol";
+import "./interfaces/IRequesterAuthorizer.sol";
 
-/// @title Abstract contract that can be used to build Airnode authorizers that
+/// @title Abstract contract to be inherited by Authorizer contracts that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
-abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
+abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
@@ -20,6 +20,8 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
         address requester,
         uint64 expirationTimestamp
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         _extendWhitelistExpiration(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -36,10 +38,9 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
 
     /// @notice Sets the expiration of the temporary whitelist of `requester`
     /// for the `airnode`–`endpointId` pair and emits an event
-    /// @dev Unlike `_extendWhitelistExpiration()`, this can hasten expiration.
-    /// Emits the event even if it does not change the state.
+    /// @dev Unlike `_extendWhitelistExpiration()`, this can hasten expiration
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
@@ -49,6 +50,8 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
         address requester,
         uint64 expirationTimestamp
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         _setWhitelistExpiration(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -67,7 +70,7 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
     /// `airnode`–`endpointId` pair and emits an event
     /// @dev Emits the event even if it does not change the state.
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param status Indefinite whitelist status
     function _setIndefiniteWhitelistStatusAndEmit(
@@ -76,6 +79,8 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
         address requester,
         bool status
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
             deriveServiceId(airnode, endpointId),
             requester,
@@ -96,7 +101,7 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
     /// event
     /// @dev Only emits the event if it changes the state
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param requester Requester address
     /// @param setter Setter of the indefinite whitelist status
     function _revokeIndefiniteWhitelistStatusAndEmit(
@@ -105,6 +110,9 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
         address requester,
         address setter
     ) internal {
+        require(airnode != address(0), "Airnode address zero");
+        require(requester != address(0), "Requester address zero");
+        require(setter != address(0), "Setter address zero");
         (
             bool revoked,
             uint192 indefiniteWhitelistCount
@@ -125,26 +133,22 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
         }
     }
 
-    /// @notice Returns if `requester` is whitelisted for the
-    /// `airnode`–`endpointId` pair
+    /// @notice Verifies the authorization status of a request
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param requester Requester address
-    /// @return isWhitelisted If `requester` is whitelisted for the
-    /// `airnode`–`endpointId` pair
-    function requesterIsWhitelisted(
+    /// @return Authorization status of the request
+    function isAuthorized(
         address airnode,
         bytes32 endpointId,
         address requester
-    ) public view override returns (bool isWhitelisted) {
-        isWhitelisted = userIsWhitelisted(
-            deriveServiceId(airnode, endpointId),
-            requester
-        );
+    ) external view override returns (bool) {
+        return
+            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester);
     }
 
     /// @notice Verifies the authorization status of a request
-    /// @dev This method has redundant arguments because all authorizer
+    /// @dev This method has redundant arguments because V0 authorizer
     /// contracts have to have the same interface and potential authorizer
     /// contracts may require to access the arguments that are redundant here
     /// @param requestId Request ID
@@ -153,14 +157,15 @@ abstract contract RequesterAuthorizerV0 is Whitelist, IRequesterAuthorizerV0 {
     /// @param sponsor Sponsor address
     /// @param requester Requester address
     /// @return Authorization status of the request
-    function isAuthorized(
+    function isAuthorizedV0(
         bytes32 requestId, // solhint-disable-line no-unused-vars
         address airnode,
         bytes32 endpointId,
         address sponsor, // solhint-disable-line no-unused-vars
         address requester
     ) external view override returns (bool) {
-        return requesterIsWhitelisted(airnode, endpointId, requester);
+        return
+            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester);
     }
 
     /// @notice Returns the whitelist status of `requester` for the

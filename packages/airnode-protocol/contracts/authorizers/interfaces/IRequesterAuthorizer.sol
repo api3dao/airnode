@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./IAuthorizerV0.sol";
 
-interface IRequesterAuthorizerV0 is IAuthorizerV0 {
+interface IRequesterAuthorizer is IAuthorizerV0 {
     event ExtendedWhitelistExpiration(
         address indexed airnode,
         bytes32 endpointId,
@@ -66,12 +66,6 @@ interface IRequesterAuthorizerV0 is IAuthorizerV0 {
         address setter
     ) external;
 
-    function requesterIsWhitelisted(
-        address airnode,
-        bytes32 endpointId,
-        address requester
-    ) external view returns (bool isWhitelisted);
-
     function airnodeToEndpointIdToRequesterToWhitelistStatus(
         address airnode,
         bytes32 endpointId,
@@ -87,4 +81,10 @@ interface IRequesterAuthorizerV0 is IAuthorizerV0 {
         address requester,
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
+
+    function isAuthorized(
+        address airnode,
+        bytes32 endpointId,
+        address requester
+    ) external view returns (bool);
 }

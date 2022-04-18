@@ -1,5 +1,5 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrpV0, RequesterAuthorizerWithAirnodeV0 } from '@api3/airnode-protocol';
+import { AirnodeRrpV0, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
 import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
@@ -319,7 +319,7 @@ export async function fulfillWithdrawal(
 }
 
 export async function setWhitelistExpiration(
-  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0,
+  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
@@ -337,7 +337,7 @@ export async function setWhitelistExpiration(
 }
 
 export async function extendWhitelistExpiration(
-  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0,
+  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
@@ -355,7 +355,7 @@ export async function extendWhitelistExpiration(
 }
 
 export async function setIndefiniteWhitelistStatus(
-  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0,
+  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
@@ -373,7 +373,7 @@ export async function setIndefiniteWhitelistStatus(
 }
 
 export async function getWhitelistStatus(
-  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0,
+  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string
@@ -392,12 +392,12 @@ export async function getWhitelistStatus(
 }
 
 export async function isRequesterWhitelisted(
-  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnodeV0,
+  requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string
 ) {
-  return requesterAuthorizerWithAirnode.requesterIsWhitelisted(airnodeAddress, endpointId, requesterAddress);
+  return requesterAuthorizerWithAirnode.isAuthorized(airnodeAddress, endpointId, requesterAddress);
 }
 
 export async function generateMnemonic() {
