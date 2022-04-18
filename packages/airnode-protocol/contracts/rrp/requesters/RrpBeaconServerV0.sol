@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "../../whitelist/Whitelist.sol";
-import "../../whitelist/WhitelistRolesWithManager.sol";
+import "../../whitelist/WhitelistWithManager.sol";
 import "./RrpRequesterV0.sol";
 import "./interfaces/IRrpBeaconServerV0.sol";
 
@@ -21,8 +20,7 @@ import "./interfaces/IRrpBeaconServerV0.sol";
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
 contract RrpBeaconServerV0 is
-    Whitelist,
-    WhitelistRolesWithManager,
+    WhitelistWithManager,
     RrpRequesterV0,
     IRrpBeaconServerV0
 {
@@ -50,121 +48,13 @@ contract RrpBeaconServerV0 is
         address _manager,
         address _airnodeRrp
     )
-        WhitelistRolesWithManager(
+        WhitelistWithManager(
             _accessControlRegistry,
             _adminRoleDescription,
             _manager
         )
         RrpRequesterV0(_airnodeRrp)
     {}
-
-    /// @notice Extends the expiration of the temporary whitelist of `reader`
-    /// to be able to read the beacon with `beaconId` if the sender has the
-    /// whitelist expiration extender role
-    /// @param beaconId Beacon ID
-    /// @param reader Reader address
-    /// @param expirationTimestamp Timestamp at which the temporary whitelist
-    /// will expire
-    function extendWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external override {
-        require(
-            hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
-            "Not expiration extender"
-        );
-        _extendWhitelistExpiration(beaconId, reader, expirationTimestamp);
-        emit ExtendedWhitelistExpiration(
-            beaconId,
-            reader,
-            msg.sender,
-            expirationTimestamp
-        );
-    }
-
-    /// @notice Sets the expiration of the temporary whitelist of `reader` to
-    /// be able to read the beacon with `beaconId` if the sender has the
-    /// whitelist expiration setter role
-    /// @param beaconId Beacon ID
-    /// @param reader Reader address
-    /// @param expirationTimestamp Timestamp at which the temporary whitelist
-    /// will expire
-    function setWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external override {
-        require(
-            hasWhitelistExpirationSetterRoleOrIsManager(msg.sender),
-            "Not expiration setter"
-        );
-        _setWhitelistExpiration(beaconId, reader, expirationTimestamp);
-        emit SetWhitelistExpiration(
-            beaconId,
-            reader,
-            msg.sender,
-            expirationTimestamp
-        );
-    }
-
-    /// @notice Sets the indefinite whitelist status of `reader` to be able to
-    /// read the beacon with `beaconId` if the sender has the indefinite
-    /// whitelister role
-    /// @param beaconId Beacon ID
-    /// @param reader Reader address
-    /// @param status Indefinite whitelist status
-    function setIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        bool status
-    ) external override {
-        require(
-            hasIndefiniteWhitelisterRoleOrIsManager(msg.sender),
-            "Not indefinite whitelister"
-        );
-        uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
-            beaconId,
-            reader,
-            status
-        );
-        emit SetIndefiniteWhitelistStatus(
-            beaconId,
-            reader,
-            msg.sender,
-            status,
-            indefiniteWhitelistCount
-        );
-    }
-
-    /// @notice Revokes the indefinite whitelist status granted by a specific
-    /// account that no longer has the indefinite whitelister role
-    /// @param beaconId Beacon ID
-    /// @param reader Reader address
-    /// @param setter Setter of the indefinite whitelist status
-    function revokeIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        address setter
-    ) external override {
-        require(
-            !hasIndefiniteWhitelisterRoleOrIsManager(setter),
-            "setter is indefinite whitelister"
-        );
-        (
-            bool revoked,
-            uint192 indefiniteWhitelistCount
-        ) = _revokeIndefiniteWhitelistStatus(beaconId, reader, setter);
-        if (revoked) {
-            emit RevokedIndefiniteWhitelistStatus(
-                beaconId,
-                reader,
-                setter,
-                msg.sender,
-                indefiniteWhitelistCount
-            );
-        }
-    }
 
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account

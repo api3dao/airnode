@@ -254,17 +254,17 @@ describe('RrpBeaconServerV0', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationSetter)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.indefiniteWhitelister)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
       });
     });
   });
@@ -329,15 +329,15 @@ describe('RrpBeaconServerV0', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
             .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.indefiniteWhitelister)
             .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
         await expect(
           rrpBeaconServer.connect(roles.randomPerson).setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
       });
     });
   });
@@ -514,17 +514,17 @@ describe('RrpBeaconServerV0', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
         await expect(
           rrpBeaconServer
             .connect(roles.whitelistExpirationSetter)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
       });
     });
   });
@@ -586,7 +586,7 @@ describe('RrpBeaconServerV0', () => {
             rrpBeaconServer
               .connect(roles.randomPerson)
               .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.manager.address)
-          ).to.be.revertedWith('setter is indefinite whitelister');
+          ).to.be.revertedWith('setter can set indefinite status');
         });
       });
     });
@@ -596,7 +596,7 @@ describe('RrpBeaconServerV0', () => {
           rrpBeaconServer
             .connect(roles.randomPerson)
             .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
-        ).to.be.revertedWith('setter is indefinite whitelister');
+        ).to.be.revertedWith('setter can set indefinite status');
       });
     });
   });
