@@ -27,6 +27,7 @@ async function fetchTransactionCounts(currentState: ProviderState<EVMProviderSta
     currentBlock: currentState.currentBlock!,
     masterHDNode: currentState.masterHDNode,
     provider: currentState.provider,
+    minConfirmations: currentState.settings.minConfirmations,
   };
   // This should not throw
   const [logs, res] = await transactionCounts.fetchBySponsor(sponsors, fetchOptions);
