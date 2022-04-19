@@ -1,3 +1,3 @@
-const contractNames = ['AccessControlRegistry', 'RequesterAuthorizerWithAirnode', 'AirnodeRrp'];
+const contractNames = ['AccessControlRegistry', 'RequesterAuthorizerWithAirnode', 'AirnodeRrpV0'];
 
 export { contractNames };

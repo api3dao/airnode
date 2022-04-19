@@ -32,17 +32,35 @@ Deploy the contracts on a network (`<NETWORK>` must be one of the names from `cr
 deployment
 
 ```sh
-# Deploys (use if you do not want Etherscan verification)
-NETWORK=<NETWORK> yarn run deploy
+# Deploys deterministically (does not work on some chains)
+NETWORK=<NETWORK> yarn run deploy:deterministic
 
-# Deploys and verifies on Etherscan
-NETWORK=<NETWORK> yarn run deploy-and-verify
+# Deploys undeterministically
+NETWORK=<NETWORK> yarn run deploy:undeterministic
 
-# Verifies deployment locally
-NETWORK=<NETWORK> yarn run verify-deployment
+# Verifies the deployment on the respective block explorer (not supported for some chains)
+NETWORK=<NETWORK> yarn run deploy:verify
+
+# Verifies the deployment locally (only works for undeterministic deployments)
+NETWORK=<NETWORK> yarn run deploy:verify-local
 ```
 
+## Deterministic deployment addresses
+
+AirnodeRrpV0: 0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd
+
+RequesterAuthorizerWithAirnode: 0xf18c105D0375E80980e4EED829a4A68A539E6178
+
+AccessControlRegistry: 0x92E5125adF385d86beDb950793526106143b6Df1
+
 ## Integration notes
+
+- `arbitrum`, `avalanche`, `metis` and their testnets do not support deterministic deployment and are deployed
+  undeterministically, resulting different contract addresses.
+
+- `fantom-testnet`, `metis`, `milkomeda` are not verified due to not being supported by hardhat-etherscan or the support
+  being broken. The addresses act as the verification for deterministic deployments, and you can use
+  `deploy:verify-local` to verify undeterministic deployments.
 
 - `fantom-testnet` and `arbitrum` is not verified on the respective block explorers due to hardhat-etherscan not
   working. You can verify the contracts locally using the `verify-deployment` script.
