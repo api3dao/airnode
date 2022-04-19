@@ -47,8 +47,14 @@ NETWORK=<NETWORK> yarn run verify-deployment
 - `fantom-testnet` and `arbitrum` is not verified on the respective block explorers due to hardhat-etherscan not
   working. You can verify the contracts locally using the `verify-deployment` script.
 
-- The default Airnode `gasLimit` is not enough for `arbitrum` and `arbitrum-testnet`. Configure a suitable value in
-  `config.json` for these chains.
+- The default Airnode `gasLimit` is not enough for `arbitrum`, `arbitrum-testnet` and `metis-testnet`. Configure a
+  suitable value (such as `5000000`) in `config.json` for these chains.
+
+---
+
+The information below is slightly outdated
+
+---
 
 ## Introduction
 
@@ -126,18 +132,18 @@ The contracts are under the `contracts/` directory.
 
 `/rrp`: Contracts that implement the request–response protocol
 
-- `rrp/AirnodeRrp.sol`: Implements the request–response loop of the protocol and inherits the three other contracts
+- `rrp/AirnodeRrpV0.sol`: Implements the request–response loop of the protocol and inherits the three other contracts
   below
-- `rrp/AuthorizationUtils.sol`: Implements individual and batch authorization checks
-- `rrp/TemplateUtils.sol`: Implements the request template functionality, which allows the reuse of previously declared
-  request parameters
-- `rrp/WithdrawalUtils.sol`: Implements the request–response loop for withdrawals from sponsor wallets
+- `rrp/AuthorizationUtilsV0.sol`: Implements individual and batch authorization checks
+- `rrp/TemplateUtilsV0.sol`: Implements the request template functionality, which allows the reuse of previously
+  declared request parameters
+- `rrp/WithdrawalUtilsV0.sol`: Implements the request–response loop for withdrawals from sponsor wallets
 
   `rrp/requesters/`: Houses the RRP-depending requester contracts
 
-  - `rrp/requesters/RrpRequester.sol`: A contract that is meant to be inherited by any contract that will be making
-    requests to `AirnodeRrp`
-  - `rrp/requesters/RrpBeaconServer.sol`: A proxy contract that makes RRP requests for request templates. The most
+  - `rrp/requesters/RrpRequesterV0.sol`: A contract that is meant to be inherited by any contract that will be making
+    requests to `AirnodeRrpV0`
+  - `rrp/requesters/RrpBeaconServerV0.sol`: A proxy contract that makes RRP requests for request templates. The most
     recent response for each template is stored and can be accessed by the whitelisted users where the whitelists are
     managed by a single account.
 
@@ -225,7 +231,7 @@ increased gas cost (e.g., templates could have been logged instead of written to
 This last point is a bit abstract, yet has guided us through a number of decisions: When needed to choose between a
 slight gas cost optimization and improved upgradability in protocol, we opted for the latter. The reasoning here is that
 there is virtually infinite potential value to be unlocked with a highly-capable oracle protocol, and sacrificing this
-to optimize for a limited use-case is short-sighted. An example can be given as `fulfill()` in `AirnodeRrp` being
+to optimize for a limited use-case is short-sighted. An example can be given as `fulfill()` in `AirnodeRrpV0` being
 fulfilled with a `bytes` type that needs to be decoded (which adds a gas cost overhead), where most users will have the
 request return a single 32 bytes-long type. Even though this decoding operation overhead will recur a lot, it is still
 negligible compared to the value that will be created by an oracle protocol that allows flexible response specifications
@@ -235,13 +241,13 @@ negligible compared to the value that will be created by an oracle protocol that
 
 1. The Airnode operator generates an HD wallet seed. The address of the default BIP 44 wallet (`m/44'/60'/0'/0/0`)
    derived from this seed is used to identify the Airnode. The Airnode (referring to the node application) polls
-   `AirnodeRrp` for `MadeTemplateRequest` and `MadeFullRequest` events indexed by its own identifying address (and drops
-   the ones that have matching `FulfilledRequest` and `FailedRequest` events).
+   `AirnodeRrpV0` for `MadeTemplateRequest` and `MadeFullRequest` events indexed by its own identifying address (and
+   drops the ones that have matching `FulfilledRequest` and `FailedRequest` events).
 
 2. A developer decides to build a contract that makes requests to a specific Airnode (we will call this contract
    _requester_). Using the `xpub` (extended public key) of the Airnode (which is announced off-chain) and the address of
    an Ethereum account they control, the developer derives the address of their sponsor wallet (see below for how this
-   is done). The developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in `AirnodeRrp` with the
+   is done). The developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in `AirnodeRrpV0` with the
    address of their requester contract to sponsor it. This means the developer is now the _sponsor_ of their requester
    contract, i.e., the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
 
@@ -285,11 +291,12 @@ a sponsor wallet that they are not authorized to use).
    encodes the payload as specified by the request (these specifications are outside the scope of this package). The
    hash of the request ID and its response payload is signed by the private key of the address that identifies Airnode
    (to decisively prove that the holder of the Airnode private key returned the payload as the response to a specific
-   request). Then, the Airnode calls `fulfill()` of `AirnodeRrp`, with the request ID, payload and the signature, which
-   forwards the request ID and the payload to the callback function in the destination address. The callback function
-   can be as flexible as needed, but note that the gas cost of execution will be undertaken by the sponsor wallet.
+   request). Then, the Airnode calls `fulfill()` of `AirnodeRrpV0`, with the request ID, payload and the signature,
+   which forwards the request ID and the payload to the callback function in the destination address. The callback
+   function can be as flexible as needed, but note that the gas cost of execution will be undertaken by the sponsor
+   wallet.
 
-If anything goes wrong during this flow, the Airnode calls the `fail()` function of `AirnodeRrp` with an error message
+If anything goes wrong during this flow, the Airnode calls the `fail()` function of `AirnodeRrpV0` with an error message
 that explains what went wrong. For example, if `fulfill()` is going to revert, the node calls back `fail()` and forwards
 the revert string as the error message for debugging purposes. However, there are some cases where this is not possible,
 e.g., the specified sponsor wallet does not match the sponsor address, in which case the request will not be responded
@@ -323,8 +330,8 @@ used to derive the sponsor wallets for other protocols such as PSP.
 
 ## Withdrawal from the sponsor wallet
 
-Requesters may not want to use up all the ETH deposited in their sponsor wallet. Then, they can use `WithdrawalUtils` to
-request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
+Requesters may not want to use up all the ETH deposited in their sponsor wallet. Then, they can use `WithdrawalUtilsV0`
+to request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
 Before serving this request, the Airnode must verify that the specified sponsor wallet address belongs to the maker of
 the request by deriving the sponsor wallet address itself.
 
