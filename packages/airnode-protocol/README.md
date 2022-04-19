@@ -58,12 +58,9 @@ AccessControlRegistry: 0x92E5125adF385d86beDb950793526106143b6Df1
 - `arbitrum`, `avalanche`, `metis` and their testnets do not support deterministic deployment and are deployed
   undeterministically, resulting different contract addresses.
 
-- `fantom-testnet`, `metis`, `milkomeda` are not verified due to not being supported by hardhat-etherscan or the support
-  being broken. The addresses act as the verification for deterministic deployments, and you can use
+- `fantom`, `metis`, `milkomeda` and their testnets are not verified due to not being supported by hardhat-etherscan or
+  the support being broken. The addresses act as the verification for deterministic deployments, and you can use
   `deploy:verify-local` to verify undeterministic deployments.
-
-- `fantom-testnet` and `arbitrum` is not verified on the respective block explorers due to hardhat-etherscan not
-  working. You can verify the contracts locally using the `verify-deployment` script.
 
 - The default Airnode `gasLimit` is not enough for `arbitrum`, `arbitrum-testnet` and `metis-testnet`. Configure a
   suitable value (such as `5000000`) in `config.json` for these chains.
