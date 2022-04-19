@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import { logger, go } from '@api3/airnode-utilities';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
+import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 
 export interface FetchOptions {
   readonly authorizers: string[];
@@ -16,7 +16,7 @@ export interface FetchOptions {
 }
 
 export async function fetchAuthorizationStatus(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   authorizers: string[],
   airnodeAddress: string,
   apiCall: Request<ApiCall>
@@ -42,7 +42,7 @@ export async function fetchAuthorizationStatus(
 }
 
 async function fetchAuthorizationStatuses(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   authorizers: string[],
   airnodeAddress: string,
   apiCalls: Request<ApiCall>[]
@@ -116,7 +116,7 @@ export async function fetch(
   const groupedPairs = chunk(apiCalls, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
-  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
   const promises = groupedPairs.map((pairs) =>

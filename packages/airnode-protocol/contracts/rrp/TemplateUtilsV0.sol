@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-import "./interfaces/ITemplateUtils.sol";
+import "./interfaces/ITemplateUtilsV0.sol";
 
 /// @title Contract that implements request templates
-contract TemplateUtils is ITemplateUtils {
+contract TemplateUtilsV0 is ITemplateUtilsV0 {
     struct Template {
         address airnode;
         bytes32 endpointId;

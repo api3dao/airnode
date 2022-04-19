@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-import "./interfaces/IAuthorizationUtils.sol";
-import "../authorizers/interfaces/IAuthorizer.sol";
+import "./interfaces/IAuthorizationUtilsV0.sol";
+import "../authorizers/interfaces/IAuthorizerV0.sol";
 
 /// @title Contract that implements authorization checks
-contract AuthorizationUtils is IAuthorizationUtils {
+contract AuthorizationUtilsV0 is IAuthorizationUtilsV0 {
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
@@ -33,9 +33,9 @@ contract AuthorizationUtils is IAuthorizationUtils {
         address requester
     ) public view override returns (bool status) {
         for (uint256 ind = 0; ind < authorizers.length; ind++) {
-            IAuthorizer authorizer = IAuthorizer(authorizers[ind]);
+            IAuthorizerV0 authorizer = IAuthorizerV0(authorizers[ind]);
             if (
-                authorizer.isAuthorized(
+                authorizer.isAuthorizedV0(
                     requestId,
                     airnode,
                     endpointId,

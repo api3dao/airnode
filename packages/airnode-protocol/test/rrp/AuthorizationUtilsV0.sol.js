@@ -1,9 +1,8 @@
-/* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
 
-describe('AuthorizationUtils', () => {
+describe('AuthorizationUtilsV0', () => {
   let roles;
   let airnodeRrp, authorizerAlwaysTrue, authorizerAlwaysFalse;
   let airnodeAddress;
@@ -15,15 +14,15 @@ describe('AuthorizationUtils', () => {
       sponsor: accounts[1],
       randomPerson: accounts[9],
     };
-    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
+    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrpV0', roles.deployer);
     airnodeRrp = await airnodeRrpFactory.deploy();
     const mockAuthorizerAlwaysTrueFactory = await hre.ethers.getContractFactory(
-      'MockAuthorizerAlwaysTrue',
+      'MockAuthorizerAlwaysTrueV0',
       roles.deployer
     );
     authorizerAlwaysTrue = await mockAuthorizerAlwaysTrueFactory.deploy();
     const mockAuthorizerAlwaysFalseFactory = await hre.ethers.getContractFactory(
-      'MockAuthorizerAlwaysFalse',
+      'MockAuthorizerAlwaysFalseV0',
       roles.deployer
     );
     authorizerAlwaysFalse = await mockAuthorizerAlwaysFalseFactory.deploy();

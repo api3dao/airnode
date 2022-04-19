@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-import "./interfaces/IAccessControlClient.sol";
+import "./interfaces/IAccessControlRegistry.sol";
+import "./interfaces/IAccessControlRegistryUser.sol";
 
-contract AccessControlClient is IAccessControlClient {
-    /// @notice Address of the AccessControlRegistry contract that keeps the
-    /// roles
+/// @title Contract to be inherited by contracts that will interact with
+/// AccessControlRegistry
+contract AccessControlRegistryUser is IAccessControlRegistryUser {
+    /// @notice AccessControlRegistry contract address
     address public immutable override accessControlRegistry;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address

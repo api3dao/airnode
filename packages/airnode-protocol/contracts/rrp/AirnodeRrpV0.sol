@@ -2,17 +2,17 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./AuthorizationUtils.sol";
-import "./TemplateUtils.sol";
-import "./WithdrawalUtils.sol";
-import "./interfaces/IAirnodeRrp.sol";
+import "./AuthorizationUtilsV0.sol";
+import "./TemplateUtilsV0.sol";
+import "./WithdrawalUtilsV0.sol";
+import "./interfaces/IAirnodeRrpV0.sol";
 
 /// @title Contract that implements the Airnode request–response protocol (RRP)
-contract AirnodeRrp is
-    AuthorizationUtils,
-    TemplateUtils,
-    WithdrawalUtils,
-    IAirnodeRrp
+contract AirnodeRrpV0 is
+    AuthorizationUtilsV0,
+    TemplateUtilsV0,
+    WithdrawalUtilsV0,
+    IAirnodeRrpV0
 {
     using ECDSA for bytes32;
 

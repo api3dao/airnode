@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IAirnodeRrp.sol";
+import "../interfaces/IAirnodeRrpV0.sol";
 
 /// @title The contract to be inherited to make Airnode RRP requests
-contract RrpRequester {
-    IAirnodeRrp public immutable airnodeRrp;
+contract RrpRequesterV0 {
+    IAirnodeRrpV0 public immutable airnodeRrp;
 
     /// @dev Reverts if the caller is not the Airnode RRP contract.
     /// Use it as a modifier for fulfill and error callback methods, but also
@@ -21,7 +21,7 @@ contract RrpRequester {
     /// requests, i.e., using this default sponsorship is optional.
     /// @param _airnodeRrp Airnode RRP contract address
     constructor(address _airnodeRrp) {
-        airnodeRrp = IAirnodeRrp(_airnodeRrp);
-        IAirnodeRrp(_airnodeRrp).setSponsorshipStatus(address(this), true);
+        airnodeRrp = IAirnodeRrpV0(_airnodeRrp);
+        IAirnodeRrpV0(_airnodeRrp).setSponsorshipStatus(address(this), true);
     }
 }

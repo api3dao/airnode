@@ -2,8 +2,8 @@ import {
   AccessControlRegistry,
   AccessControlRegistryFactory,
   RequesterAuthorizerWithAirnode,
-  AirnodeRrp,
-  AirnodeRrpFactory,
+  AirnodeRrpV0,
+  AirnodeRrpV0Factory,
   authorizers,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
@@ -16,7 +16,7 @@ const PROVIDER_URL = 'http://127.0.0.1:8545/';
 describe('SDK', () => {
   let provider: ethers.providers.JsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
-  let airnodeRrp: AirnodeRrp;
+  let airnodeRrp: AirnodeRrpV0;
   let accessControlRegistry: AccessControlRegistry;
   let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
   let sdk: AdminSdk;
@@ -32,7 +32,7 @@ describe('SDK', () => {
   });
 
   beforeEach(async () => {
-    airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
+    airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
     accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
     requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
       accessControlRegistry.address,

@@ -1,37 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-interface IRrpBeaconServer {
-    event ExtendedWhitelistExpiration(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        uint256 expiration
-    );
+import "../../../whitelist/interfaces/IWhitelistWithManager.sol";
 
-    event SetWhitelistExpiration(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        uint256 expiration
-    );
-
-    event SetIndefiniteWhitelistStatus(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed sender,
-        bool status,
-        uint192 indefiniteWhitelistCount
-    );
-
-    event RevokedIndefiniteWhitelistStatus(
-        bytes32 indexed beaconId,
-        address indexed reader,
-        address indexed setter,
-        address sender,
-        uint192 indefiniteWhitelistCount
-    );
-
+interface IRrpBeaconServerV0 is IWhitelistWithManager {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -54,30 +26,6 @@ interface IRrpBeaconServer {
         int224 value,
         uint32 timestamp
     );
-
-    function extendWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setWhitelistExpiration(
-        bytes32 beaconId,
-        address reader,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        bool status
-    ) external;
-
-    function revokeIndefiniteWhitelistStatus(
-        bytes32 beaconId,
-        address reader,
-        address setter
-    ) external;
 
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;

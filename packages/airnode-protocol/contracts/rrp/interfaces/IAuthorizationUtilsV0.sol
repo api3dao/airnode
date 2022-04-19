@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IAuthorizationUtils {
+interface IAuthorizationUtilsV0 {
     function checkAuthorizationStatus(
         address[] calldata authorizers,
         address airnode,

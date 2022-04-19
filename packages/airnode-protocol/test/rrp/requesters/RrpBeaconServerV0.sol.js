@@ -1,12 +1,11 @@
-/* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../../utils');
 
-describe('RrpBeaconServerWithManager', () => {
+describe('RrpBeaconServerV0', () => {
   let roles;
   let accessControlRegistry, airnodeRrp, rrpBeaconServer;
-  let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServer admin';
+  let rrpBeaconServerAdminRoleDescription = 'RrpBeaconServerV0 admin';
   let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
   let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
   let sponsorWalletAddress, sponsorWallet;
@@ -29,9 +28,9 @@ describe('RrpBeaconServerWithManager', () => {
     };
     const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
     accessControlRegistry = await accessControlRegistryFactory.deploy();
-    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
+    const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrpV0', roles.deployer);
     airnodeRrp = await airnodeRrpFactory.deploy();
-    const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+    const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
     rrpBeaconServer = await rrpBeaconServerFactory.deploy(
       accessControlRegistry.address,
       rrpBeaconServerAdminRoleDescription,
@@ -39,40 +38,82 @@ describe('RrpBeaconServerWithManager', () => {
       airnodeRrp.address
     );
     const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
+    // Initialize the roles and grant them to respective accounts
     adminRole = await rrpBeaconServer.adminRole();
-    whitelistExpirationExtenderRole = await rrpBeaconServer.whitelistExpirationExtenderRole();
-    whitelistExpirationSetterRole = await rrpBeaconServer.whitelistExpirationSetterRole();
-    indefiniteWhitelisterRole = await rrpBeaconServer.indefiniteWhitelisterRole();
-    await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
-      [managerRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        rrpBeaconServerAdminRoleDescription,
-        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        roles.manager.address, // which will already have been granted the role
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ]
-    );
-    // Grant `roles.randomPerson` some invalid roles
     await accessControlRegistry
       .connect(roles.manager)
-      .initializeAndGrantRoles(
-        [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
-        [
-          Math.random(),
-          await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-          await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-          await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        ],
-        [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
+      .initializeRoleAndGrantToSender(managerRootRole, rrpBeaconServerAdminRoleDescription);
+    whitelistExpirationExtenderRole = await rrpBeaconServer.whitelistExpirationExtenderRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        adminRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
       );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address);
+    whitelistExpirationSetterRole = await rrpBeaconServer.whitelistExpirationSetterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(adminRole, await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(whitelistExpirationSetterRole, roles.whitelistExpirationSetter.address);
+    indefiniteWhitelisterRole = await rrpBeaconServer.indefiniteWhitelisterRole();
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(adminRole, await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(indefiniteWhitelisterRole, roles.anotherIndefiniteWhitelister.address);
+    // Grant `roles.randomPerson` some invalid roles
+    const randomRoleDescription = Math.random().toString();
+    const randomRole = await accessControlRegistry.deriveRole(managerRootRole, randomRoleDescription);
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(managerRootRole, randomRoleDescription);
+    await accessControlRegistry.connect(roles.manager).grantRole(randomRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationExtenderRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationExtenderRole, roles.randomPerson.address);
+    const invalidWhitelistExpirationSetterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(
+        managerRootRole,
+        await rrpBeaconServer.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
+      );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidWhitelistExpirationSetterRole, roles.randomPerson.address);
+    const invalidIndefiniteWhitelisterRole = await accessControlRegistry.deriveRole(
+      managerRootRole,
+      await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
+    );
+    await accessControlRegistry
+      .connect(roles.manager)
+      .initializeRoleAndGrantToSender(managerRootRole, await rrpBeaconServer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION());
+    await accessControlRegistry
+      .connect(roles.manager)
+      .grantRole(invalidIndefiniteWhitelisterRole, roles.randomPerson.address);
+
     ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
     airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
     sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
@@ -97,7 +138,7 @@ describe('RrpBeaconServerWithManager', () => {
   describe('constructor', function () {
     context('Manager address is not zero', function () {
       it('constructs', async function () {
-        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
         rrpBeaconServer = await rrpBeaconServerFactory.deploy(
           accessControlRegistry.address,
           rrpBeaconServerAdminRoleDescription,
@@ -112,7 +153,7 @@ describe('RrpBeaconServerWithManager', () => {
     });
     context('Manager address is zero', function () {
       it('reverts', async function () {
-        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServer', roles.deployer);
+        const rrpBeaconServerFactory = await hre.ethers.getContractFactory('RrpBeaconServerV0', roles.deployer);
         await expect(
           rrpBeaconServerFactory.deploy(
             accessControlRegistry.address,
@@ -213,17 +254,17 @@ describe('RrpBeaconServerWithManager', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationSetter)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.indefiniteWhitelister)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
             .extendWhitelistExpiration(beaconId, roles.beaconReader.address, 1000)
-        ).to.be.revertedWith('Not expiration extender');
+        ).to.be.revertedWith('Cannot extend expiration');
       });
     });
   });
@@ -288,15 +329,15 @@ describe('RrpBeaconServerWithManager', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
             .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
         await expect(
           rrpBeaconServer
             .connect(roles.indefiniteWhitelister)
             .setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
         await expect(
           rrpBeaconServer.connect(roles.randomPerson).setWhitelistExpiration(beaconId, roles.beaconReader.address, 0)
-        ).to.be.revertedWith('Not expiration setter');
+        ).to.be.revertedWith('Cannot set expiration');
       });
     });
   });
@@ -473,17 +514,17 @@ describe('RrpBeaconServerWithManager', () => {
           rrpBeaconServer
             .connect(roles.whitelistExpirationExtender)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
         await expect(
           rrpBeaconServer
             .connect(roles.whitelistExpirationSetter)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
         await expect(
           rrpBeaconServer
             .connect(roles.randomPerson)
             .setIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, true)
-        ).to.be.revertedWith('Not indefinite whitelister');
+        ).to.be.revertedWith('Cannot set indefinite status');
       });
     });
   });
@@ -545,7 +586,7 @@ describe('RrpBeaconServerWithManager', () => {
             rrpBeaconServer
               .connect(roles.randomPerson)
               .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.manager.address)
-          ).to.be.revertedWith('setter is indefinite whitelister');
+          ).to.be.revertedWith('setter can set indefinite status');
         });
       });
     });
@@ -555,7 +596,7 @@ describe('RrpBeaconServerWithManager', () => {
           rrpBeaconServer
             .connect(roles.randomPerson)
             .revokeIndefiniteWhitelistStatus(beaconId, roles.beaconReader.address, roles.indefiniteWhitelister.address)
-        ).to.be.revertedWith('setter is indefinite whitelister');
+        ).to.be.revertedWith('setter can set indefinite status');
       });
     });
   });
