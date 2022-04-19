@@ -1,7 +1,7 @@
 import {
   RegularAggregatedApiCall,
   HttpSignedDataAggregatedApiCall,
-  HttpGatewayAggregatedApiCall,
+  HttpAggregatedApiCall,
   RegularAggregatedApiCallWithResponse,
 } from '../../src/types';
 
@@ -52,9 +52,7 @@ export function buildAggregatedRegularApiCallWithResponse(
   };
 }
 
-export function buildAggregatedHttpGatewayApiCall(
-  params?: Partial<HttpGatewayAggregatedApiCall>
-): HttpGatewayAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(params?: Partial<HttpAggregatedApiCall>): HttpAggregatedApiCall {
   return {
     type: 'http-gateway',
     endpointName: 'convertToUSD',

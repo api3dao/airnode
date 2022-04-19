@@ -35,7 +35,6 @@ describe('disaggregate - Requests', () => {
 
     const [logs, res] = disaggregation.disaggregate(stateWithResponses);
     expect(logs).toEqual([]);
-    // TODO: avoid any (requires state types to change)
     expect((res[0].requests.apiCalls[0] as any).data.encodedValue).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000000001b9'
     );

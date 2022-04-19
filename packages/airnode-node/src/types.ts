@@ -91,7 +91,6 @@ export interface ApiCall {
   readonly template?: ApiCallTemplate;
 }
 
-// TODO: Do we need this
 export type ApiCallWithResponse = ApiCall & RegularApiCallResponse;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -241,10 +240,7 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall =
-  | RegularAggregatedApiCall
-  | HttpGatewayAggregatedApiCall
-  | HttpSignedDataAggregatedApiCall;
+export type AggregatedApiCall = RegularAggregatedApiCall | HttpAggregatedApiCall | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   endpointName: string;
@@ -276,8 +272,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
 
 export type RegularAggregatedApiCallWithResponse = RegularAggregatedApiCall & RegularApiCallResponse;
 
-// TODO: Drop gateway name
-export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+export interface HttpAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-gateway';
 }
 

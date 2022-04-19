@@ -85,7 +85,6 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
   const preparedApiCallSubmissions = prepareRequestSubmissions(
     state,
     // The "apiCalls" must be "ApiCallWithResponse" at this point.
-    // TODO: Change the types to avoid the assertion
     requests.apiCalls as Request<ApiCallWithResponse>[],
     RequestType.ApiCall,
     submitApiCall,
