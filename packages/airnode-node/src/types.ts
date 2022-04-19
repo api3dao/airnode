@@ -232,7 +232,8 @@ export interface HttpGatewayApiCallSuccessResponse {
 
 export interface HttpSignedDataApiCallSuccessResponse {
   success: true;
-  data: { timestamp: string; encodedValue: string; signature: string };
+  // NOTE: "timestamp" and "encodedValue" are wrapped in data for legacy reasons
+  data: { data: { timestamp: string; encodedValue: string }; signature: string };
 }
 
 export interface ApiCallErrorResponse {

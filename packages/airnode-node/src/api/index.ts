@@ -224,7 +224,7 @@ async function processSuccessfulApiCall(
           response.encodedValue,
           config
         );
-        return [[], { success: true, data: { timestamp, encodedValue: response.encodedValue, signature } }];
+        return [[], { success: true, data: { data: { timestamp, encodedValue: response.encodedValue }, signature } }];
       }
     }
   } catch (e) {

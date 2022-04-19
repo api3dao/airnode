@@ -51,7 +51,7 @@ describe('processHttpSignedDataRequests', () => {
     // What exactly the API returns doesn't matter for this test
     const mockedResponse = {
       success: true,
-      data: { encodedValue: 'value', signature: 'signature', timestamp: '123456789' },
+      data: { data: { encodedValue: 'value', timestamp: '123456789' }, signature: 'signature' },
     } as HttpSignedDataApiCallSuccessResponse;
     spy.mockResolvedValueOnce([[], mockedResponse]);
 
