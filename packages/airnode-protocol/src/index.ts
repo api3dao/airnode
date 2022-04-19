@@ -19,7 +19,7 @@ import {
 } from './contracts';
 import references from '../deployments/references.json';
 
-const AirnodeRrpAddresses: { [chainId: number]: string } = references.AirnodeRrp;
+const AirnodeRrpAddresses: { [chainId: number]: string } = references.AirnodeRrpV0;
 const AccessControlRegistryAddresses: { [chainId: number]: string } = references.AccessControlRegistry;
 const RequesterAuthorizerWithAirnodeAddresses: { [chainId: number]: string } =
   references.RequesterAuthorizerWithAirnode;
