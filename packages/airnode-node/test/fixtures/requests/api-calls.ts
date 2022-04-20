@@ -1,5 +1,11 @@
 import { buildMetadata } from './metadata';
-import { ApiCall, Request, ApiCallWithResponse } from '../../../src/types';
+import {
+  ApiCall,
+  Request,
+  ApiCallWithResponse,
+  RegularApiCallSuccessResponse,
+  ApiCallErrorResponse,
+} from '../../../src/types';
 
 export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
   const metadata = buildMetadata();
@@ -27,7 +33,7 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
 }
 
 export function buildSuccessfulApiCall(
-  params?: Partial<Request<ApiCallWithResponse>> & { success?: true }
+  params?: Partial<Request<RegularApiCallSuccessResponse>>
 ): Request<ApiCallWithResponse> {
   return {
     ...buildApiCall(params),
@@ -41,9 +47,7 @@ export function buildSuccessfulApiCall(
   };
 }
 
-export function buildFailedApiCall(
-  params?: Partial<Request<ApiCallWithResponse>> & { success?: false }
-): Request<ApiCallWithResponse> {
+export function buildFailedApiCall(params?: Partial<Request<ApiCallErrorResponse>>): Request<ApiCallErrorResponse> {
   return {
     ...buildApiCall(params),
     errorMessage: 'API call failed',
