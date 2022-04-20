@@ -12,7 +12,7 @@ import {
 } from '../src';
 
 const waitForFulfillment = async (requestId: string) => {
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   const provider = getProvider();
 
   const fulfilled = new Promise((resolve) =>
@@ -35,7 +35,7 @@ const waitForFulfillment = async (requestId: string) => {
 const makeRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json

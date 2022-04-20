@@ -17,7 +17,7 @@ The Airnode Examples support a subset of common EVM chains which will be present
 
 Currently, all of the examples utilize the RRP protocol. The example RRP flow consists of two high level parts:
 
-1. Deploy an `AirnodeRrp` contract and a `RrpRequester` contract on a supported chain
+1. Deploy an `AirnodeRrpV0` contract and a `RrpRequesterV0` contract on a supported chain
 2. Deploy Airnode on a cloud provider, or run locally in a docker container, and make a request using the deployed
    requester
 

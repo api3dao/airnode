@@ -10,8 +10,8 @@ import {
 import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
 import { z } from 'zod';
 import { Config, ChainOptions, ChainType, LocalOrCloudProvider } from './config/types';
-import { AirnodeRrp } from './evm/contracts';
 import { apiCallParametersSchema } from './validation';
+import { AirnodeRrpV0 } from './evm/contracts';
 
 // ===========================================
 // State
@@ -112,7 +112,7 @@ export interface GroupedRequests {
 }
 
 export interface SubmitRequest<T> {
-  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
+  (airnodeRrp: AirnodeRrpV0, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
 }
 
 export interface ProviderSettings extends CoordinatorSettings {

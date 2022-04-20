@@ -11,7 +11,7 @@ import {
 } from '../src';
 
 const waitForFulfillment = async (withdrawalRequestId: string) => {
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   const provider = getProvider();
   return new Promise((resolve) =>
     provider.once(airnodeRrp.filters.FulfilledWithdrawal(null, null, withdrawalRequestId), resolve)
@@ -20,7 +20,7 @@ const waitForFulfillment = async (withdrawalRequestId: string) => {
 
 const makeWithdrawalRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   const sponsorWalletAddress = await deriveSponsorWalletAddress(

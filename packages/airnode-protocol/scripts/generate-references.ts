@@ -10,6 +10,10 @@ async function main() {
     .filter((item) => item.isDirectory())
     .map((item) => item.name);
   const references: any = {};
+  references.chainNames = {};
+  for (const network of networks) {
+    references.chainNames[hre.config.networks[network].chainId] = network;
+  }
   for (const contractName of contractNames) {
     references[contractName] = {};
     for (const network of networks) {

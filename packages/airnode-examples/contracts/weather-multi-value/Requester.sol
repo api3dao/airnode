@@ -1,17 +1,17 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequester.sol";
+import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
 // An example requester which expects the response from Airnode consists of multiple values.
-contract Requester is RrpRequester {
+contract Requester is RrpRequesterV0 {
     mapping(bytes32 => bool) public incomingFulfillments;
     mapping(bytes32 => uint256) public sunsetData;
     mapping(bytes32 => int256) public tempData;
     mapping(bytes32 => string) public weatherData;
     mapping(bytes32 => uint256) public timestampData;
 
-    constructor(address airnodeAddress) RrpRequester(airnodeAddress) {}
+    constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
 
     function makeRequest(
         address airnode,

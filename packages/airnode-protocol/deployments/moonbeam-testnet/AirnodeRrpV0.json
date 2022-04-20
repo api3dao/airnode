@@ -1,0 +1,1184 @@
+{
+  "address": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "CreatedTemplate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "errorMessage",
+          "type": "string"
+        }
+      ],
+      "name": "FailedRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "FulfilledRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "FulfilledWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requesterRequestCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "MadeFullRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requesterRequestCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "MadeTemplateRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        }
+      ],
+      "name": "RequestedWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "sponsorshipStatus",
+          "type": "bool"
+        }
+      ],
+      "name": "SetSponsorshipStatus",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "authorizers",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        }
+      ],
+      "name": "checkAuthorizationStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "authorizers",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "requestIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "endpointIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sponsors",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "requesters",
+          "type": "address[]"
+        }
+      ],
+      "name": "checkAuthorizationStatuses",
+      "outputs": [
+        {
+          "internalType": "bool[]",
+          "name": "statuses",
+          "type": "bool[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "createTemplate",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "string",
+          "name": "errorMessage",
+          "type": "string"
+        }
+      ],
+      "name": "fail",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "fulfill",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "callSuccess",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "callData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        }
+      ],
+      "name": "fulfillWithdrawal",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "templateIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "getTemplates",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "airnodes",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "endpointIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "parameters",
+          "type": "bytes[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "makeFullRequest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "makeTemplateRequest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "requestIsAwaitingFulfillment",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isAwaitingFulfillment",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        }
+      ],
+      "name": "requestWithdrawal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "requesterToRequestCountPlusOne",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "sponsorshipStatus",
+          "type": "bool"
+        }
+      ],
+      "name": "setSponsorshipStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "sponsorToRequesterToSponsorshipStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "sponsorToWithdrawalRequestCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "templates",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x4b87859b0dbc6a33cc059a157da08412e218f5a817eff11264bcb431a427d8b4",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x07b589f06bD0A5324c4E2376d66d2F4F25921DE1",
+    "contractAddress": null,
+    "transactionIndex": 32,
+    "gasUsed": "2228110",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x70c84d2dcdd6762c38d4a4b820f06e140b8e90c2c724834b7bb4c95909dcacb0",
+    "transactionHash": "0x4b87859b0dbc6a33cc059a157da08412e218f5a817eff11264bcb431a427d8b4",
+    "logs": [],
+    "blockNumber": 2022672,
+    "cumulativeGasUsed": "3216334",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "8d98da58ffa4f53b8dc8bd125c1ac138",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"CreatedTemplate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"errorMessage\",\"type\":\"string\"}],\"name\":\"FailedRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"FulfilledRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FulfilledWithdrawal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requesterRequestCount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"MadeFullRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requesterRequestCount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"MadeTemplateRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"}],\"name\":\"RequestedWithdrawal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"sponsorshipStatus\",\"type\":\"bool\"}],\"name\":\"SetSponsorshipStatus\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"authorizers\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"}],\"name\":\"checkAuthorizationStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"status\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"authorizers\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32[]\",\"name\":\"requestIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"endpointIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"address[]\",\"name\":\"sponsors\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"requesters\",\"type\":\"address[]\"}],\"name\":\"checkAuthorizationStatuses\",\"outputs\":[{\"internalType\":\"bool[]\",\"name\":\"statuses\",\"type\":\"bool[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"createTemplate\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"string\",\"name\":\"errorMessage\",\"type\":\"string\"}],\"name\":\"fail\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"fulfill\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"callSuccess\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"callData\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"}],\"name\":\"fulfillWithdrawal\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"templateIds\",\"type\":\"bytes32[]\"}],\"name\":\"getTemplates\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"airnodes\",\"type\":\"address[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"endpointIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes[]\",\"name\":\"parameters\",\"type\":\"bytes[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"makeFullRequest\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"makeTemplateRequest\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"name\":\"requestIsAwaitingFulfillment\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isAwaitingFulfillment\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"}],\"name\":\"requestWithdrawal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"requesterToRequestCountPlusOne\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"sponsorshipStatus\",\"type\":\"bool\"}],\"name\":\"setSponsorshipStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"sponsorToRequesterToSponsorshipStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"sponsorToWithdrawalRequestCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"templates\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)\":{\"details\":\"This method is meant to be called off-chain, statically by the Airnode to decide if it should respond to a request. The requester can also call it, yet this function returning true should not be taken as a guarantee of the subsequent request being fulfilled. It is enough for only one of the authorizer contracts to return true for the request to be authorized.\",\"params\":{\"airnode\":\"Airnode address\",\"authorizers\":\"Authorizer contract addresses\",\"endpointId\":\"Endpoint ID\",\"requestId\":\"Request ID\",\"requester\":\"Requester address\",\"sponsor\":\"Sponsor address\"},\"returns\":{\"status\":\"Authorization status of the request\"}},\"checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])\":{\"params\":{\"airnode\":\"Airnode address\",\"authorizers\":\"Authorizer contract addresses\",\"endpointIds\":\"Endpoint IDs\",\"requestIds\":\"Request IDs\",\"requesters\":\"Requester addresses\",\"sponsors\":\"Sponsor addresses\"},\"returns\":{\"statuses\":\"Authorization statuses of the request\"}},\"createTemplate(address,bytes32,bytes)\":{\"details\":\"A specific set of request parameters will always have the same template ID. This means a few things: (1) You can compute the expected ID of a template before creating it, (2) Creating a new template with the same parameters will overwrite the old one and return the same ID, (3) After you query a template with its ID, you can verify its integrity by applying the hash and comparing the result with the ID.\",\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID (allowed to be `bytes32(0)`)\",\"parameters\":\"Static request parameters (i.e., parameters that will not change between requests, unlike the dynamic parameters determined at request-time)\"},\"returns\":{\"templateId\":\"Request template ID\"}},\"fail(bytes32,address,address,bytes4,string)\":{\"details\":\"Airnode should fall back to this if a request cannot be fulfilled because static call to `fulfill()` returns `false` for `callSuccess`\",\"params\":{\"airnode\":\"Airnode address\",\"errorMessage\":\"A message that explains why the request has failed\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"requestId\":\"Request ID\"}},\"fulfill(bytes32,address,address,bytes4,bytes,bytes)\":{\"details\":\"The data is ABI-encoded as a `bytes` type, with its format depending on the request specifications. This will not revert depending on the external call. However, it will return `false` if the external call reverts or if there is no function with a matching signature at `fulfillAddress`. On the other hand, it will return `true` if the external call returns successfully or if there is no contract deployed at `fulfillAddress`. If `callSuccess` is `false`, `callData` can be decoded to retrieve the revert string. This function emits its event after an untrusted low-level call, meaning that the order of these events within the transaction should not be taken seriously, yet the content will be sound.\",\"params\":{\"airnode\":\"Airnode address\",\"data\":\"Fulfillment data\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"requestId\":\"Request ID\"},\"returns\":{\"callData\":\"Data returned by the fulfillment call (if there is any)\",\"callSuccess\":\"If the fulfillment call succeeded\"}},\"fulfillWithdrawal(bytes32,address,address)\":{\"details\":\"The Airnode sends the funds to the sponsor through this method to emit an event that indicates that the withdrawal request has been fulfilled\",\"params\":{\"airnode\":\"Airnode address\",\"sponsor\":\"Sponsor address\",\"withdrawalRequestId\":\"Withdrawal request ID\"}},\"getTemplates(bytes32[])\":{\"details\":\"Does not revert if the templates being indexed do not exist\",\"params\":{\"templateIds\":\"Request template IDs\"},\"returns\":{\"airnodes\":\"Array of Airnode addresses\",\"endpointIds\":\"Array of endpoint IDs\",\"parameters\":\"Array of request parameters\"}},\"makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)\":{\"details\":\"`fulfillAddress` is not allowed to be the address of this contract. This is not actually needed to protect users that use the protocol as intended, but it is done for good measure.\",\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID (allowed to be `bytes32(0)`)\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"parameters\":\"All request parameters\",\"sponsor\":\"Sponsor address\",\"sponsorWallet\":\"Sponsor wallet that is requested to fulfill the request\"},\"returns\":{\"requestId\":\"Request ID\"}},\"makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)\":{\"details\":\"`fulfillAddress` is not allowed to be the address of this contract. This is not actually needed to protect users that use the protocol as intended, but it is done for good measure.\",\"params\":{\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"parameters\":\"Parameters provided by the requester in addition to the parameters in the template\",\"sponsor\":\"Sponsor address\",\"sponsorWallet\":\"Sponsor wallet that is requested to fulfill the request\",\"templateId\":\"Template ID\"},\"returns\":{\"requestId\":\"Request ID\"}},\"requestIsAwaitingFulfillment(bytes32)\":{\"details\":\"If a requester has made a request, received a request ID but did not hear back, it can call this method to check if the Airnode has called back `fail()` instead.\",\"params\":{\"requestId\":\"Request ID\"},\"returns\":{\"isAwaitingFulfillment\":\"If the request is awaiting fulfillment (i.e., `true` if `fulfill()` or `fail()` is not called back yet, `false` otherwise)\"}},\"requestWithdrawal(address,address)\":{\"details\":\"We do not need to use the withdrawal request parameters in the request ID hash to validate them at the node-side because all of the parameters are used during fulfillment and will get validated on-chain. The first withdrawal request a sponsor will make will cost slightly higher gas than the rest due to how the request counter is implemented.\",\"params\":{\"airnode\":\"Airnode address\",\"sponsorWallet\":\"Sponsor wallet that the withdrawal is requested from\"}},\"setSponsorshipStatus(address,bool)\":{\"details\":\"This is not Airnode-specific, i.e., the sponsor allows the requester's requests to be fulfilled through its sponsor wallets across all Airnodes\",\"params\":{\"requester\":\"Requester address\",\"sponsorshipStatus\":\"Sponsorship status\"}}},\"stateVariables\":{\"requestIdToFulfillmentParameters\":{\"details\":\"Hash of expected fulfillment parameters are kept to verify that the fulfillment will be done with the correct parameters. This value is also used to check if the fulfillment for the particular request is expected, i.e., if there are recorded fulfillment parameters.\"},\"requesterToRequestCountPlusOne\":{\"details\":\"Can be used to calculate the ID of the next request the requester will make\"}},\"title\":\"Contract that implements the Airnode request\\u2013response protocol (RRP)\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)\":{\"notice\":\"Uses the authorizer contracts of an Airnode to decide if a request is authorized. Once an Airnode receives a request, it calls this method to determine if it should respond. Similarly, third parties can use this method to determine if a particular request would be authorized.\"},\"checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])\":{\"notice\":\"A convenience function to make multiple authorization status checks with a single call\"},\"createTemplate(address,bytes32,bytes)\":{\"notice\":\"Creates a request template with the given parameters, addressable by the ID it returns\"},\"fail(bytes32,address,address,bytes4,string)\":{\"notice\":\"Called by Airnode if the request cannot be fulfilled\"},\"fulfill(bytes32,address,address,bytes4,bytes,bytes)\":{\"notice\":\"Called by Airnode to fulfill the request (template or full)\"},\"fulfillWithdrawal(bytes32,address,address)\":{\"notice\":\"Called by the Airnode using the sponsor wallet to fulfill the withdrawal request made by the sponsor\"},\"getTemplates(bytes32[])\":{\"notice\":\"A convenience method to retrieve multiple templates with a single call\"},\"makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)\":{\"notice\":\"Called by the requester to make a full request, which provides all of its parameters as arguments and does not refer to a template\"},\"makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)\":{\"notice\":\"Called by the requester to make a request that refers to a template for the Airnode address, endpoint ID and parameters\"},\"requestIsAwaitingFulfillment(bytes32)\":{\"notice\":\"Called to check if the request with the ID is made but not fulfilled/failed yet\"},\"requestWithdrawal(address,address)\":{\"notice\":\"Called by a sponsor to create a request for the Airnode to send the funds kept in the respective sponsor wallet to the sponsor\"},\"requesterToRequestCountPlusOne(address)\":{\"notice\":\"Called to get the request count of the requester plus one\"},\"setSponsorshipStatus(address,bool)\":{\"notice\":\"Called by the sponsor to set the sponsorship status of a requester, i.e., allow or disallow a requester to make requests that will be fulfilled by the sponsor wallet\"},\"sponsorToRequesterToSponsorshipStatus(address,address)\":{\"notice\":\"Called to get the sponsorship status for a sponsor\\u2013requester pair\"},\"sponsorToWithdrawalRequestCount(address)\":{\"notice\":\"Called to get the withdrawal request count of the sponsor\"},\"templates(bytes32)\":{\"notice\":\"Called to get a template\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/rrp/AirnodeRrpV0.sol\":\"AirnodeRrpV0\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Strings.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Strings.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev String operations.\\n */\\nlibrary Strings {\\n    bytes16 private constant _HEX_SYMBOLS = \\\"0123456789abcdef\\\";\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` decimal representation.\\n     */\\n    function toString(uint256 value) internal pure returns (string memory) {\\n        // Inspired by OraclizeAPI's implementation - MIT licence\\n        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol\\n\\n        if (value == 0) {\\n            return \\\"0\\\";\\n        }\\n        uint256 temp = value;\\n        uint256 digits;\\n        while (temp != 0) {\\n            digits++;\\n            temp /= 10;\\n        }\\n        bytes memory buffer = new bytes(digits);\\n        while (value != 0) {\\n            digits -= 1;\\n            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));\\n            value /= 10;\\n        }\\n        return string(buffer);\\n    }\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.\\n     */\\n    function toHexString(uint256 value) internal pure returns (string memory) {\\n        if (value == 0) {\\n            return \\\"0x00\\\";\\n        }\\n        uint256 temp = value;\\n        uint256 length = 0;\\n        while (temp != 0) {\\n            length++;\\n            temp >>= 8;\\n        }\\n        return toHexString(value, length);\\n    }\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.\\n     */\\n    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {\\n        bytes memory buffer = new bytes(2 * length + 2);\\n        buffer[0] = \\\"0\\\";\\n        buffer[1] = \\\"x\\\";\\n        for (uint256 i = 2 * length + 1; i > 1; --i) {\\n            buffer[i] = _HEX_SYMBOLS[value & 0xf];\\n            value >>= 4;\\n        }\\n        require(value == 0, \\\"Strings: hex length insufficient\\\");\\n        return string(buffer);\\n    }\\n}\\n\",\"keccak256\":\"0x32c202bd28995dd20c4347b7c6467a6d3241c74c8ad3edcbb610cd9205916c45\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/cryptography/ECDSA.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/cryptography/ECDSA.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../Strings.sol\\\";\\n\\n/**\\n * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.\\n *\\n * These functions can be used to verify that a message was signed by the holder\\n * of the private keys of a given address.\\n */\\nlibrary ECDSA {\\n    enum RecoverError {\\n        NoError,\\n        InvalidSignature,\\n        InvalidSignatureLength,\\n        InvalidSignatureS,\\n        InvalidSignatureV\\n    }\\n\\n    function _throwError(RecoverError error) private pure {\\n        if (error == RecoverError.NoError) {\\n            return; // no error: do nothing\\n        } else if (error == RecoverError.InvalidSignature) {\\n            revert(\\\"ECDSA: invalid signature\\\");\\n        } else if (error == RecoverError.InvalidSignatureLength) {\\n            revert(\\\"ECDSA: invalid signature length\\\");\\n        } else if (error == RecoverError.InvalidSignatureS) {\\n            revert(\\\"ECDSA: invalid signature 's' value\\\");\\n        } else if (error == RecoverError.InvalidSignatureV) {\\n            revert(\\\"ECDSA: invalid signature 'v' value\\\");\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the address that signed a hashed message (`hash`) with\\n     * `signature` or error string. This address can then be used for verification purposes.\\n     *\\n     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:\\n     * this function rejects them by requiring the `s` value to be in the lower\\n     * half order, and the `v` value to be either 27 or 28.\\n     *\\n     * IMPORTANT: `hash` _must_ be the result of a hash operation for the\\n     * verification to be secure: it is possible to craft signatures that\\n     * recover to arbitrary addresses for non-hashed data. A safe way to ensure\\n     * this is by receiving a hash of the original message (which may otherwise\\n     * be too long), and then calling {toEthSignedMessageHash} on it.\\n     *\\n     * Documentation for signature generation:\\n     * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]\\n     * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]\\n     *\\n     * _Available since v4.3._\\n     */\\n    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {\\n        // Check the signature length\\n        // - case 65: r,s,v signature (standard)\\n        // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._\\n        if (signature.length == 65) {\\n            bytes32 r;\\n            bytes32 s;\\n            uint8 v;\\n            // ecrecover takes the signature parameters, and the only way to get them\\n            // currently is to use assembly.\\n            assembly {\\n                r := mload(add(signature, 0x20))\\n                s := mload(add(signature, 0x40))\\n                v := byte(0, mload(add(signature, 0x60)))\\n            }\\n            return tryRecover(hash, v, r, s);\\n        } else if (signature.length == 64) {\\n            bytes32 r;\\n            bytes32 vs;\\n            // ecrecover takes the signature parameters, and the only way to get them\\n            // currently is to use assembly.\\n            assembly {\\n                r := mload(add(signature, 0x20))\\n                vs := mload(add(signature, 0x40))\\n            }\\n            return tryRecover(hash, r, vs);\\n        } else {\\n            return (address(0), RecoverError.InvalidSignatureLength);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the address that signed a hashed message (`hash`) with\\n     * `signature`. This address can then be used for verification purposes.\\n     *\\n     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:\\n     * this function rejects them by requiring the `s` value to be in the lower\\n     * half order, and the `v` value to be either 27 or 28.\\n     *\\n     * IMPORTANT: `hash` _must_ be the result of a hash operation for the\\n     * verification to be secure: it is possible to craft signatures that\\n     * recover to arbitrary addresses for non-hashed data. A safe way to ensure\\n     * this is by receiving a hash of the original message (which may otherwise\\n     * be too long), and then calling {toEthSignedMessageHash} on it.\\n     */\\n    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {\\n        (address recovered, RecoverError error) = tryRecover(hash, signature);\\n        _throwError(error);\\n        return recovered;\\n    }\\n\\n    /**\\n     * @dev Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.\\n     *\\n     * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]\\n     *\\n     * _Available since v4.3._\\n     */\\n    function tryRecover(\\n        bytes32 hash,\\n        bytes32 r,\\n        bytes32 vs\\n    ) internal pure returns (address, RecoverError) {\\n        bytes32 s;\\n        uint8 v;\\n        assembly {\\n            s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)\\n            v := add(shr(255, vs), 27)\\n        }\\n        return tryRecover(hash, v, r, s);\\n    }\\n\\n    /**\\n     * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.\\n     *\\n     * _Available since v4.2._\\n     */\\n    function recover(\\n        bytes32 hash,\\n        bytes32 r,\\n        bytes32 vs\\n    ) internal pure returns (address) {\\n        (address recovered, RecoverError error) = tryRecover(hash, r, vs);\\n        _throwError(error);\\n        return recovered;\\n    }\\n\\n    /**\\n     * @dev Overload of {ECDSA-tryRecover} that receives the `v`,\\n     * `r` and `s` signature fields separately.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function tryRecover(\\n        bytes32 hash,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) internal pure returns (address, RecoverError) {\\n        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature\\n        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines\\n        // the valid range for s in (301): 0 < s < secp256k1n \\u00f7 2 + 1, and for v in (302): v \\u2208 {27, 28}. Most\\n        // signatures from current libraries generate a unique signature with an s-value in the lower half order.\\n        //\\n        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value\\n        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or\\n        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept\\n        // these malleable signatures as well.\\n        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {\\n            return (address(0), RecoverError.InvalidSignatureS);\\n        }\\n        if (v != 27 && v != 28) {\\n            return (address(0), RecoverError.InvalidSignatureV);\\n        }\\n\\n        // If the signature is valid (and not malleable), return the signer address\\n        address signer = ecrecover(hash, v, r, s);\\n        if (signer == address(0)) {\\n            return (address(0), RecoverError.InvalidSignature);\\n        }\\n\\n        return (signer, RecoverError.NoError);\\n    }\\n\\n    /**\\n     * @dev Overload of {ECDSA-recover} that receives the `v`,\\n     * `r` and `s` signature fields separately.\\n     */\\n    function recover(\\n        bytes32 hash,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) internal pure returns (address) {\\n        (address recovered, RecoverError error) = tryRecover(hash, v, r, s);\\n        _throwError(error);\\n        return recovered;\\n    }\\n\\n    /**\\n     * @dev Returns an Ethereum Signed Message, created from a `hash`. This\\n     * produces hash corresponding to the one signed with the\\n     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]\\n     * JSON-RPC method as part of EIP-191.\\n     *\\n     * See {recover}.\\n     */\\n    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {\\n        // 32 is the length in bytes of hash,\\n        // enforced by the type signature above\\n        return keccak256(abi.encodePacked(\\\"\\\\x19Ethereum Signed Message:\\\\n32\\\", hash));\\n    }\\n\\n    /**\\n     * @dev Returns an Ethereum Signed Message, created from `s`. This\\n     * produces hash corresponding to the one signed with the\\n     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]\\n     * JSON-RPC method as part of EIP-191.\\n     *\\n     * See {recover}.\\n     */\\n    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {\\n        return keccak256(abi.encodePacked(\\\"\\\\x19Ethereum Signed Message:\\\\n\\\", Strings.toString(s.length), s));\\n    }\\n\\n    /**\\n     * @dev Returns an Ethereum Signed Typed Data, created from a\\n     * `domainSeparator` and a `structHash`. This produces hash corresponding\\n     * to the one signed with the\\n     * https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`]\\n     * JSON-RPC method as part of EIP-712.\\n     *\\n     * See {recover}.\\n     */\\n    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32) {\\n        return keccak256(abi.encodePacked(\\\"\\\\x19\\\\x01\\\", domainSeparator, structHash));\\n    }\\n}\\n\",\"keccak256\":\"0xe9e291de7ffe06e66503c6700b1bb84ff6e0989cbb974653628d8994e7c97f03\",\"license\":\"MIT\"},\"contracts/authorizers/interfaces/IAuthorizerV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface IAuthorizerV0 {\\n    function isAuthorizedV0(\\n        bytes32 requestId,\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool);\\n}\\n\",\"keccak256\":\"0xa38872f5dead4dfc0c8075c245c10197df1ace09415f2e0d5b46bc8511cc3f6d\",\"license\":\"MIT\"},\"contracts/rrp/AirnodeRrpV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.9;\\n\\nimport \\\"@openzeppelin/contracts/utils/cryptography/ECDSA.sol\\\";\\nimport \\\"./AuthorizationUtilsV0.sol\\\";\\nimport \\\"./TemplateUtilsV0.sol\\\";\\nimport \\\"./WithdrawalUtilsV0.sol\\\";\\nimport \\\"./interfaces/IAirnodeRrpV0.sol\\\";\\n\\n/// @title Contract that implements the Airnode request\\u2013response protocol (RRP)\\ncontract AirnodeRrpV0 is\\n    AuthorizationUtilsV0,\\n    TemplateUtilsV0,\\n    WithdrawalUtilsV0,\\n    IAirnodeRrpV0\\n{\\n    using ECDSA for bytes32;\\n\\n    /// @notice Called to get the sponsorship status for a sponsor\\u2013requester\\n    /// pair\\n    mapping(address => mapping(address => bool))\\n        public\\n        override sponsorToRequesterToSponsorshipStatus;\\n\\n    /// @notice Called to get the request count of the requester plus one\\n    /// @dev Can be used to calculate the ID of the next request the requester\\n    /// will make\\n    mapping(address => uint256) public override requesterToRequestCountPlusOne;\\n\\n    /// @dev Hash of expected fulfillment parameters are kept to verify that\\n    /// the fulfillment will be done with the correct parameters. This value is\\n    /// also used to check if the fulfillment for the particular request is\\n    /// expected, i.e., if there are recorded fulfillment parameters.\\n    mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;\\n\\n    /// @notice Called by the sponsor to set the sponsorship status of a\\n    /// requester, i.e., allow or disallow a requester to make requests that\\n    /// will be fulfilled by the sponsor wallet\\n    /// @dev This is not Airnode-specific, i.e., the sponsor allows the\\n    /// requester's requests to be fulfilled through its sponsor wallets across\\n    /// all Airnodes\\n    /// @param requester Requester address\\n    /// @param sponsorshipStatus Sponsorship status\\n    function setSponsorshipStatus(address requester, bool sponsorshipStatus)\\n        external\\n        override\\n    {\\n        // Initialize the requester request count for consistent request gas\\n        // cost\\n        if (requesterToRequestCountPlusOne[requester] == 0) {\\n            requesterToRequestCountPlusOne[requester] = 1;\\n        }\\n        sponsorToRequesterToSponsorshipStatus[msg.sender][\\n            requester\\n        ] = sponsorshipStatus;\\n        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);\\n    }\\n\\n    /// @notice Called by the requester to make a request that refers to a\\n    /// template for the Airnode address, endpoint ID and parameters\\n    /// @dev `fulfillAddress` is not allowed to be the address of this\\n    /// contract. This is not actually needed to protect users that use the\\n    /// protocol as intended, but it is done for good measure.\\n    /// @param templateId Template ID\\n    /// @param sponsor Sponsor address\\n    /// @param sponsorWallet Sponsor wallet that is requested to fulfill the\\n    /// request\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @param parameters Parameters provided by the requester in addition to\\n    /// the parameters in the template\\n    /// @return requestId Request ID\\n    function makeTemplateRequest(\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 requestId) {\\n        address airnode = templates[templateId].airnode;\\n        // If the Airnode address of the template is zero the template does not\\n        // exist because template creation does not allow zero Airnode address\\n        require(airnode != address(0), \\\"Template does not exist\\\");\\n        require(fulfillAddress != address(this), \\\"Fulfill address AirnodeRrp\\\");\\n        require(\\n            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],\\n            \\\"Requester not sponsored\\\"\\n        );\\n        uint256 requesterRequestCount = requesterToRequestCountPlusOne[\\n            msg.sender\\n        ];\\n        requestId = keccak256(\\n            abi.encodePacked(\\n                block.chainid,\\n                address(this),\\n                msg.sender,\\n                requesterRequestCount,\\n                templateId,\\n                sponsor,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId,\\n                parameters\\n            )\\n        );\\n        requestIdToFulfillmentParameters[requestId] = keccak256(\\n            abi.encodePacked(\\n                airnode,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId\\n            )\\n        );\\n        requesterToRequestCountPlusOne[msg.sender]++;\\n        emit MadeTemplateRequest(\\n            airnode,\\n            requestId,\\n            requesterRequestCount,\\n            block.chainid,\\n            msg.sender,\\n            templateId,\\n            sponsor,\\n            sponsorWallet,\\n            fulfillAddress,\\n            fulfillFunctionId,\\n            parameters\\n        );\\n    }\\n\\n    /// @notice Called by the requester to make a full request, which provides\\n    /// all of its parameters as arguments and does not refer to a template\\n    /// @dev `fulfillAddress` is not allowed to be the address of this\\n    /// contract. This is not actually needed to protect users that use the\\n    /// protocol as intended, but it is done for good measure.\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)\\n    /// @param sponsor Sponsor address\\n    /// @param sponsorWallet Sponsor wallet that is requested to fulfill\\n    /// the request\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @param parameters All request parameters\\n    /// @return requestId Request ID\\n    function makeFullRequest(\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 requestId) {\\n        require(airnode != address(0), \\\"Airnode address zero\\\");\\n        require(fulfillAddress != address(this), \\\"Fulfill address AirnodeRrp\\\");\\n        require(\\n            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],\\n            \\\"Requester not sponsored\\\"\\n        );\\n        uint256 requesterRequestCount = requesterToRequestCountPlusOne[\\n            msg.sender\\n        ];\\n        requestId = keccak256(\\n            abi.encodePacked(\\n                block.chainid,\\n                address(this),\\n                msg.sender,\\n                requesterRequestCount,\\n                airnode,\\n                endpointId,\\n                sponsor,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId,\\n                parameters\\n            )\\n        );\\n        requestIdToFulfillmentParameters[requestId] = keccak256(\\n            abi.encodePacked(\\n                airnode,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId\\n            )\\n        );\\n        requesterToRequestCountPlusOne[msg.sender]++;\\n        emit MadeFullRequest(\\n            airnode,\\n            requestId,\\n            requesterRequestCount,\\n            block.chainid,\\n            msg.sender,\\n            endpointId,\\n            sponsor,\\n            sponsorWallet,\\n            fulfillAddress,\\n            fulfillFunctionId,\\n            parameters\\n        );\\n    }\\n\\n    /// @notice Called by Airnode to fulfill the request (template or full)\\n    /// @dev The data is ABI-encoded as a `bytes` type, with its format\\n    /// depending on the request specifications.\\n    /// This will not revert depending on the external call. However, it will\\n    /// return `false` if the external call reverts or if there is no function\\n    /// with a matching signature at `fulfillAddress`. On the other hand, it\\n    /// will return `true` if the external call returns successfully or if\\n    /// there is no contract deployed at `fulfillAddress`.\\n    /// If `callSuccess` is `false`, `callData` can be decoded to retrieve the\\n    /// revert string.\\n    /// This function emits its event after an untrusted low-level call,\\n    /// meaning that the order of these events within the transaction should\\n    /// not be taken seriously, yet the content will be sound.\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param data Fulfillment data\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @return callSuccess If the fulfillment call succeeded\\n    /// @return callData Data returned by the fulfillment call (if there is\\n    /// any)\\n    function fulfill(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata data,\\n        bytes calldata signature\\n    ) external override returns (bool callSuccess, bytes memory callData) {\\n        require(\\n            keccak256(\\n                abi.encodePacked(\\n                    airnode,\\n                    msg.sender,\\n                    fulfillAddress,\\n                    fulfillFunctionId\\n                )\\n            ) == requestIdToFulfillmentParameters[requestId],\\n            \\\"Invalid request fulfillment\\\"\\n        );\\n        require(\\n            (\\n                keccak256(abi.encodePacked(requestId, data))\\n                    .toEthSignedMessageHash()\\n            ).recover(signature) == airnode,\\n            \\\"Invalid signature\\\"\\n        );\\n        delete requestIdToFulfillmentParameters[requestId];\\n        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls\\n            abi.encodeWithSelector(fulfillFunctionId, requestId, data)\\n        );\\n        if (callSuccess) {\\n            emit FulfilledRequest(airnode, requestId, data);\\n        } else {\\n            // We do not bubble up the revert string from `callData`\\n            emit FailedRequest(\\n                airnode,\\n                requestId,\\n                \\\"Fulfillment failed unexpectedly\\\"\\n            );\\n        }\\n    }\\n\\n    /// @notice Called by Airnode if the request cannot be fulfilled\\n    /// @dev Airnode should fall back to this if a request cannot be fulfilled\\n    /// because static call to `fulfill()` returns `false` for `callSuccess`\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @param errorMessage A message that explains why the request has failed\\n    function fail(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        string calldata errorMessage\\n    ) external override {\\n        require(\\n            keccak256(\\n                abi.encodePacked(\\n                    airnode,\\n                    msg.sender,\\n                    fulfillAddress,\\n                    fulfillFunctionId\\n                )\\n            ) == requestIdToFulfillmentParameters[requestId],\\n            \\\"Invalid request fulfillment\\\"\\n        );\\n        delete requestIdToFulfillmentParameters[requestId];\\n        emit FailedRequest(airnode, requestId, errorMessage);\\n    }\\n\\n    /// @notice Called to check if the request with the ID is made but not\\n    /// fulfilled/failed yet\\n    /// @dev If a requester has made a request, received a request ID but did\\n    /// not hear back, it can call this method to check if the Airnode has\\n    /// called back `fail()` instead.\\n    /// @param requestId Request ID\\n    /// @return isAwaitingFulfillment If the request is awaiting fulfillment\\n    /// (i.e., `true` if `fulfill()` or `fail()` is not called back yet,\\n    /// `false` otherwise)\\n    function requestIsAwaitingFulfillment(bytes32 requestId)\\n        external\\n        view\\n        override\\n        returns (bool isAwaitingFulfillment)\\n    {\\n        isAwaitingFulfillment =\\n            requestIdToFulfillmentParameters[requestId] != bytes32(0);\\n    }\\n}\\n\",\"keccak256\":\"0x7b770788b2ca3661f9617b887fef62aff0d795cd32e15dc61e05ada5637a1093\",\"license\":\"MIT\"},\"contracts/rrp/AuthorizationUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./interfaces/IAuthorizationUtilsV0.sol\\\";\\nimport \\\"../authorizers/interfaces/IAuthorizerV0.sol\\\";\\n\\n/// @title Contract that implements authorization checks\\ncontract AuthorizationUtilsV0 is IAuthorizationUtilsV0 {\\n    /// @notice Uses the authorizer contracts of an Airnode to decide if a\\n    /// request is authorized. Once an Airnode receives a request, it calls\\n    /// this method to determine if it should respond. Similarly, third parties\\n    /// can use this method to determine if a particular request would be\\n    /// authorized.\\n    /// @dev This method is meant to be called off-chain, statically by the\\n    /// Airnode to decide if it should respond to a request. The requester can\\n    /// also call it, yet this function returning true should not be taken as a\\n    /// guarantee of the subsequent request being fulfilled.\\n    /// It is enough for only one of the authorizer contracts to return true\\n    /// for the request to be authorized.\\n    /// @param authorizers Authorizer contract addresses\\n    /// @param airnode Airnode address\\n    /// @param requestId Request ID\\n    /// @param endpointId Endpoint ID\\n    /// @param sponsor Sponsor address\\n    /// @param requester Requester address\\n    /// @return status Authorization status of the request\\n    function checkAuthorizationStatus(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32 requestId,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) public view override returns (bool status) {\\n        for (uint256 ind = 0; ind < authorizers.length; ind++) {\\n            IAuthorizerV0 authorizer = IAuthorizerV0(authorizers[ind]);\\n            if (\\n                authorizer.isAuthorizedV0(\\n                    requestId,\\n                    airnode,\\n                    endpointId,\\n                    sponsor,\\n                    requester\\n                )\\n            ) {\\n                return true;\\n            }\\n        }\\n        return false;\\n    }\\n\\n    /// @notice A convenience function to make multiple authorization status\\n    /// checks with a single call\\n    /// @param authorizers Authorizer contract addresses\\n    /// @param airnode Airnode address\\n    /// @param requestIds Request IDs\\n    /// @param endpointIds Endpoint IDs\\n    /// @param sponsors Sponsor addresses\\n    /// @param requesters Requester addresses\\n    /// @return statuses Authorization statuses of the request\\n    function checkAuthorizationStatuses(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32[] calldata requestIds,\\n        bytes32[] calldata endpointIds,\\n        address[] calldata sponsors,\\n        address[] calldata requesters\\n    ) external view override returns (bool[] memory statuses) {\\n        require(\\n            requestIds.length == endpointIds.length &&\\n                requestIds.length == sponsors.length &&\\n                requestIds.length == requesters.length,\\n            \\\"Unequal parameter lengths\\\"\\n        );\\n        statuses = new bool[](requestIds.length);\\n        for (uint256 ind = 0; ind < requestIds.length; ind++) {\\n            statuses[ind] = checkAuthorizationStatus(\\n                authorizers,\\n                airnode,\\n                requestIds[ind],\\n                endpointIds[ind],\\n                sponsors[ind],\\n                requesters[ind]\\n            );\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xa3419ee8a4146a7716355e835102700bfdd12928ab83790d368a344e7819a502\",\"license\":\"MIT\"},\"contracts/rrp/TemplateUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./interfaces/ITemplateUtilsV0.sol\\\";\\n\\n/// @title Contract that implements request templates\\ncontract TemplateUtilsV0 is ITemplateUtilsV0 {\\n    struct Template {\\n        address airnode;\\n        bytes32 endpointId;\\n        bytes parameters;\\n    }\\n\\n    /// @notice Called to get a template\\n    mapping(bytes32 => Template) public override templates;\\n\\n    /// @notice Creates a request template with the given parameters,\\n    /// addressable by the ID it returns\\n    /// @dev A specific set of request parameters will always have the same\\n    /// template ID. This means a few things: (1) You can compute the expected\\n    /// ID of a template before creating it, (2) Creating a new template with\\n    /// the same parameters will overwrite the old one and return the same ID,\\n    /// (3) After you query a template with its ID, you can verify its\\n    /// integrity by applying the hash and comparing the result with the ID.\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)\\n    /// @param parameters Static request parameters (i.e., parameters that will\\n    /// not change between requests, unlike the dynamic parameters determined\\n    /// at request-time)\\n    /// @return templateId Request template ID\\n    function createTemplate(\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 templateId) {\\n        require(airnode != address(0), \\\"Airnode address zero\\\");\\n        templateId = keccak256(\\n            abi.encodePacked(airnode, endpointId, parameters)\\n        );\\n        templates[templateId] = Template({\\n            airnode: airnode,\\n            endpointId: endpointId,\\n            parameters: parameters\\n        });\\n        emit CreatedTemplate(templateId, airnode, endpointId, parameters);\\n    }\\n\\n    /// @notice A convenience method to retrieve multiple templates with a\\n    /// single call\\n    /// @dev Does not revert if the templates being indexed do not exist\\n    /// @param templateIds Request template IDs\\n    /// @return airnodes Array of Airnode addresses\\n    /// @return endpointIds Array of endpoint IDs\\n    /// @return parameters Array of request parameters\\n    function getTemplates(bytes32[] calldata templateIds)\\n        external\\n        view\\n        override\\n        returns (\\n            address[] memory airnodes,\\n            bytes32[] memory endpointIds,\\n            bytes[] memory parameters\\n        )\\n    {\\n        airnodes = new address[](templateIds.length);\\n        endpointIds = new bytes32[](templateIds.length);\\n        parameters = new bytes[](templateIds.length);\\n        for (uint256 ind = 0; ind < templateIds.length; ind++) {\\n            Template storage template = templates[templateIds[ind]];\\n            airnodes[ind] = template.airnode;\\n            endpointIds[ind] = template.endpointId;\\n            parameters[ind] = template.parameters;\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x6196d12fd828783a299819b75ab3cdf10e84d39b8d8419be28b613e10a7a7602\",\"license\":\"MIT\"},\"contracts/rrp/WithdrawalUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./interfaces/IWithdrawalUtilsV0.sol\\\";\\n\\n/// @title Contract that implements logic for withdrawals from sponsor wallets\\ncontract WithdrawalUtilsV0 is IWithdrawalUtilsV0 {\\n    /// @notice Called to get the withdrawal request count of the sponsor\\n    /// @dev Can be used to calculate the ID of the next withdrawal request the\\n    /// sponsor will make\\n    mapping(address => uint256) public override sponsorToWithdrawalRequestCount;\\n\\n    /// @dev Hash of expected fulfillment parameters are kept to verify that\\n    /// the fulfillment will be done with the correct parameters\\n    mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;\\n\\n    /// @notice Called by a sponsor to create a request for the Airnode to send\\n    /// the funds kept in the respective sponsor wallet to the sponsor\\n    /// @dev We do not need to use the withdrawal request parameters in the\\n    /// request ID hash to validate them at the node-side because all of the\\n    /// parameters are used during fulfillment and will get validated on-chain.\\n    /// The first withdrawal request a sponsor will make will cost slightly\\n    /// higher gas than the rest due to how the request counter is implemented.\\n    /// @param airnode Airnode address\\n    /// @param sponsorWallet Sponsor wallet that the withdrawal is requested\\n    /// from\\n    function requestWithdrawal(address airnode, address sponsorWallet)\\n        external\\n        override\\n    {\\n        bytes32 withdrawalRequestId = keccak256(\\n            abi.encodePacked(\\n                block.chainid,\\n                address(this),\\n                msg.sender,\\n                ++sponsorToWithdrawalRequestCount[msg.sender]\\n            )\\n        );\\n        withdrawalRequestIdToParameters[withdrawalRequestId] = keccak256(\\n            abi.encodePacked(airnode, msg.sender, sponsorWallet)\\n        );\\n        emit RequestedWithdrawal(\\n            airnode,\\n            msg.sender,\\n            withdrawalRequestId,\\n            sponsorWallet\\n        );\\n    }\\n\\n    /// @notice Called by the Airnode using the sponsor wallet to fulfill the\\n    /// withdrawal request made by the sponsor\\n    /// @dev The Airnode sends the funds to the sponsor through this method\\n    /// to emit an event that indicates that the withdrawal request has been\\n    /// fulfilled\\n    /// @param withdrawalRequestId Withdrawal request ID\\n    /// @param airnode Airnode address\\n    /// @param sponsor Sponsor address\\n    function fulfillWithdrawal(\\n        bytes32 withdrawalRequestId,\\n        address airnode,\\n        address sponsor\\n    ) external payable override {\\n        require(\\n            withdrawalRequestIdToParameters[withdrawalRequestId] ==\\n                keccak256(abi.encodePacked(airnode, sponsor, msg.sender)),\\n            \\\"Invalid withdrawal fulfillment\\\"\\n        );\\n        delete withdrawalRequestIdToParameters[withdrawalRequestId];\\n        emit FulfilledWithdrawal(\\n            airnode,\\n            sponsor,\\n            withdrawalRequestId,\\n            msg.sender,\\n            msg.value\\n        );\\n        (bool success, ) = sponsor.call{value: msg.value}(\\\"\\\"); // solhint-disable-line avoid-low-level-calls\\n        require(success, \\\"Transfer failed\\\");\\n    }\\n}\\n\",\"keccak256\":\"0x45f937dd2b57942913d4ab1c0e08356fd57cd3d2cca013604adbb8de0e0c898b\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IAirnodeRrpV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport \\\"./IAuthorizationUtilsV0.sol\\\";\\nimport \\\"./ITemplateUtilsV0.sol\\\";\\nimport \\\"./IWithdrawalUtilsV0.sol\\\";\\n\\ninterface IAirnodeRrpV0 is\\n    IAuthorizationUtilsV0,\\n    ITemplateUtilsV0,\\n    IWithdrawalUtilsV0\\n{\\n    event SetSponsorshipStatus(\\n        address indexed sponsor,\\n        address indexed requester,\\n        bool sponsorshipStatus\\n    );\\n\\n    event MadeTemplateRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        uint256 requesterRequestCount,\\n        uint256 chainId,\\n        address requester,\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes parameters\\n    );\\n\\n    event MadeFullRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        uint256 requesterRequestCount,\\n        uint256 chainId,\\n        address requester,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes parameters\\n    );\\n\\n    event FulfilledRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        bytes data\\n    );\\n\\n    event FailedRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        string errorMessage\\n    );\\n\\n    function setSponsorshipStatus(address requester, bool sponsorshipStatus)\\n        external;\\n\\n    function makeTemplateRequest(\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 requestId);\\n\\n    function makeFullRequest(\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 requestId);\\n\\n    function fulfill(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata data,\\n        bytes calldata signature\\n    ) external returns (bool callSuccess, bytes memory callData);\\n\\n    function fail(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        string calldata errorMessage\\n    ) external;\\n\\n    function sponsorToRequesterToSponsorshipStatus(\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool sponsorshipStatus);\\n\\n    function requesterToRequestCountPlusOne(address requester)\\n        external\\n        view\\n        returns (uint256 requestCountPlusOne);\\n\\n    function requestIsAwaitingFulfillment(bytes32 requestId)\\n        external\\n        view\\n        returns (bool isAwaitingFulfillment);\\n}\\n\",\"keccak256\":\"0x5306571db1377e8c9dd8cb6e6c7a8deaa2d8ec540e7b2b229e9db5aa5da21277\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IAuthorizationUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface IAuthorizationUtilsV0 {\\n    function checkAuthorizationStatus(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32 requestId,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool status);\\n\\n    function checkAuthorizationStatuses(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32[] calldata requestIds,\\n        bytes32[] calldata endpointIds,\\n        address[] calldata sponsors,\\n        address[] calldata requesters\\n    ) external view returns (bool[] memory statuses);\\n}\\n\",\"keccak256\":\"0x597a40e9911628f6bc1d845c9ebe7c345833e8814caa5ce02a8597d3b4ee7975\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/ITemplateUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface ITemplateUtilsV0 {\\n    event CreatedTemplate(\\n        bytes32 indexed templateId,\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes parameters\\n    );\\n\\n    function createTemplate(\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 templateId);\\n\\n    function getTemplates(bytes32[] calldata templateIds)\\n        external\\n        view\\n        returns (\\n            address[] memory airnodes,\\n            bytes32[] memory endpointIds,\\n            bytes[] memory parameters\\n        );\\n\\n    function templates(bytes32 templateId)\\n        external\\n        view\\n        returns (\\n            address airnode,\\n            bytes32 endpointId,\\n            bytes memory parameters\\n        );\\n}\\n\",\"keccak256\":\"0x4212b264303a78b3c3ed0230cf23b7c3ca58bccec936eccd1d4924347b0fea47\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IWithdrawalUtilsV0.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface IWithdrawalUtilsV0 {\\n    event RequestedWithdrawal(\\n        address indexed airnode,\\n        address indexed sponsor,\\n        bytes32 indexed withdrawalRequestId,\\n        address sponsorWallet\\n    );\\n\\n    event FulfilledWithdrawal(\\n        address indexed airnode,\\n        address indexed sponsor,\\n        bytes32 indexed withdrawalRequestId,\\n        address sponsorWallet,\\n        uint256 amount\\n    );\\n\\n    function requestWithdrawal(address airnode, address sponsorWallet) external;\\n\\n    function fulfillWithdrawal(\\n        bytes32 withdrawalRequestId,\\n        address airnode,\\n        address sponsor\\n    ) external payable;\\n\\n    function sponsorToWithdrawalRequestCount(address sponsor)\\n        external\\n        view\\n        returns (uint256 withdrawalRequestCount);\\n}\\n\",\"keccak256\":\"0x732a3a2447150d8a8097042719ca1faf35e06cbfec364d1d6b17aae254cfd520\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061274d806100206000396000f3fe6080604052600436106100f35760003560e01c806376428c9b1161008a578063acbe180011610059578063acbe1800146102f7578063addf027c14610317578063ca31d58614610337578063f8fa73a11461036457600080fd5b806376428c9b146102405780637e7166f31461026f5780638a33be011461029c578063a81e9f79146102bc57600080fd5b80633c7fe5e3116100c65780633c7fe5e3146101ae57806350743bb9146101c157806352e41f99146102005780636e6be03f1461022057600080fd5b80630a631576146100f85780631d414cbd146101305780631decbf181461015257806332393f2b14610180575b600080fd5b34801561010457600080fd5b50610118610113366004611bd0565b610391565b60405161012793929190611c41565b60405180910390f35b34801561013c57600080fd5b5061015061014b366004611c8e565b610446565b005b34801561015e57600080fd5b5061017261016d366004611d1b565b610566565b604051610127929190611dc6565b34801561018c57600080fd5b506101a061019b366004611de9565b6108d8565b604051908152602001610127565b6101506101bc366004611e43565b610a68565b3480156101cd57600080fd5b506101f06101dc366004611bd0565b600090815260056020526040902054151590565b6040519015158152602001610127565b34801561020c57600080fd5b5061015061021b366004611e7f565b610c15565b34801561022c57600080fd5b506101a061023b366004611efe565b610d30565b34801561024c57600080fd5b5061026061025b366004611fcf565b610fa4565b60405161012793929190612069565b34801561027b57600080fd5b506101a061028a366004612100565b60046020526000908152604090205481565b3480156102a857600080fd5b506101f06102b7366004612122565b6111ed565b3480156102c857600080fd5b506101f06102d7366004611c8e565b600360209081526000928352604080842090915290825290205460ff1681565b34801561030357600080fd5b506101a06103123660046121ab565b61130a565b34801561032357600080fd5b50610150610332366004612249565b611589565b34801561034357600080fd5b50610357610352366004612280565b61162f565b6040516101279190612384565b34801561037057600080fd5b506101a061037f366004612100565b60016020526000908152604090205481565b6000602081905290815260409020805460018201546002830180546001600160a01b039093169391926103c3906123ca565b80601f01602080910402602001604051908101604052809291908181526020018280546103ef906123ca565b801561043c5780601f106104115761010080835404028352916020019161043c565b820191906000526020600020905b81548152906001019060200180831161041f57829003601f168201915b5050505050905083565b336000818152600160205260408120805491924692309290859061046990612405565b91829055506040805160208101959095526bffffffffffffffffffffffff19606094851b8116918601919091529190921b166054830152606882015260880160408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff19606087811b82169385019390935233831b811660348501529185901b90911660488301529150605c0160408051808303601f19018152828252805160209182012060008581526002835292909220919091556001600160a01b03848116835283923392918716917fd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7910160405180910390a4505050565b60008881526005602090815260408083205490516bffffffffffffffffffffffff1960608c811b82169483019490945233841b811660348301528a841b1660488201526001600160e01b03198916605c820152820160405160208183030381529060405280519060200120146106235760405162461bcd60e51b815260206004820152601b60248201527f496e76616c696420726571756573742066756c66696c6c6d656e74000000000060448201526064015b60405180910390fd5b886001600160a01b03166106e585858080601f016020809104026020016040519081016040528093929190818152602001838380828437600092019190915250506040516106df925061067f91508f908c908c9060200161243d565b60408051601f1981840301815282825280516020918201207f19457468657265756d205369676e6564204d6573736167653a0a33320000000084830152603c8085019190915282518085039091018152605c909301909152815191012090565b906117b0565b6001600160a01b03161461073b5760405162461bcd60e51b815260206004820152601160248201527f496e76616c6964207369676e6174757265000000000000000000000000000000604482015260640161061a565b60008a81526005602052604080822091909155516001600160a01b03891690889061076e908d908a908a90602401612480565b60408051601f198184030181529181526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff166001600160e01b03199094169390931790925290516107c1919061249a565b6000604051808303816000865af19150503d80600081146107fe576040519150601f19603f3d011682016040523d82523d6000602084013e610803565b606091505b50909250905081156108585789896001600160a01b03167fc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a888860405161084b9291906124b6565b60405180910390a36108cb565b89896001600160a01b03167fc7143b2270cddda57e0087ca5e2a4325657dcab10d10f6b1f9d5ce6b41cb97fc6040516108c2906020808252601f908201527f46756c66696c6c6d656e74206661696c656420756e65787065637465646c7900604082015260600190565b60405180910390a35b9850989650505050505050565b60006001600160a01b0385166109305760405162461bcd60e51b815260206004820152601460248201527f4169726e6f64652061646472657373207a65726f000000000000000000000000604482015260640161061a565b8484848460405160200161094794939291906124ca565b6040516020818303038152906040528051906020012090506040518060600160405280866001600160a01b0316815260200185815260200184848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201829052509390945250508381526020818152604091829020845181547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b03909116178155848201516001820155918401518051929350610a1e9260028501929190910190611b37565b50905050807fba204bad31c4ec4b9b54164af94ae10c4e7312f22c0f9c065d6319c928ec9e7a86868686604051610a5894939291906124fd565b60405180910390a2949350505050565b6040516bffffffffffffffffffffffff19606084811b8216602084015283811b8216603484015233901b166048820152605c0160408051601f1981840301815291815281516020928301206000868152600290935291205414610b0d5760405162461bcd60e51b815260206004820152601e60248201527f496e76616c6964207769746864726177616c2066756c66696c6c6d656e740000604482015260640161061a565b6000838152600260209081526040808320929092558151338152349181019190915284916001600160a01b0380851692908616917fadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e910160405180910390a46000816001600160a01b03163460405160006040518083038185875af1925050503d8060008114610bb9576040519150601f19603f3d011682016040523d82523d6000602084013e610bbe565b606091505b5050905080610c0f5760405162461bcd60e51b815260206004820152600f60248201527f5472616e73666572206661696c65640000000000000000000000000000000000604482015260640161061a565b50505050565b6000868152600560209081526040918290205491516bffffffffffffffffffffffff19606089811b82169383019390935233831b8116603483015287831b1660488201526001600160e01b03198616605c820152016040516020818303038152906040528051906020012014610ccd5760405162461bcd60e51b815260206004820152601b60248201527f496e76616c696420726571756573742066756c66696c6c6d656e740000000000604482015260640161061a565b600560008781526020019081526020016000206000905585856001600160a01b03167fc7143b2270cddda57e0087ca5e2a4325657dcab10d10f6b1f9d5ce6b41cb97fc8484604051610d209291906124b6565b60405180910390a3505050505050565b60006001600160a01b038916610d885760405162461bcd60e51b815260206004820152601460248201527f4169726e6f64652061646472657373207a65726f000000000000000000000000604482015260640161061a565b6001600160a01b038516301415610de15760405162461bcd60e51b815260206004820152601a60248201527f46756c66696c6c2061646472657373204169726e6f6465527270000000000000604482015260640161061a565b6001600160a01b038716600090815260036020908152604080832033845290915290205460ff16610e545760405162461bcd60e51b815260206004820152601760248201527f526571756573746572206e6f742073706f6e736f726564000000000000000000604482015260640161061a565b600060046000336001600160a01b03166001600160a01b03168152602001908152602001600020549050463033838d8d8d8d8d8d8d8d604051602001610ea59c9b9a99989796959493929190612530565b60408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff1960608e811b8216938501939093528a831b8116603485015289831b1660488401526001600160e01b03198816605c84015293500160408051601f1981840301815291815281516020928301206000858152600584528281209190915533815260049092528120805491610f3e83612405565b9190505550818a6001600160a01b03167f3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae8346338e8e8e8e8e8e8e604051610f8f9a999897969594939291906125bf565b60405180910390a35098975050505050505050565b606080808367ffffffffffffffff811115610fc157610fc1612631565b604051908082528060200260200182016040528015610fea578160200160208202803683370190505b5092508367ffffffffffffffff81111561100657611006612631565b60405190808252806020026020018201604052801561102f578160200160208202803683370190505b5091508367ffffffffffffffff81111561104b5761104b612631565b60405190808252806020026020018201604052801561107e57816020015b60608152602001906001900390816110695790505b50905060005b848110156111e55760008060008888858181106110a3576110a3612647565b90506020020135815260200190815260200160002090508060000160009054906101000a90046001600160a01b03168583815181106110e4576110e4612647565b60200260200101906001600160a01b031690816001600160a01b031681525050806001015484838151811061111b5761111b612647565b602002602001018181525050806002018054611136906123ca565b80601f0160208091040260200160405190810160405280929190818152602001828054611162906123ca565b80156111af5780601f10611184576101008083540402835291602001916111af565b820191906000526020600020905b81548152906001019060200180831161119257829003601f168201915b50505050508383815181106111c6576111c6612647565b60200260200101819052505080806111dd90612405565b915050611084565b509250925092565b6000805b878110156112f957600089898381811061120d5761120d612647565b90506020020160208101906112229190612100565b6040517f29b915b3000000000000000000000000000000000000000000000000000000008152600481018990526001600160a01b038a811660248301526044820189905287811660648301528681166084830152919250908216906329b915b39060a40160206040518083038186803b15801561129e57600080fd5b505afa1580156112b2573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906112d6919061265d565b156112e6576001925050506112ff565b50806112f181612405565b9150506111f1565b50600090505b979650505050505050565b6000878152602081905260408120546001600160a01b03168061136f5760405162461bcd60e51b815260206004820152601760248201527f54656d706c61746520646f6573206e6f74206578697374000000000000000000604482015260640161061a565b6001600160a01b0386163014156113c85760405162461bcd60e51b815260206004820152601a60248201527f46756c66696c6c2061646472657373204169726e6f6465527270000000000000604482015260640161061a565b6001600160a01b038816600090815260036020908152604080832033845290915290205460ff1661143b5760405162461bcd60e51b815260206004820152601760248201527f526571756573746572206e6f742073706f6e736f726564000000000000000000604482015260640161061a565b600060046000336001600160a01b03166001600160a01b03168152602001908152602001600020549050463033838d8d8d8d8d8d8d60405160200161148a9b9a9998979695949392919061267a565b60408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff19606086811b8216938501939093528b831b811660348501528a831b1660488401526001600160e01b03198916605c84015294500160408051601f198184030181529181528151602092830120600086815260058452828120919091553381526004909252812080549161152383612405565b919050555082826001600160a01b03167feb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c32038346338f8f8f8f8f8f8f6040516115749a999897969594939291906125bf565b60405180910390a35050979650505050505050565b6001600160a01b0382166000908152600460205260409020546115c3576001600160a01b0382166000908152600460205260409020600190555b3360008181526003602090815260408083206001600160a01b03871680855290835292819020805460ff191686151590811790915590519081529192917fc2e532a12bbcce2bfa2ef9e4bee80180e4e1b1f78618f0d20bc49a648b577c56910160405180910390a35050565b6060878614801561163f57508784145b801561164a57508782145b6116965760405162461bcd60e51b815260206004820152601960248201527f556e657175616c20706172616d65746572206c656e6774687300000000000000604482015260640161061a565b8767ffffffffffffffff8111156116af576116af612631565b6040519080825280602002602001820160405280156116d8578160200160208202803683370190505b50905060005b888110156117a05761176c8d8d8d8d8d868181106116fe576116fe612647565b905060200201358c8c8781811061171757611717612647565b905060200201358b8b8881811061173057611730612647565b90506020020160208101906117459190612100565b8a8a8981811061175757611757612647565b90506020020160208101906102b79190612100565b82828151811061177e5761177e612647565b911515602092830291909101909101528061179881612405565b9150506116de565b509b9a5050505050505050505050565b60008060006117bf85856117d4565b915091506117cc81611844565b509392505050565b60008082516041141561180b5760208301516040840151606085015160001a6117ff87828585611a02565b9450945050505061183d565b825160401415611835576020830151604084015161182a868383611aef565b93509350505061183d565b506000905060025b9250929050565b600081600481111561185857611858612701565b14156118615750565b600181600481111561187557611875612701565b14156118c35760405162461bcd60e51b815260206004820152601860248201527f45434453413a20696e76616c6964207369676e61747572650000000000000000604482015260640161061a565b60028160048111156118d7576118d7612701565b14156119255760405162461bcd60e51b815260206004820152601f60248201527f45434453413a20696e76616c6964207369676e6174757265206c656e67746800604482015260640161061a565b600381600481111561193957611939612701565b14156119925760405162461bcd60e51b815260206004820152602260248201527f45434453413a20696e76616c6964207369676e6174757265202773272076616c604482015261756560f01b606482015260840161061a565b60048160048111156119a6576119a6612701565b14156119ff5760405162461bcd60e51b815260206004820152602260248201527f45434453413a20696e76616c6964207369676e6174757265202776272076616c604482015261756560f01b606482015260840161061a565b50565b6000807f7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0831115611a395750600090506003611ae6565b8460ff16601b14158015611a5157508460ff16601c14155b15611a625750600090506004611ae6565b6040805160008082526020820180845289905260ff881692820192909252606081018690526080810185905260019060a0016020604051602081039080840390855afa158015611ab6573d6000803e3d6000fd5b5050604051601f1901519150506001600160a01b038116611adf57600060019250925050611ae6565b9150600090505b94509492505050565b6000807f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff831660ff84901c601b01611b2987828885611a02565b935093505050935093915050565b828054611b43906123ca565b90600052602060002090601f016020900481019282611b655760008555611bab565b82601f10611b7e57805160ff1916838001178555611bab565b82800160010185558215611bab579182015b82811115611bab578251825591602001919060010190611b90565b50611bb7929150611bbb565b5090565b5b80821115611bb75760008155600101611bbc565b600060208284031215611be257600080fd5b5035919050565b60005b83811015611c04578181015183820152602001611bec565b83811115610c0f5750506000910152565b60008151808452611c2d816020860160208601611be9565b601f01601f19169290920160200192915050565b6001600160a01b0384168152826020820152606060408201526000611c696060830184611c15565b95945050505050565b80356001600160a01b0381168114611c8957600080fd5b919050565b60008060408385031215611ca157600080fd5b611caa83611c72565b9150611cb860208401611c72565b90509250929050565b80356001600160e01b031981168114611c8957600080fd5b60008083601f840112611ceb57600080fd5b50813567ffffffffffffffff811115611d0357600080fd5b60208301915083602082850101111561183d57600080fd5b60008060008060008060008060c0898b031215611d3757600080fd5b88359750611d4760208a01611c72565b9650611d5560408a01611c72565b9550611d6360608a01611cc1565b9450608089013567ffffffffffffffff80821115611d8057600080fd5b611d8c8c838d01611cd9565b909650945060a08b0135915080821115611da557600080fd5b50611db28b828c01611cd9565b999c989b5096995094979396929594505050565b8215158152604060208201526000611de16040830184611c15565b949350505050565b60008060008060608587031215611dff57600080fd5b611e0885611c72565b935060208501359250604085013567ffffffffffffffff811115611e2b57600080fd5b611e3787828801611cd9565b95989497509550505050565b600080600060608486031215611e5857600080fd5b83359250611e6860208501611c72565b9150611e7660408501611c72565b90509250925092565b60008060008060008060a08789031215611e9857600080fd5b86359550611ea860208801611c72565b9450611eb660408801611c72565b9350611ec460608801611cc1565b9250608087013567ffffffffffffffff811115611ee057600080fd5b611eec89828a01611cd9565b979a9699509497509295939492505050565b60008060008060008060008060e0898b031215611f1a57600080fd5b611f2389611c72565b975060208901359650611f3860408a01611c72565b9550611f4660608a01611c72565b9450611f5460808a01611c72565b9350611f6260a08a01611cc1565b925060c089013567ffffffffffffffff811115611f7e57600080fd5b611db28b828c01611cd9565b60008083601f840112611f9c57600080fd5b50813567ffffffffffffffff811115611fb457600080fd5b6020830191508360208260051b850101111561183d57600080fd5b60008060208385031215611fe257600080fd5b823567ffffffffffffffff811115611ff957600080fd5b61200585828601611f8a565b90969095509350505050565b600082825180855260208086019550808260051b84010181860160005b8481101561205c57601f1986840301895261204a838351611c15565b9884019892509083019060010161202e565b5090979650505050505050565b606080825284519082018190526000906020906080840190828801845b828110156120ab5781516001600160a01b031684529284019290840190600101612086565b5050508381038285015285518082528683019183019060005b818110156120e0578351835292840192918401916001016120c4565b505084810360408601526120f48187612011565b98975050505050505050565b60006020828403121561211257600080fd5b61211b82611c72565b9392505050565b600080600080600080600060c0888a03121561213d57600080fd5b873567ffffffffffffffff81111561215457600080fd5b6121608a828b01611f8a565b9098509650612173905060208901611c72565b9450604088013593506060880135925061218f60808901611c72565b915061219d60a08901611c72565b905092959891949750929550565b600080600080600080600060c0888a0312156121c657600080fd5b873596506121d660208901611c72565b95506121e460408901611c72565b94506121f260608901611c72565b935061220060808901611cc1565b925060a088013567ffffffffffffffff81111561221c57600080fd5b6122288a828b01611cd9565b989b979a50959850939692959293505050565b80151581146119ff57600080fd5b6000806040838503121561225c57600080fd5b61226583611c72565b915060208301356122758161223b565b809150509250929050565b600080600080600080600080600080600060c08c8e0312156122a157600080fd5b67ffffffffffffffff808d3511156122b857600080fd5b6122c58e8e358f01611f8a565b909c509a506122d660208e01611c72565b99508060408e013511156122e957600080fd5b6122f98e60408f01358f01611f8a565b909950975060608d013581101561230f57600080fd5b61231f8e60608f01358f01611f8a565b909750955060808d013581101561233557600080fd5b6123458e60808f01358f01611f8a565b909550935060a08d013581101561235b57600080fd5b5061236c8d60a08e01358e01611f8a565b81935080925050509295989b509295989b9093969950565b6020808252825182820181905260009190848201906040850190845b818110156123be5783511515835292840192918401916001016123a0565b50909695505050505050565b600181811c908216806123de57607f821691505b602082108114156123ff57634e487b7160e01b600052602260045260246000fd5b50919050565b600060001982141561242757634e487b7160e01b600052601160045260246000fd5b5060010190565b81818437506000910190815290565b838152818360208301376000910160200190815292915050565b81835281816020850137506000828201602090810191909152601f909101601f19169091010190565b838152604060208201526000611c69604083018486612457565b600082516124ac818460208701611be9565b9190910192915050565b602081526000611de1602083018486612457565b6bffffffffffffffffffffffff198560601b16815283601482015281836034830137600091016034019081529392505050565b6001600160a01b0385168152836020820152606060408201526000612526606083018486612457565b9695505050505050565b8c815260006bffffffffffffffffffffffff196060818f821b166020850152818e821b1660348501528c6048850152818c821b1660688501528a607c850152818a821b16609c8501528189821b1660b08501528188821b1660c485015250506001600160e01b0319851660d88301526125ad60dc8301848661242e565b9e9d5050505050505050505050505050565b60006101208c83528b60208401526001600160a01b03808c1660408501528a6060850152808a16608085015280891660a085015280881660c0850152506001600160e01b0319861660e0840152806101008401526126208184018587612457565b9d9c50505050505050505050505050565b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b60006020828403121561266f57600080fd5b815161211b8161223b565b8b815260006bffffffffffffffffffffffff19808d60601b166020840152808c60601b1660348401528a6048840152896068840152808960601b166088840152808860601b16609c840152808760601b1660b0840152506001600160e01b0319851660c4830152828460c8840137506000910160c8019081529a9950505050505050505050565b634e487b7160e01b600052602160045260246000fdfea26469706673582212208125c69072f5b73d89af7cc14fb8da75fc37036277de16e38207c96e9f01298764736f6c63430008090033",
+  "deployedBytecode": "0x6080604052600436106100f35760003560e01c806376428c9b1161008a578063acbe180011610059578063acbe1800146102f7578063addf027c14610317578063ca31d58614610337578063f8fa73a11461036457600080fd5b806376428c9b146102405780637e7166f31461026f5780638a33be011461029c578063a81e9f79146102bc57600080fd5b80633c7fe5e3116100c65780633c7fe5e3146101ae57806350743bb9146101c157806352e41f99146102005780636e6be03f1461022057600080fd5b80630a631576146100f85780631d414cbd146101305780631decbf181461015257806332393f2b14610180575b600080fd5b34801561010457600080fd5b50610118610113366004611bd0565b610391565b60405161012793929190611c41565b60405180910390f35b34801561013c57600080fd5b5061015061014b366004611c8e565b610446565b005b34801561015e57600080fd5b5061017261016d366004611d1b565b610566565b604051610127929190611dc6565b34801561018c57600080fd5b506101a061019b366004611de9565b6108d8565b604051908152602001610127565b6101506101bc366004611e43565b610a68565b3480156101cd57600080fd5b506101f06101dc366004611bd0565b600090815260056020526040902054151590565b6040519015158152602001610127565b34801561020c57600080fd5b5061015061021b366004611e7f565b610c15565b34801561022c57600080fd5b506101a061023b366004611efe565b610d30565b34801561024c57600080fd5b5061026061025b366004611fcf565b610fa4565b60405161012793929190612069565b34801561027b57600080fd5b506101a061028a366004612100565b60046020526000908152604090205481565b3480156102a857600080fd5b506101f06102b7366004612122565b6111ed565b3480156102c857600080fd5b506101f06102d7366004611c8e565b600360209081526000928352604080842090915290825290205460ff1681565b34801561030357600080fd5b506101a06103123660046121ab565b61130a565b34801561032357600080fd5b50610150610332366004612249565b611589565b34801561034357600080fd5b50610357610352366004612280565b61162f565b6040516101279190612384565b34801561037057600080fd5b506101a061037f366004612100565b60016020526000908152604090205481565b6000602081905290815260409020805460018201546002830180546001600160a01b039093169391926103c3906123ca565b80601f01602080910402602001604051908101604052809291908181526020018280546103ef906123ca565b801561043c5780601f106104115761010080835404028352916020019161043c565b820191906000526020600020905b81548152906001019060200180831161041f57829003601f168201915b5050505050905083565b336000818152600160205260408120805491924692309290859061046990612405565b91829055506040805160208101959095526bffffffffffffffffffffffff19606094851b8116918601919091529190921b166054830152606882015260880160408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff19606087811b82169385019390935233831b811660348501529185901b90911660488301529150605c0160408051808303601f19018152828252805160209182012060008581526002835292909220919091556001600160a01b03848116835283923392918716917fd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7910160405180910390a4505050565b60008881526005602090815260408083205490516bffffffffffffffffffffffff1960608c811b82169483019490945233841b811660348301528a841b1660488201526001600160e01b03198916605c820152820160405160208183030381529060405280519060200120146106235760405162461bcd60e51b815260206004820152601b60248201527f496e76616c696420726571756573742066756c66696c6c6d656e74000000000060448201526064015b60405180910390fd5b886001600160a01b03166106e585858080601f016020809104026020016040519081016040528093929190818152602001838380828437600092019190915250506040516106df925061067f91508f908c908c9060200161243d565b60408051601f1981840301815282825280516020918201207f19457468657265756d205369676e6564204d6573736167653a0a33320000000084830152603c8085019190915282518085039091018152605c909301909152815191012090565b906117b0565b6001600160a01b03161461073b5760405162461bcd60e51b815260206004820152601160248201527f496e76616c6964207369676e6174757265000000000000000000000000000000604482015260640161061a565b60008a81526005602052604080822091909155516001600160a01b03891690889061076e908d908a908a90602401612480565b60408051601f198184030181529181526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff166001600160e01b03199094169390931790925290516107c1919061249a565b6000604051808303816000865af19150503d80600081146107fe576040519150601f19603f3d011682016040523d82523d6000602084013e610803565b606091505b50909250905081156108585789896001600160a01b03167fc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a888860405161084b9291906124b6565b60405180910390a36108cb565b89896001600160a01b03167fc7143b2270cddda57e0087ca5e2a4325657dcab10d10f6b1f9d5ce6b41cb97fc6040516108c2906020808252601f908201527f46756c66696c6c6d656e74206661696c656420756e65787065637465646c7900604082015260600190565b60405180910390a35b9850989650505050505050565b60006001600160a01b0385166109305760405162461bcd60e51b815260206004820152601460248201527f4169726e6f64652061646472657373207a65726f000000000000000000000000604482015260640161061a565b8484848460405160200161094794939291906124ca565b6040516020818303038152906040528051906020012090506040518060600160405280866001600160a01b0316815260200185815260200184848080601f01602080910402602001604051908101604052809392919081815260200183838082843760009201829052509390945250508381526020818152604091829020845181547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b03909116178155848201516001820155918401518051929350610a1e9260028501929190910190611b37565b50905050807fba204bad31c4ec4b9b54164af94ae10c4e7312f22c0f9c065d6319c928ec9e7a86868686604051610a5894939291906124fd565b60405180910390a2949350505050565b6040516bffffffffffffffffffffffff19606084811b8216602084015283811b8216603484015233901b166048820152605c0160408051601f1981840301815291815281516020928301206000868152600290935291205414610b0d5760405162461bcd60e51b815260206004820152601e60248201527f496e76616c6964207769746864726177616c2066756c66696c6c6d656e740000604482015260640161061a565b6000838152600260209081526040808320929092558151338152349181019190915284916001600160a01b0380851692908616917fadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e910160405180910390a46000816001600160a01b03163460405160006040518083038185875af1925050503d8060008114610bb9576040519150601f19603f3d011682016040523d82523d6000602084013e610bbe565b606091505b5050905080610c0f5760405162461bcd60e51b815260206004820152600f60248201527f5472616e73666572206661696c65640000000000000000000000000000000000604482015260640161061a565b50505050565b6000868152600560209081526040918290205491516bffffffffffffffffffffffff19606089811b82169383019390935233831b8116603483015287831b1660488201526001600160e01b03198616605c820152016040516020818303038152906040528051906020012014610ccd5760405162461bcd60e51b815260206004820152601b60248201527f496e76616c696420726571756573742066756c66696c6c6d656e740000000000604482015260640161061a565b600560008781526020019081526020016000206000905585856001600160a01b03167fc7143b2270cddda57e0087ca5e2a4325657dcab10d10f6b1f9d5ce6b41cb97fc8484604051610d209291906124b6565b60405180910390a3505050505050565b60006001600160a01b038916610d885760405162461bcd60e51b815260206004820152601460248201527f4169726e6f64652061646472657373207a65726f000000000000000000000000604482015260640161061a565b6001600160a01b038516301415610de15760405162461bcd60e51b815260206004820152601a60248201527f46756c66696c6c2061646472657373204169726e6f6465527270000000000000604482015260640161061a565b6001600160a01b038716600090815260036020908152604080832033845290915290205460ff16610e545760405162461bcd60e51b815260206004820152601760248201527f526571756573746572206e6f742073706f6e736f726564000000000000000000604482015260640161061a565b600060046000336001600160a01b03166001600160a01b03168152602001908152602001600020549050463033838d8d8d8d8d8d8d8d604051602001610ea59c9b9a99989796959493929190612530565b60408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff1960608e811b8216938501939093528a831b8116603485015289831b1660488401526001600160e01b03198816605c84015293500160408051601f1981840301815291815281516020928301206000858152600584528281209190915533815260049092528120805491610f3e83612405565b9190505550818a6001600160a01b03167f3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae8346338e8e8e8e8e8e8e604051610f8f9a999897969594939291906125bf565b60405180910390a35098975050505050505050565b606080808367ffffffffffffffff811115610fc157610fc1612631565b604051908082528060200260200182016040528015610fea578160200160208202803683370190505b5092508367ffffffffffffffff81111561100657611006612631565b60405190808252806020026020018201604052801561102f578160200160208202803683370190505b5091508367ffffffffffffffff81111561104b5761104b612631565b60405190808252806020026020018201604052801561107e57816020015b60608152602001906001900390816110695790505b50905060005b848110156111e55760008060008888858181106110a3576110a3612647565b90506020020135815260200190815260200160002090508060000160009054906101000a90046001600160a01b03168583815181106110e4576110e4612647565b60200260200101906001600160a01b031690816001600160a01b031681525050806001015484838151811061111b5761111b612647565b602002602001018181525050806002018054611136906123ca565b80601f0160208091040260200160405190810160405280929190818152602001828054611162906123ca565b80156111af5780601f10611184576101008083540402835291602001916111af565b820191906000526020600020905b81548152906001019060200180831161119257829003601f168201915b50505050508383815181106111c6576111c6612647565b60200260200101819052505080806111dd90612405565b915050611084565b509250925092565b6000805b878110156112f957600089898381811061120d5761120d612647565b90506020020160208101906112229190612100565b6040517f29b915b3000000000000000000000000000000000000000000000000000000008152600481018990526001600160a01b038a811660248301526044820189905287811660648301528681166084830152919250908216906329b915b39060a40160206040518083038186803b15801561129e57600080fd5b505afa1580156112b2573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906112d6919061265d565b156112e6576001925050506112ff565b50806112f181612405565b9150506111f1565b50600090505b979650505050505050565b6000878152602081905260408120546001600160a01b03168061136f5760405162461bcd60e51b815260206004820152601760248201527f54656d706c61746520646f6573206e6f74206578697374000000000000000000604482015260640161061a565b6001600160a01b0386163014156113c85760405162461bcd60e51b815260206004820152601a60248201527f46756c66696c6c2061646472657373204169726e6f6465527270000000000000604482015260640161061a565b6001600160a01b038816600090815260036020908152604080832033845290915290205460ff1661143b5760405162461bcd60e51b815260206004820152601760248201527f526571756573746572206e6f742073706f6e736f726564000000000000000000604482015260640161061a565b600060046000336001600160a01b03166001600160a01b03168152602001908152602001600020549050463033838d8d8d8d8d8d8d60405160200161148a9b9a9998979695949392919061267a565b60408051601f198184030181529082905280516020918201206bffffffffffffffffffffffff19606086811b8216938501939093528b831b811660348501528a831b1660488401526001600160e01b03198916605c84015294500160408051601f198184030181529181528151602092830120600086815260058452828120919091553381526004909252812080549161152383612405565b919050555082826001600160a01b03167feb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c32038346338f8f8f8f8f8f8f6040516115749a999897969594939291906125bf565b60405180910390a35050979650505050505050565b6001600160a01b0382166000908152600460205260409020546115c3576001600160a01b0382166000908152600460205260409020600190555b3360008181526003602090815260408083206001600160a01b03871680855290835292819020805460ff191686151590811790915590519081529192917fc2e532a12bbcce2bfa2ef9e4bee80180e4e1b1f78618f0d20bc49a648b577c56910160405180910390a35050565b6060878614801561163f57508784145b801561164a57508782145b6116965760405162461bcd60e51b815260206004820152601960248201527f556e657175616c20706172616d65746572206c656e6774687300000000000000604482015260640161061a565b8767ffffffffffffffff8111156116af576116af612631565b6040519080825280602002602001820160405280156116d8578160200160208202803683370190505b50905060005b888110156117a05761176c8d8d8d8d8d868181106116fe576116fe612647565b905060200201358c8c8781811061171757611717612647565b905060200201358b8b8881811061173057611730612647565b90506020020160208101906117459190612100565b8a8a8981811061175757611757612647565b90506020020160208101906102b79190612100565b82828151811061177e5761177e612647565b911515602092830291909101909101528061179881612405565b9150506116de565b509b9a5050505050505050505050565b60008060006117bf85856117d4565b915091506117cc81611844565b509392505050565b60008082516041141561180b5760208301516040840151606085015160001a6117ff87828585611a02565b9450945050505061183d565b825160401415611835576020830151604084015161182a868383611aef565b93509350505061183d565b506000905060025b9250929050565b600081600481111561185857611858612701565b14156118615750565b600181600481111561187557611875612701565b14156118c35760405162461bcd60e51b815260206004820152601860248201527f45434453413a20696e76616c6964207369676e61747572650000000000000000604482015260640161061a565b60028160048111156118d7576118d7612701565b14156119255760405162461bcd60e51b815260206004820152601f60248201527f45434453413a20696e76616c6964207369676e6174757265206c656e67746800604482015260640161061a565b600381600481111561193957611939612701565b14156119925760405162461bcd60e51b815260206004820152602260248201527f45434453413a20696e76616c6964207369676e6174757265202773272076616c604482015261756560f01b606482015260840161061a565b60048160048111156119a6576119a6612701565b14156119ff5760405162461bcd60e51b815260206004820152602260248201527f45434453413a20696e76616c6964207369676e6174757265202776272076616c604482015261756560f01b606482015260840161061a565b50565b6000807f7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0831115611a395750600090506003611ae6565b8460ff16601b14158015611a5157508460ff16601c14155b15611a625750600090506004611ae6565b6040805160008082526020820180845289905260ff881692820192909252606081018690526080810185905260019060a0016020604051602081039080840390855afa158015611ab6573d6000803e3d6000fd5b5050604051601f1901519150506001600160a01b038116611adf57600060019250925050611ae6565b9150600090505b94509492505050565b6000807f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff831660ff84901c601b01611b2987828885611a02565b935093505050935093915050565b828054611b43906123ca565b90600052602060002090601f016020900481019282611b655760008555611bab565b82601f10611b7e57805160ff1916838001178555611bab565b82800160010185558215611bab579182015b82811115611bab578251825591602001919060010190611b90565b50611bb7929150611bbb565b5090565b5b80821115611bb75760008155600101611bbc565b600060208284031215611be257600080fd5b5035919050565b60005b83811015611c04578181015183820152602001611bec565b83811115610c0f5750506000910152565b60008151808452611c2d816020860160208601611be9565b601f01601f19169290920160200192915050565b6001600160a01b0384168152826020820152606060408201526000611c696060830184611c15565b95945050505050565b80356001600160a01b0381168114611c8957600080fd5b919050565b60008060408385031215611ca157600080fd5b611caa83611c72565b9150611cb860208401611c72565b90509250929050565b80356001600160e01b031981168114611c8957600080fd5b60008083601f840112611ceb57600080fd5b50813567ffffffffffffffff811115611d0357600080fd5b60208301915083602082850101111561183d57600080fd5b60008060008060008060008060c0898b031215611d3757600080fd5b88359750611d4760208a01611c72565b9650611d5560408a01611c72565b9550611d6360608a01611cc1565b9450608089013567ffffffffffffffff80821115611d8057600080fd5b611d8c8c838d01611cd9565b909650945060a08b0135915080821115611da557600080fd5b50611db28b828c01611cd9565b999c989b5096995094979396929594505050565b8215158152604060208201526000611de16040830184611c15565b949350505050565b60008060008060608587031215611dff57600080fd5b611e0885611c72565b935060208501359250604085013567ffffffffffffffff811115611e2b57600080fd5b611e3787828801611cd9565b95989497509550505050565b600080600060608486031215611e5857600080fd5b83359250611e6860208501611c72565b9150611e7660408501611c72565b90509250925092565b60008060008060008060a08789031215611e9857600080fd5b86359550611ea860208801611c72565b9450611eb660408801611c72565b9350611ec460608801611cc1565b9250608087013567ffffffffffffffff811115611ee057600080fd5b611eec89828a01611cd9565b979a9699509497509295939492505050565b60008060008060008060008060e0898b031215611f1a57600080fd5b611f2389611c72565b975060208901359650611f3860408a01611c72565b9550611f4660608a01611c72565b9450611f5460808a01611c72565b9350611f6260a08a01611cc1565b925060c089013567ffffffffffffffff811115611f7e57600080fd5b611db28b828c01611cd9565b60008083601f840112611f9c57600080fd5b50813567ffffffffffffffff811115611fb457600080fd5b6020830191508360208260051b850101111561183d57600080fd5b60008060208385031215611fe257600080fd5b823567ffffffffffffffff811115611ff957600080fd5b61200585828601611f8a565b90969095509350505050565b600082825180855260208086019550808260051b84010181860160005b8481101561205c57601f1986840301895261204a838351611c15565b9884019892509083019060010161202e565b5090979650505050505050565b606080825284519082018190526000906020906080840190828801845b828110156120ab5781516001600160a01b031684529284019290840190600101612086565b5050508381038285015285518082528683019183019060005b818110156120e0578351835292840192918401916001016120c4565b505084810360408601526120f48187612011565b98975050505050505050565b60006020828403121561211257600080fd5b61211b82611c72565b9392505050565b600080600080600080600060c0888a03121561213d57600080fd5b873567ffffffffffffffff81111561215457600080fd5b6121608a828b01611f8a565b9098509650612173905060208901611c72565b9450604088013593506060880135925061218f60808901611c72565b915061219d60a08901611c72565b905092959891949750929550565b600080600080600080600060c0888a0312156121c657600080fd5b873596506121d660208901611c72565b95506121e460408901611c72565b94506121f260608901611c72565b935061220060808901611cc1565b925060a088013567ffffffffffffffff81111561221c57600080fd5b6122288a828b01611cd9565b989b979a50959850939692959293505050565b80151581146119ff57600080fd5b6000806040838503121561225c57600080fd5b61226583611c72565b915060208301356122758161223b565b809150509250929050565b600080600080600080600080600080600060c08c8e0312156122a157600080fd5b67ffffffffffffffff808d3511156122b857600080fd5b6122c58e8e358f01611f8a565b909c509a506122d660208e01611c72565b99508060408e013511156122e957600080fd5b6122f98e60408f01358f01611f8a565b909950975060608d013581101561230f57600080fd5b61231f8e60608f01358f01611f8a565b909750955060808d013581101561233557600080fd5b6123458e60808f01358f01611f8a565b909550935060a08d013581101561235b57600080fd5b5061236c8d60a08e01358e01611f8a565b81935080925050509295989b509295989b9093969950565b6020808252825182820181905260009190848201906040850190845b818110156123be5783511515835292840192918401916001016123a0565b50909695505050505050565b600181811c908216806123de57607f821691505b602082108114156123ff57634e487b7160e01b600052602260045260246000fd5b50919050565b600060001982141561242757634e487b7160e01b600052601160045260246000fd5b5060010190565b81818437506000910190815290565b838152818360208301376000910160200190815292915050565b81835281816020850137506000828201602090810191909152601f909101601f19169091010190565b838152604060208201526000611c69604083018486612457565b600082516124ac818460208701611be9565b9190910192915050565b602081526000611de1602083018486612457565b6bffffffffffffffffffffffff198560601b16815283601482015281836034830137600091016034019081529392505050565b6001600160a01b0385168152836020820152606060408201526000612526606083018486612457565b9695505050505050565b8c815260006bffffffffffffffffffffffff196060818f821b166020850152818e821b1660348501528c6048850152818c821b1660688501528a607c850152818a821b16609c8501528189821b1660b08501528188821b1660c485015250506001600160e01b0319851660d88301526125ad60dc8301848661242e565b9e9d5050505050505050505050505050565b60006101208c83528b60208401526001600160a01b03808c1660408501528a6060850152808a16608085015280891660a085015280881660c0850152506001600160e01b0319861660e0840152806101008401526126208184018587612457565b9d9c50505050505050505050505050565b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b60006020828403121561266f57600080fd5b815161211b8161223b565b8b815260006bffffffffffffffffffffffff19808d60601b166020840152808c60601b1660348401528a6048840152896068840152808960601b166088840152808860601b16609c840152808760601b1660b0840152506001600160e01b0319851660c4830152828460c8840137506000910160c8019081529a9950505050505050505050565b634e487b7160e01b600052602160045260246000fdfea26469706673582212208125c69072f5b73d89af7cc14fb8da75fc37036277de16e38207c96e9f01298764736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)": {
+        "details": "This method is meant to be called off-chain, statically by the Airnode to decide if it should respond to a request. The requester can also call it, yet this function returning true should not be taken as a guarantee of the subsequent request being fulfilled. It is enough for only one of the authorizer contracts to return true for the request to be authorized.",
+        "params": {
+          "airnode": "Airnode address",
+          "authorizers": "Authorizer contract addresses",
+          "endpointId": "Endpoint ID",
+          "requestId": "Request ID",
+          "requester": "Requester address",
+          "sponsor": "Sponsor address"
+        },
+        "returns": {
+          "status": "Authorization status of the request"
+        }
+      },
+      "checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])": {
+        "params": {
+          "airnode": "Airnode address",
+          "authorizers": "Authorizer contract addresses",
+          "endpointIds": "Endpoint IDs",
+          "requestIds": "Request IDs",
+          "requesters": "Requester addresses",
+          "sponsors": "Sponsor addresses"
+        },
+        "returns": {
+          "statuses": "Authorization statuses of the request"
+        }
+      },
+      "createTemplate(address,bytes32,bytes)": {
+        "details": "A specific set of request parameters will always have the same template ID. This means a few things: (1) You can compute the expected ID of a template before creating it, (2) Creating a new template with the same parameters will overwrite the old one and return the same ID, (3) After you query a template with its ID, you can verify its integrity by applying the hash and comparing the result with the ID.",
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID (allowed to be `bytes32(0)`)",
+          "parameters": "Static request parameters (i.e., parameters that will not change between requests, unlike the dynamic parameters determined at request-time)"
+        },
+        "returns": {
+          "templateId": "Request template ID"
+        }
+      },
+      "fail(bytes32,address,address,bytes4,string)": {
+        "details": "Airnode should fall back to this if a request cannot be fulfilled because static call to `fulfill()` returns `false` for `callSuccess`",
+        "params": {
+          "airnode": "Airnode address",
+          "errorMessage": "A message that explains why the request has failed",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "requestId": "Request ID"
+        }
+      },
+      "fulfill(bytes32,address,address,bytes4,bytes,bytes)": {
+        "details": "The data is ABI-encoded as a `bytes` type, with its format depending on the request specifications. This will not revert depending on the external call. However, it will return `false` if the external call reverts or if there is no function with a matching signature at `fulfillAddress`. On the other hand, it will return `true` if the external call returns successfully or if there is no contract deployed at `fulfillAddress`. If `callSuccess` is `false`, `callData` can be decoded to retrieve the revert string. This function emits its event after an untrusted low-level call, meaning that the order of these events within the transaction should not be taken seriously, yet the content will be sound.",
+        "params": {
+          "airnode": "Airnode address",
+          "data": "Fulfillment data",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "requestId": "Request ID"
+        },
+        "returns": {
+          "callData": "Data returned by the fulfillment call (if there is any)",
+          "callSuccess": "If the fulfillment call succeeded"
+        }
+      },
+      "fulfillWithdrawal(bytes32,address,address)": {
+        "details": "The Airnode sends the funds to the sponsor through this method to emit an event that indicates that the withdrawal request has been fulfilled",
+        "params": {
+          "airnode": "Airnode address",
+          "sponsor": "Sponsor address",
+          "withdrawalRequestId": "Withdrawal request ID"
+        }
+      },
+      "getTemplates(bytes32[])": {
+        "details": "Does not revert if the templates being indexed do not exist",
+        "params": {
+          "templateIds": "Request template IDs"
+        },
+        "returns": {
+          "airnodes": "Array of Airnode addresses",
+          "endpointIds": "Array of endpoint IDs",
+          "parameters": "Array of request parameters"
+        }
+      },
+      "makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)": {
+        "details": "`fulfillAddress` is not allowed to be the address of this contract. This is not actually needed to protect users that use the protocol as intended, but it is done for good measure.",
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID (allowed to be `bytes32(0)`)",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "parameters": "All request parameters",
+          "sponsor": "Sponsor address",
+          "sponsorWallet": "Sponsor wallet that is requested to fulfill the request"
+        },
+        "returns": {
+          "requestId": "Request ID"
+        }
+      },
+      "makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)": {
+        "details": "`fulfillAddress` is not allowed to be the address of this contract. This is not actually needed to protect users that use the protocol as intended, but it is done for good measure.",
+        "params": {
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "parameters": "Parameters provided by the requester in addition to the parameters in the template",
+          "sponsor": "Sponsor address",
+          "sponsorWallet": "Sponsor wallet that is requested to fulfill the request",
+          "templateId": "Template ID"
+        },
+        "returns": {
+          "requestId": "Request ID"
+        }
+      },
+      "requestIsAwaitingFulfillment(bytes32)": {
+        "details": "If a requester has made a request, received a request ID but did not hear back, it can call this method to check if the Airnode has called back `fail()` instead.",
+        "params": {
+          "requestId": "Request ID"
+        },
+        "returns": {
+          "isAwaitingFulfillment": "If the request is awaiting fulfillment (i.e., `true` if `fulfill()` or `fail()` is not called back yet, `false` otherwise)"
+        }
+      },
+      "requestWithdrawal(address,address)": {
+        "details": "We do not need to use the withdrawal request parameters in the request ID hash to validate them at the node-side because all of the parameters are used during fulfillment and will get validated on-chain. The first withdrawal request a sponsor will make will cost slightly higher gas than the rest due to how the request counter is implemented.",
+        "params": {
+          "airnode": "Airnode address",
+          "sponsorWallet": "Sponsor wallet that the withdrawal is requested from"
+        }
+      },
+      "setSponsorshipStatus(address,bool)": {
+        "details": "This is not Airnode-specific, i.e., the sponsor allows the requester's requests to be fulfilled through its sponsor wallets across all Airnodes",
+        "params": {
+          "requester": "Requester address",
+          "sponsorshipStatus": "Sponsorship status"
+        }
+      }
+    },
+    "stateVariables": {
+      "requestIdToFulfillmentParameters": {
+        "details": "Hash of expected fulfillment parameters are kept to verify that the fulfillment will be done with the correct parameters. This value is also used to check if the fulfillment for the particular request is expected, i.e., if there are recorded fulfillment parameters."
+      },
+      "requesterToRequestCountPlusOne": {
+        "details": "Can be used to calculate the ID of the next request the requester will make"
+      }
+    },
+    "title": "Contract that implements the Airnode request–response protocol (RRP)",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)": {
+        "notice": "Uses the authorizer contracts of an Airnode to decide if a request is authorized. Once an Airnode receives a request, it calls this method to determine if it should respond. Similarly, third parties can use this method to determine if a particular request would be authorized."
+      },
+      "checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])": {
+        "notice": "A convenience function to make multiple authorization status checks with a single call"
+      },
+      "createTemplate(address,bytes32,bytes)": {
+        "notice": "Creates a request template with the given parameters, addressable by the ID it returns"
+      },
+      "fail(bytes32,address,address,bytes4,string)": {
+        "notice": "Called by Airnode if the request cannot be fulfilled"
+      },
+      "fulfill(bytes32,address,address,bytes4,bytes,bytes)": {
+        "notice": "Called by Airnode to fulfill the request (template or full)"
+      },
+      "fulfillWithdrawal(bytes32,address,address)": {
+        "notice": "Called by the Airnode using the sponsor wallet to fulfill the withdrawal request made by the sponsor"
+      },
+      "getTemplates(bytes32[])": {
+        "notice": "A convenience method to retrieve multiple templates with a single call"
+      },
+      "makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)": {
+        "notice": "Called by the requester to make a full request, which provides all of its parameters as arguments and does not refer to a template"
+      },
+      "makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)": {
+        "notice": "Called by the requester to make a request that refers to a template for the Airnode address, endpoint ID and parameters"
+      },
+      "requestIsAwaitingFulfillment(bytes32)": {
+        "notice": "Called to check if the request with the ID is made but not fulfilled/failed yet"
+      },
+      "requestWithdrawal(address,address)": {
+        "notice": "Called by a sponsor to create a request for the Airnode to send the funds kept in the respective sponsor wallet to the sponsor"
+      },
+      "requesterToRequestCountPlusOne(address)": {
+        "notice": "Called to get the request count of the requester plus one"
+      },
+      "setSponsorshipStatus(address,bool)": {
+        "notice": "Called by the sponsor to set the sponsorship status of a requester, i.e., allow or disallow a requester to make requests that will be fulfilled by the sponsor wallet"
+      },
+      "sponsorToRequesterToSponsorshipStatus(address,address)": {
+        "notice": "Called to get the sponsorship status for a sponsor–requester pair"
+      },
+      "sponsorToWithdrawalRequestCount(address)": {
+        "notice": "Called to get the withdrawal request count of the sponsor"
+      },
+      "templates(bytes32)": {
+        "notice": "Called to get a template"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3541,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "templates",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_struct(Template)3534_storage)"
+      },
+      {
+        "astId": 3694,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "sponsorToWithdrawalRequestCount",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 3699,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "withdrawalRequestIdToParameters",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_bytes32,t_bytes32)"
+      },
+      {
+        "astId": 2913,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "sponsorToRequesterToSponsorshipStatus",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 2919,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "requesterToRequestCountPlusOne",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 2924,
+        "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+        "label": "requestIdToFulfillmentParameters",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_bytes32,t_bytes32)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_bytes32,t_struct(Template)3534_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct TemplateUtilsV0.Template)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Template)3534_storage"
+      },
+      "t_struct(Template)3534_storage": {
+        "encoding": "inplace",
+        "label": "struct TemplateUtilsV0.Template",
+        "members": [
+          {
+            "astId": 3529,
+            "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+            "label": "airnode",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 3531,
+            "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+            "label": "endpointId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 3533,
+            "contract": "contracts/rrp/AirnodeRrpV0.sol:AirnodeRrpV0",
+            "label": "parameters",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bytes_storage"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

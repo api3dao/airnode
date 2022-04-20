@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import * as events from './events';
-import { AirnodeRrpFactory } from '../contracts';
+import { AirnodeRrpV0Factory } from '../contracts';
 import {
   EVMEventLog,
   EVMMadeRequestLog,
@@ -27,7 +27,7 @@ interface GroupedLogs {
 // NOTE: The generic parameter could have a better default value (unknown instead of any) but doing so would make the
 // tests less readable because a lot of type casting would be needed.
 export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.providers.Log): AirnodeLogDescription<T> {
-  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpFactory.abi);
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpV0Factory.abi);
   const parsedLog = airnodeRrpInterface.parseLog(log);
   return parsedLog as AirnodeLogDescription<T>;
 }

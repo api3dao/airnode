@@ -1,9 +1,9 @@
-import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers, mocks } from '@api3/airnode-protocol';
+import { AccessControlRegistryFactory, AirnodeRrpV0Factory, authorizers, mocks } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
 export async function deployAirnodeRrp(state: State): Promise<State> {
-  const AirnodeRrp = new AirnodeRrpFactory(state.deployer);
+  const AirnodeRrp = new AirnodeRrpV0Factory(state.deployer);
   const airnodeRrp = await AirnodeRrp.deploy();
   await airnodeRrp.deployed();
   return { ...state, contracts: { ...state.contracts, AirnodeRrp: airnodeRrp } };

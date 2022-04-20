@@ -3,7 +3,7 @@ import { cliPrint, getDeployedContract, getUserWallet, readIntegrationInfo, runA
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
-  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
   const userWallet = getUserWallet();
 
