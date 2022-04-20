@@ -1,15 +1,13 @@
-import { ethers } from 'ethers';
-
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
-export const unsafeEvaluate = (input: any, code: string) => {
-  return Function(`
-    "use strict";
-    const [ethers, input] = arguments
+export const unsafeEvaluate = (_input: any, code: string) => {
+  return eval(`
+    const ethers = require('ethers');
+    const input = _input;
 
     ${code};
 
-    return output;
-  `)(ethers, input);
+    output;
+  `);
 };
