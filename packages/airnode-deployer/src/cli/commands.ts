@@ -70,6 +70,11 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 
+  // Deployment is not an atomic operation. It is possible that some resources are deployed even when there is a
+  // deployment error. We want to write a receipt file, because the user might use the receipt to remove the deployed
+  // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
+  // remove the resources manually in the cloud provider dashboard).
+  let deploymentError: Error | undefined;
   let output = {};
   try {
     output = await deployAirnode({
@@ -82,14 +87,22 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       secretsPath: tmpSecretsPath,
     });
   } catch (err) {
-    logger.warn(`Failed deploying configuration, skipping`);
-    logger.warn((err as Error).toString());
+    deploymentError = err as Error;
   }
 
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
   writeReceiptFile(receiptFile, mnemonic, config, output);
+
+  if (deploymentError) {
+    logger.fail(
+      `Airnode deployment failed due to errors.\n` +
+        `  It is possible that some resources have been deployed on cloud provider.\n` +
+        `  Please use the "remove" command from the deployer CLI to make sure all cloud resources are removed.`
+    );
+    throw deploymentError;
+  }
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
@@ -99,10 +112,7 @@ export async function remove(airnodeAddressShort: string, stage: string, cloudPr
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
   const { airnodeAddressShort, cloudProvider, stage } = receipt.deployment;
-  try {
-    await remove(airnodeAddressShort, stage, cloudProvider);
-  } catch (err) {
-    logger.warn(`Failed removing configuration, skipping`);
-    logger.warn((err as Error).toString());
-  }
+
+  // If the function throws, the CLI will fail with a non zero status code
+  await remove(airnodeAddressShort, stage, cloudProvider);
 }
