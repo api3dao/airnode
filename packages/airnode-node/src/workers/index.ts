@@ -12,6 +12,13 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
       return gcp.spawn(params);
 
     case 'local':
-      return localHandlers[params.functionName](params.payload);
+      switch (params.payload.functionName) {
+        case 'initializeProvider':
+          return localHandlers.initializeProvider(params.payload);
+        case 'callApi':
+          return localHandlers.callApi(params.payload);
+        case 'processTransactions':
+          return localHandlers.processTransactions(params.payload);
+      }
   }
 }

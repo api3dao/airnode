@@ -1,5 +1,5 @@
 import { buildMetadata } from './metadata';
-import { ApiCall, Request, RequestStatus } from '../../../src/types';
+import { ApiCall, Request } from '../../../src/types';
 
 export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
   const metadata = buildMetadata();
@@ -20,7 +20,6 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     metadata,
     parameters: { from: 'ETH' },
     requestCount: '12',
-    status: RequestStatus.Pending,
     templateId: null,
     type: 'template',
     ...params,

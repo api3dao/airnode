@@ -37,8 +37,34 @@ variable "handler_dir" {
   description = "Airnode handler source code directory"
 }
 
-variable "api_key" {
-  description = "API key to access Airnode Test Gateway"
+variable "max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Run Cloud function"
+  default     = 0
+}
+
+variable "disable_concurrency_reservation" {
+  description = "Flag to disable any concurrency reservations"
+  default     = false
+}
+
+variable "http_api_key" {
+  description = "API key to access Airnode HTTP Gateway"
   type        = string
   default     = null
+}
+
+variable "http_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode HTTP Gateway Cloud Function"
+  default     = 0
+}
+
+variable "http_signed_data_api_key" {
+  description = "API key to access Airnode Signed Data Gateway"
+  type        = string
+  default     = null
+}
+
+variable "http_signed_data_max_concurrency" {
+  description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Cloud Function"
+  default     = 0
 }

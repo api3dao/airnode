@@ -18,7 +18,7 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import * as fixtures from '../../../test/fixtures';
-import { EVMProviderSponsorState, GroupedRequests, ProviderState, RequestStatus } from '../../types';
+import { EVMProviderSponsorState, GroupedRequests, ProviderState } from '../../types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 
@@ -71,12 +71,10 @@ describe('submit', () => {
       {
         ...requests.apiCalls[0],
         fulfillment: { hash: '0xapicall_tx1' },
-        status: RequestStatus.Submitted,
       },
       {
         ...requests.apiCalls[1],
         fulfillment: { hash: '0xapicall_tx2' },
-        status: RequestStatus.Submitted,
       },
     ]);
 
@@ -84,7 +82,6 @@ describe('submit', () => {
       {
         ...requests.withdrawals[0],
         fulfillment: { hash: '0xwithdrawal_tx1' },
-        status: RequestStatus.Submitted,
       },
     ]);
   });

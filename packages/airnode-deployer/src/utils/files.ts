@@ -1,30 +1,11 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config, parseConfig, version as getNodeVersion } from '@api3/airnode-node';
-import { validateReceipt } from './validation';
+import { CloudProvider, Config } from '@api3/airnode-node';
+import { parseReceipt } from '@api3/airnode-validator';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
-
-export function loadConfig(configFile: string, secrets: Record<string, string | undefined>, shouldValidate: boolean) {
-  const { shouldSkipValidation, config, validationOutput } = parseConfig(configFile, secrets, shouldValidate);
-  const { messages, valid } = validationOutput;
-
-  if (shouldSkipValidation) {
-    logger.warn('Skipping the config validation');
-    return config;
-  }
-  if (!valid) {
-    logger.fail(JSON.stringify(messages, null, 2));
-    throw new Error('Validation of config failed');
-  }
-  if (messages.length) {
-    logger.warn(`Validation of config finished with warnings:\n${JSON.stringify(messages, null, 2)}`);
-  }
-
-  return config;
-}
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -40,7 +21,8 @@ export function writeReceiptFile(
   receiptFilename: string,
   mnemonic: string,
   config: Config,
-  commandOutput: DeployAirnodeOutput
+  commandOutput: DeployAirnodeOutput,
+  timestamp: string
 ) {
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
@@ -55,6 +37,7 @@ export function writeReceiptFile(
       cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
       stage: config.nodeSettings.stage,
       nodeVersion: config.nodeSettings.nodeVersion,
+      timestamp,
     },
     api: {
       ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
@@ -79,10 +62,10 @@ export function parseReceiptFile(receiptFilename: string) {
     throw e;
   }
 
-  const validationResult = validateReceipt(receipt, getNodeVersion());
-  if (!validationResult.valid) {
+  const validationResult = parseReceipt(receipt);
+  if (!validationResult.success) {
     logger.fail('Failed to validate receipt file');
-    throw new Error(`Invalid Airnode receipt file: ${JSON.stringify(validationResult.messages)}`);
+    throw new Error(`Invalid Airnode receipt file: ${validationResult.error}`);
   }
 
   return receipt as Receipt;

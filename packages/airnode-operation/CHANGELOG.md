@@ -1,5 +1,35 @@
 # @api3/airnode-operation
 
+## 0.6.0
+
+### Minor Changes
+
+- [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+### Patch Changes
+
+- Updated dependencies [[`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31), [`1b8bcb01`](https://github.com/api3dao/airnode/commit/1b8bcb012350f7f1c6ae881067f697d90f59f1f6), [`1d16a73d`](https://github.com/api3dao/airnode/commit/1d16a73ddc357bb79df1311ef10fb78df0be7ccb), [`b5556b26`](https://github.com/api3dao/airnode/commit/b5556b26e2a2baefdbf26fd34045811fca8d2650), [`c1dc6dd5`](https://github.com/api3dao/airnode/commit/c1dc6dd5334cabc782ce0a71deb9be4fcd2b602f), [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb), [`4c7fbe1a`](https://github.com/api3dao/airnode/commit/4c7fbe1af918a46d766b01d866046a0dd4d80914)]:
+  - @api3/airnode-abi@0.6.0
+  - @api3/airnode-protocol@0.6.0
+  - @api3/airnode-utilities@0.6.0
+
+## 0.5.0
+
+### Minor Changes
+
+- [#867](https://github.com/api3dao/airnode/pull/867) [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970) Thanks [@aquarat](https://github.com/aquarat)! - Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
+
+* [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+### Patch Changes
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
+- Updated dependencies [[`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970), [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028), [`6504c3c8`](https://github.com/api3dao/airnode/commit/6504c3c88fa39026f0392f0892ab6adc85115461), [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312), [`da0026cb`](https://github.com/api3dao/airnode/commit/da0026cbb1c714d9b2f9af622afb858b37316217), [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b), [`8c9de3e5`](https://github.com/api3dao/airnode/commit/8c9de3e5d78fff4ee8e989ef640914bde16692b2), [`47ff09d7`](https://github.com/api3dao/airnode/commit/47ff09d788ca1f45e17e8ab0c9e5d8e26bc96b26), [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd)]:
+  - @api3/airnode-protocol@0.5.0
+  - @api3/airnode-utilities@0.5.0
+  - @api3/airnode-abi@0.5.0
+
 ## 0.4.1
 
 ### Patch Changes

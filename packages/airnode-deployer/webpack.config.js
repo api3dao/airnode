@@ -1,6 +1,7 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const IgnoreDynamicRequire = require('webpack-ignore-dynamic-require');
+const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
 module.exports = {
   devtool: 'source-map',
@@ -19,6 +20,19 @@ module.exports = {
     mainFields: ['main'],
   },
   target: 'node',
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx|ts|tsx)?$/,
+        loader: 'esbuild-loader',
+        options: {
+          loader: 'ts',
+          target: 'es2015',
+        },
+        exclude: /node_modules/,
+      },
+    ],
+  },
   plugins: [
     // https://github.com/api3dao/airnode/pull/623#discussion_r729083235
     new CopyPlugin({
@@ -29,4 +43,11 @@ module.exports = {
     }),
     new IgnoreDynamicRequire(),
   ],
+  optimization: {
+    minimizer: [
+      new ESBuildMinifyPlugin({
+        target: 'es2015', // Syntax to compile to (see options below for possible values)
+      }),
+    ],
+  },
 };

@@ -24,11 +24,12 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       type: 'evm',
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: '2',
+        baseFeeMultiplier: 2,
         priorityFee: {
-          value: '3.12',
+          value: 3.12,
           unit: 'gwei',
         },
+        fulfillmentGasLimit: 500_000,
       },
     },
   ],
@@ -41,6 +42,10 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpGateway: {
       enabled: true,
       apiKey: '${HTTP_GATEWAY_API_KEY}',
+      maxConcurrency: 20,
+    },
+    httpSignedDataGateway: {
+      enabled: false,
     },
     logFormat: 'plain',
     logLevel: 'INFO',
@@ -63,6 +68,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'coinMarketData',
       },
     ],
+    httpSignedData: [],
   },
   ois: [
     {

@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { applyTransactionResult } from './requests';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
 
 describe('applyTransactionResult', () => {
   const hash = '0xtransactionId';
@@ -27,7 +26,6 @@ describe('applyTransactionResult', () => {
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
-        status: RequestStatus.Submitted,
       });
     });
 
@@ -47,7 +45,6 @@ describe('applyTransactionResult', () => {
       expect(fulfilledRequest).toEqual({
         ...request,
         fulfillment: { hash },
-        status: RequestStatus.Submitted,
       });
     });
 

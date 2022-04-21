@@ -1,6 +1,5 @@
-import { getGasPrice } from '../gas-prices';
+import { logger, getGasPrice } from '@api3/airnode-utilities';
 import * as fulfillments from '../fulfillments';
-import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as utils from '../utils';

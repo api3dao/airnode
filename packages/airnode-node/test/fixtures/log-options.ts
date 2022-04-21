@@ -1,4 +1,4 @@
-import { LogOptions } from '../../src/types';
+import { LogOptions } from '@api3/airnode-utilities';
 
 export function buildLogOptions(params?: Partial<LogOptions>): LogOptions {
   return {

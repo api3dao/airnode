@@ -1,5 +1,23 @@
 # @api3/airnode-abi
 
+## 0.6.0
+
+### Minor Changes
+
+- [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+## 0.5.0
+
+### Minor Changes
+
+- [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#821](https://github.com/api3dao/airnode/pull/821) [`47ff09d7`](https://github.com/api3dao/airnode/commit/47ff09d788ca1f45e17e8ab0c9e5d8e26bc96b26) Thanks [@vponline](https://github.com/vponline)! - Throw error if ABI encoded data does not match re-encoded data
+
+### Patch Changes
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
 ## 0.4.1
 
 ### Patch Changes

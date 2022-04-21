@@ -24,11 +24,12 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       type: 'evm',
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: '2',
+        baseFeeMultiplier: 2,
         priorityFee: {
-          value: '3.12',
+          value: 3.12,
           unit: 'gwei',
         },
+        fulfillmentGasLimit: 500_000,
       },
     },
   ],
@@ -39,6 +40,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       enabled: false,
     },
     httpGateway: {
+      enabled: false,
+    },
+    httpSignedDataGateway: {
       enabled: false,
     },
     logFormat: 'plain',
@@ -55,6 +59,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'histLatLonData',
       },
     ],
+    httpSignedData: [],
   },
   ois: [
     {

@@ -1,22 +1,12 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
+import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
-import { go } from '../../utils/promise-utils';
-import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { RequestStatus, Withdrawal, SubmitRequest } from '../../types';
+import { Withdrawal, SubmitRequest } from '../../types';
 
 export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, request, options) => {
-  if (request.status !== RequestStatus.Pending) {
-    const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
-    const log = logger.pend(
-      logStatus,
-      `Withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id} not actioned as it has status:${request.status}`
-    );
-    return [[log], null, null];
-  }
-
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
@@ -92,8 +82,8 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
 
   const withdrawalTx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
-      gasLimit: paddedGasLimit,
       ...options.gasTarget,
+      gasLimit: paddedGasLimit,
       nonce: request.nonce!,
       value: fundsToSend,
     });

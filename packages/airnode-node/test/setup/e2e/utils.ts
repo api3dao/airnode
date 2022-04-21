@@ -1,8 +1,9 @@
 import fs from 'fs';
 import orderBy from 'lodash/orderBy';
 import { ethers } from 'ethers';
-import { AirnodeLogDescription, ChainConfig } from '../../../src/types';
+import { AirnodeLogDescription } from '../../../src/types';
 import { parseAirnodeRrpLog } from '../../../src/evm/requests/event-logs';
+import { ChainConfig } from '../../../src/config/types';
 
 export interface Contracts {
   readonly AirnodeRrp: string;
@@ -19,11 +20,12 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     type: 'evm',
     options: {
       txType: 'eip1559',
-      baseFeeMultiplier: '2',
+      baseFeeMultiplier: 2,
       priorityFee: {
-        value: '3.12',
+        value: 3.12,
         unit: 'gwei',
       },
+      fulfillmentGasLimit: 500_000,
     },
     providers: {
       'EVM local': {

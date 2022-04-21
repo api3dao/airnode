@@ -1,4 +1,5 @@
-import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request, Config, RequestStatus } from '../../types';
+import { Config } from '../../config/types';
+import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request } from '../../types';
 
 function buildAggregatedCall(config: Config, request: Request<ApiCall>): AggregatedApiCall {
   const {
@@ -47,10 +48,6 @@ function buildAggregatedCall(config: Config, request: Request<ApiCall>): Aggrega
 
 export function aggregate(config: Config, flatApiCalls: Request<ApiCall>[]): AggregatedApiCallsById {
   const aggregatedApiCallsById = flatApiCalls.reduce((acc: AggregatedApiCallsById, request) => {
-    if (request.status !== RequestStatus.Pending) {
-      return acc;
-    }
-
     const existingAggregatedCall = acc[request.id];
 
     // If this is the first time we're seeing this API call, then create a new aggregated API call

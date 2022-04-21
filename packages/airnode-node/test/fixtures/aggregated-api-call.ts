@@ -1,4 +1,8 @@
-import { TestingGatewayAggregatedApiCall, RegularAggregatedApiCall } from '../../src/types';
+import {
+  HttpGatewayAggregatedApiCall,
+  RegularAggregatedApiCall,
+  HttpSignedDataAggregatedApiCall,
+} from '../../src/types';
 
 export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregatedApiCall>): RegularAggregatedApiCall {
   return {
@@ -23,7 +27,7 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 11,
       currentBlock: 12,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: '0x40b93a1e81c7162460af066be96266ff692515a2f6b54bd622aa9f82ee00670f',
     },
     requestCount: '1',
@@ -32,17 +36,36 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
   };
 }
 
-export function buildAggregatedTestingGatewayApiCall(
-  params?: Partial<TestingGatewayAggregatedApiCall>
-): TestingGatewayAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(
+  params?: Partial<HttpGatewayAggregatedApiCall>
+): HttpGatewayAggregatedApiCall {
   return {
-    type: 'testing-gateway',
-    airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+    type: 'http-gateway',
+    endpointName: 'convertToUSD',
+    oisTitle: 'Currency Converter API',
+    parameters: { from: 'ETH' },
+    ...params,
+  };
+}
+
+export function buildAggregatedHttpSignedDataApiCall(
+  params?: Partial<HttpSignedDataAggregatedApiCall>
+): HttpSignedDataAggregatedApiCall {
+  return {
+    type: 'http-signed-data-gateway',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
+    templateId: '0x600975681b98422eee1146d4b835a8103689ae4cddb76069925a929caf0eb79f',
+    template: {
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+      endpointId: 'endpointId',
+      id: '0x600975681b98422eee1146d4b835a8103689ae4cddb76069925a929caf0eb79f',
+      encodedParameters:
+        '0x317373730000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000045544800000000000000000000000000000000000000000000000000000000005f74797065000000000000000000000000000000000000000000000000000000696e7432353600000000000000000000000000000000000000000000000000005f706174680000000000000000000000000000000000000000000000000000007072696365000000000000000000000000000000000000000000000000000000',
+    },
     ...params,
   };
 }

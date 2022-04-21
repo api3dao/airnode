@@ -16,14 +16,16 @@
     }
   ],
   "triggers": {
-    "rrp": []
+    "rrp": [],
+    "httpSignedData": []
   },
   "chains": [],
   "nodeSettings": {
     "nodeVersion": "0.4.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "us-east-1"
+      "region": "us-east-1",
+      "disableConcurrencyReservations": false
     },
     "stage": "testnet",
     "logFormat": "json",
@@ -33,6 +35,9 @@
       "enabled": false
     },
     "httpGateway": {
+      "enabled": false
+    },
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

@@ -1,8 +1,7 @@
-import flatMap from 'lodash/flatMap';
+import { logger } from '@api3/airnode-utilities';
 import * as events from './events';
 import * as encoding from '../abi-encoding';
 import { airnodeRrpTopics } from '../contracts';
-import * as logger from '../../logger';
 import {
   ApiCall,
   ApiCallType,
@@ -11,9 +10,7 @@ import {
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
   LogsData,
-  PendingLog,
-  RequestErrorMessage,
-  RequestStatus,
+  UpdatedRequests,
 } from '../../types';
 
 function getApiCallType(topic: string): ApiCallType {
@@ -45,14 +42,13 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
       address: log.address,
       blockNumber: log.blockNumber,
       currentBlock: log.currentBlock,
-      ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: log.minConfirmations,
       transactionHash: log.transactionHash,
     },
     // Parameters are decoded separately
     parameters: {},
     requestCount: parsedLog.args.requesterRequestCount.toString(),
     sponsorAddress: parsedLog.args.sponsor,
-    status: RequestStatus.Pending,
     templateId: events.isTemplateApiRequest(log) ? log.parsedLog.args.templateId : null,
     type: getApiCallType(parsedLog.topic),
   };
@@ -60,55 +56,53 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
   return request;
 }
 
-export function applyParameters(request: Request<ApiCall>): LogsData<Request<ApiCall>> {
-  if (!request.encodedParameters) {
-    return [[], request];
-  }
+export function applyParameters(apiCalls: Request<ApiCall>[]): LogsData<Request<ApiCall>[]> {
+  const { logs, requests } = apiCalls.reduce(
+    (acc, apiCall) => {
+      if (!apiCall.encodedParameters) {
+        return {
+          ...acc,
+          requests: [...acc.requests, apiCall],
+        };
+      }
 
-  const parameters = encoding.safeDecode(request.encodedParameters);
-  if (parameters === null) {
-    const { id, encodedParameters } = request;
+      const parameters = encoding.safeDecode(apiCall.encodedParameters);
+      if (parameters === null) {
+        // Drop request
+        const { id, encodedParameters } = apiCall;
+        const log = logger.pend('ERROR', `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`);
+        return {
+          ...acc,
+          logs: [...acc.logs, log],
+        };
+      }
 
-    const log = logger.pend('ERROR', `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`);
-
-    const updatedRequest: Request<ApiCall> = {
-      ...request,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: ${encodedParameters}`,
-    };
-
-    return [[log], updatedRequest];
-  }
-
-  return [[], { ...request, parameters }];
+      return {
+        ...acc,
+        requests: [...acc.requests, { ...apiCall, parameters }],
+      };
+    },
+    { logs: [], requests: [] } as UpdatedRequests<ApiCall>
+  );
+  return [logs, requests];
 }
 
-export interface UpdatedFulfilledRequests {
-  readonly logs: PendingLog[];
-  readonly requests: Request<ApiCall>[];
-}
-
-export function updateFulfilledRequests(
+export function dropFulfilledRequests(
   apiCalls: Request<ApiCall>[],
   fulfilledRequestIds: string[]
 ): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
+        // Drop request
         const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
 
-        const fulfilledApiCall = { ...apiCall, status: RequestStatus.Fulfilled };
-
-        return {
-          ...acc,
-          logs: [...acc.logs, log],
-          requests: [...acc.requests, fulfilledApiCall],
-        };
+        return { ...acc, logs: [...acc.logs, log] };
       }
 
       return { ...acc, requests: [...acc.requests, apiCall] };
     },
-    { logs: [], requests: [] } as UpdatedFulfilledRequests
+    { logs: [], requests: [] } as UpdatedRequests<ApiCall>
   );
 
   return [logs, requests];
@@ -124,14 +118,12 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<A
   // Cast raw logs to typed API request objects
   const apiCallRequests = requestLogs.map(initialize);
 
-  // Decode and apply parameters for each API call
-  const parameterized = apiCallRequests.map(applyParameters);
-  const parameterLogs = flatMap(parameterized, (p) => p[0]);
-  const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
+  // Decode and apply parameters for each API call or drop if error
+  const [parameterLogs, parameterizedRequests] = applyParameters(apiCallRequests);
 
-  // Update the status of requests that have already been fulfilled
+  // Drop requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
-  const [fulfilledLogs, apiCallsWithFulfillments] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
+  const [fulfilledLogs, apiCallsWithFulfillments] = dropFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
 
   const logs = [...parameterLogs, ...fulfilledLogs];
   return [logs, apiCallsWithFulfillments];

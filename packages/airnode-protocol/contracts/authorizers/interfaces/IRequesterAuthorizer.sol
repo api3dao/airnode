@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
-import "./IAuthorizer.sol";
+import "./IAuthorizerV0.sol";
 
-interface IRequesterAuthorizer is IAuthorizer {
+interface IRequesterAuthorizer is IAuthorizerV0 {
     event ExtendedWhitelistExpiration(
         address indexed airnode,
         bytes32 endpointId,
@@ -66,12 +66,6 @@ interface IRequesterAuthorizer is IAuthorizer {
         address setter
     ) external;
 
-    function requesterIsWhitelisted(
-        address airnode,
-        bytes32 endpointId,
-        address requester
-    ) external view returns (bool isWhitelisted);
-
     function airnodeToEndpointIdToRequesterToWhitelistStatus(
         address airnode,
         bytes32 endpointId,
@@ -87,4 +81,10 @@ interface IRequesterAuthorizer is IAuthorizer {
         address requester,
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
+
+    function isAuthorized(
+        address airnode,
+        bytes32 endpointId,
+        address requester
+    ) external view returns (bool);
 }

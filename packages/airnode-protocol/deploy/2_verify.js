@@ -13,11 +13,10 @@ module.exports = async ({ deployments }) => {
     constructorArguments: [AccessControlRegistry.address, 'RequesterAuthorizerWithAirnode admin'],
   });
 
-  const AirnodeRrp = await deployments.get('AirnodeRrp');
+  const AirnodeRrp = await deployments.get('AirnodeRrpV0');
   await hre.run('verify:verify', {
     address: AirnodeRrp.address,
     constructorArguments: [],
   });
 };
-module.exports.tags = ['Verify'];
-module.exports.dependencies = ['Deploy'];
+module.exports.tags = ['verify'];

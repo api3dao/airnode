@@ -1,5 +1,110 @@
 # @api3/airnode-node
 
+## 0.6.0
+
+### Minor Changes
+
+- [#996](https://github.com/api3dao/airnode/pull/996) [`62a090ed`](https://github.com/api3dao/airnode/commit/62a090eddf37db93ebc64ba10ec70f21199c4dbe) Thanks [@dcroote](https://github.com/dcroote)! - Refactor AggregatedApiCall interfaces according to their necessary properties
+
+* [#944](https://github.com/api3dao/airnode/pull/944) [`d2c8befd`](https://github.com/api3dao/airnode/commit/d2c8befd9d69e8bb41655fc55da6f03762447bae) Thanks [@vponline](https://github.com/vponline)! - Add `protocolId` as an optional parameter to `deriveWalletPathFromSponsorAddress`, add `deriveSponsorWalletFromMnemonic` and move `loadConfig` and `loadTrustedConfig` to airnode-node
+
+- [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#997](https://github.com/api3dao/airnode/pull/997) [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb) Thanks [@vponline](https://github.com/vponline)! - Replace API_CALL_FULFILLMENT_GAS_LIMIT constant with fulfillmentGasLimit configuration option
+
+### Patch Changes
+
+- [#1007](https://github.com/api3dao/airnode/pull/1007) [`ee483ce6`](https://github.com/api3dao/airnode/commit/ee483ce6d49466fad7bf983d60069d9226de3c6f) Thanks [@dcroote](https://github.com/dcroote)! - Add deployment phase 2 and 3 networks
+
+* [#957](https://github.com/api3dao/airnode/pull/957) [`636e8b98`](https://github.com/api3dao/airnode/commit/636e8b981c3ae84c151a77686e233de67c572a96) Thanks [@vponline](https://github.com/vponline)! - Change `deriveWalletPathFromSponsorAddress` `protocolId` to have a default value
+
+- [#1010](https://github.com/api3dao/airnode/pull/1010) [`a8fa7373`](https://github.com/api3dao/airnode/commit/a8fa737388460a30e2332996550e0ce44b00bc2a) Thanks [@vponline](https://github.com/vponline)! - Add minConfirmations to transaction count fetching
+
+* [#995](https://github.com/api3dao/airnode/pull/995) [`75dfabf9`](https://github.com/api3dao/airnode/commit/75dfabf95b53e1365792248db418395bab322f19) Thanks [@dcroote](https://github.com/dcroote)! - Fix misleading log in initiateTransactions
+
+* Updated dependencies [[`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31), [`1b8bcb01`](https://github.com/api3dao/airnode/commit/1b8bcb012350f7f1c6ae881067f697d90f59f1f6), [`1d16a73d`](https://github.com/api3dao/airnode/commit/1d16a73ddc357bb79df1311ef10fb78df0be7ccb), [`b5556b26`](https://github.com/api3dao/airnode/commit/b5556b26e2a2baefdbf26fd34045811fca8d2650), [`c1dc6dd5`](https://github.com/api3dao/airnode/commit/c1dc6dd5334cabc782ce0a71deb9be4fcd2b602f), [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb), [`4c7fbe1a`](https://github.com/api3dao/airnode/commit/4c7fbe1af918a46d766b01d866046a0dd4d80914)]:
+  - @api3/airnode-abi@0.6.0
+  - @api3/airnode-adapter@0.6.0
+  - @api3/airnode-ois@0.6.0
+  - @api3/airnode-protocol@0.6.0
+  - @api3/airnode-utilities@0.6.0
+  - @api3/airnode-validator@0.6.0
+
+## 0.5.0
+
+### Minor Changes
+
+- [#867](https://github.com/api3dao/airnode/pull/867) [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970) Thanks [@aquarat](https://github.com/aquarat)! - Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
+
+* [#832](https://github.com/api3dao/airnode/pull/832) [`44de4f10`](https://github.com/api3dao/airnode/commit/44de4f1045b7fb126e1effab48fdc54e17e50e5e) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove `callApi` call from `testApi` handler
+
+- [#930](https://github.com/api3dao/airnode/pull/930) [`2a65d970`](https://github.com/api3dao/airnode/commit/2a65d970f6781290f5d861a2c3210f402b2cc2af) Thanks [@dcroote](https://github.com/dcroote)! - Remove Fulfilled variant of RequestStatus enum
+
+* [#943](https://github.com/api3dao/airnode/pull/943) [`2f5b1434`](https://github.com/api3dao/airnode/commit/2f5b1434a918f254dcc99d879604fec1eff00754) Thanks [@dcroote](https://github.com/dcroote)! - Remove Errored variant of RequestStatus enum and drop errored requests
+
+- [#933](https://github.com/api3dao/airnode/pull/933) [`6504c3c8`](https://github.com/api3dao/airnode/commit/6504c3c88fa39026f0392f0892ab6adc85115461) Thanks [@vponline](https://github.com/vponline)! - Move gas-prices implementation to airnode-utilities
+
+* [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- [#820](https://github.com/api3dao/airnode/pull/820) [`0ec9b739`](https://github.com/api3dao/airnode/commit/0ec9b739b5d56f7efcbf61d7c144d1ca322733f1) Thanks [@amarthadan](https://github.com/amarthadan)! - Maximal concurrency of serverless functions is set based on the chain settings (maxConcurrency field)
+  Add option to disable concurrency reservations for all serverless functions
+
+* [#832](https://github.com/api3dao/airnode/pull/832) [`702b6a97`](https://github.com/api3dao/airnode/commit/702b6a97a07c86f93d5906e887874a96ae743586) Thanks [@amarthadan](https://github.com/amarthadan)! - Add option to set maximum concurrency for HTTP gateway
+
+- [#873](https://github.com/api3dao/airnode/pull/873) [`7dbee809`](https://github.com/api3dao/airnode/commit/7dbee809ee68fb8cd21f22892e32bd0258f231fd) Thanks [@Ashar2shahid](https://github.com/Ashar2shahid)! - use minConfirmations when fetching blocks
+
+* [#951](https://github.com/api3dao/airnode/pull/951) [`0ed6277b`](https://github.com/api3dao/airnode/commit/0ed6277bdd789bfa48d97e6c5d179c9ba357a520) Thanks [@dcroote](https://github.com/dcroote)! - Remove RequestStatus enum and remove ignoreBlockedRequestsAfterBlocks from request metadata. Requests that were previously assigned a status like blocked, errored, or fulfilled are now dropped.
+
+- [#829](https://github.com/api3dao/airnode/pull/829) [`0cada555`](https://github.com/api3dao/airnode/commit/0cada555a0212d9d593458b2aa18ead668299b5b) Thanks [@Siegrift](https://github.com/Siegrift)! - Remove retries and timeout for getLogs
+
+* [#843](https://github.com/api3dao/airnode/pull/843) [`b37845cd`](https://github.com/api3dao/airnode/commit/b37845cde866e6a2e2afb1130c2afe3598779871) Thanks [@amarthadan](https://github.com/amarthadan)! - Add endpoint for getting signed data for beacon updates
+
+- [#874](https://github.com/api3dao/airnode/pull/874) [`11d725dd`](https://github.com/api3dao/airnode/commit/11d725dd3c87d112b45d70086f42c18bea2015b3) Thanks [@dcroote](https://github.com/dcroote)! - Removed Ignored variant of RequestStatus enum, which results in Airnode now dropping pending API calls for a sponsorWallet once a withdrawal is requested
+
+* [#831](https://github.com/api3dao/airnode/pull/831) [`4f177d85`](https://github.com/api3dao/airnode/commit/4f177d856085b42632910e727b65a21f8e13af53) Thanks [@dcroote](https://github.com/dcroote)! - Remove Submitted variant of RequestStatus enum
+
+- [#931](https://github.com/api3dao/airnode/pull/931) [`2c6af19b`](https://github.com/api3dao/airnode/commit/2c6af19bea7f0b2835e5bb826268ecf5abc7b641) Thanks [@amarthadan](https://github.com/amarthadan)! - Send HTTP Signed Data Gateway URL within the heartbeat
+
+* [#835](https://github.com/api3dao/airnode/pull/835) [`b186009f`](https://github.com/api3dao/airnode/commit/b186009f8af3f6e58b874741afc7b622663ddd76) Thanks [@Siegrift](https://github.com/Siegrift)! - Redesign airnode-validator and implement a PoC
+
+- [#832](https://github.com/api3dao/airnode/pull/832) [`6060e8c9`](https://github.com/api3dao/airnode/commit/6060e8c9dbfa357787ed88a006fdbc2e0fa0ae75) Thanks [@amarthadan](https://github.com/amarthadan)! - Serverless functions `initializeProvider`, `callApi` and `processTransations` are replaced with one function called `run`
+
+### Patch Changes
+
+- [#837](https://github.com/api3dao/airnode/pull/837) [`9ab6ea9c`](https://github.com/api3dao/airnode/commit/9ab6ea9c7a5e9d348dd06c6f95efd66aa6061477) Thanks [@vponline](https://github.com/vponline)! - Removes response data from airnode-adapter extraction error message
+
+* [#929](https://github.com/api3dao/airnode/pull/929) [`ff257e86`](https://github.com/api3dao/airnode/commit/ff257e8623929588587b56cb80991b68fc02e812) Thanks [@vponline](https://github.com/vponline)! - Add airnode-node gas prices implementation to airnode-admin
+
+- [#847](https://github.com/api3dao/airnode/pull/847) [`8aa30390`](https://github.com/api3dao/airnode/commit/8aa30390d660efd8c8bd3aa432e05bf2c021b8ba) Thanks [@aquarat](https://github.com/aquarat)! - Support additional testnet chains for airnode-examples
+
+* [#839](https://github.com/api3dao/airnode/pull/839) [`8bd231a7`](https://github.com/api3dao/airnode/commit/8bd231a73e155ea32ec38b4137796d379c8f3399) Thanks [@amarthadan](https://github.com/amarthadan)! - Move heartbeat API key to a request header
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
+* [#897](https://github.com/api3dao/airnode/pull/897) [`fb9c57ad`](https://github.com/api3dao/airnode/commit/fb9c57adb8b5e476699103d2a2ef4c1a0a5318bf) Thanks [@aquarat](https://github.com/aquarat)! - Revert of eip1559-related changes
+
+- [#842](https://github.com/api3dao/airnode/pull/842) [`cfe6cafa`](https://github.com/api3dao/airnode/commit/cfe6cafa483aee83eaf16c53df15591f943a56a1) Thanks [@vponline](https://github.com/vponline)! - Refactor `jest.spyOn(fs, 'readFileSync').mockReturnValue` to use `mockImplementation` to fix affected tests
+
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+
+- [#818](https://github.com/api3dao/airnode/pull/818) [`3a94a49c`](https://github.com/api3dao/airnode/commit/3a94a49cbf7e7e620bcf0d8212a5efcfaab066a2) Thanks [@vponline](https://github.com/vponline)! - Add more detailed errors for airnode responses
+
+* [#947](https://github.com/api3dao/airnode/pull/947) [`291f6a45`](https://github.com/api3dao/airnode/commit/291f6a45b2166849608d01bcce0b759978a19843) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix jest test to improve robustness when changing ethers versions
+
+- [#907](https://github.com/api3dao/airnode/pull/907) [`abe6fbd4`](https://github.com/api3dao/airnode/commit/abe6fbd40517d8536d88e8d02889c32d81087902) Thanks [@Ashar2shahid](https://github.com/Ashar2shahid)! - Derive templateId from endpointId and encodedParamters for http signed data requests
+
+* [#851](https://github.com/api3dao/airnode/pull/851) [`59e7802e`](https://github.com/api3dao/airnode/commit/59e7802e498b2cd4c5c7f3d3126809f2abcff5e8) Thanks [@vponline](https://github.com/vponline)! - Moves the hardcoded default gasLimit to constants
+
+- [#898](https://github.com/api3dao/airnode/pull/898) [`85788473`](https://github.com/api3dao/airnode/commit/85788473f136bfcfdd1bce9d80121efe54f325bf) Thanks [@vponline](https://github.com/vponline)! - Update EIP1559 config values to numbers
+
+- Updated dependencies [[`9ab6ea9c`](https://github.com/api3dao/airnode/commit/9ab6ea9c7a5e9d348dd06c6f95efd66aa6061477), [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970), [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028), [`fb9c57ad`](https://github.com/api3dao/airnode/commit/fb9c57adb8b5e476699103d2a2ef4c1a0a5318bf), [`6504c3c8`](https://github.com/api3dao/airnode/commit/6504c3c88fa39026f0392f0892ab6adc85115461), [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312), [`da0026cb`](https://github.com/api3dao/airnode/commit/da0026cbb1c714d9b2f9af622afb858b37316217), [`0ec9b739`](https://github.com/api3dao/airnode/commit/0ec9b739b5d56f7efcbf61d7c144d1ca322733f1), [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b), [`3a94a49c`](https://github.com/api3dao/airnode/commit/3a94a49cbf7e7e620bcf0d8212a5efcfaab066a2), [`702b6a97`](https://github.com/api3dao/airnode/commit/702b6a97a07c86f93d5906e887874a96ae743586), [`0ed6277b`](https://github.com/api3dao/airnode/commit/0ed6277bdd789bfa48d97e6c5d179c9ba357a520), [`b37845cd`](https://github.com/api3dao/airnode/commit/b37845cde866e6a2e2afb1130c2afe3598779871), [`8c9de3e5`](https://github.com/api3dao/airnode/commit/8c9de3e5d78fff4ee8e989ef640914bde16692b2), [`47ff09d7`](https://github.com/api3dao/airnode/commit/47ff09d788ca1f45e17e8ab0c9e5d8e26bc96b26), [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd), [`b186009f`](https://github.com/api3dao/airnode/commit/b186009f8af3f6e58b874741afc7b622663ddd76), [`85788473`](https://github.com/api3dao/airnode/commit/85788473f136bfcfdd1bce9d80121efe54f325bf)]:
+  - @api3/airnode-adapter@0.5.0
+  - @api3/airnode-protocol@0.5.0
+  - @api3/airnode-utilities@0.5.0
+  - @api3/airnode-validator@0.5.0
+  - @api3/airnode-abi@0.5.0
+  - @api3/airnode-ois@0.5.0
+
 ## 0.4.1
 
 ### Patch Changes

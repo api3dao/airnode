@@ -7,6 +7,10 @@ on:
       - master
     types: [opened, synchronize, reopened]
 
+env:
+  DOCKER_BUILDKIT: 1
+  TARGET_NODE_VERSION: '14.17.1'
+
 jobs:
   documentation:
     name: Check documentation
@@ -15,7 +19,15 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
+      - name: Update latest paths
+        run: |
+          wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
+          for i in latestVersion latestBeaconVersion latestOisVersion; do
+            path=$(grep $i config.js | cut -d\' -f2);
+            echo "Renaming: $i --> $path";
+            sed -i "s@$i@$path@" .github/workflows/mlc_config.json;
+          done
       - name: Check hyperlinks
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
@@ -32,32 +44,105 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  build:
-    name: Build and lint Airnode
+  pre-build:
+    name: Prepare build environment
     runs-on: ubuntu-latest
     # Don't run twice for a push within an internal PR
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
         uses: actions/checkout@v2
+        with:
+          # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
+          fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
-      - name: restore lerna
-        id: cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
       - name: Install Dependencies
         run: yarn run bootstrap
-      - name: Prepare config
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+  docker-artifacts:
+    name: Build airnode-artifacts and push to Docker Hub
+    runs-on: ubuntu-latest
+    needs: pre-build
+    steps:
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+      - name: Build airnode-artifacts
         run: |
-          cp packages/airnode-deployer/config/config.json.example packages/airnode-deployer/config/config.json
+          docker build --tag api3/airnode-artifacts-dev:${{ github.sha }} --file docker/Dockerfile .
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push airnode artifacts to Docker Hub
+        run: |
+          docker push api3/airnode-artifacts-dev:${{ github.sha }}
+  docker-build-general:
+    name: Build non-artifact docker images
+    runs-on: ubuntu-latest
+    needs: docker-artifacts
+    strategy:
+      matrix:
+        package: [deployer, admin, client]
+    steps:
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Pull airnode-artifacts-dev
+        run: |
+          docker pull api3/airnode-artifacts-dev:${{ github.sha }}
+      - name: Retag input image
+        run: |
+          docker tag api3/airnode-artifacts-dev:${{ github.sha }} api3/airnode-artifacts:latest
+      - name: Build docker image
+        run: |
+          yarn docker:build:${{ matrix.package }}
+      - name: Retag output image
+        run: |
+          docker tag api3/airnode-${{ matrix.package }}:latest api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}
+      - name: Push to Docker Hub
+        run: |
+          docker push api3/airnode-${{ matrix.package }}-dev:${{ github.sha }}
+  build:
+    name: Build and lint Airnode
+    runs-on: ubuntu-latest
+    # Don't run twice for a push within an internal PR
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    needs: pre-build
+    steps:
+      - uses: actions/cache@v2
+        id: cache-pre-build
+        with:
+          path: ./*
+          key: pre-build-${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
       - name: Build
         run: yarn run build
       - name: Lint code
@@ -79,7 +164,6 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
-
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest
@@ -93,7 +177,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
       - run: yarn run test
       - name: Slack Notification
         uses: lazy-actions/slatify@master
@@ -107,14 +192,13 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   e2e-tests:
-    name: E2E tests
+    name: E2E tests - admin and node
     runs-on: ubuntu-latest
     needs: build
     strategy:
       matrix:
-        package: [admin, node, examples]
+        package: [admin, node]
     steps:
       - uses: actions/cache@v2
         id: restore-build
@@ -124,10 +208,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.17.1'
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
       - name: Start background services
         run: yarn run dev:background
       - run: yarn run test:e2e-${{ matrix.package }}
+        env:
+          COMMIT: ${{ github.sha }}
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
@@ -140,11 +227,61 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+  e2e-tests-examples:
+    name: E2E Tests - examples
+    runs-on: ubuntu-latest
+    needs: [build, docker-build-general]
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
+      - name: Start background services
+        run: yarn run dev:background
+      - run: yarn run test:e2e-examples
+        env:
+          COMMIT: ${{ github.sha }}
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - E2E tests'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+  require-changeset:
+    name: Require a changeset
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.TARGET_NODE_VERSION }}
+          cache: yarn
+      - name: Require a changeset
+        # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#responding-to-events
+        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+        run: yarn changeset:check
   build-complete:
     name: All tests passed
     runs-on: ubuntu-latest
-    needs: [unit-tests, e2e-tests]
+    needs: [documentation, docker-build-general, unit-tests, e2e-tests, e2e-tests-examples, require-changeset]
     steps:
       - run: exit 0
       - name: Slack Notification

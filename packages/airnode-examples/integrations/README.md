@@ -9,11 +9,11 @@ Each integration consist of a these files:
 - `config.example.json` - An example configuration file for this integration.
 - `create-config.ts` - A file that will be called by `create-airnode-config.ts` to create the `config.json` file. See
   the
-  [docs](https://docs.api3.org/airnode/v0.3/grp-providers/guides/build-an-airnode/configuring-airnode.html#creating-config-json)
+  [docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html#creating-config-json)
   for details.
 - `create-secrets.ts` - A file that will be called by `create-airnode-secrets.ts` to create the `secrets.env` file. See
   the
-  [docs](https://docs.api3.org/airnode/v0.3/grp-providers/guides/build-an-airnode/configuring-airnode.html#creating-secrets-env)
+  [docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html#creating-secrets-env)
   for details.
 - `README.md` - Should explain what the particular integration is about.
 - `request-utils.ts` - This file contains functions which are necessary to make the Airnode request.

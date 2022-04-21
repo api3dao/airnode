@@ -1,46 +1,12 @@
 import * as path from 'path';
-import { parseConfig } from '../config';
+import { logger, go } from '@api3/airnode-utilities';
+import { loadTrustedConfig } from '../config';
 import * as handlers from '../handlers';
-import * as logger from '../logger';
 import * as state from '../providers/state';
-import {
-  AggregatedApiCall,
-  EVMProviderState,
-  EVMProviderSponsorState,
-  LogOptions,
-  ProviderState,
-  WorkerResponse,
-} from '../types';
-import { go } from '../utils/promise-utils';
-
-export interface ProviderArgs {
-  readonly state: ProviderState<EVMProviderState>;
-}
-
-export interface ProviderSponsorArgs {
-  readonly state: ProviderState<EVMProviderSponsorState>;
-}
-
-export interface CallApiArgs {
-  readonly aggregatedApiCall: AggregatedApiCall;
-  readonly logOptions: LogOptions;
-}
+import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
 
 function loadConfig() {
-  const { config, shouldSkipValidation, validationOutput } = parseConfig(
-    path.resolve(`${__dirname}/../../config/config.json`),
-    process.env,
-    true
-  );
-
-  // TODO: Log debug that validation is skipped
-  if (shouldSkipValidation) return config;
-  if (!validationOutput.valid) {
-    throw new Error(`Invalid Airnode configuration file: ${JSON.stringify(validationOutput.messages, null, 2)}`);
-  }
-  // TODO: Log validation warnings - currently not possible since we have troubles constructing logger options
-
-  return config;
+  return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {
@@ -49,7 +15,7 @@ export async function startCoordinator(): Promise<WorkerResponse> {
   return { ok: true, data: { message: 'Coordinator completed' } };
 }
 
-export async function initializeProvider({ state: providerState }: ProviderArgs): Promise<WorkerResponse> {
+export async function initializeProvider({ state: providerState }: InitializeProviderPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
@@ -64,14 +30,16 @@ export async function initializeProvider({ state: providerState }: ProviderArgs)
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }: CallApiArgs): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const [logs, response] = await handlers.callApi({ config, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }
 
-export async function processProviderRequests({ state: providerState }: ProviderSponsorArgs): Promise<WorkerResponse> {
+export async function processTransactions({
+  state: providerState,
+}: ProcessTransactionsPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
@@ -86,9 +54,19 @@ export async function processProviderRequests({ state: providerState }: Provider
   return { ok: true, data: scrubbedState };
 }
 
-export async function testApi(endpointId: string, parameters: any) {
+export async function processHttpRequest(endpointId: string, parameters: any) {
   const config = loadConfig();
-  const [err, result] = await handlers.testApi(config, endpointId, parameters);
+  const [err, result] = await handlers.processHttpRequest(config, endpointId, parameters);
+  if (err) {
+    throw err;
+  }
+
+  return result;
+}
+
+export async function processHttpSignedDataRequest(endpointId: string, encodedParameters: any) {
+  const config = loadConfig();
+  const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
   if (err) {
     throw err;
   }

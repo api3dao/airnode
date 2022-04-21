@@ -44,6 +44,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     triggers: {
       rrp: [buildTrigger()],
       http: [buildTrigger()],
+      httpSignedData: [],
     },
     ois: [ois.buildOIS()],
     apiCredentials: [buildApiCredentials()],

@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EVMProviderState, ProviderState } from '../types';
+import { EVMProviderState, ProviderState } from '../types';
+import { ChainConfig } from '../config/types';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {
@@ -24,11 +25,12 @@ describe('create', () => {
       type: chainType,
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: '2',
+        baseFeeMultiplier: 2,
         priorityFee: {
-          value: '3.12',
+          value: 3.12,
           unit: 'gwei',
         },
+        fulfillmentGasLimit: 500_000,
       },
     };
     const config = fixtures.buildConfig();
@@ -46,13 +48,13 @@ describe('create', () => {
         chainType: 'evm',
         chainOptions: {
           txType: 'eip1559',
-          baseFeeMultiplier: '2',
+          baseFeeMultiplier: 2,
           priorityFee: {
-            value: '3.12',
+            value: 3.12,
             unit: 'gwei',
           },
+          fulfillmentGasLimit: 500_000,
         },
-        ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 0,
@@ -101,11 +103,12 @@ describe('create', () => {
       type: chainType,
       options: {
         txType: 'eip1559',
-        baseFeeMultiplier: '2',
+        baseFeeMultiplier: 2,
         priorityFee: {
-          value: '3.12',
+          value: 3.12,
           unit: 'gwei',
         },
+        fulfillmentGasLimit: 500_000,
       },
     };
     const config = fixtures.buildConfig();
@@ -122,14 +125,14 @@ describe('create', () => {
         chainId: '1337',
         chainOptions: {
           txType: 'eip1559',
-          baseFeeMultiplier: '2',
+          baseFeeMultiplier: 2,
           priorityFee: {
-            value: '3.12',
+            value: 3.12,
             unit: 'gwei',
           },
+          fulfillmentGasLimit: 500_000,
         },
         chainType: 'evm',
-        ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 3,

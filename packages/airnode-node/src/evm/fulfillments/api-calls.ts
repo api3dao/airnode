@@ -1,23 +1,12 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
+import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
-import { go } from '../../utils/promise-utils';
-import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
-import {
-  ApiCall,
-  Request,
-  LogsErrorData,
-  RequestErrorMessage,
-  RequestStatus,
-  TransactionOptions,
-  SubmitRequest,
-} from '../../types';
-import { AirnodeRrp } from '../contracts';
+import { ApiCall, Request, LogsErrorData, RequestErrorMessage, TransactionOptions, SubmitRequest } from '../../types';
+import { AirnodeRrpV0 } from '../contracts';
 import { decodeRevertString } from '../utils';
-
-const GAS_LIMIT = 500_000;
 
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
 
@@ -46,7 +35,7 @@ type StaticResponse = { readonly callSuccess: boolean; readonly callData: string
 // Fulfillments
 // =================================================================
 async function testFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
@@ -61,7 +50,6 @@ async function testFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -75,7 +63,7 @@ async function testFulfill(
 }
 
 async function submitFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCall>>> {
@@ -90,7 +78,6 @@ async function submitFulfill(
       request.responseValue!,
       request.signature!,
       {
-        gasLimit: GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -108,7 +95,7 @@ async function submitFulfill(
 }
 
 async function testAndSubmitFulfill(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCall>>> {
@@ -123,7 +110,6 @@ async function testAndSubmitFulfill(
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest: Request<ApiCall> = {
       ...request,
-      status: RequestStatus.Errored,
       errorMessage: testErr
         ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
         : RequestErrorMessage.FulfillTransactionFailed,
@@ -155,7 +141,7 @@ async function testAndSubmitFulfill(
 // Failures
 // =================================================================
 async function submitFail(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCall>,
   errorMessage: string,
   options: TransactionOptions
@@ -174,7 +160,6 @@ async function submitFail(
       request.fulfillFunctionId,
       trimmedErrorMessage,
       {
-        gasLimit: GAS_LIMIT,
         ...options.gasTarget,
         nonce: request.nonce!,
       }
@@ -192,15 +177,6 @@ async function submitFail(
 // Main functions
 // =================================================================
 export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
-  if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
-    const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
-    const log = logger.pend(
-      logStatus,
-      `API call for Request:${request.id} not actioned as it has status:${request.status}`
-    );
-    return [[log], null, null];
-  }
-
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',

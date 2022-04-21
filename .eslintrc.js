@@ -2,6 +2,7 @@ module.exports = {
   env: {
     es6: true,
     jest: true,
+    mocha: true,
     node: true,
   },
   parser: '@typescript-eslint/parser',
@@ -55,7 +56,7 @@ module.exports = {
     // ESLint
     'comma-dangle': ['error', 'only-multiline'],
     indent: 'off',
-    'no-console': 'off',
+    'no-console': 'error',
     'no-useless-escape': 'off',
     semi: 'error',
     eqeqeq: ['error', 'smart'],

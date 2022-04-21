@@ -1,19 +1,7 @@
 import * as aggregation from './aggregation';
 import * as fixtures from '../../../test/fixtures';
-import { RequestStatus } from '../../types';
 
 describe('aggregate (API calls)', () => {
-  it('ignores requests that are not pending', () => {
-    const apiCalls = [
-      fixtures.requests.buildApiCall({ status: RequestStatus.Errored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Ignored }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Blocked }),
-      fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
-    ];
-    const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
-    expect(res).toEqual({});
-  });
-
   it('groups calls if they have the exact same attributes', () => {
     const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
     const apiCalls = [
@@ -42,7 +30,7 @@ describe('aggregate (API calls)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716090,
-          ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: 'logTransactionHash',
         },
         requestCount: '12',
@@ -79,7 +67,7 @@ describe('aggregate (API calls)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716090,
-          ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: 'logTransactionHash',
         },
         requestCount: '12',

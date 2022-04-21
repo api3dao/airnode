@@ -1,24 +1,27 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 import "./WhitelistRoles.sol";
+import "../access-control-registry/AccessControlRegistryAdminnedWithManager.sol";
 import "./interfaces/IWhitelistRolesWithManager.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
-/// @title Contract that implements AccessControlRegistry roles for a whitelist
-/// contract controlled by a single manager account
+/// @title Contract to be inherited by Whitelist contracts that will use
+/// roles where there is a single manager
 contract WhitelistRolesWithManager is
     WhitelistRoles,
+    AccessControlRegistryAdminnedWithManager,
     IWhitelistRolesWithManager
 {
-    /// @notice Address of the manager that manages the related
-    /// AccessControlRegistry roles
-    address public immutable override manager;
-
     // Since there will be a single manager, we can derive the roles beforehand
-    bytes32 public immutable override adminRole;
+
+    /// @notice Whitelist expiration extender role
     bytes32 public immutable override whitelistExpirationExtenderRole;
+
+    /// @notice Whitelist expiration setter role
     bytes32 public immutable override whitelistExpirationSetterRole;
+
+    /// @notice Indefinite whitelister role
     bytes32 public immutable override indefiniteWhitelisterRole;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
@@ -28,17 +31,25 @@ contract WhitelistRolesWithManager is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager
-    ) WhitelistRoles(_accessControlRegistry, _adminRoleDescription) {
-        require(_manager != address(0), "Manager address zero");
-        manager = _manager;
-        adminRole = _deriveAdminRole(_manager);
-        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
+    )
+        AccessControlRegistryAdminnedWithManager(
+            _accessControlRegistry,
+            _adminRoleDescription,
             _manager
+        )
+    {
+        whitelistExpirationExtenderRole = _deriveRole(
+            adminRole,
+            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
         );
-        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
-            _manager
+        whitelistExpirationSetterRole = _deriveRole(
+            adminRole,
+            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
         );
-        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(_manager);
+        indefiniteWhitelisterRole = _deriveRole(
+            adminRole,
+            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
+        );
     }
 
     /// @dev Returns if the account has the whitelist expiration extender role

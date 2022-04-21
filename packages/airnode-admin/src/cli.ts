@@ -1,8 +1,10 @@
 import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
+import { logger } from '@api3/airnode-utilities';
 import * as evm from './evm';
 import * as admin from './implementation';
+import { cliExamples } from './cli-examples';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -104,6 +106,28 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Indefinite whitelist status that the requester will have',
   },
+  transactionOverrides: {
+    'gas-limit': {
+      type: 'string',
+      describe: 'Transaction gas limit override',
+    },
+    'gas-price': {
+      type: 'string',
+      describe: 'Transaction gas price override (in gwei)',
+    },
+    'max-fee': {
+      type: 'string',
+      describe: 'Transaction maximum fee (in gwei)',
+    },
+    'max-priority-fee': {
+      type: 'string',
+      describe: 'Transaction maximum priority fee (in gwei)',
+    },
+    nonce: {
+      type: 'string',
+      describe: 'Transaction nonce',
+    },
+  },
 } as const;
 
 const {
@@ -120,6 +144,7 @@ const {
   withdrawalRequestId,
   expirationTimestamp,
   indefiniteWhitelistStatus,
+  transactionOverrides,
 } = COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
@@ -133,7 +158,7 @@ yargs
     },
     async (args) => {
       const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
-      console.log(`Airnode xpub: ${xpub}`);
+      logger.log(`Airnode xpub: ${xpub}`);
     }
   )
   .command(
@@ -146,9 +171,9 @@ yargs
     async (args) => {
       try {
         admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
-        console.log(`Airnode xpub is: VALID`);
+        logger.log(`Airnode xpub is: VALID`);
       } catch {
-        console.log(`Airnode xpub is: INVALID`);
+        logger.error(`Airnode xpub is: INVALID`);
       }
     }
   )
@@ -166,7 +191,7 @@ yargs
         args['airnode-address'],
         args['sponsor-address']
       );
-      console.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
+      logger.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
     }
   )
   .command(
@@ -176,14 +201,16 @@ yargs
       ...airnodeRrpCommands,
       ...sponsorWallet,
       'requester-address': requesterAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
-      const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address']);
-      console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address'], overrides);
+      logger.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
   .command(
@@ -193,14 +220,16 @@ yargs
       ...airnodeRrpCommands,
       ...sponsorWallet,
       'requester-address': requesterAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
-      const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address']);
-      console.log(
+      const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address'], overrides);
+      logger.log(
         `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
       );
     }
@@ -222,7 +251,7 @@ yargs
         args['sponsor-address'],
         args['requester-address']
       );
-      console.log(`Requester address sponsored: ${status}`);
+      logger.log(`Requester address sponsored: ${status}`);
     }
   )
   .command(
@@ -236,15 +265,17 @@ yargs
         demandOption: true,
         describe: 'Path of the template JSON file',
       },
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const template = JSON.parse(fs.readFileSync(args['template-file-path']).toString());
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
-      const templateId = await admin.createTemplate(airnodeRrp, template);
-      console.log(`Template ID: ${templateId}`);
+      const templateId = await admin.createTemplate(airnodeRrp, template, overrides);
+      logger.log(`Template ID: ${templateId}`);
     }
   )
   .command(
@@ -263,7 +294,7 @@ yargs
         airnodeRrpAddress: args['airnode-rrp-address'],
       });
       const parameters = await admin.getTemplate(airnodeRrp, args['template-id']);
-      console.log(toJSON(parameters));
+      logger.log(toJSON(parameters));
     }
   )
   .command(
@@ -274,8 +305,10 @@ yargs
       ...sponsorWallet,
       'airnode-address': airnodeAddress,
       'sponsor-wallet-address': sponsorWalletAddress,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp-address'],
         signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
@@ -284,9 +317,10 @@ yargs
       const withdrawalRequestId = await admin.requestWithdrawal(
         airnodeRrp,
         args['airnode-address'],
-        args['sponsor-wallet-address']
+        args['sponsor-wallet-address'],
+        overrides
       );
-      console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
+      logger.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
   .command(
@@ -302,9 +336,9 @@ yargs
       });
       const response = await admin.checkWithdrawalRequest(airnodeRrp, args['withdrawal-request-id']);
       if (response) {
-        console.log(`Withdrawn amount: ${response.amount}`);
+        logger.log(`Withdrawn amount: ${response.amount}`);
       } else {
-        console.log(`Withdrawal request is not fulfilled yet`);
+        logger.log(`Withdrawal request is not fulfilled yet`);
       }
     }
   )
@@ -325,7 +359,7 @@ yargs
     },
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args['ois-title'], args['endpoint-name']);
-      console.log(`Endpoint ID: ${endpointId}`);
+      logger.log(`Endpoint ID: ${endpointId}`);
     }
   )
   .command(
@@ -336,8 +370,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -348,9 +384,10 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['expiration-timestamp']
+        args['expiration-timestamp'],
+        overrides
       );
-      console.log(
+      logger.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -365,8 +402,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -376,9 +415,10 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['expiration-timestamp']
+        args['expiration-timestamp'],
+        overrides
       );
-      console.log(
+      logger.log(
         `Whitelist expiration: ${new Date(args['expiration-timestamp']).toUTCString()} (${
           args['expiration-timestamp']
         })`
@@ -393,8 +433,10 @@ yargs
       ...userWallet,
       'airnode-address': airnodeAddress,
       'indefinite-whitelist-status': indefiniteWhitelistStatus,
+      ...transactionOverrides,
     },
     async (args) => {
+      const overrides = admin.parseCliOverrides(args);
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
         requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode-address'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
@@ -404,9 +446,10 @@ yargs
         args['airnode-address'],
         args['endpoint-id'],
         args['requester-address'],
-        args['indefinite-whitelist-status']
+        args['indefinite-whitelist-status'],
+        overrides
       );
-      console.log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
+      logger.log(`Whitelist status: ${args['indefinite-whitelist-status']}`);
     }
   )
   .command(
@@ -426,7 +469,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      console.log(toJSON(whitelistStatus));
+      logger.log(toJSON(whitelistStatus));
     }
   )
   .command(
@@ -446,7 +489,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      console.log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
+      logger.log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
     }
   )
   .command(
@@ -454,13 +497,21 @@ yargs
     'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
-      const lines = [
-        'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
-        'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
-        '',
-        mnemonic,
-      ];
-      lines.forEach((line) => console.log(line));
+      const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+      const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+
+      logger.log(
+        [
+          'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
+          'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
+          '',
+          mnemonic,
+          '',
+          `The Airnode address for this mnemonic is: ${airnodeAddress}`,
+          `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,
+          '',
+        ].join('\n')
+      );
     }
   )
   .command(
@@ -469,15 +520,14 @@ yargs
     { 'airnode-mnemonic': airnodeMnemonic },
     async (args) => {
       const airnodeAddress = await admin.deriveAirnodeAddress(args['airnode-mnemonic']);
-      console.log(`Airnode address: ${airnodeAddress}`);
+      logger.log(`Airnode address: ${airnodeAddress}`);
     }
   )
+  .example(cliExamples.map((line) => [`$0 ${line}\n`]))
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
-    if (message) console.log(message);
-    else if (err instanceof Error) console.log(`Command failed with unexpected error:\n\n${err.message}`);
-    else console.log(`Command failed with unexpected error:\n\n${err}`);
+    logger.error(message ? message : `Command failed with unexpected error:\n\n${err.message}`);
 
     exit(1);
   })

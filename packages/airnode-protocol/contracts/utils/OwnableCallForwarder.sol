@@ -15,8 +15,8 @@ import "./interfaces/IOwnableCallForwarder.sol";
 /// The ownership of this contract is deliberately renouncable. If this does
 /// suit the use case, override and disable this functionality.
 contract OwnableCallForwarder is Ownable, IOwnableCallForwarder {
-    /// @notice Forwards the calldata to the target address if the sender is
-    /// the owner and returns the data
+    /// @notice Forwards the calldata and the value to the target address if
+    /// the sender is the owner and returns the data
     /// @param forwardTarget Target address that the calldata will be forwarded
     /// to
     /// @param forwardedCalldata Calldata to be forwarded to the target address

@@ -10,25 +10,20 @@ async function cloudHandler() {
 
 export async function startCoordinator(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.startCoordinator(...args);
+  return handler.startCoordinator(...args);
 }
 
-export async function initializeProvider(...args: unknown[]) {
+export async function run(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.initializeProvider(...args);
+  return handler.run(...args);
 }
 
-export async function callApi(...args: unknown[]) {
+export async function processHttpRequest(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.callApi(...args);
+  return handler.processHttpRequest(...args);
 }
 
-export async function processProviderRequests(...args: unknown[]) {
+export async function processHttpSignedDataRequest(...args: unknown[]) {
   const handler = await cloudHandler();
-  return await handler.processProviderRequests(...args);
-}
-
-export async function testApi(...args: unknown[]) {
-  const handler = await cloudHandler();
-  return await handler.testApi(...args);
+  return handler.processHttpSignedDataRequest(...args);
 }

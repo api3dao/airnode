@@ -15,10 +15,12 @@ export interface Deployment {
   airnodeAddressShort: string;
   stage: string;
   cloudProvider: CloudProvider;
+  timestamp: string;
 }
 
 export interface Api {
   httpGatewayUrl?: string;
+  httpSignedDataGatewayUrl?: string;
   heartbeatId?: string;
 }
 

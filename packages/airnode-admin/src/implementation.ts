@@ -1,11 +1,95 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrp, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
+import { AirnodeRrpV0, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
+import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
+import { Arguments } from 'yargs';
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   if (Object.keys(params).length !== ethersParams.length) {
     throw new Error(`SDK doesn't return some of the parameters!`);
   }
+};
+
+/**
+ * Parses Ethers transaction override options from CLI arguments.
+ * @param args The yargs inferred CLI arguments object
+ * @returns The parsed overrides object with values compatible with Ethers
+ */
+export const parseCliOverrides = (args: Arguments): ethers.Overrides => {
+  const overrideMap = [
+    { name: 'gas-limit', key: 'gasLimit', parseValue: (value: string) => ethers.BigNumber.from(value) },
+    { name: 'gas-price', key: 'gasPrice', parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei') },
+    { name: 'max-fee', key: 'maxFeePerGas', parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei') },
+    {
+      name: 'max-priority-fee',
+      key: 'maxPriorityFeePerGas',
+      parseValue: (value: string) => ethers.utils.parseUnits(value, 'gwei'),
+    },
+    { name: 'nonce', key: 'nonce', parseValue: parseInt },
+  ];
+
+  const overrides: ethers.Overrides = overrideMap.reduce((acc, override) => {
+    if (args[override.name]) return { ...acc, [override.key]: override.parseValue(args[override.name] as string) };
+    return acc;
+  }, {});
+
+  return overrides;
+};
+
+/**
+ * Parses Ethers transaction override options and sets them based on the transaction type supported by the network and user inputs.
+ * @param provider Ethers provider
+ * @param overrides Overrides object passed into the function
+ * @returns The parsed overrides object with values compatible with Ethers
+ */
+export const parseOverrides = async (
+  provider: ethers.providers.Provider,
+  overrides: ethers.Overrides = {}
+): Promise<ethers.Overrides> => {
+  const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = overrides;
+
+  const feeData = await provider.getFeeData();
+  const supportsEip1559 = !!(feeData.maxFeePerGas && feeData.maxPriorityFeePerGas);
+  const hasEip1559Overrides = !!(maxFeePerGas || maxPriorityFeePerGas);
+  const hasLegacyOverrides = !!gasPrice;
+
+  // Mixed overrides
+  if (hasLegacyOverrides && hasEip1559Overrides) {
+    throw new Error('Both legacy and EIP1559 override pricing options specified - ambiguous');
+  }
+  // Chain does not support EIP1559 but EIP1559 overrides provided
+  if (!supportsEip1559 && hasEip1559Overrides) {
+    throw new Error('EIP1559 override pricing specified on legacy network');
+  }
+
+  // EIP1559 network and no EIP1559 overrides or legacy overrides
+  if (supportsEip1559 && !hasEip1559Overrides && !hasLegacyOverrides) {
+    const [_gasPriceLogs, gasTarget] = await getEip1559GasPricing({
+      provider: provider,
+      chainOptions: { txType: 'eip1559' },
+    });
+
+    return {
+      ...overrides,
+      ...gasTarget,
+    };
+  }
+
+  // Legacy network and no legacy overrides
+  if (!supportsEip1559 && !hasLegacyOverrides) {
+    const [_gasPriceLogs, gasTarget] = await getLegacyGasPrice({
+      provider: provider,
+      chainOptions: { txType: 'legacy' },
+    });
+
+    return {
+      ...overrides,
+      ...gasTarget,
+    };
+  }
+
+  // User specified overrides
+  return overrides;
 };
 
 /**
@@ -55,13 +139,21 @@ export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAdd
   return hdNode.derivePath(derivationPath).address;
 }
 
-export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
-  await airnodeRrp.setSponsorshipStatus(requesterAddress, true);
+export async function sponsorRequester(
+  airnodeRrp: AirnodeRrpV0,
+  requesterAddress: string,
+  overrides?: ethers.Overrides
+) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, true, await parseOverrides(airnodeRrp.provider, overrides));
   return requesterAddress;
 }
 
-export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
-  await airnodeRrp.setSponsorshipStatus(requesterAddress, false);
+export async function unsponsorRequester(
+  airnodeRrp: AirnodeRrpV0,
+  requesterAddress: string,
+  overrides?: ethers.Overrides
+) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, false, await parseOverrides(airnodeRrp.provider, overrides));
   return requesterAddress;
 }
 
@@ -71,14 +163,19 @@ export interface Template {
   endpointId: string;
 }
 
-export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template) {
+export async function createTemplate(airnodeRrp: AirnodeRrpV0, template: Template, overrides?: ethers.Overrides) {
   let encodedParameters;
   if (typeof template.parameters == 'string') {
     encodedParameters = template.parameters;
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  const tx = await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters);
+  const tx = await airnodeRrp.createTemplate(
+    template.airnode,
+    template.endpointId,
+    encodedParameters,
+    await parseOverrides(airnodeRrp.provider, overrides)
+  );
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
@@ -88,8 +185,17 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   );
 }
 
-export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnodeAddress: string, sponsorWalletAddress: string) {
-  const tx = await airnodeRrp.requestWithdrawal(airnodeAddress, sponsorWalletAddress);
+export async function requestWithdrawal(
+  airnodeRrp: AirnodeRrpV0,
+  airnodeAddress: string,
+  sponsorWalletAddress: string,
+  overrides?: ethers.Overrides
+) {
+  const tx = await airnodeRrp.requestWithdrawal(
+    airnodeAddress,
+    sponsorWalletAddress,
+    await parseOverrides(airnodeRrp.provider, overrides)
+  );
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
@@ -99,7 +205,7 @@ export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnodeAddress: 
   );
 }
 
-export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: string) {
+export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrpV0, requestId: string) {
   const filter = airnodeRrp.filters.FulfilledWithdrawal(null, null, requestId, null, null);
 
   const logs = await airnodeRrp.queryFilter(filter);
@@ -121,11 +227,20 @@ export async function deriveEndpointId(oisTitle: string, endpointName: string) {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string', 'string'], [oisTitle, endpointName]));
 }
 
-export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requesterAddress: string) {
-  return (await airnodeRrp.requesterToRequestCountPlusOne(requesterAddress)).toString();
+export async function requesterToRequestCountPlusOne(
+  airnodeRrp: AirnodeRrpV0,
+  requesterAddress: string,
+  overrides?: ethers.Overrides
+) {
+  return (
+    await airnodeRrp.requesterToRequestCountPlusOne(
+      requesterAddress,
+      await parseOverrides(airnodeRrp.provider, overrides)
+    )
+  ).toString();
 }
 
-export async function getTemplate(airnodeRrp: AirnodeRrp, templateId: string) {
+export async function getTemplate(airnodeRrp: AirnodeRrpV0, templateId: string) {
   const ethersTemplate = await airnodeRrp.getTemplates([templateId]);
 
   // remove array parameters from ethers response
@@ -140,7 +255,7 @@ export async function getTemplate(airnodeRrp: AirnodeRrp, templateId: string) {
   return template;
 }
 
-export async function getTemplates(airnodeRrp: AirnodeRrp, templateIds: string[]) {
+export async function getTemplates(airnodeRrp: AirnodeRrpV0, templateIds: string[]) {
   const ethersTemplate = await airnodeRrp.getTemplates(templateIds);
 
   // remove array parameters from ethers response
@@ -157,14 +272,14 @@ export async function getTemplates(airnodeRrp: AirnodeRrp, templateIds: string[]
 }
 
 export function sponsorToRequesterToSponsorshipStatus(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   sponsorAddress: string,
   requesterAddress: string
 ) {
   return airnodeRrp.sponsorToRequesterToSponsorshipStatus(sponsorAddress, requesterAddress);
 }
 
-export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrp, sponsorAddress: string) {
+export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrpV0, sponsorAddress: string) {
   const requestsCount = await airnodeRrp.sponsorToWithdrawalRequestCount(sponsorAddress);
   return requestsCount.toString();
 }
@@ -178,13 +293,15 @@ export interface FulfillWithdrawalReturnValue {
 }
 
 export async function fulfillWithdrawal(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   requestId: string,
   airnodeAddress: string,
   sponsorAddress: string,
-  amount: string
+  amount: string,
+  overrides?: ethers.Overrides
 ) {
   const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnodeAddress, sponsorAddress, {
+    ...(await parseOverrides(airnodeRrp.provider, overrides)),
     value: ethers.utils.parseEther(amount),
   });
   const filter = airnodeRrp.filters.FulfilledWithdrawal(airnodeAddress, sponsorAddress, requestId, null, null);
@@ -206,13 +323,15 @@ export async function setWhitelistExpiration(
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
-  expirationTimestamp: number
+  expirationTimestamp: number,
+  overrides?: ethers.Overrides
 ) {
   const tx = await requesterAuthorizerWithAirnode.setWhitelistExpiration(
     airnodeAddress,
     endpointId,
     requesterAddress,
-    expirationTimestamp
+    expirationTimestamp,
+    await parseOverrides(requesterAuthorizerWithAirnode.provider, overrides)
   );
   await tx.wait();
 }
@@ -222,13 +341,15 @@ export async function extendWhitelistExpiration(
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
-  expirationTimestamp: number
+  expirationTimestamp: number,
+  overrides?: ethers.Overrides
 ) {
   const tx = await requesterAuthorizerWithAirnode.extendWhitelistExpiration(
     airnodeAddress,
     endpointId,
     requesterAddress,
-    expirationTimestamp
+    expirationTimestamp,
+    await parseOverrides(requesterAuthorizerWithAirnode.provider, overrides)
   );
   await tx.wait();
 }
@@ -238,13 +359,15 @@ export async function setIndefiniteWhitelistStatus(
   airnodeAddress: string,
   endpointId: string,
   requesterAddress: string,
-  status: boolean
+  status: boolean,
+  overrides?: ethers.Overrides
 ) {
   const tx = await requesterAuthorizerWithAirnode.setIndefiniteWhitelistStatus(
     airnodeAddress,
     endpointId,
     requesterAddress,
-    status
+    status,
+    await parseOverrides(requesterAuthorizerWithAirnode.provider, overrides)
   );
   await tx.wait();
 }
@@ -274,7 +397,7 @@ export async function isRequesterWhitelisted(
   endpointId: string,
   requesterAddress: string
 ) {
-  return requesterAuthorizerWithAirnode.requesterIsWhitelisted(airnodeAddress, endpointId, requesterAddress);
+  return requesterAuthorizerWithAirnode.isAuthorized(airnodeAddress, endpointId, requesterAddress);
 }
 
 export async function generateMnemonic() {

@@ -179,7 +179,8 @@
         "oisTitle": "ois2",
         "endpointName": "endpt2"
       }
-    ]
+    ],
+    "httpSignedData": []
   },
   "chains": [
     {
@@ -197,11 +198,12 @@
       "authorizers": ["0x0000000000000000000000000000000000000000"],
       "options": {
         "txType": "eip1559",
-        "baseFeeMultiplier": "2",
+        "baseFeeMultiplier": 2,
         "priorityFee": {
-          "value": "3.12",
+          "value": 3.12,
           "unit": "gwei"
-        }
+        },
+        "fulfillmentGasLimit": 500000
       }
     }
   ],
@@ -209,7 +211,8 @@
     "nodeVersion": "0.4.0",
     "cloudProvider": {
       "type": "aws",
-      "region": "us-east-1"
+      "region": "us-east-1",
+      "disableConcurrencyReservations": false
     },
     "stage": "testnet",
     "logFormat": "json",
@@ -219,6 +222,9 @@
       "enabled": false
     },
     "httpGateway": {
+      "enabled": false
+    },
+    "httpSignedDataGateway": {
       "enabled": false
     }
   },

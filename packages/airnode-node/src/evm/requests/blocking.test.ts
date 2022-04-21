@@ -1,14 +1,14 @@
 import range from 'lodash/range';
 import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests, RequestStatus, RequestErrorMessage } from '../../types';
+import { GroupedRequests } from '../../types';
 import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
   range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
 
-describe('blockRequestsWithWithdrawals', () => {
-  it('blocks API calls with pending withdrawals from the same sponsor', () => {
+describe('dropRequestsWithWithdrawals', () => {
+  it('drops API calls with pending withdrawals from the same sponsor', () => {
     const apiCall = buildApiCallsWithSponsor(1, '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181')[0];
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
@@ -21,14 +21,11 @@ describe('blockRequestsWithWithdrawals', () => {
     expect(logs).toEqual([
       {
         level: 'WARN',
-        message: `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
+        message: `Dropping Request ID:${apiCall.id} as it has a pending Withdrawal ID:${withdrawal.id}`,
       },
     ]);
-    expect(res.apiCalls.length).toEqual(1);
-    expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
-    expect(res.apiCalls[0].errorMessage).toEqual(`${RequestErrorMessage.PendingWithdrawal}: ${withdrawal.id}`);
+    expect(res.apiCalls.length).toEqual(0);
     expect(res.withdrawals.length).toEqual(1);
-    expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
@@ -44,32 +41,8 @@ describe('blockRequestsWithWithdrawals', () => {
     expect(logs).toEqual([]);
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0].id).toEqual(apiCall.id);
-    expect(res.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res.withdrawals.length).toEqual(1);
     expect(res.withdrawals[0].id).toEqual(withdrawal.id);
-    expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
-  });
-
-  it('does not block API calls linked to non-pending withdrawals', () => {
-    const sponsorAddress = '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181';
-    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress });
-    const statuses = Object.keys(RequestStatus).filter(
-      (status) => RequestStatus[status as RequestStatus] !== RequestStatus.Pending
-    );
-    const withdrawals = statuses.map((status) => {
-      return fixtures.requests.buildWithdrawal({
-        status: RequestStatus[status as RequestStatus],
-        sponsorAddress,
-      });
-    });
-    const requests: GroupedRequests = {
-      apiCalls: [apiCall],
-      withdrawals,
-    };
-    const [logs, res] = blocking.blockRequestsWithWithdrawals([[], requests]);
-    expect(logs).toEqual([]);
-    expect(res.apiCalls.length).toEqual(1);
-    expect(res.apiCalls[0].status).toEqual(RequestStatus.Pending);
   });
 });
 
@@ -100,20 +73,20 @@ describe('applySponsorAndSponsorWalletRequestLimit', () => {
       {
         level: 'WARN',
         message:
-          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-7 as it exceeded sponsor request limit.',
+          'Dropping Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-7 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-8 as it exceeded sponsor request limit.',
+          'Dropping Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-8 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Blocking Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it exceeded sponsor request limit.',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it exceeded sponsor request limit.',
       },
     ]);
-    expect(res.apiCalls.length).toEqual(19);
+    expect(res.apiCalls.length).toEqual(16);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
       // +2 because we changed the sponsorWallet for the first two requests
@@ -154,45 +127,45 @@ describe('blockRequests', () => {
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-0 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-0 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-1 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-1 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-2 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-2 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-3 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-3 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-4 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-4 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Ignoring Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it has a pending Withdrawal ID:withdrawalId',
+          'Dropping Request ID:id-0x719BFe83fc029420B6eDd4e0D3F4E1000E5ce0f9-5 as it has a pending Withdrawal ID:withdrawalId',
       },
       {
         level: 'WARN',
         message:
-          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-5 as it exceeded sponsor request limit.',
+          'Dropping Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-5 as it exceeded sponsor request limit.',
       },
       {
         level: 'WARN',
         message:
-          'Blocking Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor request limit.',
+          'Dropping Request ID:id-0xab296574a9FB30d11d06B3b50cFd2a85E4b203b6-6 as it exceeded sponsor request limit.',
       },
     ]);
-    expect(res.apiCalls.length).toEqual(11);
+    expect(res.apiCalls.length).toEqual(9);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
     ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);

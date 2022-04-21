@@ -1,9 +1,8 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import * as logger from '../../logger';
-import { go } from '../../utils/promise-utils';
+import { go, logger, LogOptions } from '@api3/airnode-utilities';
 import { spawnNewApiCall } from '../../adapters/http/worker';
-import { AggregatedApiCall, LogsData, LogOptions, RequestErrorMessage, WorkerOptions } from '../../types';
+import { AggregatedApiCall, LogsData, RequestErrorMessage, WorkerOptions } from '../../types';
 import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 
 async function execute(

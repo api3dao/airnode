@@ -4,9 +4,8 @@ import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import { go } from '../../utils/promise-utils';
-import * as logger from '../../logger';
-import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
+import { logger, go } from '@api3/airnode-utilities';
+import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
@@ -20,7 +19,7 @@ interface ApiCallTemplatesById {
 }
 
 export async function fetchTemplate(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
   const operation = () => airnodeRrp.templates(templateId);
@@ -42,7 +41,7 @@ export async function fetchTemplate(
 }
 
 async function fetchTemplateGroup(
-  airnodeRrp: AirnodeRrp,
+  airnodeRrp: AirnodeRrpV0,
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
@@ -90,7 +89,7 @@ export async function fetch(
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use
-  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids) => fetchTemplateGroup(airnodeRrp, ids));

@@ -1,9 +1,8 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
-import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
-import { version as getNodeVersion } from '../index';
-import { Config } from '../types';
-import { randomHexString } from '../utils/string-utils';
+import { randomHexString } from '@api3/airnode-utilities';
+import { unsafeParseConfigWithSecrets, parseConfigWithSecrets } from '@api3/airnode-validator';
+import { Config } from './types';
 
 // TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {
@@ -24,27 +23,23 @@ const readConfig = (configPath: string): unknown => {
   }
 };
 
-export interface ParseConfigResult {
-  config: Config;
-  validationOutput: Result;
-  shouldSkipValidation: boolean;
+export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {
+  const rawConfig = readConfig(configPath);
+  const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
+  if (!parsedConfigRes.success) {
+    throw new Error(`Invalid Airnode configuration file: ${parsedConfigRes.error}`);
+  }
+
+  const config = parsedConfigRes.data;
+  return config;
 }
 
-export function parseConfig(
-  configPath: string,
-  secrets: Record<string, string | undefined>,
-  shouldValidate: boolean
-): ParseConfigResult {
-  const config = readConfig(configPath);
-  const validationResult = validateConfig(config, secrets, shouldValidate);
-  const parsedConfig: Config = validationResult.specs as Config;
-  const ois = parseOises(parsedConfig.ois);
+export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
+  const rawConfig = readConfig(configPath);
+  const config = unsafeParseConfigWithSecrets(rawConfig, secrets);
 
-  return {
-    config: { ...parsedConfig, ois },
-    shouldSkipValidation: !!parsedConfig.nodeSettings.skipValidation,
-    validationOutput: validationResult,
-  };
+  const ois = parseOises(config.ois);
+  return { ...config, ois };
 }
 
 export function getMasterKeyMnemonic(config: Config): string {
@@ -58,19 +53,4 @@ export function getMasterKeyMnemonic(config: Config): string {
 
 export function getEnvValue(envName: string) {
   return process.env[envName];
-}
-
-function validateConfig(
-  supposedConfig: unknown,
-  secrets: Record<string, string | undefined>,
-  shouldValidate: boolean
-): Result {
-  // TODO: Improve TS types
-  return validateJsonWithTemplate(
-    supposedConfig as object,
-    `config@${getNodeVersion()}`,
-    shouldValidate,
-    secrets,
-    true
-  );
 }

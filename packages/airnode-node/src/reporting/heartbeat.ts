@@ -1,8 +1,7 @@
 import { execute } from '@api3/airnode-adapter';
+import { logger, PendingLog, go } from '@api3/airnode-utilities';
 import { getEnvValue } from '../config';
-import * as logger from '../logger';
-import { go } from '../utils';
-import { CoordinatorState, PendingLog } from '../types';
+import { CoordinatorState } from '../types';
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
   const heartbeat = state.config.nodeSettings.heartbeat;
@@ -19,6 +18,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
+  const httpSignedDataGatewayUrl = getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 
   const request = {
     url,
@@ -28,7 +28,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     },
     data: {
       deployment_id: id,
-      ...(httpGatewayUrl ? {} : { http_gateway_url: httpGatewayUrl }),
+      ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
+      ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
     },
     timeout: 5_000,
   };

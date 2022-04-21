@@ -1,3 +1,5 @@
+const hre = require('hardhat');
+
 module.exports = async ({ getUnnamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const accounts = await getUnnamedAccounts();
@@ -5,6 +7,7 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   const accessControlRegistry = await deploy('AccessControlRegistry', {
     from: accounts[0],
     log: true,
+    deterministicDeployment: process.env.DETERMINISTIC ? hre.ethers.constants.HashZero : undefined,
   });
   log(`Deployed AccessControlRegistry at ${accessControlRegistry.address}`);
 
@@ -12,13 +15,15 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
     args: [accessControlRegistry.address, 'RequesterAuthorizerWithAirnode admin'],
     from: accounts[0],
     log: true,
+    deterministicDeployment: process.env.DETERMINISTIC ? hre.ethers.constants.HashZero : undefined,
   });
   log(`Deployed RequesterAuthorizerWithAirnode at ${requesterAuthorizerWithAirnode.address}`);
 
-  const airnodeRrp = await deploy('AirnodeRrp', {
+  const airnodeRrp = await deploy('AirnodeRrpV0', {
     from: accounts[0],
     log: true,
+    deterministicDeployment: process.env.DETERMINISTIC ? hre.ethers.constants.HashZero : undefined,
   });
   log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
 };
-module.exports.tags = ['Deploy'];
+module.exports.tags = ['deploy'];

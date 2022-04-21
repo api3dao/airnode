@@ -1,4 +1,4 @@
-import { createAndMockGasTarget, mockEthers } from '../../test/mock-utils';
+import { createAndMockGasTarget, mockEthers, mockReadFileSync } from '../../test/mock-utils';
 
 const checkAuthorizationStatusesMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -23,7 +23,6 @@ mockEthers({
   },
 });
 
-import fs from 'fs';
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
@@ -40,11 +39,12 @@ describe('startCoordinator', () => {
         ...chain,
         options: {
           txType,
+          fulfillmentGasLimit: 500_000,
         },
       })),
     };
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
+    mockReadFileSync('config.json', JSON.stringify(config));
+    jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);
@@ -90,13 +90,13 @@ describe('startCoordinator', () => {
       '0x7c1de7e1',
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0x69567b16514c2b799597247462cc6c3d9ac9dce88c0bc97c17db45dfb572cacb0fc7b38b2a73cf1fd78279251e5ef75b5e6fb06f4b0f0d023c4b215609e2e38f1b',
-      { gasLimit: 500_000, ...gasTarget, nonce: 212 }
+      { ...gasTarget, nonce: 212 }
     );
   });
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    mockReadFileSync('config.json', JSON.stringify(config));
 
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);

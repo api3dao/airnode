@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: monthly
+      interval: weekly
       time: '11:00'
     open-pull-requests-limit: 15
     reviewers:

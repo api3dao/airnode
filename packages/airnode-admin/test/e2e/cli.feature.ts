@@ -1,15 +1,17 @@
 import { execSync } from 'child_process';
 import difference from 'lodash/difference';
 import {
-  AirnodeRrp,
-  AirnodeRrpFactory,
+  AirnodeRrpV0,
+  AirnodeRrpV0Factory,
   authorizers,
   RequesterAuthorizerWithAirnode,
   AccessControlRegistry,
   AccessControlRegistryFactory,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
+import { logger } from '@api3/airnode-utilities';
 import * as admin from '../../src';
+import { cliExamples } from '../../src/cli-examples';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/src/cli.js`;
@@ -29,7 +31,7 @@ describe('CLI', () => {
   const bobDerivationPath = "m/44'/60'/0'/0/2";
   let bob: ethers.Wallet;
   let airnodeWallet: ethers.Wallet;
-  let airnodeRrp: AirnodeRrp;
+  let airnodeRrp: AirnodeRrpV0;
   // https://hardhat.org/hardhat-network/#hardhat-network-initial-state
   const mnemonic = 'test test test test test test test test test test test junk';
 
@@ -45,7 +47,7 @@ describe('CLI', () => {
       })
       .join(' ');
     const formattedCommand = `${command} ${formattedArgs}`;
-    if (DEBUG_COMMANDS) console.log(`Executing command: ${formattedCommand}`);
+    if (DEBUG_COMMANDS) logger.log(`Executing command: ${formattedCommand}`);
     try {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
     } catch (e: any) {
@@ -71,7 +73,7 @@ describe('CLI', () => {
   });
 
   beforeEach(async () => {
-    airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
+    airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
 
     airnodeWallet = ethers.Wallet.createRandom().connect(provider);
     await deployer.sendTransaction({
@@ -209,6 +211,23 @@ describe('CLI', () => {
 
       const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsorAddress, requesterAddress);
       expect(sponsored).toBe(true);
+    });
+
+    it('uses transaction overrides', async () => {
+      const requesterAddress = bob.address;
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 1],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow('Transaction requires at least 21560 gas but got 1');
     });
 
     it('stops sponsoring requester', async () => {
@@ -374,25 +393,51 @@ describe('CLI', () => {
         execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--provider-url', PROVIDER_URL])
       ).toThrow('Unknown arguments: mnemonic, provider-url, providerUrl, not-existent-command');
     });
+
+    it('mixes legacy and EIP-1559 arguments', async () => {
+      const requesterAddress = bob.address;
+
+      expect(() =>
+        execCommand(
+          'sponsor-requester',
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp-address', airnodeRrp.address],
+          ['--sponsor-mnemonic', mnemonic],
+          ['--derivation-path', aliceDerivationPath],
+          ['--requester-address', requesterAddress],
+          ['--gas-limit', 234000],
+          ['--gas-price', 20],
+          ['--max-fee', 20],
+          ['--max-priority-fee', 10]
+        )
+      ).toThrow(`Both legacy and EIP1559 override pricing options specified - ambiguous`);
+    });
   });
 
-  it('generates mnemonic', () => {
-    const out = execCommand('generate-mnemonic');
+  it('generates mnemonic', async () => {
+    const out = execCommand('generate-mnemonic').split('\n');
 
     const explanationInfo = [
       'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
       'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
       '',
-    ]
-      .map((str) => `${str}\n`)
-      .join('');
+    ];
+    expect(out.slice(0, 3)).toEqual(explanationInfo);
 
-    expect(out.startsWith(explanationInfo)).toBe(true);
-    const mnemonic = out.split(explanationInfo)[1];
-
+    const mnemonic = out[3];
     const words = mnemonic.split(' ');
     expect(words).toHaveLength(12);
     words.forEach((word) => expect(word).toMatch(/\w+/));
+
+    const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
+    expect(out[5]).toEqual(`The Airnode address for this mnemonic is: ${airnodeAddress}`);
+
+    const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
+    expect(out[6]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
+
+    const verifyXpubResult = admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
+    const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+    expect(verifyXpubResult).toEqual(hdNode);
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {
@@ -411,24 +456,53 @@ describe('CLI', () => {
         accessControlRegistry.address,
         'RequesterAuthorizerWithAirnode admin'
       );
+
+      const airnodeRootRole = await accessControlRegistry.deriveRootRole(airnodeWallet.address);
+      // Initialize the roles and grant them to respective accounts
+      const adminRole = await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address);
       await accessControlRegistry
         .connect(airnodeWallet)
-        .initializeAndGrantRoles(
-          [
-            await accessControlRegistry.deriveRootRole(airnodeWallet.address),
-            await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address),
-            await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address),
-            await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address),
-          ],
-          [
-            await requesterAuthorizerWithAirnode.adminRoleDescription(),
-            await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-            await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-            await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-          ],
-          [airnodeWallet.address, bob.address, alice.address, alice.address],
-          { gasLimit: 500000 }
+        .initializeRoleAndGrantToSender(airnodeRootRole, await requesterAuthorizerWithAirnode.adminRoleDescription(), {
+          gasLimit: 1000000,
+        });
+      const whitelistExpirationExtenderRole =
+        await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(airnodeWallet.address);
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .initializeRoleAndGrantToSender(
+          adminRole,
+          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+          { gasLimit: 1000000 }
         );
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .grantRole(whitelistExpirationExtenderRole, bob.address, { gasLimit: 1000000 });
+      const whitelistExpirationSetterRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(
+        airnodeWallet.address
+      );
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .initializeRoleAndGrantToSender(
+          adminRole,
+          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+          { gasLimit: 1000000 }
+        );
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .grantRole(whitelistExpirationSetterRole, alice.address, { gasLimit: 1000000 });
+      const indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(
+        airnodeWallet.address
+      );
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .initializeRoleAndGrantToSender(
+          adminRole,
+          await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+          { gasLimit: 1000000 }
+        );
+      await accessControlRegistry
+        .connect(airnodeWallet)
+        .grantRole(indefiniteWhitelisterRole, alice.address, { gasLimit: 1000000 });
     });
 
     it('sets whitelist expiration timestamp', async () => {
@@ -615,6 +689,84 @@ describe('CLI', () => {
     it('can derive airnode address', () => {
       const out = execCommand('derive-airnode-address', ['--airnode-mnemonic', airnodeWallet.mnemonic.phrase]);
       expect(out).toEqual(`Airnode address: ${airnodeWallet.address}`);
+    });
+  });
+
+  describe('has valid examples', () => {
+    const exampleOutcomes = [
+      'Airnode address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      'Sponsor wallet address: 0x61cF9Eb3691A715e7B2697a36e9e60FdA40A8617',
+      'Endpoint ID: 0x901843fb332b24a9a71a2234f2a7c82214b7b70e99ab412e7d1827b743f63f61',
+    ];
+
+    cliExamples.forEach((command: string, index: number) => {
+      it(`tests example command ${index}`, () => {
+        const out = execSync(`node ${CLI_EXECUTABLE} ${command}`).toString().trim();
+        expect(out).toEqual(exampleOutcomes[index]);
+      });
+    });
+  });
+
+  describe('parse transaction overrides', () => {
+    it('returns EIP1559 overrides on EIP1559 network with empty input', async () => {
+      const overrides = await admin.parseOverrides(provider);
+      expect(overrides.maxFeePerGas).toBeDefined();
+      expect(overrides.maxPriorityFeePerGas).toBeDefined();
+      expect(overrides.gasPrice).toBeUndefined();
+    });
+
+    it('returns legacy overrides on legacy network with empty input', async () => {
+      jest
+        .spyOn(provider, 'getFeeData')
+        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      const overrides = await admin.parseOverrides(provider);
+
+      expect(overrides.gasPrice).toBeDefined();
+      expect(overrides.maxFeePerGas).toBeUndefined();
+      expect(overrides.maxPriorityFeePerGas).toBeUndefined();
+    });
+
+    it('returns unmodified eip1559 override inputs', async () => {
+      const inputOverrides = {
+        maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+        maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        gasLimit: ethers.BigNumber.from('200000'),
+      };
+      const overrides = await admin.parseOverrides(provider, inputOverrides);
+      expect(overrides).toEqual(inputOverrides);
+    });
+
+    it('returns unmodified legacy override inputs', async () => {
+      const inputOverrides = {
+        gasPrice: ethers.utils.parseUnits('10', 'gwei'),
+        gasLimit: ethers.BigNumber.from('200000'),
+      };
+      const overrides = await admin.parseOverrides(provider, inputOverrides);
+      expect(overrides).toEqual(inputOverrides);
+    });
+
+    it('throws on mixed overrides', async () => {
+      await expect(
+        admin.parseOverrides(provider, {
+          gasPrice: ethers.utils.parseUnits('10', 'gwei'),
+          gasLimit: ethers.BigNumber.from('200000'),
+          maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+          maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        })
+      ).rejects.toThrow('Both legacy and EIP1559 override pricing options specified - ambiguous');
+    });
+
+    it('throws when providing EIP1559 overrides on legacy network', async () => {
+      jest
+        .spyOn(provider, 'getFeeData')
+        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      await expect(
+        admin.parseOverrides(provider, {
+          gasLimit: ethers.BigNumber.from('200000'),
+          maxFeePerGas: ethers.utils.parseUnits('20', 'gwei'),
+          maxPriorityFeePerGas: ethers.utils.parseUnits('10', 'gwei'),
+        })
+      ).rejects.toThrow('EIP1559 override pricing specified on legacy network');
     });
   });
 });

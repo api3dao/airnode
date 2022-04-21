@@ -1,46 +1,10 @@
 import * as verification from './request-verification';
-import * as requests from '../../requests';
 import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
-import { RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('verifySponsorWallets', () => {
   const config = fixtures.buildConfig();
   const masterHDNode = wallet.getMasterHDNode(config);
-
-  requests.getStatusNames().forEach((status) => {
-    if (status !== 'Pending') {
-      it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({
-          sponsorWalletAddress: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Sponsor wallet verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`,
-          },
-        ]);
-        expect(res).toEqual([apiCall]);
-      });
-
-      it(`returns withdrawals that have status: ${status}`, () => {
-        const withdrawal = fixtures.requests.buildWithdrawal({
-          sponsorWalletAddress: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const [logs, res] = verification.verifySponsorWallets([withdrawal], masterHDNode);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Sponsor wallet verification skipped for Request:${withdrawal.id} as it has status:${withdrawal.status}`,
-          },
-        ]);
-        expect(res).toEqual([withdrawal]);
-      });
-    }
-  });
 
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
     const invalidSponsorWallet = {
@@ -67,19 +31,7 @@ describe('verifySponsorWallets', () => {
         message: `Invalid sponsor wallet:${doNotMatchApiCall.sponsorWalletAddress} for Request:${doNotMatchApiCall.id}. Expected:0xdBFe14C250643DEFE92C9AbC52103bf4978C7113`,
       },
     ]);
-    expect(verifiesdApiCalls.length).toEqual(2);
-    expect(verifiesdApiCalls).toEqual([
-      {
-        ...invalidApiCall,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${invalidApiCall.sponsorWalletAddress}`,
-      },
-      {
-        ...doNotMatchApiCall,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${doNotMatchApiCall.sponsorWalletAddress}`,
-      },
-    ]);
+    expect(verifiesdApiCalls.length).toEqual(0);
 
     const invalidWithdrawal = fixtures.requests.buildWithdrawal(invalidSponsorWallet);
     const doNotMatchWithdrawal = fixtures.requests.buildWithdrawal(sponsorWalletDoesNotBelongToSponsor);
@@ -97,19 +49,7 @@ describe('verifySponsorWallets', () => {
         message: `Invalid sponsor wallet:${doNotMatchWithdrawal.sponsorWalletAddress} for Request:${doNotMatchWithdrawal.id}. Expected:0xdBFe14C250643DEFE92C9AbC52103bf4978C7113`,
       },
     ]);
-    expect(withdrawals.length).toEqual(2);
-    expect(withdrawals).toEqual([
-      {
-        ...invalidWithdrawal,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${invalidWithdrawal.sponsorWalletAddress}`,
-      },
-      {
-        ...doNotMatchWithdrawal,
-        status: RequestStatus.Ignored,
-        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${doNotMatchApiCall.sponsorWalletAddress}`,
-      },
-    ]);
+    expect(withdrawals.length).toEqual(0);
   });
 
   it('does nothing if the sponsor wallet matches the expected wallet', () => {
@@ -144,28 +84,7 @@ describe('verifySponsorWallets', () => {
 });
 
 describe('verifyTriggers', () => {
-  requests.getStatusNames().forEach((status) => {
-    if (status !== 'Pending') {
-      it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({
-          endpointId: '0xinvalid',
-          status: RequestStatus[status as RequestStatus],
-        });
-        const config = fixtures.buildConfig();
-        const rrpTriggers = config.triggers.rrp;
-        const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers, config.ois);
-        expect(logs).toEqual([
-          {
-            level: 'DEBUG',
-            message: `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`,
-          },
-        ]);
-        expect(res).toEqual([apiCall]);
-      });
-    }
-  });
-
-  it('errors API calls that have an unknown endpointId', () => {
+  it('drops API calls that have an unknown endpointId', () => {
     const apiCall = fixtures.requests.buildApiCall({ endpointId: '0xinvalid' });
     const config = fixtures.buildConfig();
     const rrpTriggers = config.triggers.rrp;
@@ -176,18 +95,13 @@ describe('verifyTriggers', () => {
         message: `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownEndpointId}: ${apiCall.endpointId}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
-  it('errors API calls that are linked to a valid trigger but unknown OIS', () => {
+  it('drops API calls that are linked to a valid trigger but unknown OIS', () => {
     const rrpTrigger = fixtures.buildTrigger({ oisTitle: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {
@@ -195,18 +109,13 @@ describe('verifyTriggers', () => {
         message: `Unknown OIS:unknown received for Request:${apiCall.id}`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownOIS}: ${rrpTrigger.oisTitle}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
-  it('errors API calls that are linked to a valid trigger but unknown endpoint', () => {
+  it('drops API calls that are linked to a valid trigger but unknown endpoint', () => {
     const rrpTrigger = fixtures.buildTrigger({ endpointName: 'unknown' });
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {
@@ -214,18 +123,13 @@ describe('verifyTriggers', () => {
         message: `Unknown Endpoint:unknown for OIS:${rrpTrigger.oisTitle} received for Request:${apiCall.id}`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.UnknownEndpointName}: ${rrpTrigger.endpointName} for OIS ${rrpTrigger.oisTitle}`,
-    });
+    expect(res.length).toEqual(0);
   });
 
   it('does nothing is the API call is linked to a valid trigger and OIS endpoint', () => {
     const rrpTrigger = fixtures.buildTrigger();
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {

@@ -1,5 +1,6 @@
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
+import { logger } from '@api3/airnode-utilities';
 
 /**
  * Executes the function passed as an argument and properly shuts down the node environment.
@@ -32,7 +33,7 @@ export const runShellCommand = (command: string) => {
 };
 
 export const cliPrint = {
-  info: (text: string) => console.log(chalk.bold.white(text)),
-  warning: (text: string) => console.log(chalk.bold.hex('#FFA500')(text)), // Orange color
-  error: (text: string) => console.log(chalk.bold.red(text)),
+  info: (text: string) => logger.log(chalk.bold.white(text)),
+  warning: (text: string) => logger.warn(chalk.bold.hex('#FFA500')(text)), // Orange color
+  error: (text: string) => logger.error(chalk.bold.red(text)),
 };

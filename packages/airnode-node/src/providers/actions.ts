@@ -2,12 +2,10 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
-import { buildEVMState } from '../providers/state';
-import { spawnNewProvider, spawnProviderRequestProcessor } from '../providers/worker';
+import { logger, go } from '@api3/airnode-utilities';
+import { buildEVMState } from './state';
+import { spawnNewProvider, spawnProviderRequestProcessor } from './worker';
 import {
-  Config,
   EVMProviderState,
   EVMProviderSponsorState,
   LogsData,
@@ -15,7 +13,8 @@ import {
   ProviderStates,
   WorkerOptions,
 } from '../types';
-import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT } from '../constants';
+import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROCESS_TRANSACTIONS_TIMEOUT } from '../constants';
+import { Config } from '../config/types';
 
 async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,
@@ -71,7 +70,7 @@ async function processEvmProviderRequests(
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
   const initialization = () => spawnProviderRequestProcessor(state, workerOpts);
-  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROVIDER_PROCESS_REQUESTS_TIMEOUT });
+  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROCESS_TRANSACTIONS_TIMEOUT });
   if (err || !logsWithRes) {
     const log = logger.pend('ERROR', `Unable to process provider:${state.settings.name} requests`, err);
     return [[log], null];

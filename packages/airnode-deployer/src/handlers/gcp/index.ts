@@ -1,10 +1,19 @@
 import * as path from 'path';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
-import { handlers, logger, utils, providers, config } from '@api3/airnode-node';
-import { loadConfig } from '../../utils';
+import {
+  handlers,
+  providers,
+  config,
+  InitializeProviderPayload,
+  CallApiPayload,
+  ProcessTransactionsPayload,
+  WorkerPayload,
+  loadTrustedConfig,
+} from '@api3/airnode-node';
+import { logger, go } from '@api3/airnode-utilities';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const parsedConfig = loadConfig(configFile, process.env, false);
+const parsedConfig = loadTrustedConfig(configFile, process.env);
 
 export async function startCoordinator(_req: Request, res: Response) {
   await handlers.startCoordinator(parsedConfig);
@@ -12,13 +21,29 @@ export async function startCoordinator(_req: Request, res: Response) {
   res.status(200).send(response);
 }
 
-export async function initializeProvider(req: Request, res: Response) {
-  const stateWithConfig = { ...req.body.state, config: parsedConfig };
+export async function run(req: Request, res: Response) {
+  const payload: WorkerPayload = req.body;
 
-  const [err, initializedState] = await utils.go(() => handlers.initializeProvider(stateWithConfig));
+  switch (payload.functionName) {
+    case 'initializeProvider':
+      return initializeProvider(payload, res);
+    case 'callApi':
+      return callApi(payload, res);
+    case 'processTransactions':
+      return processTransactions(payload, res);
+  }
+}
+
+// TODO: Refactor handlers so they are common for all the cloud providers
+// https://api3dao.atlassian.net/browse/AN-527
+
+async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
+  const stateWithConfig = { ...payload.state, config: parsedConfig };
+
+  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
-    console.log(err!.toString());
+    logger.log(err!.toString());
     const errorLog = logger.pend('ERROR', msg, err);
     const body = { ok: false, errorLog };
     res.status(500).send(body);
@@ -29,18 +54,18 @@ export async function initializeProvider(req: Request, res: Response) {
   res.status(200).send(body);
 }
 
-export async function callApi(req: Request, res: Response) {
-  const { aggregatedApiCall, logOptions } = req.body;
+async function callApi(payload: CallApiPayload, res: Response) {
+  const { aggregatedApiCall, logOptions } = payload;
   const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
 }
 
-export async function processProviderRequests(req: Request, res: Response) {
-  const stateWithConfig = { ...req.body.state, config: parsedConfig };
+async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
+  const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, updatedState] = await utils.go(() => handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -53,7 +78,7 @@ export async function processProviderRequests(req: Request, res: Response) {
   res.status(200).send(body);
 }
 
-export async function testApi(req: Request, res: Response) {
+export async function processHttpRequest(req: Request, res: Response) {
   // We need to check for an API key manually because GCP HTTP Gateway
   // doesn't support managing API keys via API
   const apiKey = req.header('x-api-key');
@@ -69,7 +94,7 @@ export async function testApi(req: Request, res: Response) {
     return;
   }
 
-  const [err, result] = await handlers.testApi(parsedConfig, endpointId as string, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId as string, parameters);
   if (err) {
     res.status(400).send({ error: err.toString() });
     return;
@@ -77,4 +102,36 @@ export async function testApi(req: Request, res: Response) {
 
   // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
   res.status(200).send(result!.value);
+}
+
+// TODO: Copy&paste for now, will refactor as part of
+// https://api3dao.atlassian.net/browse/AN-527
+export async function processHttpSignedDataRequest(req: Request, res: Response) {
+  // We need to check for an API key manually because GCP HTTP Gateway
+  // doesn't support managing API keys via API
+  const apiKey = req.header('x-api-key');
+  if (!apiKey || apiKey !== config.getEnvValue('HTTP_SIGNED_DATA_GATEWAY_API_KEY')) {
+    res.status(401).send({ error: 'Wrong API key' });
+  }
+
+  const { encodedParameters } = req.body;
+  const { endpointId } = req.query;
+
+  if (!endpointId) {
+    res.status(400).send({ error: 'Missing endpointId' });
+    return;
+  }
+
+  const [err, result] = await handlers.processHttpSignedDataRequest(
+    parsedConfig,
+    endpointId as string,
+    encodedParameters
+  );
+  if (err) {
+    res.status(400).send({ error: err.toString() });
+    return;
+  }
+
+  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
+  res.status(200).send(JSON.stringify({ data: JSON.parse(result!.value), signature: result!.signature }));
 }

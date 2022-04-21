@@ -23,54 +23,19 @@ resource "google_project_service" "management_apis" {
   ]
 }
 
-module "initializeProvider" {
+module "run" {
   source = "./modules/function"
 
-  name               = "${local.name_prefix}-initializeProvider"
-  entry_point        = "initializeProvider"
+  name               = "${local.name_prefix}-run"
+  entry_point        = "run"
   source_dir         = var.handler_dir
   memory_size        = 1024
-  timeout            = 20
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  region             = var.gcp_region
-  project            = var.gcp_project
-
-  depends_on = [
-    google_project_service.management_apis
-  ]
-}
-
-module "callApi" {
-  source = "./modules/function"
-
-  name               = "${local.name_prefix}-callApi"
-  entry_point        = "callApi"
-  source_dir         = var.handler_dir
-  memory_size        = 512
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   region             = var.gcp_region
   project            = var.gcp_project
-
-  depends_on = [
-    google_project_service.management_apis
-  ]
-}
-
-module "processProviderRequests" {
-  source = "./modules/function"
-
-  name               = "${local.name_prefix}-processProviderRequests"
-  entry_point        = "processProviderRequests"
-  source_dir         = var.handler_dir
-  memory_size        = 1024
-  timeout            = 10
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  region             = var.gcp_region
-  project            = var.gcp_project
+  max_instances      = var.disable_concurrency_reservation ? null : var.max_concurrency
 
   depends_on = [
     google_project_service.management_apis
@@ -91,49 +56,22 @@ module "startCoordinator" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.apiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataApiGateway[0].api_url}"
   }
 
   schedule_interval = 1
-  max_instances     = 1
-  invoke_targets    = [module.initializeProvider.function_name, module.callApi.function_name, module.processProviderRequests.function_name]
+  max_instances     = var.disable_concurrency_reservation ? null : 1
+  invoke_targets    = [module.run.function_name]
 
   depends_on = [
     google_project_service.management_apis,
-    module.initializeProvider,
-    module.callApi,
-    module.processProviderRequests
-  ]
-}
-
-module "testApi" {
-  source = "./modules/function"
-  count  = var.api_key == null ? 0 : 1
-
-  name               = "${local.name_prefix}-testApi"
-  entry_point        = "testApi"
-  source_dir         = var.handler_dir
-  memory_size        = 256
-  timeout            = 15
-  configuration_file = var.configuration_file
-  secrets_file       = var.secrets_file
-  region             = var.gcp_region
-  project            = var.gcp_project
-
-  environment_variables = {
-    HTTP_GATEWAY_API_KEY = var.api_key
-  }
-
-  invoke_targets = [module.callApi.function_name]
-
-  depends_on = [
-    google_project_service.management_apis,
-    module.callApi,
+    module.run,
   ]
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -146,7 +84,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.api_key == null ? 0 : 1
+  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
@@ -158,26 +96,100 @@ resource "google_project_service" "servicecontrol_api" {
   ]
 }
 
-module "apiGateway" {
-  source = "./modules/apigateway"
-  count  = var.api_key == null ? 0 : 1
+module "processHttpRequest" {
+  source = "./modules/function"
+  count  = var.http_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-apiGateway"
-  template_file = "./templates/apigateway.yaml.tpl"
+  name               = "${local.name_prefix}-processHttpRequest"
+  entry_point        = "processHttpRequest"
+  source_dir         = var.handler_dir
+  memory_size        = 256
+  timeout            = 15
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+  region             = var.gcp_region
+  project            = var.gcp_project
+
+  environment_variables = {
+    HTTP_GATEWAY_API_KEY = var.http_api_key
+  }
+
+  max_instances = var.disable_concurrency_reservation ? null : var.http_max_concurrency
+
+  depends_on = [
+    google_project_service.management_apis,
+  ]
+}
+
+module "httpApiGateway" {
+  source = "./modules/apigateway"
+  count  = var.http_api_key == null ? 0 : 1
+
+  name          = "${local.name_prefix}-httpApiGateway"
+  template_file = "./templates/httpApiGateway.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.testApi[0].function_name
+    cloud_function_name = module.processHttpRequest[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.testApi[0].function_name
+    module.processHttpRequest[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.testApi,
+    module.processHttpRequest,
+  ]
+}
+
+module "processHttpSignedDataRequest" {
+  source = "./modules/function"
+  count  = var.http_signed_data_api_key == null ? 0 : 1
+
+  name               = "${local.name_prefix}-processHttpSignedDataRequest"
+  entry_point        = "processHttpSignedDataRequest"
+  source_dir         = var.handler_dir
+  memory_size        = 256
+  timeout            = 15
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+  region             = var.gcp_region
+  project            = var.gcp_project
+
+  environment_variables = {
+    HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
+  }
+
+  max_instances = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
+
+  depends_on = [
+    google_project_service.management_apis,
+  ]
+}
+
+module "httpSignedDataApiGateway" {
+  source = "./modules/apigateway"
+  count  = var.http_signed_data_api_key == null ? 0 : 1
+
+  name          = "${local.name_prefix}-httpSignedDataApiGateway"
+  template_file = "./templates/httpSignedDataApiGateway.yaml.tpl"
+  template_variables = {
+    project             = var.gcp_project
+    region              = var.gcp_region
+    cloud_function_name = module.processHttpSignedDataRequest[0].function_name
+  }
+  project = var.gcp_project
+
+  invoke_targets = [
+    module.processHttpSignedDataRequest[0].function_name
+  ]
+
+  depends_on = [
+    google_project_service.apigateway_api,
+    google_project_service.servicecontrol_api,
+    module.processHttpSignedDataRequest,
   ]
 }

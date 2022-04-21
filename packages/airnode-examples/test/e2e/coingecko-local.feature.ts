@@ -1,5 +1,6 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { logger } from '@api3/airnode-utilities';
 import { killBackgroundProcess, runCommand, runCommandInBackground } from '../utils';
 
 const chooseIntegration = () => {
@@ -26,27 +27,32 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
 
-    runCommand('yarn rebuild-artifacts-container');
-    runCommand('yarn rebuild-airnode-container');
     const airnodeDocker = runCommandInBackground('yarn run-airnode-locally');
 
-    runCommand('yarn deploy-requester');
-    runCommand('yarn derive-and-fund-sponsor-wallet');
-    runCommand('yarn sponsor-requester');
-    const response = runCommand('yarn make-request');
+    // Try running the rest of the commands, but make sure to kill the Airnode running in background process gracefully.
+    // We need to do this otherwise Airnode will continue running in the background forever
+    try {
+      runCommand('yarn deploy-requester');
+      runCommand('yarn derive-and-fund-sponsor-wallet');
+      runCommand('yarn sponsor-requester');
+      const response = runCommand('yarn make-request');
 
-    killBackgroundProcess(airnodeDocker);
+      killBackgroundProcess(airnodeDocker);
 
-    const pathOfResponseText = 'Ethereum price is';
-    expect(response).toContain(pathOfResponseText);
+      const pathOfResponseText = 'Ethereum price is';
+      expect(response).toContain(pathOfResponseText);
 
-    const priceText = response.split(pathOfResponseText)[1];
-    expect(priceText).toContain('USD');
+      const priceText = response.split(pathOfResponseText)[1];
+      expect(priceText).toContain('USD');
 
-    const price = priceText.split('USD')[0].trim();
-    expect(Number(price)).toEqual(expect.any(Number));
-    expect(Number(price).toString()).toBe(price);
+      const price = priceText.split('USD')[0].trim();
+      expect(Number(price)).toEqual(expect.any(Number));
+      expect(Number(price).toString()).toBe(price);
 
-    console.log(`FYI: The Ethereum price is ${price} USD.`);
+      logger.log(`The Ethereum price is ${price} USD.`);
+    } catch (e) {
+      killBackgroundProcess(airnodeDocker);
+      throw e;
+    }
   });
 });

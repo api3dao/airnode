@@ -1,13 +1,11 @@
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import * as events from './events';
-import * as logger from '../../logger';
 import {
   Request,
   EVMEventLog,
   EVMFulfilledWithdrawalLog,
   EVMRequestedWithdrawalLog,
   LogsData,
-  RequestStatus,
-  PendingLog,
   Withdrawal,
 } from '../../types';
 
@@ -22,11 +20,10 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
       address: logWithMetadata.address,
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
-      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
+      minConfirmations: logWithMetadata.minConfirmations,
       transactionHash: logWithMetadata.transactionHash,
     },
     sponsorAddress: parsedLog.args.sponsor,
-    status: RequestStatus.Pending,
   };
 
   return request;
@@ -37,20 +34,18 @@ export interface UpdatedFulfilledRequests {
   readonly requests: Request<Withdrawal>[];
 }
 
-export function updateFulfilledRequests(
+export function dropFulfilledRequests(
   withdrawals: Request<Withdrawal>[],
   fulfilledRequestIds: string[]
 ): LogsData<Request<Withdrawal>[]> {
   const { logs, requests } = withdrawals.reduce(
     (acc: UpdatedFulfilledRequests, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
+        // Drop request
         const log = logger.pend('DEBUG', `Request ID:${withdrawal.id} (withdrawal) has already been fulfilled`);
-        const fulfilledWithdrawal = { ...withdrawal, status: RequestStatus.Fulfilled };
-
         return {
           ...acc,
           logs: [...acc.logs, log],
-          requests: [...acc.requests, fulfilledWithdrawal],
         };
       }
 
@@ -74,7 +69,7 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<W
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawalRequestId);
-  const [fulfilledLogs, withdrawalsWithFulfillments] = updateFulfilledRequests(withdrawalRequests, fulfilledRequestIds);
+  const [fulfilledLogs, withdrawalsWithFulfillments] = dropFulfilledRequests(withdrawalRequests, fulfilledRequestIds);
 
   return [fulfilledLogs, withdrawalsWithFulfillments];
 }

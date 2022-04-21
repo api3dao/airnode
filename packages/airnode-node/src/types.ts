@@ -1,5 +1,3 @@
-import { OIS } from '@api3/airnode-ois';
-import { ApiCredentials as AdapterApiCredentials } from '@api3/airnode-adapter';
 import { BigNumber, ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
@@ -9,7 +7,9 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
-import { AirnodeRrp } from './evm/contracts';
+import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
+import { Config, ChainOptions, ChainType, LocalOrCloudProvider } from './config/types';
+import { AirnodeRrpV0 } from './evm/contracts';
 
 // ===========================================
 // State
@@ -36,35 +36,8 @@ export enum RequestErrorMessage {
   NoMatchingAggregatedApiCall = 'No matching aggregated API call',
   ApiCallFailed = 'API call failed',
   ReservedParametersInvalid = 'Reserved parameters are invalid',
-  ResponseValueNotFound = 'Response value not found',
   FulfillTransactionFailed = 'Fulfill transaction failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
-}
-
-export enum RequestStatus {
-  // Request is valid and ready to be processed
-  Pending = 'Pending',
-  // Request was already processed by previous Airnode run (fulfilled or failed)
-  // TODO: We should just have "Processed" status or just drop these immediately
-  Fulfilled = 'Fulfilled',
-  // The fulfillment for this request was submitted on chain during the current Airnode run
-  // TODO: Not really needed for anything
-  Submitted = 'Submitted',
-  // Request is not valid and should be ignored (e.g. sponsor and sponsorWallet do not match).
-  // Any request after the ignored request is processed as if this request didn't exist at all
-  // TODO: We should just drop these requests immediately
-  Ignored = 'Ignored',
-  // Request is blocked if it is valid, but it cannot be processed in this Airnode run (e.g. chain limit or sponsor
-  // wallet request limit exceeded). All other request from the same sponsor wallet should be deferred until this one
-  // becomes unblocked
-  Blocked = 'Blocked',
-  // A request is errorred if it is valid, but cannot be fulfilled on chain
-  // and thus should result in "fail" method called on AirnodeRrp.
-  //
-  // This can happen by multiple ways - request is unauthorized, API call fails, static call to fulfill fails
-  // TODO: The problem with this status is that we use errorMessage to distinguish errored requests
-  // and keeping this in sync is fragile - we can just drop this
-  Errored = 'Errored',
 }
 
 export enum RequestType {
@@ -76,7 +49,7 @@ export interface RequestMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -93,7 +66,6 @@ export type Request<T extends {}> = T & {
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly status: RequestStatus;
 };
 
 export type ApiCallType = 'template' | 'full';
@@ -132,13 +104,15 @@ export interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
 }
 
+export type ApiCallTemplateWithoutId = Omit<ApiCallTemplate, 'id'>;
+
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
   readonly withdrawals: Request<Withdrawal>[];
 }
 
 export interface SubmitRequest<T> {
-  (airnodeRrp: AirnodeRrp, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
+  (airnodeRrp: AirnodeRrpV0, request: Request<T>, options: TransactionOptions): Promise<LogsErrorData<Request<T>>>;
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
@@ -147,7 +121,6 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly chainId: string;
   readonly chainType: ChainType;
   readonly chainOptions: ChainOptions;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
   readonly url: string;
@@ -188,6 +161,11 @@ export interface CoordinatorState {
   readonly settings: CoordinatorSettings;
 }
 
+export interface UpdatedRequests<T> {
+  readonly logs: PendingLog[];
+  readonly requests: Request<T>[];
+}
+
 // ===========================================
 // EVM specific
 // ===========================================
@@ -218,6 +196,7 @@ export interface GasTarget {
   readonly maxPriorityFeePerGas?: BigNumber;
   readonly maxFeePerGas?: BigNumber;
   readonly gasPrice?: BigNumber;
+  readonly gasLimit?: BigNumber;
 }
 
 // ===========================================
@@ -240,12 +219,12 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall = RegularAggregatedApiCall | TestingGatewayAggregatedApiCall;
+export type AggregatedApiCall =
+  | RegularAggregatedApiCall
+  | HttpGatewayAggregatedApiCall
+  | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
-  id: string;
-  airnodeAddress: string;
-  endpointId: string;
   endpointName: string;
   oisTitle: string;
   parameters: ApiCallParameters;
@@ -259,6 +238,9 @@ export interface BaseAggregatedApiCall {
 
 export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'regular';
+  id: string;
+  airnodeAddress: string;
+  endpointId: string;
   sponsorAddress: string;
   requesterAddress: string;
   sponsorWalletAddress: string;
@@ -274,8 +256,16 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   template?: ApiCallTemplate;
 }
 
-export interface TestingGatewayAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'testing-gateway';
+export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-gateway';
+}
+
+export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
+  type: 'http-signed-data-gateway';
+  id: string;
+  endpointId: string;
+  templateId: string;
+  template: ApiCallTemplate;
 }
 
 // ===========================================
@@ -287,11 +277,26 @@ export interface WorkerOptions {
   readonly stage: string;
 }
 
-export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+export interface InitializeProviderPayload {
+  readonly functionName: 'initializeProvider';
+  readonly state: ProviderState<EVMProviderState>;
+}
+
+export interface ProcessTransactionsPayload {
+  readonly functionName: 'processTransactions';
+  readonly state: ProviderState<EVMProviderSponsorState>;
+}
+
+export interface CallApiPayload {
+  readonly functionName: 'callApi';
+  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly logOptions: LogOptions;
+}
+
+export type WorkerPayload = InitializeProviderPayload | ProcessTransactionsPayload | CallApiPayload;
 
 export interface WorkerParameters extends WorkerOptions {
-  readonly functionName: WorkerFunctionName;
-  readonly payload: any;
+  readonly payload: WorkerPayload;
 }
 
 export interface WorkerResponse {
@@ -307,7 +312,7 @@ interface EVMEventLogMetadata {
   readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly transactionHash: string;
 }
 
@@ -343,51 +348,6 @@ export type EVMEventLog =
   | EVMRequestedWithdrawalLog
   | EVMFulfilledWithdrawalLog;
 
-// ===========================================
-// Triggers
-// ===========================================
-export interface Trigger {
-  readonly endpointId: string;
-  readonly endpointName: string;
-  readonly oisTitle: string;
-}
-
-export interface Triggers {
-  readonly rrp: Trigger[];
-  // For now the attribute is optional, because http gateway is supported only on AWS.
-  // TODO: Make this required once it is supported everywhere.
-  http?: Trigger[];
-}
-
-// ===========================================
-// Logging
-// ===========================================
-export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
-
-export type LogFormat = 'json' | 'plain';
-
-export interface LogMetadata {
-  readonly coordinatorId?: string;
-  readonly chainId?: string;
-  readonly chainType?: ChainType;
-  readonly providerName?: string;
-  readonly requestId?: string;
-}
-
-export interface LogOptions {
-  readonly additional?: any;
-  readonly error?: Error | null;
-  readonly format: LogFormat;
-  readonly level: LogLevel;
-  readonly meta: LogMetadata;
-}
-
-export interface PendingLog {
-  readonly error?: Error;
-  readonly level: LogLevel;
-  readonly message: string;
-}
-
 // There are many places throughout the app where we need the context of the current
 // (provider) state, mostly for logging purposes. It doesn't really make sense to
 // pass the entire state down to these functions as it tightly couples them to the
@@ -400,95 +360,3 @@ export interface PendingLog {
 // this reason.
 export type LogsData<T> = readonly [PendingLog[], T];
 export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T | null];
-
-// ===========================================
-// Config
-// ===========================================
-export type ChainType = 'evm'; // Add other blockchain types here;
-
-export interface ChainContracts {
-  readonly AirnodeRrp: string;
-}
-
-export interface Provider {
-  readonly url: string;
-}
-
-export interface PriorityFee {
-  readonly value: string;
-  readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
-}
-
-export interface ChainOptions {
-  readonly txType: 'legacy' | 'eip1559';
-  readonly baseFeeMultiplier?: string;
-  readonly priorityFee?: PriorityFee;
-}
-
-export interface ChainConfig {
-  readonly authorizers: string[];
-  readonly blockHistoryLimit?: number;
-  readonly contracts: ChainContracts;
-  readonly id: string;
-  readonly ignoreBlockedRequestsAfterBlocks?: number;
-  readonly minConfirmations?: number;
-  readonly type: ChainType;
-  readonly options: ChainOptions;
-  readonly providers: Record<string, Provider>;
-  readonly maxConcurrency: number;
-}
-
-export interface HttpGateway {
-  readonly enabled: boolean;
-  readonly apiKey?: string;
-}
-
-export interface Heartbeat {
-  readonly enabled: boolean;
-  readonly apiKey?: string;
-  readonly id?: string;
-  readonly url?: string;
-}
-
-export interface LocalProvider {
-  readonly type: 'local';
-}
-
-export interface AwsCloudProvider {
-  readonly type: 'aws';
-  readonly region: string;
-}
-
-export interface GcpCloudProvider {
-  readonly type: 'gcp';
-  readonly region: string;
-  readonly projectId: string;
-}
-
-export type CloudProvider = AwsCloudProvider | GcpCloudProvider;
-export type LocalOrCloudProvider = LocalProvider | CloudProvider;
-
-export interface NodeSettings {
-  readonly airnodeWalletMnemonic: string;
-  readonly heartbeat: Heartbeat;
-  readonly httpGateway: HttpGateway;
-  readonly airnodeAddressShort?: string;
-  readonly stage: string;
-  readonly cloudProvider: LocalOrCloudProvider;
-  readonly logFormat: LogFormat;
-  readonly logLevel: LogLevel;
-  readonly nodeVersion: string;
-  readonly skipValidation?: boolean;
-}
-
-export interface ApiCredentials extends AdapterApiCredentials {
-  readonly oisTitle: string;
-}
-
-export interface Config {
-  readonly chains: ChainConfig[];
-  readonly nodeSettings: NodeSettings;
-  readonly ois: OIS[];
-  readonly triggers: Triggers;
-  readonly apiCredentials: ApiCredentials[];
-}

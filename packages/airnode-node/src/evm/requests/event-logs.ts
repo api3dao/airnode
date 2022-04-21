@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
 import * as events from './events';
-import { retryOperation } from '../../utils/promise-utils';
-import { AirnodeRrpFactory } from '../contracts';
-import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
+import { AirnodeRrpV0Factory } from '../contracts';
 import {
   EVMEventLog,
   EVMMadeRequestLog,
@@ -17,7 +15,7 @@ export interface FetchOptions {
   readonly airnodeAddress: string;
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
-  readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly minConfirmations: number;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -29,7 +27,7 @@ interface GroupedLogs {
 // NOTE: The generic parameter could have a better default value (unknown instead of any) but doing so would make the
 // tests less readable because a lot of type casting would be needed.
 export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.providers.Log): AirnodeLogDescription<T> {
-  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpFactory.abi);
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpV0Factory.abi);
   const parsedLog = airnodeRrpInterface.parseLog(log);
   return parsedLog as AirnodeLogDescription<T>;
 }
@@ -37,25 +35,24 @@ export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.provi
 export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
+  // toBlock should always be >= fromBlock
+  const toBlock = Math.max(fromBlock, options.currentBlock - options.minConfirmations);
 
   const filter: ethers.providers.Filter = {
     fromBlock,
-    toBlock: options.currentBlock,
+    toBlock,
     address: options.address,
     topics: [null, ethers.utils.hexZeroPad(options.airnodeAddress, 32)],
   };
 
-  const operation = () => options.provider.getLogs(filter);
-  const retryableOperation = retryOperation(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-
   // Let this throw if something goes wrong
-  const rawLogs = await retryableOperation;
+  const rawLogs = await options.provider.getLogs(filter);
 
   const logsWithBlocks = rawLogs.map((log) => ({
     address: log.address,
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
-    ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
+    minConfirmations: options.minConfirmations,
     transactionHash: log.transactionHash,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),

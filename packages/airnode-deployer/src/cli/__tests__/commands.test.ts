@@ -1,9 +1,10 @@
+import { mockReadFileSync } from '../../../test/mock-utils';
 const deployAirnodeSpy = jest.fn();
 const removeAirnodeSpy = jest.fn();
 
 jest.mock('@api3/airnode-node', () => ({
   ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.4.0'),
+  version: jest.fn().mockReturnValue('0.5.0'),
 }));
 jest.mock('../../infrastructure', () => ({
   deployAirnode: deployAirnodeSpy,
@@ -15,15 +16,14 @@ jest.mock('../../utils', () => ({
 }));
 
 import { join } from 'path';
-import fs from 'fs';
 import { deploy, remove, removeWithReceipt } from '../commands';
 import { Receipt } from '../../types';
 
 describe('deployer commands', () => {
   it('can deploy Airnode', async () => {
     await deploy(
-      join(__dirname, '../../../config/config.json.example'),
-      join(__dirname, '../../../config/secrets.env.example'),
+      join(__dirname, '../../../config/config.example.json'),
+      join(__dirname, '../../../config/secrets.example.env'),
       'mocked receipt filename'
     );
 
@@ -31,7 +31,11 @@ describe('deployer commands', () => {
   });
 
   it('can remove Airnode', async () => {
-    await remove('airnodeAddressShort', 'stage', { type: 'aws', region: 'region' });
+    await remove('airnodeAddressShort', 'stage', {
+      type: 'aws',
+      region: 'region',
+      disableConcurrencyReservations: false,
+    });
 
     expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
   });
@@ -52,12 +56,14 @@ describe('deployer commands', () => {
           type: 'gcp',
           region: 'us-east1',
           projectId: 'airnode-4',
+          disableConcurrencyReservations: false,
         },
-        nodeVersion: '0.4.0',
+        nodeVersion: '0.5.0',
         stage: 'stage',
+        timestamp: new Date('23 March 2022 14:48 UTC').toISOString(),
       },
     };
-    jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => JSON.stringify(receipt, null, 2));
+    mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt));
     await removeWithReceipt(receiptFile);
 
     expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);

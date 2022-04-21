@@ -1,5 +1,37 @@
 # @api3/airnode-protocol
 
+## 0.6.0
+
+### Minor Changes
+
+- [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#1011](https://github.com/api3dao/airnode/pull/1011) [`1b8bcb01`](https://github.com/api3dao/airnode/commit/1b8bcb012350f7f1c6ae881067f697d90f59f1f6) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Update v0 protocol contracts to be compatible with v1 contracts
+
+- [#986](https://github.com/api3dao/airnode/pull/986) [`b5556b26`](https://github.com/api3dao/airnode/commit/b5556b26e2a2baefdbf26fd34045811fca8d2650) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Deploy v0 protocol contracts on additional chains
+
+* [#1020](https://github.com/api3dao/airnode/pull/1020) [`4c7fbe1a`](https://github.com/api3dao/airnode/commit/4c7fbe1af918a46d766b01d866046a0dd4d80914) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Redeployed v0 contracts
+
+### Patch Changes
+
+- [#962](https://github.com/api3dao/airnode/pull/962) [`1d16a73d`](https://github.com/api3dao/airnode/commit/1d16a73ddc357bb79df1311ef10fb78df0be7ccb) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Improve contract deployment and verification flow
+
+* [#961](https://github.com/api3dao/airnode/pull/961) [`c1dc6dd5`](https://github.com/api3dao/airnode/commit/c1dc6dd5334cabc782ce0a71deb9be4fcd2b602f) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Looser Solidity version requirement for RrpRequester
+
+## 0.5.0
+
+### Minor Changes
+
+- [#867](https://github.com/api3dao/airnode/pull/867) [`bbc3b519`](https://github.com/api3dao/airnode/commit/bbc3b5195938d570bef4a79ab82c360d9d650970) Thanks [@aquarat](https://github.com/aquarat)! - Refactored console calls to point to an abstracted version of the function in a new package, airnode-utilities
+
+* [`2accfc98`](https://github.com/api3dao/airnode/commit/2accfc98470f72f8463a4e80b01150ff4a0b2312) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+### Patch Changes
+
+- [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
+
+* [#894](https://github.com/api3dao/airnode/pull/894) [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd) Thanks [@vponline](https://github.com/vponline)! - Fix hardhat tests by wrapping with a `describe`
+
 ## 0.4.1
 
 ### Patch Changes

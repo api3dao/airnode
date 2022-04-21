@@ -1,11 +1,12 @@
-import fs from 'fs';
+import { mockReadFileSync } from '../../../test/mock-utils';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
+import { LogOptions } from '@api3/airnode-utilities';
 import * as coordinatedExecution from './coordinated-execution';
 import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
-import { LogOptions, RequestErrorMessage } from '../../types';
+import { RequestErrorMessage } from '../../types';
 
 describe('callApis', () => {
   const logOptions: LogOptions = {
@@ -28,8 +29,8 @@ describe('callApis', () => {
 
   it('returns each API call with the response if successful', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValueOnce(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValueOnce({ valid: true, messages: [], specs: config });
+    mockReadFileSync('config.json', JSON.stringify(config));
+    jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValueOnce(config);
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
@@ -60,8 +61,8 @@ describe('callApis', () => {
 
   it('returns an error if the adapter fails to extract and encode the response value', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
+    mockReadFileSync('config.json', JSON.stringify(config));
+    jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const extractSpy = jest.spyOn(adapter, 'extractAndEncodeResponse') as jest.SpyInstance;
@@ -76,14 +77,14 @@ describe('callApis', () => {
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ResponseValueNotFound}`);
+    expect(logs[1].message).toContain(`with error message:Unable to convert response`);
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorMessage: RequestErrorMessage.ResponseValueNotFound,
+        errorMessage: 'Unable to convert response',
       },
     ]);
     expect(executeSpy).toHaveBeenCalledTimes(1);
@@ -92,8 +93,8 @@ describe('callApis', () => {
 
   it('returns an error if the API call fails', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [], specs: config });
+    mockReadFileSync('config.json', JSON.stringify(config));
+    jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('Unexpected error'));
     const parameters = { _type: 'int256', _path: 'prices.1' };

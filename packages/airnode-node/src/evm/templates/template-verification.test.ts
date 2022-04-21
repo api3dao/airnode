@@ -1,6 +1,6 @@
 import * as verification from './template-verification';
 import * as fixtures from '../../../test/fixtures';
-import { verifyTemplateId } from '../../handlers/call-api';
+import { verifyTemplateId } from '../../api';
 
 // TODO: Move to call-api.test.ts
 describe('verify', () => {
@@ -16,7 +16,7 @@ describe('verify', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ templateId: null });
     const config = fixtures.buildConfig();
 
-    const response = verifyTemplateId({ aggregatedApiCall: aggregatedApiCall, config });
+    const response = verifyTemplateId({ aggregatedApiCall, config });
 
     expect(response).toEqual(null);
   });

@@ -6,13 +6,18 @@
   },
   "deployment": {
     "airnodeAddressShort": "a30ca71",
-    "cloudProvider": "aws",
+    "cloudProvider": {
+      "type": "aws",
+      "region": "us-east-1",
+      "disableConcurrencyReservations": false
+    },
     "region": "us-east-1",
     "stage": "starter-example",
     "nodeVersion": "0.2.0"
   },
   "api": {
     "heartbeatId": "74dc44a1ee65",
-    "httpGatewayUrl": "https://some.aws.api.gateway.url/v1/test"
+    "httpGatewayUrl": "https://some.aws.api.gateway.url/v1",
+    "httpSignedDataGatewayUrl": "https://some.aws.api.gateway.url/v1"
   }
 }

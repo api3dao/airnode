@@ -42,7 +42,7 @@ resource "google_api_gateway_api" "api_gateway_api" {
 resource "google_api_gateway_api_config" "api_gateway_api_config" {
   provider = google-beta
 
-  api           = google_api_gateway_api.api_gateway_api.api_id
+  api = google_api_gateway_api.api_gateway_api.api_id
   # Generating a suffix manually because the one generated with `api_config_id_prefix` is far too long
   api_config_id = lower("${var.name}-config-${substr(uuid(), 0, 8)}")
   display_name  = "${var.name}-config"

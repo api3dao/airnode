@@ -1,7 +1,7 @@
 import { MadeTemplateRequestEvent } from '@api3/airnode-protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMMadeRequestLog, RequestErrorMessage, RequestStatus, EVMFulfilledRequestLog } from '../../types';
+import { EVMMadeRequestLog, EVMFulfilledRequestLog } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
@@ -13,7 +13,7 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
 
@@ -33,12 +33,11 @@ describe('initialize (ApiCall)', () => {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
-        ignoreBlockedRequestsAfterBlocks: 20,
+        minConfirmations: 0,
         transactionHash: event.transactionHash,
       },
       parameters: {},
       requestCount: '1',
-      status: RequestStatus.Pending,
       templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
       type: 'template',
     });
@@ -52,7 +51,7 @@ describe('initialize (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const template = {
@@ -80,7 +79,7 @@ describe('applyParameters', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
   });
@@ -89,80 +88,51 @@ describe('applyParameters', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual(withEncodedParams);
+    expect(withDecodedParameters).toEqual([withEncodedParams]);
   });
 
   it('decodes and adds the parameters to the request', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([request]);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH' } });
+    expect(withDecodedParameters).toEqual([{ ...request, parameters: { from: 'ETH' } }]);
   });
 
-  it('sets the request to errored if the parameters cannot be decoded', () => {
+  it('drops the request if the parameters cannot be decoded', () => {
     const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '0xincorrectparameters' };
-    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
+    const [logs, withDecodedParameters] = apiCalls.applyParameters([withEncodedParams]);
     expect(logs).toEqual([
       {
         level: 'ERROR',
         message: `Request ID:${request.id} submitted with invalid parameters: 0xincorrectparameters`,
       },
     ]);
-    expect(withDecodedParameters).toEqual({
-      ...withEncodedParams,
-      status: RequestStatus.Errored,
-      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: 0xincorrectparameters`,
-    });
+    expect(withDecodedParameters.length).toEqual(0);
   });
 });
 
 describe('updateFulfilledRequests (ApiCall)', () => {
-  it('updates the status of fulfilled API calls', () => {
+  it('drops fulfilled API calls', () => {
     const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
     const apiCall = fixtures.requests.buildApiCall({ id });
-    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
+    const [logs, requests] = apiCalls.dropFulfilledRequests([apiCall], [id]);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
         message: `Request ID:${id} (API call) has already been fulfilled`,
       },
     ]);
-    expect(requests).toEqual([
-      {
-        id,
-        airnodeAddress: 'airnodeAddress',
-        chainId: '31337',
-        requesterAddress: 'requesterAddress',
-        sponsorAddress: 'sponsorAddress',
-        sponsorWalletAddress: 'sponsorWalletAddress',
-        endpointId: 'endpointId',
-        fulfillAddress: 'fulfillAddress',
-        fulfillFunctionId: 'fulfillFunctionId',
-        encodedParameters: 'encodedParameters',
-        metadata: {
-          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-          blockNumber: 10716082,
-          currentBlock: 10716090,
-          ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash: 'logTransactionHash',
-        },
-        parameters: { from: 'ETH' },
-        requestCount: '12',
-        status: RequestStatus.Fulfilled,
-        templateId: null,
-        type: 'template',
-      },
-    ]);
+    expect(requests.length).toEqual(0);
   });
 
   it('returns the request if it is not fulfilled', () => {
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], []);
+    const [logs, requests] = apiCalls.dropFulfilledRequests([apiCall], []);
     expect(logs).toEqual([]);
     expect(requests).toEqual([apiCall]);
   });
@@ -177,7 +147,7 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: event.transactionHash,
     };
     const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
@@ -199,19 +169,18 @@ describe('mapRequests (ApiCall)', () => {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
-          ignoreBlockedRequestsAfterBlocks: 20,
+          minConfirmations: 0,
           transactionHash: event.transactionHash,
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
-        status: RequestStatus.Pending,
         templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
         type: 'template',
       },
     ]);
   });
 
-  it('updates the status of fulfilled ApiCall requests', () => {
+  it('drops fulfilled ApiCall requests', () => {
     const requestEvent = fixtures.evm.logs.buildMadeTemplateRequest();
     const fulfillEvent = fixtures.evm.logs.buildTemplateFulfilledRequest();
     const requestLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(requestEvent);
@@ -222,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
     };
     const fulfillLogWithMetadata = {
@@ -230,7 +199,7 @@ describe('mapRequests (ApiCall)', () => {
       address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
-      ignoreBlockedRequestsAfterBlocks: 20,
+      minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
     };
 
@@ -241,8 +210,6 @@ describe('mapRequests (ApiCall)', () => {
         message: `Request ID:${requestLog.args.requestId} (API call) has already been fulfilled`,
       },
     ]);
-    expect(requests.length).toEqual(1);
-    expect(requests[0].id).toEqual(requestLog.args.requestId);
-    expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
+    expect(requests.length).toEqual(0);
   });
 });

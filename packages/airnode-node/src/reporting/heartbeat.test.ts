@@ -6,11 +6,26 @@ jest.mock('@api3/airnode-adapter', () => ({
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
-import { Heartbeat } from '../types';
+import { Heartbeat } from '../config/types';
 
 const heartbeatOptions: Array<keyof Heartbeat> = ['id', 'apiKey', 'url'];
 
 describe('reportHeartbeat', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      HTTP_GATEWAY_URL: 'https://some.http.gateway.url/v1/',
+      HTTP_SIGNED_DATA_GATEWAY_URL: 'https://some.http.signed.data.gateway.url/v1/',
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('does nothing if the heartbeat is disabled', async () => {
     const nodeSettings = fixtures.buildNodeSettings({ heartbeat: { enabled: false } });
     const config = fixtures.buildConfig({ nodeSettings });
@@ -52,6 +67,8 @@ describe('reportHeartbeat', () => {
       },
       data: {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
+        http_gateway_url: 'https://some.http.gateway.url/v1/',
+        http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
       },
       timeout: 5_000,
     });
@@ -75,6 +92,8 @@ describe('reportHeartbeat', () => {
       },
       data: {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
+        http_gateway_url: 'https://some.http.gateway.url/v1/',
+        http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
       },
       timeout: 5_000,
     });

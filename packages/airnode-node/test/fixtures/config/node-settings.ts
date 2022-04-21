@@ -1,4 +1,4 @@
-import { NodeSettings } from '../../../src/types';
+import { NodeSettings } from '../../../src/config/types';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
@@ -7,6 +7,9 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     },
     airnodeWalletMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
     httpGateway: {
+      enabled: false,
+    },
+    httpSignedDataGateway: {
       enabled: false,
     },
     heartbeat: {

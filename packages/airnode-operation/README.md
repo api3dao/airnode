@@ -129,7 +129,7 @@ the contracts and funding the wallets.
 
 `mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic
 [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's wallet. The airnode wallet address
-also serves as the Airnode identifier and AirnodeRrp will expect this address to be used as caller (for example when
+also serves as the Airnode identifier and AirnodeRrpV0 will expect this address to be used as caller (for example when
 setting the xpub) or to be sent as argument (for example when calling `makeFullRequest`). **DO NOT SEND REAL FUNDS TO A
 WALLET LINKED TO A TEST MNEMONIC**
 

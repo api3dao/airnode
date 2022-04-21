@@ -1,5 +1,4 @@
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
+import { logger, go } from '@api3/airnode-utilities';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
 import {
@@ -7,20 +6,20 @@ import {
   EVMProviderSponsorState,
   LogsData,
   ProviderState,
-  WorkerFunctionName,
+  InitializeProviderPayload,
+  ProcessTransactionsPayload,
   WorkerOptions,
 } from '../types';
 
 async function spawn<T extends EVMProviderState>(
   state: ProviderState<T>,
   workerOpts: WorkerOptions,
-  functionName: WorkerFunctionName,
+  functionName: InitializeProviderPayload['functionName'] | ProcessTransactionsPayload['functionName'],
   errorMessage: string
 ): Promise<LogsData<ProviderState<T> | null>> {
   const options = {
     ...workerOpts,
-    functionName,
-    payload: { state },
+    payload: { state, functionName } as InitializeProviderPayload | ProcessTransactionsPayload,
   };
 
   const [err, res] = await go(() => workers.spawn(options));
@@ -52,5 +51,5 @@ export async function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderSponsorState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
-  return spawn(state, workerOpts, 'processProviderRequests', 'Unable to process provider requests');
+  return spawn(state, workerOpts, 'processTransactions', 'Unable to process provider requests');
 }
