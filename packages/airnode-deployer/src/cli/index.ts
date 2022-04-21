@@ -22,8 +22,10 @@ function drawHeader() {
       "|  _  | | '__| '_ \\ / _ \\ / _` |/ _ \\",
       '| | | | | |  | | | | (_) | (_| |  __/',
       '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|',
+      '',
       `          Airnode v${getNodeVersion()}`,
       `        Deployer CLI v${packageVersion}`,
+      '',
     ].join('\n')
   );
 }
@@ -31,8 +33,10 @@ function drawHeader() {
 async function runCommand(command: () => Promise<void>) {
   try {
     await command();
-  } catch (err) {
-    loggerUtils.error((err as Error).message);
+  } catch {
+    // We are not logging the error since all errors should be handled by the specific deployer command. An error here
+    // means the command was not successful and should fail with non zero status code.
+    //
     // eslint-disable-next-line functional/immutable-data
     process.exitCode = 1;
   }
