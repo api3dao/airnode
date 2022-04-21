@@ -1,5 +1,26 @@
 # @api3/airnode-examples
 
+## 0.6.0
+
+### Minor Changes
+
+- [#940](https://github.com/api3dao/airnode/pull/940) [`f222f89a`](https://github.com/api3dao/airnode/commit/f222f89a0ec8643ca4f505ed786764d4c5bdf6a7) Thanks [@kolenic-martin](https://github.com/kolenic-martin)! - Added an Airnode example demonstrating invalid API request
+
+* [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- [#997](https://github.com/api3dao/airnode/pull/997) [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb) Thanks [@vponline](https://github.com/vponline)! - Replace API_CALL_FULFILLMENT_GAS_LIMIT constant with fulfillmentGasLimit configuration option
+
+### Patch Changes
+
+- [#966](https://github.com/api3dao/airnode/pull/966) [`3d920a81`](https://github.com/api3dao/airnode/commit/3d920a814abfafb86911718df90d757b98626e91) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix airnode example demonstrating how to use signed data gateway
+
+- Updated dependencies [[`62a090ed`](https://github.com/api3dao/airnode/commit/62a090eddf37db93ebc64ba10ec70f21199c4dbe), [`ee483ce6`](https://github.com/api3dao/airnode/commit/ee483ce6d49466fad7bf983d60069d9226de3c6f), [`3d920a81`](https://github.com/api3dao/airnode/commit/3d920a814abfafb86911718df90d757b98626e91), [`d2c8befd`](https://github.com/api3dao/airnode/commit/d2c8befd9d69e8bb41655fc55da6f03762447bae), [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31), [`1b8bcb01`](https://github.com/api3dao/airnode/commit/1b8bcb012350f7f1c6ae881067f697d90f59f1f6), [`1d16a73d`](https://github.com/api3dao/airnode/commit/1d16a73ddc357bb79df1311ef10fb78df0be7ccb), [`b5556b26`](https://github.com/api3dao/airnode/commit/b5556b26e2a2baefdbf26fd34045811fca8d2650), [`636e8b98`](https://github.com/api3dao/airnode/commit/636e8b981c3ae84c151a77686e233de67c572a96), [`a8fa7373`](https://github.com/api3dao/airnode/commit/a8fa737388460a30e2332996550e0ce44b00bc2a), [`75dfabf9`](https://github.com/api3dao/airnode/commit/75dfabf95b53e1365792248db418395bab322f19), [`a5a7a5fc`](https://github.com/api3dao/airnode/commit/a5a7a5fc05d41b1246138b8507c78c5013fc724d), [`c1dc6dd5`](https://github.com/api3dao/airnode/commit/c1dc6dd5334cabc782ce0a71deb9be4fcd2b602f), [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb), [`4c7fbe1a`](https://github.com/api3dao/airnode/commit/4c7fbe1af918a46d766b01d866046a0dd4d80914)]:
+  - @api3/airnode-node@0.6.0
+  - @api3/airnode-deployer@0.6.0
+  - @api3/airnode-abi@0.6.0
+  - @api3/airnode-admin@0.6.0
+  - @api3/airnode-protocol@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
