@@ -12,7 +12,7 @@ chain.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin","_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin","_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 Before making the request, you need to replace the example values:
@@ -24,5 +24,5 @@ Before making the request, you need to replace the example values:
 The correct command may look like this:
 
 ```sh
-curl -X POST -H 'x-api-key: 5da75575-e1c0-40ce-b2eb-5b9dcd2a460b' -d '{"parameters": {"coinId": "bitcoin", "_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' 'https://3kailg4d24.execute-api.us-east-1.amazonaws.com/v1/0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153'
+curl -X POST -H 'x-api-key: 5da75575-e1c0-40ce-b2eb-5b9dcd2a460b'-H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin", "_templateId":"0x6365636b79000000000000000000000000000000000000000000000000000000"}}' 'https://3kailg4d24.execute-api.us-east-1.amazonaws.com/v1/0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153'
 ```
