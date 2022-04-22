@@ -119,6 +119,7 @@ export interface ReservedParameter {
 export interface ProcessingSpecification {
   environment: 'Node 14' | 'Node 14 async';
   value: string;
+  timeoutMs: number;
 }
 
 export interface Endpoint {

@@ -9,10 +9,6 @@ describe('caching utils', () => {
     const existsSyncSpy = jest.spyOn(fs, 'existsSync');
     existsSyncSpy.mockReturnValueOnce(false);
 
-    // TODO find a way to mock child_process.spawn
-    // const syncSpy = jest.spyOn(child_process, 'spawn');
-    // syncSpy.mockReturnValue(undefined as unknown as ChildProcess);
-
     caching.initPath();
 
     expect(existsSyncSpy).toHaveBeenCalledTimes(1);

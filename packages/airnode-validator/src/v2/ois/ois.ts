@@ -124,6 +124,7 @@ export const apiSpecificationSchema = z.object({
 export const processingSpecificationSchema = z.object({
   environment: z.union([z.literal('Node 14'), z.literal('Node 14 async')]),
   value: z.string(),
+  timeoutMs: z.number(),
 });
 
 export const endpointSchema = z.object({

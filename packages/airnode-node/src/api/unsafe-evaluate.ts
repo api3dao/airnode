@@ -1,17 +1,22 @@
-import { runInThisContext } from 'vm';
+import { runInNewContext } from 'vm';
 
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
-export const unsafeEvaluate = (_input: any, code: string) =>
-  eval(`
-      const ethers = require('ethers');
-      const input = _input;
+export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
+  const vmContext = {
+    require,
+    input,
+    deferredOutput: undefined,
+  } as { deferredOutput?: any };
 
-      ${code};
+  runInNewContext(`${code}; deferredOutput = output;`, vmContext, {
+    displayErrors: true,
+    timeout,
+  });
 
-      output;
-  `);
+  return vmContext.deferredOutput;
+};
 
 /**
  * This function runs asynchronous code in a Node VM.
@@ -25,7 +30,7 @@ export const unsafeEvaluate = (_input: any, code: string) =>
  *
  * The value given to `resolve` is expected to be the equivalent of `output` above.
  */
-export const unsafeEvaluateAsync = async (input: any, code: string) =>
+export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) =>
   new Promise((resolve) => {
     const vmContext = {
       require,
@@ -33,5 +38,5 @@ export const unsafeEvaluateAsync = async (input: any, code: string) =>
       resolve,
     };
 
-    runInThisContext(code, { displayErrors: true })(vmContext);
+    runInNewContext(code, vmContext, { displayErrors: true, timeout });
   });

@@ -153,10 +153,12 @@ describe('callApi', () => {
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, from: "BTC"};',
+          timeoutMs: 5_000,
         },
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, source: "airnode"};',
+          timeoutMs: 5_000,
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
@@ -192,10 +194,12 @@ describe('callApi', () => {
         {
           environment: 'Node 14' as const,
           value: 'const output = parseInt(input.price)*1000;',
+          timeoutMs: 5_000,
         },
         {
           environment: 'Node 14' as const,
           value: 'const output = parseInt(input)*2;',
+          timeoutMs: 5_000,
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], postProcessingSpecifications };

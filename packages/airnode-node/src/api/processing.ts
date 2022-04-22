@@ -20,9 +20,9 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
       await preProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
-            return await unsafeEvaluate(await input, currentValue.value);
+            return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
           case 'Node 14 async':
-            return await unsafeEvaluateAsync(await input, currentValue.value);
+            return await unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
@@ -58,9 +58,9 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
       await postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
-            return await unsafeEvaluate(await input, currentValue.value);
+            return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
           case 'Node 14 async':
-            return await unsafeEvaluate(await input, currentValue.value);
+            return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
