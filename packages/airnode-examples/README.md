@@ -48,11 +48,12 @@ reserved parameters. The following list orders integrations alphabetically:
 
 ## Setup
 
-First, check out a specific git commit tag, starting with `v0.6` or later; the unreleased master branch is not supported
-and is for development purposes only. Run the following to check out a tag, for example `v0.6`:
+First, download the repository source code at a specific tag or release, or, alternatively, clone the repository and
+check out a specific git commit tag; the unreleased master branch is not supported and is for development purposes only.
+Run the following to check out a tag, for example `v0.6`:
 
 ```sh
-git checkout v0.6
+git fetch --tags && git checkout v0.6
 ```
 
 Next, make sure you have `yarn` installed and then follow the
