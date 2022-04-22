@@ -10,7 +10,7 @@ export const CACHE_MAX_FILES = 100_000; // (500 (cache size) * 1024 (KB) ) / 4 (
 export const isJest = () => process.env.JEST_WORKER_ID !== undefined;
 
 /**
- * Calls the OS syncs command to forcefully sync the cache filesystem.
+ * Calls the OS sync command to forcefully sync the cache filesystem.
  * This is the functional equivalent of "commit" from SQL.
  */
 const syncFsSync = () => {
