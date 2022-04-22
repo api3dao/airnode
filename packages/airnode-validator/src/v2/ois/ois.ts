@@ -122,7 +122,7 @@ export const apiSpecificationSchema = z.object({
 });
 
 export const processingSpecificationSchema = z.object({
-  environment: z.literal('Node 14'),
+  environment: z.union([z.literal('Node 14'), z.literal('Node 14 async')]),
   value: z.string(),
 });
 

@@ -1,7 +1,8 @@
 import { Endpoint, ProcessingSpecification } from '@api3/airnode-ois';
 import { go } from '@api3/airnode-utilities';
-import { unsafeEvaluate } from './unsafe-evaluate';
+import { unsafeEvaluate, unsafeEvaluateAsync } from './unsafe-evaluate';
 import { apiCallParametersSchema } from '../validation';
+import { PROCESSING_TIMEOUT } from '../constants';
 import { CallApiPayload } from './index';
 
 export const preProcessApiSpecifications = async (payload: CallApiPayload): Promise<CallApiPayload> => {
@@ -16,15 +17,17 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
 
   const [err, processedParameters] = await go(
     async () =>
-      preProcessingSpecifications.reduce((input: any, currentValue: ProcessingSpecification) => {
+      await preProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
-            return unsafeEvaluate(input, currentValue.value);
+            return await unsafeEvaluate(await input, currentValue.value);
+          case 'Node 14 async':
+            return await unsafeEvaluateAsync(await input, currentValue.value);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
-      }, aggregatedApiCall.parameters),
-    { retries: 0, timeoutMs: 500 }
+      }, new Promise((resolve) => resolve(aggregatedApiCall.parameters))),
+    { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
   );
 
   if (err) {
@@ -51,20 +54,19 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
   }
 
   const [err, result] = await go(
-    () =>
-      new Promise((resolve) => {
-        resolve(
-          postProcessingSpecifications.reduce((input: any, currentValue: ProcessingSpecification) => {
-            switch (currentValue.environment) {
-              case 'Node 14':
-                return unsafeEvaluate(input, currentValue.value);
-              default:
-                throw new Error(`Environment ${currentValue.environment} is not supported`);
-            }
-          }, input)
-        );
-      }),
-    { retries: 0, timeoutMs: 500 }
+    async () =>
+      await postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
+        switch (currentValue.environment) {
+          case 'Node 14':
+            return await unsafeEvaluate(await input, currentValue.value);
+          case 'Node 14 async':
+            return await unsafeEvaluate(await input, currentValue.value);
+          default:
+            throw new Error(`Environment ${currentValue.environment} is not supported`);
+        }
+      }, input),
+
+    { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
   );
 
   if (err) {
