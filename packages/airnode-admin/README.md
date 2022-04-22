@@ -1,6 +1,4 @@
-# Monorepo version: `@api3/airnode-admin`
-
-# Stand-alone version: `@api3/airnode-admin`
+# `@api3/airnode-admin`
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
