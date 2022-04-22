@@ -98,9 +98,9 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
   if (deploymentError) {
     logger.fail(
-      `Airnode deployment failed due to errors.\n` +
+      `Airnode deployment failed due to unexpected errors.\n` +
         `  It is possible that some resources have been deployed on cloud provider.\n` +
-        `  Please use the "remove" command from the deployer CLI to make sure all cloud resources are removed.`
+        `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
     );
     throw deploymentError;
   }
