@@ -33,10 +33,12 @@ function drawHeader() {
 async function runCommand(command: () => Promise<void>) {
   try {
     await command();
-  } catch {
-    // We are not logging the error since all errors should be handled by the specific deployer command. An error here
-    // means the command was not successful and should fail with non zero status code.
-    //
+  } catch (err) {
+    // Logging an error here likely results in overlogging since the errors are usually logged at the place where they
+    // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
+    if (err instanceof Error) logger.fail(err.message);
+    else logger.fail('' + err);
+
     // eslint-disable-next-line functional/immutable-data
     process.exitCode = 1;
   }
@@ -129,12 +131,14 @@ yargs(hideBin(process.argv))
       const descriptiveArgsProvided = intersection(descriptiveArgsAll, keys(args));
 
       if (isEmpty(argsProvided)) {
+        // Throwing strings to prevent yargs from showing error stack trace
         throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${printableArguments(
           descriptiveArgsAll
         )}.`;
       }
 
       if (receiptRemove && !isEmpty(descriptiveArgsProvided)) {
+        // Throwing strings to prevent yargs from showing error stack trace
         throw "Can't mix data from receipt and data from command line arguments.";
       }
 
@@ -144,6 +148,7 @@ yargs(hideBin(process.argv))
       }
 
       if (!args['cloud-provider']) {
+        // Throwing strings to prevent yargs from showing error stack trace
         throw "Missing argument, must provide '--cloud-provider";
       }
 
@@ -162,6 +167,7 @@ yargs(hideBin(process.argv))
       }
 
       if (!isEmpty(descriptiveArgsMissing)) {
+        // Throwing strings to prevent yargs from showing error stack trace
         throw `Missing arguments: ${printableArguments(descriptiveArgsMissing)}.`;
       }
     }

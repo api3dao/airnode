@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { CloudProvider, Config } from '@api3/airnode-node';
 import { parseReceipt, parseConfigWithSecrets, unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
+import { logAndReturnError } from './infrastructure';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
@@ -36,8 +37,7 @@ export function parseSecretsFile(secretsPath: string) {
   try {
     return dotenv.parse(fs.readFileSync(secretsPath));
   } catch (e) {
-    logger.fail('Failed to parse secrets file');
-    throw e;
+    throw logAndReturnError(`Failed to parse secrets file: ${e}`);
   }
 }
 
@@ -80,14 +80,12 @@ export function parseReceiptFile(receiptFilename: string) {
   try {
     receipt = JSON.parse(fs.readFileSync(receiptFilename, 'utf8'));
   } catch (e) {
-    logger.fail('Failed to parse receipt file');
-    throw e;
+    throw logAndReturnError(`Failed to parse receipt file: ${e}`);
   }
 
   const validationResult = parseReceipt(receipt);
   if (!validationResult.success) {
-    logger.fail('Failed to validate receipt file');
-    throw new Error(`Invalid Airnode receipt file: ${validationResult.error}`);
+    throw logAndReturnError(`Invalid Airnode receipt file: ${validationResult.error}`);
   }
 
   return receipt as Receipt;
