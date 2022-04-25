@@ -22,16 +22,19 @@ describe('EVM event logs - fetch', () => {
       blockNumber: 10716082,
       topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203',
       transactionHash: '0x1',
+      logIndex: 0,
     };
     const fulfilledApiCallEvent = {
       blockNumber: 10716083,
       topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5',
       transactionHash: '0x2',
+      logIndex: 0,
     };
     const unknownEvent = {
       blockNumber: 10716082,
       topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       transactionHash: '0x3',
+      logIndex: 1,
     };
 
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
@@ -41,9 +44,9 @@ describe('EVM event logs - fetch', () => {
     // a stable way to have the ABI accessible in the tests
     const contractInterface = new ethers.utils.Interface('abi here');
     const parseLog = contractInterface.parseLog as jest.Mock;
-    parseLog.mockReturnValueOnce(removeKeys(newApiCallEvent, ['blockNumber', 'transactionHash']));
-    parseLog.mockReturnValueOnce(removeKeys(fulfilledApiCallEvent, ['blockNumber', 'transactionHash']));
-    parseLog.mockReturnValueOnce(removeKeys(unknownEvent, ['blockNumber', 'transactionHash']));
+    parseLog.mockReturnValueOnce(removeKeys(newApiCallEvent, ['blockNumber', 'transactionHash', 'logIndex']));
+    parseLog.mockReturnValueOnce(removeKeys(fulfilledApiCallEvent, ['blockNumber', 'transactionHash', 'logIndex']));
+    parseLog.mockReturnValueOnce(removeKeys(unknownEvent, ['blockNumber', 'transactionHash', 'logIndex']));
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -62,6 +65,7 @@ describe('EVM event logs - fetch', () => {
         minConfirmations: 1,
         parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
         transactionHash: '0x1',
+        logIndex: 0,
       },
       {
         blockNumber: 10716083,
@@ -69,6 +73,7 @@ describe('EVM event logs - fetch', () => {
         minConfirmations: 1,
         parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
+        logIndex: 0,
       },
       {
         blockNumber: 10716082,
@@ -76,6 +81,7 @@ describe('EVM event logs - fetch', () => {
         minConfirmations: 1,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
+        logIndex: 1,
       },
     ]);
     expect(getLogs).toHaveBeenCalledTimes(1);
@@ -109,6 +115,7 @@ describe('EVM event logs - fetch', () => {
       blockNumber: 10716082,
       topic: '0xinvalidtopic',
       transactionHash: '0x1',
+      logIndex: 0,
     };
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent]);
@@ -185,18 +192,21 @@ describe('EVM event logs - group', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
         transactionHash: '0x1',
+        logIndex: 0,
       },
       // Fulfillment
       {
         blockNumber: 10716083,
         parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
         transactionHash: '0x2',
+        logIndex: 0,
       },
       // Unknown event
       {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
+        logIndex: 1,
       },
     ];
 
@@ -207,11 +217,13 @@ describe('EVM event logs - group', () => {
           blockNumber: 10716082,
           parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
           transactionHash: '0x1',
+          logIndex: 0,
         },
         {
           blockNumber: 10716083,
           parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
           transactionHash: '0x2',
+          logIndex: 0,
         },
       ],
       withdrawals: [],
@@ -224,17 +236,20 @@ describe('EVM event logs - group', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
         transactionHash: '0x1',
+        logIndex: 0,
       },
       {
         blockNumber: 10716083,
         parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
         transactionHash: '0x2',
+        logIndex: 0,
       },
       // Unknown event
       {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
+        logIndex: 1,
       },
     ];
 
@@ -246,11 +261,13 @@ describe('EVM event logs - group', () => {
           blockNumber: 10716082,
           parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
           transactionHash: '0x1',
+          logIndex: 0,
         },
         {
           blockNumber: 10716083,
           parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
           transactionHash: '0x2',
+          logIndex: 0,
         },
       ],
     });

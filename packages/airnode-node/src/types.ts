@@ -51,6 +51,7 @@ export interface RequestMetadata {
   readonly currentBlock: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
+  readonly logIndex: number;
 }
 
 export interface RequestFulfillment {
@@ -314,6 +315,7 @@ interface EVMEventLogMetadata {
   readonly currentBlock: number;
   readonly minConfirmations: number;
   readonly transactionHash: string;
+  readonly logIndex: number;
 }
 
 export type AirnodeLogDescription<Event> = Event extends { readonly args: infer EventArgs }

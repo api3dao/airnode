@@ -15,6 +15,7 @@ describe('initialize (ApiCall)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
 
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
@@ -35,6 +36,7 @@ describe('initialize (ApiCall)', () => {
         currentBlock: 10716085,
         minConfirmations: 0,
         transactionHash: event.transactionHash,
+        logIndex: 0,
       },
       parameters: {},
       requestCount: '1',
@@ -53,6 +55,7 @@ describe('initialize (ApiCall)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
     const template = {
       ...base,
@@ -81,6 +84,7 @@ describe('applyParameters', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
   });
 
@@ -149,6 +153,7 @@ describe('mapRequests (ApiCall)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
     const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
@@ -171,6 +176,7 @@ describe('mapRequests (ApiCall)', () => {
           currentBlock: 10716085,
           minConfirmations: 0,
           transactionHash: event.transactionHash,
+          logIndex: 0,
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
@@ -193,6 +199,7 @@ describe('mapRequests (ApiCall)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
+      logIndex: 0,
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -201,6 +208,7 @@ describe('mapRequests (ApiCall)', () => {
       currentBlock: 10716087,
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
+      logIndex: 0,
     };
 
     const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);
