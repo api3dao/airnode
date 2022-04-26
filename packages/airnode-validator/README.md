@@ -6,8 +6,9 @@ them.
 
 ## Usage
 
-General usage of validator and convertor is described in the
-[API3 Documentation](https://docs.api3.org/airnode/latest/reference/packages/validator.html).
+<!-- TODO: Link to validator docs when available -->
+
+Validator is currently an internal dependency of Airnode and not intended to be used in a standalone way.
 
 ## Build Manually
 
