@@ -47,7 +47,9 @@ export function buildSuccessfulApiCall(
   };
 }
 
-export function buildFailedApiCall(params?: Partial<Request<ApiCallErrorResponse>>): Request<ApiCallErrorResponse> {
+export function buildFailedApiCall(
+  params?: Partial<Request<ApiCall & ApiCallErrorResponse>>
+): Request<ApiCall & ApiCallErrorResponse> {
   return {
     ...buildApiCall(params),
     errorMessage: 'API call failed',
