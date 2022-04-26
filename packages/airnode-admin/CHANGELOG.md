@@ -64,7 +64,7 @@
 
 - [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#868](https://github.com/api3dao/airnode/pull/868) [`23660580`](https://github.com/api3dao/airnode/commit/236605802a485fe09d1df7553d5b13fa7e6f36bf) Thanks [@vponline](https://github.com/vponline)! - Display airnode address and xpub when generating a mnemonic with CLI
 
