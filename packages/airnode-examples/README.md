@@ -1,4 +1,4 @@
-# Airnode examples
+# `@api3/airnode-examples`
 
 > A public list of examples showcasing the features of Airnode
 
