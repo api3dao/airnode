@@ -28,7 +28,7 @@ describe('initialize (ApiCall)', () => {
       fulfillFunctionId: '0x7c1de7e1',
       encodedParameters:
         '0x317300000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0x894580d6cffd205170373f9b95adfe58b65d63f273bb9945e81fa5f0d7901ffe',
+      id: '0x6229170487af5555b0756bec5bc7f789818c00e8744f4026edcd5bb438a87fb3',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
@@ -38,7 +38,7 @@ describe('initialize (ApiCall)', () => {
       },
       parameters: {},
       requestCount: '1',
-      templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
+      templateId: '0x330d8d77953d56206224f51fb08bebb4e253097bf59c126baa4da8f909ef27ec',
       type: 'template',
     });
   });
@@ -164,7 +164,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: '0x7c1de7e1',
         encodedParameters:
           '0x317300000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x894580d6cffd205170373f9b95adfe58b65d63f273bb9945e81fa5f0d7901ffe',
+        id: '0x6229170487af5555b0756bec5bc7f789818c00e8744f4026edcd5bb438a87fb3',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
@@ -174,7 +174,7 @@ describe('mapRequests (ApiCall)', () => {
         },
         parameters: { from: 'ETH' },
         requestCount: '1',
-        templateId: '0xb3df2ca7646e7823c18038ed320ae3fa29bcd7452fdcd91398833da362df1b46',
+        templateId: '0x330d8d77953d56206224f51fb08bebb4e253097bf59c126baa4da8f909ef27ec',
         type: 'template',
       },
     ]);

@@ -8,7 +8,6 @@ interface ValidatedField {
 
 function getTemplateIdValidationFields(template: ApiCallTemplateWithoutId): ValidatedField[] {
   return [
-    { type: 'address', value: template.airnodeAddress },
     { type: 'bytes32', value: template.endpointId },
     { type: 'bytes', value: template.encodedParameters },
   ];
