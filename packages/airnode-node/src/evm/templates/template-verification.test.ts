@@ -1,3 +1,4 @@
+import { utils } from 'ethers';
 import * as verification from './template-verification';
 import * as fixtures from '../../../test/fixtures';
 import { verifyTemplateId } from '../../api';
@@ -5,11 +6,41 @@ import { verifyTemplateId } from '../../api';
 // TODO: Move to call-api.test.ts
 describe('verify', () => {
   const validTemplateFields = {
+    airnodeAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
     endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
     encodedParameters: '0x6466726f6d63455448',
   };
 
-  const TEMPLATE_ID = '0xe5d99287b5a870c3453bc0b42769c6f37cf4a3143890e9c34753181171fac842';
+  const TEMPLATE_ID = '0xb2f063157fcc3c986daf4c2cf1b8ac8b8843f2b1a54c5de5e1ebdf12fb85a927';
+
+  it('derives templateId for V0', () => {
+    const expectedTemplateIdV0 = verification.getExpectedTemplateIdV0(validTemplateFields);
+
+    expect(expectedTemplateIdV0).toEqual(
+      utils.keccak256(
+        utils.solidityPack(
+          ['address', 'bytes32', 'bytes'],
+          [
+            '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
+            '0x6466726f6d63455448',
+          ]
+        )
+      )
+    );
+  });
+  it('derives templateId for V1', () => {
+    const expectedTemplateIdV1 = verification.getExpectedTemplateIdV1(validTemplateFields);
+
+    expect(expectedTemplateIdV1).toEqual(
+      utils.keccak256(
+        utils.solidityPack(
+          ['bytes32', 'bytes'],
+          ['0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48', '0x6466726f6d63455448']
+        )
+      )
+    );
+  });
 
   it('returns API calls not linked to templates', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ templateId: null });
@@ -66,6 +97,7 @@ describe('verify', () => {
     });
     const config = fixtures.buildConfig();
     const invalidFields = {
+      airnodeAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
       encodedParameters: '0x1234',
     };
@@ -77,7 +109,7 @@ describe('verify', () => {
           templateId: TEMPLATE_ID,
           template: invalidTemplate,
         });
-        const expectedTemplateId = verification.getExpectedTemplateId(invalidTemplate);
+        const expectedTemplateId = verification.getExpectedTemplateIdV0(invalidTemplate);
         const response = verifyTemplateId({ aggregatedApiCall, config });
         expect(response).toEqual([
           [
