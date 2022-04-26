@@ -6,8 +6,7 @@ export function sortRequests<T>(requests: Request<T>[]): Request<T>[] {
   //
   //   1. Block number (ascending)
   //   2. Log index (ascending)
-  //   3. Transaction hash (ascending)
-  return orderBy(requests, ['metadata.blockNumber', 'metadata.logIndex', 'metadata.transactionHash']);
+  return orderBy(requests, ['metadata.blockNumber', 'metadata.logIndex']);
 }
 
 export function sortGroupedRequests(requests: GroupedRequests): GroupedRequests {
