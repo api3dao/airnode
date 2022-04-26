@@ -211,12 +211,10 @@ async function processSuccessfulApiCall(
 
     switch (aggregatedApiCall.type) {
       case 'http-gateway':
-        // NOTE: Testing gateway will use only the value and ignore the signature so there is no need
-        // to compute it, since it is performance heavy operation.
-        return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];
+        return [[], { success: true, data: response }];
       case 'regular': {
         const signature = await signWithRequestId(aggregatedApiCall.id, response.encodedValue, config);
-        return [[], { success: true, value: response.encodedValue, signature }];
+        return [[], { success: true, data: { encodedValue: response.encodedValue, signature } }];
       }
       case 'http-signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -226,7 +224,7 @@ async function processSuccessfulApiCall(
           response.encodedValue,
           config
         );
-        return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
+        return [[], { success: true, data: { timestamp, encodedValue: response.encodedValue, signature } }];
       }
     }
   } catch (e) {

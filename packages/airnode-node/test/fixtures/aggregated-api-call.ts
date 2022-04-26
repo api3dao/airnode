@@ -1,7 +1,8 @@
 import {
-  HttpGatewayAggregatedApiCall,
   RegularAggregatedApiCall,
   HttpSignedDataAggregatedApiCall,
+  HttpAggregatedApiCall,
+  RegularAggregatedApiCallWithResponse,
 } from '../../src/types';
 
 export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregatedApiCall>): RegularAggregatedApiCall {
@@ -36,9 +37,22 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
   };
 }
 
-export function buildAggregatedHttpGatewayApiCall(
-  params?: Partial<HttpGatewayAggregatedApiCall>
-): HttpGatewayAggregatedApiCall {
+export function buildAggregatedRegularApiCallWithResponse(
+  params?: Partial<RegularAggregatedApiCallWithResponse>
+): RegularAggregatedApiCallWithResponse {
+  return {
+    ...buildAggregatedRegularApiCall(params),
+    success: true,
+    data: {
+      encodedValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
+      signature:
+        '0xda6d5aa27f48aa951ba401c8a779645f7d1fa4a46a5e99eb7da04b4e059449a834ca1058c85dfe8117305265228f8cf7ae64c3ef3c4d1cc191f77807227dac461b',
+    },
+    ...(params as any),
+  };
+}
+
+export function buildAggregatedHttpGatewayApiCall(params?: Partial<HttpAggregatedApiCall>): HttpAggregatedApiCall {
   return {
     type: 'http-gateway',
     endpointName: 'convertToUSD',

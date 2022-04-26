@@ -1,10 +1,11 @@
 import flatMap from 'lodash/flatMap';
 import { logger } from '@api3/airnode-utilities';
 import {
-  AggregatedApiCallsById,
+  RegularAggregatedApiCallsWithResponseById,
   ApiCall,
+  ApiCallWithResponse,
   Request,
-  CoordinatorState,
+  CoordinatorStateWithApiResponses,
   EVMProviderState,
   LogsData,
   ProviderState,
@@ -13,10 +14,10 @@ import {
 
 function updateApiCallResponses(
   apiCalls: Request<ApiCall>[],
-  aggregatedApiCallsById: AggregatedApiCallsById
-): LogsData<Request<ApiCall>[]> {
+  aggregatedApiCallsById: RegularAggregatedApiCallsWithResponseById
+): LogsData<Request<ApiCallWithResponse>[]> {
   const { logs, requests } = apiCalls.reduce(
-    (acc, apiCall) => {
+    (acc, apiCall): UpdatedRequests<ApiCallWithResponse> => {
       const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
       // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
       if (!aggregatedApiCall) {
@@ -25,26 +26,30 @@ function updateApiCallResponses(
       }
 
       // Add the error to the ApiCall
-      if (aggregatedApiCall.errorMessage) {
-        return { ...acc, requests: [...acc.requests, { ...apiCall, errorMessage: aggregatedApiCall.errorMessage }] };
+      if (!aggregatedApiCall.success) {
+        return {
+          ...acc,
+          requests: [
+            ...acc.requests,
+            { ...apiCall, errorMessage: aggregatedApiCall.errorMessage, success: aggregatedApiCall.success },
+          ],
+        };
       }
 
       return {
         ...acc,
-        requests: [
-          ...acc.requests,
-          { ...apiCall, responseValue: aggregatedApiCall.responseValue, signature: aggregatedApiCall.signature },
-        ],
+        requests: [...acc.requests, { ...apiCall, data: aggregatedApiCall.data, success: true }],
       };
     },
-    { logs: [], requests: [] } as UpdatedRequests<ApiCall>
+    { logs: [], requests: [] } as UpdatedRequests<ApiCallWithResponse>
   );
+
   return [logs, requests];
 }
 
 function mapEVMProviderState(
   state: ProviderState<EVMProviderState>,
-  aggregatedApiCallsById: AggregatedApiCallsById
+  aggregatedApiCallsById: RegularAggregatedApiCallsWithResponseById
 ): LogsData<ProviderState<EVMProviderState>> {
   const [logs, apiCalls] = updateApiCallResponses(state.requests.apiCalls, aggregatedApiCallsById);
   const requests = { ...state.requests, apiCalls };
@@ -52,7 +57,7 @@ function mapEVMProviderState(
   return [logs, { ...state, requests }];
 }
 
-export function disaggregate(state: CoordinatorState): LogsData<ProviderState<EVMProviderState>[]> {
+export function disaggregate(state: CoordinatorStateWithApiResponses): LogsData<ProviderState<EVMProviderState>[]> {
   const logsWithProviderStates = state.providerStates.evm.map((evmProvider) => {
     return mapEVMProviderState(evmProvider, state.aggregatedApiCallsById);
   });
