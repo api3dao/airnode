@@ -99,7 +99,7 @@ const chooseIntegration = async (): Promise<IntegrationInfo> => {
 /**
  * If git is installed, check if a tag is checked out
  */
-const checkGitTag = goSync(() => {
+const checkGitTag = () => {
   // skip tag check if git is not present
   const gitNotFound =
     spawnSync(`git --version`, {
@@ -117,10 +117,10 @@ const checkGitTag = goSync(() => {
     It appears you may not be on a git tag.
     If you directly downloaded the source code at a specific tag or release, please ignore this warning.
     Otherwise, please check out a git tag before proceeding (see README for more details).`);
-});
+};
 
 const main = async () => {
-  checkGitTag;
+  goSync(checkGitTag);
   const integration = await chooseIntegration();
   writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
   cliPrint.info(`A file 'integration-info.json' was created!`);
