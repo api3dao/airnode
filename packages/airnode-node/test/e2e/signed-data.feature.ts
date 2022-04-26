@@ -22,10 +22,8 @@ it('makes a call for signed API data', async () => {
   const expected: HttpSignedDataApiCallSuccessResponse = {
     // Value is returned by the mock server from the operation package
     data: {
-      data: {
-        timestamp: '1613260800',
-        encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
-      },
+      timestamp: '1613260800',
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
       // We expect any string, because the Airnode wallet (and Airnode mnemonic) is different for every test which
       // produces a different signature everytime.
       signature: expect.any(String),
