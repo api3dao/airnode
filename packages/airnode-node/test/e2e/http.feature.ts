@@ -1,3 +1,4 @@
+import { HttpGatewayApiCallResponse } from '../../src';
 import { processHttpRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
@@ -15,15 +16,14 @@ it('makes a call to test the API', async () => {
 
   const result = await processHttpRequest(endpointId, parameters);
 
-  const expected = {
+  const expected: HttpGatewayApiCallResponse = {
     // Value is returned by the mock server from the operation package
-    value: JSON.stringify({
+    data: {
       rawValue: { success: true, result: '723.39202' },
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
       values: ['72339202'],
-    }),
+    },
     success: true,
-    signature: 'not-yet-supported',
   };
   expect(result).toEqual(expected);
 });

@@ -58,7 +58,7 @@ describe('processTransactions', () => {
         hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
       });
 
-      const apiCall = fixtures.requests.buildSubmittableApiCall({
+      const apiCall = fixtures.requests.buildSuccessfulApiCall({
         sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
       });
       const withdrawal = fixtures.requests.buildWithdrawal({
@@ -185,7 +185,7 @@ describe('processTransactions', () => {
         blockSpy.mockRejectedValue(new Error('Block header cannot be fetched'));
       }
 
-      const apiCall = fixtures.requests.buildSubmittableApiCall({
+      const apiCall = fixtures.requests.buildSuccessfulApiCall({
         sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
       });
       const requests: GroupedRequests = {

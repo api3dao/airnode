@@ -48,8 +48,17 @@ reserved parameters. The following list orders integrations alphabetically:
 
 ## Setup
 
-Follow the [repository instructions](https://github.com/api3dao/airnode#instructions). Also, make sure you have `yarn`
-installed. If you want to run Airnode as a docker container, you'll also need to have `docker` installed.
+First, download the repository source code at a specific tag or release, or, alternatively, clone the repository and
+check out a specific git commit tag; the unreleased master branch is not supported and is for development purposes only.
+Run the following to check out a tag, for example `v0.6`:
+
+```sh
+git fetch --tags && git checkout v0.6
+```
+
+Next, make sure you have `yarn` installed and then follow the
+[repository instructions](https://github.com/api3dao/airnode#instructions) to install dependencies and build the
+packages. If you want to run Airnode as a docker container, you'll also need to have `docker` installed.
 
 ## Instructions
 
