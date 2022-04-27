@@ -1,4 +1,4 @@
-# @api3/airnode-adapter
+# `@api3/airnode-adapter`
 
 > Used for building requests from an [Oracle Integration Specification (OIS)](https://docs.api3.org/ois/v1.0.0/),
 > executing them, parsing the responses, but also converting and encoding them for on chain purposes.

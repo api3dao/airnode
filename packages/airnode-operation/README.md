@@ -1,4 +1,4 @@
-# @api3/airnode-operation
+# `@api3/airnode-operation`
 
 > Development and testing utilities for Airnode
 

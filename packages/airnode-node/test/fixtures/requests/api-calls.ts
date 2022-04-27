@@ -1,5 +1,11 @@
 import { buildMetadata } from './metadata';
-import { ApiCall, Request } from '../../../src/types';
+import {
+  ApiCall,
+  Request,
+  ApiCallWithResponse,
+  RegularApiCallSuccessResponse,
+  ApiCallErrorResponse,
+} from '../../../src/types';
 
 export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
   const metadata = buildMetadata();
@@ -26,14 +32,28 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
   };
 }
 
-export function buildSubmittableApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
+export function buildSuccessfulApiCall(
+  params?: Partial<Request<RegularApiCallSuccessResponse>>
+): Request<ApiCallWithResponse> {
   return {
-    ...buildApiCall(),
-    // Decodes to: '75051'
-    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
-    responseValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
-    signature:
-      '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
+    ...buildApiCall(params),
+    success: true,
+    data: {
+      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+      signature:
+        '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
+    },
+    ...params,
+  };
+}
+
+export function buildFailedApiCall(
+  params?: Partial<Request<ApiCall & ApiCallErrorResponse>>
+): Request<ApiCall & ApiCallErrorResponse> {
+  return {
+    ...buildApiCall(params),
+    errorMessage: 'API call failed',
+    success: false,
     ...params,
   };
 }

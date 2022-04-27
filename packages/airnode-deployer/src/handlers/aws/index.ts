@@ -97,8 +97,8 @@ export async function processHttpRequest(
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
-  return { statusCode: 200, body: result!.value };
+  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  return { statusCode: 200, body: JSON.stringify(result!.data) };
 }
 
 // TODO: Copy&paste for now, will refactor as part of
@@ -122,6 +122,6 @@ export async function processHttpSignedDataRequest(
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
-  return { statusCode: 200, body: JSON.stringify({ data: JSON.parse(result!.value), signature: result!.signature }) };
+  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  return { statusCode: 200, body: JSON.stringify(result!.data) };
 }

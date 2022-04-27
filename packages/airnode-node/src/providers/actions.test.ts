@@ -211,9 +211,8 @@ describe('processRequests', () => {
     });
 
     const sponsorAddress = '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6';
-    const apiCall = fixtures.requests.buildApiCall({
+    const apiCall = fixtures.requests.buildSuccessfulApiCall({
       id: '0x67caaa2862cf971502d5c5b3d94d09d15c770f3313e76aa95c296b6587e7e5f1',
-      responseValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
       sponsorAddress,
     });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };

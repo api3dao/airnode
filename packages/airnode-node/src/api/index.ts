@@ -7,7 +7,7 @@ import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
-import { getExpectedTemplateId } from '../evm/templates';
+import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
 import { Config } from '../config/types';
 
@@ -127,7 +127,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  // TODO: check if beacon needs to verify templates
+
   if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
@@ -147,7 +147,11 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
     ];
   }
 
-  const expectedTemplateId = getExpectedTemplateId(template);
+  const expectedTemplateId =
+    aggregatedApiCall.type === 'http-signed-data-gateway'
+      ? getExpectedTemplateIdV1(template)
+      : getExpectedTemplateIdV0(template);
+
   if (templateId === expectedTemplateId) return null;
 
   const message = `Invalid template ID:${templateId} found for Request:${id}. Expected template ID:${expectedTemplateId}`;
@@ -212,12 +216,10 @@ async function processSuccessfulApiCall(
 
     switch (aggregatedApiCall.type) {
       case 'http-gateway':
-        // NOTE: Testing gateway will use only the value and ignore the signature so there is no need
-        // to compute it, since it is performance heavy operation.
-        return [[], { success: true, value: JSON.stringify(response), signature: 'not-yet-supported' }];
+        return [[], { success: true, data: response }];
       case 'regular': {
         const signature = await signWithRequestId(aggregatedApiCall.id, response.encodedValue, config);
-        return [[], { success: true, value: response.encodedValue, signature }];
+        return [[], { success: true, data: { encodedValue: response.encodedValue, signature } }];
       }
       case 'http-signed-data-gateway': {
         const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -227,7 +229,7 @@ async function processSuccessfulApiCall(
           response.encodedValue,
           config
         );
-        return [[], { success: true, value: JSON.stringify({ timestamp, value: response.encodedValue }), signature }];
+        return [[], { success: true, data: { timestamp, encodedValue: response.encodedValue, signature } }];
       }
     }
   } catch (e) {

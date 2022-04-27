@@ -6,7 +6,7 @@ import { LogOptions } from '@api3/airnode-utilities';
 import * as coordinatedExecution from './coordinated-execution';
 import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
-import { RequestErrorMessage } from '../../types';
+import { RequestErrorMessage, RegularApiCallSuccessResponse } from '../../types';
 
 describe('callApis', () => {
   const logOptions: LogOptions = {
@@ -23,7 +23,7 @@ describe('callApis', () => {
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping API calls...' }]);
-    expect(res).toEqual([aggregatedApiCall]);
+    expect(res).toEqual([{ ...aggregatedApiCall, success: false }]);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -48,14 +48,18 @@ describe('callApis', () => {
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
-        responseValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
-        signature:
-          '0x17b172685ff32e15b2a0db561014beeb426e135659cbfd080dd135b24eb87fbf3121845fdc02e47599018b19d02e9bce9fbd830e23e4735ecacf8f1a9a0d10ca1b',
-        errorMessage: undefined,
+        data: {
+          encodedValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
+          signature:
+            '0x17b172685ff32e15b2a0db561014beeb426e135659cbfd080dd135b24eb87fbf3121845fdc02e47599018b19d02e9bce9fbd830e23e4735ecacf8f1a9a0d10ca1b',
+        },
+        success: true,
       },
     ]);
     // Check that the correct value was selected
-    expect(ethers.BigNumber.from(res[0].responseValue).toString()).toEqual('44183723');
+    expect(ethers.BigNumber.from((res[0] as RegularApiCallSuccessResponse).data.encodedValue).toString()).toEqual(
+      '44183723'
+    );
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -83,7 +87,7 @@ describe('callApis', () => {
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
-        response: undefined,
+        success: false,
         errorMessage: 'Unable to convert response',
       },
     ]);
@@ -113,7 +117,7 @@ describe('callApis', () => {
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
-        response: undefined,
+        success: false,
         errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
       },
     ]);
@@ -140,7 +144,7 @@ describe('callApis', () => {
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
-        response: undefined,
+        success: false,
         errorMessage: RequestErrorMessage.ApiCallFailed,
       },
     ]);

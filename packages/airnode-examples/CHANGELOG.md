@@ -48,7 +48,7 @@
 
 - [#897](https://github.com/api3dao/airnode/pull/897) [`fb9c57ad`](https://github.com/api3dao/airnode/commit/fb9c57adb8b5e476699103d2a2ef4c1a0a5318bf) Thanks [@aquarat](https://github.com/aquarat)! - Revert of eip1559-related changes
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#908](https://github.com/api3dao/airnode/pull/908) [`f36d10bf`](https://github.com/api3dao/airnode/commit/f36d10bf55adc3fd4e73632ca089324bd738bc0a) Thanks [@dcroote](https://github.com/dcroote)! - Fix minor coingecko-signed-data integration command typo
 

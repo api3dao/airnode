@@ -40,6 +40,11 @@ export enum RequestErrorMessage {
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
+export interface UpdatedRequests<T> {
+  readonly logs: PendingLog[];
+  readonly requests: Request<T>[];
+}
+
 export enum RequestType {
   ApiCall,
   Withdrawal,
@@ -82,11 +87,11 @@ export interface ApiCall {
   readonly endpointId: string | null;
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
-  readonly responseValue?: string;
-  readonly signature?: string;
   readonly type: ApiCallType;
   readonly template?: ApiCallTemplate;
 }
+
+export type ApiCallWithResponse = ApiCall & RegularApiCallResponse;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Withdrawal {}
@@ -136,8 +141,12 @@ export type ProviderState<T extends {}> = T & {
   readonly transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number };
 };
 
-export interface AggregatedApiCallsById {
-  readonly [requestId: string]: AggregatedApiCall;
+export interface RegularAggregatedApiCallsById {
+  readonly [requestId: string]: RegularAggregatedApiCall;
+}
+
+export interface RegularAggregatedApiCallsWithResponseById {
+  readonly [requestId: string]: RegularAggregatedApiCallWithResponse;
 }
 
 export interface CoordinatorSettings {
@@ -154,16 +163,15 @@ export interface ProviderStates {
 }
 
 export interface CoordinatorState {
-  readonly aggregatedApiCallsById: AggregatedApiCallsById;
+  readonly aggregatedApiCallsById: RegularAggregatedApiCallsById;
   readonly config: Config;
   readonly providerStates: ProviderStates;
   readonly coordinatorId: string;
   readonly settings: CoordinatorSettings;
 }
 
-export interface UpdatedRequests<T> {
-  readonly logs: PendingLog[];
-  readonly requests: Request<T>[];
+export interface CoordinatorStateWithApiResponses extends CoordinatorState {
+  aggregatedApiCallsById: RegularAggregatedApiCallsWithResponseById;
 }
 
 // ===========================================
@@ -206,12 +214,24 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export type ApiCallResponse = ApiCallSuccessResponse | ApiCallErrorResponse;
+export type RegularApiCallResponse = RegularApiCallSuccessResponse | ApiCallErrorResponse;
+export type HttpGatewayApiCallResponse = HttpGatewayApiCallSuccessResponse | ApiCallErrorResponse;
+export type HttpSignedDataApiCallResponse = HttpSignedDataApiCallSuccessResponse | ApiCallErrorResponse;
 
-export interface ApiCallSuccessResponse {
+export type ApiCallResponse = RegularApiCallResponse | HttpGatewayApiCallResponse | HttpSignedDataApiCallResponse;
+export interface RegularApiCallSuccessResponse {
   success: true;
-  value: string;
-  signature: string;
+  data: { encodedValue: string; signature: string };
+}
+
+export interface HttpGatewayApiCallSuccessResponse {
+  success: true;
+  data: { values: unknown[]; rawValue: unknown; encodedValue: string };
+}
+
+export interface HttpSignedDataApiCallSuccessResponse {
+  success: true;
+  data: { timestamp: string; encodedValue: string; signature: string };
 }
 
 export interface ApiCallErrorResponse {
@@ -219,20 +239,13 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall =
-  | RegularAggregatedApiCall
-  | HttpGatewayAggregatedApiCall
-  | HttpSignedDataAggregatedApiCall;
+export type AggregatedApiCall = RegularAggregatedApiCall | HttpAggregatedApiCall | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   endpointName: string;
   oisTitle: string;
   parameters: ApiCallParameters;
-  // TODO: Remove these values from this interface. They are added only after the API call is made
-  // depending on the result. Current implementation causes ambiguity when these fields are
-  // optional and when not.
-  responseValue?: string;
-  signature?: string;
+  // This property is defined in case there is an error and this API call cannot be processed
   errorMessage?: string;
 }
 
@@ -256,7 +269,9 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   template?: ApiCallTemplate;
 }
 
-export interface HttpGatewayAggregatedApiCall extends BaseAggregatedApiCall {
+export type RegularAggregatedApiCallWithResponse = RegularAggregatedApiCall & RegularApiCallResponse;
+
+export interface HttpAggregatedApiCall extends BaseAggregatedApiCall {
   type: 'http-gateway';
 }
 
