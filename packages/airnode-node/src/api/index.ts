@@ -6,7 +6,7 @@ import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
-import { getExpectedTemplateId } from '../evm/templates';
+import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
 import { Config } from '../config/types';
 
@@ -126,7 +126,7 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  // TODO: check if beacon needs to verify templates
+
   if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
@@ -146,7 +146,11 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
     ];
   }
 
-  const expectedTemplateId = getExpectedTemplateId(template);
+  const expectedTemplateId =
+    aggregatedApiCall.type === 'http-signed-data-gateway'
+      ? getExpectedTemplateIdV1(template)
+      : getExpectedTemplateIdV0(template);
+
   if (templateId === expectedTemplateId) return null;
 
   const message = `Invalid template ID:${templateId} found for Request:${id}. Expected template ID:${expectedTemplateId}`;
