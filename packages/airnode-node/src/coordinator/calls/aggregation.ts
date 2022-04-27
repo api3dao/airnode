@@ -1,7 +1,7 @@
 import { Config } from '../../config/types';
-import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request } from '../../types';
+import { RegularAggregatedApiCall, RegularAggregatedApiCallsById, ApiCall, Request } from '../../types';
 
-function buildAggregatedCall(config: Config, request: Request<ApiCall>): AggregatedApiCall {
+function buildRegularAggregatedCall(config: Config, request: Request<ApiCall>): RegularAggregatedApiCall {
   const {
     id,
     airnodeAddress,
@@ -46,13 +46,13 @@ function buildAggregatedCall(config: Config, request: Request<ApiCall>): Aggrega
   };
 }
 
-export function aggregate(config: Config, flatApiCalls: Request<ApiCall>[]): AggregatedApiCallsById {
-  const aggregatedApiCallsById = flatApiCalls.reduce((acc: AggregatedApiCallsById, request) => {
+export function aggregate(config: Config, flatApiCalls: Request<ApiCall>[]): RegularAggregatedApiCallsById {
+  const aggregatedApiCallsById = flatApiCalls.reduce((acc: RegularAggregatedApiCallsById, request) => {
     const existingAggregatedCall = acc[request.id];
 
     // If this is the first time we're seeing this API call, then create a new aggregated API call
     if (!existingAggregatedCall) {
-      const aggregatedCall = buildAggregatedCall(config, request);
+      const aggregatedCall = buildRegularAggregatedCall(config, request);
       return { ...acc, [request.id]: aggregatedCall };
     }
 

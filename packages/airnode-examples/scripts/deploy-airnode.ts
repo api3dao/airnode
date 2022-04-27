@@ -1,5 +1,12 @@
 import { join } from 'path';
-import { cliPrint, isWindows, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import {
+  cliPrint,
+  isWindows,
+  readIntegrationInfo,
+  readPackageVersion,
+  runAndHandleErrors,
+  runShellCommand,
+} from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -7,6 +14,12 @@ const main = async () => {
     cliPrint.error('You only need to run this script if you deploy on a cloud provider');
     return;
   }
+
+  // Use a command-line provided image name if a command line arg was passed (developer convenience).
+  // Otherwise, use the version from package.json.
+  const specificImage = process.argv.slice(2);
+  const packageVersion = readPackageVersion();
+  const imageName = specificImage.length === 1 ? specificImage : `api3/airnode-deployer:${packageVersion}`;
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
   const secretsFilePath = join(__dirname, '../aws.env');
@@ -17,7 +30,7 @@ const main = async () => {
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
     `-v ${integrationPath}:/app/config`,
     `-v ${integrationPath}:/app/output`,
-    `api3/airnode-deployer:latest deploy`,
+    `${imageName} deploy`,
   ]
     .filter(Boolean)
     .join(' ');

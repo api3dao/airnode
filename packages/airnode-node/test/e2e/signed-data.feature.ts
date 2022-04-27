@@ -1,6 +1,7 @@
 import * as adapter from '@api3/airnode-adapter';
 import { processHttpSignedDataRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
+import { HttpSignedDataApiCallSuccessResponse } from '../../src/types';
 
 it('makes a call for signed API data', async () => {
   // Set a fake time so that the generated timestamp of the test is always the same
@@ -18,16 +19,16 @@ it('makes a call for signed API data', async () => {
 
   const result = await processHttpSignedDataRequest(endpointId, encodedParameters);
 
-  const expected = {
+  const expected: HttpSignedDataApiCallSuccessResponse = {
     // Value is returned by the mock server from the operation package
-    value: JSON.stringify({
+    data: {
       timestamp: '1613260800',
-      value: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
-    }),
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000044fcf02',
+      // We expect any string, because the Airnode wallet (and Airnode mnemonic) is different for every test which
+      // produces a different signature everytime.
+      signature: expect.any(String),
+    },
     success: true,
-    // We expect any string, because the Airnode wallet (and Airnode mnemonic) is different for every test which
-    // produces a different signature every time.
-    signature: expect.any(String),
   };
   expect(result).toEqual(expected);
   // Verify that all internal parameters have been removed from the parameters forwarded to the API

@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
-import { AggregatedApiCall, ApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
+import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config/types';
 import { getExpectedTemplateId } from '../evm/templates';
@@ -11,7 +11,7 @@ export async function processHttpSignedDataRequest(
   config: Config,
   endpointId: string,
   encodedParameters: string
-): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
+): Promise<[Error, null] | [null, HttpSignedDataApiCallSuccessResponse]> {
   const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
@@ -64,5 +64,5 @@ export async function processHttpSignedDataRequest(
     return [err, null];
   }
 
-  return [null, response];
+  return [null, response as HttpSignedDataApiCallSuccessResponse];
 }

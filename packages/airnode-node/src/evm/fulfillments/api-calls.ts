@@ -4,7 +4,14 @@ import { logger, go } from '@api3/airnode-utilities';
 import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
-import { ApiCall, Request, LogsErrorData, RequestErrorMessage, TransactionOptions, SubmitRequest } from '../../types';
+import {
+  Request,
+  LogsErrorData,
+  RequestErrorMessage,
+  TransactionOptions,
+  SubmitRequest,
+  ApiCallWithResponse,
+} from '../../types';
 import { AirnodeRrpV0 } from '../contracts';
 import { decodeRevertString } from '../utils';
 
@@ -36,10 +43,11 @@ type StaticResponse = { readonly callSuccess: boolean; readonly callData: string
 // =================================================================
 async function testFulfill(
   airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithResponse>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
+  if (!request.success) return [[], new Error('Only successfull API can be submitted'), null];
 
   const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
@@ -47,8 +55,8 @@ async function testFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue!,
-      request.signature!,
+      request.data.encodedValue,
+      request.data.signature,
       {
         ...options.gasTarget,
         nonce: request.nonce!,
@@ -64,10 +72,11 @@ async function testFulfill(
 
 async function submitFulfill(
   airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithResponse>,
   options: TransactionOptions
-): Promise<LogsErrorData<Request<ApiCall>>> {
+): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
+  if (!request.success) return [[], new Error('Only successfull API can be submitted'), null];
 
   const tx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfill(
@@ -75,8 +84,8 @@ async function submitFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue!,
-      request.signature!,
+      request.data.encodedValue,
+      request.data.signature,
       {
         ...options.gasTarget,
         nonce: request.nonce!,
@@ -96,9 +105,9 @@ async function submitFulfill(
 
 async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithResponse>,
   options: TransactionOptions
-): Promise<LogsErrorData<Request<ApiCall>>> {
+): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const errorMessage = requests.getErrorMessage(request);
   if (errorMessage) {
     return await submitFail(airnodeRrp, request, errorMessage, options);
@@ -108,7 +117,7 @@ async function testAndSubmitFulfill(
   const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
-    const updatedRequest: Request<ApiCall> = {
+    const updatedRequest: Request<ApiCallWithResponse> = {
       ...request,
       errorMessage: testErr
         ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
@@ -142,10 +151,10 @@ async function testAndSubmitFulfill(
 // =================================================================
 async function submitFail(
   airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithResponse>,
   errorMessage: string,
   options: TransactionOptions
-): Promise<LogsErrorData<Request<ApiCall>>> {
+): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
   const trimmedErrorMessage =
     errorMessage.length > MAXIMUM_ONCHAIN_ERROR_LENGTH
@@ -176,7 +185,7 @@ async function submitFail(
 // =================================================================
 // Main functions
 // =================================================================
-export const submitApiCall: SubmitRequest<ApiCall> = async (airnodeRrp, request, options) => {
+export const submitApiCall: SubmitRequest<ApiCallWithResponse> = async (airnodeRrp, request, options) => {
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
