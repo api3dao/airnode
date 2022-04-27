@@ -183,15 +183,15 @@ Now you're ready to deploy Airnode on the cloud provider. To proceed, run:
 yarn deploy-airnode
 ```
 
-This command will use the released deployer Docker image corresponding to the tag checked out during Setup. The image
-itself is based on the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) package.
-Note that deployment may take some time and should not be interrupted. Please be patient.
+This command will use the released deployer Docker image corresponding to the tag checked out during [Setup](#setup).
+The image itself is based on the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer)
+package. Note that deployment may take some time and should not be interrupted. Please be patient.
 
 If you are a developer and would like to use a different deployer Docker image, provide the full image name as an
 additional argument. For example:
 
 ```sh
-yarn deploy-airnode api3/airnode-deployer:0.6.0
+yarn deploy-airnode api3/airnode-deployer-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
 ```
 
 ### 10. (Only if running Airnode locally) Run the Airnode container
@@ -200,15 +200,15 @@ yarn deploy-airnode api3/airnode-deployer:0.6.0
 yarn run-airnode-locally
 ```
 
-This command will use the released client Docker image corresponding to the tag checked out during Setup. Note that the
-containerized version runs a cron job which triggers every minute - this means that Airnode logs won't start appearing
-immediately.
+This command will use the released client Docker image corresponding to the tag checked out during [Setup](#setup). Note
+that the containerized version runs a cron job which triggers every minute - this means that Airnode logs won't start
+appearing immediately.
 
 If you are a developer and would like to use a different client Docker image, provide the full image name as an
 additional argument. For example:
 
 ```sh
-yarn run-airnode-locally api3/airnode-client:0.6.0
+yarn run-airnode-locally api3/airnode-client-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
 ```
 
 ### 11. Deploy a requester
