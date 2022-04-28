@@ -1,2 +1,1 @@
-yarn prettier --write "./packages/airnode-validator/**/*.{md,json}" --loglevel silent
 yarn run lint

@@ -14,16 +14,3 @@ Validator is currently an internal dependency of Airnode and not intended to be 
 
 You can clone and build the Airnode monorepo then run the validator as a yarn script from inside the
 `packages/airnode-validator` directory.
-
-<!-- TODO: fix commands for v2 validator cli -->
-
-```sh
-# execute the validator
-yarn run cli:validator --specs="exampleSpecs/config.json"
-
-# validator output
-{
-  "success": true,
-  "data": {...} # Config file contents
-}
-```
