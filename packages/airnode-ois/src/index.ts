@@ -1,7 +1,7 @@
 import { oisSchema } from '@api3/airnode-validator';
 import { OIS } from './types';
 
-export * from '@api3/airnode-validator/dist/src/v2/ois';
+export * from '@api3/airnode-validator/dist/src/ois';
 export * from './types';
 export * from './constants';
 

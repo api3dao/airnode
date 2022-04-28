@@ -7,7 +7,7 @@ import { SchemaType } from '../types';
 
 const loadOisFixture = (): SchemaType<typeof oisSchema> =>
   // This OIS is guaranteed to be valid because there is a test for it's validity below
-  JSON.parse(readFileSync(join(__dirname, '../../../exampleSpecs/ois.specs.json')).toString());
+  JSON.parse(readFileSync(join(__dirname, '../../exampleSpecs/ois.specs.json')).toString());
 
 it('successfully parses OIS spec', () => {
   const ois = loadOisFixture();

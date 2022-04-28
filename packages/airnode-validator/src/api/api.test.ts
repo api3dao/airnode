@@ -9,7 +9,7 @@ import { ValidatorError } from '..';
 const loadConfigFixture = (): SchemaType<typeof configSchema> =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
   // not interpolated
-  JSON.parse(readFileSync(join(__dirname, '../../../exampleSpecs/config.specs.json')).toString());
+  JSON.parse(readFileSync(join(__dirname, '../../exampleSpecs/config.specs.json')).toString());
 
 const interpolateSecrets = (config: unknown, secrets: Record<string, string>) => {
   let strConfig = JSON.stringify(config);

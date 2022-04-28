@@ -4,5 +4,4 @@ import { chmodSync } from 'fs';
 const addExecuteRightsMode = '755'; // default is 664
 chmodSync('packages/airnode-admin/dist/bin/admin.js', addExecuteRightsMode);
 chmodSync('packages/airnode-deployer/dist/bin/deployer.js', addExecuteRightsMode);
-chmodSync('packages/airnode-validator/dist/bin/convertor.js', addExecuteRightsMode);
 chmodSync('packages/airnode-validator/dist/bin/validator.js', addExecuteRightsMode);
