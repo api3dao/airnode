@@ -26,7 +26,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
-      }, new Promise((resolve) => resolve(aggregatedApiCall.parameters))),
+      }, Promise.resolve(aggregatedApiCall.parameters)),
     { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
   );
 
