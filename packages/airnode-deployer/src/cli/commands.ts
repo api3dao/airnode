@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { CloudProvider } from '@api3/airnode-node';
 import size from 'lodash/size';
+import { bold } from 'chalk';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
@@ -14,6 +15,7 @@ import {
   loadConfig,
 } from '../utils';
 import * as logger from '../utils/logger';
+import { logAndReturnError } from '../utils/infrastructure';
 
 export async function deploy(configPath: string, secretsPath: string, receiptFile: string) {
   const secrets = parseSecretsFile(secretsPath);
@@ -22,26 +24,23 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   if (config.nodeSettings.cloudProvider.type === 'local') {
     // We want to check cloud provider type regardless of "skipValidation" value.
     // Skipping this check would always cause a deployer failure.
-    const message = "Deployer can't deploy to 'local' cloud provider";
-    logger.fail(message);
-    throw new Error(message);
+    throw logAndReturnError(`Deployer can't deploy to "local" cloud provider`);
   }
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {
-    logger.fail('AIRNODE_WALLET_MNEMONIC in your secrets.env file is not valid');
-    throw new Error('Invalid mnemonic');
+    throw logAndReturnError('AIRNODE_WALLET_MNEMONIC in your secrets.env file is not valid');
   }
 
   // TODO: This should be check by validator
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => {
     if (chain.maxConcurrency <= 0) {
-      logger.fail(`Concurrency limit must be more than 0 for chain with ID ${chain.id}`);
-      throw new Error('Invalid concurrency limit');
+      throw logAndReturnError(`Concurrency limit must be more than 0 for chain with ID ${chain.id}`);
     }
     if (chain.maxConcurrency < size(chain.providers)) {
-      logger.fail(`Concurrency limit can't be lower than number of providers for chain with ID ${chain.id}`);
-      throw new Error('Invalid concurrency limit');
+      throw logAndReturnError(
+        `Concurrency limit can't be lower than number of providers for chain with ID ${chain.id}`
+      );
     }
 
     return concurrency + chain.maxConcurrency;
@@ -50,14 +49,14 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   const httpGateway = config.nodeSettings.httpGateway;
   if (httpGateway.enabled) {
     if (httpGateway.maxConcurrency !== undefined && httpGateway.maxConcurrency <= 0) {
-      throw new Error('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
+      throw logAndReturnError('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
     }
   }
 
   const httpSignedDataGateway = config.nodeSettings.httpSignedDataGateway;
   if (httpSignedDataGateway.enabled) {
     if (httpSignedDataGateway.maxConcurrency !== undefined && httpSignedDataGateway.maxConcurrency <= 0) {
-      throw new Error('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
+      throw logAndReturnError('Unable to deploy HTTP gateway: Maximal concurrency must be higher than 0');
     }
   }
 
@@ -70,6 +69,11 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 
+  // Deployment is not an atomic operation. It is possible that some resources are deployed even when there is a
+  // deployment error. We want to write a receipt file, because the user might use the receipt to remove the deployed
+  // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
+  // remove the resources manually in the cloud provider dashboard).
+  let deploymentError: Error | undefined;
   let output = {};
   try {
     output = await deployAirnode({
@@ -82,14 +86,24 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       secretsPath: tmpSecretsPath,
     });
   } catch (err) {
-    logger.warn(`Failed deploying configuration, skipping`);
-    logger.warn((err as Error).toString());
+    deploymentError = err as Error;
   }
 
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
   writeReceiptFile(receiptFile, mnemonic, config, output);
+
+  if (deploymentError) {
+    logger.fail(
+      bold(
+        `Airnode deployment failed due to unexpected errors.\n` +
+          `  It is possible that some resources have been deployed on cloud provider.\n` +
+          `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
+      )
+    );
+    throw deploymentError;
+  }
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
@@ -99,10 +113,7 @@ export async function remove(airnodeAddressShort: string, stage: string, cloudPr
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
   const { airnodeAddressShort, cloudProvider, stage } = receipt.deployment;
-  try {
-    await remove(airnodeAddressShort, stage, cloudProvider);
-  } catch (err) {
-    logger.warn(`Failed removing configuration, skipping`);
-    logger.warn((err as Error).toString());
-  }
+
+  // If the function throws, the CLI will fail with a non zero status code
+  await remove(airnodeAddressShort, stage, cloudProvider);
 }
