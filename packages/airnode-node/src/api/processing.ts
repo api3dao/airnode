@@ -17,7 +17,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
 
   const [err, processedParameters] = await go(
     async () =>
-      await preProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
+      await preProcessingSpecifications.reduce(async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
             return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
