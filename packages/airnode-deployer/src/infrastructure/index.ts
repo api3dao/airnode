@@ -12,7 +12,7 @@ import isNil from 'lodash/isNil';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
-import { formatTerraformArguments } from '../utils/infrastructure';
+import { logAndReturnError, formatTerraformArguments } from '../utils/infrastructure';
 
 type TerraformAirnodeOutput = {
   http_gateway_url?: {
@@ -60,9 +60,8 @@ async function runCommand(command: string, options: CommandOptions) {
     }
 
     spinner.info();
-    logger.fail((err as Error).toString());
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
-    throw new Error(`Command failed: ${(err as any).cmd}`);
+    throw logAndReturnError((err as any).toString());
   }
 }
 
