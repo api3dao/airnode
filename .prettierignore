@@ -16,7 +16,6 @@ coverage.json
 **/CHANGELOG.md
 .changeset
 
-packages/airnode-validator/test/fixtures
 packages/airnode-protocol/src/contracts
 packages/airnode-examples/deployments
 packages/airnode-examples/integration-info.json

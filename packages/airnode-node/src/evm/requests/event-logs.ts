@@ -54,6 +54,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     currentBlock: options.currentBlock,
     minConfirmations: options.minConfirmations,
     transactionHash: log.transactionHash,
+    logIndex: log.logIndex,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),
   })) as EVMEventLog[];

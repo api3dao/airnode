@@ -14,6 +14,7 @@ describe('initialize (Withdrawal)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
@@ -26,6 +27,7 @@ describe('initialize (Withdrawal)', () => {
         currentBlock: 10716085,
         minConfirmations: 0,
         transactionHash: event.transactionHash,
+        logIndex: 0,
       },
       sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
     });
@@ -65,6 +67,7 @@ describe('mapRequests (Withdrawal)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: event.transactionHash,
+      logIndex: 0,
     };
     const [logs, res] = withdrawals.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
@@ -79,6 +82,7 @@ describe('mapRequests (Withdrawal)', () => {
           currentBlock: 10716085,
           minConfirmations: 0,
           transactionHash: event.transactionHash,
+          logIndex: 0,
         },
         sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
       },
@@ -98,6 +102,7 @@ describe('mapRequests (Withdrawal)', () => {
       currentBlock: 10716085,
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
+      logIndex: 0,
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -106,6 +111,7 @@ describe('mapRequests (Withdrawal)', () => {
       currentBlock: 10716087,
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
+      logIndex: 0,
     };
 
     const [logs, requests] = withdrawals.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);

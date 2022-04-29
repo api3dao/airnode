@@ -22,6 +22,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
       currentBlock: logWithMetadata.currentBlock,
       minConfirmations: logWithMetadata.minConfirmations,
       transactionHash: logWithMetadata.transactionHash,
+      logIndex: logWithMetadata.logIndex,
     },
     sponsorAddress: parsedLog.args.sponsor,
   };

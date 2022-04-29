@@ -12,9 +12,9 @@ describe('assign', () => {
   });
 
   it('sorts and assigns nonces requests API calls', () => {
-    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa' });
-    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
-    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
+    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa', logIndex: 0 });
+    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb', logIndex: 1 });
+    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc', logIndex: 2 });
 
     const sponsorAddress = '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181';
     const first = fixtures.requests.buildApiCall({
@@ -55,9 +55,9 @@ describe('assign', () => {
   });
 
   it('sorts and assigns nonces requests withdrawals', () => {
-    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa' });
-    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
-    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
+    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa', logIndex: 0 });
+    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb', logIndex: 1 });
+    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc', logIndex: 2 });
 
     const sponsorAddress = '0x1d822613f7cC57Be9c9b6C3cC0Bf41b4FB4D97f9';
     const first = fixtures.requests.buildWithdrawal({
