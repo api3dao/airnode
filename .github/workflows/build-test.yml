@@ -193,12 +193,12 @@ jobs:
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
   e2e-tests:
-    name: E2E tests - admin and node
+    name: E2E tests - admin, node and validator
     runs-on: ubuntu-latest
     needs: build
     strategy:
       matrix:
-        package: [admin, node]
+        package: [admin, node, validator]
     steps:
       - uses: actions/cache@v2
         id: restore-build
