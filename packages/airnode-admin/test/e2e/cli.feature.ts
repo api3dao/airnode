@@ -66,6 +66,8 @@ describe('CLI', () => {
   beforeAll(() => {
     jest.setTimeout(45_000);
 
+    execSync('yarn build');
+
     provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     alice = ethers.Wallet.fromMnemonic(mnemonic, aliceDerivationPath).connect(provider);
