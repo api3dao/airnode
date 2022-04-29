@@ -6,6 +6,7 @@ export function buildMetadata(overrides?: Partial<RequestMetadata>): RequestMeta
     blockNumber: 10716082,
     currentBlock: 10716090,
     minConfirmations: 0,
+    logIndex: 0,
     transactionHash: 'logTransactionHash',
     ...overrides,
   };
