@@ -2,6 +2,7 @@ import * as adapter from '@api3/airnode-adapter';
 import { RESERVED_PARAMETERS } from '@api3/airnode-ois';
 import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey, go, retryOnTimeout } from '@api3/airnode-utilities';
+import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
@@ -209,7 +210,7 @@ async function processSuccessfulApiCall(
 
   try {
     const response = adapter.extractAndEncodeResponse(
-      rawResponse.data,
+      await postProcessApiSpecifications(rawResponse.data, endpoint),
       reservedParameters as adapter.ReservedParameters
     );
 
@@ -241,7 +242,9 @@ export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCall
   const verificationResult = verifyCallApiPayload(payload);
   if (verificationResult) return verificationResult;
 
-  const [logs, response] = await performApiCall(payload);
+  const processedPayload = await preProcessApiSpecifications(payload);
+
+  const [logs, response] = await performApiCall(processedPayload);
   if (isPerformApiCallFailure(response)) {
     return [logs, response];
   }

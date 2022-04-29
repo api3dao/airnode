@@ -8,6 +8,7 @@ export const paremeterTargetSchema = z.union([
   z.literal('query'),
   z.literal('header'),
   z.literal('cookie'),
+  z.literal('processing'),
 ]);
 
 const nonReservedParameterNameSchema = z.string().refine(
@@ -120,6 +121,11 @@ export const apiSpecificationSchema = z.object({
   security: z.record(z.tuple([])),
 });
 
+export const processingSpecificationSchema = z.object({
+  environment: z.literal('Node 14'),
+  value: z.string(),
+});
+
 export const endpointSchema = z.object({
   description: z.string().optional(),
   externalDocs: z.string().optional(),
@@ -127,6 +133,8 @@ export const endpointSchema = z.object({
   name: z.string(),
   operation: endpointOperationSchema,
   parameters: z.array(endpointParameterSchema),
+  preProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
+  postProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
   reservedParameters: z.array(reservedParameterSchema),
   summary: z.string().optional(),
 });

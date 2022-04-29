@@ -1,4 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
+import { ethers } from 'ethers';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
 import * as fixtures from '../../test/fixtures';
 import { callApi } from '.';
@@ -137,6 +138,93 @@ describe('callApi', () => {
     expect(res).toEqual({
       errorMessage: `Unable to cast value to int256`,
       success: false,
+    });
+  });
+
+  describe('pre-processing', () => {
+    const createEncodedValue = (value: ethers.BigNumber, times = 100_000) =>
+      `0x${value.mul(times).toHexString().substring(2).padStart(64, '0')}`;
+
+    it('pre-processes parameters - valid processing code', async () => {
+      const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+      spy.mockResolvedValueOnce({ data: { price: 123 } });
+      const parameters = { _type: 'int256', _path: 'price', from: 'TBD' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const config = fixtures.buildConfig();
+      const preProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = {...input, from: "BTC"};',
+        },
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = {...input, source: "airnode"};',
+        },
+      ];
+      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+
+      const [logs, res] = await callApi({
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(123)),
+          signature:
+            '0xf884749942af38ef69735fcbabd1a521f7ac3b87e9988f1a57bdba10cca57f811fd43492aace34674c374a26518855c33bfb322bf5a567bac65453e67c0a4e401c',
+        },
+      });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          parameters: { from: 'BTC', source: 'airnode' },
+        }),
+        { timeout: 30_000 }
+      );
+    });
+
+    it('post-processes parameters - valid processing code', async () => {
+      const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+      spy.mockResolvedValueOnce({ data: { price: 123 } });
+      const parameters = { _type: 'int256', _path: '', from: 'ETH' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const config = fixtures.buildConfig();
+      const postProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = parseInt(input.price)*1000;',
+        },
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = parseInt(input)*2;',
+        },
+      ];
+      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], postProcessingSpecifications };
+
+      const [logs, res] = await callApi({
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(123 * 1000 * 2)),
+          signature:
+            '0xb32600a43cf9f93445c9fb478ba355efa773e841b498c61218ed1a5a81a43e3d0ade6fb1a0083506c7ab3426bce45dd92d6198c136a80cdfacde839f3fcf5c8a1b',
+        },
+      });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          parameters: { from: 'ETH' },
+        }),
+        { timeout: 30_000 }
+      );
     });
   });
 });
