@@ -171,9 +171,11 @@ describe('callApi', () => {
       expect(logs).toEqual([]);
       expect(res).toEqual({
         success: true,
-        value: createEncodedValue(ethers.BigNumber.from(123)),
-        signature:
-          '0xf884749942af38ef69735fcbabd1a521f7ac3b87e9988f1a57bdba10cca57f811fd43492aace34674c374a26518855c33bfb322bf5a567bac65453e67c0a4e401c',
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(123)),
+          signature:
+            '0xf884749942af38ef69735fcbabd1a521f7ac3b87e9988f1a57bdba10cca57f811fd43492aace34674c374a26518855c33bfb322bf5a567bac65453e67c0a4e401c',
+        },
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(
@@ -210,9 +212,11 @@ describe('callApi', () => {
       expect(logs).toEqual([]);
       expect(res).toEqual({
         success: true,
-        value: createEncodedValue(ethers.BigNumber.from(123 * 1000 * 2)),
-        signature:
-          '0xb32600a43cf9f93445c9fb478ba355efa773e841b498c61218ed1a5a81a43e3d0ade6fb1a0083506c7ab3426bce45dd92d6198c136a80cdfacde839f3fcf5c8a1b',
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(123 * 1000 * 2)),
+          signature:
+            '0xb32600a43cf9f93445c9fb478ba355efa773e841b498c61218ed1a5a81a43e3d0ade6fb1a0083506c7ab3426bce45dd92d6198c136a80cdfacde839f3fcf5c8a1b',
+        },
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(
