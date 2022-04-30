@@ -2,7 +2,7 @@ import { spawnSync } from 'child_process';
 import { join } from 'path';
 
 const runValidator = (args: string[]) => {
-  const command = ['node', join(__dirname, '../dist/bin/validator.js'), ...args].join(' ');
+  const command = ['node', join(__dirname, '../dist/cjs/bin/validator.js'), ...args].join(' ');
 
   return spawnSync(command, { shell: true });
 };
