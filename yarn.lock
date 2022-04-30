@@ -11217,14 +11217,6 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-markdown-snippet-injector@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/markdown-snippet-injector/-/markdown-snippet-injector-0.2.4.tgz#2a3913dcc85920673268b5f61290db682d740b5d"
-  integrity sha512-pgPJTb8Wv6mAtNypNDZQisnu0MG27BgH7go+50dg8P7p4DMsIjsga4aJEkIIpmCdnAf6yBt1S0YIDmiclZjvug==
-  dependencies:
-    typescript "~3.1.0"
-    yargs "^4.1.0"
-
 markdown-table@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/markdown-table/-/markdown-table-1.1.3.tgz#9fcb69bcfdb8717bfd0398c6ec2d93036ef8de60"
@@ -15760,11 +15752,6 @@ typescript@^4.2.4, typescript@^4.3.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.4.tgz#caa78bbc3a59e6a5c510d35703f6a09877ce45e9"
   integrity sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==
 
-typescript@~3.1.0:
-  version "3.1.8"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.8.tgz#20703f388d9fccc562ca4a049d8a7567c8e95ebd"
-  integrity sha512-R97qglMfoKjfKD0N24o7W6bS+SwjN/eaQNIaxR8S5HdLRnt7rCk6LCmE3tve1KN8gXKgbJU51aZHRRMAQcIbMA==
-
 typewise-core@^1.2, typewise-core@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/typewise-core/-/typewise-core-1.2.0.tgz#97eb91805c7f55d2f941748fa50d315d991ef195"
@@ -17242,7 +17229,7 @@ yargs@^17.0.1, yargs@^17.2.1:
     y18n "^5.0.5"
     yargs-parser "^21.0.0"
 
-yargs@^4.1.0, yargs@^4.7.1:
+yargs@^4.7.1:
   version "4.8.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-4.8.1.tgz#c0c42924ca4aaa6b0e6da1739dfb216439f9ddc0"
   integrity sha1-wMQpJMpKqmsObaFznfshZDn53cA=
