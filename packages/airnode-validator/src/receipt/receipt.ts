@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { cloudProviderSchema } from '../config';
 import { SchemaType } from '../types';
+import { version as packageVersion } from '../../package.json';
 
 // TODO: Implement old validator rules
 export const airnodeWalletSchema = z.object({
@@ -11,8 +12,15 @@ export const airnodeWalletSchema = z.object({
 export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
 
 export const deploymentSchema = z.object({
-  // TODO: This must match the version of validator
-  nodeVersion: z.string(),
+  nodeVersion: z.string().superRefine((version, ctx) => {
+    if (version === packageVersion) return;
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `The "nodeVersion" must be ${packageVersion}`,
+      path: [],
+    });
+  }),
   airnodeAddressShort: z.string(),
   stage: z.string(),
   cloudProvider: cloudProviderSchema,
