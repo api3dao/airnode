@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { Config, LocalOrCloudProvider } from '@api3/airnode-node';
 import { cliPrint, getDeployedContract, readChainId, readIntegrationInfo } from '../src';
+import { version as packageVersion } from '../package.json';
 
 export const createCloudProviderConfiguration = (generateExampleFile: boolean): LocalOrCloudProvider => {
   if (generateExampleFile) {
@@ -46,7 +47,7 @@ export const getChainId = async (generateExampleFile: boolean) =>
   (generateExampleFile ? 31337 : await readChainId()).toString();
 
 export const createNodeVersion = () => {
-  return '0.4.0';
+  return packageVersion;
 };
 
 export const generateConfigFile = (dirname: string, config: Config, generateExampleFile: boolean) => {

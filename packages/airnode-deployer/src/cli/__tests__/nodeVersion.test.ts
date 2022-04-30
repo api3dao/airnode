@@ -1,31 +1,52 @@
-const deployAirnodeSpy = jest.fn();
-const removeAirnodeSpy = jest.fn();
-
-jest.mock('@api3/airnode-node', () => ({
-  ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.2.0'),
-}));
-jest.mock('../../infrastructure', () => ({
-  deployAirnode: deployAirnodeSpy,
-  removeAirnode: removeAirnodeSpy,
-}));
-jest.mock('../../utils', () => ({
-  ...jest.requireActual('../../utils'),
-  writeReceiptFile: jest.fn(),
-}));
-
 import { join } from 'path';
-import { deploy } from '../commands';
+import { mockReadFileSync } from '../../../test/mock-utils';
+import { readFileSync } from 'fs';
+import { version as packageVersion } from '../../../package.json';
+import * as logger from '../../utils/logger';
 
-describe('deployer commands - invalid node version', () => {
-  // TODO: Implement node version check and enable this test. Also write error message to assertion
-  it.skip('fails deployment when the node version does not match the config version', async () => {
-    await expect(
+import { deploy, removeWithReceipt } from '../commands';
+
+const readExampleConfig = () =>
+  JSON.parse(readFileSync(join(__dirname, '../../../config/config.example.json'), 'utf-8'));
+
+describe('deployer commands fail with invalid node version', () => {
+  it('when using deploy', async () => {
+    const config = readExampleConfig();
+    (config.nodeSettings.nodeVersion as any) = '0.4.0';
+    mockReadFileSync('config.example.json', JSON.stringify(config));
+
+    const throwingFn = () =>
       deploy(
         join(__dirname, '../../../config/config.example.json'),
         join(__dirname, '../../../config/secrets.example.env'),
         'mocked receipt filename'
-      )
-    ).rejects.toThrow();
+      );
+
+    const issues = [
+      {
+        code: 'custom',
+        message: `The "nodeVersion" must be ${packageVersion}`,
+        path: ['nodeSettings', 'nodeVersion'],
+      },
+    ];
+    const expectedError = new Error(`Invalid Airnode configuration file: ${JSON.stringify(issues, null, 2)}`);
+    await expect(throwingFn).rejects.toThrow(expectedError);
+  });
+
+  it('when using removeWithReceipt', async () => {
+    const failSpy = jest.spyOn(logger, 'fail').mockImplementation(() => {});
+
+    const throwingFn = () => removeWithReceipt(join(__dirname, '../../../test/fixtures/invalid-receipt.json'));
+
+    const issues = [
+      {
+        code: 'custom',
+        message: `The "nodeVersion" must be ${packageVersion}`,
+        path: ['deployment', 'nodeVersion'],
+      },
+    ];
+    const expectedError = new Error(`Invalid Airnode receipt file: ${JSON.stringify(issues, null, 2)}`);
+    await expect(throwingFn).rejects.toThrow(expectedError);
+    expect(failSpy).toHaveBeenCalledTimes(1);
   });
 });

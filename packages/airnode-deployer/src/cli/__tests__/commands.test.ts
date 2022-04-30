@@ -1,25 +1,31 @@
+import { join } from 'path';
 import { mockReadFileSync } from '../../../test/mock-utils';
-const deployAirnodeSpy = jest.fn();
-const removeAirnodeSpy = jest.fn();
+import { version as packageVersion } from '../../../package.json';
+import { deploy, remove, removeWithReceipt } from '../commands';
+import { Receipt } from '../../types';
 
-jest.mock('@api3/airnode-node', () => ({
-  ...jest.requireActual('@api3/airnode-node'),
-  version: jest.fn().mockReturnValue('0.5.0'),
-}));
 jest.mock('../../infrastructure', () => ({
-  deployAirnode: deployAirnodeSpy,
-  removeAirnode: removeAirnodeSpy,
+  ...jest.requireActual('../../infrastructure'),
+  deployAirnode: jest.fn(),
+  removeAirnode: jest.fn(),
 }));
+
 jest.mock('../../utils', () => ({
   ...jest.requireActual('../../utils'),
   writeReceiptFile: jest.fn(),
 }));
 
-import { join } from 'path';
-import { deploy, remove, removeWithReceipt } from '../commands';
-import { Receipt } from '../../types';
-
 describe('deployer commands', () => {
+  let mockDeployAirnode: jest.SpyInstance;
+  let mockRemoveAirnode: jest.SpyInstance;
+  let mockWriteReceiptFile: jest.SpyInstance;
+
+  beforeEach(() => {
+    mockDeployAirnode = jest.requireMock('../../infrastructure').deployAirnode;
+    mockRemoveAirnode = jest.requireMock('../../infrastructure').removeAirnode;
+    mockWriteReceiptFile = jest.requireMock('../../utils').writeReceiptFile;
+  });
+
   it('can deploy Airnode', async () => {
     await deploy(
       join(__dirname, '../../../config/config.example.json'),
@@ -27,7 +33,8 @@ describe('deployer commands', () => {
       'mocked receipt filename'
     );
 
-    expect(deployAirnodeSpy).toHaveBeenCalledTimes(1);
+    expect(mockDeployAirnode).toHaveBeenCalledTimes(1);
+    expect(mockWriteReceiptFile).toHaveBeenCalledTimes(1);
   });
 
   it('can remove Airnode', async () => {
@@ -37,7 +44,7 @@ describe('deployer commands', () => {
       disableConcurrencyReservations: false,
     });
 
-    expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
+    expect(mockRemoveAirnode).toHaveBeenCalledTimes(1);
   });
 
   it('can remove Airnode with receipt', async () => {
@@ -58,7 +65,7 @@ describe('deployer commands', () => {
           projectId: 'airnode-4',
           disableConcurrencyReservations: false,
         },
-        nodeVersion: '0.5.0',
+        nodeVersion: packageVersion,
         stage: 'stage',
         timestamp: new Date('23 March 2022 14:48 UTC').toISOString(),
       },
@@ -66,6 +73,6 @@ describe('deployer commands', () => {
     mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt));
     await removeWithReceipt(receiptFile);
 
-    expect(removeAirnodeSpy).toHaveBeenCalledTimes(1);
+    expect(mockRemoveAirnode).toHaveBeenCalledTimes(1);
   });
 });
