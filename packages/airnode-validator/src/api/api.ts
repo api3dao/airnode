@@ -8,6 +8,8 @@ import { ValidationResult, ValidatorError } from '../validation-result';
 type Secrets = Record<string, string | undefined>;
 type Config = SchemaType<typeof configSchema>;
 
+// TODO: Write documentation for these functions
+
 export function parseConfigWithSecrets(config: unknown, secrets: unknown): ValidationResult<Config> {
   const parseSecretsRes = parseSecrets(secrets);
   if (!parseSecretsRes.success) return parseSecretsRes;
@@ -24,6 +26,7 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
 }
 
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
+  // TODO: Theoretically secrets could also interpolate non string values (e.g. booleans)
   const secretsSchema = z.record(z.string());
 
   const result = secretsSchema.safeParse(secrets);
