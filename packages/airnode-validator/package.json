@@ -3,19 +3,24 @@
   "license": "MIT",
   "version": "0.6.0",
   "private": false,
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index",
+  "main": "./dist/cjs/src/index.js",
+  "module": "./dist/esm/src/index.js",
+  "browser": "./dist/es6/src/index.js",
   "bin": {
     "airnode-validator": "./dist/bin/validator.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
-    "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
+    "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist *.tgz",
     "cli": "ts-node bin/validator.ts",
-    "compile": "tsc -p tsconfig.build.json",
+    "compile": "yarn compile:cjs && yarn compile:es6 && yarn compile:esm",
+    "compile:cjs": "yarn tsc -p tsconfig.build-cjs.json",
+    "compile:es6": "yarn tsc -p tsconfig.build-es6.json",
+    "compile:esm": "yarn tsc -p tsconfig.build-esm.json",
     "pack": "yarn pack",
     "test": "jest --selectProjects unit",
     "test:e2e": "jest --selectProjects e2e",
@@ -32,8 +37,6 @@
   },
   "devDependencies": {
     "@types/yargs": "^17.0.2",
-    "copyfiles": "^2.4.1",
-    "markdown-snippet-injector": "^0.2.4",
     "rimraf": "^3.0.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.2.4"
