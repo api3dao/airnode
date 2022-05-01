@@ -39,7 +39,7 @@ describe('validator CLI', () => {
     expect(output.stderr.toString()).toEqual(
       // We use "expect.stringContaining" because the output begins with "✖"
       expect.stringContaining(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
       )
     );
   });
