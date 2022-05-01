@@ -39,7 +39,7 @@ describe('validator CLI', () => {
 
     expect(output).toEqual(
       expect.stringContaining(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
       )
     );
   });
