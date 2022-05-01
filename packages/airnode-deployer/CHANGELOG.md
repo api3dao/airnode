@@ -1,5 +1,26 @@
 # @api3/airnode-deployer
 
+## 0.6.0
+
+### Minor Changes
+
+- [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#967](https://github.com/api3dao/airnode/pull/967) [`a5a7a5fc`](https://github.com/api3dao/airnode/commit/a5a7a5fc05d41b1246138b8507c78c5013fc724d) Thanks [@dcroote](https://github.com/dcroote)! - Add ISO formatted timestamp to receipt.json
+
+- [#997](https://github.com/api3dao/airnode/pull/997) [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb) Thanks [@vponline](https://github.com/vponline)! - Replace API_CALL_FULFILLMENT_GAS_LIMIT constant with fulfillmentGasLimit configuration option
+
+### Patch Changes
+
+- [#966](https://github.com/api3dao/airnode/pull/966) [`3d920a81`](https://github.com/api3dao/airnode/commit/3d920a814abfafb86911718df90d757b98626e91) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix airnode example demonstrating how to use signed data gateway
+
+- Updated dependencies [[`62a090ed`](https://github.com/api3dao/airnode/commit/62a090eddf37db93ebc64ba10ec70f21199c4dbe), [`ee483ce6`](https://github.com/api3dao/airnode/commit/ee483ce6d49466fad7bf983d60069d9226de3c6f), [`d2c8befd`](https://github.com/api3dao/airnode/commit/d2c8befd9d69e8bb41655fc55da6f03762447bae), [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31), [`1b8bcb01`](https://github.com/api3dao/airnode/commit/1b8bcb012350f7f1c6ae881067f697d90f59f1f6), [`1d16a73d`](https://github.com/api3dao/airnode/commit/1d16a73ddc357bb79df1311ef10fb78df0be7ccb), [`b5556b26`](https://github.com/api3dao/airnode/commit/b5556b26e2a2baefdbf26fd34045811fca8d2650), [`636e8b98`](https://github.com/api3dao/airnode/commit/636e8b981c3ae84c151a77686e233de67c572a96), [`a8fa7373`](https://github.com/api3dao/airnode/commit/a8fa737388460a30e2332996550e0ce44b00bc2a), [`75dfabf9`](https://github.com/api3dao/airnode/commit/75dfabf95b53e1365792248db418395bab322f19), [`c1dc6dd5`](https://github.com/api3dao/airnode/commit/c1dc6dd5334cabc782ce0a71deb9be4fcd2b602f), [`331a6b9d`](https://github.com/api3dao/airnode/commit/331a6b9dc6579fe922a423901983577e954dc9eb), [`4c7fbe1a`](https://github.com/api3dao/airnode/commit/4c7fbe1af918a46d766b01d866046a0dd4d80914)]:
+  - @api3/airnode-node@0.6.0
+  - @api3/airnode-ois@0.6.0
+  - @api3/airnode-protocol@0.6.0
+  - @api3/airnode-utilities@0.6.0
+  - @api3/airnode-validator@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
@@ -27,7 +48,7 @@
 
 - [#897](https://github.com/api3dao/airnode/pull/897) [`fb9c57ad`](https://github.com/api3dao/airnode/commit/fb9c57adb8b5e476699103d2a2ef4c1a0a5318bf) Thanks [@aquarat](https://github.com/aquarat)! - Revert of eip1559-related changes
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#869](https://github.com/api3dao/airnode/pull/869) [`65924669`](https://github.com/api3dao/airnode/commit/65924669e6ff3168646df3f1dfb9e1541c170474) Thanks [@vponline](https://github.com/vponline)! - Add examples to admin and deployer CLIs
 
@@ -43,6 +64,18 @@
   - @api3/airnode-utilities@0.5.0
   - @api3/airnode-validator@0.5.0
   - @api3/airnode-ois@0.5.0
+
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc), [`8ef930cb`](https://github.com/api3dao/airnode/commit/8ef930cbb89a2a4fe0d4ff13d553cb2d9f9e5ba4)]:
+  - @api3/airnode-node@0.4.1
+  - @api3/airnode-ois@0.4.1
+  - @api3/airnode-protocol@0.4.1
+  - @api3/airnode-validator@0.4.1
 
 ## 0.4.0
 

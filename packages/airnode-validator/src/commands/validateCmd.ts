@@ -1,19 +1,11 @@
+import path from 'path';
+import { readFileSync } from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { logger } from '@api3/airnode-utilities';
-import * as utils from './utils';
-import { validate, validateWithTemplate } from '../validator';
-import { Log } from '../types';
-
-const messages: Log[] = [];
+import { parseConfig } from '../api';
 
 const args = yargs(hideBin(process.argv))
-  .option('template', {
-    description: 'Path to validator template file or name of airnode specification format',
-    alias: 't',
-    type: 'string',
-    demandOption: true,
-  })
   .option('specification', {
     description: 'Path to specification file that will be validated',
     alias: ['specs', 's'],
@@ -27,8 +19,10 @@ const args = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-const res = utils.parseTemplateName(args.template, messages)
-  ? validateWithTemplate(args.specification, args.template, args.secrets)
-  : validate(args.specification, args.template, args.secrets);
+// TODO: implement v2 validator cli
+const res = (() => {
+  const config = JSON.parse(readFileSync(path.resolve(args.specification)).toString());
+  return parseConfig(config);
+})();
 
 logger.log(JSON.stringify(res, null, 2));

@@ -58,6 +58,15 @@ export const readConfig = () => {
 };
 
 /**
+ * @param filename
+ * @returns The package version from the file (throws if it doesn't exist)
+ */
+export const readPackageVersion = (filename = '../package.json') => {
+  const packageJson = JSON.parse(readFileSync(join(__dirname, filename)).toString());
+  return packageJson.version;
+};
+
+/**
  * @param secrets The lines of the secrets file
  * @returns All the lines joined followed by a new line symbol
  */

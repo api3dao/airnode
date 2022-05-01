@@ -2,14 +2,21 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import { go, logger, LogOptions } from '@api3/airnode-utilities';
 import { spawnNewApiCall } from '../../adapters/http/worker';
-import { AggregatedApiCall, LogsData, RequestErrorMessage, WorkerOptions } from '../../types';
+import {
+  LogsData,
+  RequestErrorMessage,
+  WorkerOptions,
+  RegularAggregatedApiCall,
+  RegularAggregatedApiCallWithResponse,
+  RegularApiCallSuccessResponse,
+} from '../../types';
 import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 
 async function execute(
-  aggregatedApiCall: AggregatedApiCall,
+  aggregatedApiCall: RegularAggregatedApiCall,
   logOptions: LogOptions,
   workerOpts: WorkerOptions
-): Promise<LogsData<AggregatedApiCall>> {
+): Promise<LogsData<RegularAggregatedApiCallWithResponse>> {
   const startedAt = new Date();
   const baseLogMsg = `API call to Endpoint:${aggregatedApiCall.endpointName}`;
 
@@ -27,7 +34,11 @@ async function execute(
   // If the worker crashed for whatever reason, mark the request as failed
   if (err || !logData || !logData[1]) {
     const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
-    const updatedApiCall: AggregatedApiCall = { ...aggregatedApiCall, errorMessage: RequestErrorMessage.ApiCallFailed };
+    const updatedApiCall: RegularAggregatedApiCallWithResponse = {
+      ...aggregatedApiCall,
+      success: false,
+      errorMessage: RequestErrorMessage.ApiCallFailed,
+    };
     return [[...resLogs, log], updatedApiCall];
   }
   const res = logData[1];
@@ -39,9 +50,9 @@ async function execute(
       'ERROR',
       `${baseLogMsg} errored after ${durationMs}ms with error message:${res.errorMessage}`
     );
-    const updatedApiCall: AggregatedApiCall = {
+    const updatedApiCall: RegularAggregatedApiCallWithResponse = {
       ...aggregatedApiCall,
-      errorMessage: res.errorMessage,
+      ...res,
     };
     return [[...resLogs, log], updatedApiCall];
   }
@@ -49,21 +60,22 @@ async function execute(
   const completeLog = logger.pend('INFO', `${baseLogMsg} responded successfully in ${durationMs}ms`);
 
   // We can assume that the request was successful at this point
-  const updatedApiCall: AggregatedApiCall = {
+  const updatedApiCall: RegularAggregatedApiCallWithResponse = {
     ...aggregatedApiCall,
-    responseValue: res.value,
-    signature: res.signature,
+    ...(res as RegularApiCallSuccessResponse),
   };
   return [[...resLogs, completeLog], updatedApiCall];
 }
 
 export async function callApis(
-  aggregatedApiCalls: AggregatedApiCall[],
+  aggregatedApiCalls: RegularAggregatedApiCall[],
   logOptions: LogOptions,
   workerOpts: WorkerOptions
-): Promise<LogsData<AggregatedApiCall[]>> {
+): Promise<LogsData<RegularAggregatedApiCallWithResponse[]>> {
   const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorMessage);
-  const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorMessage);
+  const skippedAggregatedCalls = aggregatedApiCalls
+    .filter((a) => a.errorMessage)
+    .map((a) => ({ ...a, success: false, errorMessage: a.errorMessage! } as const));
 
   if (isEmpty(pendingAggregatedCalls)) {
     const log = logger.pend('INFO', 'No pending API calls to process. Skipping API calls...');
@@ -80,7 +92,7 @@ export async function callApis(
   const responseLogs = flatMap(logsWithresponses, (r) => r[0]);
   const responses = flatMap(logsWithresponses, (r) => r[1]);
 
-  const successfulResponsesCount = responses.filter((r) => !!r.responseValue).length;
+  const successfulResponsesCount = responses.filter((r) => r.success).length;
   const successLog = logger.pend('INFO', `Received ${successfulResponsesCount} successful API call(s)`);
 
   const erroredResponsesCount = responses.filter((r) => !!r.errorMessage).length;

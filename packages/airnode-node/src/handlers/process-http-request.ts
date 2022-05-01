@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
-import { AggregatedApiCall, ApiCallSuccessResponse } from '../types';
+import { AggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config/types';
 
@@ -9,7 +9,7 @@ export async function processHttpRequest(
   endpointId: string,
   // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
-): Promise<[Error, null] | [null, ApiCallSuccessResponse]> {
+): Promise<[Error, null] | [null, HttpGatewayApiCallSuccessResponse]> {
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
 
@@ -41,5 +41,5 @@ export async function processHttpRequest(
     return [err, null];
   }
 
-  return [null, response];
+  return [null, response as HttpGatewayApiCallSuccessResponse];
 }

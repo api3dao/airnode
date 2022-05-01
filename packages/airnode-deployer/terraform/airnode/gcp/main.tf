@@ -71,7 +71,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -84,7 +84,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null || var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
