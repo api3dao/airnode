@@ -13,7 +13,7 @@
     },
     "region": "us-east-1",
     "stage": "starter-example",
-    "nodeVersion": "0.6.0"
+    "nodeVersion": "0.7.0"
   },
   "api": {
     "heartbeatId": "74dc44a1ee65",
