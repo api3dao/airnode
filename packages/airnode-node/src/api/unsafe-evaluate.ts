@@ -8,7 +8,7 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
     require,
     input,
     deferredOutput: undefined,
-  } as { deferredOutput?: any };
+  };
 
   runInNewContext(`${code}; deferredOutput = output;`, vmContext, {
     displayErrors: true,

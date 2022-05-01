@@ -1,45 +1,12 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from 'fs';
-import { spawn } from 'child_process';
 import { join } from 'path';
 import { logger } from '../logging';
 
 export const CACHE_BASE_PATH = `/tmp/airnode-cache`;
 export const CACHE_MAX_FILESYSTEM_AGE_MINUTES = 60;
-export const CACHE_MAX_FILES = 100_000; // (500 (cache size) * 1024 (KB) ) / 4 (KB, fs "cluster size" = 130k
+export const CACHE_MAX_FILES = 20_000; // (500 (cache size) * 1024 (KB) ) / 4 (KB, fs "cluster size" = 130k
 
 export const isJest = () => process.env.JEST_WORKER_ID !== undefined;
-
-/**
- * Calls the OS sync command to forcefully sync the cache filesystem.
- * This is the functional equivalent of "commit" from SQL.
- */
-const syncFsSync = () => {
-  try {
-    // TODO find a way to mock out spawn...
-    if (!isJest()) {
-      spawn(`sync`, [`-f`, CACHE_BASE_PATH]);
-    }
-  } catch (e) {
-    logger.error(`Unable to sync cache fs`);
-    logger.error((e as Error).stack!);
-  }
-};
-
-/**
- * Syncs the temporary filesystem asynchronously.
- * Lambda will "freeze" and "thaw" the execution context and with it any async promises in progress. We create and
- * forget this promise here, but it will resolve at some point, either in this invocation or a later one.
- */
-const syncFsASync = () => {
-  try {
-    new Promise(() => {
-      spawn(`sync`, [`-f`, CACHE_BASE_PATH]);
-    });
-  } catch (e) {
-    logger.error(`Unable to sync cache fs`);
-    logger.error((e as Error).stack!);
-  }
-};
 
 /**
  * Initialise the path for the fs cache
@@ -48,7 +15,6 @@ const initPath = () => {
   try {
     if (!existsSync(CACHE_BASE_PATH)) {
       mkdirSync(CACHE_BASE_PATH);
-      syncFsSync();
     }
   } catch (e) {
     logger.error(`Unable to init fs cache`);
@@ -97,7 +63,7 @@ const getValueForKey = (key: string): any | undefined => {
 };
 
 /**
- * Remove a key, this is discouraged and should only be used by sweep operations (garbage collection).
+ * Remove a key
  *
  * @param key the key to remove
  */
@@ -116,7 +82,7 @@ const removeKey = (key: string) => {
  *
  * @param key the name of the key, ideally in the form of `something-{uniqueId}`, eg. `requestIdBlocked-0x0000...`
  * @param data the data to store for the key, arbitrary
- * @param force force overwriting of an existing key (discouraged)
+ * @param force force overwriting of an existing key
  */
 const addKey = (key: string, data: any, force = false) => {
   // To not break existing tests do nothing if we're executing in a test environment.
@@ -142,29 +108,6 @@ const addKey = (key: string, data: any, force = false) => {
     logger.error(`Unable to remove key from fs cache`);
     logger.error((e as Error).stack!);
   }
-};
-
-/**
- * Get all keys and their associated values
- * This is a potentially dangerous operation as it will cause the entire cache to be loaded into memory... which could
- * be more than 500 MB.
- *
- * On Lambda RAM and tmpfs are separate resources, but on GCP tmpfs *is* RAM, so reading 500 MB of cache into RAM will
- * incur a >1GB memory usage cumulatively.
- */
-const getAllKeysAndValues = (): Record<string, any> => {
-  try {
-    return Object.entries(
-      getKeys().map((key) => {
-        return [key, getValueForKey(key)];
-      })
-    );
-  } catch (e) {
-    logger.error(`Unable to retrieve all keys and values from fs cache`);
-    logger.error((e as Error).stack!);
-  }
-
-  return {};
 };
 
 // TODO add storage usage based sweep for GCP happiness
@@ -218,8 +161,6 @@ const sweep = () => {
     logger.error(`Unable to sweep old files from fs cache`);
     logger.error((e as Error).stack!);
   }
-
-  syncFsSync();
 };
 
 /**
@@ -240,13 +181,10 @@ const init = () => {
 export const caching = {
   init,
   wipe,
-  getAllKeysAndValues,
   addKey,
   removeKey,
   getValueForKey,
   getKeys,
   sweep,
   initPath,
-  syncFsSync,
-  syncFsASync,
 };
