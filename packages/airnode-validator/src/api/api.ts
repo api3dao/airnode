@@ -1,9 +1,10 @@
 import template from 'lodash/template';
 import { z } from 'zod';
+import { goSync } from '@api3/promise-utils';
 import { SchemaType } from '../types';
 import { configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
-import { ValidationResult, ValidatorError } from '../validation-result';
+import { ValidationResult } from '../validation-result';
 
 type Secrets = Record<string, string | undefined>;
 type Config = SchemaType<typeof configSchema>;
@@ -45,26 +46,15 @@ const NO_MATCH_REGEXP = /($^)/;
 const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
 function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
-  // TODO: Replace with go utils
-  try {
-    const interpolated = JSON.parse(
+  return goSync(() =>
+    JSON.parse(
       template(JSON.stringify(config), {
         escape: NO_MATCH_REGEXP,
         evaluate: NO_MATCH_REGEXP,
         interpolate: ES_MATCH_REGEXP,
       })(secrets)
-    );
-
-    return {
-      success: true,
-      data: interpolated,
-    };
-  } catch (e) {
-    return {
-      success: false,
-      error: new ValidatorError('Error interpolating secrets. Make sure the secrets format is correct'),
-    };
-  }
+    )
+  );
 }
 
 /**

@@ -4,7 +4,6 @@ import forEach from 'lodash/forEach';
 import { parseConfigWithSecrets, unsafeParseConfigWithSecrets } from './api';
 import { configSchema } from '../config';
 import { SchemaType } from '../types';
-import { ValidatorError } from '..';
 
 const loadConfigFixture = (): SchemaType<typeof configSchema> =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
@@ -41,7 +40,7 @@ describe('parseConfigWithSecrets', () => {
     };
 
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
-      error: new ValidatorError('Error interpolating secrets. Make sure the secrets format is correct'),
+      error: new Error('PROVIDER_URL is not defined'),
       success: false,
     });
   });
