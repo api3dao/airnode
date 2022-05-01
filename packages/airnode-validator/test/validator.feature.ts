@@ -38,9 +38,7 @@ describe('validator CLI', () => {
     const output = runValidator(args).stderr.toString();
 
     expect(output).toEqual(
-      expect.stringContaining(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
-      )
+      expect.stringContaining('The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined')
     );
   });
 });
