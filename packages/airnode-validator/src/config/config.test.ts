@@ -4,8 +4,10 @@ import { ZodError } from 'zod';
 import { configSchema, nodeSettingsSchema } from './config';
 import { version as packageVersion } from '../../package.json';
 
-it('successfully parses config.json specs', () => {
-  const ois = JSON.parse(readFileSync(join(__dirname, '../../exampleSpecs/interpolated-config.specs.json')).toString());
+it('successfully parses config.json', () => {
+  const ois = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
   expect(() => configSchema.parse(ois)).not.toThrow();
 });
 

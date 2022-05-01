@@ -20,25 +20,27 @@ describe('validator CLI', () => {
 
   it('validates valid configuration', () => {
     const args = [
-      `--config ${join(__dirname, './fixtures/valid-config.json')}`,
-      `--secrets ${join(__dirname, './fixtures/valid-secrets.env')}`,
+      `--config ${join(__dirname, './fixtures/config.valid.json')}`,
+      `--secrets ${join(__dirname, './fixtures/secrets.valid.env')}`,
     ];
 
     const output = runValidator(args).stderr.toString();
 
-    expect(output).toEqual('✔ The configuration is valid\n');
+    expect(output).toEqual(expect.stringContaining('The configuration is valid'));
   });
 
   it('validates invalid configuration', () => {
     const args = [
-      `--config ${join(__dirname, './fixtures/valid-config.json')}`,
+      `--config ${join(__dirname, './fixtures/config.valid.json')}`,
       `--secrets ${join(__dirname, './fixtures/missing-secrets.env')}`,
     ];
 
     const output = runValidator(args).stderr.toString();
 
     expect(output).toEqual(
-      '✖ The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+      expect.stringContaining(
+        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+      )
     );
   });
 });

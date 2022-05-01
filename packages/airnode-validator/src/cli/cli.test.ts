@@ -5,8 +5,8 @@ describe('validateConfiguration', () => {
   let succeedSpy: any;
   let failSpy: any;
 
-  const configPath = join(__dirname, '../../test/fixtures/valid-config.json');
-  const secretsPath = join(__dirname, '../../test/fixtures/valid-secrets.env');
+  const configPath = join(__dirname, '../../test/fixtures/config.valid.json');
+  const secretsPath = join(__dirname, '../../test/fixtures/secrets.valid.env');
 
   beforeEach(() => {
     succeedSpy = jest.spyOn(cli, 'succeed').mockImplementation(jest.fn());
