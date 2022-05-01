@@ -27,7 +27,6 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
 }
 
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  // TODO: Theoretically secrets could also interpolate non string values (e.g. booleans)
   const secretsSchema = z.record(z.string());
 
   const result = secretsSchema.safeParse(secrets);
