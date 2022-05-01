@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { oisSchema } from '../ois';
-import { zodDiscriminatedUnion } from '../zod-discriminated-union';
 import { version as packageVersion } from '../../package.json';
 
 export const triggerSchema = z.object({
@@ -93,7 +92,7 @@ export const gcpCloudProviderSchema = z.object({
   disableConcurrencyReservations: z.boolean(),
 });
 
-export const cloudProviderSchema = zodDiscriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
+export const cloudProviderSchema = z.discriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
 
 export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudProviderSchema]);
 

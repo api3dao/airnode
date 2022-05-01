@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import intersection from 'lodash/intersection';
 import { SchemaType, ValidatorRefinement } from '../types';
-import { zodDiscriminatedUnion } from '../zod-discriminated-union';
 
 export const paremeterTargetSchema = z.union([
   z.literal('path'),
@@ -91,7 +90,7 @@ export const relaySponsorWalletAddressSecuritySchemeScheme = configurableSecurit
   type: z.literal('relaySponsorWalletAddress'),
 });
 
-export const apiSecuritySchemeScheme = zodDiscriminatedUnion('type', [
+export const apiSecuritySchemeScheme = z.discriminatedUnion('type', [
   apiKeySecuritySchemeScheme,
   httpSecuritySchemeScheme,
   relayChainIdSecuritySchemeScheme,
