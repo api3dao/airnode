@@ -61,7 +61,7 @@ const initPath = () => {
  *
  * @param startingKey should take the form of `blockedRequestId-` and the full key could be `blockedRequestId-0x0000000...`
  */
-const getKeys = (startingKey?: string): string[] => {
+const getKeys = (prefix?: string): string[] => {
   try {
     const keys = readdirSync(CACHE_BASE_PATH);
     if (startingKey) {
