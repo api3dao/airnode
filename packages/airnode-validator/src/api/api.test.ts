@@ -40,7 +40,6 @@ describe('parseConfigWithSecrets', () => {
       AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
     };
 
-    // TODO: Provide a better error in case there is a missing secret
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
       error: new ValidatorError('Error interpolating secrets. Make sure the secrets format is correct'),
       success: false,

@@ -54,8 +54,7 @@ export const reservedParameterSchema = z.object({
 });
 
 export const serverSchema = z.object({
-  // TODO: Validate URL
-  url: z.string(),
+  url: z.string().url(),
 });
 
 export const httpSecuritySchemeScheme = z.object({
