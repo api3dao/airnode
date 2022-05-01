@@ -8,10 +8,9 @@
 coverage/
 
 # Config files
-*config.json
-*secrets.env
-*secrets.json
-*receipt.json
+config.json
+secrets.env
+receipt.json
 
 # Packed package
 *.tgz
