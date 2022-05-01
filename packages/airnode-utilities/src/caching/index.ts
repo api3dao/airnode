@@ -77,7 +77,7 @@ const getKeys = (prefix?: string): string[] => {
 };
 
 /**
- * Get the value stored for a key (aka the contents of the file with the key as name).
+ * Get the value stored for a key (a.k.a the contents of the file with the key as name).
  *
  * @param key the key whose contents should be returned
  */
