@@ -25,13 +25,13 @@ const initPath = () => {
 /**
  * Get all keys from the cache that start with startingKey.
  *
- * @param startingKey should take the form of `blockedRequestId-` and the full key could be `blockedRequestId-0x0000000...`
+ * @param prefix should take the form of `blockedRequestId-` and the full key could be `blockedRequestId-0x0000000...`
  */
-const getKeys = (startingKey?: string): string[] => {
+const getKeys = (prefix?: string): string[] => {
   try {
     const keys = readdirSync(CACHE_BASE_PATH);
-    if (startingKey) {
-      return keys.filter((key) => key.indexOf(startingKey) === 0);
+    if (prefix) {
+      return keys.filter((key) => key.indexOf(prefix) === 0);
     }
     return keys;
   } catch (e) {
@@ -43,7 +43,7 @@ const getKeys = (startingKey?: string): string[] => {
 };
 
 /**
- * Get the value stored for a key (aka the contents of the file with the key as name).
+ * Get the value stored for a key (a.k.a the contents of the file with the key as name).
  *
  * @param key the key whose contents should be returned
  */

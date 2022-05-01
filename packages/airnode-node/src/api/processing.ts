@@ -17,16 +17,19 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
 
   const [err, processedParameters] = await go(
     async () =>
-      await preProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
-        switch (currentValue.environment) {
-          case 'Node 14':
-            return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
-          case 'Node 14 async':
-            return await unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
-          default:
-            throw new Error(`Environment ${currentValue.environment} is not supported`);
-        }
-      }, new Promise((resolve) => resolve(aggregatedApiCall.parameters))),
+      await preProcessingSpecifications.reduce(
+        async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
+          switch (currentValue.environment) {
+            case 'Node 14':
+              return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
+            case 'Node 14 async':
+              return await unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
+            default:
+              throw new Error(`Environment ${currentValue.environment} is not supported`);
+          }
+        },
+        Promise.resolve(aggregatedApiCall.parameters)
+      ),
     { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
   );
 
