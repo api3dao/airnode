@@ -1,5 +1,22 @@
 # @api3/airnode-deployer
 
+## 0.5.1
+
+### Patch Changes
+
+- [#1046](https://github.com/api3dao/airnode/pull/1046) [`af529d58`](https://github.com/api3dao/airnode/commit/af529d58dc12d651cf23880b7c55e92091811fa9) Thanks [@amarthadan](https://github.com/amarthadan)! - Fix condition for enabling GCP API gateway service
+
+* [#1042](https://github.com/api3dao/airnode/pull/1042) [`fe869f00`](https://github.com/api3dao/airnode/commit/fe869f00b9aa90d047365f5bc2aa9a1813eac79a) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix GCP signed gateway receipt, let deployer CLI fail with non zero status code
+
+- Release v0.5.1
+
+- Updated dependencies [[`5322eaa4`](https://github.com/api3dao/airnode/commit/5322eaa4dffba2db9eb13fd1abd2897497e24f78)]:
+  - @api3/airnode-node@0.5.1
+  - @api3/airnode-ois@0.5.1
+  - @api3/airnode-protocol@0.5.1
+  - @api3/airnode-utilities@0.5.1
+  - @api3/airnode-validator@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes

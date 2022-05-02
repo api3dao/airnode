@@ -1,5 +1,21 @@
 # @api3/airnode-node
 
+## 0.5.1
+
+### Patch Changes
+
+- [#1056](https://github.com/api3dao/airnode/pull/1056) [`5322eaa4`](https://github.com/api3dao/airnode/commit/5322eaa4dffba2db9eb13fd1abd2897497e24f78) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove airnode address from templateId verification
+
+* Release v0.5.1
+
+* Updated dependencies []:
+  - @api3/airnode-abi@0.5.1
+  - @api3/airnode-adapter@0.5.1
+  - @api3/airnode-ois@0.5.1
+  - @api3/airnode-protocol@0.5.1
+  - @api3/airnode-utilities@0.5.1
+  - @api3/airnode-validator@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes
