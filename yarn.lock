@@ -8595,9 +8595,9 @@ google-auth-library@^7.14.1:
     lru-cache "^6.0.0"
 
 google-auth-library@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/google-auth-library/-/google-auth-library-8.0.1.tgz#8983eeeb8ecc65ff01cd04cf4daf2b15bbb31a60"
-  integrity sha512-pNzO7U5rG1GIbWUcI4VYUhd4qcEuR6Pmn9yFtB2OiVWEYRmVbbulc5CYx/oq4FCQu617XJeDFpU0pe3rlUCsUw==
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/google-auth-library/-/google-auth-library-8.0.2.tgz#5fa0f2d3795c3e4019d2bb315ade4454cc9c30b5"
+  integrity sha512-HoG+nWFAThLovKpvcbYzxgn+nBJPTfAwtq0GxPN821nOO+21+8oP7MoEHfd1sbDulUFFGfcjJr2CnJ4YssHcyg==
   dependencies:
     arrify "^2.0.0"
     base64-js "^1.3.0"
