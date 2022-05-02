@@ -1,5 +1,28 @@
 # @api3/airnode-examples
 
+## 0.6.2
+
+### Patch Changes
+
+- Bump patch version
+
+- Updated dependencies []:
+  - @api3/airnode-deployer@0.6.2
+  - @api3/airnode-node@0.6.2
+  - @api3/airnode-abi@0.6.2
+  - @api3/airnode-admin@0.6.2
+  - @api3/airnode-protocol@0.6.2
+
+## 0.6.1
+
+### Patch Changes
+
+- [#1041](https://github.com/api3dao/airnode/pull/1041) [`22f63fcb`](https://github.com/api3dao/airnode/commit/22f63fcba8cc68e03df6297a1a3cdc60183bc5b1) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix GCP signed gateway receipt, let deployer CLI fail with non zero status code
+
+- Updated dependencies [[`cd22c064`](https://github.com/api3dao/airnode/commit/cd22c0645effbf2e331ec05a983f6f2b1b7206a9), [`22f63fcb`](https://github.com/api3dao/airnode/commit/22f63fcba8cc68e03df6297a1a3cdc60183bc5b1), [`dcf8cebb`](https://github.com/api3dao/airnode/commit/dcf8cebbc3cc9b2169b1b1c8ff2444b8af715171)]:
+  - @api3/airnode-deployer@0.6.1
+  - @api3/airnode-node@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes

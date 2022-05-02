@@ -1,5 +1,16 @@
 # @api3/airnode-admin
 
+## 0.6.2
+
+### Patch Changes
+
+- Bump patch version
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.6.2
+  - @api3/airnode-protocol@0.6.2
+  - @api3/airnode-utilities@0.6.2
+
 ## 0.6.0
 
 ### Minor Changes

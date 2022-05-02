@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.6.2
+
+### Patch Changes
+
+- Bump patch version
+
 ## 0.6.0
 
 ### Minor Changes
