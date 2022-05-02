@@ -38,6 +38,12 @@
 
 * [#894](https://github.com/api3dao/airnode/pull/894) [`4dbb639c`](https://github.com/api3dao/airnode/commit/4dbb639cfaf375f51e6635e7314c4b481054e9bd) Thanks [@vponline](https://github.com/vponline)! - Fix hardhat tests by wrapping with a `describe`
 
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
 ## 0.4.0
 
 ### Minor Changes

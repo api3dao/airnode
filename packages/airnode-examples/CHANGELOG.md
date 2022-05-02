@@ -71,7 +71,7 @@
 
 - [#897](https://github.com/api3dao/airnode/pull/897) [`fb9c57ad`](https://github.com/api3dao/airnode/commit/fb9c57adb8b5e476699103d2a2ef4c1a0a5318bf) Thanks [@aquarat](https://github.com/aquarat)! - Revert of eip1559-related changes
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#908](https://github.com/api3dao/airnode/pull/908) [`f36d10bf`](https://github.com/api3dao/airnode/commit/f36d10bf55adc3fd4e73632ca089324bd738bc0a) Thanks [@dcroote](https://github.com/dcroote)! - Fix minor coingecko-signed-data integration command typo
 
@@ -87,6 +87,19 @@
   - @api3/airnode-deployer@0.5.0
   - @api3/airnode-protocol@0.5.0
   - @api3/airnode-abi@0.5.0
+
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc), [`8ef930cb`](https://github.com/api3dao/airnode/commit/8ef930cbb89a2a4fe0d4ff13d553cb2d9f9e5ba4)]:
+  - @api3/airnode-node@0.4.1
+  - @api3/airnode-abi@0.4.1
+  - @api3/airnode-admin@0.4.1
+  - @api3/airnode-deployer@0.4.1
+  - @api3/airnode-protocol@0.4.1
 
 ## 0.4.0
 

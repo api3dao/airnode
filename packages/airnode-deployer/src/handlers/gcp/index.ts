@@ -100,8 +100,8 @@ export async function processHttpRequest(req: Request, res: Response) {
     return;
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself
-  res.status(200).send(result!.value);
+  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  res.status(200).send(JSON.stringify(result!.data));
 }
 
 // TODO: Copy&paste for now, will refactor as part of
@@ -132,6 +132,6 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     return;
   }
 
-  // NOTE: We do not want the user to see {"value": <actual_value>}, but the actual value itself and the signature
-  res.status(200).send(JSON.stringify({ data: JSON.parse(result!.value), signature: result!.signature }));
+  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  res.status(200).send(JSON.stringify(result!.data));
 }

@@ -28,6 +28,6 @@
 
 - [#893](https://github.com/api3dao/airnode/pull/893) [`da0026cb`](https://github.com/api3dao/airnode/commit/da0026cbb1c714d9b2f9af622afb858b37316217) Thanks [@aquarat](https://github.com/aquarat)! - Add back yarn pack to fix docker build process
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#925](https://github.com/api3dao/airnode/pull/925) [`8c9de3e5`](https://github.com/api3dao/airnode/commit/8c9de3e5d78fff4ee8e989ef640914bde16692b2) Thanks [@aquarat](https://github.com/aquarat)! - Modify run-airnode-locally to handle being run in CI

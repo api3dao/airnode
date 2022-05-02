@@ -2,6 +2,7 @@ import { Endpoint } from '@api3/airnode-ois';
 import { processHttpRequest } from './process-http-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
+import { HttpGatewayApiCallSuccessResponse } from '../types';
 
 const ENDPOINT_ID = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
@@ -47,7 +48,10 @@ describe('processHttpRequest', () => {
   it('calls the API with given parameters', async () => {
     const spy = jest.spyOn(api, 'callApi');
     // What exactly the API returns doesn't matter for this test
-    const mockedResponse = { success: true, value: 'value', signature: 'signature' } as const;
+    const mockedResponse = {
+      success: true,
+      data: { encodedValue: 'value', rawValue: 'raw-value', values: ['raw-value'] },
+    } as HttpGatewayApiCallSuccessResponse;
     spy.mockResolvedValueOnce([[], mockedResponse]);
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };

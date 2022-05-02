@@ -1,4 +1,4 @@
-# Airnode examples
+# `@api3/airnode-examples`
 
 > A public list of examples showcasing the features of Airnode
 
@@ -48,8 +48,17 @@ reserved parameters. The following list orders integrations alphabetically:
 
 ## Setup
 
-Follow the [repository instructions](https://github.com/api3dao/airnode#instructions). Also, make sure you have `yarn`
-installed. If you want to run Airnode as a docker container, you'll also need to have `docker` installed.
+First, download the repository source code at a specific tag or release, or, alternatively, clone the repository and
+check out a specific git commit tag; the unreleased master branch is not supported and is for development purposes only.
+Run the following to check out a tag, for example `v0.6`:
+
+```sh
+git fetch --tags && git checkout v0.6
+```
+
+Next, make sure you have `yarn` installed and then follow the
+[repository instructions](https://github.com/api3dao/airnode#instructions) to install dependencies and build the
+packages. If you want to run Airnode as a docker container, you'll also need to have `docker` installed.
 
 ## Instructions
 
@@ -166,26 +175,7 @@ Refer to the
 [documentation](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
 more details.
 
-### 9. Build docker artifacts
-
-The docker images are based on a common container called "artifacts". This intermediate container is used by both
-[deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) and
-[airnode](https://github.com/api3dao/airnode/tree/master/packages/airnode-node). The artifacts container can be built by
-running:
-
-```sh
-yarn rebuild-artifacts-container
-```
-
-### 10. (Only if deploying to a cloud provider) Build deployer container
-
-```sh
-yarn rebuild-deployer-container
-```
-
-This command will use the previously built artifacts container to build the deployer.
-
-### 11. (Only if deploying to a cloud provider) Deploy Airnode
+### 9. (Only if deploying to a cloud provider) Deploy Airnode
 
 Now you're ready to deploy Airnode on the cloud provider. To proceed, run:
 
@@ -193,28 +183,35 @@ Now you're ready to deploy Airnode on the cloud provider. To proceed, run:
 yarn deploy-airnode
 ```
 
-This command will use the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) package
-to deploy your Airnode. Deployment may take some time and should not be interrupted. Please be patient.
+This command will use the released deployer Docker image corresponding to the tag checked out during [Setup](#setup).
+The image itself is based on the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer)
+package. Note that deployment may take some time and should not be interrupted. Please be patient.
 
-### 12. (Only if running Airnode locally) Build Airnode docker container
+If you are a developer and would like to use a different deployer Docker image, provide the full image name as an
+additional argument. For example:
 
 ```sh
-yarn rebuild-airnode-container
+yarn deploy-airnode api3/airnode-deployer-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
 ```
 
-This command will utilise the previously built artifacts container to build the containerized version of Airnode which
-you can then run locally.
-
-### 13. (Only if running Airnode locally) Run the Airnode container
+### 10. (Only if running Airnode locally) Run the Airnode container
 
 ```sh
 yarn run-airnode-locally
 ```
 
-Runs the previously built version of Airnode container. Note that the containerized version runs a cron job which
-triggers every minute - this means that Airnode logs won't start appearing immediately.
+This command will use the released client Docker image corresponding to the tag checked out during [Setup](#setup). Note
+that the containerized version runs a cron job which triggers every minute - this means that Airnode logs won't start
+appearing immediately.
 
-### 14. Deploy a requester
+If you are a developer and would like to use a different client Docker image, provide the full image name as an
+additional argument. For example:
+
+```sh
+yarn run-airnode-locally api3/airnode-client-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
+```
+
+### 11. Deploy a requester
 
 At this point, you have an RRP contract deployed. You will also either have Airnode running as a Docker container  
 locally or deployed to a cloud provider. Airnode is now listening for events (requests to be made) from the RRP
@@ -227,7 +224,7 @@ To deploy a requester contract, run:
 yarn deploy-requester
 ```
 
-### 15. Derive and fund the sponsor wallet
+### 12. Derive and fund the sponsor wallet
 
 Airnode requests require a [sponsor](https://docs.api3.org/airnode/latest/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
@@ -245,7 +242,7 @@ yarn derive-and-fund-sponsor-wallet
 This script will first derive the sponsor wallet and then fund it with 0.1 ETH. This means that your account (derived
 from the mnemonic by `choose-integration` script) must have enough funds.
 
-### 16. Allow the sponsor to pay for requests made by the requester
+### 13. Allow the sponsor to pay for requests made by the requester
 
 In order to prevent misuse, each sponsor has to explicitly approve a requester. Once the requester is approved, requests
 can be paid by this sponsor.
@@ -254,7 +251,7 @@ can be paid by this sponsor.
 yarn sponsor-requester
 ```
 
-### 17. Make the request
+### 14. Make the request
 
 The last step is to trigger an Airnode request using the requester contract:
 
@@ -267,7 +264,7 @@ emit an event in response, which Airnode will detect during its next cycle. On r
 will perform the associated API call and submit the response back on chain. The above command will wait for all of this
 to take place and once the request has been fulfilled the output will be sent to the terminal.
 
-### 18. (Optional) Make a withdrawal request
+### 15. (Optional) Make a withdrawal request
 
 Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to the sponsor. This step is
 useful when testing on public testnets. To execute a withdrawal request run:
@@ -276,7 +273,7 @@ useful when testing on public testnets. To execute a withdrawal request run:
 yarn make-withdrawal-request
 ```
 
-### 19. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
+### 16. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
 
 If you wish to tear down the Airnode from the cloud provider run:
 

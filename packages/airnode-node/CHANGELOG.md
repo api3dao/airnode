@@ -105,11 +105,11 @@
 
 - [#842](https://github.com/api3dao/airnode/pull/842) [`cfe6cafa`](https://github.com/api3dao/airnode/commit/cfe6cafa483aee83eaf16c53df15591f943a56a1) Thanks [@vponline](https://github.com/vponline)! - Refactor `jest.spyOn(fs, 'readFileSync').mockReturnValue` to use `mockImplementation` to fix affected tests
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#818](https://github.com/api3dao/airnode/pull/818) [`3a94a49c`](https://github.com/api3dao/airnode/commit/3a94a49cbf7e7e620bcf0d8212a5efcfaab066a2) Thanks [@vponline](https://github.com/vponline)! - Add more detailed errors for airnode responses
 
-* [#947](https://github.com/api3dao/airnode/pull/947) [`291f6a45`](https://github.com/api3dao/airnode/commit/291f6a45b2166849608d01bcce0b759978a19843) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix jest test to improve robustness when changing ethers versions
+* [#947](https://github.com/api3dao/airnode/pull/947) [`291f6a45`](https://github.com/api3dao/airnode/commit/291f6a45b2166849608d01bcce0b759978a19843) Thanks @dependabot! - Fix jest test to improve robustness when changing ethers versions
 
 - [#907](https://github.com/api3dao/airnode/pull/907) [`abe6fbd4`](https://github.com/api3dao/airnode/commit/abe6fbd40517d8536d88e8d02889c32d81087902) Thanks [@Ashar2shahid](https://github.com/Ashar2shahid)! - Derive templateId from endpointId and encodedParamters for http signed data requests
 
@@ -124,6 +124,21 @@
   - @api3/airnode-validator@0.5.0
   - @api3/airnode-abi@0.5.0
   - @api3/airnode-ois@0.5.0
+
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+* [#840](https://github.com/api3dao/airnode/pull/840) [`8ef930cb`](https://github.com/api3dao/airnode/commit/8ef930cbb89a2a4fe0d4ff13d553cb2d9f9e5ba4) Thanks [@amarthadan](https://github.com/amarthadan)! - Move heartbeat API key to a request header
+
+* Updated dependencies [[`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc)]:
+  - @api3/airnode-abi@0.4.1
+  - @api3/airnode-adapter@0.4.1
+  - @api3/airnode-ois@0.4.1
+  - @api3/airnode-protocol@0.4.1
+  - @api3/airnode-validator@0.4.1
 
 ## 0.4.0
 

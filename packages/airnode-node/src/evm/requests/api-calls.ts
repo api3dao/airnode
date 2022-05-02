@@ -44,6 +44,7 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
       currentBlock: log.currentBlock,
       minConfirmations: log.minConfirmations,
       transactionHash: log.transactionHash,
+      logIndex: log.logIndex,
     },
     // Parameters are decoded separately
     parameters: {},

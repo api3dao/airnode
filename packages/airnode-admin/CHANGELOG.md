@@ -42,7 +42,7 @@
 
 - [#848](https://github.com/api3dao/airnode/pull/848) [`8d4fd368`](https://github.com/api3dao/airnode/commit/8d4fd36888213cfb3866f328250946bb4c9f3028) Thanks [@Siegrift](https://github.com/Siegrift)! - Use the same version of dependencies across packages
 
-* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks [@dependabot](https://github.com/apps/dependabot)! - Fix tests after ethers version bump
+* [#937](https://github.com/api3dao/airnode/pull/937) [`b093eb56`](https://github.com/api3dao/airnode/commit/b093eb5666db11892c5d31bb08366c541ab1d41b) Thanks @dependabot! - Fix tests after ethers version bump
 
 - [#868](https://github.com/api3dao/airnode/pull/868) [`23660580`](https://github.com/api3dao/airnode/commit/236605802a485fe09d1df7553d5b13fa7e6f36bf) Thanks [@vponline](https://github.com/vponline)! - Display airnode address and xpub when generating a mnemonic with CLI
 
@@ -52,6 +52,16 @@
   - @api3/airnode-protocol@0.5.0
   - @api3/airnode-utilities@0.5.0
   - @api3/airnode-abi@0.5.0
+
+## 0.4.1
+
+### Patch Changes
+
+- [`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`46aae23d`](https://github.com/api3dao/airnode/commit/46aae23d820cc7efa26e0295c7b94f0a1885a1cc)]:
+  - @api3/airnode-abi@0.4.1
+  - @api3/airnode-protocol@0.4.1
 
 ## 0.4.0
 

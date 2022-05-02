@@ -1,4 +1,4 @@
-import { setMaxPromiseTimeout } from './utils';
+import { setMaxPromiseTimeout, readPackageVersion } from './utils';
 
 describe('setMaxPromiseTimeout', () => {
   it('returns the fulfilled promise if resolved before timeout', async () => {
@@ -10,5 +10,12 @@ describe('setMaxPromiseTimeout', () => {
     await expect(
       setMaxPromiseTimeout(new Promise((res) => setTimeout(() => res('success!'), 100)), 20)
     ).rejects.toEqual('Timeout exceeded!');
+  });
+});
+
+describe('readPackageVersion', () => {
+  it('returns the package version from a package.json test file', () => {
+    const res = readPackageVersion('../test/test-package.json');
+    expect(res).toBe('0.5.0');
   });
 });

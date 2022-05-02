@@ -6,8 +6,7 @@
   "main": "./dist/src/index.js",
   "types": "./dist/src/index",
   "bin": {
-    "airnode-validator": "./dist/bin/validator.js",
-    "airnode-convertor": "./dist/bin/convertor.js"
+    "airnode-validator": "./dist/bin/validator.js"
   },
   "files": [
     "dist"
@@ -15,9 +14,7 @@
   "scripts": {
     "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
     "clean": "rimraf -rf ./dist *.tgz",
-    "cli:convertor": "ts-node bin/convertor.ts",
     "cli:validator": "ts-node bin/validator.ts",
-    "docs": "ts-node docs/generate-docs.ts",
     "compile": "tsc -p tsconfig.build.json",
     "pack": "yarn pack",
     "test": "jest"
