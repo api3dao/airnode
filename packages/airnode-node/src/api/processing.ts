@@ -63,7 +63,7 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
           case 'Node 14':
             return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
           case 'Node 14 async':
-            return await unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
+            return await unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
