@@ -5,7 +5,7 @@ import * as evm from '../evm';
 import { AggregatedApiCall, ApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config/types';
-import { getExpectedTemplateId } from '../evm/templates';
+import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function processHttpSignedDataRequest(
   config: Config,
@@ -39,7 +39,7 @@ export async function processHttpSignedDataRequest(
     endpointId,
     encodedParameters,
   };
-  const templateId = getExpectedTemplateId(template);
+  const templateId = getExpectedTemplateIdV1(template);
 
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-signed-data-gateway',
