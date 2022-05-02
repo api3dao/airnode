@@ -1,5 +1,18 @@
 # @api3/airnode-examples
 
+## 0.5.2
+
+### Patch Changes
+
+- Release version v0.5.2
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.5.2
+  - @api3/airnode-admin@0.5.2
+  - @api3/airnode-deployer@0.5.2
+  - @api3/airnode-node@0.5.2
+  - @api3/airnode-protocol@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @api3/airnode-deployer
 
+## 0.5.2
+
+### Patch Changes
+
+- Release version v0.5.2
+
+- Updated dependencies []:
+  - @api3/airnode-node@0.5.2
+  - @api3/airnode-ois@0.5.2
+  - @api3/airnode-protocol@0.5.2
+  - @api3/airnode-utilities@0.5.2
+  - @api3/airnode-validator@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes
