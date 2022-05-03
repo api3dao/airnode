@@ -1,4 +1,4 @@
-import { execSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { join } from 'path';
 
 const runValidator = (args: string[]) => {
@@ -8,10 +8,6 @@ const runValidator = (args: string[]) => {
 };
 
 describe('validator CLI', () => {
-  beforeAll(() => {
-    execSync('yarn build');
-  });
-
   it('shows help', () => {
     const cliHelp = runValidator(['--help']).stdout.toString();
 
