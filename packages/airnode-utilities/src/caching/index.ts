@@ -3,8 +3,25 @@ import { join } from 'path';
 import { logger } from '../logging';
 
 export const CACHE_BASE_PATH = `/tmp/airnode-cache`;
+
+/**
+ * Lambda, when last tested circa November 2021, persists /tmp contents for 2.5 hours.
+ */
 export const CACHE_MAX_FILESYSTEM_AGE_MINUTES = 60;
-export const CACHE_MAX_FILES = 20_000; // (500 (cache size) * 1024 (KB) ) / 4 (KB, fs "cluster size" = 130k
+
+/**
+ * This is the maximum number of files allowed in the cache.
+ * Lambda's /tmp mountpoint can handle approximately 130k files of minimum size (4KB).
+ * 4 KB is a common sector size for modern filesystems and is used on Lambda's /tmp mountpoint.
+ *
+ * 512 MB (size of Lambda /tmp) * 1024 / 4 KB (minimum size) = ~130k files
+ *
+ * Some URLs detailing the 4 KB minimum file size:
+ * ext4: https://askubuntu.com/questions/186813/why-does-every-directory-have-a-size-4096-bytes-4-k
+ * tmpfs: https://www.linuxquestions.org/questions/linux-server-73/tmpfs-block-size-4175501796/
+ * ntfs: https://support.microsoft.com/en-us/topic/default-cluster-size-for-ntfs-fat-and-exfat-9772e6f1-e31a-00d7-e18f-73169155af95#:~:text=By%20default%2C%20the%20maximum%20cluster,have%20a%20larger%20cluster%20size.
+ */
+export const CACHE_MAX_FILES = 20_000;
 
 export const isJest = () => process.env.JEST_WORKER_ID !== undefined;
 

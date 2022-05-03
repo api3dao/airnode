@@ -34,8 +34,14 @@ import v8 from 'v8';
 import vm from 'vm';
 import worker_threads from 'worker_threads';
 import zlib from 'zlib';
+import axios from 'axios';
+import { ethers } from 'ethers';
+import * as abi from '@api3/airnode-abi';
+import * as adapter from '@api3/airnode-adapter';
+import * as ois from '@api3/airnode-ois';
+import * as utilities from '@api3/airnode-utilities';
 
-const buildInNodeModules = {
+const builtInNodeModules = {
   assert,
   async_hooks,
   buffer,
@@ -74,13 +80,23 @@ const buildInNodeModules = {
   zlib,
 };
 
+const extraModules = {
+  ethers,
+  abi,
+  adapter,
+  ois,
+  utilities,
+  axios,
+};
+
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
 export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
   const vmContext = {
     input,
-    ...buildInNodeModules,
+    ...builtInNodeModules,
+    ...extraModules,
     deferredOutput: undefined,
   };
 
@@ -110,7 +126,8 @@ export const unsafeEvaluateAsync = async (input: any, code: string, timeout: num
       input,
       resolve,
       reject,
-      ...buildInNodeModules,
+      ...builtInNodeModules,
+      ...extraModules,
     };
 
     vm.runInNewContext(code, vmContext, { displayErrors: true, timeout });

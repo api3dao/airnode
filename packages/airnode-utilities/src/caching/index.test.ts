@@ -1,4 +1,4 @@
-import fs, { Dirent } from 'fs';
+import fs, { Dirent, PathLike, Stats } from 'fs';
 import { caching, CACHE_BASE_PATH } from './index';
 
 describe('caching utils', () => {
@@ -39,9 +39,10 @@ describe('caching utils', () => {
     readdirSyncSpy.mockReturnValueOnce(files as unknown as Dirent[]);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
-    // @ts-ignore
-    statSyncSpy.mockImplementation((file: string) =>
-      filesStatData.find((statData) => file.indexOf(statData.file) > -1)
+
+    statSyncSpy.mockImplementation(
+      (file: PathLike) =>
+        filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)! as unknown as Stats
     );
 
     const rmSyncSpy = jest.spyOn(fs, 'rmSync');
@@ -62,9 +63,10 @@ describe('caching utils', () => {
     readdirSyncSpy.mockReturnValueOnce(files as unknown as Dirent[]);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
-    // @ts-ignore
-    statSyncSpy.mockImplementation((file: string) =>
-      filesStatData.find((statData) => file.indexOf(statData.file) > -1)
+
+    statSyncSpy.mockImplementation(
+      (file: PathLike) =>
+        filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)! as unknown as Stats
     );
 
     const rmSyncSpy = jest.spyOn(fs, 'rmSync');
