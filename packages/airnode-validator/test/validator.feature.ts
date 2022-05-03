@@ -20,9 +20,10 @@ describe('validator CLI', () => {
       `--secrets ${join(__dirname, './fixtures/valid-secrets.env')}`,
     ];
 
-    const output = runValidator(args).stderr.toString();
+    const output = runValidator(args);
 
-    expect(output).toEqual('✔ The configuration is valid\n');
+    expect(output.status).toBe(0);
+    expect(output.stderr.toString()).toEqual('✔ The configuration is valid\n');
   });
 
   it('validates invalid configuration', () => {
@@ -31,9 +32,10 @@ describe('validator CLI', () => {
       `--secrets ${join(__dirname, './fixtures/missing-secrets.env')}`,
     ];
 
-    const output = runValidator(args).stderr.toString();
+    const output = runValidator(args);
 
-    expect(output).toEqual(
+    expect(output.status).toBe(1);
+    expect(output.stderr.toString()).toEqual(
       '✖ The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
     );
   });

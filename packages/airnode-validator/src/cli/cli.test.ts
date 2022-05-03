@@ -10,7 +10,7 @@ describe('validateConfiguration', () => {
 
   beforeEach(() => {
     succeedSpy = jest.spyOn(cli, 'succeed').mockImplementation(jest.fn());
-    failSpy = jest.spyOn(cli, 'fail').mockImplementation(jest.fn());
+    failSpy = jest.spyOn(cli, 'fail').mockImplementation(jest.fn() as any);
   });
 
   describe('calls fail', () => {
