@@ -23,7 +23,8 @@ describe('validator CLI', () => {
     const output = runValidator(args);
 
     expect(output.status).toBe(0);
-    expect(output.stderr.toString()).toEqual('✔ The configuration is valid\n');
+    // We use "expect.stringContaining" because the output begins with "✔"
+    expect(output.stderr.toString()).toEqual(expect.stringContaining('The configuration is valid\n'));
   });
 
   it('validates invalid configuration', () => {
@@ -36,7 +37,10 @@ describe('validator CLI', () => {
 
     expect(output.status).toBe(1);
     expect(output.stderr.toString()).toEqual(
-      '✖ The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+      // We use "expect.stringContaining" because the output begins with "✖"
+      expect.stringContaining(
+        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
+      )
     );
   });
 });
