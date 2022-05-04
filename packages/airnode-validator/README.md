@@ -1,16 +1,13 @@
 # `@api3/airnode-validator`
 
-The validator is used by the Docker Images to validate the configuration files you provide when deploying an Airnode.
-You can also use the validator to check the configuration files for correct formatting and other issues while creating
-them.
+> API and CLI for validating Airnode configuration files
 
-## Usage
+## User documentation
 
-<!-- TODO: Link to validator docs when available -->
+<!-- TODO: Add correct link to validator -->
 
-Validator is currently an internal dependency of Airnode and not intended to be used in a standalone way.
+You can find documentation on how to use the deployer in the [validator docs](https://docs.api3.org/airnode/v0.7/).
 
-## Build Manually
+## For developers
 
-You can clone and build the Airnode monorepo then run the validator as a yarn script from inside the
-`packages/airnode-validator` directory.
+To build validator from source follow the [repository instructions](https://github.com/api3dao/airnode#instructions)
