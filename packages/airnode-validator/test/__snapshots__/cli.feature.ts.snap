@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`validator CLI shows help 1`] = `
+"Options:
+      --version  Show version number                                                                           [boolean]
+  -c, --config   Path to \\"config.json\\" file to validate                                              [string] [required]
+  -s, --secrets  Path to \\"secrets.env\\" file to interpolate in the config                             [string] [required]
+      --help     Show help                                                                                     [boolean]
+
+Examples:
+  --config pathTo/config.json --secrets pathTo/secrets.env
+  -c pathTo/config.json -s pathTo/secrets.env
+"
+`;
