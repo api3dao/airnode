@@ -21,11 +21,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   const config = loadConfig(configPath, secrets);
 
   if (config.nodeSettings.cloudProvider.type === 'local') {
-    // We want to check cloud provider type regardless of "skipValidation" value.
-    // Skipping this check would always cause a deployer failure.
     throw logAndReturnError(`Deployer can't deploy to "local" cloud provider`);
   }
 
+  // TODO: Check this in validator
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {
     throw logAndReturnError('AIRNODE_WALLET_MNEMONIC in your secrets.env file is not valid');

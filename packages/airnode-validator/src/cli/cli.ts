@@ -8,7 +8,10 @@ import * as dotenv from 'dotenv';
 import { parseConfigWithSecrets } from '../api';
 
 export const succeed = (s: string) => ora(s).succeed();
-export const fail = (s: string) => ora(s).fail();
+export const fail = (s: string) => {
+  ora(s).fail();
+  process.exit(1);
+};
 
 const examples = [
   '--config pathTo/config.json --secrets pathTo/secrets.env',

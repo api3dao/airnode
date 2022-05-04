@@ -9,8 +9,13 @@ import { ValidationResult } from '../validation-result';
 type Secrets = Record<string, string | undefined>;
 type Config = SchemaType<typeof configSchema>;
 
-// TODO: Write documentation for these functions
-
+/**
+ * Interpolates `secrets` into `config` and validates the interpolated configuration.
+ *
+ * @param config a JSON object representation of config.json
+ * @param secrets a key value object with the secrets
+ * @returns `{success: true, data: <interpolated config>}` if successful, `{success: false, error: <error>}` otherwise
+ */
 export function parseConfigWithSecrets(config: unknown, secrets: unknown): ValidationResult<Config> {
   const parseSecretsRes = parseSecrets(secrets);
   if (!parseSecretsRes.success) return parseSecretsRes;
@@ -21,18 +26,31 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
   return parseConfig(interpolateConfigRes.data);
 }
 
+/**
+ * @param config a JSON object representation of config.json
+ * @returns `{success: true, data: <interpolated config>}` if successful, `{success: false, error: <error>}` otherwise
+ */
 export function parseConfig(config: unknown): ValidationResult<Config> {
   const parseConfigRes = configSchema.safeParse(config);
   return parseConfigRes;
 }
 
+/**
+ * @param secrets a key value object with the secrets
+ * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
+ */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
+  // TODO: Theoretically secrets could also interpolate non string values (e.g. booleans)
   const secretsSchema = z.record(z.string());
 
   const result = secretsSchema.safeParse(secrets);
   return result;
 }
 
+/**
+ * @param receipt a JSON object representation of receipt.json
+ * @returns `{success: true, data: <receipt>}` if successful, `{success: false, error: <error>}` otherwise
+ */
 export function parseReceipt(receipt: unknown): ValidationResult<Receipt> {
   return receiptSchema.safeParse(receipt);
 }

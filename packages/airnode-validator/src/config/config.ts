@@ -115,8 +115,6 @@ export const nodeSettingsSchema = z.object({
       path: [],
     });
   }),
-  // TODO: https://api3dao.atlassian.net/browse/AN-556
-  skipValidation: z.boolean().optional(),
 });
 
 export const baseApiCredentialsSchema = z.object({
