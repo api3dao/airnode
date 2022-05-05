@@ -30,7 +30,6 @@ describe('nodeSettingsSchema', () => {
     logLevel: 'INFO',
     nodeVersion: packageVersion,
     stage: 'dev',
-    skipValidation: true,
   };
 
   it('must match package version', () => {

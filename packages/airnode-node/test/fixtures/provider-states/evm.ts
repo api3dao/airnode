@@ -18,7 +18,10 @@ export function buildEVMProviderState(
     },
     id: chainId,
     type: chainType,
-    options: {} as any,
+    options: {
+      txType: 'legacy',
+      fulfillmentGasLimit: 123456,
+    },
     providers: {
       [chainProviderName]: {
         url: 'http://localhost:4111',

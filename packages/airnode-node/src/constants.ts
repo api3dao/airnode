@@ -44,3 +44,6 @@ export const BASE_FEE_MULTIPLIER = 2;
 
 // The maximum character length of an error message sent on-chain
 export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
+
+// The maximum amount of time in milliseconds that pre and post processing is allowed to execute
+export const PROCESSING_TIMEOUT = 10_000;

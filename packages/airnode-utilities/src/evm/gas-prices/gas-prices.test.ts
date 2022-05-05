@@ -135,6 +135,27 @@ describe('getGasPrice', () => {
     expect(getBlock).toHaveBeenCalledTimes(0);
   });
 
+  it('applies gasPriceMultiplier to non-EIP-1559 provider', async () => {
+    const gasPriceMultiplier = 1.75;
+    const baseOptions = createLegacyBaseOptions();
+    const getBlock = baseOptions.provider.getBlock as jest.Mock;
+
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockResolvedValueOnce(testGasPrice);
+
+    const [logs, gasPrice] = await gasPrices.getGasPrice({
+      ...baseOptions,
+      chainOptions: { ...baseOptions.chainOptions, gasPriceMultiplier },
+    });
+
+    const multipliedTestGasPrice = gasPrices.multiplyGasPrice(testGasPrice, gasPriceMultiplier);
+
+    expect(logs.length).toEqual(0);
+    expect(gasPrice).toEqual({ gasPrice: multipliedTestGasPrice, gasLimit: gasLimit });
+    expect(getGasPrice).toHaveBeenCalledTimes(1);
+    expect(getBlock).toHaveBeenCalledTimes(0);
+  });
+
   it('retries once on failure for a non-EIP-1559 provider', async () => {
     const baseOptions = createLegacyBaseOptions();
     const getBlock = baseOptions.provider.getBlock as jest.Mock;

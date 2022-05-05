@@ -1,6 +1,7 @@
-export * from './ois';
-export * from './config';
-export * from './api';
+export * as ois from './ois';
+export * as config from './config';
+export * as receipt from './receipt';
 
+export * from './api';
 export * from './validation-result';
 export * from './types';
