@@ -3,6 +3,7 @@ import { join } from 'path';
 import { ZodError } from 'zod';
 import { configSchema, nodeSettingsSchema } from './config';
 import { version as packageVersion } from '../../package.json';
+import { SchemaType } from '../types';
 
 it('successfully parses config.json', () => {
   const ois = JSON.parse(
@@ -12,7 +13,7 @@ it('successfully parses config.json', () => {
 });
 
 describe('nodeSettingsSchema', () => {
-  const nodeSettings = {
+  const nodeSettings: SchemaType<typeof nodeSettingsSchema> = {
     cloudProvider: {
       type: 'local',
     },
@@ -42,6 +43,27 @@ describe('nodeSettingsSchema', () => {
           code: 'custom',
           message: `The "nodeVersion" must be ${packageVersion}`,
           path: ['nodeVersion'],
+        },
+      ])
+    );
+  });
+
+  it('does not allow same gateway keys on AWS', () => {
+    const invalidNodeSettings = {
+      ...nodeSettings,
+      cloudProvider: {
+        type: 'aws',
+        region: 'region',
+        disableConcurrencyReservations: false,
+      },
+    };
+
+    expect(() => nodeSettingsSchema.parse(invalidNodeSettings)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Using the same gateway keys is not allowed on AWS`,
+          path: [],
         },
       ])
     );

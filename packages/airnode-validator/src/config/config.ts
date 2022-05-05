@@ -97,26 +97,37 @@ export const cloudProviderSchema = z.discriminatedUnion('type', [awsCloudProvide
 
 export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudProviderSchema]);
 
-export const nodeSettingsSchema = z.object({
-  airnodeWalletMnemonic: z.string(),
-  heartbeat: heartbeatSchema,
-  httpGateway: gatewaySchema,
-  httpSignedDataGateway: gatewaySchema,
-  airnodeAddressShort: z.string().optional(),
-  stage: z.string(),
-  cloudProvider: localOrCloudProviderSchema,
-  logFormat: logFormatSchema,
-  logLevel: logLevelSchema,
-  nodeVersion: z.string().superRefine((version, ctx) => {
-    if (version === packageVersion) return;
+export const nodeSettingsSchema = z
+  .object({
+    airnodeWalletMnemonic: z.string(),
+    heartbeat: heartbeatSchema,
+    httpGateway: gatewaySchema,
+    httpSignedDataGateway: gatewaySchema,
+    airnodeAddressShort: z.string().optional(),
+    stage: z.string(),
+    cloudProvider: localOrCloudProviderSchema,
+    logFormat: logFormatSchema,
+    logLevel: logLevelSchema,
+    nodeVersion: z.string().superRefine((version, ctx) => {
+      if (version === packageVersion) return;
 
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `The "nodeVersion" must be ${packageVersion}`,
-      path: [],
-    });
-  }),
-});
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `The "nodeVersion" must be ${packageVersion}`,
+        path: [],
+      });
+    }),
+  })
+  .superRefine((settings, ctx) => {
+    const { cloudProvider, httpGateway, httpSignedDataGateway } = settings;
+    if (cloudProvider.type === 'aws' && httpGateway.apiKey === httpSignedDataGateway.apiKey) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Using the same gateway keys is not allowed on AWS`,
+        path: [],
+      });
+    }
+  });
 
 export const baseApiCredentialsSchema = z.object({
   securitySchemeName: z.string(),
