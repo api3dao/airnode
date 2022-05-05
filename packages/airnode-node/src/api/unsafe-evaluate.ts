@@ -36,10 +36,6 @@ import worker_threads from 'worker_threads';
 import zlib from 'zlib';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import * as abi from '@api3/airnode-abi';
-import * as adapter from '@api3/airnode-adapter';
-import * as ois from '@api3/airnode-ois';
-import * as utilities from '@api3/airnode-utilities';
 
 const builtInNodeModules = {
   assert,
@@ -82,10 +78,6 @@ const builtInNodeModules = {
 
 const extraModules = {
   ethers,
-  abi,
-  adapter,
-  ois,
-  utilities,
   axios,
 };
 
