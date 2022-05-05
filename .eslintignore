@@ -12,6 +12,3 @@
 
 # Ignore the TS wrappers created by Typechain
 packages/airnode-protocol/src/contracts
-
-# Ignore JSON snippets injected into README
-packages/airnode-validator/test/fixtures

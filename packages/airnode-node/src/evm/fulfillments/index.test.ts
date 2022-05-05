@@ -32,12 +32,12 @@ describe('submit', () => {
   it('submits transactions for multiple wallets and returns the transactions', async () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.buildApiCall({
+        fixtures.requests.buildSuccessfulApiCall({
           id: '0xd211ecb4fbf347cabfb32e25d8485338abc28d54bd4735022ade13854d13cad8', //apiCallId1
           nonce: 10,
           sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
         }),
-        fixtures.requests.buildApiCall({
+        fixtures.requests.buildSuccessfulApiCall({
           id: '0x0995770ea47ab31250abed45f091375f4bc16a1713c2b20ba04430865295bde0', //apiCallId2
           nonce: 11,
           sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
@@ -90,7 +90,6 @@ describe('submit', () => {
     const apiCall = fixtures.requests.buildApiCall({
       id: '0xd211ecb4fbf347cabfb32e25d8485338abc28d54bd4735022ade13854d13cad8',
       nonce: 5,
-      responseValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const requests: GroupedRequests = {

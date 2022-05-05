@@ -1,5 +1,4 @@
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
 const IgnoreDynamicRequire = require('webpack-ignore-dynamic-require');
 const { ESBuildMinifyPlugin } = require('esbuild-loader');
 
@@ -33,16 +32,7 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    // https://github.com/api3dao/airnode/pull/623#discussion_r729083235
-    new CopyPlugin({
-      patterns: [
-        { from: '../airnode-validator/dist/templates', to: 'templates' },
-        { from: '../airnode-validator/dist/conversions', to: 'conversions' },
-      ],
-    }),
-    new IgnoreDynamicRequire(),
-  ],
+  plugins: [new IgnoreDynamicRequire()],
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({

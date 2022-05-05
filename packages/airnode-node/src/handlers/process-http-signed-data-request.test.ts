@@ -2,9 +2,10 @@ import { Endpoint } from '@api3/airnode-ois';
 import { processHttpSignedDataRequest } from './process-http-signed-data-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
+import { HttpSignedDataApiCallSuccessResponse } from '../types';
 
 const ENDPOINT_ID = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
-const TEMPLATE_ID = '0x600975681b98422eee1146d4b835a8103689ae4cddb76069925a929caf0eb79f';
+const TEMPLATE_ID = '0xaa1525fe964092a826934ff09c75e1db395b947543a4ca3eb4a19628bad6c6d5';
 
 function buildConfigWithEndpoint(endpoint?: Endpoint) {
   const endpoints = endpoint ? [endpoint] : [];
@@ -48,7 +49,10 @@ describe('processHttpSignedDataRequests', () => {
   it('calls the API with given encodedParameters', async () => {
     const spy = jest.spyOn(api, 'callApi');
     // What exactly the API returns doesn't matter for this test
-    const mockedResponse = { success: true, value: 'value', signature: 'signature' } as const;
+    const mockedResponse = {
+      success: true,
+      data: { encodedValue: 'value', timestamp: '123456789', signature: 'signature' },
+    } as HttpSignedDataApiCallSuccessResponse;
     spy.mockResolvedValueOnce([[], mockedResponse]);
 
     const encodedParameters =

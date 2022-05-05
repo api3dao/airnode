@@ -1,4 +1,5 @@
 import * as ethers from 'ethers';
+import { logAndReturnError } from './infrastructure';
 import * as logger from '../utils/logger';
 
 export function validateMnemonic(mnemonic: string) {
@@ -28,7 +29,7 @@ export function shortenAirnodeAddress(airnodeAddress: string) {
   try {
     ethers.utils.getAddress(airnodeAddress);
   } catch {
-    throw new Error('airnodeAddress is not a valid hex string');
+    throw logAndReturnError('"airnodeAddress" is not a valid hex string');
   }
   // NOTE: AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   return airnodeAddress.substring(2, 9).toLowerCase();

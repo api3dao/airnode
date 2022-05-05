@@ -61,8 +61,11 @@ describe('callApi', () => {
 
     const callResponse = {
       success: true,
-      value: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
-      signature: 'not used',
+      data: {
+        timestamp: 'some-timestamp',
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        signature: 'some-signature',
+      },
     } as const;
     jest.spyOn(handlers, 'callApi').mockResolvedValue([[], callResponse]);
 
