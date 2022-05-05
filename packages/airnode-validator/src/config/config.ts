@@ -45,6 +45,7 @@ export const priorityFeeSchema = z.object({
 
 export const chainOptionsSchema = z.object({
   txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
+  gasPriceMultiplier: z.number().optional(),
   baseFeeMultiplier: z.number().int().optional(),
   priorityFee: priorityFeeSchema.optional(),
   fulfillmentGasLimit: z.number().int(),
@@ -108,8 +109,6 @@ export const nodeSettingsSchema = z.object({
   logLevel: logLevelSchema,
   // TODO: This must match validator version
   nodeVersion: z.string(),
-  // TODO: https://api3dao.atlassian.net/browse/AN-556
-  skipValidation: z.boolean().optional(),
 });
 
 export const baseApiCredentialsSchema = z.object({

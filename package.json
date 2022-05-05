@@ -76,6 +76,7 @@
     "test:e2e-admin": "cd packages/airnode-admin && yarn run test:e2e",
     "test:e2e-examples": "cd packages/airnode-examples && yarn run test:e2e",
     "test:e2e-node": "cd packages/airnode-node && yarn run test:e2e",
+    "test:e2e-validator": "cd packages/airnode-validator && yarn run test:e2e",
     "test:e2e-node:debug": "cd packages/airnode-node && yarn run test:e2e:debug",
     "test:protocol": "cd packages/airnode-protocol && yarn run test",
     "test:node": "(cd packages/airnode-node && yarn run test)",
@@ -99,7 +100,7 @@
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.18",
     "solhint": "^3.3.6",
-    "syncpack": "^6.2.0",
+    "syncpack": "^7.2.1",
     "ts-node": "^10.1.0",
     "typescript": "^4.2.4"
   }

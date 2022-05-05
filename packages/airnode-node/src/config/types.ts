@@ -39,6 +39,7 @@ export interface PriorityFee {
 
 export interface ChainOptions {
   readonly txType: 'legacy' | 'eip1559';
+  readonly gasPriceMultiplier?: number;
   readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;
   readonly fulfillmentGasLimit: number;
@@ -100,7 +101,6 @@ export interface NodeSettings {
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly skipValidation?: boolean;
 }
 
 export interface ApiCredentials extends BaseApiCredentials {
