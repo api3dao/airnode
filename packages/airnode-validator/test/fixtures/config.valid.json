@@ -9,7 +9,7 @@
       "id": "31337",
       "providers": {
         "exampleProvider": {
-          "url": "http://127.0.0.1:8545/"
+          "url": "${PROVIDER_URL}"
         }
       },
       "type": "evm",
@@ -28,7 +28,7 @@
     "cloudProvider": {
       "type": "local"
     },
-    "airnodeWalletMnemonic": "test test test test test test test test test test test junk",
+    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false
     },
@@ -40,7 +40,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.4.0",
+    "nodeVersion": "0.6.0",
     "stage": "dev"
   },
   "triggers": {
@@ -170,8 +170,6 @@
               "fixed": "1000000"
             }
           ],
-          "preProcessingSpecifications": [],
-          "postProcessingSpecifications": [],
           "parameters": [
             {
               "name": "coinId",
