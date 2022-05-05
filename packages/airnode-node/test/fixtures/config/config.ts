@@ -1,3 +1,4 @@
+import { parseConfig } from '@api3/airnode-validator';
 import * as ois from './ois';
 import * as settings from './node-settings';
 import { ApiCredentials, Config, Trigger } from '../../../src/config/types';
@@ -21,7 +22,7 @@ export function buildApiCredentials(overrides?: Partial<ApiCredentials>): ApiCre
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
-  return {
+  const rawConfig = {
     chains: [
       {
         maxConcurrency: 100,
@@ -31,8 +32,10 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
         id: '31337',
         type: 'evm',
-        // We set an invalid options value to keep us honest in the use of both txType cases in downstream tests.
-        options: {} as any,
+        options: {
+          txType: 'legacy',
+          fulfillmentGasLimit: 123456,
+        },
         providers: {
           ['EVM local']: {
             url: 'http://localhost:4111',
@@ -50,4 +53,10 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     apiCredentials: [buildApiCredentials()],
     ...overrides,
   };
+
+  // Validate the config to make sure it we are testing Airnode with valid configuration
+  const parsedConfig = parseConfig(rawConfig);
+  if (!parsedConfig.success) throw parsedConfig.error;
+
+  return parsedConfig.data;
 }
