@@ -1,5 +1,5 @@
 import { NodeSettings } from '../../../src/config/types';
-import { version as packageVersion } from '../../../package.json';
+import { version as getPackageVersion } from '../../../src/version';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
@@ -21,7 +21,7 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     },
     logFormat: 'plain',
     logLevel: 'DEBUG',
-    nodeVersion: packageVersion,
+    nodeVersion: getPackageVersion(),
     stage: 'test',
     ...settings,
   };
