@@ -40,7 +40,6 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
  * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  // TODO: Theoretically secrets could also interpolate non string values (e.g. booleans)
   const secretsSchema = z.record(z.string());
 
   const result = secretsSchema.safeParse(secrets);
