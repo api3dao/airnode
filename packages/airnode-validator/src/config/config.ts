@@ -45,6 +45,7 @@ export const priorityFeeSchema = z.object({
 
 export const chainOptionsSchema = z.object({
   txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
+  gasPriceMultiplier: z.number().optional(),
   baseFeeMultiplier: z.number().int().optional(),
   priorityFee: priorityFeeSchema.optional(),
   fulfillmentGasLimit: z.number().int(),
