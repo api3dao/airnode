@@ -48,7 +48,7 @@ const getKeys = (prefix?: string): string[] => {
   try {
     const keys = readdirSync(CACHE_BASE_PATH);
     if (prefix) {
-      return keys.filter((key) => key.indexOf(prefix) === 0);
+      return keys.filter((key) => key.startsWith(prefix));
     }
     return keys;
   } catch (e) {
