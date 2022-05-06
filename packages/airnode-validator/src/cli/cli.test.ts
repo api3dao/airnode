@@ -41,7 +41,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
+        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
       );
     });
 
@@ -50,7 +50,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
+        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
       );
     });
   });

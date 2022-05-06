@@ -3,7 +3,6 @@ import { cloudProviderSchema } from '../config';
 import { SchemaType } from '../types';
 import { version as packageVersion } from '../../package.json';
 
-// TODO: Implement old validator rules
 export const airnodeWalletSchema = z.object({
   airnodeAddress: z.string(),
   airnodeAddressShort: z.string(),

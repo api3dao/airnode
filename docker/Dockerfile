@@ -32,7 +32,7 @@ FROM source${build} AS deps
 
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
-    rm -rf node_modules/@api3 && \
+    find -L node_modules/@api3 -maxdepth 1 -type d -name "airnode-*" | xargs rm && \
     mkdir -p ${dependenciesDir}/common && \
     cp -r ${buildDir}/node_modules/. ${dependenciesDir}/common && \
     cd ${buildDir}/packages && \
