@@ -47,7 +47,7 @@ async function testFulfill(
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
-  if (!request.success) return [[], new Error('Only successfull API can be submitted'), null];
+  if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
 
   const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
@@ -76,7 +76,7 @@ async function submitFulfill(
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
-  if (!request.success) return [[], new Error('Only successfull API can be submitted'), null];
+  if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
 
   const tx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfill(

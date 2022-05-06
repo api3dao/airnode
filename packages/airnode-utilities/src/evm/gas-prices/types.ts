@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { PromiseOptions } from '../../promises';
 
 export interface GasTarget {
+  type: number;
   maxPriorityFeePerGas?: BigNumber;
   maxFeePerGas?: BigNumber;
   gasPrice?: BigNumber;

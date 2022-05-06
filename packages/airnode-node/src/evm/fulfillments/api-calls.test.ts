@@ -14,10 +14,11 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
+import { GasTarget } from '@api3/airnode-utilities';
 import * as apiCalls from './api-calls';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
-import { GasTarget, RequestErrorMessage } from '../../types';
+import { RequestErrorMessage } from '../../types';
 import { AirnodeRrpV0 } from '../contracts';
 import { MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 
@@ -27,10 +28,12 @@ const config = fixtures.buildConfig();
 describe('submitApiCall', () => {
   const masterHDNode = wallet.getMasterHDNode(config);
   const gasPriceFallback = {
+    type: 0,
     gasPrice: ethers.BigNumber.from('1000'),
     gasLimit: ethers.BigNumber.from(500_000),
   };
   const gasPrice = {
+    type: 2,
     maxPriorityFeePerGas: ethers.BigNumber.from(1),
     maxFeePerGas: ethers.BigNumber.from(1000),
     gasLimit: ethers.BigNumber.from(500_000),

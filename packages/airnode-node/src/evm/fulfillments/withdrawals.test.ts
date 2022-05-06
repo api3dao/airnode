@@ -20,9 +20,9 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
+import { GasTarget } from '@api3/airnode-utilities';
 import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
-import { GasTarget } from '../../types';
 import * as wallet from '../wallet';
 import { AirnodeRrpV0 } from '../contracts';
 
@@ -30,10 +30,12 @@ const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as un
 const config = fixtures.buildConfig();
 
 const gasTarget = {
+  type: 2,
   maxPriorityFeePerGas: ethers.BigNumber.from(1),
   maxFeePerGas: ethers.BigNumber.from(1000),
 };
 const gasTargetFallback = {
+  type: 0,
   gasPrice: ethers.BigNumber.from('1000'),
 };
 

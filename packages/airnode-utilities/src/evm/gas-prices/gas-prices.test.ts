@@ -112,9 +112,12 @@ describe('getGasPrice', () => {
 
       const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
       expect(logs).toEqual([]);
-      expect(gasPrice?.maxPriorityFeePerGas).toEqual(maxPriorityFeePerGas);
-      expect(gasPrice?.maxFeePerGas).toEqual(maxFeePerGas);
-      expect(gasPrice?.gasLimit).toEqual(gasLimit);
+      expect(gasPrice).toEqual({
+        type: 2,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas,
+        gasLimit: gasLimit,
+      });
       expect(getGasPrice).toHaveBeenCalledTimes(0);
       expect(getBlock).toHaveBeenCalledTimes(1);
     }
@@ -130,7 +133,7 @@ describe('getGasPrice', () => {
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
     expect(logs.length).toEqual(0);
-    expect(gasPrice).toEqual({ gasPrice: testGasPrice, gasLimit: gasLimit });
+    expect(gasPrice).toEqual({ type: 0, gasPrice: testGasPrice, gasLimit: gasLimit });
     expect(getGasPrice).toHaveBeenCalledTimes(1);
     expect(getBlock).toHaveBeenCalledTimes(0);
   });
@@ -151,7 +154,7 @@ describe('getGasPrice', () => {
     const multipliedTestGasPrice = gasPrices.multiplyGasPrice(testGasPrice, gasPriceMultiplier);
 
     expect(logs.length).toEqual(0);
-    expect(gasPrice).toEqual({ gasPrice: multipliedTestGasPrice, gasLimit: gasLimit });
+    expect(gasPrice).toEqual({ type: 0, gasPrice: multipliedTestGasPrice, gasLimit: gasLimit });
     expect(getGasPrice).toHaveBeenCalledTimes(1);
     expect(getBlock).toHaveBeenCalledTimes(0);
   });
@@ -167,7 +170,7 @@ describe('getGasPrice', () => {
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
     expect(logs).toEqual([]);
-    expect(gasPrice).toEqual({ gasPrice: testGasPrice, gasLimit: gasLimit });
+    expect(gasPrice).toEqual({ type: 0, gasPrice: testGasPrice, gasLimit: gasLimit });
     expect(getGasPrice).toHaveBeenCalledTimes(2);
     expect(getBlock).toHaveBeenCalledTimes(0);
   });
@@ -205,9 +208,12 @@ describe('getGasPrice', () => {
       const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
 
       expect(logs).toEqual([]);
-      expect(gasPrice?.maxPriorityFeePerGas).toEqual(maxPriorityFeePerGas);
-      expect(gasPrice?.maxFeePerGas).toEqual(maxFeePerGas);
-      expect(gasPrice?.gasLimit).toEqual(gasLimit);
+      expect(gasPrice).toEqual({
+        type: 2,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas,
+        gasLimit: gasLimit,
+      });
       expect(getGasPrice).toHaveBeenCalledTimes(0);
       expect(getBlock).toHaveBeenCalledTimes(2);
     }

@@ -53,7 +53,7 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   if (txType === 'legacy') {
     const gasPrice = ethers.BigNumber.from(1_000);
     gasPriceSpy.mockResolvedValue(gasPrice);
-    return { gasTarget: { gasPrice, gasLimit }, blockSpy, gasPriceSpy };
+    return { gasTarget: { type: 0, gasPrice, gasLimit }, blockSpy, gasPriceSpy };
   }
 
   const baseFeePerGas = ethers.BigNumber.from(1000);
@@ -62,7 +62,7 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
 
   return {
-    gasTarget: { maxPriorityFeePerGas, maxFeePerGas, gasLimit },
+    gasTarget: { type: 2, maxPriorityFeePerGas, maxFeePerGas, gasLimit },
     blockSpy,
     gasPriceSpy,
   };
