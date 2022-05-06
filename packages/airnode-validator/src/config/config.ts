@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { oisSchema } from '../ois';
-import { zodDiscriminatedUnion } from '../zod-discriminated-union';
+import { version as packageVersion } from '../../package.json';
 
 export const triggerSchema = z.object({
   endpointId: z.string(),
@@ -93,7 +93,7 @@ export const gcpCloudProviderSchema = z.object({
   disableConcurrencyReservations: z.boolean(),
 });
 
-export const cloudProviderSchema = zodDiscriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
+export const cloudProviderSchema = z.discriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
 
 export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudProviderSchema]);
 
@@ -107,8 +107,15 @@ export const nodeSettingsSchema = z.object({
   cloudProvider: localOrCloudProviderSchema,
   logFormat: logFormatSchema,
   logLevel: logLevelSchema,
-  // TODO: This must match validator version
-  nodeVersion: z.string(),
+  nodeVersion: z.string().superRefine((version, ctx) => {
+    if (version === packageVersion) return;
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `The "nodeVersion" must be ${packageVersion}`,
+      path: [],
+    });
+  }),
 });
 
 export const baseApiCredentialsSchema = z.object({

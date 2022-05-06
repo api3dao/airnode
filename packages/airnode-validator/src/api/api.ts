@@ -1,9 +1,10 @@
 import template from 'lodash/template';
 import { z } from 'zod';
+import { goSync } from '@api3/promise-utils';
 import { SchemaType } from '../types';
 import { configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
-import { ValidationResult, ValidatorError } from '../validation-result';
+import { ValidationResult } from '../validation-result';
 
 type Secrets = Record<string, string | undefined>;
 type Config = SchemaType<typeof configSchema>;
@@ -39,7 +40,6 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
  * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  // TODO: Theoretically secrets could also interpolate non string values (e.g. booleans)
   const secretsSchema = z.record(z.string());
 
   const result = secretsSchema.safeParse(secrets);
@@ -62,26 +62,15 @@ const NO_MATCH_REGEXP = /($^)/;
 const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
 function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
-  // TODO: Replace with go utils
-  try {
-    const interpolated = JSON.parse(
+  return goSync(() =>
+    JSON.parse(
       template(JSON.stringify(config), {
         escape: NO_MATCH_REGEXP,
         evaluate: NO_MATCH_REGEXP,
         interpolate: ES_MATCH_REGEXP,
       })(secrets)
-    );
-
-    return {
-      success: true,
-      data: interpolated,
-    };
-  } catch (e) {
-    return {
-      success: false,
-      error: new ValidatorError('Error interpolating secrets. Make sure the secrets format is correct'),
-    };
-  }
+    )
+  );
 }
 
 /**

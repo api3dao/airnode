@@ -4,12 +4,11 @@ import forEach from 'lodash/forEach';
 import { parseConfigWithSecrets, unsafeParseConfigWithSecrets } from './api';
 import { configSchema } from '../config';
 import { SchemaType } from '../types';
-import { ValidatorError } from '..';
 
 const loadConfigFixture = (): SchemaType<typeof configSchema> =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
   // not interpolated
-  JSON.parse(readFileSync(join(__dirname, '../../exampleSpecs/config.specs.json')).toString());
+  JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/config.valid.json')).toString());
 
 const interpolateSecrets = (config: unknown, secrets: Record<string, string>) => {
   let strConfig = JSON.stringify(config);
@@ -40,9 +39,8 @@ describe('parseConfigWithSecrets', () => {
       AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
     };
 
-    // TODO: Provide a better error in case there is a missing secret
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
-      error: new ValidatorError('Error interpolating secrets. Make sure the secrets format is correct'),
+      error: new Error('PROVIDER_URL is not defined'),
       success: false,
     });
   });

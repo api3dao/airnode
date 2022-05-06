@@ -10,10 +10,12 @@ describe('processing', () => {
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, from: "ETH"};',
+          timeoutMs: 5_000,
         },
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, newProp: "airnode"};',
+          timeoutMs: 5_000,
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
@@ -37,10 +39,12 @@ describe('processing', () => {
         {
           environment: 'Node 14' as const,
           value: 'something invalid; const output = {...input, from: `ETH`};',
+          timeoutMs: 5_000,
         },
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, newProp: "airnode"};',
+          timeoutMs: 5_000,
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
@@ -59,6 +63,7 @@ describe('processing', () => {
         {
           environment: 'Node 14' as const,
           value: 'const output = {...input, object: {a: 123, b: false}};',
+          timeoutMs: 5_000,
         },
       ];
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
@@ -90,10 +95,12 @@ describe('post-processing', () => {
       {
         environment: 'Node 14' as const,
         value: 'const output = parseInt(input.price)*2;',
+        timeoutMs: 5_000,
       },
       {
         environment: 'Node 14' as const,
         value: 'const output = parseInt(input)*2;',
+        timeoutMs: 5_000,
       },
     ];
     const endpoint = { ...config.ois[0].endpoints[0], postProcessingSpecifications };
@@ -109,10 +116,12 @@ describe('post-processing', () => {
       {
         environment: 'Node 14' as const,
         value: 'const output = parseInt(input.price)*1000;',
+        timeoutMs: 5_000,
       },
       {
         environment: 'Node 14' as const,
         value: 'Something Unexpected; const output = parseInt(input)*2;',
+        timeoutMs: 5_000,
       },
     ];
     const endpoint = { ...config.ois[0].endpoints[0], postProcessingSpecifications };

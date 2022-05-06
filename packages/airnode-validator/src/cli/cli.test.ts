@@ -5,8 +5,8 @@ describe('validateConfiguration', () => {
   let succeedSpy: any;
   let failSpy: any;
 
-  const configPath = join(__dirname, '../../test/fixtures/valid-config.json');
-  const secretsPath = join(__dirname, '../../test/fixtures/valid-secrets.env');
+  const configPath = join(__dirname, '../../test/fixtures/config.valid.json');
+  const secretsPath = join(__dirname, '../../test/fixtures/secrets.valid.env');
 
   beforeEach(() => {
     succeedSpy = jest.spyOn(cli, 'succeed').mockImplementation(jest.fn());
@@ -41,7 +41,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
+        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
       );
     });
 
@@ -50,7 +50,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct'
+        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
       );
     });
   });

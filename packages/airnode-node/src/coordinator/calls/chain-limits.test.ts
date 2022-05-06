@@ -13,8 +13,10 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     },
     id: '31337',
     type: 'evm',
-    // We set an invalid options value to keep us honest in the use of both txType cases in downstream tests.
-    options: {} as any,
+    options: {
+      txType: 'legacy',
+      fulfillmentGasLimit: 123456,
+    },
     providers: {},
     ...overrides,
   };

@@ -2,7 +2,7 @@ import { spawnSync } from 'child_process';
 import { join } from 'path';
 
 const runValidator = (args: string[]) => {
-  const command = ['node', join(__dirname, '../dist/bin/validator.js'), ...args].join(' ');
+  const command = ['node', join(__dirname, '../dist/cjs/bin/validator.js'), ...args].join(' ');
 
   return spawnSync(command, { shell: true });
 };
@@ -16,8 +16,8 @@ describe('validator CLI', () => {
 
   it('validates valid configuration', () => {
     const args = [
-      `--config ${join(__dirname, './fixtures/valid-config.json')}`,
-      `--secrets ${join(__dirname, './fixtures/valid-secrets.env')}`,
+      `--config ${join(__dirname, './fixtures/config.valid.json')}`,
+      `--secrets ${join(__dirname, './fixtures/secrets.valid.env')}`,
     ];
 
     const output = runValidator(args);
@@ -29,7 +29,7 @@ describe('validator CLI', () => {
 
   it('validates invalid configuration', () => {
     const args = [
-      `--config ${join(__dirname, './fixtures/valid-config.json')}`,
+      `--config ${join(__dirname, './fixtures/config.valid.json')}`,
       `--secrets ${join(__dirname, './fixtures/missing-secrets.env')}`,
     ];
 
@@ -38,9 +38,7 @@ describe('validator CLI', () => {
     expect(output.status).toBe(1);
     expect(output.stderr.toString()).toEqual(
       // We use "expect.stringContaining" because the output begins with "✖"
-      expect.stringContaining(
-        'The configuration is not valid. Reason: Error: Error interpolating secrets. Make sure the secrets format is correct\n'
-      )
+      expect.stringContaining('The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined')
     );
   });
 });
