@@ -66,7 +66,7 @@ function prepareRequestSubmissions<T>(
 }
 
 /**
- * Sponsor requests are performed from the sponsor wallet. Each transaction has a fixed nonce and blochchain rejects out
+ * Sponsor requests are performed from the sponsor wallet. Each transaction has a fixed nonce and blockchain rejects out
  * of order transactions.
  *
  * This function performs the requests of a particular sponsor sequentially, ordered by transaction nonce increasingly.

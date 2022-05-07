@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
@@ -7,7 +7,7 @@ import {
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
 } from '@api3/airnode-protocol';
-import { PendingLog, LogFormat, LogLevel, LogOptions } from '@api3/airnode-utilities';
+import { PendingLog, LogFormat, LogLevel, LogOptions, GasTarget } from '@api3/airnode-utilities';
 import { z } from 'zod';
 import { Config, ChainOptions, ChainType, LocalOrCloudProvider } from './config/types';
 import { apiCallParametersSchema } from './validation';
@@ -199,13 +199,6 @@ export interface TransactionOptions {
   readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
-}
-
-export interface GasTarget {
-  readonly maxPriorityFeePerGas?: BigNumber;
-  readonly maxFeePerGas?: BigNumber;
-  readonly gasPrice?: BigNumber;
-  readonly gasLimit?: BigNumber;
 }
 
 // ===========================================

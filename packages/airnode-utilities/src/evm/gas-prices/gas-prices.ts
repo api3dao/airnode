@@ -37,6 +37,7 @@ export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData
   return [
     [],
     {
+      type: 0,
       gasPrice: multipliedGasPrice,
       ...getGasLimit(chainOptions.fulfillmentGasLimit),
     },
@@ -67,6 +68,7 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
   return [
     logs,
     {
+      type: 2,
       maxPriorityFeePerGas,
       maxFeePerGas,
       ...getGasLimit(chainOptions.fulfillmentGasLimit),
