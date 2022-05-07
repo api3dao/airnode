@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import intersection from 'lodash/intersection';
 import { SchemaType, ValidatorRefinement } from '../types';
-import { zodDiscriminatedUnion } from '../zod-discriminated-union';
 
 export const paremeterTargetSchema = z.union([
   z.literal('path'),
@@ -22,7 +21,6 @@ export const operationParameterSchema = z.object({
 
 export const fixedParameterSchema = z.object({
   operationParameter: operationParameterSchema,
-  // TODO: This could be any JSON value
   value: z.string(),
 });
 
@@ -30,12 +28,10 @@ export const methodSchema = z.union([z.literal('get'), z.literal('post')]);
 
 export const endpointOperationSchema = z.object({
   method: methodSchema,
-  // TODO: Validate URL path
   path: z.string(),
 });
 
 export const endpointParameterSchema = z.object({
-  // TODO: Endpoint name validation
   name: z.string(),
   operationParameter: operationParameterSchema,
   default: z.string().optional(),
@@ -48,14 +44,12 @@ export const reservedParameterNameSchema = z.union([z.literal('_type'), z.litera
 
 export const reservedParameterSchema = z.object({
   name: reservedParameterNameSchema,
-  // TODO: Is this correct? Shouldn't one of them always exist?
   default: z.string().optional(),
   fixed: z.string().optional(),
 });
 
 export const serverSchema = z.object({
-  // TODO: Validate URL
-  url: z.string(),
+  url: z.string().url(),
 });
 
 export const httpSecuritySchemeScheme = z.object({
@@ -92,7 +86,7 @@ export const relaySponsorWalletAddressSecuritySchemeScheme = configurableSecurit
   type: z.literal('relaySponsorWalletAddress'),
 });
 
-export const apiSecuritySchemeScheme = zodDiscriminatedUnion('type', [
+export const apiSecuritySchemeScheme = z.discriminatedUnion('type', [
   apiKeySecuritySchemeScheme,
   httpSecuritySchemeScheme,
   relayChainIdSecuritySchemeScheme,
@@ -157,9 +151,7 @@ const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<OIS> = (ois, ct
 };
 
 export const baseOisSchema = z.object({
-  // TODO: Expect semver (and for now only possible value os 1.0.0)
   oisFormat: z.string(),
-  // TODO: Validate title
   title: z.string(),
   version: z.string(),
   apiSpecifications: apiSpecificationSchema,
