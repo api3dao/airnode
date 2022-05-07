@@ -15,7 +15,7 @@ export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
   ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
 
 export const multiplyGasPrice = (gasPrice: BigNumber, gasPriceMultiplier: number) =>
-  gasPrice.mul(Math.round(gasPriceMultiplier * 100)).div(BigNumber.from(100));
+  gasPrice.mul(BigNumber.from(Math.round(gasPriceMultiplier * 100))).div(BigNumber.from(100));
 
 export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { provider, chainOptions } = options;
