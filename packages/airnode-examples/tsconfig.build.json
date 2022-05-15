@@ -1,10 +1,13 @@
 {
-  "extends": "../../tsconfig.build.json",
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist",
-    "rootDir": "src"
-  },
-  "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*", "./hardhat.config.ts"],
-  "exclude": ["src/**/*.test.ts"]
+  "extends": "./tsconfig.json",
+  // References are not inhereted and need to be listed explicitly. See:
+  // https://github.com/microsoft/TypeScript/issues/27098
+  "references": [
+    { "path": "../airnode-abi" },
+    { "path": "../airnode-admin" },
+    { "path": "../airnode-deployer" },
+    { "path": "../airnode-node" },
+    { "path": "../airnode-protocol" }
+  ],
+  "exclude": ["./src/**/*.test.ts", "./test/**/*"]
 }

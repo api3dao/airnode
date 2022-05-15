@@ -11,10 +11,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
-    "clean": "rimraf -rf ./dist ./.webpack *.tgz",
+    "build": "yarn run clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
+    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist ./.webpack *.tgz",
     "cli": "ts-node bin/deployer.ts",
-    "compile": "tsc -p tsconfig.build.json",
+    "compile": "tsc --build tsconfig.build.json",
     "copy:terraform": "copyfiles terraform/**/**/**/*.tf terraform/**/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/*.js .webpack/templates/**/*.json .webpack/conversions/**/*.json dist/",
     "pack": "yarn pack",

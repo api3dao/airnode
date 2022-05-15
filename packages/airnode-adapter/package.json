@@ -3,15 +3,15 @@
   "license": "MIT",
   "version": "0.6.0",
   "private": false,
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/src/index",
+  "types": "dist/src/index",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist *.tgz",
-    "compile": "hardhat compile && tsc -p tsconfig.build.json",
+    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist *.tgz",
+    "compile": "hardhat compile && tsc --build tsconfig.build.json",
     "pack": "yarn pack",
     "test": "yarn test:ts && yarn test:hardhat",
     "test:ts": "SILENCE_LOGGER=true jest --coverage",

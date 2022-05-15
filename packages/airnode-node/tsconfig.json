@@ -2,10 +2,16 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
-    // Enable at root tsconfig.json once all packages have been fixed
-    "strict": true
+    "outDir": "./dist",
+    "rootDirs": ["./src", "./test"]
   },
-  "include": ["./src/**/*", "./test/**/*"],
-  "exclude": ["dist/**/*", "node_modules/**/*"]
+  "references": [
+    { "path": "../airnode-abi" },
+    { "path": "../airnode-adapter" },
+    { "path": "../airnode-ois" },
+    { "path": "../airnode-protocol" },
+    { "path": "../airnode-utilities" },
+    { "path": "../airnode-validator" }
+  ],
+  "include": ["./src/**/*", "./test/**/*", "./package.json"]
 }

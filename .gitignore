@@ -22,3 +22,6 @@ gcp.json
 package.json_
 
 *.tgz
+
+# TypeScript build files
+*.tsbuildinfo

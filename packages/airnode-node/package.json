@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist *.tgz",
-    "compile": "tsc -p tsconfig.build.json",
+    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist *.tgz",
+    "compile": "tsc --build tsconfig.build.json",
     "dev:invoke": "ts-node src/cli/invoke.ts",
     "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
