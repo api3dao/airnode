@@ -21,7 +21,7 @@ EOC
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name               = "${var.name}-role"
+  name               = var.name
   assume_role_policy = data.aws_iam_policy_document.role_policy.json
 }
 
@@ -31,7 +31,7 @@ resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
 }
 
 resource "aws_iam_role_policy" "lambda_log_role_policy" {
-  name   = "${var.name}-log-policy"
+  name   = "${var.name}-log"
   role   = aws_iam_role.lambda_role.id
   policy = data.aws_iam_policy_document.cloudwatch_log_policy.json
 }
@@ -39,7 +39,7 @@ resource "aws_iam_role_policy" "lambda_log_role_policy" {
 resource "aws_iam_role_policy" "invoke_lambda_role_policy" {
   count = length(var.invoke_targets) != 0 ? 1 : 0
 
-  name   = "${var.name}-invoke-policy"
+  name   = "${var.name}-invoke"
   role   = aws_iam_role.lambda_role.id
   policy = data.aws_iam_policy_document.lambda_invoke_policy.json
 }
@@ -66,7 +66,7 @@ resource "aws_lambda_function" "lambda" {
 resource "aws_cloudwatch_event_rule" "lambda_schedule_rule" {
   count = var.schedule_interval == 0 ? 0 : 1
 
-  name                = "${var.name}-schedule-rule"
+  name                = "${var.name}-schedule"
   schedule_expression = "cron(0/${var.schedule_interval} * * * ? *)"
 }
 
