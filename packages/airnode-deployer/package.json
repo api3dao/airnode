@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn run clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
+    "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
     "clean": "rimraf -rf *.tsbuildinfo ./dist ./.webpack *.tgz",
     "cli": "ts-node bin/deployer.ts",
     "compile": "tsc --build tsconfig.build.json",
