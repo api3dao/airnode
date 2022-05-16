@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
-    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist ./.webpack *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist ./.webpack *.tgz",
     "cli": "ts-node bin/deployer.ts",
     "compile": "tsc --build tsconfig.build.json",
     "copy:terraform": "copyfiles terraform/**/**/**/*.tf terraform/**/**/**/*.tpl  dist/",

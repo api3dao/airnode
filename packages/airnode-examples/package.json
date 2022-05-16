@@ -6,7 +6,7 @@
   "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
     "build": "yarn run clean && hardhat compile",
-    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-airnode-config": "ts-node scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",

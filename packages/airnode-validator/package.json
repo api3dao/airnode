@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rm -f *.tsbuildinfo && rimraf -rf ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "cli": "ts-node bin/validator.ts",
     "compile": "yarn compile:cjs && yarn compile:es6 && yarn compile:esm",
     "compile:cjs": "yarn tsc --build tsconfig.build-cjs.json",
