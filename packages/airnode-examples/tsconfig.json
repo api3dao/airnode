@@ -3,14 +3,15 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
-    "rootDirs": ["./src", "./test"]
+    "rootDirs": ["./src", "./test", "./scripts", "./dev-scripts"]
   },
   "references": [
     { "path": "../airnode-abi" },
     { "path": "../airnode-admin" },
     { "path": "../airnode-deployer" },
     { "path": "../airnode-node" },
-    { "path": "../airnode-protocol" }
+    { "path": "../airnode-protocol" },
+    { "path": "../airnode-utilities" }
   ],
-  "include": ["./src/**/*", "./test/**/*", "./package.json"]
+  "include": ["./src/**/*", "./test/**/*", "./scripts", "./dev-scripts", "./package.json"]
 }

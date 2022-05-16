@@ -7,7 +7,8 @@
     { "path": "../airnode-admin" },
     { "path": "../airnode-deployer" },
     { "path": "../airnode-node" },
-    { "path": "../airnode-protocol" }
+    { "path": "../airnode-protocol" },
+    { "path": "../airnode-utilities" }
   ],
   "exclude": ["./src/**/*.test.ts", "./test/**/*"]
 }
