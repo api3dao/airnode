@@ -30,7 +30,7 @@ EOC
 
 resource "google_service_account" "function_service_account" {
   account_id   = random_string.function_service_account_id.result
-  display_name = "${var.name}-service-account"
+  display_name = "${var.name}-function"
 }
 
 resource "google_project_iam_member" "function_monitoring_writer_role" {
@@ -104,7 +104,7 @@ resource "google_service_account" "scheduler_service_account" {
   count = var.schedule_interval == 0 ? 0 : 1
 
   account_id   = random_string.scheduler_service_account_id[0].result
-  display_name = "${var.name}-service-account"
+  display_name = "${var.name}-scheduler"
 }
 
 resource "google_cloudfunctions_function_iam_member" "scheduler_invoker" {
@@ -119,7 +119,7 @@ resource "google_cloudfunctions_function_iam_member" "scheduler_invoker" {
 resource "google_cloud_scheduler_job" "scheduler_job" {
   count = var.schedule_interval == 0 ? 0 : 1
 
-  name             = "${var.name}-scheduler-job"
+  name             = var.name
   schedule         = "*/${var.schedule_interval} * * * *"
   attempt_deadline = "${var.timeout}s"
 

@@ -8,7 +8,7 @@ resource "random_string" "api_gateway_service_account_id" {
 
 resource "google_service_account" "api_gateway_service_account" {
   account_id   = random_string.api_gateway_service_account_id.result
-  display_name = "${var.name}-service-account"
+  display_name = var.name
 }
 
 resource "google_project_iam_member" "api_gateway_monitoring_writer_role" {
@@ -35,8 +35,8 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
 resource "google_api_gateway_api" "api_gateway_api" {
   provider = google-beta
 
-  api_id       = lower("${var.name}-api")
-  display_name = "${var.name}-api"
+  api_id       = lower(var.name)
+  display_name = var.name
 }
 
 resource "google_api_gateway_api_config" "api_gateway_api_config" {
@@ -44,8 +44,8 @@ resource "google_api_gateway_api_config" "api_gateway_api_config" {
 
   api = google_api_gateway_api.api_gateway_api.api_id
   # Generating a suffix manually because the one generated with `api_config_id_prefix` is far too long
-  api_config_id = lower("${var.name}-config-${substr(uuid(), 0, 8)}")
-  display_name  = "${var.name}-config"
+  api_config_id = lower("${var.name}-${substr(uuid(), 0, 8)}")
+  display_name  = var.name
 
   openapi_documents {
     document {
