@@ -134,7 +134,7 @@ it('verifies parameter interpolation in "apiSpecification.paths"', () => {
       },
       {
         code: 'custom',
-        message: 'Parameter "id3" is not used in the URL path',
+        message: 'Parameter "id3" is not found in the URL path',
         path: ['apiSpecifications', 'paths', '/someEndpoint/{id1}/{id2}', 'post', 'parameters', 1],
       },
     ])

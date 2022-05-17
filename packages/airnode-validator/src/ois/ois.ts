@@ -143,7 +143,7 @@ const ensurePathParametersExist: ValidatorRefinement<SchemaType<typeof pathsSche
         if (p.in === 'path' && !matches.includes(p.name)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Parameter "${p.name}" is not used in the URL path`,
+            message: `Parameter "${p.name}" is not found in the URL path`,
             path: [rawPath, httpMethod, 'parameters', index],
           });
         }
