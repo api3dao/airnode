@@ -12,9 +12,9 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "cli": "ts-node bin/admin.ts",
-    "compile": "tsc -p tsconfig.build.json",
+    "compile": "tsc --build tsconfig.build.json",
     "pack": "yarn pack",
     "test:e2e": "jest --selectProjects e2e",
     "test:e2e:update-snapshot": "yarn test:e2e --updateSnapshot",
