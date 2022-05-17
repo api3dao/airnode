@@ -94,3 +94,49 @@ it('verifies that the same parameter cannot be in fixedOperationParameters and p
     ])
   );
 });
+
+it('verifies parameter interpolation in "apiSpecification.paths"', () => {
+  const ois = loadOisFixture();
+  ois.apiSpecifications.paths['/someEndpoint/{id1}/{id2}'] = {
+    get: {
+      parameters: [
+        {
+          in: 'path',
+          name: 'id1',
+        },
+      ],
+    },
+    post: {
+      parameters: [
+        {
+          in: 'path',
+          name: 'id2',
+        },
+        {
+          in: 'path',
+          name: 'id3',
+        },
+      ],
+    },
+  };
+
+  expect(() => oisSchema.parse(ois)).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Path parameter "id2" is not found in "parameters"',
+        path: ['apiSpecifications', 'paths', '/someEndpoint/{id1}/{id2}', 'get', 'parameters'],
+      },
+      {
+        code: 'custom',
+        message: 'Path parameter "id1" is not found in "parameters"',
+        path: ['apiSpecifications', 'paths', '/someEndpoint/{id1}/{id2}', 'post', 'parameters'],
+      },
+      {
+        code: 'custom',
+        message: 'Parameter "id3" is not used in the URL path',
+        path: ['apiSpecifications', 'paths', '/someEndpoint/{id1}/{id2}', 'post', 'parameters', 1],
+      },
+    ])
+  );
+});
