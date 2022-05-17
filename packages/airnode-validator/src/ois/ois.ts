@@ -154,12 +154,33 @@ const ensurePathParametersExist: ValidatorRefinement<SchemaType<typeof pathsSche
 
 export const pathsSchema = z.record(pathSchema).superRefine(ensurePathParametersExist);
 
-export const apiSpecificationSchema = z.object({
-  components: apiComponentsSchema,
-  paths: pathsSchema,
-  servers: z.array(serverSchema),
-  security: z.record(z.tuple([])),
-});
+export const apiSpecificationSchema = z
+  .object({
+    components: apiComponentsSchema,
+    paths: pathsSchema,
+    servers: z.array(serverSchema),
+    security: z.record(z.tuple([])),
+  })
+  // .refine(
+  //   (apiSpecification) => {
+  //     return Object.keys(apiSpecification.security).every(
+  //       (securityScheme) => apiSpecification.components.securitySchemes[securityScheme] !== undefined
+  //     );
+  //   },
+  //   { path: ['security'], message: 'All security schemes must be defined in components.securitySchemes' }
+  // );
+  .superRefine((apiSpecification, ctx) => {
+    Object.keys(apiSpecification.security).forEach((enabledSecuritySchemeName, index) => {
+      const enabledSecurityScheme = apiSpecification.components.securitySchemes[enabledSecuritySchemeName];
+      if (!enabledSecurityScheme) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Security scheme "${enabledSecuritySchemeName}" is not defined in "components.securitySchemes"`,
+          path: ['security', index],
+        });
+      }
+    });
+  });
 
 export const processingSpecificationSchema = z.object({
   environment: z.union([z.literal('Node 14'), z.literal('Node 14 async')]),
