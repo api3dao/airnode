@@ -161,16 +161,10 @@ export const apiSpecificationSchema = z
     servers: z.array(serverSchema),
     security: z.record(z.tuple([])),
   })
-  // .refine(
-  //   (apiSpecification) => {
-  //     return Object.keys(apiSpecification.security).every(
-  //       (securityScheme) => apiSpecification.components.securitySchemes[securityScheme] !== undefined
-  //     );
-  //   },
-  //   { path: ['security'], message: 'All security schemes must be defined in components.securitySchemes' }
-  // );
   .superRefine((apiSpecification, ctx) => {
     Object.keys(apiSpecification.security).forEach((enabledSecuritySchemeName, index) => {
+      // Verify that ois.apiSpecifications.security.<securitySchemeName> is
+      // referencing a valid ois.apiSpecifications.components.<securitySchemeName> object
       const enabledSecurityScheme = apiSpecification.components.securitySchemes[enabledSecuritySchemeName];
       if (!enabledSecurityScheme) {
         ctx.addIssue({

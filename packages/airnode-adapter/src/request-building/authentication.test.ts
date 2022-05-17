@@ -19,25 +19,6 @@ describe('building empty parameters', () => {
     });
   });
 
-  it('returns no parameters if API securitySchemes is empty', () => {
-    const ois = fixtures.buildOIS();
-    const apiSpecifications: ApiSpecification = {
-      ...ois.apiSpecifications,
-      components: {
-        ...ois.apiSpecifications.components,
-        securitySchemes: {},
-      },
-    };
-    const invalidOIS = fixtures.buildOIS({ apiSpecifications });
-    const options = fixtures.buildCacheRequestOptions({ ois: invalidOIS });
-    const res = authentication.buildParameters(options);
-    expect(res).toEqual({
-      headers: {},
-      query: {},
-      cookies: {},
-    });
-  });
-
   it('returns no parameters if API credentials is empty', () => {
     const options = fixtures.buildCacheRequestOptions({ apiCredentials: undefined });
     const res = authentication.buildParameters(options);
