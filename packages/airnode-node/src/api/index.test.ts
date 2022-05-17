@@ -42,7 +42,7 @@ describe('callApi', () => {
         },
         apiCredentials: [
           {
-            securitySchemeName: 'My Security Scheme',
+            securitySchemeName: 'myApiSecurityScheme',
             securitySchemeValue: 'supersecret',
           },
         ],
