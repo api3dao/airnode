@@ -281,7 +281,7 @@ describe('Extraction, encoding and simple on chain decoding', () => {
         await testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }));
         expect.fail();
       } catch (e: any) {
-        expect(e.message).to.contain('missing revert data in call exception');
+        expect(e.message).to.contain('call revert exception');
       }
     });
 
