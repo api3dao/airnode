@@ -5,6 +5,8 @@ import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { logger, go } from '@api3/airnode-utilities';
+import { getExpectedTemplateIdV0 } from './template-verification';
+import { Templates } from '../../config/types';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
@@ -12,6 +14,7 @@ import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constant
 export interface FetchOptions {
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
+  readonly configTemplates?: Templates;
 }
 
 interface ApiCallTemplatesById {
@@ -80,13 +83,43 @@ export async function fetch(
   apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<ApiCallTemplatesById>> {
-  const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
+  const templateIds = apiCalls.reduce((acc: string[], apiCall) => {
+    if (apiCall.templateId) return [...acc, apiCall.templateId];
+    return acc;
+  }, []);
+
   if (isEmpty(templateIds)) {
     return [[], {}];
   }
 
+  // Check if templateIds are found in config.json
+  const configTemplates = fetchOptions.configTemplates ?? {};
+  const validTemplatesInConfig = templateIds.reduce((acc: ApiCallTemplatesById, id) => {
+    const configTemplateMatch = configTemplates[id];
+
+    if (configTemplateMatch) {
+      // Verify templateIds
+      const expectedTemplateIdV0 = getExpectedTemplateIdV0({
+        airnodeAddress: fetchOptions.airnodeRrpAddress,
+        endpointId: configTemplateMatch.endpointId,
+        encodedParameters: configTemplateMatch.encodedParameters,
+      });
+
+      if (id === expectedTemplateIdV0)
+        return {
+          ...acc,
+          [id]: { ...configTemplateMatch, id, airnodeAddress: fetchOptions.airnodeRrpAddress },
+        };
+    }
+
+    return acc;
+  }, {});
+
+  // Filter verified config templateIds to skip fetching from chain
+  const templateIdsToFetch = templateIds.filter((id) => !validTemplatesInConfig[id]);
+
   // Requests are made for up to 10 templates at a time
-  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
+  const groupedTemplateIds = chunk(uniq(templateIdsToFetch), CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
   const airnodeRrp = AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
@@ -102,5 +135,5 @@ export async function fetch(
     return { ...acc, ...result[1] };
   }, {});
 
-  return [templateResponseLogs, templatesById];
+  return [templateResponseLogs, { ...templatesById, ...validTemplatesInConfig }];
 }

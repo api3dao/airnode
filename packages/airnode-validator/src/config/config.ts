@@ -14,6 +14,13 @@ export const triggersSchema = z.object({
   httpSignedData: z.array(triggerSchema),
 });
 
+export const templateSchema = z.object({
+  endpointId: z.string(),
+  encodedParameters: z.string(),
+});
+
+export const templatesSchema = z.record(templateSchema).optional();
+
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
 
 export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
@@ -143,5 +150,6 @@ export const configSchema = z.object({
   nodeSettings: nodeSettingsSchema,
   ois: z.array(oisSchema),
   triggers: triggersSchema,
+  templates: templatesSchema,
   apiCredentials: z.array(apiCredentialsSchema),
 });
