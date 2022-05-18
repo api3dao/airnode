@@ -18,12 +18,14 @@ export async function run(...args: unknown[]) {
   return handler.run(...args);
 }
 
-export async function processHttpRequest(...args: unknown[]) {
+// We shorten function name to allow for shorter cloud resource names
+export async function httpReq(...args: unknown[]) {
   const handler = await cloudHandler();
   return handler.processHttpRequest(...args);
 }
 
-export async function processHttpSignedDataRequest(...args: unknown[]) {
+// We shorten function name to allow for shorter cloud resource names
+export async function httpSignedReq(...args: unknown[]) {
   const handler = await cloudHandler();
   return handler.processHttpSignedDataRequest(...args);
 }
