@@ -20,33 +20,10 @@ export const evmTemplateIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 export const evmEndpointIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 
 export const templateSchema = z.object({
-  airnodeAddress: evmAddressSchema,
+  templateId: evmTemplateIdSchema,
   endpointId: evmEndpointIdSchema,
   encodedParameters: z.string(),
 });
-
-export const templatesSchema = z
-  .record(evmTemplateIdSchema, templateSchema)
-  .optional()
-  .superRefine((templates, ctx) => {
-    if (templates) {
-      Object.entries(templates).forEach(([templateId, template]) => {
-        // Verify that config.beacons.<beaconId> is valid
-        // by deriving the hash of the airnode address and templateId
-        const derivedTemplateId = ethers.utils.solidityKeccak256(
-          ['address', 'bytes32', 'bytes'],
-          [template.airnodeAddress, template.endpointId, template.encodedParameters]
-        );
-        if (derivedTemplateId !== templateId) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Template ID "${templateId}" is invalid`,
-            path: [templateId],
-          });
-        }
-      });
-    }
-  });
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
 
@@ -172,11 +149,32 @@ export const apiCredentialsSchema = baseApiCredentialsSchema.extend({
   oisTitle: z.string(),
 });
 
-export const configSchema = z.object({
-  chains: z.array(chainConfigSchema),
-  nodeSettings: nodeSettingsSchema,
-  ois: z.array(oisSchema),
-  triggers: triggersSchema,
-  templates: templatesSchema,
-  apiCredentials: z.array(apiCredentialsSchema),
-});
+export const configSchema = z
+  .object({
+    chains: z.array(chainConfigSchema),
+    nodeSettings: nodeSettingsSchema,
+    ois: z.array(oisSchema),
+    triggers: triggersSchema,
+    templates: z.array(templateSchema).optional(),
+    apiCredentials: z.array(apiCredentialsSchema),
+  })
+  .superRefine((config, ctx) => {
+    if (config.templates) {
+      config.templates.forEach((template) => {
+        // Verify that a V0/RRP templates are valid by hashing the airnodeAddress,
+        // endpointId and encodedParameters
+        const airnodeAddress = ethers.Wallet.fromMnemonic(config.nodeSettings.airnodeWalletMnemonic).address;
+        const derivedTemplateId = ethers.utils.solidityKeccak256(
+          ['address', 'bytes32', 'bytes'],
+          [airnodeAddress, template.endpointId, template.encodedParameters]
+        );
+        if (derivedTemplateId !== template.templateId) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Template is invalid`,
+            path: [template.templateId],
+          });
+        }
+      });
+    }
+  });

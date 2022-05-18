@@ -16,12 +16,10 @@ export interface Triggers {
 }
 
 export interface Template {
-  readonly airnodeAddress: string;
+  readonly templateId: string;
   readonly endpointId: string;
   readonly encodedParameters: string;
 }
-
-export type Templates = Record<string, Template>;
 
 // ===========================================
 // Logging
@@ -121,6 +119,6 @@ export interface Config {
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
-  readonly templates?: Templates;
+  readonly templates?: Template[];
   readonly apiCredentials: ApiCredentials[];
 }

@@ -5,8 +5,7 @@ import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { logger, go } from '@api3/airnode-utilities';
-import { getExpectedTemplateIdV0 } from './template-verification';
-import { Templates } from '../../config/types';
+import { Template } from '../../config/types';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
@@ -14,7 +13,8 @@ import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constant
 export interface FetchOptions {
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly configTemplates: Templates;
+  readonly configTemplates: Template[];
+  readonly airnodeAddress: string;
 }
 
 interface ApiCallTemplatesById {
@@ -79,23 +79,15 @@ async function fetchTemplateGroup(
   return [[], templatesById];
 }
 
-export const verifyConfigTemplates = (templateIds: string[], fetchOptions: FetchOptions) => {
+export const getConfigTemplates = (templateIds: string[], fetchOptions: FetchOptions) => {
   return templateIds.reduce((acc: ApiCallTemplatesById, id) => {
-    const configTemplateMatch = fetchOptions.configTemplates[id];
-
+    const configTemplateMatch = fetchOptions.configTemplates.find((configTemplate) => configTemplate.templateId === id);
     if (configTemplateMatch) {
-      // Verify templateIds
-      const expectedTemplateIdV0 = getExpectedTemplateIdV0({
-        airnodeAddress: fetchOptions.airnodeRrpAddress,
-        endpointId: configTemplateMatch.endpointId,
-        encodedParameters: configTemplateMatch.encodedParameters,
-      });
-
-      if (id === expectedTemplateIdV0)
-        return {
-          ...acc,
-          [id]: { ...configTemplateMatch, id, airnodeAddress: fetchOptions.airnodeRrpAddress },
-        };
+      const { templateId: _templateId, ...rest } = configTemplateMatch;
+      return {
+        ...acc,
+        [id]: { ...rest, id, airnodeAddress: fetchOptions.airnodeAddress },
+      };
     }
 
     return acc;
@@ -115,8 +107,8 @@ export async function fetch(
     return [[], {}];
   }
 
-  // Verify config.json templateIds
-  const configTemplatesById = verifyConfigTemplates(templateIds, fetchOptions);
+  // Get valid templates from config.json
+  const configTemplatesById = getConfigTemplates(templateIds, fetchOptions);
 
   // Filter verified config templateIds to skip fetching from chain
   const templateIdsToFetch = templateIds.filter((id) => !configTemplatesById[id]);

@@ -15,20 +15,21 @@ describe('fetch (templates)', () => {
     mutableFetchOptions = {
       airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
-      configTemplates: {},
+      configTemplates: [],
+      airnodeAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     };
   });
 
   it('uses valid templates from config without fetching from the chain', async () => {
     mutableFetchOptions = {
       ...mutableFetchOptions,
-      configTemplates: {
-        '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe': {
-          airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+      configTemplates: [
+        {
+          templateId: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe',
           endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
           encodedParameters: '0x6874656d706c6174656576616c7565',
         },
-      },
+      ],
     };
 
     const rawTemplates = {
@@ -53,7 +54,7 @@ describe('fetch (templates)', () => {
         id: 'templateId-0',
       },
       '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe': {
-        airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+        airnodeAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
         endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         id: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe',
