@@ -1,13 +1,10 @@
+import { goSync } from '@api3/promise-utils';
 import template from 'lodash/template';
 import { z } from 'zod';
-import { goSync } from '@api3/promise-utils';
-import { SchemaType } from '../types';
 import { configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
+import { Config, Secrets } from '../types';
 import { ValidationResult } from '../validation-result';
-
-type Secrets = Record<string, string | undefined>;
-type Config = SchemaType<typeof configSchema>;
 
 /**
  * Interpolates `secrets` into `config` and validates the interpolated configuration.

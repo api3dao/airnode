@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import intersection from 'lodash/intersection';
 import forEach from 'lodash/forEach';
+import intersection from 'lodash/intersection';
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
-import { SchemaType, ValidatorRefinement } from '../types';
+import { z } from 'zod';
+import { OIS, SchemaType, ValidatorRefinement } from '../types';
 
 function removeBraces(value: string) {
   return trimEnd(trimStart(value, '{'), '}');
@@ -161,11 +161,11 @@ export const apiSpecificationSchema = z
     servers: z.array(serverSchema),
     security: z.record(z.tuple([])),
   })
-  .superRefine((apiSpecification, ctx) => {
-    Object.keys(apiSpecification.security).forEach((enabledSecuritySchemeName, index) => {
+  .superRefine((apiSpecifications, ctx) => {
+    Object.keys(apiSpecifications.security).forEach((enabledSecuritySchemeName, index) => {
       // Verify that ois.apiSpecifications.security.<securitySchemeName> is
       // referencing a valid ois.apiSpecifications.components.<securitySchemeName> object
-      const enabledSecurityScheme = apiSpecification.components.securitySchemes[enabledSecuritySchemeName];
+      const enabledSecurityScheme = apiSpecifications.components.securitySchemes[enabledSecuritySchemeName];
       if (!enabledSecurityScheme) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -218,5 +218,5 @@ export const baseOisSchema = z.object({
   apiSpecifications: apiSpecificationSchema,
   endpoints: z.array(endpointSchema),
 });
-type OIS = SchemaType<typeof baseOisSchema>;
+
 export const oisSchema = baseOisSchema.superRefine(ensureSingleParameterUsagePerEndpoint);
