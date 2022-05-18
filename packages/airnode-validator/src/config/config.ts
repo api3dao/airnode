@@ -43,13 +43,29 @@ export const priorityFeeSchema = z.object({
     .optional(),
 });
 
-export const chainOptionsSchema = z.object({
-  txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
-  gasPriceMultiplier: z.number().optional(),
-  baseFeeMultiplier: z.number().int().optional(),
-  priorityFee: priorityFeeSchema.optional(),
-  fulfillmentGasLimit: z.number().int(),
-});
+export const chainOptionsSchema = z
+  .object({
+    txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
+    gasPriceMultiplier: z.number().optional(),
+    baseFeeMultiplier: z.number().int().optional(),
+    priorityFee: priorityFeeSchema.optional(),
+    fulfillmentGasLimit: z.number().int(),
+  })
+  .superRefine((settings, ctx) => {
+    const { txType, gasPriceMultiplier, baseFeeMultiplier, priorityFee } = settings;
+    if (txType === 'eip1559' && gasPriceMultiplier) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `gasPriceMultiplier can only be used for legacy transactions`,
+      });
+    }
+    if (txType === 'legacy' && (baseFeeMultiplier || priorityFee)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `baseFeeMultiplier and priorityFee can only be used for eip1559 transactions`,
+      });
+    }
+  });
 
 export const chainConfigSchema = z.object({
   authorizers: z.array(z.string()),
