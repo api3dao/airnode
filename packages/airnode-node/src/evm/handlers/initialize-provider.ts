@@ -75,7 +75,7 @@ export async function initializeProvider(
   const templateFetchOptions = {
     airnodeRrpAddress: state3.contracts.AirnodeRrp,
     provider: state3.provider,
-    configTemplates: state3.config!.templates,
+    configTemplates: state3.config!.templates || {},
   };
   // This should not throw
   const [templateFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);

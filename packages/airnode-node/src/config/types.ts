@@ -16,8 +16,9 @@ export interface Triggers {
 }
 
 export interface Template {
-  endpointId: string;
-  encodedParameters: string;
+  readonly airnodeAddress: string;
+  readonly endpointId: string;
+  readonly encodedParameters: string;
 }
 
 export type Templates = Record<string, Template>;

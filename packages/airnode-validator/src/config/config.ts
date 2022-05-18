@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ethers } from 'ethers';
 import { oisSchema } from '../ois';
 import { version as packageVersion } from '../../package.json';
 
@@ -14,12 +15,38 @@ export const triggersSchema = z.object({
   httpSignedData: z.array(triggerSchema),
 });
 
+export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
+export const evmTemplateIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+export const evmEndpointIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+
 export const templateSchema = z.object({
-  endpointId: z.string(),
+  airnodeAddress: evmAddressSchema,
+  endpointId: evmEndpointIdSchema,
   encodedParameters: z.string(),
 });
 
-export const templatesSchema = z.record(templateSchema).optional();
+export const templatesSchema = z
+  .record(evmTemplateIdSchema, templateSchema)
+  .optional()
+  .superRefine((templates, ctx) => {
+    if (templates) {
+      Object.entries(templates).forEach(([templateId, template]) => {
+        // Verify that config.beacons.<beaconId> is valid
+        // by deriving the hash of the airnode address and templateId
+        const derivedTemplateId = ethers.utils.solidityKeccak256(
+          ['address', 'bytes32', 'bytes'],
+          [template.airnodeAddress, template.endpointId, template.encodedParameters]
+        );
+        if (derivedTemplateId !== templateId) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Template ID "${templateId}" is invalid`,
+            path: [templateId],
+          });
+        }
+      });
+    }
+  });
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
 
@@ -28,7 +55,7 @@ export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
 export const chainTypeSchema = z.literal('evm');
 
 export const chainContractsSchema = z.object({
-  AirnodeRrp: z.string(),
+  AirnodeRrp: evmAddressSchema,
 });
 
 export const providerSchema = z.object({

@@ -15,6 +15,7 @@ describe('fetch (templates)', () => {
     mutableFetchOptions = {
       airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
+      configTemplates: {},
     };
   });
 
@@ -23,11 +24,7 @@ describe('fetch (templates)', () => {
       ...mutableFetchOptions,
       configTemplates: {
         '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe': {
-          endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
-          encodedParameters: '0x6874656d706c6174656576616c7565',
-        },
-        // invalid tempplateId
-        '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaxx': {
+          airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
           endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
           encodedParameters: '0x6874656d706c6174656576616c7565',
         },
@@ -45,10 +42,8 @@ describe('fetch (templates)', () => {
       templateId: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe',
     });
     const apiCall2 = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const apiCall3 = fixtures.requests.buildApiCall({
-      templateId: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaxx',
-    });
-    const [logs, res] = await templates.fetch([apiCall1, apiCall2, apiCall3], mutableFetchOptions);
+
+    const [logs, res] = await templates.fetch([apiCall1, apiCall2], mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
@@ -56,13 +51,6 @@ describe('fetch (templates)', () => {
         endpointId: 'endpointId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
-      },
-      // Invalid templateId
-      '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaxx': {
-        airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-        endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
-        id: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaxx',
       },
       '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe': {
         airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
@@ -72,17 +60,12 @@ describe('fetch (templates)', () => {
       },
     });
 
+    // Not called with a valid config templateId
     expect(templatesMock).not.toHaveBeenCalled();
 
-    // Not called with a valid config templateId
+    // Called with a templateId not found in the config
     expect(getTemplatesMock).not.toHaveBeenCalledWith([
       '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe',
-    ]);
-    // Called with a templateId not found in the config
-    expect(getTemplatesMock).toHaveBeenCalledWith([
-      'templateId-0',
-      // Called with an invalid templateId found in the config
-      '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaxx',
     ]);
   });
 

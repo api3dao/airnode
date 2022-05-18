@@ -14,7 +14,7 @@ import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constant
 export interface FetchOptions {
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly configTemplates?: Templates;
+  readonly configTemplates: Templates;
 }
 
 interface ApiCallTemplatesById {
@@ -79,23 +79,9 @@ async function fetchTemplateGroup(
   return [[], templatesById];
 }
 
-export async function fetch(
-  apiCalls: Request<ApiCall>[],
-  fetchOptions: FetchOptions
-): Promise<LogsData<ApiCallTemplatesById>> {
-  const templateIds = apiCalls.reduce((acc: string[], apiCall) => {
-    if (apiCall.templateId) return [...acc, apiCall.templateId];
-    return acc;
-  }, []);
-
-  if (isEmpty(templateIds)) {
-    return [[], {}];
-  }
-
-  // Check if templateIds are found in config.json
-  const configTemplates = fetchOptions.configTemplates ?? {};
-  const validTemplatesInConfig = templateIds.reduce((acc: ApiCallTemplatesById, id) => {
-    const configTemplateMatch = configTemplates[id];
+export const verifyConfigTemplates = (templateIds: string[], fetchOptions: FetchOptions) => {
+  return templateIds.reduce((acc: ApiCallTemplatesById, id) => {
+    const configTemplateMatch = fetchOptions.configTemplates[id];
 
     if (configTemplateMatch) {
       // Verify templateIds
@@ -114,9 +100,26 @@ export async function fetch(
 
     return acc;
   }, {});
+};
+
+export async function fetch(
+  apiCalls: Request<ApiCall>[],
+  fetchOptions: FetchOptions
+): Promise<LogsData<ApiCallTemplatesById>> {
+  const templateIds = apiCalls.reduce((acc: string[], apiCall) => {
+    if (apiCall.templateId) return [...acc, apiCall.templateId];
+    return acc;
+  }, []);
+
+  if (isEmpty(templateIds)) {
+    return [[], {}];
+  }
+
+  // Verify config.json templateIds
+  const configTemplatesById = verifyConfigTemplates(templateIds, fetchOptions);
 
   // Filter verified config templateIds to skip fetching from chain
-  const templateIdsToFetch = templateIds.filter((id) => !validTemplatesInConfig[id]);
+  const templateIdsToFetch = templateIds.filter((id) => !configTemplatesById[id]);
 
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIdsToFetch), CONVENIENCE_BATCH_SIZE);
@@ -131,9 +134,9 @@ export async function fetch(
   const templateResponseLogs = flatMap(templateResponses, (t) => t[0]);
 
   // Merge all templates into a single object, keyed by their ID for faster/easier lookup
-  const templatesById = templateResponses.reduce((acc, result) => {
+  const onchainTemplatesById = templateResponses.reduce((acc, result) => {
     return { ...acc, ...result[1] };
   }, {});
 
-  return [templateResponseLogs, { ...templatesById, ...validTemplatesInConfig }];
+  return [templateResponseLogs, { ...onchainTemplatesById, ...configTemplatesById }];
 }
