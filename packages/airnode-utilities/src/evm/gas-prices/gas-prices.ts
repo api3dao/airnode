@@ -37,7 +37,7 @@ export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData
   return [
     [],
     {
-      type: 0,
+      type: chainOptions.txType,
       gasPrice: multipliedGasPrice,
       ...getGasLimit(chainOptions.fulfillmentGasLimit),
     },
@@ -68,7 +68,7 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
   return [
     logs,
     {
-      type: 2,
+      type: chainOptions.txType,
       maxPriorityFeePerGas,
       maxFeePerGas,
       ...getGasLimit(chainOptions.fulfillmentGasLimit),
@@ -80,9 +80,9 @@ export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTa
   const { chainOptions } = options;
 
   switch (chainOptions.txType) {
-    case 'legacy':
+    case 0:
       return getLegacyGasPrice(options);
-    case 'eip1559':
+    case 2:
       return getEip1559GasPricing(options);
   }
 };

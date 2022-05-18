@@ -38,7 +38,7 @@ export interface PriorityFee {
 }
 
 export interface ChainOptions {
-  readonly txType: 'legacy' | 'eip1559';
+  readonly txType: 0 | 2;
   readonly gasPriceMultiplier?: number;
   readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;

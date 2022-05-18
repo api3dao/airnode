@@ -42,7 +42,7 @@ export async function processTransactions(
     return state2;
   }
 
-  if (chainOptions.txType === 'eip1559') {
+  if (chainOptions.txType === 2) {
     const gweiMaxFee = utils.weiToGwei(gasTarget.maxFeePerGas!);
     const gweiPriorityFee = utils.weiToGwei(gasTarget.maxPriorityFeePerGas!);
     logger.info(

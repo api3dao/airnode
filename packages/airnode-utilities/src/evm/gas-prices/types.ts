@@ -15,7 +15,7 @@ export interface PriorityFee {
 }
 
 export interface ChainOptions extends PromiseOptions {
-  txType: 'legacy' | 'eip1559';
+  txType: 0 | 2;
   gasPriceMultiplier?: number;
   baseFeeMultiplier?: number;
   priorityFee?: PriorityFee;

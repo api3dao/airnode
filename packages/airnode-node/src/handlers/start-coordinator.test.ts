@@ -30,7 +30,7 @@ import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
-  test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
+  test.each([0, 2] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     jest.setTimeout(30000);
     const initialConfig = fixtures.buildConfig();
     const config = {
@@ -78,8 +78,8 @@ describe('startCoordinator', () => {
 
     await startCoordinator(config);
 
-    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+    expect(txType === 0 ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
+    expect(txType === 2 ? blockSpy : gasPriceSpy).toHaveBeenCalled();
 
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);

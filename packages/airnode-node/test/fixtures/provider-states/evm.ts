@@ -19,7 +19,7 @@ export function buildEVMProviderState(
     id: chainId,
     type: chainType,
     options: {
-      txType: 'legacy',
+      txType: 0,
       fulfillmentGasLimit: 123456,
     },
     providers: {

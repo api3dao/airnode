@@ -14,7 +14,7 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     id: '31337',
     type: 'evm',
     options: {
-      txType: 'legacy',
+      txType: 0,
       fulfillmentGasLimit: 123456,
     },
     providers: {},

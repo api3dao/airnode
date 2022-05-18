@@ -23,7 +23,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       },
       type: 'evm',
       options: {
-        txType: 'eip1559',
+        txType: 2,
         baseFeeMultiplier: 2,
         priorityFee: {
           value: 3.12,

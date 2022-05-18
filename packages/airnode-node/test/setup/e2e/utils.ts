@@ -19,7 +19,7 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     id: '31337',
     type: 'evm',
     options: {
-      txType: 'eip1559',
+      txType: 2,
       baseFeeMultiplier: 2,
       priorityFee: {
         value: 3.12,
