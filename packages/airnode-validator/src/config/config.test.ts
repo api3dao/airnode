@@ -13,7 +13,7 @@ it('successfully parses config.json', () => {
 });
 
 describe('chainOptionsSchema', () => {
-  const chainOptions: SchemaType<typeof chainOptionsSchema> = {
+  const eip1559ChainOptions: SchemaType<typeof chainOptionsSchema> = {
     txType: 'eip1559',
     baseFeeMultiplier: 2,
     priorityFee: {
@@ -23,35 +23,42 @@ describe('chainOptionsSchema', () => {
     fulfillmentGasLimit: 500000,
   };
 
-  it('does not allow legacy chain options for eip1559 transactions', () => {
-    expect(() => chainOptionsSchema.parse(chainOptions)).not.toThrow();
+  const legacyChainOptions: SchemaType<typeof chainOptionsSchema> = {
+    txType: 'legacy',
+    gasPriceMultiplier: 1.1,
+    fulfillmentGasLimit: 500000,
+  };
 
-    const invalidEip1559Settings = { ...chainOptions, gasPriceMultiplier: 2 };
+  it('does not allow legacy chain options for eip1559 transactions', () => {
+    expect(() => chainOptionsSchema.parse(eip1559ChainOptions)).not.toThrow();
+
+    const invalidEip1559Settings = { ...eip1559ChainOptions, gasPriceMultiplier: 2 };
     expect(() => chainOptionsSchema.parse(invalidEip1559Settings)).toThrow(
       new ZodError([
         {
-          code: 'custom',
-          message: `gasPriceMultiplier can only be used for legacy transactions`,
+          code: 'unrecognized_keys',
+          keys: ['gasPriceMultiplier'],
           path: [],
+          message: `Unrecognized or disallowed key(s) for the given transaction type: 'gasPriceMultiplier'`,
         },
       ])
     );
   });
 
   it('does not allow eip1559 chain options for legacy transactions', () => {
-    const invalidLegacySettings = { ...chainOptions, txType: 'legacy' };
+    expect(() => chainOptionsSchema.parse(legacyChainOptions)).not.toThrow();
+
+    const invalidLegacySettings = { ...legacyChainOptions, baseFeeMultiplier: 2, priorityFee: 3.12 };
     expect(() => chainOptionsSchema.parse(invalidLegacySettings)).toThrow(
       new ZodError([
         {
-          code: 'custom',
-          message: `baseFeeMultiplier and priorityFee can only be used for eip1559 transactions`,
+          code: 'unrecognized_keys',
+          keys: ['baseFeeMultiplier', 'priorityFee'],
           path: [],
+          message: `Unrecognized or disallowed key(s) for the given transaction type: 'baseFeeMultiplier', 'priorityFee'`,
         },
       ])
     );
-
-    const validLegacySettings = { ...invalidLegacySettings, baseFeeMultiplier: undefined, priorityFee: undefined };
-    expect(() => chainOptionsSchema.parse(validLegacySettings)).not.toThrow();
   });
 });
 
