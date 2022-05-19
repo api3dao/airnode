@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist"
+    "outDir": "./dist",
+    "rootDirs": ["./src", "./test"]
   },
-  "include": ["./src/**/*", "./test/**/*"],
-  "exclude": ["dist/**/*", "node_modules/**/*"]
+  "references": [{ "path": "../airnode-ois" }],
+  "include": ["./src/**/*", "./test/**/*"]
 }

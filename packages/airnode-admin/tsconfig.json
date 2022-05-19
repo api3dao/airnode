@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "noImplicitReturns": true,
-    "outDir": "dist"
+    "outDir": "./dist",
+    "rootDirs": ["./src", "./bin", "./test"]
   },
-  "include": ["./bin/**/*", "./src/**/*"],
-  "exclude": ["dist/**/*", "node_modules/**/*"]
+  "references": [{ "path": "../airnode-abi" }, { "path": "../airnode-protocol" }, { "path": "../airnode-utilities" }],
+  "include": ["./src/**/*", "./bin/**/*", "./test/**/*"]
 }

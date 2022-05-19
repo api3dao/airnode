@@ -1,6 +1,8 @@
+// NOTE: Using a separate tsconfig with explicit typings to avoid Type collisions between Jest and Mocha typings
 {
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
+    "composite": false,
     "baseUrl": "./",
     "types": ["@nomiclabs/hardhat-waffle", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"]
   },

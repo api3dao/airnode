@@ -1,4 +1,11 @@
 locals {
+  # Be aware when using `name-prefix` for naming resources
+  # as it can be up to 32 characters long:
+  #
+  # infrastructure_name - "airnode" - 7 characters
+  # airnode_address_short - 7 characters
+  # stage - up to 16 characters
+  # dashes between - 2 characters
   name_prefix = "${var.infrastructure_name}-${var.airnode_address_short}-${var.stage}"
 }
 

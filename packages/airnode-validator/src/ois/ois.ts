@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import intersection from 'lodash/intersection';
+import forEach from 'lodash/forEach';
+import trimEnd from 'lodash/trimEnd';
+import trimStart from 'lodash/trimStart';
 import { SchemaType, ValidatorRefinement } from '../types';
+
+function removeBraces(value: string) {
+  return trimEnd(trimStart(value, '{'), '}');
+}
 
 export const paremeterTargetSchema = z.union([
   z.literal('path'),
@@ -106,11 +113,50 @@ export const operationSchema = z.object({
   parameters: z.array(operationParameterSchema),
 });
 
-export const pathSchema = z.record(operationSchema);
+export const httpStatusCodes = z.union([z.literal('get'), z.literal('post')]);
+
+export const pathSchema = z.record(httpStatusCodes, operationSchema);
+
+const ensurePathParametersExist: ValidatorRefinement<SchemaType<typeof pathsSchema>> = (paths, ctx) => {
+  forEach(paths, (pathData, rawPath) => {
+    forEach(pathData, (paramData, httpMethod) => {
+      const parameters = paramData!.parameters;
+      // Match on anything in the path that is braces
+      // i.e. The path /users/{id}/{action} will match ['{id}', '{action}']
+      const regex = /\{([^}]+)\}/g;
+      const matches = rawPath.match(regex)?.map(removeBraces) ?? [];
+
+      // Check that all path parameters are defined
+      matches.forEach((match) => {
+        const parameter = parameters.find((p) => p.in === 'path' && p.name === match);
+        if (!parameter) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Path parameter "${match}" is not found in "parameters"`,
+            path: [rawPath, httpMethod, 'parameters'],
+          });
+        }
+      }, rawPath);
+
+      // Check that all parameters are used
+      parameters.forEach((p, index) => {
+        if (p.in === 'path' && !matches.includes(p.name)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Parameter "${p.name}" is not found in the URL path`,
+            path: [rawPath, httpMethod, 'parameters', index],
+          });
+        }
+      });
+    });
+  });
+};
+
+export const pathsSchema = z.record(pathSchema).superRefine(ensurePathParametersExist);
 
 export const apiSpecificationSchema = z.object({
   components: apiComponentsSchema,
-  paths: z.record(pathSchema),
+  paths: pathsSchema,
   servers: z.array(serverSchema),
   security: z.record(z.tuple([])),
 });

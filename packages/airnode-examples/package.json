@@ -5,7 +5,8 @@
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
-    "build": "hardhat compile",
+    "build": "yarn run clean && hardhat compile",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-airnode-config": "ts-node scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",
@@ -35,6 +36,7 @@
     "@api3/airnode-deployer": "^0.6.0",
     "@api3/airnode-node": "^0.6.0",
     "@api3/airnode-protocol": "^0.6.0",
+    "@api3/airnode-utilities": "^0.6.0",
     "ethers": "^5.4.5",
     "is-wsl": "^2.2.0"
   },
