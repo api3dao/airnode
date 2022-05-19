@@ -213,7 +213,7 @@ yarn run-airnode-locally api3/airnode-client-dev:bb9b8118940ec852c4223b13eba5a6e
 
 ### 11. Deploy a requester
 
-At this point, you have an RRP contract deployed. You will also either have Airnode running as a Docker container  
+At this point, you have an RRP contract deployed. You will also either have Airnode running as a Docker container
 locally or deployed to a cloud provider. Airnode is now listening for events (requests to be made) from the RRP
 contract. Requests via the RRP contract originate from requester contracts and therefore a requester contract will need
 to be deployed in order to make an on-chain request to your Airnode instance.
@@ -282,6 +282,14 @@ yarn remove-airnode
 ```
 
 This will use the deployer to remove the Airnode functions from the cloud provider.
+
+### 17. (Only if running Airnode locally) Stop the Airnode container
+
+If you wish to stop the Airnode container running locally run:
+
+```sh
+yarn stop-local-airnode
+```
 
 ## For developers
 

@@ -12,7 +12,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "tsc --build tsconfig.build.json",
-    "dev:invoke": "ts-node src/cli/invoke.ts",
+    "dev:invoke": "ts-node src/cli/validate-config.ts && ts-node src/cli/invoke.ts",
     "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
