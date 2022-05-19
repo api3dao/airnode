@@ -177,10 +177,10 @@ const validateSecuritySchemesReferences: SuperRefinement<{
         const securitySchemeApiCredentials = config.apiCredentials.find(
           (apiCredentials) => apiCredentials.securitySchemeName === enabledSecuritySchemeName
         );
-        if (!securitySchemeApiCredentials || !securitySchemeApiCredentials.securitySchemeValue) {
+        if (!securitySchemeApiCredentials) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `The security scheme is enabled but no credentials are provided`,
+            message: `The security scheme is enabled but no credentials are provided in "apiCredentials"`,
             path: ['ois', index, 'apiSpecifications', 'security', enabledSecuritySchemeName],
           });
         }

@@ -127,7 +127,7 @@ it('fails if ois.apiSpecifications.security.<securitySchemeName> is defined in o
 
   const securitySchemeName = 'Currency Converter Security Scheme';
   const securityScheme = {
-    securitySchemeName: {
+    [securitySchemeName]: {
       in: 'query',
       type: 'apiKey',
       name: 'access_key',
@@ -156,33 +156,19 @@ it('fails if ois.apiSpecifications.security.<securitySchemeName> is defined in o
     apiCredentials,
   };
 
-  const invalidConfigEmtpyApiCredentialValue = {
-    ...configWithSecuritySchemes,
-    apiCredentials: [...config.apiCredentials, { ...apiCredentials[0], securitySchemeValue: '' }],
-  };
-  expect(() => configSchema.parse(invalidConfigEmtpyApiCredentialValue)).toThrow(
-    new ZodError([
-      {
-        code: 'custom',
-        message: 'Security scheme "Currency Converter Security Scheme" is not defined in "components.securitySchemes"',
-        path: ['ois', 1, 'apiSpecifications', 'security', 0],
-      },
-    ])
-  );
-
-  const invalidConfigNoApiCredential = {
+  const invalidConfig = {
     ...configWithSecuritySchemes,
     apiCredentials: [
       ...config.apiCredentials,
       { ...apiCredentials[0], securitySchemeName: apiCredentials[0].securitySchemeName + Date.now().toString() },
     ],
   };
-  expect(() => configSchema.parse(invalidConfigNoApiCredential)).toThrow(
+  expect(() => configSchema.parse(invalidConfig)).toThrow(
     new ZodError([
       {
         code: 'custom',
-        message: 'Security scheme "Currency Converter Security Scheme" is not defined in "components.securitySchemes"',
-        path: ['ois', 1, 'apiSpecifications', 'security', 0],
+        message: 'The security scheme is enabled but no credentials are provided in "apiCredentials"',
+        path: ['ois', 1, 'apiSpecifications', 'security', 'Currency Converter Security Scheme'],
       },
     ])
   );
