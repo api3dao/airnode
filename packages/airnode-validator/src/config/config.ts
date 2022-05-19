@@ -155,7 +155,7 @@ export const configSchema = z
     nodeSettings: nodeSettingsSchema,
     ois: z.array(oisSchema),
     triggers: triggersSchema,
-    templates: z.array(templateSchema).optional(),
+    templates: z.array(templateSchema),
     apiCredentials: z.array(apiCredentialsSchema),
   })
   .superRefine((config, ctx) => {

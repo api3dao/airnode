@@ -119,6 +119,6 @@ export interface Config {
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
-  readonly templates?: Template[];
+  readonly templates: Template[];
   readonly apiCredentials: ApiCredentials[];
 }
