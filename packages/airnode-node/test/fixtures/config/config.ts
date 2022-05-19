@@ -14,7 +14,7 @@ export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
 
 export function buildApiCredentials(overrides?: Partial<ApiCredentials>): ApiCredentials {
   return {
-    securitySchemeName: 'My Security Scheme',
+    securitySchemeName: 'myApiSecurityScheme',
     securitySchemeValue: 'supersecret',
     oisTitle: 'Currency Converter API',
     ...overrides,

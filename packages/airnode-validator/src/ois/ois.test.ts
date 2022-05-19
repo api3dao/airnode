@@ -140,3 +140,27 @@ it('verifies parameter interpolation in "apiSpecification.paths"', () => {
     ])
   );
 });
+
+it('fails if apiSpecifications.security.<securitySchemeName> is not defined in apiSpecifications.components.<securitySchemeName>', () => {
+  const invalidSecuritySchemeName = 'INVALID_SECURITY_SCHEME_NAME';
+  const ois = loadOisFixture();
+  const invalidOis = {
+    ...ois,
+    ...{
+      apiSpecifications: {
+        ...ois.apiSpecifications,
+        security: { ...ois.apiSpecifications.security, [invalidSecuritySchemeName]: [] },
+      },
+    },
+  };
+
+  expect(() => oisSchema.parse(invalidOis)).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: `Security scheme "${invalidSecuritySchemeName}" is not defined in "components.securitySchemes"`,
+        path: ['apiSpecifications', 'security', 1],
+      },
+    ])
+  );
+});

@@ -1,6 +1,7 @@
-import { z } from 'zod';
-import { oisSchema } from '../ois';
+import { SuperRefinement, z } from 'zod';
 import { version as packageVersion } from '../../package.json';
+import { oisSchema } from '../ois';
+import { ApiCredentials, OIS } from '../types';
 
 export const triggerSchema = z.object({
   endpointId: z.string(),
@@ -165,10 +166,35 @@ export const apiCredentialsSchema = baseApiCredentialsSchema.extend({
   oisTitle: z.string(),
 });
 
-export const configSchema = z.object({
-  chains: z.array(chainConfigSchema),
-  nodeSettings: nodeSettingsSchema,
-  ois: z.array(oisSchema),
-  triggers: triggersSchema,
-  apiCredentials: z.array(apiCredentialsSchema),
-});
+const validateSecuritySchemesReferences: SuperRefinement<{
+  ois: OIS[];
+  apiCredentials: ApiCredentials[];
+}> = (config, ctx) => {
+  config.ois.forEach((ois, index) => {
+    Object.keys(ois.apiSpecifications.security).forEach((enabledSecuritySchemeName) => {
+      const enabledSecurityScheme = ois.apiSpecifications.components.securitySchemes[enabledSecuritySchemeName];
+      if (enabledSecurityScheme && ['apiKey', 'http'].includes(enabledSecurityScheme.type)) {
+        const securitySchemeApiCredentials = config.apiCredentials.find(
+          (apiCredentials) => apiCredentials.securitySchemeName === enabledSecuritySchemeName
+        );
+        if (!securitySchemeApiCredentials) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `The security scheme is enabled but no credentials are provided in "apiCredentials"`,
+            path: ['ois', index, 'apiSpecifications', 'security', enabledSecuritySchemeName],
+          });
+        }
+      }
+    });
+  });
+};
+
+export const configSchema = z
+  .object({
+    chains: z.array(chainConfigSchema),
+    nodeSettings: nodeSettingsSchema,
+    ois: z.array(oisSchema),
+    triggers: triggersSchema,
+    apiCredentials: z.array(apiCredentialsSchema),
+  })
+  .superRefine(validateSecuritySchemesReferences);

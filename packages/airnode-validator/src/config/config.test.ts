@@ -2,14 +2,14 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import { chainOptionsSchema, configSchema, nodeSettingsSchema } from './config';
+import { Config, SchemaType } from '../types';
 import { version as packageVersion } from '../../package.json';
-import { SchemaType } from '../types';
 
 it('successfully parses config.json', () => {
-  const ois = JSON.parse(
+  const config = JSON.parse(
     readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
   );
-  expect(() => configSchema.parse(ois)).not.toThrow();
+  expect(() => configSchema.parse(config)).not.toThrow();
 });
 
 describe('chainOptionsSchema', () => {
@@ -118,4 +118,44 @@ describe('nodeSettingsSchema', () => {
       ])
     );
   });
+});
+
+it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http" but is missing credentials in "apiCredentials"', () => {
+  const config: Config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  const securitySchemeName = 'Currency Converter Security Scheme';
+  const securityScheme = {
+    [securitySchemeName]: {
+      in: 'query',
+      type: 'apiKey',
+      name: 'access_key',
+    },
+  };
+  const invalidConfig = {
+    ...config,
+    ois: [
+      ...config.ois,
+      {
+        ...config.ois[0],
+        apiSpecifications: {
+          ...config.ois[0].apiSpecifications,
+          components: { securitySchemes: securityScheme },
+          security: { [securitySchemeName]: [] },
+        },
+      },
+    ],
+    apiCredentials: [],
+  };
+
+  expect(() => configSchema.parse(invalidConfig)).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'The security scheme is enabled but no credentials are provided in "apiCredentials"',
+        path: ['ois', 1, 'apiSpecifications', 'security', securitySchemeName],
+      },
+    ])
+  );
 });

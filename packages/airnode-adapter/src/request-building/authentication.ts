@@ -116,11 +116,6 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     options.ois.apiSpecifications.security,
     (authentication, _security, apiSecuritySchemeName) => {
       const apiSecurityScheme = options.ois.apiSpecifications.components.securitySchemes[apiSecuritySchemeName];
-      // If there is no security scheme, ignore the scheme
-      if (!apiSecurityScheme) {
-        return authentication;
-      }
-
       const apiCredentials = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]) ?? null;
       return merge(authentication, getSchemeAuthentication(apiSecurityScheme, apiCredentials, options));
     },
