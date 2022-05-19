@@ -71,7 +71,6 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
             url: 'https://api.coingecko.com/api/v3',
           },
         ],
-        // https://api.coingecko.com/api/v3/coins/ethereum/history?date=30-12-2021&localization=false
         paths: {
           '/coins/{id}/history': {
             get: {

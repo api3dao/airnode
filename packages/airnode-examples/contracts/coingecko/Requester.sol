@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
-// An example requester which expects the response from Airnode is a single int256 value.
+// An example requester which expects the response from Airnode to be a single int256 value.
 contract Requester is RrpRequesterV0 {
     mapping(bytes32 => bool) public incomingFulfillments;
     mapping(bytes32 => int256) public fulfilledData;

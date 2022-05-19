@@ -13,7 +13,7 @@ Overall the process looks like this:
 2. Airnode makes the API call to the CoinGecko API and waits for the response (array of market data for the requested
    coins).
 3. Airnode executes the post-processing code to compute the average price and percentage change for all of the coins.
-   The post-processing snippets outputs a two element array.
+   The post-processing snippet outputs a two element array.
 4. Airnode then extracts the values from this array as configured by the `_type` reserved parameter and encodes them.
 5. Airnode submits the encoded value on chain.
 

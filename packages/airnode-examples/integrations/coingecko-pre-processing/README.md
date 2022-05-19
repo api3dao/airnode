@@ -6,7 +6,7 @@ case which modifies the endpoint parameters before making the API request to Coi
 
 The `config.json` defines a single callable endpoint, called `coinHistoryData` which you can call with different coin ID
 and date to determine the historical price at the given date. As a requester you specify the date as UNIX timestamp and
-preprocessing will convert it to `dd-mm-yyyy` format which CoinGecko expects.
+preprocessing snippet will convert it to `dd-mm-yyyy` format which CoinGecko expects.
 
 Overall the process looks like this:
 

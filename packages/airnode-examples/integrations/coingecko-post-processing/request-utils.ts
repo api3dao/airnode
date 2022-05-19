@@ -15,7 +15,7 @@ export const printResponse = async (requestId: string) => {
   const data = await requester.fulfilledData(requestId);
   const { average, percentageChange } = data;
 
-  // Divided by 1e8, because the response value is multiplied with 1e6 by Airnode
+  // Divided by 1e8, because the response value is multiplied with 1e8 by Airnode
   cliPrint.info(`The average price of the coins = ${average / 1e8}`);
   cliPrint.info(`The average 30d percentage change = ${percentageChange / 1e8}`);
 };

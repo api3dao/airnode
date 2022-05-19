@@ -3,8 +3,8 @@ pragma solidity 0.8.9;
 
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
-// An example requester which expects the response from Airnode to be contain two numbers - the average value of coins
-// and average 30d percentage of the coins.
+// An example requester which expects the response from Airnode to contain two numbers - the average value of the given
+// coins and average 30d percentage of the coins.
 contract Requester is RrpRequesterV0 {
     struct FulfillmentData {
         int256 average;
