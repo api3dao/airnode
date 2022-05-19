@@ -56,8 +56,8 @@ module "startCoordinator" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataApiGateway[0].api_url}"
+    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpGw[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedGw[0].api_url}"
   }
 
   schedule_interval = 1
@@ -96,12 +96,12 @@ resource "google_project_service" "servicecontrol_api" {
   ]
 }
 
-module "processHttpRequest" {
+module "httpReq" {
   source = "./modules/function"
   count  = var.http_api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-processHttpRequest"
-  entry_point        = "processHttpRequest"
+  name               = "${local.name_prefix}-httpReq"
+  entry_point        = "httpReq"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 15
@@ -121,36 +121,36 @@ module "processHttpRequest" {
   ]
 }
 
-module "httpApiGateway" {
+module "httpGw" {
   source = "./modules/apigateway"
   count  = var.http_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpApiGateway"
-  template_file = "./templates/httpApiGateway.yaml.tpl"
+  name          = "${local.name_prefix}-httpGw"
+  template_file = "./templates/httpGw.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.processHttpRequest[0].function_name
+    cloud_function_name = module.httpReq[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.processHttpRequest[0].function_name
+    module.httpReq[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.processHttpRequest,
+    module.httpReq,
   ]
 }
 
-module "processHttpSignedDataRequest" {
+module "httpSignedReq" {
   source = "./modules/function"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name               = "${local.name_prefix}-processHttpSignedDataRequest"
-  entry_point        = "processHttpSignedDataRequest"
+  name               = "${local.name_prefix}-httpSignedReq"
+  entry_point        = "httpSignedReq"
   source_dir         = var.handler_dir
   memory_size        = 256
   timeout            = 15
@@ -170,26 +170,26 @@ module "processHttpSignedDataRequest" {
   ]
 }
 
-module "httpSignedDataApiGateway" {
+module "httpSignedGw" {
   source = "./modules/apigateway"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpSignedDataApiGateway"
-  template_file = "./templates/httpSignedDataApiGateway.yaml.tpl"
+  name          = "${local.name_prefix}-httpSignedGw"
+  template_file = "./templates/httpSignedGw.yaml.tpl"
   template_variables = {
     project             = var.gcp_project
     region              = var.gcp_region
-    cloud_function_name = module.processHttpSignedDataRequest[0].function_name
+    cloud_function_name = module.httpSignedReq[0].function_name
   }
   project = var.gcp_project
 
   invoke_targets = [
-    module.processHttpSignedDataRequest[0].function_name
+    module.httpSignedReq[0].function_name
   ]
 
   depends_on = [
     google_project_service.apigateway_api,
     google_project_service.servicecontrol_api,
-    module.processHttpSignedDataRequest,
+    module.httpSignedReq,
   ]
 }
