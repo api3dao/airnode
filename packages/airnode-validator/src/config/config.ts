@@ -43,13 +43,40 @@ export const priorityFeeSchema = z.object({
     .optional(),
 });
 
-export const chainOptionsSchema = z.object({
-  txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
-  gasPriceMultiplier: z.number().optional(),
-  baseFeeMultiplier: z.number().int().optional(),
-  priorityFee: priorityFeeSchema.optional(),
-  fulfillmentGasLimit: z.number().int(),
-});
+const chainOptionsErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === z.ZodIssueCode.unrecognized_keys) {
+    return {
+      message: `Unrecognized or disallowed key(s) for the given transaction type: ${issue.keys
+        .map((val) => `'${val}'`)
+        .join(', ')}`,
+    };
+  }
+  return { message: ctx.defaultError };
+};
+
+export const chainOptionsSchema = z.discriminatedUnion('txType', [
+  z
+    .object(
+      {
+        txType: z.literal('eip1559'),
+        baseFeeMultiplier: z.number().int().optional(),
+        priorityFee: priorityFeeSchema.optional(),
+        fulfillmentGasLimit: z.number().int(),
+      },
+      { errorMap: chainOptionsErrorMap }
+    )
+    .strict(),
+  z
+    .object(
+      {
+        txType: z.literal('legacy'),
+        gasPriceMultiplier: z.number().optional(),
+        fulfillmentGasLimit: z.number().int(),
+      },
+      { errorMap: chainOptionsErrorMap }
+    )
+    .strict(),
+]);
 
 export const chainConfigSchema = z.object({
   authorizers: z.array(z.string()),
