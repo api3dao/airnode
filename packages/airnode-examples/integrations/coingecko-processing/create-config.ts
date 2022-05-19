@@ -54,8 +54,8 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     rrp: [
       {
         endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
-        oisTitle: 'CoinGecko basic request',
-        endpointName: 'coinMarketData',
+        oisTitle: 'CoinGecko coins markets request',
+        endpointName: 'coinsMarketData',
       },
     ],
     httpSignedData: [],
@@ -63,7 +63,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   ois: [
     {
       oisFormat: '1.0.0',
-      title: 'CoinGecko basic request',
+      title: 'CoinGecko coins markets request',
       version: '1.0.0',
       apiSpecifications: {
         servers: [
@@ -72,36 +72,32 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           },
         ],
         paths: {
-          '/coins/{id}': {
+          '/coins/markets': {
             get: {
               parameters: [
                 {
-                  in: 'path',
-                  name: 'id',
+                  in: 'query',
+                  name: 'vs_currency',
                 },
                 {
                   in: 'query',
-                  name: 'localization',
+                  name: 'ids',
                 },
                 {
                   in: 'query',
-                  name: 'tickers',
+                  name: 'order',
                 },
                 {
                   in: 'query',
-                  name: 'market_data',
-                },
-                {
-                  in: 'query',
-                  name: 'community_data',
-                },
-                {
-                  in: 'query',
-                  name: 'developer_data',
+                  name: 'per_page',
                 },
                 {
                   in: 'query',
                   name: 'sparkline',
+                },
+                {
+                  in: 'query',
+                  name: 'price_change_percentage',
                 },
               ],
             },
@@ -114,46 +110,25 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       },
       endpoints: [
         {
-          name: 'coinMarketData',
+          name: 'coinsMarketData',
           operation: {
             method: 'get',
-            path: '/coins/{id}',
+            path: '/coins/markets',
           },
           fixedOperationParameters: [
             {
               operationParameter: {
                 in: 'query',
-                name: 'localization',
+                name: 'order',
               },
-              value: 'false',
+              value: 'market_cap_desc',
             },
             {
               operationParameter: {
                 in: 'query',
-                name: 'tickers',
+                name: 'per_page',
               },
-              value: 'false',
-            },
-            {
-              operationParameter: {
-                in: 'query',
-                name: 'market_data',
-              },
-              value: 'true',
-            },
-            {
-              operationParameter: {
-                in: 'query',
-                name: 'community_data',
-              },
-              value: 'false',
-            },
-            {
-              operationParameter: {
-                in: 'query',
-                name: 'developer_data',
-              },
-              value: 'false',
+              value: '10',
             },
             {
               operationParameter: {
@@ -162,28 +137,56 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               },
               value: 'false',
             },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'price_change_percentage',
+              },
+              value: '30d',
+            },
           ],
           reservedParameters: [
             {
               name: '_type',
-              fixed: 'int256',
+              fixed: 'int256,int256',
             },
             {
               name: '_path',
-              fixed: 'market_data.current_price.usd',
+              fixed: '0,1',
             },
             {
               name: '_times',
-              fixed: '1000000',
+              fixed: '',
             },
           ],
           parameters: [
             {
-              name: 'coinId',
+              name: 'coinIds',
               operationParameter: {
-                in: 'path',
-                name: 'id',
+                in: 'query',
+                name: 'ids',
               },
+            },
+            {
+              name: 'vsCurrency',
+              operationParameter: {
+                in: 'query',
+                name: 'vs_currency',
+              },
+            },
+          ],
+          postProcessingSpecifications: [
+            {
+              environment: 'Node 14',
+              timeoutMs: 5000,
+              value: `
+                const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);
+                const average = sum(input.map((coinData) => coinData.current_price)) / input.length;
+                const percentageChange = sum(input.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / input.length;
+
+                // Create the data to be sent on chain and multiply it by 10^8 to preserve precision
+                const output = [average, percentageChange].map((x) => x * 10 ** 8);
+              `,
             },
           ],
         },

@@ -3,10 +3,16 @@ pragma solidity 0.8.9;
 
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 
-// An example requester which expects the response from Airnode is a single int256 value.
+// An example requester which expects the response from Airnode to be contain two numbers - the average value of coins
+// and average 30d percentage of the coins.
 contract Requester is RrpRequesterV0 {
+    struct FulfillmentData {
+        int256 average;
+        int256 percentageChange;
+    }
+
     mapping(bytes32 => bool) public incomingFulfillments;
-    mapping(bytes32 => int256) public fulfilledData;
+    mapping(bytes32 => FulfillmentData) public fulfilledData;
 
     constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
 
@@ -35,7 +41,10 @@ contract Requester is RrpRequesterV0 {
     {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];
-        int256 decodedData = abi.decode(data, (int256));
-        fulfilledData[requestId] = decodedData;
+        (int256 average, int256 percentageChange) = abi.decode(
+            data,
+            (int256, int256)
+        );
+        fulfilledData[requestId] = FulfillmentData(average, percentageChange);
     }
 }

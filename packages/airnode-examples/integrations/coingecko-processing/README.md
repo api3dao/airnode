@@ -1,14 +1,20 @@
-# Coingecko example integration
+# Coingecko postprocessing integration example
 
-This is the most basic example showcasing `config.json` and `secrets.env` (which is automatically generated for you with
-one of our scripts).
+This is a basic example showcasing how to use
+[postprocessing](https://docs.api3.org/ois/v1.0.0/ois.html#_5-10-postprocessingspecifications) to enable and advanced
+use case which modifies the CoinGecko API response before sending the response on chain.
 
-The `config.json` defines a single callable endpoint, called `coinMarketData` which you can call to determine the
-current price of some crypto currency. The example request uses this endpoint to retrieve the current price of Ethereum.
+The `config.json` defines a single callable endpoint, called `coinsMarketData` which you can call with different coin
+IDs to determine the average current price and average 30 days percentage change.
 
-There is one thing to notice. The `config.json` defines the `_times` reserved parameter, which makes the Airnode
-multiply the asset price returned from the API. This is necessary to preserve the floating point digits in the requester
-contract, since solidity only allows to use integers.
+Overall the process looks like this:
+
+1. Airnode makes the API call to the CoinGecko API and waits for the response (array of market data for the requested
+   coins).
+2. Airnode executes the post-processing code to compute the average price and percentage change for all of the coins.
+   The post-processing snippets outputs a two element array.
+3. Airnode then extracts the values from this array as configured by the `_type` reserved parameter and encodes them.
+4. Airnode submits the encoded value on chain
 
 For more information about how the Airnode is configured refer to the
 [docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html).
