@@ -1,9 +1,7 @@
 {
-  "extends": "../../tsconfig.build.json",
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist"
-  },
-  "include": ["src/**/*", "bin/**/*"],
-  "exclude": ["src/**/*.test.ts"]
+  "extends": "./tsconfig.json",
+  // References are not inherited and need to be listed explicitly. See:
+  // https://github.com/microsoft/TypeScript/issues/27098
+  "references": [{ "path": "../airnode-utilities" }],
+  "exclude": ["./src/**/*.test.ts", "./test/**/*"]
 }

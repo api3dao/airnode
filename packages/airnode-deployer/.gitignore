@@ -8,9 +8,12 @@
 coverage/
 
 # Config files
-config.json
-secrets.env
-receipt.json
+#
+# We ignore all the files ending with given names to allow storing different config/secrets files
+# in the config directory which is useful for development.
+*config.json
+*secrets.env
+*receipt.json
 
 # Packed package
 *.tgz

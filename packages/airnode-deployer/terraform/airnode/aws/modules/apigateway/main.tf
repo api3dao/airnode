@@ -3,14 +3,14 @@ resource "aws_iam_role" "api_gateway_role" {
   assume_role_policy = data.aws_iam_policy_document.role_policy.json
 
   tags = {
-    Name = "${var.name}-Role"
+    Name = var.name
   }
 }
 
 resource "aws_iam_role_policy" "lambda_invoke_role_policy" {
   count = length(var.lambdas) != 0 ? 1 : 0
 
-  name   = "${var.name}-Lambda-Invoke-Policy"
+  name   = "${var.name}-lambda-invoke"
   role   = aws_iam_role.api_gateway_role.id
   policy = data.aws_iam_policy_document.lambda_invoke_policy.json
 }
@@ -44,7 +44,7 @@ resource "aws_api_gateway_stage" "stage" {
 }
 
 resource "aws_api_gateway_usage_plan" "usage_plan" {
-  name = "${var.name}-Usage-Plan"
+  name = var.name
 
   api_stages {
     api_id = aws_api_gateway_rest_api.api_gateway.id
@@ -53,7 +53,7 @@ resource "aws_api_gateway_usage_plan" "usage_plan" {
 }
 
 resource "aws_api_gateway_api_key" "api_key" {
-  name  = "${var.name}-API-Key"
+  name  = var.name
   value = var.api_key
 }
 

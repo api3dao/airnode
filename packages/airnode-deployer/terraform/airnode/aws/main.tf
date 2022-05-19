@@ -26,8 +26,8 @@ module "startCoordinator" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpApiGateway[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedDataApiGateway[0].api_url}"
+    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpGw[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedGw[0].api_url}"
   }
 
   invoke_targets                 = [module.run.lambda_arn]
@@ -37,12 +37,12 @@ module "startCoordinator" {
   depends_on = [module.run]
 }
 
-module "processHttpRequest" {
+module "httpReq" {
   source = "./modules/function"
   count  = var.http_api_key == null ? 0 : 1
 
-  name                           = "${local.name_prefix}-processHttpRequest"
-  handler                        = "index.processHttpRequest"
+  name                           = "${local.name_prefix}-httpReq"
+  handler                        = "index.httpReq"
   source_dir                     = var.handler_dir
   memory_size                    = 256
   timeout                        = 15
@@ -51,29 +51,29 @@ module "processHttpRequest" {
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_max_concurrency
 }
 
-module "httpApiGateway" {
+module "httpGw" {
   source = "./modules/apigateway"
   count  = var.http_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpApiGateway"
+  name          = "${local.name_prefix}-httpGw"
   stage         = "v1"
-  template_file = "./templates/httpApiGateway.yaml.tpl"
+  template_file = "./templates/httpGw.yaml.tpl"
   template_variables = {
-    proxy_lambda = module.processHttpRequest[0].lambda_arn
+    proxy_lambda = module.httpReq[0].lambda_arn
     region       = var.aws_region
   }
   lambdas = [
-    module.processHttpRequest[0].lambda_arn
+    module.httpReq[0].lambda_arn
   ]
   api_key = var.http_api_key
 }
 
-module "processHttpSignedDataRequest" {
+module "httpSignedReq" {
   source = "./modules/function"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name                           = "${local.name_prefix}-processHttpSignedDataRequest"
-  handler                        = "index.processHttpSignedDataRequest"
+  name                           = "${local.name_prefix}-httpSignedReq"
+  handler                        = "index.httpSignedReq"
   source_dir                     = var.handler_dir
   memory_size                    = 256
   timeout                        = 15
@@ -82,19 +82,19 @@ module "processHttpSignedDataRequest" {
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
 }
 
-module "httpSignedDataApiGateway" {
+module "httpSignedGw" {
   source = "./modules/apigateway"
   count  = var.http_signed_data_api_key == null ? 0 : 1
 
-  name          = "${local.name_prefix}-httpSignedDataApiGateway"
+  name          = "${local.name_prefix}-httpSignedGw"
   stage         = "v1"
-  template_file = "./templates/httpSignedDataApiGateway.yaml.tpl"
+  template_file = "./templates/httpSignedGw.yaml.tpl"
   template_variables = {
-    proxy_lambda = module.processHttpSignedDataRequest[0].lambda_arn
+    proxy_lambda = module.httpSignedReq[0].lambda_arn
     region       = var.aws_region
   }
   lambdas = [
-    module.processHttpSignedDataRequest[0].lambda_arn
+    module.httpSignedReq[0].lambda_arn
   ]
   api_key = var.http_signed_data_api_key
 }

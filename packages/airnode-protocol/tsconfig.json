@@ -2,10 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
-    "noImplicitReturns": true,
-    "noUncheckedIndexedAccess": true
+    "outDir": "./dist",
+    "rootDirs": ["./src", "./test", "./deployments"]
   },
-  "include": ["./src/**/*"],
-  "exclude": ["dist/**/*", "node_modules/**/*"]
+  "include": ["./src/**/*", "./test/**/*", "./deployments/references.json"]
 }

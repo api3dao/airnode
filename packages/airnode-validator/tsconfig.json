@@ -5,12 +5,6 @@
     "outDir": "./dist",
     "rootDirs": ["./src", "./bin", "./test"]
   },
-  "references": [
-    { "path": "../airnode-node" },
-    { "path": "../airnode-ois" },
-    { "path": "../airnode-protocol" },
-    { "path": "../airnode-utilities" },
-    { "path": "../airnode-validator" }
-  ],
+  "references": [{ "path": "../airnode-utilities" }],
   "include": ["./src/**/*", "./bin/**/*", "./test/**/*", "./package.json"]
 }
