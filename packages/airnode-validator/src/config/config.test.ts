@@ -120,7 +120,7 @@ describe('nodeSettingsSchema', () => {
   });
 });
 
-it('fails if ois.apiSpecifications.security.<securitySchemeName> is defined in ois.apiSpecifications.components.<securitySchemeName> but apiCredentials.securitySchemeValue is empty string', () => {
+it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http" but is missing credentials in "apiCredentials"', () => {
   const config: Config = JSON.parse(
     readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
   );
@@ -158,10 +158,7 @@ it('fails if ois.apiSpecifications.security.<securitySchemeName> is defined in o
 
   const invalidConfig = {
     ...configWithSecuritySchemes,
-    apiCredentials: [
-      ...config.apiCredentials,
-      { ...apiCredentials[0], securitySchemeName: apiCredentials[0].securitySchemeName + Date.now().toString() },
-    ],
+    apiCredentials: [],
   };
   expect(() => configSchema.parse(invalidConfig)).toThrow(
     new ZodError([
