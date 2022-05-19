@@ -133,14 +133,7 @@ it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http
       name: 'access_key',
     },
   };
-  const apiCredentials = [
-    {
-      oisTitle: 'Currency Converter API',
-      securitySchemeName: 'Currency Converter Security Scheme',
-      securitySchemeValue: '${SS_CURRENCY_CONVERTER_API_KEY}',
-    },
-  ];
-  const configWithSecuritySchemes = {
+  const invalidConfig = {
     ...config,
     ois: [
       ...config.ois,
@@ -153,19 +146,15 @@ it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http
         },
       },
     ],
-    apiCredentials,
-  };
-
-  const invalidConfig = {
-    ...configWithSecuritySchemes,
     apiCredentials: [],
   };
+
   expect(() => configSchema.parse(invalidConfig)).toThrow(
     new ZodError([
       {
         code: 'custom',
         message: 'The security scheme is enabled but no credentials are provided in "apiCredentials"',
-        path: ['ois', 1, 'apiSpecifications', 'security', 'Currency Converter Security Scheme'],
+        path: ['ois', 1, 'apiSpecifications', 'security', securitySchemeName],
       },
     ])
   );
