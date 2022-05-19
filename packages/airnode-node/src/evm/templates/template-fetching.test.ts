@@ -61,13 +61,13 @@ describe('fetch (templates)', () => {
       },
     });
 
-    // Not called with a valid config templateId
     expect(templatesMock).not.toHaveBeenCalled();
-
-    // Called with a templateId not found in the config
+    // Not called with a valid config templateId
     expect(getTemplatesMock).not.toHaveBeenCalledWith([
       '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edafe',
     ]);
+    // Called with a templateId not found in the config
+    expect(getTemplatesMock).toHaveBeenCalledWith(['templateId-0']);
   });
 
   it('fetches templates in groups of 10', async () => {
