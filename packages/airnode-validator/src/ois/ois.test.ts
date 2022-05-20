@@ -164,3 +164,45 @@ it('fails if apiSpecifications.security.<securitySchemeName> is not defined in a
     ])
   );
 });
+
+describe('apiSpecification parameters validation', () => {
+  it('fails if "apiSpecification.paths" parameter is not defined in "endpoints"', () => {
+    const invalidOis = loadOisFixture();
+    invalidOis.apiSpecifications.paths['/convert'].get!.parameters.push({
+      in: 'query',
+      name: 'non-existing-parameter',
+    });
+
+    expect(() => oisSchema.parse(invalidOis)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `asd`,
+          path: [],
+        },
+      ])
+    );
+  });
+
+  it('"endpoint" parameter must reference parameter from "apiSpecification.paths"', () => {
+    const invalidOis = loadOisFixture();
+    invalidOis.endpoints[0].parameters.push({
+      name: 'some-new-param',
+      default: 'EUR',
+      operationParameter: {
+        in: 'query',
+        name: 'non-existing-param',
+      },
+    });
+
+    expect(() => oisSchema.parse(invalidOis)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `asd`,
+          path: [],
+        },
+      ])
+    );
+  });
+});
