@@ -61,35 +61,17 @@ describe('disallows reserved parameter name', () => {
 
 it('verifies that the same parameter cannot be in fixedOperationParameters and parameters', () => {
   const ois = loadOisFixture();
-  ois.endpoints.push(cloneDeep(ois.endpoints[0]));
-
-  // Create the same parameter in the first endpoint
-  const parameter1 = { name: 'api-param-name1', in: 'query' } as const;
-  ois.endpoints[0].parameters.push({ name: 'test-param', operationParameter: parameter1 });
   ois.endpoints[0].fixedOperationParameters.push({
+    operationParameter: ois.endpoints[0].parameters[0].operationParameter,
     value: '123',
-    operationParameter: parameter1,
-  });
-
-  // Create the same parameter in the second endpoint
-  const parameter2 = { name: 'api-param-name2', in: 'query' } as const;
-  ois.endpoints[1].parameters.push({ name: 'test-param2', operationParameter: parameter2 });
-  ois.endpoints[1].fixedOperationParameters.push({
-    value: '456',
-    operationParameter: parameter2,
   });
 
   expect(() => oisSchema.parse(ois)).toThrow(
     new ZodError([
       {
         code: 'custom',
-        message: 'Parameters "api-param-name1" are used in both "parameters" and "fixedOperationOperations"',
+        message: 'Parameters "from" are used in both "parameters" and "fixedOperationOperations"',
         path: ['ois', 'endpoints', 0],
-      },
-      {
-        code: 'custom',
-        message: 'Parameters "api-param-name2" are used in both "parameters" and "fixedOperationOperations"',
-        path: ['ois', 'endpoints', 1],
       },
     ])
   );
@@ -177,8 +159,8 @@ describe('apiSpecification parameters validation', () => {
       new ZodError([
         {
           code: 'custom',
-          message: `asd`,
-          path: [],
+          message: 'Parameter "non-existing-parameter" not found in "fixedOperationParameters" nor "parameters"',
+          path: ['ois', 'endpoints', 0],
         },
       ])
     );
@@ -199,8 +181,32 @@ describe('apiSpecification parameters validation', () => {
       new ZodError([
         {
           code: 'custom',
-          message: `asd`,
-          path: [],
+          message: 'No matching API specification parameter found in "apiSpecifications" section',
+          path: ['ois', 'endpoints', 0, 'parameters', 3],
+        },
+      ])
+    );
+  });
+
+  it('handles multiple endpoints for the same API specification', () => {
+    const ois = loadOisFixture();
+    ois.endpoints.push(cloneDeep(ois.endpoints[0]));
+    ois.apiSpecifications.paths['/convert'].get!.parameters.push({
+      in: 'query',
+      name: 'api-param-name',
+    });
+
+    expect(() => oisSchema.parse(ois)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" nor "parameters"',
+          path: ['ois', 'endpoints', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" nor "parameters"',
+          path: ['ois', 'endpoints', 1],
         },
       ])
     );

@@ -221,21 +221,27 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
   // Ensure every "apiSpecification.paths" parameter is defined in "endpoints"
   forEach(apiSpecifications.paths, (pathData, rawPath) => {
     forEach(pathData, (paramData, httpMethod) => {
-      const endpoint = endpoints.find(({ operation }) => operation.method === httpMethod && operation.path === rawPath);
-      if (!endpoint) return; // Missing endpoint for apiSpecification should only be a warning
+      const apiEndpoints = endpoints.filter(
+        ({ operation }) => operation.method === httpMethod && operation.path === rawPath
+      );
+      if (!apiEndpoints.length) return; // Missing endpoint for apiSpecification should only be a warning
 
-      const parameters = paramData!.parameters;
-      parameters.forEach((apiParam) => {
-        const endpointParam = endpoint.parameters.find(
-          ({ operationParameter }) => operationParameter.in === apiParam.in && operationParameter.name === apiParam.name
-        );
-        if (!endpointParam) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `The "${apiParam.name}" in "${apiParam.in}" not found in "fixedOperationParameters" nor "parameters"`,
-            path: ['ois', 'endpoints', endpoints.indexOf(endpoint)],
-          });
-        }
+      apiEndpoints.forEach((endpoint) => {
+        const parameters = paramData!.parameters;
+        parameters.forEach((apiParam) => {
+          const allEndpointParams = [...endpoint.parameters, ...endpoint.fixedOperationParameters];
+          const endpointParam = allEndpointParams.find(
+            ({ operationParameter }) =>
+              operationParameter.in === apiParam.in && operationParameter.name === apiParam.name
+          );
+          if (!endpointParam) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Parameter "${apiParam.name}" not found in "fixedOperationParameters" nor "parameters"`,
+              path: ['ois', 'endpoints', endpoints.indexOf(endpoint)],
+            });
+          }
+        });
       });
     });
   });
