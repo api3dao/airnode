@@ -1,7 +1,8 @@
-import { z } from 'zod';
 import { ethers } from 'ethers';
-import { oisSchema } from '../ois';
+import { SuperRefinement, z } from 'zod';
 import { version as packageVersion } from '../../package.json';
+import { oisSchema } from '../ois';
+import { ApiCredentials, OIS, NodeSettings, Template } from '../types';
 
 export const triggerSchema = z.object({
   endpointId: z.string(),
@@ -54,13 +55,40 @@ export const priorityFeeSchema = z.object({
     .optional(),
 });
 
-export const chainOptionsSchema = z.object({
-  txType: z.union([z.literal('legacy'), z.literal('eip1559')]),
-  gasPriceMultiplier: z.number().optional(),
-  baseFeeMultiplier: z.number().int().optional(),
-  priorityFee: priorityFeeSchema.optional(),
-  fulfillmentGasLimit: z.number().int(),
-});
+const chainOptionsErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === z.ZodIssueCode.unrecognized_keys) {
+    return {
+      message: `Unrecognized or disallowed key(s) for the given transaction type: ${issue.keys
+        .map((val) => `'${val}'`)
+        .join(', ')}`,
+    };
+  }
+  return { message: ctx.defaultError };
+};
+
+export const chainOptionsSchema = z.discriminatedUnion('txType', [
+  z
+    .object(
+      {
+        txType: z.literal('eip1559'),
+        baseFeeMultiplier: z.number().int().optional(),
+        priorityFee: priorityFeeSchema.optional(),
+        fulfillmentGasLimit: z.number().int(),
+      },
+      { errorMap: chainOptionsErrorMap }
+    )
+    .strict(),
+  z
+    .object(
+      {
+        txType: z.literal('legacy'),
+        gasPriceMultiplier: z.number().optional(),
+        fulfillmentGasLimit: z.number().int(),
+      },
+      { errorMap: chainOptionsErrorMap }
+    )
+    .strict(),
+]);
 
 export const chainConfigSchema = z.object({
   authorizers: z.array(z.string()),
@@ -149,6 +177,53 @@ export const apiCredentialsSchema = baseApiCredentialsSchema.extend({
   oisTitle: z.string(),
 });
 
+const validateSecuritySchemesReferences: SuperRefinement<{
+  ois: OIS[];
+  apiCredentials: ApiCredentials[];
+}> = (config, ctx) => {
+  config.ois.forEach((ois, index) => {
+    Object.keys(ois.apiSpecifications.security).forEach((enabledSecuritySchemeName) => {
+      const enabledSecurityScheme = ois.apiSpecifications.components.securitySchemes[enabledSecuritySchemeName];
+      if (enabledSecurityScheme && ['apiKey', 'http'].includes(enabledSecurityScheme.type)) {
+        const securitySchemeApiCredentials = config.apiCredentials.find(
+          (apiCredentials) => apiCredentials.securitySchemeName === enabledSecuritySchemeName
+        );
+        if (!securitySchemeApiCredentials) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `The security scheme is enabled but no credentials are provided in "apiCredentials"`,
+            path: ['ois', index, 'apiSpecifications', 'security', enabledSecuritySchemeName],
+          });
+        }
+      }
+    });
+  });
+};
+
+const validateTemplateSchemes: SuperRefinement<{
+  nodeSettings: NodeSettings;
+  templates: Template[];
+}> = (config, ctx) => {
+  if (config.templates) {
+    config.templates.forEach((template: any) => {
+      // Verify that a V0/RRP templates are valid by hashing the airnodeAddress,
+      // endpointId and encodedParameters
+      const airnodeAddress = ethers.Wallet.fromMnemonic(config.nodeSettings.airnodeWalletMnemonic).address;
+      const derivedTemplateId = ethers.utils.solidityKeccak256(
+        ['address', 'bytes32', 'bytes'],
+        [airnodeAddress, template.endpointId, template.encodedParameters]
+      );
+      if (derivedTemplateId !== template.templateId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Template is invalid`,
+          path: [template.templateId],
+        });
+      }
+    });
+  }
+};
+
 export const configSchema = z
   .object({
     chains: z.array(chainConfigSchema),
@@ -158,23 +233,5 @@ export const configSchema = z
     templates: z.array(templateSchema),
     apiCredentials: z.array(apiCredentialsSchema),
   })
-  .superRefine((config, ctx) => {
-    if (config.templates) {
-      config.templates.forEach((template) => {
-        // Verify that a V0/RRP templates are valid by hashing the airnodeAddress,
-        // endpointId and encodedParameters
-        const airnodeAddress = ethers.Wallet.fromMnemonic(config.nodeSettings.airnodeWalletMnemonic).address;
-        const derivedTemplateId = ethers.utils.solidityKeccak256(
-          ['address', 'bytes32', 'bytes'],
-          [airnodeAddress, template.endpointId, template.encodedParameters]
-        );
-        if (derivedTemplateId !== template.templateId) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Template is invalid`,
-            path: [template.templateId],
-          });
-        }
-      });
-    }
-  });
+  .superRefine(validateSecuritySchemesReferences)
+  .superRefine(validateTemplateSchemes);

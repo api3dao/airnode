@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import intersection from 'lodash/intersection';
 import forEach from 'lodash/forEach';
+import intersection from 'lodash/intersection';
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
-import { SchemaType, ValidatorRefinement } from '../types';
+import { z } from 'zod';
+import { OIS, SchemaType, ValidatorRefinement } from '../types';
 
 function removeBraces(value: string) {
   return trimEnd(trimStart(value, '{'), '}');
@@ -154,12 +154,27 @@ const ensurePathParametersExist: ValidatorRefinement<SchemaType<typeof pathsSche
 
 export const pathsSchema = z.record(pathSchema).superRefine(ensurePathParametersExist);
 
-export const apiSpecificationSchema = z.object({
-  components: apiComponentsSchema,
-  paths: pathsSchema,
-  servers: z.array(serverSchema),
-  security: z.record(z.tuple([])),
-});
+export const apiSpecificationSchema = z
+  .object({
+    components: apiComponentsSchema,
+    paths: pathsSchema,
+    servers: z.array(serverSchema),
+    security: z.record(z.tuple([])),
+  })
+  .superRefine((apiSpecifications, ctx) => {
+    Object.keys(apiSpecifications.security).forEach((enabledSecuritySchemeName, index) => {
+      // Verify that ois.apiSpecifications.security.<securitySchemeName> is
+      // referencing a valid ois.apiSpecifications.components.<securitySchemeName> object
+      const enabledSecurityScheme = apiSpecifications.components.securitySchemes[enabledSecuritySchemeName];
+      if (!enabledSecurityScheme) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Security scheme "${enabledSecuritySchemeName}" is not defined in "components.securitySchemes"`,
+          path: ['security', index],
+        });
+      }
+    });
+  });
 
 export const processingSpecificationSchema = z.object({
   environment: z.union([z.literal('Node 14'), z.literal('Node 14 async')]),
@@ -203,5 +218,5 @@ export const baseOisSchema = z.object({
   apiSpecifications: apiSpecificationSchema,
   endpoints: z.array(endpointSchema),
 });
-type OIS = SchemaType<typeof baseOisSchema>;
+
 export const oisSchema = baseOisSchema.superRefine(ensureSingleParameterUsagePerEndpoint);
