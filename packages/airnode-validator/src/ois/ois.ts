@@ -227,8 +227,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
       if (!apiEndpoints.length) return; // Missing endpoint for apiSpecification should only be a warning
 
       apiEndpoints.forEach((endpoint) => {
-        const parameters = paramData!.parameters;
-        parameters.forEach((apiParam) => {
+        paramData!.parameters.forEach((apiParam) => {
           const allEndpointParams = [...endpoint.parameters, ...endpoint.fixedOperationParameters];
           const endpointParam = allEndpointParams.find(
             ({ operationParameter }) =>
@@ -246,7 +245,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
     });
   });
 
-  // Ensure every "endpoint" parameter references parameter from "apiSpecification.paths"
+  // Ensure every endpoint parameter references parameter from "apiSpecification.paths"
   endpoints.forEach((endpoint, endpointIndex) => {
     const { operation, parameters, fixedOperationParameters } = endpoint;
 
@@ -263,7 +262,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
       });
     }
 
-    // Ensure every "parameter" exist in "apiSpecification"
+    // Ensure every parameter exist in "apiSpecification"
     parameters.forEach((endpointParam, endpointParamIndex) => {
       const { operationParameter } = endpointParam;
       const apiParam = apiSpec[operation.method]!.parameters.find(
@@ -279,7 +278,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
       }
     });
 
-    // Ensure every "fixedOperationParameters" exist in "apiSpecification"
+    // Ensure every fixed parameter exist in "apiSpecification"
     fixedOperationParameters.forEach((endpointParam, endpointParamIndex) => {
       const { operationParameter } = endpointParam;
       const apiParam = apiSpec[operation.method]!.parameters.find(
@@ -291,7 +290,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `No matching API specification parameter found in "apiSpecifications" section`,
-            path: ['ois', 'endpoints', endpointIndex, 'parameters', endpointParamIndex],
+            path: ['ois', 'endpoints', endpointIndex, 'fixedOperationParameters', endpointParamIndex],
           });
         }
       }

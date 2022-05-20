@@ -211,4 +211,25 @@ describe('apiSpecification parameters validation', () => {
       ])
     );
   });
+
+  it('fails when there is no matching API specification for endpoint', () => {
+    const invalidOis = loadOisFixture();
+    invalidOis.endpoints[0].parameters.push({
+      operationParameter: {
+        in: 'query',
+        name: 'non-existent',
+      },
+      name: 'param-name',
+    });
+
+    expect(() => oisSchema.parse(invalidOis)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'No matching API specification parameter found in "apiSpecifications" section',
+          path: ['ois', 'endpoints', 0, 'parameters', 3],
+        },
+      ])
+    );
+  });
 });
