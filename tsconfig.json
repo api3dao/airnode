@@ -15,6 +15,28 @@
     "skipLibCheck": true,
     "composite": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-  }
+    "noFallthroughCasesInSwitch": true,
+    // Disabled because they are too restrictive
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
+    // Disabled because they are covered by Eslint rules
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    // Disabled because prefer the property syntax
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/airnode-abi" },
+    { "path": "./packages/airnode-deployer" },
+    { "path": "./packages/airnode-ois" },
+    { "path": "./packages/airnode-utilities" },
+    { "path": "./packages/airnode-adapter" },
+    { "path": "./packages/airnode-examples" },
+    { "path": "./packages/airnode-operation" },
+    { "path": "./packages/airnode-validator" },
+    { "path": "./packages/airnode-admin" },
+    { "path": "./packages/airnode-node" },
+    { "path": "./packages/airnode-protocol" }
+  ]
 }

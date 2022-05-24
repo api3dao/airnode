@@ -34,6 +34,7 @@
     "changeset:new-version": "yarn changeset version && yarn ts-node scripts/update-config-fixtures.ts",
     "clean": "lerna run clean --stream",
     "cli:deployer": "lerna run --scope @api3/airnode-deployer cli -- --",
+    "compile": "yarn tsc --build",
     "dev:api": "(cd packages/airnode-operation && yarn run dev:api)",
     "dev:api:background": "(cd packages/airnode-operation && yarn run dev:api:background)",
     "dev:background": "(cd packages/airnode-operation && yarn run dev:background)",
