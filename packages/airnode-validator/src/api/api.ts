@@ -28,8 +28,7 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
  * @returns `{success: true, data: <interpolated config>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseConfig(config: unknown): ValidationResult<Config> {
-  const parseConfigRes = configSchema.safeParse(config);
-  return parseConfigRes;
+  return configSchema.safeParse(config);
 }
 
 /**
@@ -38,9 +37,7 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
   const secretsSchema = z.record(z.string());
-
-  const result = secretsSchema.safeParse(secrets);
-  return result;
+  return secretsSchema.safeParse(secrets);
 }
 
 /**
