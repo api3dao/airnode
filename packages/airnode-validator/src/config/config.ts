@@ -17,12 +17,11 @@ export const triggersSchema = z.object({
 });
 
 export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
-export const evmTemplateIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
-export const evmEndpointIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 
 export const templateSchema = z.object({
-  templateId: evmTemplateIdSchema,
-  endpointId: evmEndpointIdSchema,
+  templateId: evmIdSchema,
+  endpointId: evmIdSchema,
   encodedParameters: z.string(),
 });
 
