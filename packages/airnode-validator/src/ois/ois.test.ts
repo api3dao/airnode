@@ -59,22 +59,98 @@ describe('disallows reserved parameter name', () => {
   });
 });
 
-it('verifies that the same parameter cannot be in fixedOperationParameters and parameters', () => {
-  const ois = loadOisFixture();
-  ois.endpoints[0].fixedOperationParameters.push({
-    operationParameter: ois.endpoints[0].parameters[0].operationParameter,
-    value: '123',
+describe('parameter uniqueness', () => {
+  it('allows parameter with same name, but different http method', () => {
+    const paramName = 'some-id';
+    const ois = loadOisFixture();
+    ois.apiSpecifications.paths['/convert'].get!.parameters.push({
+      in: 'query',
+      name: paramName,
+    });
+    ois.endpoints[0].fixedOperationParameters.push({
+      operationParameter: {
+        in: 'query',
+        name: paramName,
+      },
+      value: 'query-id',
+    });
+    ois.apiSpecifications.paths['/convert'].get!.parameters.push({
+      in: 'cookie',
+      name: paramName,
+    });
+    ois.endpoints[0].fixedOperationParameters.push({
+      operationParameter: {
+        in: 'cookie',
+        name: paramName,
+      },
+      value: 'cookie-id',
+    });
+
+    expect(() => oisSchema.parse(ois)).not.toThrow();
   });
 
-  expect(() => oisSchema.parse(ois)).toThrow(
-    new ZodError([
-      {
-        code: 'custom',
-        message: 'Parameters "from" are used in both "parameters" and "fixedOperationOperations"',
-        path: ['ois', 'endpoints', 0],
-      },
-    ])
-  );
+  it(`fails if the same parameter is used in "parameters"`, () => {
+    const ois = loadOisFixture();
+    ois.endpoints[0].parameters.push(ois.endpoints[0].parameters[0] as any);
+
+    expect(() => oisSchema.parse(ois)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter is used multiple times',
+          path: ['ois', 'endpoints', 0, 'parameters', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter is used multiple times',
+          path: ['ois', 'endpoints', 0, 'parameters', 3],
+        },
+      ])
+    );
+  });
+
+  it(`fails if the same parameter is used in "fixedOperationParameters"`, () => {
+    const ois = loadOisFixture();
+    ois.endpoints[0].fixedOperationParameters.push(ois.endpoints[0].fixedOperationParameters[0] as any);
+
+    expect(() => oisSchema.parse(ois)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter is used multiple times',
+          path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter is used multiple times',
+          path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 1],
+        },
+      ])
+    );
+  });
+
+  it('fails if the same parameter is used in "fixedOperationParameters" and "parameters"', () => {
+    const ois = loadOisFixture();
+    ois.endpoints[0].fixedOperationParameters.push({
+      operationParameter: ois.endpoints[0].parameters[0].operationParameter,
+      value: '123',
+    });
+
+    expect(() => oisSchema.parse(ois)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter is used in both "parameters" and "fixedOperationParameters"',
+          path: ['ois', 'endpoints', 0, 'parameters', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter is used in both "parameters" and "fixedOperationParameters"',
+          path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 1],
+        },
+      ])
+    );
+  });
 });
 
 it('verifies parameter interpolation in "apiSpecification.paths"', () => {
