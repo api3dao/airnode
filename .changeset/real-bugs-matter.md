@@ -3,4 +3,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Allow parameters with same name, but different http method
+Allow parameters with same name, but different location

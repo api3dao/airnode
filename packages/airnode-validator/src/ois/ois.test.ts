@@ -60,7 +60,7 @@ describe('disallows reserved parameter name', () => {
 });
 
 describe('parameter uniqueness', () => {
-  it('allows parameter with same name, but different http method', () => {
+  it('allows parameter with same name, but different location', () => {
     const paramName = 'some-id';
     const ois = loadOisFixture();
     ois.apiSpecifications.paths['/convert'].get!.parameters.push({
