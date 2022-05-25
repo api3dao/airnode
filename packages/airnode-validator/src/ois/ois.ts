@@ -206,7 +206,7 @@ const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<SchemaType<type
         if (count > 1) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Parameter is used multiple times`,
+            message: `Parameter "${param.name}" in "${param.in}" is used multiple times`,
             path: ['ois', 'endpoints', oisIndex, section, paramIndex],
           });
         }
@@ -223,14 +223,14 @@ const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<SchemaType<type
       if (fixedParam) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Parameter is used in both "parameters" and "fixedOperationParameters"`,
+          message: `Parameter "${param.name}" in "${param.in}" is used in both "parameters" and "fixedOperationParameters"`,
           path: ['ois', 'endpoints', oisIndex, 'parameters', paramIndex],
         });
 
         // Add also an issue for the fixed parameter. This makes it easier for the user to find the offending parameter
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Parameter is used in both "parameters" and "fixedOperationParameters"`,
+          message: `Parameter "${param.name}" in "${param.in}" is used in both "parameters" and "fixedOperationParameters"`,
           path: ['ois', 'endpoints', oisIndex, 'fixedOperationParameters', fixedParams.indexOf(fixedParam)],
         });
       }

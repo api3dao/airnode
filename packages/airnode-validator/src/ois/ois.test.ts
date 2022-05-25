@@ -97,12 +97,12 @@ describe('parameter uniqueness', () => {
       new ZodError([
         {
           code: 'custom',
-          message: 'Parameter is used multiple times',
+          message: 'Parameter "from" in "query" is used multiple times',
           path: ['ois', 'endpoints', 0, 'parameters', 0],
         },
         {
           code: 'custom',
-          message: 'Parameter is used multiple times',
+          message: 'Parameter "from" in "query" is used multiple times',
           path: ['ois', 'endpoints', 0, 'parameters', 3],
         },
       ])
@@ -117,19 +117,19 @@ describe('parameter uniqueness', () => {
       new ZodError([
         {
           code: 'custom',
-          message: 'Parameter is used multiple times',
+          message: 'Parameter "to" in "query" is used multiple times',
           path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 0],
         },
         {
           code: 'custom',
-          message: 'Parameter is used multiple times',
+          message: 'Parameter "to" in "query" is used multiple times',
           path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 1],
         },
       ])
     );
   });
 
-  it('fails if the same parameter is used in "fixedOperationParameters" and "parameters"', () => {
+  it('fails if the same parameter is used in both "fixedOperationParameters" and "parameters"', () => {
     const ois = loadOisFixture();
     ois.endpoints[0].fixedOperationParameters.push({
       operationParameter: ois.endpoints[0].parameters[0].operationParameter,
@@ -140,12 +140,12 @@ describe('parameter uniqueness', () => {
       new ZodError([
         {
           code: 'custom',
-          message: 'Parameter is used in both "parameters" and "fixedOperationParameters"',
+          message: 'Parameter "from" in "query" is used in both "parameters" and "fixedOperationParameters"',
           path: ['ois', 'endpoints', 0, 'parameters', 0],
         },
         {
           code: 'custom',
-          message: 'Parameter is used in both "parameters" and "fixedOperationParameters"',
+          message: 'Parameter "from" in "query" is used in both "parameters" and "fixedOperationParameters"',
           path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 1],
         },
       ])
