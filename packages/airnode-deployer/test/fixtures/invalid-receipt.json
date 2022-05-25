@@ -11,9 +11,9 @@
       "region": "us-east-1",
       "disableConcurrencyReservations": false
     },
-    "region": "us-east-1",
     "stage": "starter-example",
-    "nodeVersion": "0.4.0"
+    "nodeVersion": "0.4.0",
+    "timestamp": "2022-05-18T06:37:35.507Z"
   },
   "api": {
     "heartbeatId": "74dc44a1ee65",
