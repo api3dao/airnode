@@ -66,6 +66,7 @@
       }
     ]
   },
+  "templates": [],
   "ois": [
     {
       "oisFormat": "1.0.0",
@@ -92,10 +93,6 @@
                 {
                   "in": "query",
                   "name": "amount"
-                },
-                {
-                  "in": "query",
-                  "name": "date"
                 }
               ]
             }

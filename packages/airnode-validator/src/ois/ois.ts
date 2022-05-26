@@ -1,9 +1,9 @@
 import forEach from 'lodash/forEach';
-import intersection from 'lodash/intersection';
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
+import find from 'lodash/find';
 import { z } from 'zod';
-import { OIS, SchemaType, ValidatorRefinement } from '../types';
+import { SchemaType, ValidatorRefinement } from '../types';
 
 function removeBraces(value: string) {
   return trimEnd(trimStart(value, '{'), '}');
@@ -195,19 +195,132 @@ export const endpointSchema = z.object({
   summary: z.string().optional(),
 });
 
-const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<OIS> = (ois, ctx) => {
-  ois.endpoints.forEach((endpoint, index) => {
-    const params = endpoint.parameters.map((p) => p.operationParameter.name);
-    const fixedParams = endpoint.fixedOperationParameters.map((p) => p.operationParameter.name);
+const ensureSingleParameterUsagePerEndpoint: ValidatorRefinement<SchemaType<typeof baseOisSchema>> = (ois, ctx) => {
+  ois.endpoints.forEach((endpoint, oisIndex) => {
+    const params = endpoint.parameters.map((p) => p.operationParameter);
+    const fixedParams = endpoint.fixedOperationParameters.map((p) => p.operationParameter);
+    const checkUniqueness = (section: 'parameters' | 'fixedOperationParameters') => {
+      const paramsToCheck = section === 'parameters' ? params : fixedParams;
+      paramsToCheck.forEach((param, paramIndex) => {
+        const count = paramsToCheck.filter((p) => p.in === param.in && p.name === param.name).length;
+        if (count > 1) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Parameter "${param.name}" in "${param.in}" is used multiple times`,
+            path: ['ois', 'endpoints', oisIndex, section, paramIndex],
+          });
+        }
+      });
+    };
 
-    const both = intersection(params, fixedParams);
-    if (both.length > 0) {
-      ctx.addIssue({
+    // Check uniqueness in the respective sections
+    checkUniqueness('parameters');
+    checkUniqueness('fixedOperationParameters');
+
+    // Check uniqueness across "parameters" and "fixedOperationParameters"
+    params.forEach((param, paramIndex) => {
+      const fixedParam = fixedParams.find((p) => p.in === param.in && p.name === param.name);
+      if (fixedParam) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Parameter "${param.name}" in "${param.in}" is used in both "parameters" and "fixedOperationParameters"`,
+          path: ['ois', 'endpoints', oisIndex, 'parameters', paramIndex],
+        });
+
+        // Add also an issue for the fixed parameter. This makes it easier for the user to find the offending parameter
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Parameter "${param.name}" in "${param.in}" is used in both "parameters" and "fixedOperationParameters"`,
+          path: ['ois', 'endpoints', oisIndex, 'fixedOperationParameters', fixedParams.indexOf(fixedParam)],
+        });
+      }
+    });
+  });
+};
+
+const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaType<typeof baseOisSchema>> = (
+  ois,
+  ctx
+) => {
+  const { apiSpecifications, endpoints } = ois;
+
+  // Ensure every "apiSpecification.paths" parameter is defined in "endpoints"
+  forEach(apiSpecifications.paths, (pathData, rawPath) => {
+    forEach(pathData, (paramData, httpMethod) => {
+      const apiEndpoints = endpoints.filter(
+        ({ operation }) => operation.method === httpMethod && operation.path === rawPath
+      );
+      if (!apiEndpoints.length) return; // Missing endpoint for apiSpecification should only be a warning
+
+      apiEndpoints.forEach((endpoint) => {
+        paramData!.parameters.forEach((apiParam) => {
+          const allEndpointParams = [...endpoint.parameters, ...endpoint.fixedOperationParameters];
+          const endpointParam = allEndpointParams.find(
+            ({ operationParameter }) =>
+              operationParameter.in === apiParam.in && operationParameter.name === apiParam.name
+          );
+          if (!endpointParam) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Parameter "${apiParam.name}" not found in "fixedOperationParameters" or "parameters"`,
+              path: ['ois', 'endpoints', endpoints.indexOf(endpoint)],
+            });
+          }
+        });
+      });
+    });
+  });
+
+  // Ensure every endpoint parameter references parameter from "apiSpecification.paths"
+  endpoints.forEach((endpoint, endpointIndex) => {
+    const { operation, parameters, fixedOperationParameters } = endpoint;
+
+    const apiSpec = find(apiSpecifications.paths, (pathData, path) => {
+      if (operation.path !== path) return false;
+
+      return !!find(pathData, (_, httpMethod) => operation.method === httpMethod);
+    });
+    if (!apiSpec) {
+      return ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Parameters "${both.join(',')}" are used in both "parameters" and "fixedOperationOperations"`,
-        path: ['ois', 'endpoints', index],
+        message: `No matching API specification found in "apiSpecifications" section`,
+        path: ['ois', 'endpoints', endpointIndex],
       });
     }
+
+    // Ensure every parameter exist in "apiSpecification"
+    parameters.forEach((endpointParam, endpointParamIndex) => {
+      const { operationParameter } = endpointParam;
+      const apiParam = apiSpec[operation.method]!.parameters.find(
+        (p) => p.in === operationParameter.in && p.name === operationParameter.name
+      );
+
+      if (!apiParam) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `No matching API specification parameter found in "apiSpecifications" section`,
+          path: ['ois', 'endpoints', endpointIndex, 'parameters', endpointParamIndex],
+        });
+      }
+    });
+
+    // Ensure every fixed parameter exist in "apiSpecification"
+    fixedOperationParameters.forEach((endpointParam, endpointParamIndex) => {
+      const { operationParameter } = endpointParam;
+      const apiParam = apiSpec[operation.method]!.parameters.find(
+        (p) => p.in === operationParameter.in && p.name === operationParameter.name
+      );
+
+      if (!apiParam) {
+        if (!apiParam) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `No matching API specification parameter found in "apiSpecifications" section`,
+            path: ['ois', 'endpoints', endpointIndex, 'fixedOperationParameters', endpointParamIndex],
+          });
+        }
+      }
+    });
   });
 };
 
@@ -219,4 +332,6 @@ export const baseOisSchema = z.object({
   endpoints: z.array(endpointSchema),
 });
 
-export const oisSchema = baseOisSchema.superRefine(ensureSingleParameterUsagePerEndpoint);
+export const oisSchema = baseOisSchema
+  .superRefine(ensureSingleParameterUsagePerEndpoint)
+  .superRefine(ensureEndpointAndApiSpecificationParamsMatch);

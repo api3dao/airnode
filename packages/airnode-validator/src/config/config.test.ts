@@ -120,6 +120,32 @@ describe('nodeSettingsSchema', () => {
   });
 });
 
+describe('templates', () => {
+  it('does not allow invalid templates', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+    const invalidTemplates = [
+      {
+        // invalid templateId
+        templateId: '0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaff',
+        endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
+      },
+    ];
+
+    expect(() => configSchema.parse({ ...config, templates: invalidTemplates })).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Template is invalid`,
+          path: ['0x38ba0e80224f14d0c654c4ba6e3745fcb7f310fd4f2f80994fe802da013edaff'],
+        },
+      ])
+    );
+  });
+});
+
 it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http" but is missing credentials in "apiCredentials"', () => {
   const config: Config = JSON.parse(
     readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()

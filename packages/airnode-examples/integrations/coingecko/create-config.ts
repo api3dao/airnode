@@ -60,6 +60,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     ],
     httpSignedData: [],
   },
+  templates: [],
   ois: [
     {
       oisFormat: '1.0.0',

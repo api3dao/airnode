@@ -60,6 +60,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     ],
     httpSignedData: [],
   },
+  templates: [],
   ois: [
     {
       oisFormat: '1.0.0',
@@ -77,27 +78,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               parameters: [
                 {
                   in: 'query',
-                  name: 'id',
-                },
-                {
-                  in: 'query',
-                  name: 'slug',
-                },
-                {
-                  in: 'query',
                   name: 'symbol',
-                },
-                {
-                  in: 'query',
-                  name: 'convert',
-                },
-                {
-                  in: 'query',
-                  name: 'convert_id',
-                },
-                {
-                  in: 'query',
-                  name: 'aux',
                 },
                 {
                   in: 'query',

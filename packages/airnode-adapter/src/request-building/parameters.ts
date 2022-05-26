@@ -65,7 +65,9 @@ function buildUserParameters(options: CachedBuildRequestOptions): BuilderParamet
     }
 
     // Double check that the parameter exists in the API specification
-    const apiParameter = operation.parameters.find((p) => p.name === parameter.operationParameter.name);
+    const apiParameter = operation.parameters.find(
+      (p) => p.name === parameter.operationParameter.name && p.in === parameter.operationParameter.in
+    );
     if (!apiParameter) {
       return acc;
     }
