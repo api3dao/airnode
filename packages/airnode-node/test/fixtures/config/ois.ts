@@ -27,10 +27,6 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
                 in: 'query',
                 name: 'amount',
               },
-              {
-                in: 'query',
-                name: 'date',
-              },
             ],
           },
         },
