@@ -236,7 +236,7 @@ const ensureEndpointAndApiSpecificationParamsMatch: ValidatorRefinement<SchemaTy
           if (!endpointParam) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `Parameter "${apiParam.name}" not found in "fixedOperationParameters" nor "parameters"`,
+              message: `Parameter "${apiParam.name}" not found in "fixedOperationParameters" or "parameters"`,
               path: ['ois', 'endpoints', endpoints.indexOf(endpoint)],
             });
           }

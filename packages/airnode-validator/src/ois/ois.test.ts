@@ -159,7 +159,7 @@ describe('apiSpecification parameters validation', () => {
       new ZodError([
         {
           code: 'custom',
-          message: 'Parameter "non-existing-parameter" not found in "fixedOperationParameters" nor "parameters"',
+          message: 'Parameter "non-existing-parameter" not found in "fixedOperationParameters" or "parameters"',
           path: ['ois', 'endpoints', 0],
         },
       ])
@@ -200,12 +200,12 @@ describe('apiSpecification parameters validation', () => {
       new ZodError([
         {
           code: 'custom',
-          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" nor "parameters"',
+          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" or "parameters"',
           path: ['ois', 'endpoints', 0],
         },
         {
           code: 'custom',
-          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" nor "parameters"',
+          message: 'Parameter "api-param-name" not found in "fixedOperationParameters" or "parameters"',
           path: ['ois', 'endpoints', 1],
         },
       ])
