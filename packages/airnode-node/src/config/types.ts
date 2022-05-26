@@ -15,6 +15,12 @@ export interface Triggers {
   httpSignedData: Trigger[];
 }
 
+export interface Template {
+  readonly templateId: string;
+  readonly endpointId: string;
+  readonly encodedParameters: string;
+}
+
 // ===========================================
 // Logging
 // ===========================================
@@ -113,5 +119,6 @@ export interface Config {
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
+  readonly templates: Template[];
   readonly apiCredentials: ApiCredentials[];
 }

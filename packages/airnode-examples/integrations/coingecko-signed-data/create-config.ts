@@ -69,6 +69,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       },
     ],
   },
+  templates: [],
   ois: [
     {
       oisFormat: '1.0.0',

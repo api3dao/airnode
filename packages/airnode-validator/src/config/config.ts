@@ -1,7 +1,8 @@
+import { ethers } from 'ethers';
 import { SuperRefinement, z } from 'zod';
 import { version as packageVersion } from '../../package.json';
 import { oisSchema } from '../ois';
-import { ApiCredentials, OIS } from '../types';
+import { ApiCredentials, OIS, NodeSettings, Template } from '../types';
 
 export const triggerSchema = z.object({
   endpointId: z.string(),
@@ -15,6 +16,15 @@ export const triggersSchema = z.object({
   httpSignedData: z.array(triggerSchema),
 });
 
+export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
+export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+
+export const templateSchema = z.object({
+  templateId: evmIdSchema,
+  endpointId: evmIdSchema,
+  encodedParameters: z.string(),
+});
+
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
 
 export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
@@ -22,7 +32,7 @@ export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
 export const chainTypeSchema = z.literal('evm');
 
 export const chainContractsSchema = z.object({
-  AirnodeRrp: z.string(),
+  AirnodeRrp: evmAddressSchema,
 });
 
 export const providerSchema = z.object({
@@ -189,12 +199,38 @@ const validateSecuritySchemesReferences: SuperRefinement<{
   });
 };
 
+const validateTemplateSchemes: SuperRefinement<{
+  nodeSettings: NodeSettings;
+  templates: Template[];
+}> = (config, ctx) => {
+  if (config.templates) {
+    config.templates.forEach((template: any) => {
+      // Verify that a V0/RRP templates are valid by hashing the airnodeAddress,
+      // endpointId and encodedParameters
+      const airnodeAddress = ethers.Wallet.fromMnemonic(config.nodeSettings.airnodeWalletMnemonic).address;
+      const derivedTemplateId = ethers.utils.solidityKeccak256(
+        ['address', 'bytes32', 'bytes'],
+        [airnodeAddress, template.endpointId, template.encodedParameters]
+      );
+      if (derivedTemplateId !== template.templateId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Template is invalid`,
+          path: [template.templateId],
+        });
+      }
+    });
+  }
+};
+
 export const configSchema = z
   .object({
     chains: z.array(chainConfigSchema),
     nodeSettings: nodeSettingsSchema,
     ois: z.array(oisSchema),
     triggers: triggersSchema,
+    templates: z.array(templateSchema),
     apiCredentials: z.array(apiCredentialsSchema),
   })
-  .superRefine(validateSecuritySchemesReferences);
+  .superRefine(validateSecuritySchemesReferences)
+  .superRefine(validateTemplateSchemes);
