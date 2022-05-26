@@ -18,9 +18,6 @@ export const CONVENIENCE_BATCH_SIZE = 10;
 // The default amount of time before a "retryable" promise is timed out and retried
 export const DEFAULT_RETRY_TIMEOUT_MS = 5_000;
 
-// The default amount of time to wait before retrying a given promise
-export const DEFAULT_RETRY_DELAY_MS = 50;
-
 // The amount of time EVM provider calls are allowed
 export const EVM_PROVIDER_TIMEOUT = 10_000;
 
@@ -35,12 +32,6 @@ export const WORKER_CALL_API_TIMEOUT = 30_000;
 
 // The maximum number of requests for a single sponsor wallet in a single Airnode run cycle
 export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
-
-// The Priority Fee in Wei
-export const PRIORITY_FEE = 3120000000;
-
-// The Base Fee to Max Fee multiplier
-export const BASE_FEE_MULTIPLIER = 2;
 
 // The maximum character length of an error message sent on-chain
 export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;

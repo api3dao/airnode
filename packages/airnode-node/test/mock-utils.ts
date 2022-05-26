@@ -3,7 +3,7 @@
 import fs from 'fs';
 import { AirnodeRrpV0 } from '@api3/airnode-protocol';
 import { BigNumber, ethers } from 'ethers';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE } from '../src/constants';
+import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '@api3/airnode-utilities';
 
 type AirnodeRrpMocks = { readonly [key in keyof InstanceType<typeof AirnodeRrpV0>['functions']]: jest.Mock };
 type MockProps = {
@@ -58,7 +58,7 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
 
   const baseFeePerGas = ethers.BigNumber.from(1000);
   blockSpy.mockResolvedValue({ baseFeePerGas } as ethers.providers.Block);
-  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE);
+  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE_IN_WEI);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
 
   return {
