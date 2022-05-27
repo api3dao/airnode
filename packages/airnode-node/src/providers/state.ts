@@ -27,7 +27,6 @@ export function buildEVMState(
     chainId: chain.id,
     chainType: 'evm' as ChainType,
     chainOptions: chain.options,
-    // If this number of blocks has passed, then ignore requests instead of blocking them
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
