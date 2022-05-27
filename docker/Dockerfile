@@ -30,7 +30,8 @@ RUN git clone ${repository} ${buildDir} -b ${branch}
 # Production dependencies
 FROM source${build} AS deps
 
-RUN yarn global add lerna && \
+    # Install the same version of lerna we're using as dependency
+RUN yarn global add lerna@$(grep '^\s*"lerna"' package.json | cut -d '^' -f 2 | cut -d '"' -f 1) && \
     lerna bootstrap -- --production --no-optional --ignore-scripts && \
     rm -rf node_modules/@api3 && \
     mkdir -p ${dependenciesDir}/common && \
