@@ -1,5 +1,18 @@
 # @api3/airnode-examples
 
+## 0.6.3
+
+### Patch Changes
+
+- [`5659bea9`](https://github.com/api3dao/airnode/commit/5659bea9980a72c06bf00c41584fde6670efdaec) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+- Updated dependencies [[`be44e075`](https://github.com/api3dao/airnode/commit/be44e07585baf8ea608ca670e72fd31751c21c2f), [`5659bea9`](https://github.com/api3dao/airnode/commit/5659bea9980a72c06bf00c41584fde6670efdaec)]:
+  - @api3/airnode-deployer@0.6.3
+  - @api3/airnode-abi@0.6.3
+  - @api3/airnode-admin@0.6.3
+  - @api3/airnode-node@0.6.3
+  - @api3/airnode-protocol@0.6.3
+
 ## 0.6.2
 
 ### Patch Changes
