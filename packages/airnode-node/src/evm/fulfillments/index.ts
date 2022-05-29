@@ -38,6 +38,7 @@ function getTransactionOptions(state: ProviderState<EVMProviderSponsorState>) {
     gasTarget: state.gasTarget!,
     masterHDNode: state.masterHDNode,
     provider: state.provider,
+    withdrawalRemainder: state.settings.chainOptions.withdrawalRemainder,
   };
 }
 

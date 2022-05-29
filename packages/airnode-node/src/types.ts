@@ -199,6 +199,7 @@ export interface TransactionOptions {
   readonly gasTarget: GasTarget;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
+  readonly withdrawalRemainder?: string;
 }
 
 // ===========================================

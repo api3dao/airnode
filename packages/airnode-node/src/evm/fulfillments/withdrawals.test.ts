@@ -86,6 +86,50 @@ describe('submitWithdrawal', () => {
   );
 
   test.each([gasTarget, gasTargetFallback])(
+    `subtracts transaction costs plus a withdrawal remainder and submits the remaining balance for pending requests - %#`,
+    async (gasTarget: GasTarget) => {
+      const provider = new ethers.providers.JsonRpcProvider();
+      getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+      estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      fulfillWithdrawalMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
+
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
+      const options = {
+        gasTarget,
+        masterHDNode,
+        provider,
+        withdrawalRemainder: '10000000',
+      };
+      const [logs, err, data] = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), withdrawal, options);
+      expect(logs).toEqual([
+        { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
+        {
+          level: 'INFO',
+          message: `Submitting withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id}...`,
+        },
+      ]);
+      expect(err).toEqual(null);
+      expect(data).toEqual({
+        ...withdrawal,
+        fulfillment: { hash: '0xsuccessful' },
+      });
+      expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
+      expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
+        withdrawal.id,
+        withdrawal.airnodeAddress,
+        withdrawal.sponsorAddress,
+        {
+          ...gasTarget,
+          gasLimit: ethers.BigNumber.from(70_000),
+          nonce: 5,
+          // 250_000_000 - ((50_000 + 20_000) * 1000) - 10_000_000
+          value: ethers.BigNumber.from(170_000_000),
+        }
+      );
+    }
+  );
+
+  test.each([gasTarget, gasTargetFallback])(
     `does nothing if the withdrawal amount would be negative - %#`,
     async (gasTarget: GasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();

@@ -60,6 +60,24 @@ describe('chainOptionsSchema', () => {
       ])
     );
   });
+
+  it('does not allow non-numeric withdrawalRemainder string', () => {
+    const chainOptions: SchemaType<typeof chainOptionsSchema> = {
+      txType: 'eip1559',
+      baseFeeMultiplier: 2,
+      priorityFee: {
+        value: 3.12,
+        unit: 'gwei',
+      },
+      fulfillmentGasLimit: 500000,
+      withdrawalRemainder: '10000',
+    };
+
+    expect(() => chainOptionsSchema.parse(chainOptions)).not.toThrow();
+
+    const invalidChainOptions = { ...chainOptions, withdrawalRemainder: '10a' };
+    expect(() => chainOptionsSchema.parse(invalidChainOptions)).toThrow();
+  });
 });
 
 describe('nodeSettingsSchema', () => {

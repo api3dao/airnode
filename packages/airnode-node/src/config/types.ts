@@ -49,6 +49,7 @@ export interface ChainOptions {
   readonly baseFeeMultiplier?: number;
   readonly priorityFee?: PriorityFee;
   readonly fulfillmentGasLimit: number;
+  readonly withdrawalRemainder?: string;
 }
 
 export interface ChainConfig {

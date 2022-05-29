@@ -73,6 +73,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
         baseFeeMultiplier: z.number().int().optional(),
         priorityFee: priorityFeeSchema.optional(),
         fulfillmentGasLimit: z.number().int(),
+        withdrawalRemainder: z.string().regex(/^\d+$/).optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
@@ -83,6 +84,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
         txType: z.literal('legacy'),
         gasPriceMultiplier: z.number().optional(),
         fulfillmentGasLimit: z.number().int(),
+        withdrawalRemainder: z.string().regex(/^\d+$/).optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
