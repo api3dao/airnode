@@ -66,7 +66,7 @@ The following instructions will guide you step by step through the RRP flow. Ple
 depending on how you would like to run the example - e.g. you don't need to start a hardhat network locally when you
 intend to run the example with a public network.
 
-If using a Linux distribution that enforces Selinux policies, make sure allow the Docker images access to the host
+If using a Linux distribution that enforces SELinux policies, make sure allow the Docker images access to the host
 directory by
 [creating an appropriate rule](https://stackoverflow.com/questions/24288616/permission-denied-on-accessing-host-directory-in-docker).
 
