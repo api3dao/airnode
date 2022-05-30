@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
-import { chainOptionsSchema, configSchema, nodeSettingsSchema } from './config';
-import { Config, SchemaType } from '../types';
+import { Config, chainOptionsSchema, configSchema, nodeSettingsSchema } from './config';
+import { SchemaType } from '../types';
 import { version as packageVersion } from '../../package.json';
 
 it('successfully parses config.json', () => {

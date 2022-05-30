@@ -335,3 +335,5 @@ export const baseOisSchema = z.object({
 export const oisSchema = baseOisSchema
   .superRefine(ensureSingleParameterUsagePerEndpoint)
   .superRefine(ensureEndpointAndApiSpecificationParamsMatch);
+
+export type OIS = SchemaType<typeof oisSchema>;
