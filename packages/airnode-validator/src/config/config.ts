@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { SuperRefinement, z } from 'zod';
+import forEach from 'lodash/forEach';
 import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema } from '../ois';
 import { SchemaType } from '../types';
@@ -223,6 +224,39 @@ const validateTemplateSchemes: SuperRefinement<{
   }
 };
 
+const validateTriggersReferences: SuperRefinement<{
+  ois: OIS[];
+  triggers: Triggers;
+}> = (config, ctx) => {
+  forEach(config.triggers, (triggers, triggerSection) => {
+    forEach(triggers, (trigger, index) => {
+      const { oisTitle, endpointName } = trigger;
+
+      // Check that the OIS with the "oisTitle" from the trigger exists
+      const ois = config.ois.find((ois) => ois.title === oisTitle);
+      if (!ois) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `No matching OIS for trigger with OIS title "${oisTitle}"`,
+          path: ['triggers', triggerSection, index, 'oisTitle'],
+        });
+
+        return;
+      }
+
+      // Check that the OIS contains an endpoint from the trigger
+      const endpoint = ois.endpoints.find((endpoint) => endpoint.name === endpointName);
+      if (!endpoint) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `No matching endpoint for trigger with endpoint name "${endpointName}"`,
+          path: ['triggers', triggerSection, index, 'endpointName'],
+        });
+      }
+    });
+  });
+};
+
 export const configSchema = z
   .object({
     chains: z.array(chainConfigSchema),
@@ -233,7 +267,8 @@ export const configSchema = z
     apiCredentials: z.array(apiCredentialsSchema),
   })
   .superRefine(validateSecuritySchemesReferences)
-  .superRefine(validateTemplateSchemes);
+  .superRefine(validateTemplateSchemes)
+  .superRefine(validateTriggersReferences);
 
 export type Config = SchemaType<typeof configSchema>;
 export type ApiCredentials = SchemaType<typeof apiCredentialsSchema>;
@@ -248,4 +283,5 @@ export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
+export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;

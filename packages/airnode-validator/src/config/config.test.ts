@@ -184,3 +184,49 @@ it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http
     ])
   );
 });
+
+describe('triggers references', () => {
+  const config: Config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  it(`fails if an OIS referenced in a trigger doesn't exist`, () => {
+    const invalidConfig = {
+      ...config,
+      triggers: {
+        ...config.triggers,
+        rrp: [{ ...config.triggers.rrp[0], oisTitle: 'nonExistingOis' }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `No matching OIS for trigger with OIS title "nonExistingOis"`,
+          path: ['triggers', 'rrp', 0, 'oisTitle'],
+        },
+      ])
+    );
+  });
+
+  it(`fails if an endpoint referenced in a trigger doesn't exist`, () => {
+    const invalidConfig = {
+      ...config,
+      triggers: {
+        ...config.triggers,
+        rrp: [{ ...config.triggers.rrp[0], endpointName: 'nonExistingEndpointName' }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `No matching endpoint for trigger with endpoint name "nonExistingEndpointName"`,
+          path: ['triggers', 'rrp', 0, 'endpointName'],
+        },
+      ])
+    );
+  });
+});
