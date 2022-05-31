@@ -113,15 +113,27 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
  *
  * The value given to `resolve` is expected to be the equivalent of `output` above.
  */
-export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) =>
-  new Promise((evaluateResolve, evaluateReject) => {
+export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) => {
+  let vmReject: (reason: unknown) => void;
+
+  // Make sure the timeout is applied. When the processing snippet uses setTimeout or setInterval, the timeout option
+  // from VM is broken. See: https://github.com/nodejs/node/issues/3020.
+  //
+  // We need to manually clear all timers and reject the processing manually.
+  const timeoutTimer = setTimeout(() => {
+    vmReject(new Error('Timeout exceeded'));
+  }, timeout);
+
+  return new Promise((evaluateResolve, evaluateReject) => {
     const timers = createTimers();
     const vmResolve = (value: unknown) => {
       timers.clearAll();
+      clearTimeout(timeoutTimer);
       evaluateResolve(value);
     };
-    const vmReject = (reason: unknown) => {
+    vmReject = (reason: unknown) => {
       timers.clearAll();
+      clearTimeout(timeoutTimer);
       evaluateReject(reason);
     };
 
@@ -138,3 +150,4 @@ export const unsafeEvaluateAsync = async (input: any, code: string, timeout: num
     };
     vm.runInNewContext(code, vmContext, { displayErrors: true, timeout });
   });
+};

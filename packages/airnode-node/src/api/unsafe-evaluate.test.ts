@@ -25,25 +25,67 @@ describe('unsafe evaluate - async', () => {
 
   it('can use setTimeout and setInterval', async () => {
     const result = unsafeEvaluateAsync(
-      { logs: [] },
+      [],
       `
       const fn = async () => {
-        const output = input.logs;
+        const output = input;
         output.push('start')
-        setInterval(() => output.push('ping interval'), 10)
-        await new Promise((res) => setTimeout(res, 55));
+
+        const tickMs = 30
+        const bufferMs = 20
+        setInterval(() => output.push('ping interval'), tickMs)
+        await new Promise((res) => setTimeout(res, tickMs * 4 + bufferMs));
+
         output.push('end')
         resolve(output);
       };
 
       fn()
       `,
-      100
+      200
     );
 
-    await expect(result).resolves.toEqual({
-      logs: ['start', 'ping interval', 'ping interval', 'ping interval', 'ping interval', 'end'],
-    });
+    await expect(result).resolves.toEqual([
+      'start',
+      'ping interval',
+      'ping interval',
+      'ping interval',
+      'ping interval',
+      'end',
+    ]);
+  });
+
+  it('applies timeout when using setTimeout', async () => {
+    await expect(() =>
+      unsafeEvaluateAsync(
+        {},
+        `
+        const fn = () => {
+          setTimeout(() => console.log('ping timeout'), 100)
+        };
+
+        fn()
+        `,
+        50
+      )
+    ).rejects.toEqual(new Error('Timeout exceeded'));
+  });
+
+  it('applies timeout when using setInterval', async () => {
+    await expect(() =>
+      unsafeEvaluateAsync(
+        {},
+        `
+        const fn = () => {
+          const someFn = () => {}
+          setInterval(someFn, 10)
+        };
+
+        fn()
+        `,
+        50
+      )
+    ).rejects.toEqual(new Error('Timeout exceeded'));
   });
 
   it('throws on exception', async () => {
