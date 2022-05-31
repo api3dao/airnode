@@ -88,6 +88,12 @@ describe('unsafe evaluate - async', () => {
     ).rejects.toEqual(new Error('Timeout exceeded'));
   });
 
+  it('processing can call reject', async () => {
+    await expect(() =>
+      unsafeEvaluateAsync({}, `reject(new Error('Rejected by processing snippet.'))`, 50)
+    ).rejects.toEqual(new Error('Rejected by processing snippet.'));
+  });
+
   it('throws on exception', async () => {
     await expect(() => unsafeEvaluateAsync({}, "throw new Error('unexpected')", 5_000)).rejects.toEqual(
       new Error('unexpected')
