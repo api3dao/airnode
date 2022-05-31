@@ -9,7 +9,7 @@ function removeBraces(value: string) {
   return trimEnd(trimStart(value, '{'), '}');
 }
 
-export const paremeterTargetSchema = z.union([
+export const parameterTargetSchema = z.union([
   z.literal('path'),
   z.literal('query'),
   z.literal('header'),
@@ -22,7 +22,7 @@ const nonReservedParameterNameSchema = z.string().refine(
   (val) => ({ message: `"${val}" cannot be used because it is a name of a reserved parameter` })
 );
 export const operationParameterSchema = z.object({
-  in: paremeterTargetSchema,
+  in: parameterTargetSchema,
   name: nonReservedParameterNameSchema,
 });
 
@@ -59,54 +59,54 @@ export const serverSchema = z.object({
   url: z.string().url(),
 });
 
-export const httpSecuritySchemeScheme = z.object({
+export const httpSecuritySchemeSchema = z.object({
   scheme: z.union([z.literal('bearer'), z.literal('basic')]),
   type: z.literal('http'),
 });
 
 export const securitySchemeTargetSchema = z.union([z.literal('query'), z.literal('header'), z.literal('cookie')]);
 
-export const configurableSecuritySchemeScheme = z.object({
+export const configurableSecuritySchemeSchema = z.object({
   in: securitySchemeTargetSchema,
   name: z.string(),
 });
 
-export const apiKeySecuritySchemeScheme = configurableSecuritySchemeScheme.extend({ type: z.literal('apiKey') });
+export const apiKeySecuritySchemeSchema = configurableSecuritySchemeSchema.extend({ type: z.literal('apiKey') });
 
-export const relayChainIdSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
+export const relayChainIdSecuritySchemeSchema = configurableSecuritySchemeSchema.extend({
   type: z.literal('relayChainId'),
 });
 
-export const relayChainTypeSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
+export const relayChainTypeSecuritySchemeSchema = configurableSecuritySchemeSchema.extend({
   type: z.literal('relayChainType'),
 });
 
-export const relayRequesterAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
+export const relayRequesterAddressSecuritySchemeSchema = configurableSecuritySchemeSchema.extend({
   type: z.literal('relayRequesterAddress'),
 });
 
-export const relaySponsorAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
+export const relaySponsorAddressSecuritySchemeSchema = configurableSecuritySchemeSchema.extend({
   type: z.literal('relaySponsorAddress'),
 });
 
-export const relaySponsorWalletAddressSecuritySchemeScheme = configurableSecuritySchemeScheme.extend({
+export const relaySponsorWalletAddressSecuritySchemeSchema = configurableSecuritySchemeSchema.extend({
   type: z.literal('relaySponsorWalletAddress'),
 });
 
-export const apiSecuritySchemeScheme = z.discriminatedUnion('type', [
-  apiKeySecuritySchemeScheme,
-  httpSecuritySchemeScheme,
-  relayChainIdSecuritySchemeScheme,
-  relayChainTypeSecuritySchemeScheme,
-  relayRequesterAddressSecuritySchemeScheme,
-  relaySponsorAddressSecuritySchemeScheme,
-  relaySponsorWalletAddressSecuritySchemeScheme,
+export const apiSecuritySchemeSchema = z.discriminatedUnion('type', [
+  apiKeySecuritySchemeSchema,
+  httpSecuritySchemeSchema,
+  relayChainIdSecuritySchemeSchema,
+  relayChainTypeSecuritySchemeSchema,
+  relayRequesterAddressSecuritySchemeSchema,
+  relaySponsorAddressSecuritySchemeSchema,
+  relaySponsorWalletAddressSecuritySchemeSchema,
 ]);
 
 // OAS supports also "oauth2" and "openIdConnect", but we don't
 
 export const apiComponentsSchema = z.object({
-  securitySchemes: z.record(apiSecuritySchemeScheme),
+  securitySchemes: z.record(apiSecuritySchemeSchema),
 });
 
 export const operationSchema = z.object({
@@ -335,3 +335,19 @@ export const baseOisSchema = z.object({
 export const oisSchema = baseOisSchema
   .superRefine(ensureSingleParameterUsagePerEndpoint)
   .superRefine(ensureEndpointAndApiSpecificationParamsMatch);
+
+export const RESERVED_PARAMETERS = reservedParameterNameSchema.options.map((option) => option.value);
+export type ParameterTarget = SchemaType<typeof parameterTargetSchema>;
+export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
+export type EndpointParameter = SchemaType<typeof endpointParameterSchema>;
+export type HttpSecurityScheme = SchemaType<typeof httpSecuritySchemeSchema>;
+export type ConfigurableSecurityScheme = SchemaType<typeof configurableSecuritySchemeSchema>;
+export type ApiSpecification = SchemaType<typeof apiSpecificationSchema>;
+export type ApiSecurityScheme = SchemaType<typeof apiSecuritySchemeSchema>;
+export type ApiKeySecurityScheme = SchemaType<typeof apiKeySecuritySchemeSchema>;
+export type ProcessingSpecification = SchemaType<typeof processingSpecificationSchema>;
+export type ReservedParameterName = SchemaType<typeof reservedParameterNameSchema>;
+export type Operation = SchemaType<typeof operationSchema>;
+export type Method = SchemaType<typeof methodSchema>;
+export type Endpoint = SchemaType<typeof endpointSchema>;
+export type OIS = SchemaType<typeof oisSchema>;

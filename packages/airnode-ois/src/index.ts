@@ -1,14 +1,8 @@
-import { ois as oisModule } from '@api3/airnode-validator';
-import { OIS } from './types';
+import { ois as oisTypes } from '@api3/airnode-validator';
 
-export * from './types';
-export * from './constants';
+// Accessing specificaly the `ois` directory so we can export the content of the `ois` module not the module itself
+export * from '@api3/airnode-validator/dist/cjs/src/ois';
 
-// NOTE: The main purpose of this function is to make sure that the validator schema inferred from Zod (used internally
-// in validator) is compatible with our manually defined OIS types.
-export function parseOIS(ois: unknown): OIS {
-  return oisModule.oisSchema.parse(ois);
+export function parseOIS(ois: unknown): oisTypes.OIS {
+  return oisTypes.oisSchema.parse(ois);
 }
-
-// Exports OIS schemas
-export { ois } from '@api3/airnode-validator';

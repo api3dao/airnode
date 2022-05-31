@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import { SuperRefinement, z } from 'zod';
 import { version as packageVersion } from '../../package.json';
-import { oisSchema } from '../ois';
-import { ApiCredentials, OIS, NodeSettings, Template } from '../types';
+import { OIS, oisSchema } from '../ois';
+import { SchemaType } from '../types';
 
 export const triggerSchema = z.object({
   endpointId: z.string(),
@@ -234,3 +234,18 @@ export const configSchema = z
   })
   .superRefine(validateSecuritySchemesReferences)
   .superRefine(validateTemplateSchemes);
+
+export type Config = SchemaType<typeof configSchema>;
+export type ApiCredentials = SchemaType<typeof apiCredentialsSchema>;
+export type NodeSettings = SchemaType<typeof nodeSettingsSchema>;
+export type Template = SchemaType<typeof templateSchema>;
+export type CloudProvider = SchemaType<typeof cloudProviderSchema>;
+export type AwsCloudProvider = SchemaType<typeof awsCloudProviderSchema>;
+export type GcpCloudProvider = SchemaType<typeof gcpCloudProviderSchema>;
+export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>;
+export type Gateway = SchemaType<typeof gatewaySchema>;
+export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
+export type ChainType = SchemaType<typeof chainTypeSchema>;
+export type ChainConfig = SchemaType<typeof chainConfigSchema>;
+export type Trigger = SchemaType<typeof triggerSchema>;
+export type Heartbeat = SchemaType<typeof heartbeatSchema>;

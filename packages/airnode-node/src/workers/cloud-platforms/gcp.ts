@@ -1,5 +1,5 @@
 import { GoogleAuth } from 'google-auth-library';
-import { GcpCloudProvider } from '../../config/types';
+import { GcpCloudProvider } from '../../config';
 import { WorkerParameters, WorkerResponse } from '../../types';
 
 export async function spawn(params: WorkerParameters): Promise<WorkerResponse> {

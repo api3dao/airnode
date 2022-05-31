@@ -4,7 +4,7 @@ import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
 import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
-import { Config } from '../config/types';
+import { Config } from '../config';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function processHttpSignedDataRequest(

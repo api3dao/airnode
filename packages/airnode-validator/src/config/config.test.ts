@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
-import { chainOptionsSchema, configSchema, nodeSettingsSchema } from './config';
-import { Config, SchemaType } from '../types';
+import { Config, chainOptionsSchema, configSchema, nodeSettingsSchema, ChainOptions, NodeSettings } from './config';
 import { version as packageVersion } from '../../package.json';
 
 it('successfully parses config.json', () => {
@@ -13,7 +12,7 @@ it('successfully parses config.json', () => {
 });
 
 describe('chainOptionsSchema', () => {
-  const eip1559ChainOptions: SchemaType<typeof chainOptionsSchema> = {
+  const eip1559ChainOptions: ChainOptions = {
     txType: 'eip1559',
     baseFeeMultiplier: 2,
     priorityFee: {
@@ -23,7 +22,7 @@ describe('chainOptionsSchema', () => {
     fulfillmentGasLimit: 500000,
   };
 
-  const legacyChainOptions: SchemaType<typeof chainOptionsSchema> = {
+  const legacyChainOptions: ChainOptions = {
     txType: 'legacy',
     gasPriceMultiplier: 1.1,
     fulfillmentGasLimit: 500000,
@@ -63,7 +62,7 @@ describe('chainOptionsSchema', () => {
 });
 
 describe('nodeSettingsSchema', () => {
-  const nodeSettings: SchemaType<typeof nodeSettingsSchema> = {
+  const nodeSettings: NodeSettings = {
     cloudProvider: {
       type: 'local',
     },

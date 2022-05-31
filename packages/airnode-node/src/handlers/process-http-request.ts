@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import { AggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
-import { Config } from '../config/types';
+import { Config } from '../config';
 
 export async function processHttpRequest(
   config: Config,
