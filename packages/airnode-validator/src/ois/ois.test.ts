@@ -2,10 +2,9 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import cloneDeep from 'lodash/cloneDeep';
-import { oisSchema, operationParameterSchema, endpointParameterSchema } from './ois';
-import { SchemaType } from '../types';
+import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS } from './ois';
 
-const loadOisFixture = (): SchemaType<typeof oisSchema> =>
+const loadOisFixture = (): OIS =>
   // This OIS is guaranteed to be valid because there is a test for it's validity below
   JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/ois.json')).toString());
 
