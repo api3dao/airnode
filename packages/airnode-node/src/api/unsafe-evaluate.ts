@@ -36,6 +36,7 @@ import worker_threads from 'worker_threads';
 import zlib from 'zlib';
 import axios from 'axios';
 import { ethers } from 'ethers';
+import { createTimers } from './vm-timers';
 
 const builtInNodeModules = {
   assert,
@@ -113,14 +114,27 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
  * The value given to `resolve` is expected to be the equivalent of `output` above.
  */
 export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) =>
-  new Promise((resolve, reject) => {
+  new Promise((evaluateResolve, evaluateReject) => {
+    const timers = createTimers();
+    const vmResolve = (value: unknown) => {
+      timers.clearAll();
+      evaluateResolve(value);
+    };
+    const vmReject = (reason: unknown) => {
+      timers.clearAll();
+      evaluateReject(reason);
+    };
+
     const vmContext = {
       input,
-      resolve,
-      reject,
+      resolve: vmResolve,
+      reject: vmReject,
+      setTimeout: timers.customSetTimeout,
+      setInterval: timers.customSetInterval,
+      clearTimeout: timers.customClearTimeout,
+      clearInterval: timers.customClearInterval,
       ...builtInNodeModules,
       ...extraModules,
     };
-
     vm.runInNewContext(code, vmContext, { displayErrors: true, timeout });
   });
