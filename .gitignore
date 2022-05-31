@@ -25,3 +25,6 @@ package.json_
 
 # TypeScript build files
 *.tsbuildinfo
+
+# Other
+.DS_Store
