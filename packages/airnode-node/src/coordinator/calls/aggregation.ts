@@ -1,4 +1,4 @@
-import { Config } from '../../config/types';
+import { Config } from '../../config';
 import { RegularAggregatedApiCall, RegularAggregatedApiCallsById, ApiCall, Request } from '../../types';
 
 function buildRegularAggregatedCall(config: Config, request: Request<ApiCall>): RegularAggregatedApiCall {

@@ -5,7 +5,7 @@ import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { logger, go } from '@api3/airnode-utilities';
-import { Template } from '../../config/types';
+import { Template } from '../../config';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';

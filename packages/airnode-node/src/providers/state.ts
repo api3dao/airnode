@@ -5,7 +5,7 @@ import * as evm from '../evm';
 import { EVMProviderState, ProviderSettings, ProviderState, ProviderStates, EVMProviderSponsorState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { groupRequestsBySponsorAddress } from '../requests/grouping';
-import { ChainConfig, ChainType, Config } from '../config/types';
+import { ChainConfig, ChainType, Config } from '../config';
 
 export function buildEVMState(
   coordinatorId: string,

@@ -6,7 +6,7 @@ jest.mock('@api3/airnode-adapter', () => ({
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
-import { Heartbeat } from '../config/types';
+import { Heartbeat } from '../config';
 
 const heartbeatOptions: Array<keyof Heartbeat> = ['id', 'apiKey', 'url'];
 

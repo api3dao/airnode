@@ -1,4 +1,4 @@
-import { NodeSettings } from '../../../src/config/types';
+import { NodeSettings } from '../../../src/config';
 import { version as getPackageVersion } from '../../../src/version';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
