@@ -17,13 +17,6 @@ export async function processHttpSignedDataRequest(
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }
 
-  const endpoints = find(config.ois, ['title', trigger.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', trigger.endpointName]);
-
-  if (!endpoint) {
-    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
-  }
-
   const decodedParameters = evm.encoding.safeDecode(encodedParameters);
   // TODO: There should be an TS interface for required params
   if (!decodedParameters) {
