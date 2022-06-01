@@ -13,6 +13,23 @@ it('successfully parses OIS spec', () => {
   expect(() => oisSchema.parse(ois)).not.toThrow();
 });
 
+it(`doesn't allow extraneous properties`, () => {
+  const ois = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/ois.json')).toString());
+  expect(() => oisSchema.parse(ois)).not.toThrow();
+
+  const invalidois = { ...ois, unknownProp: 'someValue' };
+  expect(() => oisSchema.parse(invalidois)).toThrow(
+    new ZodError([
+      {
+        code: 'unrecognized_keys',
+        keys: ['unknownProp'],
+        path: [],
+        message: `Unrecognized key(s) in object: 'unknownProp'`,
+      },
+    ])
+  );
+});
+
 it('handles discriminated union error nicely', () => {
   const ois = loadOisFixture();
   delete (ois.apiSpecifications.components.securitySchemes.coinlayerSecurityScheme as any).name;

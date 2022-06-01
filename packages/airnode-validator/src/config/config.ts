@@ -5,26 +5,32 @@ import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema } from '../ois';
 import { SchemaType } from '../types';
 
-export const triggerSchema = z.object({
-  endpointId: z.string(),
-  endpointName: z.string(),
-  oisTitle: z.string(),
-});
+export const triggerSchema = z
+  .object({
+    endpointId: z.string(),
+    endpointName: z.string(),
+    oisTitle: z.string(),
+  })
+  .strict();
 
-export const triggersSchema = z.object({
-  rrp: z.array(triggerSchema),
-  http: z.array(triggerSchema).optional(),
-  httpSignedData: z.array(triggerSchema),
-});
+export const triggersSchema = z
+  .object({
+    rrp: z.array(triggerSchema),
+    http: z.array(triggerSchema).optional(),
+    httpSignedData: z.array(triggerSchema),
+  })
+  .strict();
 
 export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 
-export const templateSchema = z.object({
-  templateId: evmIdSchema,
-  endpointId: evmIdSchema,
-  encodedParameters: z.string(),
-});
+export const templateSchema = z
+  .object({
+    templateId: evmIdSchema,
+    endpointId: evmIdSchema,
+    encodedParameters: z.string(),
+  })
+  .strict();
 
 export const logLevelSchema = z.union([z.literal('DEBUG'), z.literal('INFO'), z.literal('WARN'), z.literal('ERROR')]);
 
@@ -32,28 +38,34 @@ export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
 
 export const chainTypeSchema = z.literal('evm');
 
-export const chainContractsSchema = z.object({
-  AirnodeRrp: evmAddressSchema,
-});
+export const chainContractsSchema = z
+  .object({
+    AirnodeRrp: evmAddressSchema,
+  })
+  .strict();
 
-export const providerSchema = z.object({
-  url: z.string().url(),
-});
+export const providerSchema = z
+  .object({
+    url: z.string().url(),
+  })
+  .strict();
 
-export const priorityFeeSchema = z.object({
-  value: z.number(),
-  unit: z
-    .union([
-      z.literal('wei'),
-      z.literal('kwei'),
-      z.literal('mwei'),
-      z.literal('gwei'),
-      z.literal('szabo'),
-      z.literal('finney'),
-      z.literal('ether'),
-    ])
-    .optional(),
-});
+export const priorityFeeSchema = z
+  .object({
+    value: z.number(),
+    unit: z
+      .union([
+        z.literal('wei'),
+        z.literal('kwei'),
+        z.literal('mwei'),
+        z.literal('gwei'),
+        z.literal('szabo'),
+        z.literal('finney'),
+        z.literal('ether'),
+      ])
+      .optional(),
+  })
+  .strict();
 
 const chainOptionsErrorMap: z.ZodErrorMap = (issue, ctx) => {
   if (issue.code === z.ZodIssueCode.unrecognized_keys) {
@@ -90,47 +102,59 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
     .strict(),
 ]);
 
-export const chainConfigSchema = z.object({
-  authorizers: z.array(z.string()),
-  blockHistoryLimit: z.number().optional(),
-  contracts: chainContractsSchema,
-  id: z.string(),
-  minConfirmations: z.number().optional(),
-  type: chainTypeSchema,
-  options: chainOptionsSchema,
-  providers: z.record(providerSchema),
-  maxConcurrency: z.number(),
-});
+export const chainConfigSchema = z
+  .object({
+    authorizers: z.array(z.string()),
+    blockHistoryLimit: z.number().optional(),
+    contracts: chainContractsSchema,
+    id: z.string(),
+    minConfirmations: z.number().optional(),
+    type: chainTypeSchema,
+    options: chainOptionsSchema,
+    providers: z.record(providerSchema),
+    maxConcurrency: z.number(),
+  })
+  .strict();
 
-export const gatewaySchema = z.object({
-  enabled: z.boolean(),
-  apiKey: z.string().optional(),
-  maxConcurrency: z.number().optional(),
-});
+export const gatewaySchema = z
+  .object({
+    enabled: z.boolean(),
+    apiKey: z.string().optional(),
+    maxConcurrency: z.number().optional(),
+  })
+  .strict();
 
-export const heartbeatSchema = z.object({
-  enabled: z.boolean(),
-  apiKey: z.string().optional(),
-  id: z.string().optional(),
-  url: z.string().optional(),
-});
+export const heartbeatSchema = z
+  .object({
+    enabled: z.boolean(),
+    apiKey: z.string().optional(),
+    id: z.string().optional(),
+    url: z.string().optional(),
+  })
+  .strict();
 
-export const localProviderSchema = z.object({
-  type: z.literal('local'),
-});
+export const localProviderSchema = z
+  .object({
+    type: z.literal('local'),
+  })
+  .strict();
 
-export const awsCloudProviderSchema = z.object({
-  type: z.literal('aws'),
-  region: z.string(),
-  disableConcurrencyReservations: z.boolean(),
-});
+export const awsCloudProviderSchema = z
+  .object({
+    type: z.literal('aws'),
+    region: z.string(),
+    disableConcurrencyReservations: z.boolean(),
+  })
+  .strict();
 
-export const gcpCloudProviderSchema = z.object({
-  type: z.literal('gcp'),
-  region: z.string(),
-  projectId: z.string(),
-  disableConcurrencyReservations: z.boolean(),
-});
+export const gcpCloudProviderSchema = z
+  .object({
+    type: z.literal('gcp'),
+    region: z.string(),
+    projectId: z.string(),
+    disableConcurrencyReservations: z.boolean(),
+  })
+  .strict();
 
 export const cloudProviderSchema = z.discriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
 
@@ -157,6 +181,7 @@ export const nodeSettingsSchema = z
       });
     }),
   })
+  .strict()
   .superRefine((settings, ctx) => {
     const { cloudProvider, httpGateway, httpSignedDataGateway } = settings;
     if (cloudProvider.type === 'aws' && httpGateway.apiKey === httpSignedDataGateway.apiKey) {
@@ -168,14 +193,18 @@ export const nodeSettingsSchema = z
     }
   });
 
-export const baseApiCredentialsSchema = z.object({
-  securitySchemeName: z.string(),
-  securitySchemeValue: z.string(),
-});
+export const baseApiCredentialsSchema = z
+  .object({
+    securitySchemeName: z.string(),
+    securitySchemeValue: z.string(),
+  })
+  .strict();
 
-export const apiCredentialsSchema = baseApiCredentialsSchema.extend({
-  oisTitle: z.string(),
-});
+export const apiCredentialsSchema = baseApiCredentialsSchema
+  .extend({
+    oisTitle: z.string(),
+  })
+  .strict();
 
 const validateSecuritySchemesReferences: SuperRefinement<{
   ois: OIS[];
@@ -266,6 +295,7 @@ export const configSchema = z
     templates: z.array(templateSchema),
     apiCredentials: z.array(apiCredentialsSchema),
   })
+  .strict()
   .superRefine(validateSecuritySchemesReferences)
   .superRefine(validateTemplateSchemes)
   .superRefine(validateTriggersReferences);

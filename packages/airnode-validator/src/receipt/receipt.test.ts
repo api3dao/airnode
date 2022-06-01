@@ -9,6 +9,23 @@ it('successfully parses receipt.json', () => {
   expect(() => receiptSchema.parse(receipt)).not.toThrow();
 });
 
+it(`doesn't allow extraneous properties`, () => {
+  const receipt = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/receipt.valid.json')).toString());
+  expect(() => receiptSchema.parse(receipt)).not.toThrow();
+
+  const invalidReceipt = { ...receipt, unknownProp: 'someValue' };
+  expect(() => receiptSchema.parse(invalidReceipt)).toThrow(
+    new ZodError([
+      {
+        code: 'unrecognized_keys',
+        keys: ['unknownProp'],
+        path: [],
+        message: `Unrecognized key(s) in object: 'unknownProp'`,
+      },
+    ])
+  );
+});
+
 describe('airnodeWalletSchema', () => {
   const airnodeWallet: AirnodeWallet = {
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',

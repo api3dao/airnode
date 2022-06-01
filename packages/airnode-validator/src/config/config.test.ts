@@ -11,6 +11,25 @@ it('successfully parses config.json', () => {
   expect(() => configSchema.parse(config)).not.toThrow();
 });
 
+it(`doesn't allow extraneous properties`, () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+  expect(() => configSchema.parse(config)).not.toThrow();
+
+  const invalidConfig = { ...config, unknownProp: 'someValue' };
+  expect(() => configSchema.parse(invalidConfig)).toThrow(
+    new ZodError([
+      {
+        code: 'unrecognized_keys',
+        keys: ['unknownProp'],
+        path: [],
+        message: `Unrecognized key(s) in object: 'unknownProp'`,
+      },
+    ])
+  );
+});
+
 describe('chainOptionsSchema', () => {
   const eip1559ChainOptions: ChainOptions = {
     txType: 'eip1559',
