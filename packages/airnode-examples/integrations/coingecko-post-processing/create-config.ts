@@ -182,6 +182,11 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               environment: 'Node 14',
               timeoutMs: 5000,
               value: `
+                // Log out every coin data
+                input.forEach((coinData) => {
+                  console.log(\`[Post-processing snippet]: Received the following coin data: \\\${JSON.stringify(coinData, null, 2)}\`)
+                })
+
                 const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);
                 const average = sum(input.map((coinData) => coinData.current_price)) / input.length;
                 const percentageChange = sum(input.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / input.length;

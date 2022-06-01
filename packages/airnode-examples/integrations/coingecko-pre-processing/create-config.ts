@@ -156,6 +156,8 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
 
                 const formattedDate = day + '-' + month + '-' + year;
                 const output = {...input, unixTimestamp: formattedDate};
+
+                console.log(\`[Pre-processing snippet]: Formatted \\\${input.unixTimestamp} to \\\${formattedDate}.\`)
               `,
             },
           ],
