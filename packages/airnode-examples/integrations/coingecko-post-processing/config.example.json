@@ -174,7 +174,7 @@
             {
               "environment": "Node 14",
               "timeoutMs": 5000,
-              "value": "\n                const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);\n                const average = sum(input.map((coinData) => coinData.current_price)) / input.length;\n                const percentageChange = sum(input.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / input.length;\n\n                // Create the data to be sent on chain and multiply it by 10^8 to preserve precision\n                const output = [average, percentageChange].map((x) => x * 10 ** 8);\n              "
+              "value": "\n                // Log out every coin data\n                input.forEach((coinData) => {\n                  console.log(`[Post-processing snippet]: Received the following coin data: \\${JSON.stringify(coinData, null, 2)}`)\n                })\n\n                const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);\n                const average = sum(input.map((coinData) => coinData.current_price)) / input.length;\n                const percentageChange = sum(input.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / input.length;\n\n                // Create the data to be sent on chain and multiply it by 10^8 to preserve precision\n                const output = [average, percentageChange].map((x) => x * 10 ** 8);\n              "
             }
           ]
         }
