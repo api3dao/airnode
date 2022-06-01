@@ -5,9 +5,12 @@ import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema } from '../ois';
 import { SchemaType } from '../types';
 
+export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
+export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+
 export const triggerSchema = z
   .object({
-    endpointId: z.string(),
+    endpointId: evmIdSchema,
     endpointName: z.string(),
     oisTitle: z.string(),
   })
@@ -20,9 +23,6 @@ export const triggersSchema = z
     httpSignedData: z.array(triggerSchema),
   })
   .strict();
-
-export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
-export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 
 export const templateSchema = z
   .object({

@@ -298,4 +298,25 @@ describe('triggers references', () => {
       ])
     );
   });
+
+  it('fails if endpoint ID is not a valid keccak hash', () => {
+    const invalidConfig = {
+      ...config,
+      triggers: {
+        ...config.triggers,
+        rrp: [{ ...config.triggers.rrp[0], endpointId: 'endpoint-id' }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          validation: 'regex',
+          code: 'invalid_string',
+          message: `Invalid`,
+          path: ['triggers', 'rrp', 0, 'endpointId'],
+        },
+      ])
+    );
+  });
 });
