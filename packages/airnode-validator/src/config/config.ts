@@ -132,14 +132,22 @@ export const disabledGatewaySchema = z
 
 export const gatewaySchema = z.discriminatedUnion('enabled', [enabledGatewaySchema, disabledGatewaySchema]);
 
-export const heartbeatSchema = z
+export const enabledHeartbeatSchema = z
   .object({
-    enabled: z.boolean(),
-    apiKey: z.string().optional(),
-    id: z.string().optional(),
-    url: z.string().optional(),
+    enabled: z.literal(true),
+    apiKey: z.string(),
+    id: z.string(),
+    url: z.string(),
   })
   .strict();
+
+export const disabledHeartbeatSchema = z
+  .object({
+    enabled: z.literal(false),
+  })
+  .strict();
+
+export const heartbeatSchema = z.discriminatedUnion('enabled', [enabledHeartbeatSchema, disabledHeartbeatSchema]);
 
 export const localProviderSchema = z
   .object({

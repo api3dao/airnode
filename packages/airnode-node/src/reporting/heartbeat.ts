@@ -12,11 +12,6 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const { apiKey, url, id } = heartbeat;
-  if (!apiKey || !url || !id) {
-    const log = logger.pend('WARN', 'Unable to send heartbeat as heartbeat configuration is missing');
-    return [log];
-  }
-
   const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
   const httpSignedDataGatewayUrl = getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 
