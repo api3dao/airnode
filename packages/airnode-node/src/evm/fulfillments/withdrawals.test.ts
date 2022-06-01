@@ -78,8 +78,7 @@ describe('submitWithdrawal', () => {
           ...gasTarget,
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 5,
-          // 250_000_000 - ((50_000 + 20_000) * 1000)
-          value: ethers.BigNumber.from(180_000_000),
+          value: ethers.BigNumber.from(250_000_000 - (50_000 + 20_000) * 1000),
         }
       );
     }
@@ -122,8 +121,8 @@ describe('submitWithdrawal', () => {
           ...gasTarget,
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 5,
-          // 250_000_000 - ((50_000 + 20_000) * 1000) - 10_000_000
-          value: ethers.BigNumber.from(170_000_000),
+          //
+          value: ethers.BigNumber.from(250_000_000 - (50_000 + 20_000) * 1000 - 10_000_000),
         }
       );
     }
