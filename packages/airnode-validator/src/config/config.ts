@@ -16,7 +16,7 @@ export const triggerSchema = z
 export const triggersSchema = z
   .object({
     rrp: z.array(triggerSchema),
-    http: z.array(triggerSchema).optional(),
+    http: z.array(triggerSchema),
     httpSignedData: z.array(triggerSchema),
   })
   .strict();
@@ -116,22 +116,38 @@ export const chainConfigSchema = z
   })
   .strict();
 
-export const gatewaySchema = z
+export const enabledGatewaySchema = z
   .object({
-    enabled: z.boolean(),
-    apiKey: z.string().optional(),
-    maxConcurrency: z.number().optional(),
+    enabled: z.literal(true),
+    apiKey: z.string(),
+    maxConcurrency: z.number(),
   })
   .strict();
 
-export const heartbeatSchema = z
+export const disabledGatewaySchema = z
   .object({
-    enabled: z.boolean(),
-    apiKey: z.string().optional(),
-    id: z.string().optional(),
-    url: z.string().optional(),
+    enabled: z.literal(false),
   })
   .strict();
+
+export const gatewaySchema = z.discriminatedUnion('enabled', [enabledGatewaySchema, disabledGatewaySchema]);
+
+export const enabledHeartbeatSchema = z
+  .object({
+    enabled: z.literal(true),
+    apiKey: z.string(),
+    id: z.string(),
+    url: z.string(),
+  })
+  .strict();
+
+export const disabledHeartbeatSchema = z
+  .object({
+    enabled: z.literal(false),
+  })
+  .strict();
+
+export const heartbeatSchema = z.discriminatedUnion('enabled', [enabledHeartbeatSchema, disabledHeartbeatSchema]);
 
 export const localProviderSchema = z
   .object({
@@ -184,7 +200,12 @@ export const nodeSettingsSchema = z
   .strict()
   .superRefine((settings, ctx) => {
     const { cloudProvider, httpGateway, httpSignedDataGateway } = settings;
-    if (cloudProvider.type === 'aws' && httpGateway.apiKey === httpSignedDataGateway.apiKey) {
+    if (
+      cloudProvider.type === 'aws' &&
+      httpGateway.enabled &&
+      httpSignedDataGateway.enabled &&
+      httpGateway.apiKey === httpSignedDataGateway.apiKey
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Using the same gateway keys is not allowed on AWS`,

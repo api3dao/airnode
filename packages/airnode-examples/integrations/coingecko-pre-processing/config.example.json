@@ -51,6 +51,7 @@
         "endpointName": "coinHistoryData"
       }
     ],
+    "http": [],
     "httpSignedData": []
   },
   "templates": [],

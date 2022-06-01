@@ -51,6 +51,7 @@
         "endpointName": "coinsMarketData"
       }
     ],
+    "http": [],
     "httpSignedData": []
   },
   "templates": [],
