@@ -13,17 +13,11 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
 }
 
 describe('processHttpSignedDataRequests', () => {
-  it('returns an error if no endpoint trigger with given ID is found', async () => {
+  it('returns an error if no endpoint with given ID is found', async () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
     const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), nonExistentEndpointId, '');
     expect(res).toBeNull();
     expect(err).toEqual(new Error(`Unable to find endpoint with ID:'${nonExistentEndpointId}'`));
-  });
-
-  it('returns an error if no endpoint with given ID is found', async () => {
-    const [err, res] = await processHttpSignedDataRequest(buildConfigWithEndpoint(), ENDPOINT_ID, '');
-    expect(res).toBeNull();
-    expect(err).toEqual(new Error(`No endpoint definition for endpoint ID '${ENDPOINT_ID}'`));
   });
 
   it("returns an error if endpoint doesn't allow getting signed data", async () => {

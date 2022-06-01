@@ -97,8 +97,7 @@ export async function initializeProvider(
   // =================================================================
   const [verifyRrpTriggersLogs, verifiedApiCallsForRrpTriggers] = verification.verifyRrpTriggers(
     state4.requests.apiCalls,
-    state4.config!.triggers.rrp,
-    state4.config!.ois
+    state4.config!.triggers.rrp
   );
   logger.logPending(verifyRrpTriggersLogs, baseLogOptions);
 

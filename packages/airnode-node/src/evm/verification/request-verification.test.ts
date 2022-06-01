@@ -88,7 +88,7 @@ describe('verifyTriggers', () => {
     const apiCall = fixtures.requests.buildApiCall({ endpointId: '0xinvalid' });
     const config = fixtures.buildConfig();
     const rrpTriggers = config.triggers.rrp;
-    const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers, config.ois);
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers);
     expect(logs).toEqual([
       {
         level: 'WARN',
@@ -98,39 +98,10 @@ describe('verifyTriggers', () => {
     expect(res.length).toEqual(0);
   });
 
-  it('drops API calls that are linked to a valid trigger but unknown OIS', () => {
-    const rrpTrigger = fixtures.buildTrigger({ oisTitle: 'unknown' });
-    const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
-    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: `Unknown OIS:unknown received for Request:${apiCall.id}`,
-      },
-    ]);
-    expect(res.length).toEqual(0);
-  });
-
-  it('drops API calls that are linked to a valid trigger but unknown endpoint', () => {
-    const rrpTrigger = fixtures.buildTrigger({ endpointName: 'unknown' });
-    const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
-    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: `Unknown Endpoint:unknown for OIS:${rrpTrigger.oisTitle} received for Request:${apiCall.id}`,
-      },
-    ]);
-    expect(res.length).toEqual(0);
-  });
-
-  it('does nothing is the API call is linked to a valid trigger and OIS endpoint', () => {
+  it('does nothing if the API call is linked to a valid trigger and OIS endpoint', () => {
     const rrpTrigger = fixtures.buildTrigger();
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger], httpSignedData: [] } });
-    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger]);
     expect(logs).toEqual([
       {
         level: 'DEBUG',

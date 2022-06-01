@@ -18,13 +18,6 @@ export async function processHttpRequest(
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
   }
 
-  const endpoints = find(config.ois, ['title', httpTrigger.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', httpTrigger.endpointName]);
-
-  if (!endpoint) {
-    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
-  }
-
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-gateway',
     endpointName: httpTrigger.endpointName,

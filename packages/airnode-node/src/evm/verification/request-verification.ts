@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { OIS } from '@api3/airnode-ois';
 import { logger } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
 import { ApiCall, Request, LogsData, UpdatedRequests } from '../../types';
@@ -33,11 +32,7 @@ export function verifySponsorWallets<T>(
   return [logs, requests];
 }
 
-export function verifyRrpTriggers(
-  apiCalls: Request<ApiCall>[],
-  rrpTriggers: Trigger[],
-  oises: OIS[]
-): LogsData<Request<ApiCall>[]> {
+export function verifyRrpTriggers(apiCalls: Request<ApiCall>[], rrpTriggers: Trigger[]): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       const rrpTrigger = rrpTriggers.find((t) => t.endpointId === apiCall.endpointId);
@@ -45,28 +40,6 @@ export function verifyRrpTriggers(
       if (!rrpTrigger) {
         const message = `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`;
         const log = logger.pend('WARN', message);
-        return { ...acc, logs: [...acc.logs, log] };
-      }
-
-      const { oisTitle, endpointName } = rrpTrigger;
-      const ois = oises.find((o) => o.title === oisTitle);
-      // Although unlikely, it is possible that the Airnode instance was configured with a trigger
-      // with an 'oisTitle' that does not match an OIS in config.json. The responsibility to fix this
-      // lies with the API provider
-      if (!ois) {
-        const log = logger.pend('ERROR', `Unknown OIS:${oisTitle} received for Request:${apiCall.id}`);
-        return { ...acc, logs: [...acc.logs, log] };
-      }
-
-      const endpoint = ois.endpoints.find((e) => e.name === endpointName);
-      // Although unlikely, it is possible that the Airnode instance was configured with a trigger
-      // with an 'endpointName' that does not match an endpoint within the given OIS in config.json.
-      // The responsibility to fix this lies with the API provider
-      if (!endpoint) {
-        const log = logger.pend(
-          'ERROR',
-          `Unknown Endpoint:${endpointName} for OIS:${oisTitle} received for Request:${apiCall.id}`
-        );
         return { ...acc, logs: [...acc.logs, log] };
       }
 
