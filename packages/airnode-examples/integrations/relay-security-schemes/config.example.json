@@ -51,6 +51,7 @@
         "endpointName": "httpbinRelaySecuritySchemes"
       }
     ],
+    "http": [],
     "httpSignedData": []
   },
   "templates": [],

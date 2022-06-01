@@ -16,7 +16,7 @@ export const triggerSchema = z
 export const triggersSchema = z
   .object({
     rrp: z.array(triggerSchema),
-    http: z.array(triggerSchema).optional(),
+    http: z.array(triggerSchema),
     httpSignedData: z.array(triggerSchema),
   })
   .strict();
