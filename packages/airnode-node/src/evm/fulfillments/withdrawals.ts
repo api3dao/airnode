@@ -61,7 +61,9 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
 
   // We set aside some ETH to pay for the gas of the following transaction and
   // return the rest to the sponsor wallet less a remainder, if specified.
-  const remainder = options.withdrawalRemainder ? ethers.BigNumber.from(options.withdrawalRemainder) : 0;
+  const remainder = options.withdrawalRemainder
+    ? ethers.utils.parseUnits(options.withdrawalRemainder.value.toString(), options.withdrawalRemainder.unit)
+    : 0;
   const txCost = paddedGasLimit.mul(
     options.gasTarget.gasPrice ? options.gasTarget.gasPrice : options.gasTarget.maxFeePerGas!
   );

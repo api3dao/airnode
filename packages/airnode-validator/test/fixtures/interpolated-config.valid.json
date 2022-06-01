@@ -20,7 +20,11 @@
           "value": 3.12,
           "unit": "gwei"
         },
-        "fulfillmentGasLimit": 500000
+        "fulfillmentGasLimit": 500000,
+        "withdrawalRemainder": {
+          "value": 1,
+          "unit": "gwei"
+        }
       }
     }
   ],

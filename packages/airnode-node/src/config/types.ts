@@ -38,7 +38,7 @@ export interface Provider {
   readonly url: string;
 }
 
-export interface PriorityFee {
+export interface Amount {
   readonly value: number;
   readonly unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
 }
@@ -47,9 +47,9 @@ export interface ChainOptions {
   readonly txType: 'legacy' | 'eip1559';
   readonly gasPriceMultiplier?: number;
   readonly baseFeeMultiplier?: number;
-  readonly priorityFee?: PriorityFee;
+  readonly priorityFee?: Amount;
   readonly fulfillmentGasLimit: number;
-  readonly withdrawalRemainder?: string;
+  readonly withdrawalRemainder?: Amount;
 }
 
 export interface ChainConfig {

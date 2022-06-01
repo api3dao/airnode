@@ -26,8 +26,10 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
         unit: 'gwei',
       },
       fulfillmentGasLimit: 500_000,
-      // 1 ETH
-      withdrawalRemainder: '1000000000000000000',
+      withdrawalRemainder: {
+        value: 1,
+        unit: 'ether',
+      },
     },
     providers: {
       'EVM local': {

@@ -25,6 +25,7 @@ import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { AirnodeRrpV0 } from '../contracts';
+import { Amount } from '../../config/types';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();
@@ -93,11 +94,15 @@ describe('submitWithdrawal', () => {
       fulfillWithdrawalMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
 
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
+      const remainder: Amount = {
+        value: 10_000_000,
+        unit: 'wei',
+      };
       const options = {
         gasTarget,
         masterHDNode,
         provider,
-        withdrawalRemainder: '10000000',
+        withdrawalRemainder: remainder,
       };
       const [logs, err, data] = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), withdrawal, options);
       expect(logs).toEqual([
@@ -121,7 +126,6 @@ describe('submitWithdrawal', () => {
           ...gasTarget,
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 5,
-          //
           value: ethers.BigNumber.from(250_000_000 - (50_000 + 20_000) * 1000 - 10_000_000),
         }
       );

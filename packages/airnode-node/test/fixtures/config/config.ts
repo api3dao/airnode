@@ -41,6 +41,10 @@ export function buildConfig(overrides?: Partial<Config>): Config {
             url: 'http://localhost:4111',
           },
         },
+        withdrawalRemainder: {
+          value: 0,
+          unit: 'wei',
+        },
       },
     ],
     nodeSettings: settings.buildNodeSettings(),

@@ -39,7 +39,7 @@ export const providerSchema = z.object({
   url: z.string().url(),
 });
 
-export const priorityFeeSchema = z.object({
+export const amountSchema = z.object({
   value: z.number(),
   unit: z
     .union([
@@ -71,9 +71,9 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
       {
         txType: z.literal('eip1559'),
         baseFeeMultiplier: z.number().int().optional(),
-        priorityFee: priorityFeeSchema.optional(),
+        priorityFee: amountSchema.optional(),
         fulfillmentGasLimit: z.number().int(),
-        withdrawalRemainder: z.string().regex(/^\d+$/).optional(),
+        withdrawalRemainder: amountSchema.optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
@@ -84,7 +84,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
         txType: z.literal('legacy'),
         gasPriceMultiplier: z.number().optional(),
         fulfillmentGasLimit: z.number().int(),
-        withdrawalRemainder: z.string().regex(/^\d+$/).optional(),
+        withdrawalRemainder: amountSchema.optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
