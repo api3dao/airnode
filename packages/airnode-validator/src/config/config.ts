@@ -116,13 +116,21 @@ export const chainConfigSchema = z
   })
   .strict();
 
-export const gatewaySchema = z
+export const enabledGatewaySchema = z
   .object({
-    enabled: z.boolean(),
-    apiKey: z.string().optional(),
-    maxConcurrency: z.number().optional(),
+    enabled: z.literal(true),
+    apiKey: z.string(),
+    maxConcurrency: z.number(),
   })
   .strict();
+
+export const disabledGatewaySchema = z
+  .object({
+    enabled: z.literal(false),
+  })
+  .strict();
+
+export const gatewaySchema = z.discriminatedUnion('enabled', [enabledGatewaySchema, disabledGatewaySchema]);
 
 export const heartbeatSchema = z
   .object({
@@ -184,7 +192,12 @@ export const nodeSettingsSchema = z
   .strict()
   .superRefine((settings, ctx) => {
     const { cloudProvider, httpGateway, httpSignedDataGateway } = settings;
-    if (cloudProvider.type === 'aws' && httpGateway.apiKey === httpSignedDataGateway.apiKey) {
+    if (
+      cloudProvider.type === 'aws' &&
+      httpGateway.enabled &&
+      httpSignedDataGateway.enabled &&
+      httpGateway.apiKey === httpSignedDataGateway.apiKey
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Using the same gateway keys is not allowed on AWS`,

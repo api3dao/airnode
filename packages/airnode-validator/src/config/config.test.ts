@@ -124,6 +124,16 @@ describe('nodeSettingsSchema', () => {
         region: 'region',
         disableConcurrencyReservations: false,
       },
+      httpGateway: {
+        enabled: true,
+        apiKey: 'sameApiKey',
+        maxConcurrency: 10,
+      },
+      httpSignedDataGateway: {
+        enabled: true,
+        apiKey: 'sameApiKey',
+        maxConcurrency: 10,
+      },
     };
 
     expect(() => nodeSettingsSchema.parse(invalidNodeSettings)).toThrow(
@@ -135,6 +145,19 @@ describe('nodeSettingsSchema', () => {
         },
       ])
     );
+  });
+
+  it('is ok if both gateways are disabled on AWS', () => {
+    const invalidNodeSettings = {
+      ...nodeSettings,
+      cloudProvider: {
+        type: 'aws',
+        region: 'region',
+        disableConcurrencyReservations: false,
+      },
+    };
+
+    expect(() => nodeSettingsSchema.parse(invalidNodeSettings)).not.toThrow();
   });
 });
 
