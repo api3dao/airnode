@@ -184,7 +184,6 @@ export const nodeSettingsSchema = z
     heartbeat: heartbeatSchema,
     httpGateway: gatewaySchema,
     httpSignedDataGateway: gatewaySchema,
-    airnodeAddressShort: z.string().optional(),
     stage: z.string().regex(/^[a-z0-9-]{1,16}$/),
     cloudProvider: localOrCloudProviderSchema,
     logFormat: logFormatSchema,
