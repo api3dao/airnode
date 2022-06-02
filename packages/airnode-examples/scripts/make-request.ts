@@ -53,8 +53,10 @@ const makeRequest = async (): Promise<string> => {
   // Trigger the Airnode request
 
   const receipt = await requester.makeRequest(
-    airnodeWallet.address,
-    endpointId,
+    // TODO: Move "makeRequest" into request-utils of each integration + update docs
+    '0x02834eb43d56133982b7d6e5aa8b466c7ea4ba0fadf697698c1fee0996bba0fc',
+    // airnodeWallet.address,
+    // endpointId,
     sponsor.address,
     sponsorWalletAddress,
     await getEncodedParameters()

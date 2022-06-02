@@ -1,14 +1,18 @@
-# Coingecko example integration
+# Coingecko example showing Airnode template request
 
-This is the most basic example showcasing `config.json` and `secrets.env` (which is automatically generated for you with
-one of our scripts).
+This example showcases how to use Airnode [template](https://docs.api3.org/airnode/latest/concepts/template.html)
+requests. This example defines a template inside `config.json`, which is used to call the Airnode endpoint called
+`coinMarketData`. This endpoint can be called to determine the current price of some crypto currency. This template
+defines parameters to retrieve the current price of Ethereum. See the `create-template-on-chain.ts` and
+`create-config.ts` files for more details.
 
-The `config.json` defines a single callable endpoint, called `coinMarketData` which you can call to determine the
-current price of some crypto currency. The example request uses this endpoint to retrieve the current price of Ethereum.
+To run this example, follow the generic examples README. However, before making a template request (before running
+`yarn make-request`), you must make sure the template is deployed. The easiest way to ensure this is to re-deploy the
+template.
 
-There is one thing to notice. The `config.json` defines the `_times` reserved parameter, which makes the Airnode
-multiply the asset price returned from the API. This is necessary to preserve the floating point digits in the requester
-contract, since solidity only allows to use integers.
+## Redeploying the template on chain
 
-For more information about how the Airnode is configured refer to the
-[docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html).
+```sh
+# Run from the <airnode/packages/airnode-examples> directory
+yarn ts-node integrations/coingecko-template/create-template-on-chain.ts
+```

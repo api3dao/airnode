@@ -11,15 +11,13 @@ contract Requester is RrpRequesterV0 {
     constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
 
     function makeRequest(
-        address airnode,
-        bytes32 endpointId,
+        bytes32 templateId,
         address sponsor,
         address sponsorWallet,
         bytes calldata parameters
     ) external {
-        bytes32 requestId = airnodeRrp.makeFullRequest(
-            airnode,
-            endpointId,
+        bytes32 requestId = airnodeRrp.makeTemplateRequest(
+            templateId,
             sponsor,
             sponsorWallet,
             address(this),

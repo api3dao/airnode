@@ -30,7 +30,7 @@ export class AdminSdk {
   unsponsorRequester = (requesterAddress: string, overrides?: ethers.Overrides) =>
     admin.unsponsorRequester(this.airnodeRrp, requesterAddress, overrides);
 
-  createTemplate = (template: admin.Template, overrides?: ethers.Overrides) =>
+  createTemplate = (template: admin.TemplateFile, overrides?: ethers.Overrides) =>
     admin.createTemplate(this.airnodeRrp, template, overrides);
 
   requestWithdrawal = (airnodeAddress: string, sponsorWallet: string, overrides?: ethers.Overrides) =>
