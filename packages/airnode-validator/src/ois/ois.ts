@@ -37,10 +37,13 @@ export const fixedParameterSchema = z
 
 export const methodSchema = z.union([z.literal('get'), z.literal('post')]);
 
+// Path name must start wih "/" and must not contain space character
+export const pathNameSchema = z.string().regex(/^\/[^\s]+$/);
+
 export const endpointOperationSchema = z
   .object({
     method: methodSchema,
-    path: z.string(),
+    path: pathNameSchema,
   })
   .strict();
 
@@ -184,7 +187,7 @@ const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
   });
 };
 
-export const pathsSchema = z.record(pathSchema).superRefine(ensurePathParametersExist);
+export const pathsSchema = z.record(pathNameSchema, pathSchema).superRefine(ensurePathParametersExist);
 
 export const apiSpecificationSchema = z
   .object({

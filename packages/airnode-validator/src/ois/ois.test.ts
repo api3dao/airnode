@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import cloneDeep from 'lodash/cloneDeep';
-import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS } from './ois';
+import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS, pathNameSchema } from './ois';
 
 const loadOisFixture = (): OIS =>
   // This OIS is guaranteed to be valid because there is a test for it's validity below
@@ -324,4 +324,30 @@ describe('apiSpecification parameters validation', () => {
       ])
     );
   });
+});
+
+it('validates path name', () => {
+  expect(() => pathNameSchema.parse('my-path')).toThrow(
+    new ZodError([
+      {
+        validation: 'regex',
+        code: 'invalid_string',
+        message: 'Invalid',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => pathNameSchema.parse('/my path')).toThrow(
+    new ZodError([
+      {
+        validation: 'regex',
+        code: 'invalid_string',
+        message: 'Invalid',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => pathNameSchema.parse('/my-path')).not.toThrow();
 });
