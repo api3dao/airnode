@@ -4,7 +4,7 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
-import { AwsCloudProvider, CloudProvider, GcpCloudProvider, HttpGateway } from '@api3/airnode-node';
+import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Gateway } from '@api3/airnode-node';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
@@ -128,8 +128,8 @@ interface AirnodeVariables {
   stage: string;
   configPath?: string;
   secretsPath?: string;
-  httpGateway?: HttpGateway;
-  httpSignedDataGateway?: HttpGateway;
+  httpGateway?: Gateway;
+  httpSignedDataGateway?: Gateway;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -215,8 +215,8 @@ interface AirnodeDeployParams {
   readonly airnodeAddressShort: string;
   readonly stage: string;
   readonly cloudProvider: CloudProviderExtended;
-  readonly httpGateway: HttpGateway;
-  readonly httpSignedDataGateway: HttpGateway;
+  readonly httpGateway: Gateway;
+  readonly httpSignedDataGateway: Gateway;
   readonly configPath: string;
   readonly secretsPath: string;
 }

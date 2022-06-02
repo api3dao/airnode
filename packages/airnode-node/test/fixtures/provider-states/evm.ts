@@ -1,7 +1,7 @@
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
 import { EVMProviderState, EVMProviderSponsorState, ProviderState } from '../../../src/types';
-import { ChainConfig } from '../../../src/config/types';
+import { ChainConfig } from '../../../src/config';
 
 export function buildEVMProviderState(
   overrides?: Partial<ProviderState<EVMProviderState>>

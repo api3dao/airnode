@@ -2,7 +2,7 @@ import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import { AggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
-import { Config } from '../config/types';
+import { Config } from '../config';
 
 export async function processHttpRequest(
   config: Config,
@@ -16,13 +16,6 @@ export async function processHttpRequest(
   const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!httpTrigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
-  }
-
-  const endpoints = find(config.ois, ['title', httpTrigger.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', httpTrigger.endpointName]);
-
-  if (!endpoint) {
-    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
 
   const aggregatedApiCall: AggregatedApiCall = {

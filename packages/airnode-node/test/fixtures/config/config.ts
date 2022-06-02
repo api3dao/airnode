@@ -1,7 +1,7 @@
 import { parseConfig } from '@api3/airnode-validator';
 import * as ois from './ois';
 import * as settings from './node-settings';
-import { ApiCredentials, Config, Trigger } from '../../../src/config/types';
+import { ApiCredentials, Config, Trigger } from '../../../src/config';
 
 export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
   return {

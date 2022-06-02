@@ -2,10 +2,9 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 import forEach from 'lodash/forEach';
 import { parseConfigWithSecrets, unsafeParseConfigWithSecrets } from './api';
-import { configSchema } from '../config';
-import { SchemaType } from '../types';
+import { Config } from '../config';
 
-const loadConfigFixture = (): SchemaType<typeof configSchema> =>
+const loadConfigFixture = (): Config =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
   // not interpolated
   JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/config.valid.json')).toString());

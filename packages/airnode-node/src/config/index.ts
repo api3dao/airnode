@@ -1,8 +1,10 @@
 import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { randomHexString } from '@api3/airnode-utilities';
-import { unsafeParseConfigWithSecrets, parseConfigWithSecrets } from '@api3/airnode-validator';
-import { Config } from './types';
+import { unsafeParseConfigWithSecrets, parseConfigWithSecrets, config as configTypes } from '@api3/airnode-validator';
+
+// Accessing specificaly the `config` directory so we can export the content of the `config` module not the module itself
+export * from '@api3/airnode-validator/dist/cjs/src/config';
 
 // TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {
@@ -34,7 +36,7 @@ export function loadConfig(configPath: string, secrets: Record<string, string | 
   return config;
 }
 
-export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
+export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): configTypes.Config {
   const rawConfig = readConfig(configPath);
   const config = unsafeParseConfigWithSecrets(rawConfig, secrets);
 
@@ -42,7 +44,7 @@ export function loadTrustedConfig(configPath: string, secrets: Record<string, st
   return { ...config, ois };
 }
 
-export function getMasterKeyMnemonic(config: Config): string {
+export function getMasterKeyMnemonic(config: configTypes.Config): string {
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   // The node cannot function without a master mnemonic
   if (!mnemonic) {

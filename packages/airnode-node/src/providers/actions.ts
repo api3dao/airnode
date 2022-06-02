@@ -14,7 +14,7 @@ import {
   WorkerOptions,
 } from '../types';
 import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT, WORKER_PROCESS_TRANSACTIONS_TIMEOUT } from '../constants';
-import { Config } from '../config/types';
+import { Config } from '../config';
 
 async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,

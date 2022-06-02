@@ -4,7 +4,7 @@ import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
 import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
-import { Config } from '../config/types';
+import { Config } from '../config';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function processHttpSignedDataRequest(
@@ -15,13 +15,6 @@ export async function processHttpSignedDataRequest(
   const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
     return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
-  }
-
-  const endpoints = find(config.ois, ['title', trigger.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', trigger.endpointName]);
-
-  if (!endpoint) {
-    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
   }
 
   const decodedParameters = evm.encoding.safeDecode(encodedParameters);

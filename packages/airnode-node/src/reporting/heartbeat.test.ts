@@ -6,9 +6,6 @@ jest.mock('@api3/airnode-adapter', () => ({
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
-import { Heartbeat } from '../config/types';
-
-const heartbeatOptions: Array<keyof Heartbeat> = ['id', 'apiKey', 'url'];
 
 describe('reportHeartbeat', () => {
   const OLD_ENV = process.env;
@@ -33,20 +30,6 @@ describe('reportHeartbeat', () => {
     const res = await heartbeat.reportHeartbeat(state);
     expect(res).toEqual([{ level: 'INFO', message: `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled` }]);
     expect(executeMock).not.toHaveBeenCalled();
-  });
-
-  heartbeatOptions.forEach((option) => {
-    it(`does nothing if the ${option} option is not set`, async () => {
-      const nodeSettings = fixtures.buildNodeSettings();
-      delete nodeSettings.heartbeat[option];
-      const config = fixtures.buildConfig({ nodeSettings });
-      const state = coordinatorState.create(config);
-      const res = await heartbeat.reportHeartbeat(state);
-      expect(res).toEqual([
-        { level: 'WARN', message: 'Unable to send heartbeat as heartbeat configuration is missing' },
-      ]);
-      expect(executeMock).not.toHaveBeenCalled();
-    });
   });
 
   it('handles heartbeat errors', async () => {
