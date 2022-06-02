@@ -116,10 +116,12 @@ export const chainConfigSchema = z
   })
   .strict();
 
+export const apiKeySchema = z.string().min(30).max(120);
+
 export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
-    apiKey: z.string(),
+    apiKey: apiKeySchema,
     maxConcurrency: z.number(),
   })
   .strict();
@@ -135,7 +137,7 @@ export const gatewaySchema = z.discriminatedUnion('enabled', [enabledGatewaySche
 export const enabledHeartbeatSchema = z
   .object({
     enabled: z.literal(true),
-    apiKey: z.string(),
+    apiKey: apiKeySchema,
     id: z.string(),
     url: z.string(),
   })
