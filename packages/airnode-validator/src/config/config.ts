@@ -53,17 +53,15 @@ export const providerSchema = z
 export const amountSchema = z
   .object({
     value: z.number().lte(9007199254740991), // 2**53 - 1
-    unit: z
-      .union([
-        z.literal('wei'),
-        z.literal('kwei'),
-        z.literal('mwei'),
-        z.literal('gwei'),
-        z.literal('szabo'),
-        z.literal('finney'),
-        z.literal('ether'),
-      ])
-      .optional(),
+    unit: z.union([
+      z.literal('wei'),
+      z.literal('kwei'),
+      z.literal('mwei'),
+      z.literal('gwei'),
+      z.literal('szabo'),
+      z.literal('finney'),
+      z.literal('ether'),
+    ]),
   })
   .strict();
 
@@ -106,7 +104,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
 
 export const chainConfigSchema = z
   .object({
-    authorizers: z.array(z.string()),
+    authorizers: z.array(evmAddressSchema),
     blockHistoryLimit: z.number().optional(),
     contracts: chainContractsSchema,
     id: z.string(),
@@ -114,7 +112,7 @@ export const chainConfigSchema = z
     type: chainTypeSchema,
     options: chainOptionsSchema,
     providers: z.record(providerSchema),
-    maxConcurrency: z.number(),
+    maxConcurrency: z.number().int(),
   })
   .strict();
 

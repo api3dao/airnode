@@ -11,8 +11,7 @@ export const getGasLimit = (fulfillmentGasLimit?: number) => {
   return fulfillmentGasLimit ? { gasLimit: BigNumber.from(fulfillmentGasLimit) } : {};
 };
 
-export const parsePriorityFee = ({ value, unit }: PriorityFee) =>
-  ethers.utils.parseUnits(value.toString(), unit ?? 'wei');
+export const parsePriorityFee = ({ value, unit }: PriorityFee) => ethers.utils.parseUnits(value.toString(), unit);
 
 export const multiplyGasPrice = (gasPrice: BigNumber, gasPriceMultiplier: number) =>
   gasPrice.mul(BigNumber.from(Math.round(gasPriceMultiplier * 100))).div(BigNumber.from(100));

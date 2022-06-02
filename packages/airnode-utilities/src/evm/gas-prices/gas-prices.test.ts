@@ -72,7 +72,6 @@ const createEip1559BaseOptions = () => {
 describe('parsePriorityFee', () => {
   test.each([
     [{ value: 123, unit: 'wei' }, BigNumber.from('123')],
-    [{ value: 123 }, BigNumber.from('123')],
     [{ value: 123.4, unit: 'kwei' }, BigNumber.from('123400')],
     [{ value: 123.4, unit: 'mwei' }, BigNumber.from('123400000')],
     [{ value: 123.4, unit: 'gwei' }, BigNumber.from('123400000000')],
