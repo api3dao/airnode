@@ -367,12 +367,19 @@ const ensureEndpointAndApiSpecificationParamsMatch: SuperRefinement<{
   });
 };
 
+export const semverSchema = z.string().refine((value) => {
+  const semver = value.split('.');
+  if (semver.length !== 3) return false;
+
+  return !semver.find((part) => /^\d+$/.test(part) === false);
+}, 'Expected semantic versioning "x.y.z"');
+
 export const oisSchema = z
   .object({
-    oisFormat: z.string(),
+    oisFormat: semverSchema,
     // Limit the title to 64 characters
     title: z.string().regex(/^[a-zA-Z0-9-_\s]{1,64}$/),
-    version: z.string(),
+    version: semverSchema,
     apiSpecifications: apiSpecificationSchema,
     endpoints: z.array(endpointSchema),
   })

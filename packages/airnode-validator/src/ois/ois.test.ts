@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import cloneDeep from 'lodash/cloneDeep';
-import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS, pathNameSchema } from './ois';
+import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS, pathNameSchema, semverSchema } from './ois';
 
 const loadOisFixture = (): OIS =>
   // This OIS is guaranteed to be valid because there is a test for it's validity below
@@ -350,4 +350,46 @@ it('validates path name', () => {
   );
 
   expect(() => pathNameSchema.parse('/my-path')).not.toThrow();
+});
+
+it('validates semantic versioning', () => {
+  expect(() => semverSchema.parse('1.0')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('0.x.y')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('^0.1.1')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('0.1.1.2')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => semverSchema.parse('1.0.0')).not.toThrow();
+  expect(() => semverSchema.parse('00.01.02')).not.toThrow();
 });
