@@ -9,7 +9,7 @@ import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
-import { Config } from '../config/types';
+import { Config } from '../config';
 
 function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const { config, aggregatedApiCall } = payload;

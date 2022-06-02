@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
-import { airnodeWalletSchema, deploymentSchema, receiptSchema } from './receipt';
-import { SchemaType } from '../types';
+import { AirnodeWallet, airnodeWalletSchema, Deployment, deploymentSchema, receiptSchema } from './receipt';
 import { version as packageVersion } from '../../package.json';
 
 it('successfully parses receipt.json', () => {
@@ -10,8 +9,25 @@ it('successfully parses receipt.json', () => {
   expect(() => receiptSchema.parse(receipt)).not.toThrow();
 });
 
+it(`doesn't allow extraneous properties`, () => {
+  const receipt = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/receipt.valid.json')).toString());
+  expect(() => receiptSchema.parse(receipt)).not.toThrow();
+
+  const invalidReceipt = { ...receipt, unknownProp: 'someValue' };
+  expect(() => receiptSchema.parse(invalidReceipt)).toThrow(
+    new ZodError([
+      {
+        code: 'unrecognized_keys',
+        keys: ['unknownProp'],
+        path: [],
+        message: `Unrecognized key(s) in object: 'unknownProp'`,
+      },
+    ])
+  );
+});
+
 describe('airnodeWalletSchema', () => {
-  const airnodeWallet: SchemaType<typeof airnodeWalletSchema> = {
+  const airnodeWallet: AirnodeWallet = {
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     airnodeAddressShort: 'a30ca71',
     airnodeXpub:
@@ -50,7 +66,7 @@ describe('airnodeWalletSchema', () => {
 });
 
 describe('deploymentSchema', () => {
-  const deployment: SchemaType<typeof deploymentSchema> = {
+  const deployment: Deployment = {
     airnodeAddressShort: 'a30ca71',
     cloudProvider: {
       type: 'aws',

@@ -29,7 +29,7 @@ export function buildCacheRequestOptions(overrides?: Partial<CachedBuildRequestO
   const options = buildRequestOptions();
   const endpoint = options.ois.endpoints[0];
   const { method, path } = endpoint.operation;
-  const operation = options.ois.apiSpecifications.paths[path][method];
+  const operation = options.ois.apiSpecifications.paths[path][method]!;
   return {
     ...options,
     endpoint,

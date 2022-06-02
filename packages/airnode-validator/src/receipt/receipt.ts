@@ -34,7 +34,6 @@ export const airnodeWalletSchema = z
       });
     }
   });
-export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
 
 export const deploymentSchema = z
   .object({
@@ -53,7 +52,6 @@ export const deploymentSchema = z
     timestamp: z.string().regex(ISO_DATE_REGEX),
   })
   .strict();
-export type Deployment = SchemaType<typeof deploymentSchema>;
 
 export const apiSchema = z
   .object({
@@ -62,7 +60,6 @@ export const apiSchema = z
     httpSignedDataGatewayUrl: z.string().url().optional(),
   })
   .strict();
-export type Api = SchemaType<typeof apiSchema>;
 
 export const receiptSchema = z
   .object({
@@ -81,4 +78,8 @@ export const receiptSchema = z
       });
     }
   });
+
+export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
+export type Deployment = SchemaType<typeof deploymentSchema>;
+export type Api = SchemaType<typeof apiSchema>;
 export type Receipt = SchemaType<typeof receiptSchema>;

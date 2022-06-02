@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
-import { getMasterKeyMnemonic } from '../config';
-import { Config } from '../config/types';
+import { getMasterKeyMnemonic, Config } from '../config';
 
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.

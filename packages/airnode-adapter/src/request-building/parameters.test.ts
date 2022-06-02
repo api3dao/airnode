@@ -67,7 +67,7 @@ describe('fixed parameters', () => {
   it('ignores parameters not defined in the API specification', () => {
     const ois = fixtures.buildOIS();
     // Erases the 'from' parameter
-    ois.apiSpecifications.paths['/convert'].get.parameters[0].name = 'unknown';
+    ois.apiSpecifications.paths['/convert'].get!.parameters[0].name = 'unknown';
     const options = fixtures.buildCacheRequestOptions({ ois });
     const res = parameters.buildParameters(options);
     expect(res).toEqual({
@@ -134,7 +134,7 @@ describe('user parameters', () => {
   it('ignores parameters not defined in the API specification', () => {
     const options = fixtures.buildCacheRequestOptions();
     // Erases the 'to' parameter
-    options.ois.apiSpecifications.paths['/convert'].get.parameters[1].name = 'unknown';
+    options.ois.apiSpecifications.paths['/convert'].get!.parameters[1].name = 'unknown';
     const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},

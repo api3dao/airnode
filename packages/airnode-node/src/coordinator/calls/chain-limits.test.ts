@@ -2,7 +2,7 @@ import { range } from 'lodash';
 import { applyChainLimits } from './chain-limits';
 import * as fixtures from '../../../test/fixtures';
 import { ProviderStates, ProviderState, EVMProviderState, GroupedRequests } from '../../types';
-import { ChainConfig } from '../../config/types';
+import { ChainConfig } from '../../config';
 
 const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
   return {

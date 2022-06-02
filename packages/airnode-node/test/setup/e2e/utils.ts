@@ -3,7 +3,7 @@ import orderBy from 'lodash/orderBy';
 import { ethers } from 'ethers';
 import { AirnodeLogDescription } from '../../../src/types';
 import { parseAirnodeRrpLog } from '../../../src/evm/requests/event-logs';
-import { ChainConfig } from '../../../src/config/types';
+import { ChainConfig } from '../../../src/config';
 
 export interface Contracts {
   readonly AirnodeRrp: string;

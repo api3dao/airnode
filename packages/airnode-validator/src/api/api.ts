@@ -1,9 +1,9 @@
 import { goSync } from '@api3/promise-utils';
 import template from 'lodash/template';
 import { z } from 'zod';
-import { configSchema } from '../config';
+import { Config, configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
-import { Config, Secrets } from '../types';
+import { Secrets } from '../types';
 import { ValidationResult } from '../validation-result';
 
 /**

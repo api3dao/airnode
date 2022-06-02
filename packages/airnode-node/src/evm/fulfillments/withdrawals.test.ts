@@ -25,7 +25,7 @@ import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { AirnodeRrpV0 } from '../contracts';
-import { Amount } from '../../config/types';
+import { Amount } from '../../config';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();

@@ -11,7 +11,7 @@ function cacheRequestOptions(options: BuildRequestOptions): CachedBuildRequestOp
   }
 
   const { method, path } = endpoint.operation;
-  const operation = ois.apiSpecifications.paths[path][method];
+  const operation = ois.apiSpecifications.paths[path][method]!;
   return { ...options, endpoint, operation };
 }
 

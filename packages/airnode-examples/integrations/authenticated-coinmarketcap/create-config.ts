@@ -58,6 +58,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointName: 'coinMarketCapData',
       },
     ],
+    http: [],
     httpSignedData: [],
   },
   templates: [],

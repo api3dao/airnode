@@ -6,7 +6,7 @@ import { logger, PendingLog } from '@api3/airnode-utilities';
 import { ProviderStates, GroupedRequests } from '../../types';
 import { flattenRequests, groupRequests } from '../../requests/grouping';
 import { sortRequests } from '../../requests/sorting';
-import { Config } from '../../config/types';
+import { Config } from '../../config';
 
 function flattenAndSortRequests(grouped: GroupedRequests) {
   return sortRequests(flattenRequests(grouped));

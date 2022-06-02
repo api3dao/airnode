@@ -1,7 +1,7 @@
 import { randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import { CoordinatorSettings, CoordinatorState } from '../types';
-import { Config } from '../config/types';
+import { Config } from '../config';
 import { CoordinatorStateWithApiResponses, RegularAggregatedApiCallsWithResponseById } from '..';
 
 export function create(config: Config): CoordinatorState {

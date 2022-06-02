@@ -9,7 +9,7 @@ import {
 } from '@api3/airnode-protocol';
 import { PendingLog, LogFormat, LogLevel, LogOptions, GasTarget } from '@api3/airnode-utilities';
 import { z } from 'zod';
-import { Config, ChainOptions, ChainType, LocalOrCloudProvider, Amount } from './config/types';
+import { Config, ChainOptions, ChainType, LocalOrCloudProvider, Amount } from './config';
 import { apiCallParametersSchema } from './validation';
 import { AirnodeRrpV0 } from './evm/contracts';
 
