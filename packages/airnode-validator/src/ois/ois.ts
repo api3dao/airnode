@@ -49,7 +49,8 @@ export const endpointOperationSchema = z
 
 export const endpointParameterSchema = z
   .object({
-    name: z.string(),
+    // Parameter name must not contain spaces
+    name: z.string().regex(/^[^\s]+$/),
     operationParameter: operationParameterSchema,
     default: z.string().optional(),
     description: z.string().optional(),
@@ -369,7 +370,8 @@ const ensureEndpointAndApiSpecificationParamsMatch: SuperRefinement<{
 export const oisSchema = z
   .object({
     oisFormat: z.string(),
-    title: z.string(),
+    // Limit the title to 64 characters
+    title: z.string().regex(/^[a-zA-Z0-9-_\s]{1,64}$/),
     version: z.string(),
     apiSpecifications: apiSpecificationSchema,
     endpoints: z.array(endpointSchema),
