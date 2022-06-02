@@ -67,7 +67,16 @@ export const reservedParameterSchema = z
     default: z.string().optional(),
     fixed: z.string().optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => {
+    const { fixed, default: defaultValue } = value;
+
+    // Explicitely check for "undefined", since empty string is a valid reserved parameter value
+    const isFixedValueDefined = fixed !== undefined;
+    const isDefaultValueDefined = defaultValue !== undefined;
+
+    return !isFixedValueDefined || !isDefaultValueDefined;
+  }, 'Reserved parameter must use at most one of "default" and "fixed" properties');
 
 export const serverSchema = z
   .object({
