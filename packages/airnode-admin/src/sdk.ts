@@ -33,6 +33,8 @@ export class AdminSdk {
   createTemplate = (template: admin.TemplateFile, overrides?: ethers.Overrides) =>
     admin.createTemplate(this.airnodeRrp, template, overrides);
 
+  createInlineTemplate = (template: admin.TemplateFile) => admin.createInlineTemplate(template);
+
   requestWithdrawal = (airnodeAddress: string, sponsorWallet: string, overrides?: ethers.Overrides) =>
     admin.requestWithdrawal(this.airnodeRrp, airnodeAddress, sponsorWallet, overrides);
 

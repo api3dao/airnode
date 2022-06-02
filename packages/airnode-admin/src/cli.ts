@@ -276,7 +276,6 @@ yargs
       logger.log(`Template ID: ${templateId}`);
     }
   )
-  // TODO: test
   .command(
     'create-inline-template',
     'Creates a template data to be inlined inside config.json',

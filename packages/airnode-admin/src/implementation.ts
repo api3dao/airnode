@@ -186,7 +186,6 @@ export async function createTemplate(airnodeRrp: AirnodeRrpV0, template: Templat
   );
 }
 
-// TODO: test
 export function createInlineTemplate(template: TemplateFile): config.Template {
   const { airnode, parameters, endpointId } = template;
 
