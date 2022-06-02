@@ -35,15 +35,15 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         options: {
           txType: 'legacy',
           fulfillmentGasLimit: 123456,
+          withdrawalRemainder: {
+            value: 0,
+            unit: 'wei',
+          },
         },
         providers: {
           ['EVM local']: {
             url: 'http://localhost:4111',
           },
-        },
-        withdrawalRemainder: {
-          value: 0,
-          unit: 'wei',
         },
       },
     ],
