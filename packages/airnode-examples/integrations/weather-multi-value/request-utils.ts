@@ -1,17 +1,40 @@
 import { encode } from '@api3/airnode-abi';
-import { cliPrint, getDeployedContract, readIntegrationInfo } from '../../src';
+import { deriveAirnodeXpub, deriveSponsorWalletAddress } from '@api3/airnode-admin';
+import { ethers } from 'ethers';
+import { cliPrint, getAirnodeWallet, getDeployedContract, readConfig, readIntegrationInfo } from '../../src';
 
 // OpenWeather historical API allows free access only to the last 5 days
 // Use timestamp for 24 hours ago, excluding milliseconds
 const dt = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
 
 // Default coordinates are for London, England
-export const getEncodedParameters = () => {
-  return encode([
+const getEncodedParameters = () =>
+  encode([
     { name: 'lat', type: 'string', value: '51.507222' },
     { name: 'lon', type: 'string', value: '-0.1275' },
     { name: 'dt', type: 'string', value: dt.toString() },
   ]);
+
+export const makeRequest = async () => {
+  const integrationInfo = readIntegrationInfo();
+  const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
+  const airnodeWallet = getAirnodeWallet();
+  const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
+  const endpointId = readConfig().triggers.rrp[0].endpointId;
+  const sponsorWalletAddress = await deriveSponsorWalletAddress(
+    deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
+    airnodeWallet.address,
+    sponsor.address
+  );
+
+  // Trigger the Airnode request
+  return requester.makeRequest(
+    airnodeWallet.address,
+    endpointId,
+    sponsor.address,
+    sponsorWalletAddress,
+    getEncodedParameters()
+  );
 };
 
 export const printResponse = async (requestId: string) => {
