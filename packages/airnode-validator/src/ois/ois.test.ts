@@ -358,6 +358,8 @@ it('validates path name', () => {
   );
 
   expect(() => pathNameSchema.parse('/my-path')).not.toThrow();
+
+  expect(() => pathNameSchema.parse('/')).not.toThrow();
 });
 
 it('validates semantic versioning', () => {

@@ -38,7 +38,7 @@ export const fixedParameterSchema = z
 export const methodSchema = z.union([z.literal('get'), z.literal('post')]);
 
 // Path name must start wih "/" and must not contain space character
-export const pathNameSchema = z.string().regex(/^\/[^\s]+$/);
+export const pathNameSchema = z.string().regex(/^\/[^\s]*$/);
 
 export const endpointOperationSchema = z
   .object({
