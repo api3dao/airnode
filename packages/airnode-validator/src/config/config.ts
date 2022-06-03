@@ -1,8 +1,9 @@
 import { ethers } from 'ethers';
 import { SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
+import includes from 'lodash/includes';
 import { version as packageVersion } from '../../package.json';
-import { OIS, oisSchema } from '../ois';
+import { OIS, oisSchema, RELAY_METADATA_TYPES } from '../ois';
 import { SchemaType } from '../types';
 
 export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
@@ -314,6 +315,41 @@ const validateTriggersReferences: SuperRefinement<{
   });
 };
 
+const ensureRelayedMetadataAreNotUsedWithGateways: SuperRefinement<{
+  ois: OIS[];
+  triggers: Triggers;
+}> = (config, ctx) => {
+  // Check whether we have `http` or `httpSignedData` trigger defined
+  const httpGatewaysUsed = config.triggers.http.length !== 0;
+  const httpSignedDataGatewaysUsed = config.triggers.httpSignedData.length !== 0;
+
+  // If we don't use a gateway there's no need to check relayed metadata
+  if (!httpGatewaysUsed && !httpSignedDataGatewaysUsed) return;
+
+  forEach(config.ois, (ois) => {
+    forEach(ois.apiSpecifications.security, (_emptyArray, securitySchemaName) => {
+      const securitySchema = ois.apiSpecifications.components.securitySchemes[securitySchemaName];
+      if (securitySchema && includes(RELAY_METADATA_TYPES, securitySchema.type)) {
+        if (httpGatewaysUsed) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Relayed metadata authentication can't be used with an HTTP gateway`,
+            path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', securitySchemaName, 'type'],
+          });
+        }
+
+        if (httpSignedDataGatewaysUsed) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Relayed metadata authentication can't be used with an HTTP signed data gateway`,
+            path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', securitySchemaName, 'type'],
+          });
+        }
+      }
+    });
+  });
+};
+
 export const configSchema = z
   .object({
     chains: z.array(chainConfigSchema),
@@ -326,7 +362,8 @@ export const configSchema = z
   .strict()
   .superRefine(validateSecuritySchemesReferences)
   .superRefine(validateTemplateSchemes)
-  .superRefine(validateTriggersReferences);
+  .superRefine(validateTriggersReferences)
+  .superRefine(ensureRelayedMetadataAreNotUsedWithGateways);
 
 export type Config = SchemaType<typeof configSchema>;
 export type ApiCredentials = SchemaType<typeof apiCredentialsSchema>;
