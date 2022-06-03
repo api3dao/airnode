@@ -8,9 +8,14 @@ import { SchemaType } from '../types';
 export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 
+// We use a convention for deriving endpoint ID from OIS title and endpoint name,
+// but we are not enforcing the convention in docs:
+// https://docs.api3.org/airnode/latest/concepts/endpoint.html#endpointid
+const endpointIdSchema = z.string();
+
 export const triggerSchema = z
   .object({
-    endpointId: evmIdSchema,
+    endpointId: endpointIdSchema,
     endpointName: z.string(),
     oisTitle: z.string(),
   })
@@ -27,7 +32,7 @@ export const triggersSchema = z
 export const templateSchema = z
   .object({
     templateId: evmIdSchema,
-    endpointId: evmIdSchema,
+    endpointId: endpointIdSchema,
     encodedParameters: z.string(),
   })
   .strict();

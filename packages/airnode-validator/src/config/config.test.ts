@@ -159,12 +159,12 @@ describe('nodeSettingsSchema', () => {
       },
       httpGateway: {
         enabled: true,
-        apiKey: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
       },
       httpSignedDataGateway: {
         enabled: true,
-        apiKey: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
       },
     };
@@ -300,27 +300,6 @@ describe('triggers references', () => {
           code: 'custom',
           message: `No matching endpoint for trigger with endpoint name "nonExistingEndpointName"`,
           path: ['triggers', 'rrp', 0, 'endpointName'],
-        },
-      ])
-    );
-  });
-
-  it('fails if endpoint ID is not a valid keccak hash', () => {
-    const invalidConfig = {
-      ...config,
-      triggers: {
-        ...config.triggers,
-        rrp: [{ ...config.triggers.rrp[0], endpointId: 'endpoint-id' }],
-      },
-    };
-
-    expect(() => configSchema.parse(invalidConfig)).toThrow(
-      new ZodError([
-        {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: `Invalid`,
-          path: ['triggers', 'rrp', 0, 'endpointId'],
         },
       ])
     );
