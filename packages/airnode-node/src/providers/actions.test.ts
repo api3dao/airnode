@@ -26,7 +26,7 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
-import { range } from 'lodash';
+import range from 'lodash/range';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
 import { GroupedRequests } from '../types';
