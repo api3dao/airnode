@@ -1,10 +1,10 @@
-FROM node:14.17-alpine3.14
+FROM node:14.19.3-alpine3.15
 
 ENV name="airnode-admin"
 ENV appDir="/app"
 
 LABEL application=${name} \
-      description="Airnode Admin CLI"
+  description="Airnode Admin CLI"
 
 WORKDIR ${appDir}
 

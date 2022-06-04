@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^14.17.1"
+    "node": "^14.19.3"
   },
   "repository": {
     "type": "git",

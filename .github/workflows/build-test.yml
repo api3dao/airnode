@@ -9,7 +9,7 @@ on:
 
 env:
   DOCKER_BUILDKIT: 1
-  TARGET_NODE_VERSION: '14.17.1'
+  TARGET_NODE_VERSION: '14.19.3'
 
 jobs:
   documentation:
