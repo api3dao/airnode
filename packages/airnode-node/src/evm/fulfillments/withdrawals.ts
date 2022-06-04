@@ -61,6 +61,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
 
   // We set aside some ETH to pay for the gas of the following transaction and
   // return the rest to the sponsor wallet less a remainder, if specified.
+  // Specifying a remainder is only necessary for certain chains e.g. Optimism.
   const remainder = options.withdrawalRemainder
     ? ethers.utils.parseUnits(options.withdrawalRemainder.value.toString(), options.withdrawalRemainder.unit)
     : 0;
