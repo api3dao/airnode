@@ -65,10 +65,7 @@ export const parseOverrides = async (
 
   // EIP1559 network and no EIP1559 overrides or legacy overrides
   if (supportsEip1559 && !hasEip1559Overrides && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await getEip1559GasPricing({
-      provider: provider,
-      chainOptions: { txType: 'eip1559' },
-    });
+    const [_gasPriceLogs, gasTarget] = await getEip1559GasPricing(provider, { txType: 'eip1559' });
 
     return {
       ...overrides,
@@ -78,10 +75,7 @@ export const parseOverrides = async (
 
   // Legacy network and no legacy overrides
   if (!supportsEip1559 && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await getLegacyGasPrice({
-      provider: provider,
-      chainOptions: { txType: 'legacy' },
-    });
+    const [_gasPriceLogs, gasTarget] = await getLegacyGasPrice(provider, { txType: 'legacy' });
 
     return {
       ...overrides,

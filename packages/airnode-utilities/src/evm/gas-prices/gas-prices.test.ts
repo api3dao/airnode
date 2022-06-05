@@ -19,7 +19,7 @@ mockEthers();
 
 import { BigNumber, ethers } from 'ethers';
 import * as gasPrices from './gas-prices';
-import { FetchOptions } from './types';
+import { FetchOptions, LegacyChainOptions } from './types';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '../../constants';
 
 const createLegacyBaseOptions = (): FetchOptions => ({
@@ -147,7 +147,7 @@ describe('getGasPrice', () => {
 
     const [logs, gasPrice] = await gasPrices.getGasPrice({
       ...baseOptions,
-      chainOptions: { ...baseOptions.chainOptions, gasPriceMultiplier },
+      chainOptions: { ...baseOptions.chainOptions, gasPriceMultiplier } as LegacyChainOptions,
     });
 
     const multipliedTestGasPrice = gasPrices.multiplyGasPrice(testGasPrice, gasPriceMultiplier);
