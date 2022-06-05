@@ -52,9 +52,16 @@ export const endpointParameterSchema = z
     // Parameter name must not contain spaces
     name: z.string().regex(/^[^\s]+$/),
     operationParameter: operationParameterSchema,
-    default: z.string().optional(),
+
+    // The following optional fields are defined by OAS. They are intended to provide more
+    // clarity about a parameter and are ignored by Airnode
     description: z.string().optional(),
     example: z.string().optional(),
+
+    // Default value is used when the user (requester) does not provide a value for the parameter
+    // TODO: Fix
+    default: z.string().optional(),
+    // This property is completely ignored by Airnode
     required: z.boolean().optional(),
   })
   .strict();
@@ -64,6 +71,8 @@ export const reservedParameterNameSchema = z.union([z.literal('_type'), z.litera
 export const reservedParameterSchema = z
   .object({
     name: reservedParameterNameSchema,
+    // At most one of the following fields can be used. If none of them is used,
+    // the user (requester) is expected to pass the value as parameter
     default: z.string().optional(),
     fixed: z.string().optional(),
   })
@@ -232,15 +241,18 @@ export const processingSpecificationSchema = z
 
 export const endpointSchema = z
   .object({
-    description: z.string().optional(),
-    externalDocs: z.string().optional(),
     fixedOperationParameters: z.array(fixedParameterSchema),
     name: z.string(),
     operation: endpointOperationSchema,
     parameters: z.array(endpointParameterSchema),
+    // TODO: Make required
     preProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
     postProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
     reservedParameters: z.array(reservedParameterSchema),
+
+    // The following fields are ignored by Airnode
+    description: z.string().optional(),
+    externalDocs: z.string().optional(),
     summary: z.string().optional(),
   })
   .strict();
