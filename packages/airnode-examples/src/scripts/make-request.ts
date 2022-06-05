@@ -6,7 +6,7 @@ import {
   runAndHandleErrors,
   cliPrint,
   setMaxPromiseTimeout,
-} from '../src';
+} from '../';
 
 const waitForFulfillment = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');
@@ -35,7 +35,7 @@ const makeRequest = async (): Promise<string> => {
 
   // Import the "makeRequest" which triggers the Airnode request.
   // See the "request-utils.ts" of the specific integration for details.
-  const { makeRequest } = await import(`../integrations/${integrationInfo.integration}/request-utils.ts`);
+  const { makeRequest } = await import(`../../integrations/${integrationInfo.integration}/request-utils.ts`);
   const receipt = await makeRequest();
 
   // Wait until the transaction is mined
@@ -57,7 +57,7 @@ const main = async () => {
   const integrationInfo = readIntegrationInfo();
   // Import the function to print the response from the chosen integration. See the respective "request-utils.ts" for
   // details.
-  const { printResponse } = await import(`../integrations/${integrationInfo.integration}/request-utils.ts`);
+  const { printResponse } = await import(`../../integrations/${integrationInfo.integration}/request-utils.ts`);
   await printResponse(requestId);
 };
 

@@ -1,14 +1,7 @@
 import { existsSync, writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import { PromptObject } from 'prompts';
-import {
-  cliPrint,
-  formatSecrets,
-  promptQuestions,
-  readAwsSecrets,
-  readIntegrationInfo,
-  runAndHandleErrors,
-} from '../src';
+import { cliPrint, formatSecrets, promptQuestions, readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -18,7 +11,7 @@ const main = async () => {
   }
 
   // We try to populate the options with initial values from the existing `aws.env` (if it exists)
-  const awsSecrets = existsSync(join(__dirname, '../aws.env')) ? readAwsSecrets() : null;
+  const awsSecrets = existsSync(join(__dirname, '../../aws.env')) ? readAwsSecrets() : null;
   const questions: PromptObject[] = [
     {
       type: 'text',
@@ -58,7 +51,7 @@ const main = async () => {
     `AWS_SESSION_TOKEN=${response.sessionToken}`,
   ];
 
-  writeFileSync(join(__dirname, '../aws.env'), formatSecrets(airnodeSecrets));
+  writeFileSync(join(__dirname, '../../aws.env'), formatSecrets(airnodeSecrets));
   cliPrint.info(`An 'aws.env' file with the required credentials has been created.`);
 };
 

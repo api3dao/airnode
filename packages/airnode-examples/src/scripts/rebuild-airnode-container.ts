@@ -1,4 +1,4 @@
-import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -7,7 +7,7 @@ const main = async () => {
     return;
   }
 
-  runShellCommand(`yarn --cwd ../../ docker:build:client`);
+  runShellCommand(`yarn --cwd ../../../ docker:build:client`);
 };
 
 runAndHandleErrors(main);

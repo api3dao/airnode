@@ -1,5 +1,5 @@
 import { sponsorRequester, useAirnodeRrp } from '@api3/airnode-admin';
-import { cliPrint, getDeployedContract, getUserWallet, readIntegrationInfo, runAndHandleErrors } from '../src';
+import { cliPrint, getDeployedContract, getUserWallet, readIntegrationInfo, runAndHandleErrors } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();

@@ -3,7 +3,7 @@ import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { PromptObject } from 'prompts';
 import { goSync } from '@api3/airnode-utilities';
-import { cliPrint, IntegrationInfo, promptQuestions, runAndHandleErrors } from '../src';
+import { cliPrint, IntegrationInfo, promptQuestions, runAndHandleErrors } from '../';
 
 const createCliOption = (name: string) => ({
   title: name,
@@ -18,7 +18,7 @@ const questions: PromptObject[] = [
     name: 'integration',
     message: 'Choose integration',
     // Every integration is a directory in the 'integrations' folder
-    choices: readdirSync(join(__dirname, '../integrations'), { withFileTypes: true })
+    choices: readdirSync(join(__dirname, '../../integrations'), { withFileTypes: true })
       .filter((integration) => integration.isDirectory())
       .map((integration) => integration.name)
       .map(createCliOption),
@@ -122,7 +122,7 @@ const checkGitTag = () => {
 const main = async () => {
   goSync(checkGitTag);
   const integration = await chooseIntegration();
-  writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
+  writeFileSync(join(__dirname, '../../integration-info.json'), JSON.stringify(integration, null, 2));
   cliPrint.info(`A file 'integration-info.json' was created!`);
 };
 

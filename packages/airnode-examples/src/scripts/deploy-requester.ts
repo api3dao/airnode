@@ -1,4 +1,4 @@
-import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors, cliPrint } from '../src';
+import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors, cliPrint } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();

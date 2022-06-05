@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { cliPrint, readIntegrationInfo, readPackageVersion, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, readIntegrationInfo, readPackageVersion, runAndHandleErrors, runShellCommand } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -22,7 +22,7 @@ const main = async () => {
     imageName = `api3/airnode-client:${packageVersion}`;
   }
 
-  const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
+  const integrationPath = join(__dirname, '../../integrations', integrationInfo.integration);
   runShellCommand(`docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode ${imageName}`);
 };
 

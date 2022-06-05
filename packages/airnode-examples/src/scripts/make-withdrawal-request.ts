@@ -8,7 +8,7 @@ import {
   getAirnodeWallet,
   cliPrint,
   setMaxPromiseTimeout,
-} from '../src';
+} from '../';
 
 const waitForFulfillment = async (withdrawalRequestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');

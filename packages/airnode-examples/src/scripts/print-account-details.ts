@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { cliPrint, getUserWallet, runAndHandleErrors } from '../src';
+import { cliPrint, getUserWallet, runAndHandleErrors } from '../';
 
 const main = async () => {
   const wallet = await getUserWallet();

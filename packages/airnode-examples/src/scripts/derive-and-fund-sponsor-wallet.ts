@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { deriveSponsorWalletAddress, deriveAirnodeXpub } from '@api3/airnode-admin';
-import { cliPrint, getAirnodeWallet, getProvider, readIntegrationInfo, runAndHandleErrors } from '../src';
+import { cliPrint, getAirnodeWallet, getProvider, readIntegrationInfo, runAndHandleErrors } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();

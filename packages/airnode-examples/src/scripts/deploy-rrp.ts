@@ -1,4 +1,4 @@
-import { cliPrint, deployContract, runAndHandleErrors } from '../src';
+import { cliPrint, deployContract, runAndHandleErrors } from '../';
 
 const main = async () => {
   const airnodeRrp = await deployContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol');

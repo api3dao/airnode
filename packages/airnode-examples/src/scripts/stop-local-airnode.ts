@@ -1,4 +1,4 @@
-import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
