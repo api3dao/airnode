@@ -1,7 +1,16 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
-import { Config, chainOptionsSchema, configSchema, nodeSettingsSchema, ChainOptions, NodeSettings } from './config';
+import {
+  Config,
+  chainOptionsSchema,
+  configSchema,
+  nodeSettingsSchema,
+  ChainOptions,
+  NodeSettings,
+  amountSchema,
+  Amount,
+} from './config';
 import { version as packageVersion } from '../../package.json';
 
 it('successfully parses config.json', () => {
@@ -77,6 +86,24 @@ describe('chainOptionsSchema', () => {
         },
       ])
     );
+  });
+});
+
+describe('amountSchema', () => {
+  const amount: Amount = {
+    value: 2 ** 52,
+    unit: 'wei',
+  };
+
+  it('does not allow numbers greater than (2**53 - 1) i.e. those accurately represented as integers', () => {
+    expect(() => amountSchema.parse(amount)).not.toThrow();
+
+    // 1 ETH in wei
+    const invalidAmount = { ...amount, value: 1_000_000_000_000_000_000 };
+    expect(() => amountSchema.parse(invalidAmount)).toThrow();
+
+    const otherInvalidAmount = { ...amount, value: 2 ** 53 };
+    expect(() => amountSchema.parse(otherInvalidAmount)).toThrow();
   });
 });
 
