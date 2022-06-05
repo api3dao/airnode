@@ -84,7 +84,7 @@ describe('disallows reserved parameter name', () => {
 });
 
 describe('parameter uniqueness', () => {
-  it('allows parameter with same name, but different location', () => {
+  it('allows operation parameter with same name, but different location', () => {
     const paramName = 'some-id';
     const ois = loadOisFixture();
     ois.apiSpecifications.paths['/convert'].get!.parameters.push({
@@ -113,9 +113,9 @@ describe('parameter uniqueness', () => {
     expect(() => oisSchema.parse(ois)).not.toThrow();
   });
 
-  it(`fails if the same parameter is used in "parameters"`, () => {
+  it(`fails if the same operation parameter is used in "parameters"`, () => {
     const ois = loadOisFixture();
-    ois.endpoints[0].parameters.push(ois.endpoints[0].parameters[0] as any);
+    ois.endpoints[0].parameters.push({ ...ois.endpoints[0].parameters[0], name: 'different-name' });
 
     expect(() => oisSchema.parse(ois)).toThrow(
       new ZodError([
@@ -133,7 +133,7 @@ describe('parameter uniqueness', () => {
     );
   });
 
-  it(`fails if the same parameter is used in "fixedOperationParameters"`, () => {
+  it(`fails if the same operation parameter is used in "fixedOperationParameters"`, () => {
     const ois = loadOisFixture();
     ois.endpoints[0].fixedOperationParameters.push(ois.endpoints[0].fixedOperationParameters[0] as any);
 
@@ -153,7 +153,7 @@ describe('parameter uniqueness', () => {
     );
   });
 
-  it('fails if the same parameter is used in both "fixedOperationParameters" and "parameters"', () => {
+  it('fails if the same operation parameter is used in both "fixedOperationParameters" and "parameters"', () => {
     const ois = loadOisFixture();
     ois.endpoints[0].fixedOperationParameters.push({
       operationParameter: ois.endpoints[0].parameters[0].operationParameter,
@@ -171,6 +171,34 @@ describe('parameter uniqueness', () => {
           code: 'custom',
           message: 'Parameter "from" in "query" is used in both "parameters" and "fixedOperationParameters"',
           path: ['ois', 'endpoints', 0, 'fixedOperationParameters', 1],
+        },
+      ])
+    );
+  });
+
+  it('fails if parameter names are not unique', () => {
+    const ois = loadOisFixture();
+    const paramName = 'new-param';
+    ois.apiSpecifications.paths['/convert'].get!.parameters.push({
+      in: 'cookie',
+      name: paramName,
+    });
+    ois.endpoints[0].parameters.push({
+      operationParameter: { in: 'cookie', name: paramName },
+      name: ois.endpoints[0].parameters[0].name,
+    });
+
+    expect(() => oisSchema.parse(ois)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter names must be unique, but parameter "from" is used multiple times',
+          path: ['endpoints', 0, 'parameters', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter names must be unique, but parameter "from" is used multiple times',
+          path: ['endpoints', 0, 'parameters', 3],
         },
       ])
     );
@@ -328,6 +356,28 @@ describe('apiSpecification parameters validation', () => {
           code: 'custom',
           message: 'No matching API specification parameter found in "apiSpecifications" section',
           path: ['ois', 'endpoints', 0, 'parameters', 3],
+        },
+      ])
+    );
+  });
+
+  it('fails when there are multiple API specification parameters', () => {
+    const invalidOis = loadOisFixture();
+    invalidOis.apiSpecifications.paths['/convert'].get!.parameters.push(
+      invalidOis.apiSpecifications.paths['/convert'].get!.parameters[0]
+    );
+
+    expect(() => oisSchema.parse(invalidOis)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Parameter "from" in "query" is used multiple times',
+          path: ['apiSpecifications', 'paths', '/convert', 'get', 'parameters', 0],
+        },
+        {
+          code: 'custom',
+          message: 'Parameter "from" in "query" is used multiple times',
+          path: ['apiSpecifications', 'paths', '/convert', 'get', 'parameters', 4],
         },
       ])
     );

@@ -1,6 +1,7 @@
 import forEach from 'lodash/forEach';
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
+import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
 import { SuperRefinement, z } from 'zod';
 import { SchemaType } from '../types';
@@ -170,7 +171,7 @@ export const httpStatusCodes = z.union([z.literal('get'), z.literal('post')]);
 
 export const pathSchema = z.record(httpStatusCodes, operationSchema);
 
-const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
+const ensurePathParametersExist: SuperRefinement<Record<string, SchemaType<typeof pathSchema>>> = (paths, ctx) => {
   forEach(paths, (pathData, rawPath) => {
     forEach(pathData, (paramData, httpMethod) => {
       const parameters = paramData!.parameters;
@@ -205,7 +206,37 @@ const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
   });
 };
 
-export const pathsSchema = z.record(pathNameSchema, pathSchema).superRefine(ensurePathParametersExist);
+const ensureUniqueApiSpecificationParameters: SuperRefinement<Record<string, SchemaType<typeof pathSchema>>> = (
+  paths,
+  ctx
+) => {
+  forEach(paths, (pathData, rawPath) => {
+    forEach(pathData, (paramData, httpMethod) => {
+      const parameters = paramData!.parameters;
+
+      const getGroupId = (param: OperationParameter) => param.in + param.name;
+      const groups = Object.values(groupBy(parameters, getGroupId));
+      const duplicates = groups.filter((group) => group.length > 1).flat();
+
+      parameters.forEach((parameter, index) => {
+        if (duplicates.includes(parameter)) {
+          const { in: location, name } = parameter;
+
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Parameter "${name}" in "${location}" is used multiple times`,
+            path: [rawPath, httpMethod, 'parameters', index],
+          });
+        }
+      });
+    });
+  });
+};
+
+export const pathsSchema = z
+  .record(pathNameSchema, pathSchema)
+  .superRefine(ensurePathParametersExist)
+  .superRefine(ensureUniqueApiSpecificationParameters);
 
 export const apiSpecificationSchema = z
   .object({
@@ -238,12 +269,30 @@ export const processingSpecificationSchema = z
   })
   .strict();
 
+const ensureUniqueEndpointParameterNames: SuperRefinement<EndpointParameter[]> = (parameters, ctx) => {
+  const groups = Object.values(groupBy(parameters, 'name'));
+  const duplicates = groups.filter((group) => group.length > 1).flatMap((group) => group.map((p) => p.name));
+
+  parameters.forEach((parameter, index) => {
+    const { name } = parameter;
+    if (duplicates.includes(name)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Parameter names must be unique, but parameter "${name}" is used multiple times`,
+        path: [index],
+      });
+    }
+  });
+};
+
+const endpointParametersSchema = z.array(endpointParameterSchema).superRefine(ensureUniqueEndpointParameterNames);
+
 export const endpointSchema = z
   .object({
     fixedOperationParameters: z.array(fixedParameterSchema),
     name: z.string(),
     operation: endpointOperationSchema,
-    parameters: z.array(endpointParameterSchema),
+    parameters: endpointParametersSchema,
     reservedParameters: z.array(reservedParameterSchema),
 
     // Processing is and advanced use case that needs to be used with special care. For this reason,
@@ -412,6 +461,7 @@ export const oisSchema = z
 export const RESERVED_PARAMETERS = reservedParameterNameSchema.options.map((option) => option.value);
 export type Paths = SchemaType<typeof pathsSchema>;
 export type ParameterTarget = SchemaType<typeof parameterTargetSchema>;
+export type OperationParameter = SchemaType<typeof operationParameterSchema>;
 export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
 export type EndpointParameter = SchemaType<typeof endpointParameterSchema>;
 export type HttpSecurityScheme = SchemaType<typeof httpSecuritySchemeSchema>;
