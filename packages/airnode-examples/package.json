@@ -4,6 +4,10 @@
   "version": "0.6.0",
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
+  "files": [
+    "dist",
+    "!dist/**/*.tsbuildinfo"
+  ],
   "scripts": {
     "build": "yarn run clean && hardhat compile && yarn tsc --build tsconfig.json",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
