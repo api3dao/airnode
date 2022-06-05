@@ -1,9 +1,9 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "es6",
     "module": "commonJS",
     "moduleResolution": "node",
-    "outDir": "./dist/cjs"
+    "outDir": "../dist/cjs"
   }
 }

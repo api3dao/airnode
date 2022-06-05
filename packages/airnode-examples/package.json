@@ -5,7 +5,7 @@
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
-    "build": "yarn run clean && hardhat compile",
+    "build": "yarn run clean && hardhat compile && yarn tsc --build tsconfig.json",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-airnode-config": "ts-node scripts/create-airnode-config.ts",

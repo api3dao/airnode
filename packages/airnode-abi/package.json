@@ -6,12 +6,13 @@
   "main": "dist/index",
   "types": "dist/index",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
-    "compile": "tsc --build tsconfig.build.json",
+    "compile": "tsc --build tsconfig.json",
     "pack": "yarn pack",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "yarn test --watch"

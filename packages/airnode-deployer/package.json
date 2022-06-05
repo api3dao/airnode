@@ -8,13 +8,14 @@
   },
   "main": "./dist/bin/deployer.js",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
     "clean": "rimraf -rf *.tsbuildinfo ./dist ./.webpack *.tgz",
     "cli": "ts-node bin/deployer.ts",
-    "compile": "tsc --build tsconfig.build.json",
+    "compile": "tsc --build tsconfig.json",
     "copy:terraform": "copyfiles terraform/**/**/**/*.tf terraform/**/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/*.js .webpack/templates/**/*.json .webpack/conversions/**/*.json dist/",
     "pack": "yarn pack",

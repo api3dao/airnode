@@ -6,13 +6,14 @@
   "main": "dist/index",
   "types": "dist/index",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
-    "compile": "tsc --build tsconfig.build.json",
-    "compile:watch": "tsc --build tsconfig.build.json -w",
+    "compile": "tsc --build tsconfig.json",
+    "compile:watch": "tsc --build tsconfig.json -w",
     "dev:api": "ts-node src/server.ts",
     "dev:api:background": "yarn run dev:clean && pm2 start ecosystem.config.js --only web-api",
     "dev:background": "yarn run dev:clean && pm2 start ecosystem.config.js",

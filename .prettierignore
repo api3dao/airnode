@@ -10,6 +10,7 @@
 **/coverage/**
 coverage.json
 **/dist/**
+**/build/**
 **/.webpack/**
 
 # Changelog files are auto-generated using the @changesets package

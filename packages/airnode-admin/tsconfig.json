@@ -1,15 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist",
-    "rootDirs": ["./src", "./bin", "./test"]
-  },
-  "references": [
-    { "path": "../airnode-abi" },
-    { "path": "../airnode-protocol" },
-    { "path": "../airnode-utilities" },
-    { "path": "../airnode-validator" }
-  ],
-  "include": ["./src/**/*", "./bin/**/*", "./test/**/*"]
+  "files": [],
+  "references": [{ "path": "./src" }, { "path": "./test" }]
 }

@@ -6,12 +6,13 @@
   "main": "dist/src/index",
   "types": "dist/src/index",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
-    "compile": "tsc --build tsconfig.build.json",
+    "compile": "tsc --build tsconfig.json",
     "dev:invoke": "ts-node src/cli/validate-config.ts && ts-node src/cli/invoke.ts",
     "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
