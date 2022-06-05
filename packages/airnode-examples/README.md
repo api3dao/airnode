@@ -316,12 +316,8 @@ notably:
 
 ### End to end testing
 
-The examples package is a nice fit for an end-to-end test of the entire Airnode infrastructure. There are two tests:
+The examples package is a nice fit for an end-to-end test of the entire Airnode infrastructure. We are using this to
+test the Airnode client docker image using a hardhat network with one of the basic examples.
 
-1. An integration using Airnode docker on localhost - This test also builds the necessary docker images and runs as part
-   of an end-to-end test suite on CI.
-2. An integration using the Airnode deployed on AWS with the Rinkeby network - This is intended to be run by a developer
-   before making a release. This test is located in the `scripts` directory. It should not be run on CI due to
-   performance and complexity implications.
-
-   Be sure to define the necessary secrets before running this test.
+When running locally, make sure to build the image yourself before running the test. This test also runs on CI, where
+the Airnode client image is built automatically.
