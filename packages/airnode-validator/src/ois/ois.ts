@@ -71,7 +71,7 @@ export const reservedParameterSchema = z
   .refine((value) => {
     const { fixed, default: defaultValue } = value;
 
-    // Explicitely check for "undefined", since empty string is a valid reserved parameter value
+    // Explicitly check for "undefined", since empty string is a valid reserved parameter value
     const isFixedValueDefined = fixed !== undefined;
     const isDefaultValueDefined = defaultValue !== undefined;
 
