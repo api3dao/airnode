@@ -52,7 +52,7 @@ export const providerSchema = z
 
 export const amountSchema = z
   .object({
-    value: z.number(),
+    value: z.number().lte(9007199254740991), // 2**53 - 1
     unit: z
       .union([
         z.literal('wei'),
