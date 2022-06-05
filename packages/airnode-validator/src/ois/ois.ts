@@ -244,10 +244,12 @@ export const endpointSchema = z
     name: z.string(),
     operation: endpointOperationSchema,
     parameters: z.array(endpointParameterSchema),
-    // TODO: Make required
+    reservedParameters: z.array(reservedParameterSchema),
+
+    // Processing is and advanced use case that needs to be used with special care. For this reason,
+    // we are defining the processing specification as optional fields.
     preProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
     postProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
-    reservedParameters: z.array(reservedParameterSchema),
 
     // The following fields are ignored by Airnode
     description: z.string().optional(),
