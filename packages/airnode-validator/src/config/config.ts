@@ -50,7 +50,7 @@ export const providerSchema = z
   })
   .strict();
 
-export const priorityFeeSchema = z
+export const amountSchema = z
   .object({
     value: z.number(),
     unit: z
@@ -84,8 +84,9 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
       {
         txType: z.literal('eip1559'),
         baseFeeMultiplier: z.number().int().optional(),
-        priorityFee: priorityFeeSchema.optional(),
+        priorityFee: amountSchema.optional(),
         fulfillmentGasLimit: z.number().int(),
+        withdrawalRemainder: amountSchema.optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
@@ -96,6 +97,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
         txType: z.literal('legacy'),
         gasPriceMultiplier: z.number().optional(),
         fulfillmentGasLimit: z.number().int(),
+        withdrawalRemainder: amountSchema.optional(),
       },
       { errorMap: chainOptionsErrorMap }
     )
@@ -336,3 +338,4 @@ export type ChainConfig = SchemaType<typeof chainConfigSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;
+export type Amount = SchemaType<typeof amountSchema>;

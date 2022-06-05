@@ -33,10 +33,11 @@ it('processes withdrawals only once', async () => {
   await startCoordinator();
 
   const postWithdrawalBalance = await provider.getBalance(alice!.address);
-  expectEthInRange(postWithdrawalBalance, '3.9', '4.01');
+  expectEthInRange(postWithdrawalBalance, '2.9', '3.01');
 
+  // ~1 ETH should remain given the withdrawalRemainder chainConfig option
   const postWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
-  expectEthInRange(postWithdrawalSponsorWalletBalance, '0', '0.0005');
+  expectEthInRange(postWithdrawalSponsorWalletBalance, '0.95', '1.05');
 
   // Check that the relevant withdrawal events are present
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'RequestedWithdrawal'];

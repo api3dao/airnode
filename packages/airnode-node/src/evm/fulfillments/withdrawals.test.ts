@@ -25,6 +25,7 @@ import * as withdrawals from './withdrawals';
 import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { AirnodeRrpV0 } from '../contracts';
+import { Amount } from '../../config';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();
@@ -78,8 +79,54 @@ describe('submitWithdrawal', () => {
           ...gasTarget,
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 5,
-          // 250_000_000 - ((50_000 + 20_000) * 1000)
-          value: ethers.BigNumber.from(180_000_000),
+          value: ethers.BigNumber.from(250_000_000 - (50_000 + 20_000) * 1000),
+        }
+      );
+    }
+  );
+
+  test.each([gasTarget, gasTargetFallback])(
+    `subtracts transaction costs plus a withdrawal remainder and submits the remaining balance for pending requests - %#`,
+    async (gasTarget: GasTarget) => {
+      const provider = new ethers.providers.JsonRpcProvider();
+      getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+      estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      fulfillWithdrawalMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
+
+      const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
+      const remainder: Amount = {
+        value: 10_000_000,
+        unit: 'wei',
+      };
+      const options = {
+        gasTarget,
+        masterHDNode,
+        provider,
+        withdrawalRemainder: remainder,
+      };
+      const [logs, err, data] = await withdrawals.submitWithdrawal(createAirnodeRrpFake(), withdrawal, options);
+      expect(logs).toEqual([
+        { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
+        {
+          level: 'INFO',
+          message: `Submitting withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id}...`,
+        },
+      ]);
+      expect(err).toEqual(null);
+      expect(data).toEqual({
+        ...withdrawal,
+        fulfillment: { hash: '0xsuccessful' },
+      });
+      expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
+      expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
+        withdrawal.id,
+        withdrawal.airnodeAddress,
+        withdrawal.sponsorAddress,
+        {
+          ...gasTarget,
+          gasLimit: ethers.BigNumber.from(70_000),
+          nonce: 5,
+          value: ethers.BigNumber.from(250_000_000 - (50_000 + 20_000) * 1000 - 10_000_000),
         }
       );
     }

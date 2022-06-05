@@ -59,13 +59,16 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
     `Withdrawal gas limit estimated at ${paddedGasLimit.toString()} for Request:${request.id}`
   );
 
-  // We set aside some ETH to pay for the gas of the following transaction,
-  // send all the rest along with the transaction. The contract will direct
-  // these funds back to the sponsor wallet.
+  // We set aside some ETH to pay for the gas of the following transaction and
+  // return the rest to the sponsor wallet less a remainder, if specified.
+  // Specifying a remainder is only necessary for certain chains e.g. Optimism.
+  const remainder = options.withdrawalRemainder
+    ? ethers.utils.parseUnits(options.withdrawalRemainder.value.toString(), options.withdrawalRemainder.unit)
+    : 0;
   const txCost = paddedGasLimit.mul(
     options.gasTarget.gasPrice ? options.gasTarget.gasPrice : options.gasTarget.maxFeePerGas!
   );
-  const fundsToSend = currentBalance.sub(txCost);
+  const fundsToSend = currentBalance.sub(txCost).sub(remainder);
 
   // We can't submit a withdrawal with a negative amount
   if (fundsToSend.lt(0)) {
