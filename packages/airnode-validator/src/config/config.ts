@@ -110,10 +110,10 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
 export const chainConfigSchema = z
   .object({
     authorizers: z.array(evmAddressSchema),
-    blockHistoryLimit: z.number().optional(),
+    blockHistoryLimit: z.number().int().optional(),
     contracts: chainContractsSchema,
     id: z.string(),
-    minConfirmations: z.number().optional(),
+    minConfirmations: z.number().int().optional(),
     type: chainTypeSchema,
     options: chainOptionsSchema,
     providers: z.record(z.string(), providerSchema),
@@ -127,7 +127,7 @@ export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
     apiKey: apiKeySchema,
-    maxConcurrency: z.number(),
+    maxConcurrency: z.number().int(),
   })
   .strict();
 
