@@ -53,9 +53,9 @@ function buildFixedParameters(options: CachedBuildRequestOptions): BuilderParame
 }
 
 function buildUserParameters(options: CachedBuildRequestOptions): BuilderParameters {
-  const { endpoint, operation } = options;
+  const { endpoint, operation, parameters } = options;
 
-  const parameterKeys = Object.keys(options.parameters);
+  const parameterKeys = Object.keys(parameters);
 
   return parameterKeys.reduce((acc, key) => {
     const parameter = endpoint.parameters.find((p) => p.name === key);
@@ -74,7 +74,7 @@ function buildUserParameters(options: CachedBuildRequestOptions): BuilderParamet
 
     const { name, in: target } = parameter.operationParameter;
 
-    return appendParameter(acc, target, name, options.parameters[key]);
+    return appendParameter(acc, target, name, parameters[key]);
   }, initalParameters());
 }
 

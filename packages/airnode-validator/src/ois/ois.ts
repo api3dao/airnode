@@ -59,7 +59,6 @@ export const endpointParameterSchema = z
     example: z.string().optional(),
 
     // Default value is used when the user (requester) does not provide a value for the parameter
-    // TODO: Fix
     default: z.string().optional(),
     // This property is completely ignored by Airnode
     required: z.boolean().optional(),
