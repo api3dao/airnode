@@ -116,7 +116,7 @@ export const chainConfigSchema = z
     minConfirmations: z.number().optional(),
     type: chainTypeSchema,
     options: chainOptionsSchema,
-    providers: z.record(providerSchema),
+    providers: z.record(z.string(), providerSchema),
     maxConcurrency: z.number().int(),
   })
   .strict();

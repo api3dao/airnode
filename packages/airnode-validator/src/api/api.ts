@@ -36,7 +36,7 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
  * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  const secretsSchema = z.record(z.string());
+  const secretsSchema = z.record(z.string(), z.string());
   return secretsSchema.safeParse(secrets);
 }
 

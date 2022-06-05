@@ -148,7 +148,7 @@ export const apiSecuritySchemeSchema = z.discriminatedUnion('type', [
 
 export const apiComponentsSchema = z
   .object({
-    securitySchemes: z.record(apiSecuritySchemeSchema),
+    securitySchemes: z.record(z.string(), apiSecuritySchemeSchema),
   })
   .strict();
 
@@ -204,7 +204,7 @@ export const apiSpecificationSchema = z
     components: apiComponentsSchema,
     paths: pathsSchema,
     servers: z.array(serverSchema),
-    security: z.record(z.tuple([])),
+    security: z.record(z.string(), z.tuple([])),
   })
   .strict()
   .superRefine((apiSpecifications, ctx) => {
