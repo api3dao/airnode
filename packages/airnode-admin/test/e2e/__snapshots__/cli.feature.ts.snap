@@ -12,6 +12,7 @@ Commands:
   cli.js unsponsor-requester              Disallow a requester to make requests to the Airnode
   cli.js get-sponsor-status               Returns the sponsorship status for the given sponsor and requester
   cli.js create-template                  Creates a template and returns its ID
+  cli.js create-inline-template           Creates a template data to be inlined inside config.json
   cli.js get-template                     Returns the template for the given template-id
   cli.js request-withdrawal               Requests withdrawal from the designated wallet of an Airnode as a sponsor
   cli.js check-withdrawal-request         Checks the state of the withdrawal request

@@ -3,6 +3,7 @@ import { AirnodeRrpV0, RequesterAuthorizerWithAirnode } from '@api3/airnode-prot
 import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
+import { config } from '@api3/airnode-validator';
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   if (Object.keys(params).length !== ethersParams.length) {
@@ -157,13 +158,13 @@ export async function unsponsorRequester(
   return requesterAddress;
 }
 
-export interface Template {
+export interface TemplateFile {
   parameters: string | airnodeAbi.InputParameter[];
   airnode: string;
   endpointId: string;
 }
 
-export async function createTemplate(airnodeRrp: AirnodeRrpV0, template: Template, overrides?: ethers.Overrides) {
+export async function createTemplate(airnodeRrp: AirnodeRrpV0, template: TemplateFile, overrides?: ethers.Overrides) {
   let encodedParameters;
   if (typeof template.parameters == 'string') {
     encodedParameters = template.parameters;
@@ -183,6 +184,24 @@ export async function createTemplate(airnodeRrp: AirnodeRrpV0, template: Templat
       resolve(parsedLog.args.templateId);
     })
   );
+}
+
+export function createInlineTemplate(template: TemplateFile): config.Template {
+  const { airnode, parameters, endpointId } = template;
+
+  let encodedParameters;
+  if (typeof parameters == 'string') {
+    encodedParameters = parameters;
+  } else {
+    encodedParameters = airnodeAbi.encode(parameters);
+  }
+
+  const templateId = ethers.utils.solidityKeccak256(
+    ['address', 'bytes32', 'bytes'],
+    [airnode, endpointId, encodedParameters]
+  );
+
+  return { templateId, endpointId, encodedParameters };
 }
 
 export async function requestWithdrawal(

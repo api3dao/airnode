@@ -147,8 +147,6 @@ const {
   transactionOverrides,
 } = COMMON_COMMAND_ARGUMENTS;
 
-const toJSON = JSON.stringify;
-
 yargs
   .command(
     'derive-airnode-xpub',
@@ -279,6 +277,22 @@ yargs
     }
   )
   .command(
+    'create-inline-template',
+    'Creates a template data to be inlined inside config.json',
+    {
+      'template-file-path': {
+        type: 'string',
+        demandOption: true,
+        describe: 'Path of the template JSON file',
+      },
+    },
+    async (args) => {
+      const templateFile = JSON.parse(fs.readFileSync(args['template-file-path']).toString());
+      const template = await admin.createInlineTemplate(templateFile);
+      logger.log(`Template data:\n${JSON.stringify(template, null, 2)}`);
+    }
+  )
+  .command(
     'get-template',
     'Returns the template for the given template-id',
     {
@@ -294,7 +308,7 @@ yargs
         airnodeRrpAddress: args['airnode-rrp-address'],
       });
       const parameters = await admin.getTemplate(airnodeRrp, args['template-id']);
-      logger.log(toJSON(parameters));
+      logger.log(JSON.stringify(parameters));
     }
   )
   .command(
@@ -469,7 +483,7 @@ yargs
         args['endpoint-id'],
         args['requester-address']
       );
-      logger.log(toJSON(whitelistStatus));
+      logger.log(JSON.stringify(whitelistStatus));
     }
   )
   .command(
