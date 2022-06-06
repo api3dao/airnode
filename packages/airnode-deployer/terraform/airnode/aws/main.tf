@@ -44,7 +44,7 @@ module "httpReq" {
   name                           = "${local.name_prefix}-httpReq"
   handler                        = "index.httpReq"
   source_dir                     = var.handler_dir
-  memory_size                    = 256
+  memory_size                    = 128
   timeout                        = 15
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
@@ -75,7 +75,7 @@ module "httpSignedReq" {
   name                           = "${local.name_prefix}-httpSignedReq"
   handler                        = "index.httpSignedReq"
   source_dir                     = var.handler_dir
-  memory_size                    = 256
+  memory_size                    = 128
   timeout                        = 15
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
