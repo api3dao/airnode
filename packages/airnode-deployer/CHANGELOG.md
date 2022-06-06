@@ -1,5 +1,22 @@
 # @api3/airnode-deployer
 
+## 0.6.4
+
+### Patch Changes
+
+- [#1147](https://github.com/api3dao/airnode/pull/1147) [`33e3e1b7`](https://github.com/api3dao/airnode/commit/33e3e1b73e9f0c8768b63984f7542a373cf611e7) Thanks [@amarthadan](https://github.com/amarthadan)! - Fix GCP gateway template filenames
+
+* [`a9fb89b6`](https://github.com/api3dao/airnode/commit/a9fb89b647e1df018bad439aaa4b90fd302ad85c) Thanks [@aquarat](https://github.com/aquarat)! - Bump version to v0.6.4
+
+- [#1156](https://github.com/api3dao/airnode/pull/1156) [`5c2660d5`](https://github.com/api3dao/airnode/commit/5c2660d5db7bb55c76b8c526753a6d55e5ba9a01) Thanks [@amarthadan](https://github.com/amarthadan)! - Adjust memory allocation for gateway serverless functions
+
+- Updated dependencies [[`a9fb89b6`](https://github.com/api3dao/airnode/commit/a9fb89b647e1df018bad439aaa4b90fd302ad85c)]:
+  - @api3/airnode-node@0.6.4
+  - @api3/airnode-ois@0.6.4
+  - @api3/airnode-protocol@0.6.4
+  - @api3/airnode-utilities@0.6.4
+  - @api3/airnode-validator@0.6.4
+
 ## 0.6.3
 
 ### Patch Changes

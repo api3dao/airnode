@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.6.4
+
+### Patch Changes
+
+- [`a9fb89b6`](https://github.com/api3dao/airnode/commit/a9fb89b647e1df018bad439aaa4b90fd302ad85c) Thanks [@aquarat](https://github.com/aquarat)! - Bump version to v0.6.4
+
 ## 0.6.3
 
 ### Patch Changes

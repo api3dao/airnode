@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-utilities",
   "license": "MIT",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "private": false,
   "description": "General utilities to support Airnode packages",
   "files": [
