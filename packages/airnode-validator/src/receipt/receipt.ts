@@ -55,6 +55,7 @@ export const deploymentSchema = z
 
 export const apiSchema = z
   .object({
+    // These fields are optional depending on whether the respective Airnode feature has been enabled or not
     heartbeatId: z.string().optional(),
     httpGatewayUrl: z.string().url().optional(),
     httpSignedDataGatewayUrl: z.string().url().optional(),

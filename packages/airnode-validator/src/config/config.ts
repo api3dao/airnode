@@ -86,8 +86,8 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
     .object(
       {
         txType: z.literal('eip1559'),
-        baseFeeMultiplier: z.number().int().optional(),
-        priorityFee: amountSchema.optional(),
+        baseFeeMultiplier: z.number().int().optional(), // Defaults to BASE_FEE_MULTIPLIER defined in airnode-utilities
+        priorityFee: amountSchema.optional(), // Defaults to PRIORITY_FEE_IN_WEI defined in airnode-utilities
         fulfillmentGasLimit: z.number().int(),
         withdrawalRemainder: amountSchema.optional(),
       },
@@ -98,6 +98,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
     .object(
       {
         txType: z.literal('legacy'),
+        // No multiplier is used by default. See airnode-utilities for details
         gasPriceMultiplier: z.number().optional(),
         fulfillmentGasLimit: z.number().int(),
         withdrawalRemainder: amountSchema.optional(),
@@ -110,13 +111,13 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
 export const chainConfigSchema = z
   .object({
     authorizers: z.array(evmAddressSchema),
-    blockHistoryLimit: z.number().optional(),
+    blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
     contracts: chainContractsSchema,
     id: z.string(),
-    minConfirmations: z.number().optional(),
+    minConfirmations: z.number().int().optional(), // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node
     type: chainTypeSchema,
     options: chainOptionsSchema,
-    providers: z.record(providerSchema),
+    providers: z.record(z.string(), providerSchema),
     maxConcurrency: z.number().int(),
   })
   .strict();
@@ -127,7 +128,7 @@ export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
     apiKey: apiKeySchema,
-    maxConcurrency: z.number(),
+    maxConcurrency: z.number().int(),
   })
   .strict();
 

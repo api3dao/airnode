@@ -8,19 +8,36 @@ import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
-import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorMessage, ApiCallErrorResponse } from '../types';
+import {
+  AggregatedApiCall,
+  ApiCallResponse,
+  LogsData,
+  RequestErrorMessage,
+  ApiCallErrorResponse,
+  ApiCallParameters,
+} from '../types';
 import { Config } from '../config';
 
 function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const { config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
-  // Don't submit the reserved parameters to the API
-  const sanitizedParameters: adapter.Parameters = removeKeys(parameters, RESERVED_PARAMETERS);
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const apiCredentials = config.apiCredentials
     .filter((c) => c.oisTitle === oisTitle)
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
+
+  // Gather the default endpoint parameter values
+  const endpoint = ois.endpoints.find((endpoint) => endpoint.name === endpointName)!;
+  const defaultParameters = endpoint.parameters
+    .filter((p) => p.default !== undefined)
+    .reduce((acc, p) => ({ ...acc, [p.name]: p.default! }), {} as ApiCallParameters);
+
+  // Override (and merge) the default endpoint parameters with the user parameters
+  const allParameters = { ...defaultParameters, ...parameters };
+
+  // Don't submit the reserved parameters to the API
+  const sanitizedParameters: adapter.Parameters = removeKeys(allParameters, RESERVED_PARAMETERS);
 
   switch (aggregatedApiCall.type) {
     case 'http-signed-data-gateway':

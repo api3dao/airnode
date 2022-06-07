@@ -9,11 +9,12 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
     const [logs, res] = await callApi({
       config: fixtures.buildConfig(),
-      aggregatedApiCall,
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
     });
+
     expect(logs).toEqual([]);
     expect(res).toEqual({
       success: true,
@@ -28,7 +29,7 @@ describe('callApi', () => {
       {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
-        parameters: { from: 'ETH' },
+        parameters: { from: 'ETH', amount: '1' },
         metadata: {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
           airnodeRrpAddress: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -47,6 +48,24 @@ describe('callApi', () => {
           },
         ],
       },
+      { timeout: 30_000 }
+    );
+  });
+
+  it('uses the default endpoint parameters if no user value is provided', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+
+    await callApi({
+      config: fixtures.buildConfig(),
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall(),
+    });
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parameters: { from: 'ETH', amount: '1' },
+      }),
       { timeout: 30_000 }
     );
   });
@@ -182,7 +201,7 @@ describe('callApi', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
-          parameters: { from: 'BTC', source: 'airnode' },
+          parameters: { from: 'BTC', source: 'airnode', amount: '1' },
         }),
         { timeout: 30_000 }
       );
@@ -225,7 +244,7 @@ describe('callApi', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
-          parameters: { from: 'ETH' },
+          parameters: { from: 'ETH', amount: '1' },
         }),
         { timeout: 30_000 }
       );

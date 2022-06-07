@@ -1,6 +1,7 @@
 import forEach from 'lodash/forEach';
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
+import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
 import { SuperRefinement, z } from 'zod';
 import { SchemaType } from '../types';
@@ -52,9 +53,15 @@ export const endpointParameterSchema = z
     // Parameter name must not contain spaces
     name: z.string().regex(/^[^\s]+$/),
     operationParameter: operationParameterSchema,
-    default: z.string().optional(),
+
+    // The following optional fields are defined by OAS. They are intended to provide more
+    // clarity about a parameter and are ignored by Airnode
     description: z.string().optional(),
     example: z.string().optional(),
+
+    // Default value is used when the user (requester) does not provide a value for the parameter
+    default: z.string().optional(),
+    // This property is completely ignored by Airnode
     required: z.boolean().optional(),
   })
   .strict();
@@ -64,6 +71,8 @@ export const reservedParameterNameSchema = z.union([z.literal('_type'), z.litera
 export const reservedParameterSchema = z
   .object({
     name: reservedParameterNameSchema,
+    // At most one of the following fields can be used. If none of them is used,
+    // the user (requester) is expected to pass the value as parameter
     default: z.string().optional(),
     fixed: z.string().optional(),
   })
@@ -148,7 +157,7 @@ export const apiSecuritySchemeSchema = z.discriminatedUnion('type', [
 
 export const apiComponentsSchema = z
   .object({
-    securitySchemes: z.record(apiSecuritySchemeSchema),
+    securitySchemes: z.record(z.string(), apiSecuritySchemeSchema),
   })
   .strict();
 
@@ -162,7 +171,7 @@ export const httpStatusCodes = z.union([z.literal('get'), z.literal('post')]);
 
 export const pathSchema = z.record(httpStatusCodes, operationSchema);
 
-const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
+const ensurePathParametersExist: SuperRefinement<Record<string, SchemaType<typeof pathSchema>>> = (paths, ctx) => {
   forEach(paths, (pathData, rawPath) => {
     forEach(pathData, (paramData, httpMethod) => {
       const parameters = paramData!.parameters;
@@ -197,14 +206,44 @@ const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
   });
 };
 
-export const pathsSchema = z.record(pathNameSchema, pathSchema).superRefine(ensurePathParametersExist);
+const ensureUniqueApiSpecificationParameters: SuperRefinement<Record<string, SchemaType<typeof pathSchema>>> = (
+  paths,
+  ctx
+) => {
+  forEach(paths, (pathData, rawPath) => {
+    forEach(pathData, (paramData, httpMethod) => {
+      const parameters = paramData!.parameters;
+
+      const getGroupId = (param: OperationParameter) => param.in + param.name;
+      const groups = Object.values(groupBy(parameters, getGroupId));
+      const duplicates = groups.filter((group) => group.length > 1).flat();
+
+      parameters.forEach((parameter, index) => {
+        if (duplicates.includes(parameter)) {
+          const { in: location, name } = parameter;
+
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Parameter "${name}" in "${location}" is used multiple times`,
+            path: [rawPath, httpMethod, 'parameters', index],
+          });
+        }
+      });
+    });
+  });
+};
+
+export const pathsSchema = z
+  .record(pathNameSchema, pathSchema)
+  .superRefine(ensurePathParametersExist)
+  .superRefine(ensureUniqueApiSpecificationParameters);
 
 export const apiSpecificationSchema = z
   .object({
     components: apiComponentsSchema,
     paths: pathsSchema,
     servers: z.array(serverSchema),
-    security: z.record(z.tuple([])),
+    security: z.record(z.string(), z.tuple([])),
   })
   .strict()
   .superRefine((apiSpecifications, ctx) => {
@@ -226,21 +265,44 @@ export const processingSpecificationSchema = z
   .object({
     environment: z.union([z.literal('Node 14'), z.literal('Node 14 async')]),
     value: z.string(),
-    timeoutMs: z.number(),
+    timeoutMs: z.number().int(),
   })
   .strict();
 
+const ensureUniqueEndpointParameterNames: SuperRefinement<EndpointParameter[]> = (parameters, ctx) => {
+  const groups = Object.values(groupBy(parameters, 'name'));
+  const duplicates = groups.filter((group) => group.length > 1).flatMap((group) => group.map((p) => p.name));
+
+  parameters.forEach((parameter, index) => {
+    const { name } = parameter;
+    if (duplicates.includes(name)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Parameter names must be unique, but parameter "${name}" is used multiple times`,
+        path: [index],
+      });
+    }
+  });
+};
+
+const endpointParametersSchema = z.array(endpointParameterSchema).superRefine(ensureUniqueEndpointParameterNames);
+
 export const endpointSchema = z
   .object({
-    description: z.string().optional(),
-    externalDocs: z.string().optional(),
     fixedOperationParameters: z.array(fixedParameterSchema),
     name: z.string(),
     operation: endpointOperationSchema,
-    parameters: z.array(endpointParameterSchema),
+    parameters: endpointParametersSchema,
+    reservedParameters: z.array(reservedParameterSchema),
+
+    // Processing is and advanced use case that needs to be used with special care. For this reason,
+    // we are defining the processing specification as optional fields.
     preProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
     postProcessingSpecifications: z.array(processingSpecificationSchema).optional(),
-    reservedParameters: z.array(reservedParameterSchema),
+
+    // The following fields are ignored by Airnode
+    description: z.string().optional(),
+    externalDocs: z.string().optional(),
     summary: z.string().optional(),
   })
   .strict();
@@ -399,6 +461,7 @@ export const oisSchema = z
 export const RESERVED_PARAMETERS = reservedParameterNameSchema.options.map((option) => option.value);
 export type Paths = SchemaType<typeof pathsSchema>;
 export type ParameterTarget = SchemaType<typeof parameterTargetSchema>;
+export type OperationParameter = SchemaType<typeof operationParameterSchema>;
 export type FixedParameter = SchemaType<typeof fixedParameterSchema>;
 export type EndpointParameter = SchemaType<typeof endpointParameterSchema>;
 export type HttpSecurityScheme = SchemaType<typeof httpSecuritySchemeSchema>;

@@ -1,8 +1,13 @@
 import { BigNumber, ethers } from 'ethers';
-import { PriorityFee, GasTarget, FetchOptions } from './types';
+import { PriorityFee, GasTarget, FetchOptions, LegacyChainOptions, Eip1559ChainOptions } from './types';
 import { go } from '../../promises';
 import { LogsData, logger, PendingLog } from '../../logging';
-import { DEFAULT_RETRY_TIMEOUT_MS, PRIORITY_FEE_IN_WEI, BASE_FEE_MULTIPLIER } from '../../constants';
+import {
+  DEFAULT_RETRY_TIMEOUT_MS,
+  PRIORITY_FEE_IN_WEI,
+  BASE_FEE_MULTIPLIER,
+  GAS_PRICE_MULTIPLIER,
+} from '../../constants';
 
 // This will return the gasLimit with the gasTarget if getGasPrice is called from a place where the fulfillmentGasLimit
 // is available in the config.json and otherwise no gasLimit will be returned for use with other transactions
@@ -16,9 +21,10 @@ export const parsePriorityFee = ({ value, unit }: PriorityFee) => ethers.utils.p
 export const multiplyGasPrice = (gasPrice: BigNumber, gasPriceMultiplier: number) =>
   gasPrice.mul(BigNumber.from(Math.round(gasPriceMultiplier * 100))).div(BigNumber.from(100));
 
-export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
-  const { provider, chainOptions } = options;
-
+export const getLegacyGasPrice = async (
+  provider: ethers.providers.Provider,
+  chainOptions: LegacyChainOptions
+): Promise<LogsData<GasTarget | null>> => {
   const [err, gasPrice] = await go(() => provider.getGasPrice(), {
     retries: chainOptions.retries || 1,
     timeoutMs: chainOptions.timeoutMs || DEFAULT_RETRY_TIMEOUT_MS,
@@ -29,22 +35,21 @@ export const getLegacyGasPrice = async (options: FetchOptions): Promise<LogsData
     return [[log], null];
   }
 
-  const multipliedGasPrice = chainOptions.gasPriceMultiplier
-    ? multiplyGasPrice(gasPrice, chainOptions.gasPriceMultiplier)
-    : gasPrice;
-
+  const gasPriceMultiplier = chainOptions.gasPriceMultiplier ?? GAS_PRICE_MULTIPLIER;
   return [
     [],
     {
       type: 0,
-      gasPrice: multipliedGasPrice,
+      gasPrice: multiplyGasPrice(gasPrice, gasPriceMultiplier),
       ...getGasLimit(chainOptions.fulfillmentGasLimit),
     },
   ];
 };
 
-export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
-  const { provider, chainOptions } = options;
+export const getEip1559GasPricing = async (
+  provider: ethers.providers.Provider,
+  chainOptions: Eip1559ChainOptions
+): Promise<LogsData<GasTarget | null>> => {
   const logs = Array<PendingLog>();
 
   const [err, blockHeader] = await go(() => provider.getBlock('latest'), {
@@ -76,12 +81,12 @@ export const getEip1559GasPricing = async (options: FetchOptions): Promise<LogsD
 };
 
 export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
-  const { chainOptions } = options;
+  const { chainOptions, provider } = options;
 
   switch (chainOptions.txType) {
     case 'legacy':
-      return getLegacyGasPrice(options);
+      return getLegacyGasPrice(provider, chainOptions);
     case 'eip1559':
-      return getEip1559GasPricing(options);
+      return getEip1559GasPricing(provider, chainOptions);
   }
 };
