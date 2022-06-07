@@ -61,6 +61,19 @@ describe('parseConfigWithSecrets', () => {
     expect(parseConfigWithSecrets(config, secrets)).toEqual({ success: true, data: interpolatedResult });
   });
 
+  it('fails when a secret is empty', () => {
+    const config = loadConfigFixture();
+    const secrets = {
+      PROVIDER_URL: 'http://127.0.0.1:8545/',
+      AIRNODE_WALLET_MNEMONIC: '',
+    };
+
+    expect(parseConfigWithSecrets(config, secrets)).toEqual({
+      error: new Error('Secrets interpolation failed. Caused by: Secret "AIRNODE_WALLET_MNEMONIC" has empty value'),
+      success: false,
+    });
+  });
+
   describe('cases when secrets are not valid JS identifiers', () => {
     it('fails when a secret starts with a number', () => {
       const config = loadConfigFixture();
