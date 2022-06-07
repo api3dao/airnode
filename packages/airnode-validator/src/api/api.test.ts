@@ -39,7 +39,7 @@ describe('parseConfigWithSecrets', () => {
     };
 
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
-      error: new Error('PROVIDER_URL is not defined'),
+      error: new Error('Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'),
       success: false,
     });
   });
@@ -58,6 +58,38 @@ describe('parseConfigWithSecrets', () => {
     interpolatedResult.ois[0].endpoints[0].postProcessingSpecifications[0].value =
       'const someVar = 123; console.log(`${someVar}`);';
     expect(parseConfigWithSecrets(config, secrets)).toEqual({ success: true, data: interpolatedResult });
+  });
+
+  describe('cases when secrets are not valid JS identifiers', () => {
+    it('fails when a secret starts with a number', () => {
+      const config = loadConfigFixture();
+      config.nodeSettings.stage = '${0123STAGE_NAME}';
+      const secrets = {
+        PROVIDER_URL: 'http://127.0.0.1:8545/',
+        AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+        ['0123STAGE_NAME']: 'dev',
+      };
+
+      expect(parseConfigWithSecrets(config, secrets)).toEqual({
+        error: new Error('Secrets interpolation failed. Caused by: Invalid or unexpected token'),
+        success: false,
+      });
+    });
+
+    it('fails when a secret contains a "-" character', () => {
+      const config = loadConfigFixture();
+      config.nodeSettings.stage = '${STAGE-NAME}';
+      const secrets = {
+        PROVIDER_URL: 'http://127.0.0.1:8545/',
+        AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+        ['STAGE-NAME']: 'dev',
+      };
+
+      expect(parseConfigWithSecrets(config, secrets)).toEqual({
+        error: new Error('Secrets interpolation failed. Caused by: STAGE is not defined'),
+        success: false,
+      });
+    });
   });
 });
 

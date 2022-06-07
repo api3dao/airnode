@@ -41,16 +41,28 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
       );
     });
 
-    it('when configuration is invalid', () => {
+    it('when secret is missing', () => {
       cli.validateConfiguration(configPath, join(__dirname, '../../test/fixtures/missing-secrets.env'));
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
+      );
+    });
+
+    it('when secret is not a valid JS identifier', () => {
+      cli.validateConfiguration(
+        join(__dirname, '../../test/fixtures/invalid-secret-name/config.json'),
+        join(__dirname, '../../test/fixtures/invalid-secret-name/secrets.env')
+      );
+
+      expect(failSpy).toHaveBeenCalledTimes(1);
+      expect(failSpy).toHaveBeenCalledWith(
+        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: Invalid or unexpected token'
       );
     });
   });

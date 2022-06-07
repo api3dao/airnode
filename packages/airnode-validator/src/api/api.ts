@@ -14,11 +14,16 @@ import { ValidationResult } from '../validation-result';
  * @returns `{success: true, data: <interpolated config>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseConfigWithSecrets(config: unknown, secrets: unknown): ValidationResult<Config> {
-  const parseSecretsRes = parseSecrets(secrets);
-  if (!parseSecretsRes.success) return parseSecretsRes;
+  const parsedSecrets = parseSecrets(secrets);
+  if (!parsedSecrets.success) return parsedSecrets;
 
-  const interpolateConfigRes = interpolateSecrets(config, parseSecretsRes.data);
-  if (!interpolateConfigRes.success) return interpolateConfigRes;
+  const interpolateConfigRes = interpolateSecrets(config, parsedSecrets.data);
+  if (!interpolateConfigRes.success) {
+    return {
+      success: false,
+      error: new Error('Secrets interpolation failed. Caused by: ' + interpolateConfigRes.error.message),
+    };
+  }
 
   return parseConfig(interpolateConfigRes.data);
 }
