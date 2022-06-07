@@ -20,7 +20,7 @@ describe('validateConfiguration', () => {
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          'Unable to read config file at "non-existent-config.json". Reason: Error: Error: ENOENT: no such file or directory'
+          'Unable to read config file at "non-existent-config.json". Reason: Error: ENOENT: no such file or directory'
         )
       );
     });
@@ -31,7 +31,7 @@ describe('validateConfiguration', () => {
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          'Unable to read secrets file at "non-existent-secrets.env". Reason: Error: Error: ENOENT: no such file or directory'
+          'Unable to read secrets file at "non-existent-secrets.env". Reason: Error: ENOENT: no such file or directory'
         )
       );
     });
@@ -41,7 +41,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
       );
     });
 
@@ -50,7 +50,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
       );
     });
 
@@ -62,7 +62,7 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Error: Secrets interpolation failed. Caused by: Invalid or unexpected token'
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: Invalid or unexpected token'
       );
     });
   });

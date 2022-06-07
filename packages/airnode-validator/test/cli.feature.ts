@@ -38,7 +38,9 @@ describe('validator CLI', () => {
     expect(output.status).toBe(1);
     expect(output.stderr.toString()).toEqual(
       // We use "expect.stringContaining" because the output begins with "✖"
-      expect.stringContaining('The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined')
+      expect.stringContaining(
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
+      )
     );
   });
 });

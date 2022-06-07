@@ -20,21 +20,22 @@ const examples = [
 
 export const validateConfiguration = (configPath: string, secretsPath: string) => {
   const goRawConfig = goSync(() => readFileSync(path.resolve(configPath), 'utf-8'));
-  if (!goRawConfig.success) return fail(`Unable to read config file at "${configPath}". Reason: ${goRawConfig.error}`);
+  if (!goRawConfig.success)
+    return fail(`Unable to read config file at "${configPath}". Reason: ${goRawConfig.error.message}`);
 
   const goConfig = goSync(() => JSON.parse(goRawConfig.data));
   if (!goConfig.success) return fail(`The configuration is not a valid JSON.`);
 
   const goRawSecrets = goSync(() => readFileSync(path.resolve(secretsPath), 'utf-8'));
   if (!goRawSecrets.success) {
-    return fail(`Unable to read secrets file at "${secretsPath}". Reason: ${goRawSecrets.error}`);
+    return fail(`Unable to read secrets file at "${secretsPath}". Reason: ${goRawSecrets.error.message}`);
   }
 
   const goSecrets = goSync(() => dotenv.parse(goRawSecrets.data));
   if (!goSecrets.success) return fail(`The secrets have incorrect format.`);
 
   const parseResult = parseConfigWithSecrets(goConfig.data, goSecrets.data);
-  if (!parseResult.success) return fail(`The configuration is not valid. Reason: ${parseResult.error}`);
+  if (!parseResult.success) return fail(`The configuration is not valid. Reason: ${parseResult.error.message}`);
 
   return succeed('The configuration is valid');
 };
