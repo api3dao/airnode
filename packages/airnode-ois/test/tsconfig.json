@@ -5,5 +5,5 @@
     "noEmit": true
   },
   "references": [{ "path": "../src" }],
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../src/**/*.test.ts"]
 }
