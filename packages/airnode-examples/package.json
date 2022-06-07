@@ -9,9 +9,10 @@
     "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
-    "build": "yarn run clean && hardhat compile && yarn tsc --build tsconfig.json",
+    "build": "yarn run clean && yarn compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "choose-integration": "ts-node src/scripts/choose-integration.ts",
+    "compile": "hardhat compile && tsc --build tsconfig.json",
     "create-airnode-config": "ts-node src/scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node src/scripts/create-airnode-secrets.ts",
     "create-aws-secrets": "ts-node src/scripts/create-aws-secrets.ts",

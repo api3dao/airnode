@@ -5,8 +5,9 @@
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
-    "build": "yarn run clean && hardhat compile",
+    "build": "yarn run clean && yarn compile",
     "choose-integration": "ts-node scripts/choose-integration.ts",
+    "compile": "hardhat compile",
     "create-airnode-config": "ts-node scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",
     "create-aws-secrets": "ts-node scripts/create-aws-secrets.ts",
