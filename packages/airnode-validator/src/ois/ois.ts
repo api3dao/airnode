@@ -37,16 +37,20 @@ export const fixedParameterSchema = z
 
 export const methodSchema = z.union([z.literal('get'), z.literal('post')]);
 
+// Path name must start wih "/" and must not contain space character
+export const pathNameSchema = z.string().regex(/^\/[^\s]*$/);
+
 export const endpointOperationSchema = z
   .object({
     method: methodSchema,
-    path: z.string(),
+    path: pathNameSchema,
   })
   .strict();
 
 export const endpointParameterSchema = z
   .object({
-    name: z.string(),
+    // Parameter name must not contain spaces
+    name: z.string().regex(/^[^\s]+$/),
     operationParameter: operationParameterSchema,
     default: z.string().optional(),
     description: z.string().optional(),
@@ -63,7 +67,16 @@ export const reservedParameterSchema = z
     default: z.string().optional(),
     fixed: z.string().optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => {
+    const { fixed, default: defaultValue } = value;
+
+    // Explicitly check for "undefined", since empty string is a valid reserved parameter value
+    const isFixedValueDefined = fixed !== undefined;
+    const isDefaultValueDefined = defaultValue !== undefined;
+
+    return !isFixedValueDefined || !isDefaultValueDefined;
+  }, 'Reserved parameter must use at most one of "default" and "fixed" properties');
 
 export const serverSchema = z
   .object({
@@ -184,7 +197,7 @@ const ensurePathParametersExist: SuperRefinement<Paths> = (paths, ctx) => {
   });
 };
 
-export const pathsSchema = z.record(pathSchema).superRefine(ensurePathParametersExist);
+export const pathsSchema = z.record(pathNameSchema, pathSchema).superRefine(ensurePathParametersExist);
 
 export const apiSpecificationSchema = z
   .object({
@@ -363,11 +376,19 @@ const ensureEndpointAndApiSpecificationParamsMatch: SuperRefinement<{
   });
 };
 
+export const semverSchema = z.string().refine((value) => {
+  const semver = value.split('.');
+  if (semver.length !== 3) return false;
+
+  return !semver.find((part) => /^\d+$/.test(part) === false);
+}, 'Expected semantic versioning "x.y.z"');
+
 export const oisSchema = z
   .object({
-    oisFormat: z.string(),
-    title: z.string(),
-    version: z.string(),
+    oisFormat: semverSchema,
+    // Limit the title to 64 characters
+    title: z.string().regex(/^[a-zA-Z0-9-_\s]{1,64}$/),
+    version: semverSchema,
     apiSpecifications: apiSpecificationSchema,
     endpoints: z.array(endpointSchema),
   })

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
+import zip from 'lodash/zip';
 import {
   Config,
   chainOptionsSchema,
@@ -10,8 +11,13 @@ import {
   NodeSettings,
   amountSchema,
   Amount,
+  enabledGatewaySchema,
+  enabledHeartbeatSchema,
+  gatewaySchema,
+  heartbeatSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
+import { SchemaType } from '../types';
 
 it('successfully parses config.json', () => {
   const config = JSON.parse(
@@ -153,12 +159,12 @@ describe('nodeSettingsSchema', () => {
       },
       httpGateway: {
         enabled: true,
-        apiKey: 'sameApiKey',
+        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
       },
       httpSignedDataGateway: {
         enabled: true,
-        apiKey: 'sameApiKey',
+        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
       },
     };
@@ -297,5 +303,66 @@ describe('triggers references', () => {
         },
       ])
     );
+  });
+});
+
+describe('apiKey schemas', () => {
+  const gateway: SchemaType<typeof enabledGatewaySchema> = {
+    enabled: true,
+    apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
+    maxConcurrency: 100,
+  };
+  const heartbeat: SchemaType<typeof enabledHeartbeatSchema> = {
+    enabled: true,
+    apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
+    id: 'some-id',
+    url: 'https://www.uuidgenerator.net/version4',
+  };
+
+  zip([gateway, heartbeat], [gatewaySchema, heartbeatSchema]).forEach(([_value, _schema]) => {
+    const value = _value!;
+    const schema = _schema!;
+
+    it('verifies edge cases', () => {
+      let newValue: any;
+
+      newValue = { ...value, apiKey: 'x'.repeat(29) };
+      expect(() => schema.parse(newValue)).toThrow(
+        new ZodError([
+          {
+            code: 'too_small',
+            minimum: 30,
+            type: 'string',
+            inclusive: true,
+            message: 'String must contain at least 30 character(s)',
+            path: ['apiKey'],
+          },
+        ])
+      );
+
+      newValue = { ...value, apiKey: 'x'.repeat(121) };
+      expect(() => schema.parse(newValue)).toThrow(
+        new ZodError([
+          {
+            code: 'too_big',
+            maximum: 120,
+            type: 'string',
+            inclusive: true,
+            message: 'String must contain at most 120 character(s)',
+            path: ['apiKey'],
+          },
+        ])
+      );
+
+      newValue = { ...value, apiKey: 'x'.repeat(30) };
+      expect(() => schema.parse(newValue)).not.toThrow();
+
+      newValue = { ...value, apiKey: 'x'.repeat(120) };
+      expect(() => schema.parse(newValue)).not.toThrow();
+    });
+
+    it('works with uuids and standard length keys', () => {
+      expect(() => schema.parse(value)).not.toThrow();
+    });
   });
 });

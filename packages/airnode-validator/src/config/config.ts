@@ -5,9 +5,17 @@ import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema } from '../ois';
 import { SchemaType } from '../types';
 
+export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
+export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+
+// We use a convention for deriving endpoint ID from OIS title and endpoint name,
+// but we are not enforcing the convention in docs:
+// https://docs.api3.org/airnode/latest/concepts/endpoint.html#endpointid
+const endpointIdSchema = z.string();
+
 export const triggerSchema = z
   .object({
-    endpointId: z.string(),
+    endpointId: endpointIdSchema,
     endpointName: z.string(),
     oisTitle: z.string(),
   })
@@ -21,13 +29,10 @@ export const triggersSchema = z
   })
   .strict();
 
-export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
-export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
-
 export const templateSchema = z
   .object({
     templateId: evmIdSchema,
-    endpointId: evmIdSchema,
+    endpointId: endpointIdSchema,
     encodedParameters: z.string(),
   })
   .strict();
@@ -53,17 +58,15 @@ export const providerSchema = z
 export const amountSchema = z
   .object({
     value: z.number().lte(9007199254740991), // 2**53 - 1
-    unit: z
-      .union([
-        z.literal('wei'),
-        z.literal('kwei'),
-        z.literal('mwei'),
-        z.literal('gwei'),
-        z.literal('szabo'),
-        z.literal('finney'),
-        z.literal('ether'),
-      ])
-      .optional(),
+    unit: z.union([
+      z.literal('wei'),
+      z.literal('kwei'),
+      z.literal('mwei'),
+      z.literal('gwei'),
+      z.literal('szabo'),
+      z.literal('finney'),
+      z.literal('ether'),
+    ]),
   })
   .strict();
 
@@ -106,7 +109,7 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
 
 export const chainConfigSchema = z
   .object({
-    authorizers: z.array(z.string()),
+    authorizers: z.array(evmAddressSchema),
     blockHistoryLimit: z.number().optional(),
     contracts: chainContractsSchema,
     id: z.string(),
@@ -114,14 +117,16 @@ export const chainConfigSchema = z
     type: chainTypeSchema,
     options: chainOptionsSchema,
     providers: z.record(providerSchema),
-    maxConcurrency: z.number(),
+    maxConcurrency: z.number().int(),
   })
   .strict();
+
+export const apiKeySchema = z.string().min(30).max(120);
 
 export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
-    apiKey: z.string(),
+    apiKey: apiKeySchema,
     maxConcurrency: z.number(),
   })
   .strict();
@@ -137,7 +142,7 @@ export const gatewaySchema = z.discriminatedUnion('enabled', [enabledGatewaySche
 export const enabledHeartbeatSchema = z
   .object({
     enabled: z.literal(true),
-    apiKey: z.string(),
+    apiKey: apiKeySchema,
     id: z.string(),
     url: z.string(),
   })
@@ -184,7 +189,6 @@ export const nodeSettingsSchema = z
     heartbeat: heartbeatSchema,
     httpGateway: gatewaySchema,
     httpSignedDataGateway: gatewaySchema,
-    airnodeAddressShort: z.string().optional(),
     stage: z.string().regex(/^[a-z0-9-]{1,16}$/),
     cloudProvider: localOrCloudProviderSchema,
     logFormat: logFormatSchema,

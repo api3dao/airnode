@@ -1,4 +1,4 @@
-import { range } from 'lodash';
+import range from 'lodash/range';
 import { applyChainLimits } from './chain-limits';
 import * as fixtures from '../../../test/fixtures';
 import { ProviderStates, ProviderState, EVMProviderState, GroupedRequests } from '../../types';

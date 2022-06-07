@@ -2,7 +2,15 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import cloneDeep from 'lodash/cloneDeep';
-import { oisSchema, operationParameterSchema, endpointParameterSchema, OIS } from './ois';
+import {
+  oisSchema,
+  operationParameterSchema,
+  endpointParameterSchema,
+  OIS,
+  pathNameSchema,
+  semverSchema,
+  reservedParameterSchema,
+} from './ois';
 
 const loadOisFixture = (): OIS =>
   // This OIS is guaranteed to be valid because there is a test for it's validity below
@@ -17,8 +25,8 @@ it(`doesn't allow extraneous properties`, () => {
   const ois = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/ois.json')).toString());
   expect(() => oisSchema.parse(ois)).not.toThrow();
 
-  const invalidois = { ...ois, unknownProp: 'someValue' };
-  expect(() => oisSchema.parse(invalidois)).toThrow(
+  const invalidOis = { ...ois, unknownProp: 'someValue' };
+  expect(() => oisSchema.parse(invalidOis)).toThrow(
     new ZodError([
       {
         code: 'unrecognized_keys',
@@ -324,4 +332,99 @@ describe('apiSpecification parameters validation', () => {
       ])
     );
   });
+});
+
+it('validates path name', () => {
+  expect(() => pathNameSchema.parse('my-path')).toThrow(
+    new ZodError([
+      {
+        validation: 'regex',
+        code: 'invalid_string',
+        message: 'Invalid',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => pathNameSchema.parse('/my path')).toThrow(
+    new ZodError([
+      {
+        validation: 'regex',
+        code: 'invalid_string',
+        message: 'Invalid',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => pathNameSchema.parse('/my-path')).not.toThrow();
+
+  expect(() => pathNameSchema.parse('/')).not.toThrow();
+});
+
+it('validates semantic versioning', () => {
+  expect(() => semverSchema.parse('1.0')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('0.x.y')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('^0.1.1')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+  expect(() => semverSchema.parse('0.1.1.2')).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Expected semantic versioning "x.y.z"',
+        path: [],
+      },
+    ])
+  );
+
+  expect(() => semverSchema.parse('1.0.0')).not.toThrow();
+  expect(() => semverSchema.parse('00.01.02')).not.toThrow();
+});
+
+it('validates reserved parameters', () => {
+  expect(() =>
+    reservedParameterSchema.parse({
+      name: '_times',
+      default: '123',
+      fixed: '123',
+    })
+  ).toThrow(
+    new ZodError([
+      {
+        code: 'custom',
+        message: 'Reserved parameter must use at most one of "default" and "fixed" properties',
+        path: [],
+      },
+    ])
+  );
+
+  // Empty parameter is allowed (the user is expected to pass it or it won't be used)
+  expect(() =>
+    reservedParameterSchema.parse({
+      name: '_times',
+    })
+  ).not.toThrow();
 });
