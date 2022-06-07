@@ -15052,10 +15052,10 @@ sync-rpc@^1.2.1:
   dependencies:
     get-port "^3.1.0"
 
-syncpack@^7.2.1:
-  version "7.2.2"
-  resolved "https://registry.yarnpkg.com/syncpack/-/syncpack-7.2.2.tgz#05fb34596a655e0b7e7319545a0331c5b5431318"
-  integrity sha512-2BkDzGtTbnl9oe6QzzpvAm1cfj3gMar9dD9yurD4YTbJyZaypDuPwH+DVEiznP870FdmFt3mclxNOREaL6/pZw==
+syncpack@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/syncpack/-/syncpack-8.0.0.tgz#9ea19e6e01b20858df19d5ab66621aa2f6fcb319"
+  integrity sha512-/hiK6UXYM+ttfyonZ9WCPnm+ORTxAmzc5wlTwQfnw1nojHW19RVWCWBe5Z8G9HLbYzaBdVUCmvRCjNuqsU1YNw==
   dependencies:
     chalk "4.1.2"
     commander "9.2.0"
