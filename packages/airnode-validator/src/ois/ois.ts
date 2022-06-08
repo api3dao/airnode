@@ -113,44 +113,24 @@ export const apiKeySecuritySchemeSchema = configurableSecuritySchemeSchema
   .extend({ type: z.literal('apiKey') })
   .strict();
 
-export const relayChainIdSecuritySchemeSchema = configurableSecuritySchemeSchema
-  .extend({
-    type: z.literal('relayChainId'),
-  })
-  .strict();
-
-export const relayChainTypeSecuritySchemeSchema = configurableSecuritySchemeSchema
-  .extend({
-    type: z.literal('relayChainType'),
-  })
-  .strict();
-
-export const relayRequesterAddressSecuritySchemeSchema = configurableSecuritySchemeSchema
-  .extend({
-    type: z.literal('relayRequesterAddress'),
-  })
-  .strict();
-
-export const relaySponsorAddressSecuritySchemeSchema = configurableSecuritySchemeSchema
-  .extend({
-    type: z.literal('relaySponsorAddress'),
-  })
-  .strict();
-
-export const relaySponsorWalletAddressSecuritySchemeSchema = configurableSecuritySchemeSchema
-  .extend({
-    type: z.literal('relaySponsorWalletAddress'),
-  })
-  .strict();
+export const RELAY_METADATA_TYPES = [
+  'relayChainId',
+  'relayChainType',
+  'relayRequesterAddress',
+  'relaySponsorAddress',
+  'relaySponsorWalletAddress',
+] as const;
 
 export const apiSecuritySchemeSchema = z.discriminatedUnion('type', [
   apiKeySecuritySchemeSchema,
   httpSecuritySchemeSchema,
-  relayChainIdSecuritySchemeSchema,
-  relayChainTypeSecuritySchemeSchema,
-  relayRequesterAddressSecuritySchemeSchema,
-  relaySponsorAddressSecuritySchemeSchema,
-  relaySponsorWalletAddressSecuritySchemeSchema,
+  ...RELAY_METADATA_TYPES.map((relayMetadataType) =>
+    configurableSecuritySchemeSchema
+      .extend({
+        type: z.literal(relayMetadataType),
+      })
+      .strict()
+  ),
 ]);
 
 // OAS supports also "oauth2" and "openIdConnect", but we don't

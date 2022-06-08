@@ -181,7 +181,7 @@ describe('nodeSettingsSchema', () => {
   });
 
   it('is ok if both gateways are disabled on AWS', () => {
-    const invalidNodeSettings = {
+    const validNodeSettings = {
       ...nodeSettings,
       cloudProvider: {
         type: 'aws',
@@ -190,7 +190,7 @@ describe('nodeSettingsSchema', () => {
       },
     };
 
-    expect(() => nodeSettingsSchema.parse(invalidNodeSettings)).not.toThrow();
+    expect(() => nodeSettingsSchema.parse(validNodeSettings)).not.toThrow();
   });
 });
 
@@ -364,5 +364,117 @@ describe('apiKey schemas', () => {
     it('works with uuids and standard length keys', () => {
       expect(() => schema.parse(value)).not.toThrow();
     });
+  });
+});
+
+describe('relay metadata', () => {
+  const config: Config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  const configWithRelayedMetadataSecurityScheme = {
+    ...config,
+    ois: [
+      {
+        ...config.ois[0],
+        apiSpecifications: {
+          ...config.ois[0].apiSpecifications,
+          components: {
+            securitySchemes: {
+              relayChainId: {
+                in: 'query',
+                type: 'relayChainId',
+                name: 'chainId',
+              },
+            },
+          },
+          security: {
+            relayChainId: [],
+          },
+        },
+      },
+    ],
+  };
+
+  it(`is ok if there are relay metadata security schemes but there are no gateways`, () => {
+    expect(() => configSchema.parse(configWithRelayedMetadataSecurityScheme)).not.toThrow();
+  });
+
+  it(`is ok if there are gateways but there are no relay metadata security schemes`, () => {
+    const validConfig = {
+      ...config,
+      triggers: {
+        ...config.triggers,
+        http: [{ ...config.triggers.rrp[0] }],
+      },
+    };
+
+    expect(() => configSchema.parse(validConfig)).not.toThrow();
+  });
+
+  it(`fails if there are relay metadata security schemes and HTTP gateway`, () => {
+    const invalidConfig = {
+      ...configWithRelayedMetadataSecurityScheme,
+      triggers: {
+        ...configWithRelayedMetadataSecurityScheme.triggers,
+        http: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Relayed metadata authentication can't be used with an HTTP gateway`,
+          path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', 'relayChainId', 'type'],
+        },
+      ])
+    );
+  });
+
+  it(`fails if there are relay metadata security schemes and HTTP signed data gateway`, () => {
+    const invalidConfig = {
+      ...configWithRelayedMetadataSecurityScheme,
+      triggers: {
+        ...configWithRelayedMetadataSecurityScheme.triggers,
+        httpSignedData: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Relayed metadata authentication can't be used with an HTTP signed data gateway`,
+          path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', 'relayChainId', 'type'],
+        },
+      ])
+    );
+  });
+
+  it(`fails if there are relay metadata security schemes and both gateways`, () => {
+    const invalidConfig = {
+      ...configWithRelayedMetadataSecurityScheme,
+      triggers: {
+        ...configWithRelayedMetadataSecurityScheme.triggers,
+        http: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+        httpSignedData: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Relayed metadata authentication can't be used with an HTTP gateway`,
+          path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', 'relayChainId', 'type'],
+        },
+        {
+          code: 'custom',
+          message: `Relayed metadata authentication can't be used with an HTTP signed data gateway`,
+          path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', 'relayChainId', 'type'],
+        },
+      ])
+    );
   });
 });
