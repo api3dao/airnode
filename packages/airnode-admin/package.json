@@ -16,7 +16,7 @@
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "cli": "ts-node bin/admin.ts",
     "compile": "tsc --build tsconfig.json",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test:e2e": "jest --selectProjects e2e",
     "test:e2e:update-snapshot": "yarn test:e2e --updateSnapshot",
     "test:e2e:watch": "yarn test:e2e --watch",

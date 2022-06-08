@@ -25,7 +25,7 @@
     "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
     "dev:list": "pm2 list",
     "dev:stop": "pm2 stop ecosystem.config.js",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test": "hardhat test"
   },
   "dependencies": {

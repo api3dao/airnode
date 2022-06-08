@@ -13,7 +13,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "tsc --build tsconfig.json",
-    "pack": "yarn pack"
+    "pack": "npm pack"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

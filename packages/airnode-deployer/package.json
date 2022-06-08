@@ -18,7 +18,7 @@
     "compile": "tsc --build tsconfig.json",
     "copy:terraform": "copyfiles terraform/**/**/**/*.tf terraform/**/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/*.js .webpack/templates/**/*.json .webpack/conversions/**/*.json dist/",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test": "jest --coverage",
     "webpack": "webpack",
     "webpack:dev": "webpack --mode development"

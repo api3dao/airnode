@@ -15,7 +15,7 @@
     "compile": "tsc --build tsconfig.json",
     "dev:invoke": "ts-node src/cli/validate-config.ts && ts-node src/cli/invoke.ts",
     "dev:testApi": "ts-node src/cli/test-api.ts",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
     "test:e2e:debug": "jest \"http.feature\" --selectProjects e2e",
     "test:e2e:watch": "yarn test:e2e --watch",

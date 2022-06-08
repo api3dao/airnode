@@ -13,7 +13,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "tsc --build tsconfig.json",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "yarn test --watch"
   },

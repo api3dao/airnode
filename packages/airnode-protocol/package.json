@@ -22,7 +22,7 @@
     "deploy:verify": "hardhat deploy --network $NETWORK --tags verify",
     "deploy:verify-local": "hardhat run scripts/verify-local.ts --network $NETWORK",
     "deploy:generate-references": "hardhat run scripts/generate-references.ts",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test": "hardhat test --parallel",
     "test:coverage": "hardhat coverage",
     "test:gas": "REPORT_GAS=TRUE hardhat test"

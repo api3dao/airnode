@@ -13,7 +13,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "hardhat compile && tsc --build tsconfig.json",
-    "pack": "yarn pack",
+    "pack": "npm pack",
     "test": "yarn test:ts && yarn test:hardhat",
     "test:ts": "SILENCE_LOGGER=true jest --coverage",
     "test:hardhat": "hardhat test",
