@@ -62,7 +62,18 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: Invalid or unexpected token'
+        `
+The configuration is not valid. Reason: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/",
+    "path": [
+      "0123STAGE_NAME"
+    ]
+  }
+]
+`.trim()
       );
     });
   });

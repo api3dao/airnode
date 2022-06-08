@@ -36,12 +36,17 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
   return configSchema.safeParse(config);
 }
 
+const secretNamePattern = /^[A-Z][A-Z0-9_]*$/;
+export const secretNameSchema = z
+  .string()
+  .regex(secretNamePattern, `Secret name is not a valid. Secret name must match ${secretNamePattern.toString()}`);
+export const secretsSchema = z.record(secretNameSchema, z.string());
+
 /**
  * @param secrets a key value object with the secrets
  * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  const secretsSchema = z.record(z.string(), z.string());
   return secretsSchema.safeParse(secrets);
 }
 

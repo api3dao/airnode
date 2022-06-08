@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { readFileSync } from 'fs';
 import forEach from 'lodash/forEach';
+import { ZodError } from 'zod';
 import { parseConfigWithSecrets, unsafeParseConfigWithSecrets } from './api';
 import { Config } from '../config';
 
@@ -71,7 +72,14 @@ describe('parseConfigWithSecrets', () => {
       };
 
       expect(parseConfigWithSecrets(config, secrets)).toEqual({
-        error: new Error('Secrets interpolation failed. Caused by: Invalid or unexpected token'),
+        error: new ZodError([
+          {
+            validation: 'regex',
+            code: 'invalid_string',
+            message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+            path: ['0123STAGE_NAME'],
+          },
+        ]),
         success: false,
       });
     });
@@ -86,7 +94,14 @@ describe('parseConfigWithSecrets', () => {
       };
 
       expect(parseConfigWithSecrets(config, secrets)).toEqual({
-        error: new Error('Secrets interpolation failed. Caused by: STAGE is not defined'),
+        error: new ZodError([
+          {
+            validation: 'regex',
+            code: 'invalid_string',
+            message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+            path: ['STAGE-NAME'],
+          },
+        ]),
         success: false,
       });
     });
