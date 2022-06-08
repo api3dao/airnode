@@ -34,8 +34,7 @@ import v8 from 'v8';
 import vm from 'vm';
 import worker_threads from 'worker_threads';
 import zlib from 'zlib';
-import axios from 'axios';
-import { ethers } from 'ethers';
+import { createTimers } from './vm-timers';
 
 const builtInNodeModules = {
   assert,
@@ -76,11 +75,6 @@ const builtInNodeModules = {
   zlib,
 };
 
-const extraModules = {
-  ethers,
-  axios,
-};
-
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
@@ -88,7 +82,6 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
   const vmContext = {
     input,
     ...builtInNodeModules,
-    ...extraModules,
     deferredOutput: undefined,
   };
 
@@ -112,15 +105,40 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
  *
  * The value given to `resolve` is expected to be the equivalent of `output` above.
  */
-export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) =>
-  new Promise((resolve, reject) => {
-    const vmContext = {
-      input,
-      resolve,
-      reject,
-      ...builtInNodeModules,
-      ...extraModules,
+export const unsafeEvaluateAsync = async (input: any, code: string, timeout: number) => {
+  let vmReject: (reason: unknown) => void;
+
+  // Make sure the timeout is applied. When the processing snippet uses setTimeout or setInterval, the timeout option
+  // from VM is broken. See: https://github.com/nodejs/node/issues/3020.
+  //
+  // We need to manually clear all timers and reject the processing manually.
+  const timeoutTimer = setTimeout(() => {
+    vmReject(new Error('Timeout exceeded'));
+  }, timeout);
+
+  return new Promise((evaluateResolve, evaluateReject) => {
+    const timers = createTimers();
+    const vmResolve = (value: unknown) => {
+      timers.clearAll();
+      clearTimeout(timeoutTimer);
+      evaluateResolve(value);
+    };
+    vmReject = (reason: unknown) => {
+      timers.clearAll();
+      clearTimeout(timeoutTimer);
+      evaluateReject(reason);
     };
 
+    const vmContext = {
+      input,
+      resolve: vmResolve,
+      reject: vmReject,
+      setTimeout: timers.customSetTimeout,
+      setInterval: timers.customSetInterval,
+      clearTimeout: timers.customClearTimeout,
+      clearInterval: timers.customClearInterval,
+      ...builtInNodeModules,
+    };
     vm.runInNewContext(code, vmContext, { displayErrors: true, timeout });
   });
+};

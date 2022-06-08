@@ -43,6 +43,22 @@ describe('parseConfigWithSecrets', () => {
       success: false,
     });
   });
+
+  it('can use "\\" to escape interpolation', () => {
+    const config = loadConfigFixture();
+    config.ois[0].endpoints[0].postProcessingSpecifications = [
+      { environment: 'Node 14', timeoutMs: 100, value: 'const someVar = 123; console.log(`\\${someVar}`);' },
+    ];
+    const secrets = {
+      PROVIDER_URL: 'http://127.0.0.1:8545/',
+      AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+    };
+
+    const interpolatedResult = interpolateSecrets(config, secrets);
+    interpolatedResult.ois[0].endpoints[0].postProcessingSpecifications[0].value =
+      'const someVar = 123; console.log(`${someVar}`);';
+    expect(parseConfigWithSecrets(config, secrets)).toEqual({ success: true, data: interpolatedResult });
+  });
 });
 
 describe('unsafeParseConfigWithSecrets', () => {

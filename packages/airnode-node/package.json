@@ -29,7 +29,6 @@
     "@api3/airnode-utilities": "^0.6.0",
     "@api3/airnode-validator": "^0.6.0",
     "aws-sdk": "^2.992.0",
-    "axios": "^0.27.2",
     "dotenv": "^16.0.0",
     "ethers": "^5.4.5",
     "google-auth-library": "^8.0.1",
