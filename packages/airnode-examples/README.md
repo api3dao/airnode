@@ -30,21 +30,29 @@ different scenario for running an Airnode instance. The integrations have been d
 functionality and use cases, from simple price requests to more complex authenticated requests encoding multiple
 reserved parameters. The following list orders integrations alphabetically:
 
-- [CoinGecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
-  unauthenticated cryptocurrency price request
-- [CoinGecko Testable](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-testable) -
-  same price request as the CoinGecko example above. However, the endpoint is allowed to be tested using the
-  [HTTP gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
-- [CoinMarketCap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
+- [authenticated-coinmarketcap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
   authenticated cryptocurrency price request
-- [OpenWeather](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
-  authenticated weather request encoding multiple parameters including the transaction timestamp, time of sunset,
-  temperature, and a description of the weather.
-- [Relay security schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
-  demonstration of how to relay multiple request metadata like chain ID and sponsor address to the API endpoint.
-- [CoinGecko signed data](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-signed-data) -
+- [coingecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
+  unauthenticated cryptocurrency price request
+- [coingecko-post-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-post-processing) -
+  showcasing [post-processing](https://docs.api3.org/ois/latest/processing.html) feature.
+- [coingecko-pre-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-pre-processing) -
+  showcasing [pre-processing](https://docs.api3.org/ois/latest/processing.html) feature.
+- [coingecko-signed-data](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-signed-data) -
   same price request as the CoinGecko example above. However, the endpoint can be used to retrieve signed data for
   beacon updates.
+- [coingecko-template](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-template) -
+  showcasing how to use [template](https://docs.api3.org/airnode/latest/grp-developers/using-templates.html) requests.
+- [coingecko-testable](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-testable) -
+  same price request as in the `coingecko` example. However, the endpoint is allowed to be tested using the
+  [HTTP gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
+- [failing-example](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/failing-example) -
+  performs an invalid request and demonstrates Airnode error handling.
+- [relay-security-schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
+  demonstration of how to relay multiple request metadata like chain ID and sponsor address to the API endpoint.
+- [weather-multi-value](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
+  authenticated weather request encoding multiple parameters including the transaction timestamp, time of sunset,
+  temperature, and a description of the weather.
 
 ## Setup
 
