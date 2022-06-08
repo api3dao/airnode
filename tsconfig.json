@@ -2,18 +2,21 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "downlevelIteration": true,
+    "sourceMap": true,
+    // Enable noEmit in every TS config which does not contain sources. This will make the compilation faster
+    "noEmit": false,
+
     "esModuleInterop": true,
     "lib": ["es2015"],
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "sourceMap": true,
-    "strict": true,
+    "downlevelIteration": true,
     "target": "es5",
+
+    "strict": true,
     // This check doesn't work well in monorepos: https://github.com/microsoft/TypeScript/issues/38538
     "skipLibCheck": true,
-    "composite": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     // Disabled because they are too restrictive
@@ -25,6 +28,11 @@
     // Disabled because prefer the property syntax
     "noPropertyAccessFromIndexSignature": false
   },
+  // See: https://www.typescriptlang.org/docs/handbook/project-references.html#overall-structure
+  //
+  // Another good practice is to have a “solution” tsconfig.json file that simply has
+  // references to all of your leaf-node projects and sets files to an empty array
+  // (otherwise the solution file will cause double compilation of files)
   "files": [],
   "references": [
     { "path": "./packages/airnode-abi" },

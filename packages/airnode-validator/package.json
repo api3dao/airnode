@@ -10,17 +10,13 @@
     "airnode-validator": "./dist/bin/validator.js"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "cli": "ts-node bin/validator.ts",
-    "compile": "yarn compile:cjs && yarn compile:es6 && yarn compile:esm",
-    "compile:cjs": "yarn tsc --build tsconfig.build-cjs.json",
-    "compile:es6": "yarn tsc --build tsconfig.build-es6.json",
-    "compile:esm": "yarn tsc --build tsconfig.build-esm.json",
+    "compile": "yarn tsc --build tsconfig.json",
     "pack": "yarn pack",
     "test": "jest --selectProjects unit",
     "test:e2e": "jest --selectProjects e2e",

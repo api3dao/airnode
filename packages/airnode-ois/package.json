@@ -11,7 +11,7 @@
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
-    "compile": "tsc --build tsconfig.build.json",
+    "compile": "tsc --build tsconfig.json",
     "pack": "yarn pack"
   },
   "devDependencies": {

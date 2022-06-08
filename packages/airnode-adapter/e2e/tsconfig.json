@@ -1,10 +1,11 @@
-// NOTE: Using a separate tsconfig with explicit typings to avoid Type collisions between Jest and Mocha typings
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "composite": false,
-    "baseUrl": "./",
-    "types": ["@nomiclabs/hardhat-waffle", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"]
+    "types": ["@nomiclabs/hardhat-waffle", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"],
+    "rootDir": "..",
+    "noEmit": true
   },
-  "include": ["./**/*", "../hardhat.config.ts"]
+  "references": [{ "path": "../src" }],
+  // Mocha tests use only the ".ts" (not ".test.ts") extension not to conflict with Jest tests
+  "include": ["./**/*.ts", "../hardhat.config.ts"]
 }

@@ -1,0 +1,10 @@
+// The tests inside this directory are Hardhat tests (using Mocha) and they do not depend on sources.
+// For this reason, the TS configuration does not reference the sources inside "src" directory.
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"]
+}

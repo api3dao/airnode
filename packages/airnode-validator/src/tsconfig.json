@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+
+    "rootDir": "..",
+    "rootDirs": ["./src", "./bin"],
+    // The output files of this TS config are for development only. See the referenced TS configs
+    // which build the sources into the "dist" folder in the root of the validator project.
+    "outDir": "../build"
+  },
+  "references": [
+    { "path": "./tsconfig.cjs.json" },
+    { "path": "./tsconfig.es6.json" },
+    { "path": "./tsconfig.esm.json" }
+  ],
+  "include": ["./**/*.ts", "../bin/**/*.ts", "../package.json"],
+  "exclude": ["./**/*.test.ts"]
+}

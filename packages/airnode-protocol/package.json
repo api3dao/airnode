@@ -9,12 +9,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn run clean && yarn run build:contracts && yarn run build:tsc",
-    "build:contracts": "hardhat compile",
-    "build:tsc": "yarn build:contract-dts && yarn build:copy-contract-dts && tsc --build tsconfig.build.json",
-    "build:contract-dts": "yarn typechain --target ethers-v5 --out-dir ./src/contracts \"./artifacts/contracts/**/!(*.dbg).json\"",
-    "build:copy-contract-dts": "copyfiles -u 1 \"src/contracts/**/*.d.ts\" dist/src",
+    "build": "yarn run clean && yarn compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
+    "compile": "yarn run compile:contracts && yarn run compile:tsc",
+    "compile:contracts": "hardhat compile",
+    "compile:tsc": "yarn compile:contract-dts && yarn compile:copy-contract-dts && tsc --build tsconfig.json",
+    "compile:contract-dts": "yarn typechain --target ethers-v5 --out-dir ./src/contracts \"./artifacts/contracts/**/!(*.dbg).json\"",
+    "compile:copy-contract-dts": "copyfiles -u 1 \"src/contracts/**/*.d.ts\" dist/src",
     "deploy:deterministic": "DETERMINISTIC=true hardhat deploy --network $NETWORK --tags deploy && yarn run deploy:generate-references",
     "deploy:undeterministic": "hardhat deploy --network $NETWORK --tags deploy && yarn run deploy:generate-references",
     "deploy:verify": "hardhat deploy --network $NETWORK --tags verify",

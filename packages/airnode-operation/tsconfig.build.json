@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  // References are not inherited and need to be listed explicitly. See:
-  // https://github.com/microsoft/TypeScript/issues/27098
-  "references": [{ "path": "../airnode-abi" }, { "path": "../airnode-protocol" }, { "path": "../airnode-utilities" }],
-  "exclude": ["./src/**/*.test.ts"]
-}
