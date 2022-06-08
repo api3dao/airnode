@@ -14,11 +14,16 @@ import { ValidationResult } from '../validation-result';
  * @returns `{success: true, data: <interpolated config>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseConfigWithSecrets(config: unknown, secrets: unknown): ValidationResult<Config> {
-  const parseSecretsRes = parseSecrets(secrets);
-  if (!parseSecretsRes.success) return parseSecretsRes;
+  const parsedSecrets = parseSecrets(secrets);
+  if (!parsedSecrets.success) return parsedSecrets;
 
-  const interpolateConfigRes = interpolateSecrets(config, parseSecretsRes.data);
-  if (!interpolateConfigRes.success) return interpolateConfigRes;
+  const interpolateConfigRes = interpolateSecrets(config, parsedSecrets.data);
+  if (!interpolateConfigRes.success) {
+    return {
+      success: false,
+      error: new Error('Secrets interpolation failed. Caused by: ' + interpolateConfigRes.error.message),
+    };
+  }
 
   return parseConfig(interpolateConfigRes.data);
 }
@@ -31,12 +36,17 @@ export function parseConfig(config: unknown): ValidationResult<Config> {
   return configSchema.safeParse(config);
 }
 
+const secretNamePattern = /^[A-Z][A-Z0-9_]*$/;
+export const secretNameSchema = z
+  .string()
+  .regex(secretNamePattern, `Secret name is not a valid. Secret name must match ${secretNamePattern.toString()}`);
+export const secretsSchema = z.record(secretNameSchema, z.string());
+
 /**
  * @param secrets a key value object with the secrets
  * @returns `{success: true, data: <secrets>}` if successful, `{success: false, error: <error>}` otherwise
  */
 export function parseSecrets(secrets: unknown): ValidationResult<Secrets> {
-  const secretsSchema = z.record(z.string(), z.string());
   return secretsSchema.safeParse(secrets);
 }
 

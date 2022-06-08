@@ -20,7 +20,7 @@ describe('validateConfiguration', () => {
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          'Unable to read config file at "non-existent-config.json". Reason: Error: Error: ENOENT: no such file or directory'
+          'Unable to read config file at "non-existent-config.json". Reason: Error: ENOENT: no such file or directory'
         )
       );
     });
@@ -31,7 +31,7 @@ describe('validateConfiguration', () => {
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          'Unable to read secrets file at "non-existent-secrets.env". Reason: Error: Error: ENOENT: no such file or directory'
+          'Unable to read secrets file at "non-existent-secrets.env". Reason: Error: ENOENT: no such file or directory'
         )
       );
     });
@@ -41,16 +41,39 @@ describe('validateConfiguration', () => {
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
       );
     });
 
-    it('when configuration is invalid', () => {
+    it('when secret is missing', () => {
       cli.validateConfiguration(configPath, join(__dirname, '../../test/fixtures/missing-secrets.env'));
 
       expect(failSpy).toHaveBeenCalledTimes(1);
       expect(failSpy).toHaveBeenCalledWith(
-        'The configuration is not valid. Reason: ReferenceError: PROVIDER_URL is not defined'
+        'The configuration is not valid. Reason: Secrets interpolation failed. Caused by: PROVIDER_URL is not defined'
+      );
+    });
+
+    it('when secret is not a valid JS identifier', () => {
+      cli.validateConfiguration(
+        join(__dirname, '../../test/fixtures/invalid-secret-name/config.json'),
+        join(__dirname, '../../test/fixtures/invalid-secret-name/secrets.env')
+      );
+
+      expect(failSpy).toHaveBeenCalledTimes(1);
+      expect(failSpy).toHaveBeenCalledWith(
+        `
+The configuration is not valid. Reason: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/",
+    "path": [
+      "0123STAGE_NAME"
+    ]
+  }
+]
+`.trim()
       );
     });
   });
