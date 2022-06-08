@@ -34,8 +34,6 @@ import v8 from 'v8';
 import vm from 'vm';
 import worker_threads from 'worker_threads';
 import zlib from 'zlib';
-import axios from 'axios';
-import { ethers } from 'ethers';
 import { createTimers } from './vm-timers';
 
 const builtInNodeModules = {
@@ -77,11 +75,6 @@ const builtInNodeModules = {
   zlib,
 };
 
-const extraModules = {
-  ethers,
-  axios,
-};
-
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
@@ -89,7 +82,6 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
   const vmContext = {
     input,
     ...builtInNodeModules,
-    ...extraModules,
     deferredOutput: undefined,
   };
 
@@ -146,7 +138,6 @@ export const unsafeEvaluateAsync = async (input: any, code: string, timeout: num
       clearTimeout: timers.customClearTimeout,
       clearInterval: timers.customClearInterval,
       ...builtInNodeModules,
-      ...extraModules,
     };
     vm.runInNewContext(code, vmContext, { displayErrors: true, timeout });
   });
