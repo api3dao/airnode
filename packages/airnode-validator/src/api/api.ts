@@ -72,7 +72,7 @@ function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult
   const emptySecret = Object.entries(secrets).find(([_key, value]) => !value);
   if (emptySecret) {
     const [secretName] = emptySecret;
-    return { success: false, error: new Error(`Secret "${secretName}" has empty value`) };
+    return { success: false, error: new Error(`Secret "${secretName}" has an empty value`) };
   }
 
   const interpolationRes = goSync(() =>

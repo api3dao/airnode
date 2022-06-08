@@ -69,7 +69,7 @@ describe('parseConfigWithSecrets', () => {
     };
 
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
-      error: new Error('Secrets interpolation failed. Caused by: Secret "AIRNODE_WALLET_MNEMONIC" has empty value'),
+      error: new Error('Secrets interpolation failed. Caused by: Secret "AIRNODE_WALLET_MNEMONIC" has an empty value'),
       success: false,
     });
   });
