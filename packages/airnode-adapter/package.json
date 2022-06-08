@@ -6,14 +6,13 @@
   "main": "dist/index",
   "types": "dist/index",
   "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "hardhat compile && tsc --build tsconfig.json",
-    "pack": "npm pack",
+    "pack": "yarn pack",
     "test": "yarn test:ts && yarn test:hardhat",
     "test:ts": "SILENCE_LOGGER=true jest --coverage",
     "test:hardhat": "hardhat test",

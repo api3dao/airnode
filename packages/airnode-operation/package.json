@@ -6,8 +6,7 @@
   "main": "dist/index",
   "types": "dist/index",
   "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
@@ -25,7 +24,7 @@
     "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
     "dev:list": "pm2 list",
     "dev:stop": "pm2 stop ecosystem.config.js",
-    "pack": "npm pack",
+    "pack": "yarn pack",
     "test": "hardhat test"
   },
   "dependencies": {

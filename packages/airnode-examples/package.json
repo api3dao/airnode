@@ -5,8 +5,7 @@
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
   "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn compile",

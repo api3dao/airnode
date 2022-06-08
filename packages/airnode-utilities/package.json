@@ -5,15 +5,14 @@
   "private": false,
   "description": "General utilities to support Airnode packages",
   "files": [
-    "dist",
-    "!dist/**/*.tsbuildinfo"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
     "compile": "tsc --build tsconfig.json",
     "test": "SILENCE_LOGGER=true jest --selectProjects unit",
-    "pack": "npm pack"
+    "pack": "yarn pack"
   },
   "types": "dist/index",
   "main": "dist/index.js",
