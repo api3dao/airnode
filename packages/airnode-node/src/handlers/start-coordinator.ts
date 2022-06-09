@@ -1,5 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
+import isEmpty from 'lodash/isEmpty';
 import { logger, go, formatDateTime, buildBaseOptions } from '@api3/airnode-utilities';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
@@ -54,9 +55,15 @@ async function initializeProviders(state: CoordinatorState) {
   logger.info('Forking to initialize providers complete', logOptions);
 
   const newState = coordinatorState.update(state, { providerStates });
-  newState.providerStates.evm.forEach((evmProvider) => {
-    logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, logOptions);
-  });
+  const evmProviders = newState.providerStates.evm;
+  if (isEmpty(evmProviders)) {
+    logger.info('No providers found', logOptions);
+  } else {
+    evmProviders.forEach((evmProvider) => {
+      logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, logOptions);
+    });
+  }
+
   return newState;
 }
 
