@@ -1,5 +1,4 @@
 import flatMap from 'lodash/flatMap';
-import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import { logger, go } from '@api3/airnode-utilities';
@@ -39,11 +38,6 @@ export async function initialize(
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderStates>> {
   const { chains } = config;
-
-  if (isEmpty(chains)) {
-    throw new Error('One or more chains must be defined in the provided config');
-  }
-
   const evmChains = chains.filter((c) => c.type === 'evm');
 
   // Providers are identified by their index in the array. This allows users

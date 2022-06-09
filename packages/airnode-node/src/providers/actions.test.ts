@@ -190,14 +190,6 @@ describe('initialize', () => {
       ],
     });
   });
-
-  it('throws an error if no providers are configured', async () => {
-    const config = fixtures.buildConfig({ chains: [] });
-    const workerOpts = fixtures.buildWorkerOptions();
-    await expect(providers.initialize('abcdefg', config, workerOpts)).rejects.toThrow(
-      new Error('One or more chains must be defined in the provided config')
-    );
-  });
 });
 
 describe('processRequests', () => {
