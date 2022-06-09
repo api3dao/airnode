@@ -69,7 +69,12 @@ const ES_MATCH_REGEXP = /(?<!\\)\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 const ESCAPED_ES_MATCH_REGEXP = /\\\\(\$\{([^\\}]*(?:\\.[^\\}]*)*)\})/g;
 
 function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
-  // Interpolate secrets
+  const emptySecret = Object.entries(secrets).find(([_key, value]) => !value);
+  if (emptySecret) {
+    const [secretName] = emptySecret;
+    return { success: false, error: new Error(`Secret "${secretName}" has an empty value`) };
+  }
+
   const interpolationRes = goSync(() =>
     JSON.parse(
       template(JSON.stringify(config), {
