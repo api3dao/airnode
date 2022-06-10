@@ -2,7 +2,7 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 import forEach from 'lodash/forEach';
 import { ZodError } from 'zod';
-import { parseConfigWithSecrets, unsafeParseConfigWithSecrets } from './api';
+import { parseConfigWithSecrets, unsafeParseConfigWithSecrets, parseSecrets } from './api';
 import { Config } from '../config';
 
 const loadConfigFixture = (): Config =>
@@ -68,8 +68,24 @@ describe('parseConfigWithSecrets', () => {
       AIRNODE_WALLET_MNEMONIC: '',
     };
 
+    const emptyError = new ZodError([
+      {
+        code: 'too_small',
+        minimum: 1,
+        type: 'string',
+        inclusive: true,
+        message: 'Secret cannot be empty',
+        path: ['AIRNODE_WALLET_MNEMONIC'],
+      },
+    ]);
+
+    expect(parseSecrets(secrets)).toEqual({
+      error: emptyError,
+      success: false,
+    });
+
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
-      error: new Error('Secrets interpolation failed. Caused by: Secret "AIRNODE_WALLET_MNEMONIC" has an empty value'),
+      error: emptyError,
       success: false,
     });
   });

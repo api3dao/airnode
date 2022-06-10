@@ -40,7 +40,7 @@ const secretNamePattern = /^[A-Z][A-Z0-9_]*$/;
 export const secretNameSchema = z
   .string()
   .regex(secretNamePattern, `Secret name is not a valid. Secret name must match ${secretNamePattern.toString()}`);
-export const secretsSchema = z.record(secretNameSchema, z.string());
+export const secretsSchema = z.record(secretNameSchema, z.string().min(1, { message: 'Secret cannot be empty' }));
 
 /**
  * @param secrets a key value object with the secrets
@@ -69,12 +69,6 @@ const ES_MATCH_REGEXP = /(?<!\\)\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 const ESCAPED_ES_MATCH_REGEXP = /\\\\(\$\{([^\\}]*(?:\\.[^\\}]*)*)\})/g;
 
 function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
-  const emptySecret = Object.entries(secrets).find(([_key, value]) => !value);
-  if (emptySecret) {
-    const [secretName] = emptySecret;
-    return { success: false, error: new Error(`Secret "${secretName}" has an empty value`) };
-  }
-
   const interpolationRes = goSync(() =>
     JSON.parse(
       template(JSON.stringify(config), {
@@ -88,7 +82,7 @@ function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult
   if (!interpolationRes.success) return interpolationRes;
 
   const interpolatedConfig = JSON.stringify(interpolationRes.data);
-  // Un-escape the excaped config interpolations (e.g. to enable interpolation in processing snippets)
+  // Un-escape the escaped config interpolations (e.g. to enable interpolation in processing snippets)
   return goSync(() => JSON.parse(interpolatedConfig.replace(ESCAPED_ES_MATCH_REGEXP, '$1')));
 }
 
