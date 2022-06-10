@@ -10,7 +10,6 @@ import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { deploy, removeWithReceipt, remove } from './commands';
 import { cliExamples } from './cli-examples';
 import * as logger from '../utils/logger';
-import { version as packageVersion } from '../../package.json';
 import { longArguments, printableArguments } from '../utils/cli';
 
 function drawHeader() {
@@ -24,7 +23,6 @@ function drawHeader() {
       '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|',
       '',
       `          Airnode v${getNodeVersion()}`,
-      `        Deployer CLI v${packageVersion}`,
       '',
     ].join('\n')
   );
@@ -34,7 +32,7 @@ async function runCommand(command: () => Promise<void>) {
   try {
     await command();
   } catch (err) {
-    // Logging an error here likely results in overlogging since the errors are usually logged at the place where they
+    // Logging an error here likely results in excessive logging since the errors are usually logged at the place where they
     // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
     if (err instanceof Error) logger.fail(err.message);
     else logger.fail('' + err);
