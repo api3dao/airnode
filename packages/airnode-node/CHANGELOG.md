@@ -1,5 +1,21 @@
 # @api3/airnode-node
 
+## 0.6.5
+
+### Patch Changes
+
+- [`693eae0c`](https://github.com/api3dao/airnode/commit/693eae0ce855755ed9082d712c853e9d63d8b7a1) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+* [#1175](https://github.com/api3dao/airnode/pull/1175) [`aaebe7f1`](https://github.com/api3dao/airnode/commit/aaebe7f1860a9324282c5c2bda9f3f2bed0ad2d2) Thanks [@amarthadan](https://github.com/amarthadan)! - Allow empty `chains` array in the config
+
+* Updated dependencies [[`693eae0c`](https://github.com/api3dao/airnode/commit/693eae0ce855755ed9082d712c853e9d63d8b7a1)]:
+  - @api3/airnode-abi@0.6.5
+  - @api3/airnode-adapter@0.6.5
+  - @api3/airnode-ois@0.6.5
+  - @api3/airnode-protocol@0.6.5
+  - @api3/airnode-utilities@0.6.5
+  - @api3/airnode-validator@0.6.5
+
 ## 0.6.4
 
 ### Patch Changes
