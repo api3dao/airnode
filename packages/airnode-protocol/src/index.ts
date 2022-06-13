@@ -49,6 +49,7 @@ export type {
   RequesterAuthorizerWithAirnode,
   RrpBeaconServerV0,
 } from './contracts';
+
 export {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
@@ -56,5 +57,9 @@ export {
   FailedRequestEvent,
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
-} from './contracts/AirnodeRrpV0';
+} from './contracts/AirnodeRrpV0'; // eslint-disable-line import/no-unresolved
+// NOTE: there seems to be an issue with eslint-plugin-import
+// not being able to find the above files. Hopefully a future version (> 2.26.0)
+// fixes this. https://github.com/api3dao/airnode/pull/1004#issuecomment-1096152730
+
 export { TypedEventFilter } from './contracts/commons';
