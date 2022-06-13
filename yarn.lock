@@ -9016,9 +9016,9 @@ hardhat-gas-reporter@^1.0.4:
     sha1 "^1.1.1"
 
 hardhat@^2.6.5:
-  version "2.9.7"
-  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.9.7.tgz#b31302b089486ec1c13c5a3dff18fe71f955f33b"
-  integrity sha512-PVSgTlM4Mtc4HNEoISpcM6rRNAK3ngqhxUaTmSw9eCtuVmtxTK86Tqnuq4zNPmlrtcuReXry9k3LGEnk2gJgbA==
+  version "2.9.9"
+  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.9.9.tgz#05c1015eb73e0230309534b00deeb080724aace0"
+  integrity sha512-Qv7SXnRc0zq1kGXruNnSKpP3eFccXMR5Qv6GVX9hBIJ5efN0PflKPq92aQ5Cv3jrjJeRevLznWZVz7bttXhVfw==
   dependencies:
     "@ethereumjs/block" "^3.6.2"
     "@ethereumjs/blockchain" "^5.5.2"
@@ -9065,7 +9065,7 @@ hardhat@^2.6.5:
     stacktrace-parser "^0.1.10"
     "true-case-path" "^2.2.1"
     tsort "0.0.1"
-    undici "^4.14.1"
+    undici "^5.4.0"
     uuid "^8.3.2"
     ws "^7.4.6"
 
@@ -9677,13 +9677,6 @@ is-core-module@^2.2.0, is-core-module@^2.5.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.6.0.tgz#d7553b2526fe59b92ba3e40c8df757ec8a709e19"
   integrity sha512-wShG8vs60jKfPWpF2KZRaAtvt3a20OAn7+IJ6hLPECpSABLcKtFKTTI4ZtH5QcBruBHlq+WsdHWyz0BCZW7svQ==
-  dependencies:
-    has "^1.0.3"
-
-is-core-module@^2.8.0:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.8.1.tgz#f59fdfca701d5879d0a6b100a40aa1560ce27211"
-  integrity sha512-SdNCUs284hr40hFTFP6l0IfZ/RSrMXF3qgoRHd3/79unUTvrFO/JoXwkGm+5J/Oe3E/b5GsnG330uUNgRpu1PA==
   dependencies:
     has "^1.0.3"
 
@@ -14193,16 +14186,7 @@ resolve@1.17.0:
   dependencies:
     path-parse "^1.0.6"
 
-resolve@^1.1.6, resolve@^1.10.0, resolve@^1.12.0, resolve@^1.18.1, resolve@^1.20.0, resolve@^1.8.1, resolve@^1.9.0:
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.21.0.tgz#b51adc97f3472e6a5cf4444d34bc9d6b9037591f"
-  integrity sha512-3wCbTpk5WJlyE4mSOtDLhqQmGFi0/TD9VPwmiolnk8U0wRgMEktqCXd3vy5buTO3tljvalNvKrjHEfrd2WpEKA==
-  dependencies:
-    is-core-module "^2.8.0"
-    path-parse "^1.0.7"
-    supports-preserve-symlinks-flag "^1.0.0"
-
-resolve@^1.22.0:
+resolve@^1.1.6, resolve@^1.10.0, resolve@^1.12.0, resolve@^1.18.1, resolve@^1.20.0, resolve@^1.22.0, resolve@^1.8.1, resolve@^1.9.0:
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.22.0.tgz#5e0b8c67c15df57a89bdbabe603a002f21731198"
   integrity sha512-Hhtrw0nLeSrFQ7phPp4OOcVjLPIeMnRlr5mcnVuMe7M/7eBn98A3hmFRLoFo3DLZkivSYwhRUJTyPyWAk56WLw==
@@ -16143,11 +16127,6 @@ underscore@1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.9.1.tgz#06dce34a0e68a7babc29b365b8e74b8925203961"
   integrity sha512-5/4etnCkd9c8gwgowi5/om/mYO5ajCaOgdzj/oW+0eQV9WxKBDZw5+ycmKmeaTXjInS/W0BzpGLo2xR2aBwZdg==
-
-undici@^4.14.1:
-  version "4.15.0"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-4.15.0.tgz#507ec94bce46bec5c76e934938c50b825eda8258"
-  integrity sha512-kHppwh/y49FLEXl/zYCCbGB0D3nrcWNBczNYCsDdNYzWPs80aQgfKic1PVkJEIc2YlR7m0Lf5i559zbr0AA7FQ==
 
 undici@^5.4.0:
   version "5.5.1"
