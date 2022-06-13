@@ -46,7 +46,7 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
+        "endpointId": "0x642598611f0dcbe389079bf555108513e3e8a15991887bb61126b7200f13c666",
         "oisTitle": "CoinGecko history data request",
         "endpointName": "coinHistoryData"
       }

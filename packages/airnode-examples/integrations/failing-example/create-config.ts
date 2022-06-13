@@ -53,7 +53,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   triggers: {
     rrp: [
       {
-        endpointId: '0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153',
+        endpointId: '0xea74a90bbc78b63658dcae04982d87de2710fe010b3bbb9ceb92cc8f724ea76b',
         oisTitle: 'Failure Example',
         endpointName: 'coinMarketData',
       },
