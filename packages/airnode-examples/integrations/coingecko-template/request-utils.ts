@@ -18,7 +18,7 @@ export const makeRequest = async () => {
   // Trigger the Airnode request
   return requester.makeRequest(
     // NOTE: Matches the template defined in "create-config.ts"
-    '0x02834eb43d56133982b7d6e5aa8b466c7ea4ba0fadf697698c1fee0996bba0fc',
+    '0x0058c1abb08d25f0c397673931eb30b94682f47a7d2509e6eebb92fc8b292a3c',
     sponsor.address,
     sponsorWalletAddress,
     getEncodedParameters()
