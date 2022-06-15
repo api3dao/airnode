@@ -27,7 +27,12 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'airnodeType',
     message: 'Choose Airnode type',
-    choices: [createCliOption('local'), createCliOption('aws'), createCliOption('gcp')],
+    choices: (prev) => {
+      const options = [createCliOption('aws'), createCliOption('gcp')];
+      // TODO: allow coingecko-signed-data after local Airnode client supports http gateways
+      if (prev !== 'coingecko-signed-data') options.push(createCliOption('local'));
+      return options;
+    },
   },
   {
     // Ask this option only if Airnode is to be deployed on GCP
