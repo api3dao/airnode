@@ -46,7 +46,7 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153",
+        "endpointId": "0x7ad7519b2b0ebd54c68356a314ffcacd7f897a08523e2ec9e0edd837fe995422",
         "oisTitle": "CoinGecko coins markets request",
         "endpointName": "coinsMarketData"
       }
