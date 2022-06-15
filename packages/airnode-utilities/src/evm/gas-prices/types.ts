@@ -11,7 +11,7 @@ export interface GasTarget {
 
 export interface PriorityFee {
   value: number;
-  unit?: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
+  unit: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
 }
 
 export type Eip1559ChainOptions = {
