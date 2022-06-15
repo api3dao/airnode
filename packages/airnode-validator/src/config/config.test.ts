@@ -81,7 +81,11 @@ describe('chainOptionsSchema', () => {
   it('does not allow eip1559 chain options for legacy transactions', () => {
     expect(() => chainOptionsSchema.parse(legacyChainOptions)).not.toThrow();
 
-    const invalidLegacySettings = { ...legacyChainOptions, baseFeeMultiplier: 2, priorityFee: 3.12 };
+    const invalidLegacySettings = {
+      ...legacyChainOptions,
+      baseFeeMultiplier: 2,
+      priorityFee: { value: 3.12, unit: 'gwei' },
+    };
     expect(() => chainOptionsSchema.parse(invalidLegacySettings)).toThrow(
       new ZodError([
         {
