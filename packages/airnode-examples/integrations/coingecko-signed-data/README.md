@@ -5,6 +5,9 @@ This example contains the same API integration as `../coingecko`.
 The only difference is that this integration allows the endpoint to return signed data that can be then submitted on
 chain.
 
+Note that currently this integration cannot be run with the local Airnode client as it does not yet support http
+gateways.
+
 See the documentation for the
 [signed data gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html#http-signed-data-gateway).
 
@@ -32,11 +35,14 @@ You can trigger the API call with a POST request. For example, you can use `curl
 curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
-Before making the request, you need to replace the example values:
+Before making the request, you need to replace the following placeholders:
 
-- `<HTTP_SIGNED_DATA_GATEWAY_API_KEY>` - You can find this value in `secrets.env`
+- `<HTTP_SIGNED_DATA_GATEWAY_API_KEY>` - This is a user defined API key to authenticate against the gateway, which must
+  be between 30 and 120 characters and is stored in `secrets.env`
 - `<HTTP_SIGNED_DATA_GATEWAY_URL>` - You can find this value in `receipt.json` under `api.httpSignedDataGatewayUrl` path
-- `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path
+- `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path. It can
+  be derived using the Admin CLI command `derive-endpoint-id` described further
+  [here](https://docs.api3.org/airnode/latest/reference/packages/admin-cli.html#derive-endpoint-id)
 
 The correct command may look like this:
 
@@ -48,8 +54,20 @@ The example output might look like this:
 
 ```json
 {
-  "timestamp": "1648226003",
-  "value": "0x0000000000000000000000000000000000000000000000000000000a571a14c0",
+  "data": {
+    "timestamp": "1648226003",
+    "value": "0x0000000000000000000000000000000000000000000000000000000a571a14c0"
+  },
   "signature": "0xa74e4312e2e6fa2de2997ef43e417e3b82d0019ac2a84012300f706f8b213e0d6e1ae9301052ec25b71addae1b1bceb4617779abfc6acd5a951e20a0aaabe6f61b"
 }
+```
+
+The `value` from which can be decoded using, for example:
+
+```ts
+import { ethers } from 'ethers';
+const encodedData = '0x0000000000000000000000000000000000000000000000000000000a571a14c0';
+const decodedBigNumber = ethers.utils.defaultAbiCoder.decode(['int256'], encodedData)[0];
+// which equals: BigNumber { _hex: '0x0a571a14c0', _isBigNumber: true }
+// or as a number: 44411000000, which is 44411 multiplied by the `_times` reserved parameter value of 1000000
 ```

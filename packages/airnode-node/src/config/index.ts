@@ -3,7 +3,7 @@ import { OIS } from '@api3/airnode-ois';
 import { randomHexString } from '@api3/airnode-utilities';
 import { unsafeParseConfigWithSecrets, parseConfigWithSecrets, config as configTypes } from '@api3/airnode-validator';
 
-// Accessing specificaly the `config` directory so we can export the content of the `config` module not the module itself
+// Accessing specifically the `config` directory so we can export the content of the `config` module not the module itself
 export * from '@api3/airnode-validator/dist/cjs/src/config';
 
 // TODO: Is this needed?
