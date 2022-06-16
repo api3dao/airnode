@@ -277,7 +277,7 @@ describe('respects maximum encoded size', () => {
   describe('encoding strings', () => {
     const maxStringLength = MAX_ENCODED_RESPONSE_SIZE - 64;
 
-    it('is under the limit', () => {
+    it('exceeds the limit', () => {
       const str = 'x'.repeat(maxStringLength + 1);
       expect(encodedSize('string', str)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
 
@@ -286,7 +286,7 @@ describe('respects maximum encoded size', () => {
       );
     });
 
-    it('exceeds the limit', () => {
+    it('is under the limit', () => {
       const str = 'x'.repeat(maxStringLength);
       expect(encodedSize('string', str)).toBe(MAX_ENCODED_RESPONSE_SIZE);
 
@@ -297,7 +297,7 @@ describe('respects maximum encoded size', () => {
   describe('encoding int256 arrays', () => {
     const maxInt256ArrayLength = 510;
 
-    it('is under the limit', () => {
+    it('exceeds the limit', () => {
       const arr = Array.from(Array(maxInt256ArrayLength + 1).keys());
       expect(encodedSize('int256[]', arr)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
 
@@ -306,7 +306,7 @@ describe('respects maximum encoded size', () => {
       );
     });
 
-    it('exceeds the limit', () => {
+    it('is under the limit', () => {
       const arr = Array.from(Array(maxInt256ArrayLength).keys());
       expect(encodedSize('int256[]', arr)).toBe(MAX_ENCODED_RESPONSE_SIZE);
 
