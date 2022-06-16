@@ -282,7 +282,7 @@ describe('respects maximum encoded size', () => {
       expect(encodedSize('string', str)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
 
       expect(() => extractAndEncodeResponse(str, { _type: 'string' })).toThrow(
-        'Encoded value exceeds the maximum allowed size (1024 bytes)'
+        'Encoded value exceeds the maximum allowed size (16384 bytes)'
       );
     });
 
@@ -295,14 +295,14 @@ describe('respects maximum encoded size', () => {
   });
 
   describe('encoding int256 arrays', () => {
-    const maxInt256ArrayLength = 30;
+    const maxInt256ArrayLength = 510;
 
     it('is under the limit', () => {
       const arr = Array.from(Array(maxInt256ArrayLength + 1).keys());
       expect(encodedSize('int256[]', arr)).toBe(MAX_ENCODED_RESPONSE_SIZE + 32);
 
       expect(() => extractAndEncodeResponse(arr, { _type: 'int256[]' })).toThrow(
-        'Encoded value exceeds the maximum allowed size (1024 bytes)'
+        'Encoded value exceeds the maximum allowed size (16384 bytes)'
       );
     });
 
