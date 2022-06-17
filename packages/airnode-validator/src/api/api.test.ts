@@ -14,7 +14,7 @@ const interpolateSecrets = (config: unknown, secrets: Record<string, string>) =>
   let strConfig = JSON.stringify(config);
 
   forEach(secrets, (val, key) => {
-    strConfig = strConfig.replace('${' + key + '}', val);
+    strConfig = strConfig.replace('${' + key + '}', JSON.stringify(val).slice(1, -1));
   });
 
   return JSON.parse(strConfig);
@@ -148,4 +148,17 @@ describe('unsafeParseConfigWithSecrets', () => {
     const interpolatedResult = interpolateSecrets(config, secrets);
     expect(unsafeParseConfigWithSecrets(config, secrets)).toEqual(interpolatedResult);
   });
+});
+
+it('works with multiline secrets', () => {
+  const config = loadConfigFixture();
+  config.ois[0].endpoints[0].description = '${MULTILINE_VALUE}';
+  const secrets = {
+    PROVIDER_URL: 'http://127.0.0.1:8545/',
+    AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+    MULTILINE_VALUE: 'MULTI\nLINE\nVALUE',
+  };
+
+  const interpolatedResult = interpolateSecrets(config, secrets);
+  expect(parseConfigWithSecrets(config, secrets)).toEqual({ success: true, data: interpolatedResult });
 });
