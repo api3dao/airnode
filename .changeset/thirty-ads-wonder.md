@@ -1,5 +1,5 @@
 ---
-'@api3/airnode-validator': minor
+'@api3/airnode-validator': patch
 ---
 
 Support multiline secrets in validator
