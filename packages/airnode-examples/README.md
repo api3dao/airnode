@@ -31,23 +31,22 @@ functionality and use cases, from simple price requests to more complex authenti
 reserved parameters. The following list orders integrations alphabetically:
 
 - [authenticated-coinmarketcap](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/authenticated-coinmarketcap) -
-  authenticated cryptocurrency price request
+  authenticated cryptocurrency price request.
 - [coingecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
-  unauthenticated cryptocurrency price request
+  unauthenticated cryptocurrency price request.
 - [coingecko-post-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-post-processing) -
-  showcasing [post-processing](https://docs.api3.org/ois/latest/processing.html) feature.
+  demonstration of the [post-processing](https://docs.api3.org/ois/latest/processing.html) feature.
 - [coingecko-pre-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-pre-processing) -
-  showcasing [pre-processing](https://docs.api3.org/ois/latest/processing.html) feature.
+  demonstration of the [pre-processing](https://docs.api3.org/ois/latest/processing.html) feature.
 - [coingecko-signed-data](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-signed-data) -
-  same price request as the CoinGecko example above. However, the endpoint can be used to retrieve signed data for
-  beacon updates.
+  demonstration of signed data retrieval for beacon updates.
 - [coingecko-template](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-template) -
-  showcasing how to use [template](https://docs.api3.org/airnode/latest/grp-developers/using-templates.html) requests.
+  demonstration of [template](https://docs.api3.org/airnode/latest/grp-developers/using-templates.html) requests.
 - [coingecko-testable](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-testable) -
-  same price request as in the `coingecko` example. However, the endpoint is allowed to be tested using the
+  demonstration of how to test the endpoint using the
   [HTTP gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
 - [failing-example](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/failing-example) -
-  performs an invalid request and demonstrates Airnode error handling.
+  demonstration of Airnode error handling through an invalid request.
 - [relay-security-schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
   demonstration of how to relay multiple request metadata like chain ID and sponsor address to the API endpoint.
 - [weather-multi-value](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/weather-multi-value) -
