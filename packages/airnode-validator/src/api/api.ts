@@ -1,5 +1,6 @@
 import { goSync } from '@api3/promise-utils';
 import template from 'lodash/template';
+import reduce from 'lodash/reduce';
 import { z } from 'zod';
 import { Config, configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
@@ -69,13 +70,26 @@ const ES_MATCH_REGEXP = /(?<!\\)\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 const ESCAPED_ES_MATCH_REGEXP = /\\\\(\$\{([^\\}]*(?:\\.[^\\}]*)*)\})/g;
 
 function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
+  const stringifiedSecrets = reduce(
+    secrets,
+    (acc, value, key) => {
+      return {
+        ...acc,
+        // Convert to value to JSON to encode new lines as "\n". The resulting value will be a JSON string with quotes
+        // which are sliced off.
+        [key]: JSON.stringify(value).slice(1, -1),
+      };
+    },
+    {} as Secrets
+  );
+
   const interpolationRes = goSync(() =>
     JSON.parse(
       template(JSON.stringify(config), {
         escape: NO_MATCH_REGEXP,
         evaluate: NO_MATCH_REGEXP,
         interpolate: ES_MATCH_REGEXP,
-      })(secrets)
+      })(stringifiedSecrets)
     )
   );
 
