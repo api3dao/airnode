@@ -53,6 +53,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     case 'regular': {
       const { airnodeAddress, requesterAddress, sponsorAddress, sponsorWalletAddress, endpointId, id, chainId } =
         aggregatedApiCall;
+      // Find the chain config based on the aggregatedApiCall chainId
       const chain = config.chains.find((c) => c.id === chainId)!;
 
       return {
