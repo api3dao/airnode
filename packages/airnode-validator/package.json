@@ -7,7 +7,7 @@
   "module": "./dist/esm/src/index.js",
   "browser": "./dist/es6/src/index.js",
   "bin": {
-    "airnode-validator": "./dist/bin/validator.js"
+    "airnode-validator": "./dist/cjs/bin/validator.js"
   },
   "files": [
     "dist"
