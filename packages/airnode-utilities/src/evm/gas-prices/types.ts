@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { PromiseOptions } from '../../promises';
+import { GoAsyncOptions } from '@api3/promise-utils';
 
 export interface GasTarget {
   type: number;
@@ -20,14 +20,14 @@ export type Eip1559ChainOptions = {
   baseFeeMultiplier?: number;
   priorityFee?: PriorityFee;
   fulfillmentGasLimit?: number;
-} & PromiseOptions;
+} & GoAsyncOptions;
 
 export type LegacyChainOptions = {
   txType: 'legacy';
   // If not provided, default values will be used instead
   gasPriceMultiplier?: number;
   fulfillmentGasLimit?: number;
-} & PromiseOptions;
+} & GoAsyncOptions;
 
 export type ChainOptions = LegacyChainOptions | Eip1559ChainOptions;
 
