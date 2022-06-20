@@ -275,8 +275,8 @@ jobs:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
       - name: Require a changeset
-        # https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#responding-to-events
-        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+        # https://github.com/renovatebot/renovate/discussions/13704#discussioncomment-2013280
+        if: github.actor != 'renovate[bot]'
         run: yarn changeset:check
   build-complete:
     name: All tests passed
