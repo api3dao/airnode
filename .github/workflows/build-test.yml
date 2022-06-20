@@ -19,7 +19,7 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Update latest paths
         run: |
           wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
@@ -51,7 +51,7 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
           fetch-depth: 0
