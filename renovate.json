@@ -21,5 +21,6 @@
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
     "enabled": true
-  }
+  },
+  "reviewers": ["api3dao/airnode"]
 }
