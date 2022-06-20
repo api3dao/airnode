@@ -1,0 +1,25 @@
+{
+  "extends": ["config:base", "docker:disable"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["chalk", "ora"],
+      "enabled": false
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 2am on monday"],
+      "groupName": "Update devDependencies (non-major)"
+    },
+    {
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 2am on monday"],
+      "groupName": "Update dependencies (non-major)"
+    }
+  ],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true
+  }
+}

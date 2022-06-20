@@ -1,5 +1,27 @@
 # @api3/airnode-protocol
 
+## 0.7.1
+
+### Patch Changes
+
+- [`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+## 0.7.0
+
+### Minor Changes
+
+- [#1089](https://github.com/api3dao/airnode/pull/1089) [`70dafa57`](https://github.com/api3dao/airnode/commit/70dafa575bc33c90823c0de83ea51c7d50788c9e) Thanks [@Siegrift](https://github.com/Siegrift)! - Support TS project references
+
+* [`415a2248`](https://github.com/api3dao/airnode/commit/415a224816bf6edf4ee8a8d6cae60d6e3302c161) Thanks [@aquarat](https://github.com/aquarat)! - Bump minor version for all packages
+
+### Patch Changes
+
+- [#1158](https://github.com/api3dao/airnode/pull/1158) [`e42aa310`](https://github.com/api3dao/airnode/commit/e42aa3101d35f7968443ed166f57ae653e754095) Thanks [@Siegrift](https://github.com/Siegrift)! - Improve TS project references structure, fix published files for airnode-examples
+
+* [#1178](https://github.com/api3dao/airnode/pull/1178) [`f55541df`](https://github.com/api3dao/airnode/commit/f55541df7aca833b06ce07f641f33b85345f66f6) Thanks [@andreogle](https://github.com/andreogle)! - Update major versions of ESLint related packages
+
+- [#1026](https://github.com/api3dao/airnode/pull/1026) [`85057269`](https://github.com/api3dao/airnode/commit/85057269083f4ba2e5ca6416602891952b80c61f) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Loosen Solidity version requirement for IOwnableCallForwarder
+
 ## 0.6.0
 
 ### Minor Changes

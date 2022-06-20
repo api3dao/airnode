@@ -6,4 +6,4 @@ export const MULTIPLE_PARAMETERS_DELIMETER = ',';
 export const PATH_DELIMETER = '.';
 export const ESCAPE_CHARACTER = '\\';
 
-export const MAX_ENCODED_RESPONSE_SIZE = 1024;
+export const MAX_ENCODED_RESPONSE_SIZE = 16_384;
