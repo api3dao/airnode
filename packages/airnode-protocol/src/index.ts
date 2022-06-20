@@ -10,6 +10,7 @@
  *
  * The generated code "value exports" the factories, but "type exports" the contracts.
  */
+import { ethers } from 'ethers';
 import {
   MockRrpRequesterV0__factory as MockRrpRequesterFactory,
   AirnodeRrpV0__factory as AirnodeRrpV0Factory,
@@ -19,10 +20,11 @@ import {
 } from './contracts';
 import references from '../deployments/references.json';
 
-const AirnodeRrpAddresses: { [chainId: number]: string } = references.AirnodeRrpV0;
-const AccessControlRegistryAddresses: { [chainId: number]: string } = references.AccessControlRegistry;
-const RequesterAuthorizerWithAirnodeAddresses: { [chainId: number]: string } =
+const AirnodeRrpAddresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const AccessControlRegistryAddresses: { [chainId: string]: string } = references.AccessControlRegistry;
+const RequesterAuthorizerWithAirnodeAddresses: { [chainId: string]: string } =
   references.RequesterAuthorizerWithAirnode;
+const networks: { [chainId: string]: ethers.providers.Network } = references.networks;
 
 const mocks = {
   MockRrpRequesterFactory,
@@ -40,6 +42,7 @@ export {
   RrpBeaconServerV0Factory,
   mocks,
   authorizers,
+  networks,
 };
 
 export type {
