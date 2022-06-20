@@ -1,5 +1,11 @@
 # @api3/airnode-utilities
 
+## 0.7.1
+
+### Patch Changes
+
+- [`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
 ## 0.7.0
 
 ### Minor Changes

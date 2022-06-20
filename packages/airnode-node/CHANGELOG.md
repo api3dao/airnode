@@ -1,5 +1,19 @@
 # @api3/airnode-node
 
+## 0.7.1
+
+### Patch Changes
+
+- [`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+- Updated dependencies [[`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555)]:
+  - @api3/airnode-abi@0.7.1
+  - @api3/airnode-adapter@0.7.1
+  - @api3/airnode-ois@0.7.1
+  - @api3/airnode-protocol@0.7.1
+  - @api3/airnode-utilities@0.7.1
+  - @api3/airnode-validator@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
