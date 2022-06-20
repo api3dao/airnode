@@ -2,7 +2,7 @@
   "extends": ["config:base"],
   "packageRules": [
     {
-      "matchPackageNames": ["chalk"],
+      "matchPackageNames": ["chalk", "ora"],
       "enabled": false
     },
     {
