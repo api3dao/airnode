@@ -16,6 +16,7 @@ describe('initialize (ApiCall)', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
 
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
@@ -56,6 +57,7 @@ describe('initialize (ApiCall)', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
     const template = {
       ...base,
@@ -85,6 +87,7 @@ describe('applyParameters', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
   });
 
@@ -154,6 +157,7 @@ describe('mapRequests (ApiCall)', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
     const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
@@ -200,6 +204,7 @@ describe('mapRequests (ApiCall)', () => {
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -209,6 +214,7 @@ describe('mapRequests (ApiCall)', () => {
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
       logIndex: 0,
+      chainId: '31337',
     };
 
     const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);

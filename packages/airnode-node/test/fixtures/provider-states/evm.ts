@@ -8,7 +8,7 @@ export function buildEVMProviderState(
 ): ProviderState<EVMProviderState> {
   const coordinatorId = '837daEf231';
   const chainType = 'evm';
-  const chainId = '1337';
+  const chainId = '31337';
   const chainProviderName = 'Ganache test';
   const chainConfig: ChainConfig = {
     maxConcurrency: 100,

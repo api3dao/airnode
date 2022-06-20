@@ -17,6 +17,7 @@ export interface FetchOptions {
   readonly currentBlock: number;
   readonly minConfirmations: number;
   readonly provider: ethers.providers.JsonRpcProvider;
+  readonly chainId: string;
 }
 
 interface GroupedLogs {
@@ -55,6 +56,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     minConfirmations: options.minConfirmations,
     transactionHash: log.transactionHash,
     logIndex: log.logIndex,
+    chainId: options.chainId,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),
   })) as EVMEventLog[];

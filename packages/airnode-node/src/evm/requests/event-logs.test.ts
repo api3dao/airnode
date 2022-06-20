@@ -55,6 +55,7 @@ describe('EVM event logs - fetch', () => {
       currentBlock: 10716084,
       minConfirmations: 1,
       provider: new ethers.providers.JsonRpcProvider(),
+      chainId: '31137',
     };
 
     const res = await eventLogs.fetch(fetchOptions);
@@ -66,6 +67,7 @@ describe('EVM event logs - fetch', () => {
         parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
         transactionHash: '0x1',
         logIndex: 0,
+        chainId: '31137',
       },
       {
         blockNumber: 10716083,
@@ -74,6 +76,7 @@ describe('EVM event logs - fetch', () => {
         parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
         logIndex: 0,
+        chainId: '31137',
       },
       {
         blockNumber: 10716082,
@@ -82,6 +85,7 @@ describe('EVM event logs - fetch', () => {
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
         logIndex: 1,
+        chainId: '31137',
       },
     ]);
     expect(getLogs).toHaveBeenCalledTimes(1);
@@ -106,6 +110,7 @@ describe('EVM event logs - fetch', () => {
       currentBlock: 10716084,
       minConfirmations: 0,
       provider: new ethers.providers.JsonRpcProvider(),
+      chainId: '31137',
     };
     await expect(eventLogs.fetch(fetchOptions)).rejects.toThrow(new Error('Unable to fetch logs'));
   });
@@ -135,6 +140,7 @@ describe('EVM event logs - fetch', () => {
       currentBlock: 10716084,
       minConfirmations: 0,
       provider: new ethers.providers.JsonRpcProvider(),
+      chainId: '31137',
     };
     await expect(eventLogs.fetch(fetchOptions)).rejects.toThrow(new Error('Unable to parse topic'));
   });
@@ -149,6 +155,7 @@ describe('EVM event logs - fetch', () => {
       currentBlock: 10716084,
       minConfirmations: 10,
       provider: new ethers.providers.JsonRpcProvider(),
+      chainId: '31137',
     };
     const res = await eventLogs.fetch(fetchOptions);
     expect(res).toEqual([]);
@@ -171,6 +178,7 @@ describe('EVM event logs - fetch', () => {
       currentBlock: 10716084,
       minConfirmations: 99999999,
       provider: new ethers.providers.JsonRpcProvider(),
+      chainId: '31137',
     };
     const res = await eventLogs.fetch(fetchOptions);
     expect(res).toEqual([]);
@@ -193,6 +201,7 @@ describe('EVM event logs - group', () => {
         parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
         transactionHash: '0x1',
         logIndex: 0,
+        chainId: '31137',
       },
       // Fulfillment
       {
@@ -200,6 +209,7 @@ describe('EVM event logs - group', () => {
         parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
         transactionHash: '0x2',
         logIndex: 0,
+        chainId: '31137',
       },
       // Unknown event
       {
@@ -207,6 +217,7 @@ describe('EVM event logs - group', () => {
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
         logIndex: 1,
+        chainId: '31137',
       },
     ];
 
@@ -218,12 +229,14 @@ describe('EVM event logs - group', () => {
           parsedLog: { topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
           transactionHash: '0x1',
           logIndex: 0,
+          chainId: '31137',
         },
         {
           blockNumber: 10716083,
           parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
           transactionHash: '0x2',
           logIndex: 0,
+          chainId: '31137',
         },
       ],
       withdrawals: [],
@@ -237,12 +250,14 @@ describe('EVM event logs - group', () => {
         parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
         transactionHash: '0x1',
         logIndex: 0,
+        chainId: '31137',
       },
       {
         blockNumber: 10716083,
         parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
         transactionHash: '0x2',
         logIndex: 0,
+        chainId: '31137',
       },
       // Unknown event
       {
@@ -250,6 +265,7 @@ describe('EVM event logs - group', () => {
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
         logIndex: 1,
+        chainId: '31137',
       },
     ];
 
@@ -262,12 +278,14 @@ describe('EVM event logs - group', () => {
           parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
           transactionHash: '0x1',
           logIndex: 0,
+          chainId: '31137',
         },
         {
           blockNumber: 10716083,
           parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
           transactionHash: '0x2',
           logIndex: 0,
+          chainId: '31137',
         },
       ],
     });
