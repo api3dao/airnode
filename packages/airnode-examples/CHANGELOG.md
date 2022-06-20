@@ -1,5 +1,61 @@
 # @api3/airnode-examples
 
+## 0.7.1
+
+### Patch Changes
+
+- [`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+- Updated dependencies [[`2c7fa21b`](https://github.com/api3dao/airnode/commit/2c7fa21b68c3c36bc2b6d4c66b5f7afffc337555)]:
+  - @api3/airnode-abi@0.7.1
+  - @api3/airnode-admin@0.7.1
+  - @api3/airnode-deployer@0.7.1
+  - @api3/airnode-node@0.7.1
+  - @api3/airnode-protocol@0.7.1
+  - @api3/airnode-utilities@0.7.1
+
+## 0.7.0
+
+### Minor Changes
+
+- [#1107](https://github.com/api3dao/airnode/pull/1107) [`b248ce1b`](https://github.com/api3dao/airnode/commit/b248ce1be3e5ea2e68fd7b766fc4d267cb555fbf) Thanks [@Siegrift](https://github.com/Siegrift)! - Add processing examples
+
+* [#1021](https://github.com/api3dao/airnode/pull/1021) [`60c5d12c`](https://github.com/api3dao/airnode/commit/60c5d12cb364fa49814f9f67d5324db8ec1e23bd) Thanks [@dcroote](https://github.com/dcroote)! - Default to released docker images for airnode-examples flow
+
+- [#1052](https://github.com/api3dao/airnode/pull/1052) [`0561f407`](https://github.com/api3dao/airnode/commit/0561f407dc379ed10bb2ed6ef7eaf064a5a1c09a) Thanks [@Siegrift](https://github.com/Siegrift)! - Enforce node version in validator
+
+* [#1089](https://github.com/api3dao/airnode/pull/1089) [`70dafa57`](https://github.com/api3dao/airnode/commit/70dafa575bc33c90823c0de83ea51c7d50788c9e) Thanks [@Siegrift](https://github.com/Siegrift)! - Support TS project references
+
+- [`415a2248`](https://github.com/api3dao/airnode/commit/415a224816bf6edf4ee8a8d6cae60d6e3302c161) Thanks [@aquarat](https://github.com/aquarat)! - Bump minor version for all packages
+
+* [#1048](https://github.com/api3dao/airnode/pull/1048) [`499726e0`](https://github.com/api3dao/airnode/commit/499726e0420ff6356ff1a937a8d77c0e605ced5f) Thanks [@Siegrift](https://github.com/Siegrift)! - Remove skipValidation parameter from config.json
+
+- [#1143](https://github.com/api3dao/airnode/pull/1143) [`bce3600f`](https://github.com/api3dao/airnode/commit/bce3600feb5febf075987b357f0c788c29fbaf3b) Thanks [@Siegrift](https://github.com/Siegrift)! - Allow setTimeout/setInterval and escaping interpolation in processing snippets
+
+* [#1105](https://github.com/api3dao/airnode/pull/1105) [`e4c1a223`](https://github.com/api3dao/airnode/commit/e4c1a22384d811a796b20c7757b5168bdc6c339d) Thanks [@amarthadan](https://github.com/amarthadan)! - Add config validation for local Airnode invocation including airnode-client container
+
+- [#1149](https://github.com/api3dao/airnode/pull/1149) [`69f04de9`](https://github.com/api3dao/airnode/commit/69f04de9257436f5f8c1f8241b92d4461e79387c) Thanks [@Siegrift](https://github.com/Siegrift)! - Add "create-inline-template" command to admin CLI, add template requests example
+
+### Patch Changes
+
+- [#1158](https://github.com/api3dao/airnode/pull/1158) [`e42aa310`](https://github.com/api3dao/airnode/commit/e42aa3101d35f7968443ed166f57ae653e754095) Thanks [@Siegrift](https://github.com/Siegrift)! - Improve TS project references structure, fix published files for airnode-examples
+
+* [#1130](https://github.com/api3dao/airnode/pull/1130) [`8b421f64`](https://github.com/api3dao/airnode/commit/8b421f64e2b720098b22109c2df49f86a1f2531f) Thanks [@kolenic-martin](https://github.com/kolenic-martin)! - Added SELinux information to airnode-examples README.
+
+- [#1228](https://github.com/api3dao/airnode/pull/1228) [`df92a04f`](https://github.com/api3dao/airnode/commit/df92a04fd6ddc0763d3b3d2fc3aa3d0d3f0a8b92) Thanks [@dcroote](https://github.com/dcroote)! - Improve coingecko-signed-data examples integration
+
+* [#1022](https://github.com/api3dao/airnode/pull/1022) [`f6f71dfa`](https://github.com/api3dao/airnode/commit/f6f71dfaae5b9c510427e0212175e3fdfd47542f) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix GCP signed gateway receipt, let deployer CLI fail with non zero status code
+
+- [#1040](https://github.com/api3dao/airnode/pull/1040) [`bb509ca4`](https://github.com/api3dao/airnode/commit/bb509ca451d9003e9113b2a5f99cad44bdb0b2d5) Thanks [@dcroote](https://github.com/dcroote)! - Clarify airnode-examples instructions for users and developers
+
+- Updated dependencies [[`71f9a95e`](https://github.com/api3dao/airnode/commit/71f9a95e1f93fb2575fd6393795263b96cad4f40), [`e42aa310`](https://github.com/api3dao/airnode/commit/e42aa3101d35f7968443ed166f57ae653e754095), [`1c41ae78`](https://github.com/api3dao/airnode/commit/1c41ae78a1db8976730f28f8231b62bd1b4e883c), [`a0d02552`](https://github.com/api3dao/airnode/commit/a0d025524b84a599f0ab7c4387d7a2aca02f2335), [`1efa53b8`](https://github.com/api3dao/airnode/commit/1efa53b87d3067fc9fc4982d6d6d22630dc81180), [`d3cb0fdd`](https://github.com/api3dao/airnode/commit/d3cb0fdd5ab7b7da8cad7a8835d7646c2c27557c), [`f6e6c15b`](https://github.com/api3dao/airnode/commit/f6e6c15be081938e4c6c10fd56bd3ee928457d6f), [`f55541df`](https://github.com/api3dao/airnode/commit/f55541df7aca833b06ce07f641f33b85345f66f6), [`b0771eb7`](https://github.com/api3dao/airnode/commit/b0771eb73b49a1f520ecd86aa254c0d3b2f8f5a2), [`b0f6dadd`](https://github.com/api3dao/airnode/commit/b0f6dadd8f2a991d363400abea3b79c202aff103), [`260faa11`](https://github.com/api3dao/airnode/commit/260faa1104ee5170c8a884ddde02702b83cb6a85), [`0561f407`](https://github.com/api3dao/airnode/commit/0561f407dc379ed10bb2ed6ef7eaf064a5a1c09a), [`48aa679e`](https://github.com/api3dao/airnode/commit/48aa679e05760bfd29317bb9bcefc9729ee30556), [`ab28450d`](https://github.com/api3dao/airnode/commit/ab28450da32a97c4a0c903e55ab41d3bd52b5a7d), [`5e00421d`](https://github.com/api3dao/airnode/commit/5e00421d78613706c1a1af83658070f395ce15d5), [`c3b7eee7`](https://github.com/api3dao/airnode/commit/c3b7eee7c9cc7efbfb418e954109c9587df7fc3d), [`88d6c6d2`](https://github.com/api3dao/airnode/commit/88d6c6d2c2476640faf5aac4cf7edd9f73107bf9), [`70dafa57`](https://github.com/api3dao/airnode/commit/70dafa575bc33c90823c0de83ea51c7d50788c9e), [`f3bcd689`](https://github.com/api3dao/airnode/commit/f3bcd6890cbf4d2687b0df8b91afe446f212332b), [`c75057a9`](https://github.com/api3dao/airnode/commit/c75057a962983ba11ea6e92e778c4fae2e887c28), [`88507a9a`](https://github.com/api3dao/airnode/commit/88507a9ad4682d66800cd866ee298fb64ea4bb7f), [`61043dc0`](https://github.com/api3dao/airnode/commit/61043dc08b68e2bdca780b4d5c2355538f8382e5), [`f6f71dfa`](https://github.com/api3dao/airnode/commit/f6f71dfaae5b9c510427e0212175e3fdfd47542f), [`c4873921`](https://github.com/api3dao/airnode/commit/c4873921949a29afcd0b5a85c33b615779845325), [`d1165d86`](https://github.com/api3dao/airnode/commit/d1165d8631bfc1e81955031a9ed2c54d705e1e89), [`415a2248`](https://github.com/api3dao/airnode/commit/415a224816bf6edf4ee8a8d6cae60d6e3302c161), [`499726e0`](https://github.com/api3dao/airnode/commit/499726e0420ff6356ff1a937a8d77c0e605ced5f), [`3db6106a`](https://github.com/api3dao/airnode/commit/3db6106a66c463be1c707b51f42ad7ccf87fdd2a), [`80f9b3bc`](https://github.com/api3dao/airnode/commit/80f9b3bc2f9c405749ddee6f5448e4e88494e1b5), [`6bc6f82a`](https://github.com/api3dao/airnode/commit/6bc6f82a321e201135bfa0ac11428cd742a82470), [`bce3600f`](https://github.com/api3dao/airnode/commit/bce3600feb5febf075987b357f0c788c29fbaf3b), [`e4c1a223`](https://github.com/api3dao/airnode/commit/e4c1a22384d811a796b20c7757b5168bdc6c339d), [`85057269`](https://github.com/api3dao/airnode/commit/85057269083f4ba2e5ca6416602891952b80c61f), [`bd4becb6`](https://github.com/api3dao/airnode/commit/bd4becb68ba334958b598f5a56e0e31278b0a71d), [`d90a4d70`](https://github.com/api3dao/airnode/commit/d90a4d70f90c9d6798cac71da2cd8cdf20190b67), [`f7ccf344`](https://github.com/api3dao/airnode/commit/f7ccf34441a96fec6f2f2db1616aa212df379ffd), [`69f04de9`](https://github.com/api3dao/airnode/commit/69f04de9257436f5f8c1f8241b92d4461e79387c)]:
+  - @api3/airnode-node@0.7.0
+  - @api3/airnode-utilities@0.7.0
+  - @api3/airnode-abi@0.7.0
+  - @api3/airnode-admin@0.7.0
+  - @api3/airnode-deployer@0.7.0
+  - @api3/airnode-protocol@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes
