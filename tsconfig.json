@@ -43,6 +43,7 @@
     { "path": "./packages/airnode-validator" },
     { "path": "./packages/airnode-admin" },
     { "path": "./packages/airnode-node" },
-    { "path": "./packages/airnode-protocol" }
+    { "path": "./packages/airnode-protocol" },
+    { "path": "./scripts" }
   ]
 }

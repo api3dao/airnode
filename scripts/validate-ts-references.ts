@@ -25,7 +25,7 @@ packageNames.forEach((packageName) => {
     undefined,
     true
   );
-  const tsConfigReferences: string[] = (tsConfig.references ?? []).map((reference) => reference.path);
+  const tsConfigReferences: string[] = (tsConfig.references ?? []).map((reference: any) => reference.path);
   const monorepoReferences = tsConfigReferences.filter((reference) => reference.startsWith('../../'));
 
   if (monorepoDependencies.length !== monorepoReferences.length) {
