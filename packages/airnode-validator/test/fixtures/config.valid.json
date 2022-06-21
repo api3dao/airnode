@@ -40,7 +40,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.7.1",
+    "nodeVersion": "0.7.2",
     "stage": "dev"
   },
   "triggers": {
