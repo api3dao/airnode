@@ -1,4 +1,5 @@
-import { go, logger, PendingLog } from '@api3/airnode-utilities';
+import { logger, PendingLog } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as authorizations from '../authorization';
 import * as requests from '../../requests';
@@ -59,15 +60,15 @@ export async function initializeProvider(
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
   // =================================================================
-  const [dataErr, groupedRequests] = await go(() => fetchPendingRequests(state2));
-  if (dataErr || !groupedRequests) {
-    logger.error('Unable to get pending requests', { ...baseLogOptions, error: dataErr });
+  const goGroupedRequests = await go(() => fetchPendingRequests(state2));
+  if (!goGroupedRequests.success) {
+    logger.error('Unable to get pending requests', { ...baseLogOptions, error: goGroupedRequests.error });
     return null;
   }
-  const apiCalls = groupedRequests.apiCalls;
-  const withdrawals = groupedRequests.withdrawals;
+  const apiCalls = goGroupedRequests.data.apiCalls;
+  const withdrawals = goGroupedRequests.data.withdrawals;
   logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`, baseLogOptions);
-  const state3 = state.update(state2, { requests: groupedRequests });
+  const state3 = state.update(state2, { requests: goGroupedRequests.data });
 
   // =================================================================
   // STEP 4: Fetch and apply templates to API calls

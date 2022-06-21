@@ -28,6 +28,7 @@
     "@api3/airnode-protocol": "^0.7.1",
     "@api3/airnode-utilities": "^0.7.1",
     "@api3/airnode-validator": "^0.7.1",
+    "@api3/promise-utils": "^0.3.0",
     "aws-sdk": "^2.992.0",
     "dotenv": "^16.0.0",
     "ethers": "^5.4.5",

@@ -1,7 +1,8 @@
 import * as adapter from '@api3/airnode-adapter';
 import { RESERVED_PARAMETERS } from '@api3/airnode-ois';
 import { ethers } from 'ethers';
-import { logger, removeKeys, removeKey, go, retryOnTimeout } from '@api3/airnode-utilities';
+import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
@@ -201,18 +202,16 @@ async function performApiCall(
   // maximum timeout is reached.
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
-  const retryableCall = retryOnTimeout(API_CALL_TOTAL_TIMEOUT, () =>
-    adapter.buildAndExecuteRequest(options, adapterConfig)
-  );
-
-  const [err, res] = await go(() => retryableCall);
-  if (err) {
+  const goRes = await go(() => adapter.buildAndExecuteRequest(options, adapterConfig), {
+    totalTimeoutMs: API_CALL_TOTAL_TIMEOUT,
+  });
+  if (!goRes.success) {
     const { aggregatedApiCall } = payload;
-    const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, err);
+    const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
     return [[log], { success: false, errorMessage: `${RequestErrorMessage.ApiCallFailed}` }];
   }
 
-  return [[], { ...res! }];
+  return [[], { ...goRes.data }];
 }
 
 async function processSuccessfulApiCall(

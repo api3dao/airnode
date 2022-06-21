@@ -54,7 +54,7 @@ describe('processing', () => {
 
       const throwingFunc = async () => preProcessApiSpecifications({ config, aggregatedApiCall });
 
-      await expect(throwingFunc).rejects.toEqual(new Error('Unexpected identifier'));
+      await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
     });
 
     it('throws validation error if result does not have parameters shape', async () => {
@@ -128,6 +128,6 @@ describe('post-processing', () => {
 
     const throwingFunc = async () => postProcessApiSpecifications({ price: 1000 }, endpoint);
 
-    await expect(throwingFunc).rejects.toEqual(new Error('Unexpected identifier'));
+    await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
   });
 });

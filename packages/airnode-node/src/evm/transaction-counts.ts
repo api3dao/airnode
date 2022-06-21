@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import uniq from 'lodash/uniq';
 import flatMap from 'lodash/flatMap';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import * as wallet from './wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
@@ -24,12 +25,16 @@ async function getWalletTransactionCount(
   const address = wallet.deriveSponsorWallet(options.masterHDNode, sponsorAddress).address;
   const operation = () =>
     options.provider.getTransactionCount(address, options.currentBlock - options.minConfirmations);
-  const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err || count === null) {
-    const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
+  const goCount = await go(operation, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goCount.success) {
+    const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, goCount.error);
     return [[log], null];
   }
-  return [[], { [sponsorAddress]: count }];
+  if (goCount.data === null) {
+    const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`);
+    return [[log], null];
+  }
+  return [[], { [sponsorAddress]: goCount.data }];
 }
 
 export async function fetchBySponsor(
