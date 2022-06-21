@@ -26,6 +26,7 @@ describe('deployer commands', () => {
 
   beforeEach(() => {
     mockDeployAirnode = jest.requireMock('../infrastructure').deployAirnode;
+    mockDeployAirnode.mockReturnValueOnce({});
     mockRemoveAirnode = jest.requireMock('../infrastructure').removeAirnode;
     mockWriteReceiptFile = jest.requireMock('../utils').writeReceiptFile;
   });
