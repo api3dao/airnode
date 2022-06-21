@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.7.2
+
+### Patch Changes
+
+- [`d912eb6f`](https://github.com/api3dao/airnode/commit/d912eb6fb1bd41138929173ee4db7dcecf94afe4) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
 ## 0.7.1
 
 ### Patch Changes

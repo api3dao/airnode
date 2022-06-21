@@ -1,5 +1,14 @@
 # @api3/airnode-validator
 
+## 0.7.2
+
+### Patch Changes
+
+- [`d912eb6f`](https://github.com/api3dao/airnode/commit/d912eb6fb1bd41138929173ee4db7dcecf94afe4) Thanks [@aquarat](https://github.com/aquarat)! - Bump patch version
+
+- Updated dependencies [[`d912eb6f`](https://github.com/api3dao/airnode/commit/d912eb6fb1bd41138929173ee4db7dcecf94afe4)]:
+  - @api3/airnode-utilities@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
