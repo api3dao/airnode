@@ -12,7 +12,8 @@
   "references": [
     { "path": "./tsconfig.cjs.json" },
     { "path": "./tsconfig.es6.json" },
-    { "path": "./tsconfig.esm.json" }
+    { "path": "./tsconfig.esm.json" },
+    { "path": "../../airnode-utilities/src" }
   ],
   "include": ["./**/*.ts", "../bin/**/*.ts", "../package.json"],
   "exclude": ["./**/*.test.ts"]

@@ -2,7 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "rootDir": "..",
-    "noEmit": true
+    // The output files of this TS config are for development only. See the referenced TS configs
+    // which build the sources into the "dist" folder in the root of the validator project.
+    "outDir": "../build"
   },
   "references": [{ "path": "../src" }],
   "include": ["./**/*.ts", "../src/**/*.test.ts"]

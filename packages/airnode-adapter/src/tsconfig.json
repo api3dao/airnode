@@ -6,6 +6,7 @@
     "rootDir": "./",
     "outDir": "../dist"
   },
+  "references": [{ "path": "../../airnode-ois/src" }],
   "include": ["./**/*.ts"],
   "exclude": ["./**/*.test.ts"]
 }

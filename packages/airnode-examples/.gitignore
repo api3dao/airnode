@@ -1,6 +1,7 @@
 node_modules
 log.json
 /dist
+/build
 
 # Hardhat files
 /cache

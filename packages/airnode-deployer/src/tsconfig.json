@@ -7,6 +7,12 @@
     "rootDirs": ["./src", "./bin"],
     "outDir": "../dist"
   },
+  "references": [
+    { "path": "../../airnode-node/src" },
+    { "path": "../../airnode-protocol/src" },
+    { "path": "../../airnode-utilities/src" },
+    { "path": "../../airnode-validator/src" }
+  ],
   "include": ["./**/*.ts", "../bin/**/*.ts", "../package.json"],
   "exclude": ["./**/*.test.ts"]
 }
