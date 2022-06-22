@@ -4,6 +4,7 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "outDir": "../dist/esm"
+    "outDir": "../dist/esm",
+    "tsBuildInfoFile": "../build/esnext-src-tsconfig.tsbuildinfo"
   }
 }

@@ -4,6 +4,7 @@
     "target": "es6",
     "module": "commonJS",
     "moduleResolution": "node",
-    "outDir": "../dist/cjs"
+    "outDir": "../dist/cjs",
+    "tsBuildInfoFile": "../build/cjs-src-tsconfig.tsbuildinfo"
   }
 }
