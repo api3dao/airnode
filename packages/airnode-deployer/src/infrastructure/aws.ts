@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import { AwsCloudProvider } from '@api3/airnode-node';
+import { go } from '@api3/promise-utils';
 import * as logger from '../utils/logger';
 
 async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.ObjectIdentifierList) {
@@ -51,16 +52,16 @@ export async function removeState(bucket: string, cloudProvider: AwsCloudProvide
 }
 
 async function bucketExists(s3: AWS.S3, bucket: string) {
-  try {
-    logger.debug(`Fetching S3 bucket ${bucket}`);
-    await s3.headBucket({ Bucket: bucket }).promise();
+  logger.debug(`Fetching S3 bucket ${bucket}`);
 
-    return true;
-  } catch (err) {
+  const goHeadBucket = await go(() => s3.headBucket({ Bucket: bucket }).promise());
+  if (!goHeadBucket.success) {
     // Not found or forbidden
-    logger.debug((err as Error).toString());
+    logger.debug(goHeadBucket.error.toString());
     return false;
   }
+
+  return true;
 }
 
 export async function stateExists(bucket: string, cloudProvider: AwsCloudProvider) {

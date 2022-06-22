@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { CloudProvider, Config } from '@api3/airnode-node';
 import { parseReceipt } from '@api3/airnode-validator';
+import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
@@ -10,11 +11,11 @@ import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
-  try {
-    return dotenv.parse(fs.readFileSync(secretsPath));
-  } catch (e) {
-    throw logAndReturnError(`Failed to parse secrets file: ${e}`);
-  }
+
+  const goDotenvParse = goSync(() => dotenv.parse(fs.readFileSync(secretsPath)));
+  if (!goDotenvParse.success) throw logAndReturnError(`Failed to parse secrets file: ${goDotenvParse.error}`);
+
+  return goDotenvParse.data;
 }
 
 export function writeReceiptFile(
@@ -52,14 +53,12 @@ export function writeReceiptFile(
 }
 
 export function parseReceiptFile(receiptFilename: string) {
-  let receipt: any;
   logger.debug('Parsing receipt file');
 
-  try {
-    receipt = JSON.parse(fs.readFileSync(receiptFilename, 'utf8'));
-  } catch (e) {
-    throw logAndReturnError(`Failed to parse receipt file: ${e}`);
-  }
+  const goParse = goSync(() => JSON.parse(fs.readFileSync(receiptFilename, 'utf8')));
+  if (!goParse.success) throw logAndReturnError(`Failed to parse receipt file: ${goParse.error}`);
+
+  const receipt = goParse.data;
 
   const validationResult = parseReceipt(receipt);
   if (!validationResult.success) {

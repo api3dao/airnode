@@ -2,9 +2,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { CloudProvider, loadConfig } from '@api3/airnode-node';
+import { go } from '@api3/promise-utils';
 import size from 'lodash/size';
 import { bold } from 'chalk';
-import { deployAirnode, removeAirnode } from '../infrastructure';
+import { CloudProviderExtended, deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
   writeReceiptFile,
@@ -71,30 +72,19 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // deployment error. We want to write a receipt file, because the user might use the receipt to remove the deployed
   // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
   // remove the resources manually in the cloud provider dashboard).
-  let deploymentError: Error | undefined;
-  let output = {};
-  try {
-    output = await deployAirnode({
+
+  const goDeployAirnode = await go(() =>
+    deployAirnode({
       airnodeAddressShort,
       stage: config.nodeSettings.stage,
-      cloudProvider: { maxConcurrency, ...config.nodeSettings.cloudProvider },
+      cloudProvider: { maxConcurrency, ...config.nodeSettings.cloudProvider } as CloudProviderExtended,
       httpGateway,
       httpSignedDataGateway,
       configPath,
       secretsPath: tmpSecretsPath,
-    });
-  } catch (err) {
-    deploymentError = err as Error;
-  }
-
-  const deploymentTimestamp = new Date().toISOString();
-
-  logger.debug('Deleting a temporary secrets.json file');
-  fs.rmSync(tmpDir, { recursive: true });
-
-  writeReceiptFile(receiptFile, mnemonic, config, output, deploymentTimestamp);
-
-  if (deploymentError) {
+    })
+  );
+  if (!goDeployAirnode.success) {
     logger.fail(
       bold(
         `Airnode deployment failed due to unexpected errors.\n` +
@@ -102,8 +92,17 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
           `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
       )
     );
-    throw deploymentError;
+
+    throw goDeployAirnode.error;
   }
+
+  const output = goDeployAirnode.data;
+  const deploymentTimestamp = new Date().toISOString();
+
+  logger.debug('Deleting a temporary secrets.json file');
+  fs.rmSync(tmpDir, { recursive: true });
+
+  writeReceiptFile(receiptFile, mnemonic, config, output, deploymentTimestamp);
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {

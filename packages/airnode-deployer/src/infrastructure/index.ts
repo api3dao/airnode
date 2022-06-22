@@ -5,6 +5,7 @@ import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Gateway } from '@api3/airnode-node';
+import { go } from '@api3/promise-utils';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
@@ -45,15 +46,13 @@ interface CommandOptions extends child.ExecOptions {
 async function runCommand(command: string, options: CommandOptions) {
   const stringifiedOptions = JSON.stringify(options);
   const commandSpinner = logger.debugSpinner(`Running command '${command}' with options ${stringifiedOptions}`);
-  try {
-    const { stdout } = await exec(command, options);
-    commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
-    return stdout;
-  } catch (err) {
+
+  const goExec = await go(() => exec(command, options));
+  if (!goExec.success) {
     if (options.ignoreError) {
       if (logger.inDebugMode()) {
         spinner.info();
-        logger.warn(`Warning: ${(err as Error).message}`);
+        logger.warn(`Warning: ${goExec.error.message}`);
       }
       commandSpinner.warn(`Command '${command}' with options ${stringifiedOptions} failed`);
       return '';
@@ -61,8 +60,11 @@ async function runCommand(command: string, options: CommandOptions) {
 
     spinner.info();
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
-    throw logAndReturnError((err as any).toString());
+    throw logAndReturnError(goExec.error.toString());
   }
+
+  commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
+  return goExec.data.stdout;
 }
 
 type CommandArg = string | [string, string] | [string, string, string];
@@ -207,7 +209,7 @@ async function terraformAirnodeManage(
 }
 
 // `maxConcurrency` field is required for deployment but missing for removal. This is the easiest way to type it.
-type CloudProviderExtended = CloudProvider & {
+export type CloudProviderExtended = CloudProvider & {
   readonly maxConcurrency?: number;
 };
 
@@ -225,14 +227,15 @@ export async function deployAirnode(params: AirnodeDeployParams) {
   const { airnodeAddressShort, stage, cloudProvider } = params;
   const { type, region } = cloudProvider;
   spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-  try {
-    const output = await deploy(params);
-    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-    return output;
-  } catch (err) {
+
+  const goDeploy = await go(() => deploy(params));
+  if (!goDeploy.success) {
     spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-    throw err;
+    throw goDeploy.error;
   }
+
+  spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
+  return goDeploy.data;
 }
 
 function transformTerraformOutput(terraformOutput: string): DeployAirnodeOutput {
@@ -307,13 +310,14 @@ export async function removeAirnode(params: AirnodeRemoveParams) {
   const { airnodeAddressShort, stage, cloudProvider } = params;
   const { type, region } = cloudProvider;
   spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
-  try {
-    await remove(params);
-    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
-  } catch (err) {
+
+  const goRemove = await go(() => remove(params));
+  if (!goRemove.success) {
     spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
-    throw err;
+    throw goRemove.error;
   }
+
+  spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
 }
 
 async function remove({ airnodeAddressShort, stage, cloudProvider }: AirnodeRemoveParams) {
