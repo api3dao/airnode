@@ -2,7 +2,7 @@ import * as adapter from '@api3/airnode-adapter';
 import { RESERVED_PARAMETERS } from '@api3/airnode-ois';
 import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
-import { go } from '@api3/promise-utils';
+import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getMasterHDNode } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
@@ -224,33 +224,60 @@ async function processSuccessfulApiCall(
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
   const reservedParameters = getReservedParameters(endpoint, parameters);
 
-  try {
-    const response = adapter.extractAndEncodeResponse(
-      await postProcessApiSpecifications(rawResponse.data, endpoint),
-      reservedParameters as adapter.ReservedParameters
-    );
+  const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
+  if (!goPostProcessApiSpecifications.success) {
+    const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
+    return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
+  }
 
-    switch (aggregatedApiCall.type) {
-      case 'http-gateway':
-        return [[], { success: true, data: response }];
-      case 'regular': {
-        const signature = await signWithRequestId(aggregatedApiCall.id, response.encodedValue, config);
-        return [[], { success: true, data: { encodedValue: response.encodedValue, signature } }];
+  const goExtractAndEncodeResponse = goSync(() =>
+    adapter.extractAndEncodeResponse(
+      goPostProcessApiSpecifications.data,
+      reservedParameters as adapter.ReservedParameters
+    )
+  );
+  if (!goExtractAndEncodeResponse.success) {
+    const log = logger.pend('ERROR', goExtractAndEncodeResponse.error.message);
+    return [[log], { success: false, errorMessage: goExtractAndEncodeResponse.error.message }];
+  }
+
+  const response = goExtractAndEncodeResponse.data;
+
+  switch (aggregatedApiCall.type) {
+    case 'http-gateway':
+      return [[], { success: true, data: response }];
+    case 'regular': {
+      const goSignWithRequestId = await go(() =>
+        signWithRequestId(aggregatedApiCall.id, response.encodedValue, config)
+      );
+      if (!goSignWithRequestId.success) {
+        const log = logger.pend('ERROR', goSignWithRequestId.error.message);
+        return [[log], { success: false, errorMessage: goSignWithRequestId.error.message }];
       }
-      case 'http-signed-data-gateway': {
-        const timestamp = Math.floor(Date.now() / 1000).toString();
-        const signature = await signWithTemplateId(
-          aggregatedApiCall.templateId,
-          timestamp,
-          response.encodedValue,
-          config
-        );
-        return [[], { success: true, data: { timestamp, encodedValue: response.encodedValue, signature } }];
-      }
+
+      return [
+        [],
+        { success: true, data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data } },
+      ];
     }
-  } catch (e) {
-    const log = logger.pend('ERROR', (e as Error).message);
-    return [[log], { success: false, errorMessage: (e as Error).message }];
+    case 'http-signed-data-gateway': {
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const goSignWithTemplateId = await go(() =>
+        signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue, config)
+      );
+      if (!goSignWithTemplateId.success) {
+        const log = logger.pend('ERROR', goSignWithTemplateId.error.message);
+        return [[log], { success: false, errorMessage: goSignWithTemplateId.error.message }];
+      }
+
+      return [
+        [],
+        {
+          success: true,
+          data: { timestamp, encodedValue: response.encodedValue, signature: goSignWithTemplateId.data },
+        },
+      ];
+    }
   }
 }
 
