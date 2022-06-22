@@ -4,6 +4,7 @@
     "target": "es6",
     "module": "es6",
     "moduleResolution": "node",
-    "outDir": "../dist/es6"
+    "outDir": "../dist/es6",
+    "tsBuildInfoFile": "../build/es6-src-tsconfig.tsbuildinfo"
   }
 }

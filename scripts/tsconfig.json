@@ -1,0 +1,9 @@
+// This TS config only exist as a TS configuration for the scripts which are invoked via ts-node
+// and don't have to be compiled. For this reason "noEmit" is set to true.
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"]
+}

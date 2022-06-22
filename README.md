@@ -63,6 +63,11 @@ examples) will work out of the box.
 We heavily recommend using UNIX based systems for development. If you are using Windows, consider
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
 
+We use [TS project references](https://www.typescriptlang.org/docs/handbook/project-references.html) to see
+cross-package errors in real time. However, we use `ts-node` to run our development scripts and it
+[does not support project references](https://github.com/TypeStrong/ts-node/issues/897) at the moment. This means that
+some of the errors are only shown in the IDE or at build time, not when run using `ts-node`.
+
 ## Changelog
 
 We use [changesets](https://github.com/atlassian/changesets) to manage the changelog for us. What that means for
