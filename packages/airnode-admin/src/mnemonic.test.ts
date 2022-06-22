@@ -6,11 +6,11 @@ describe('encaseMnemonic', () => {
 
     expect(mnemonic.length % 2).toEqual(0);
     expect(encaseMnemonic(mnemonic)).toEqual([
-      '######################################### MNEMONIC #########################################',
-      '##                                                                                        ##',
-      '##  someone define blind kangaroo mountain horse increase race muffin magnet lottery joy  ##',
-      '##                                                                                        ##',
-      '######################################### MNEMONIC #########################################',
+      '##################################### MNEMONIC #####################################',
+      '                                                                                    ',
+      'someone define blind kangaroo mountain horse increase race muffin magnet lottery joy',
+      '                                                                                    ',
+      '##################################### MNEMONIC #####################################',
     ]);
   });
 
@@ -19,11 +19,11 @@ describe('encaseMnemonic', () => {
 
     expect(mnemonic.length % 2).not.toEqual(0);
     expect(encaseMnemonic(mnemonic)).toEqual([
-      '##################################### MNEMONIC ######################################',
-      '##                                                                                 ##',
-      '##  rigid canyon twist animal pipe volcano insane change point orient silent myth  ##',
-      '##                                                                                 ##',
-      '##################################### MNEMONIC ######################################',
+      '################################# MNEMONIC ##################################',
+      '                                                                             ',
+      'rigid canyon twist animal pipe volcano insane change point orient silent myth',
+      '                                                                             ',
+      '################################# MNEMONIC ##################################',
     ]);
   });
 });

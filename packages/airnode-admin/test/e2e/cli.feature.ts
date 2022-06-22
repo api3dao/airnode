@@ -446,9 +446,9 @@ Template data:
     titleRows.forEach((row) => expect(row).toMatch(/^#+ MNEMONIC #+$/));
 
     const spaceRows = [out[4], out[6]];
-    spaceRows.forEach((row) => expect(row).toMatch(/^##\s+##$/));
+    spaceRows.forEach((row) => expect(row).toMatch(/^\s+$/));
 
-    const mnemonic = out[5].slice(4).slice(0, -4);
+    const mnemonic = out[5];
     const words = mnemonic.split(' ');
     expect(words).toHaveLength(12);
     words.forEach((word) => expect(word).toMatch(/\w+/));
