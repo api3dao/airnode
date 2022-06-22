@@ -6,7 +6,6 @@ import { logAndReturnError } from './infrastructure';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
-import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -17,13 +16,7 @@ export function parseSecretsFile(secretsPath: string) {
   }
 }
 
-export function writeReceiptFile(
-  receiptFilename: string,
-  mnemonic: string,
-  config: Config,
-  commandOutput: DeployAirnodeOutput,
-  timestamp: string
-) {
+export function writeReceiptFile(receiptFilename: string, mnemonic: string, config: Config, timestamp: string) {
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
   const receipt: Receipt = {
@@ -41,8 +34,6 @@ export function writeReceiptFile(
     },
     api: {
       ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
-      // `httpGatewayUrl` comes from Airnode deployment output
-      ...commandOutput,
     },
   };
 

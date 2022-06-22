@@ -16,8 +16,6 @@
     "timestamp": "2022-05-18T06:37:35.507Z"
   },
   "api": {
-    "heartbeatId": "74dc44a1ee65",
-    "httpGatewayUrl": "https://some.aws.api.gateway.url/v1",
-    "httpSignedDataGatewayUrl": "https://some.aws.api.gateway.url/v1"
+    "heartbeatId": "74dc44a1ee65"
   }
 }

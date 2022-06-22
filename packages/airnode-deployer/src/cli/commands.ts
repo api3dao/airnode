@@ -4,7 +4,7 @@ import * as path from 'path';
 import { CloudProvider, loadConfig } from '@api3/airnode-node';
 import size from 'lodash/size';
 import { bold } from 'chalk';
-import { deployAirnode, removeAirnode } from '../infrastructure';
+import { deployAirnode, DeployAirnodeOutput, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeAddress,
   writeReceiptFile,
@@ -72,7 +72,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
   // remove the resources manually in the cloud provider dashboard).
   let deploymentError: Error | undefined;
-  let output = {};
+  let output: DeployAirnodeOutput = {};
   try {
     output = await deployAirnode({
       airnodeAddressShort,
@@ -92,7 +92,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
-  writeReceiptFile(receiptFile, mnemonic, config, output, deploymentTimestamp);
+  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp);
+
+  if (output.httpGatewayUrl) logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
+  if (output.httpSignedDataGatewayUrl) logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
 
   if (deploymentError) {
     logger.fail(
