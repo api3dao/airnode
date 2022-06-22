@@ -69,14 +69,14 @@ const getValueForKey = (key: string): any | undefined => {
     return undefined;
   }
 
-  const goRes = goSync(() => readFileSync(join(CACHE_BASE_PATH, key)));
+  const goRes = goSync(() => JSON.parse(readFileSync(join(CACHE_BASE_PATH, key)).toString()));
   if (!goRes.success) {
     logger.error(`Unable to read key data from fs cache`);
     logger.error(goRes.error.stack!);
     return undefined;
   }
 
-  return JSON.parse(goRes.data.toString());
+  return goRes.data;
 };
 
 /**
