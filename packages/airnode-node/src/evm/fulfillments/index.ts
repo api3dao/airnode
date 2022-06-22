@@ -17,9 +17,9 @@ import { AirnodeRrpV0Factory, AirnodeRrpV0 } from '../contracts';
 import * as verification from '../verification';
 
 interface OrderedRequest<T> {
-  readonly nonce: number;
+  request: Request<T>;
   type: RequestType;
-  readonly makeRequest: () => Promise<Request<T>>;
+  makeRequest: () => Promise<Request<T> | Error>;
 }
 
 function getBaseLogOptions(state: ProviderState<EVMProviderSponsorState>) {
@@ -51,15 +51,15 @@ function prepareRequestSubmissions<T>(
 ): OrderedRequest<T>[] {
   return requests.map((request) => {
     const makeRequest = async () => {
-      // NOTE: This err was not actually handled anywhere before, what should we do with it?
-      const [logs, _err, submittedRequest] = await submitFunction(contract, request, getTransactionOptions(state));
+      const [logs, err, submittedRequest] = await submitFunction(contract, request, getTransactionOptions(state));
       logger.logPending(logs, getBaseLogOptions(state));
 
+      if (err) return err;
       return submittedRequest || request;
     };
 
     return {
-      nonce: request.nonce!,
+      request: request,
       type,
       makeRequest,
     };
@@ -108,15 +108,45 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
     contract
   );
 
-  const allRequests = [...preparedApiCallSubmissions, ...preparedWithdrawalSubmissions];
+  const allRequestSubmissions = [...preparedApiCallSubmissions, ...preparedWithdrawalSubmissions];
   // Sort by the nonce value increasingly
-  allRequests.sort((a, b) => a.nonce - b.nonce);
+  allRequestSubmissions.sort((a, b) => a.request.nonce! - b.request.nonce!);
 
   const apiCalls: Request<ApiCall>[] = [];
   const withdrawals: Request<Withdrawal>[] = [];
+  const saveRequest = (type: RequestType, request: Request<Withdrawal | ApiCall>) => {
+    if (type === RequestType.ApiCall) {
+      apiCalls.push(request as Request<ApiCall>);
+    }
+    if (type === RequestType.Withdrawal) {
+      withdrawals.push(request as Request<Withdrawal>);
+    }
+  };
+
+  // If one of the requests fail other request are bound to fail as well because of the wrong nonce
+  let previousTransactionFailed = false;
+
   // Perform the requests sequentially to in order to respect the nonce value
-  for (const request of allRequests) {
-    const submittedRequest = await request.makeRequest();
+  for (const requestSubmission of allRequestSubmissions) {
+    if (previousTransactionFailed) {
+      logger.info(
+        `Request:${requestSubmission.request.id} skipped because one of the previous requests failed`,
+        getBaseLogOptions(state)
+      );
+
+      saveRequest(requestSubmission.type, requestSubmission.request);
+      continue;
+    }
+
+    const submittedRequest = await requestSubmission.makeRequest();
+
+    if (submittedRequest instanceof Error) {
+      // Not printing an error, because it is already logged by the "makeRequest" function
+      previousTransactionFailed = true;
+      saveRequest(requestSubmission.type, requestSubmission.request);
+      continue;
+    }
+
     if (submittedRequest.fulfillment?.hash) {
       logger.info(
         `Transaction:${submittedRequest.fulfillment.hash} submitted for Request:${submittedRequest.id}`,
@@ -124,13 +154,7 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
       );
     }
 
-    // TODO: Include RequestType in the actual Request object
-    if (request.type === RequestType.ApiCall) {
-      apiCalls.push(submittedRequest as Request<ApiCall>);
-    }
-    if (request.type === RequestType.Withdrawal) {
-      withdrawals.push(submittedRequest as Request<Withdrawal>);
-    }
+    saveRequest(requestSubmission.type, submittedRequest);
   }
 
   return {
