@@ -12,6 +12,7 @@ export function buildWithdrawal(params?: Partial<Request<Withdrawal>>): Request<
     id: 'withdrawalId',
     metadata,
     sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    chainId: '31337',
     ...params,
   };
 }

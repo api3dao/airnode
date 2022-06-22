@@ -39,7 +39,8 @@ Before making the request, you need to replace the following placeholders:
 
 - `<HTTP_SIGNED_DATA_GATEWAY_API_KEY>` - This is a user defined API key to authenticate against the gateway, which must
   be between 30 and 120 characters and is stored in `secrets.env`
-- `<HTTP_SIGNED_DATA_GATEWAY_URL>` - You can find this value in `receipt.json` under `api.httpSignedDataGatewayUrl` path
+- `<HTTP_SIGNED_DATA_GATEWAY_URL>` - You can find this value as part of the terminal output of the `yarn deploy-airnode`
+  command
 - `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path. It can
   be derived using the Admin CLI command `derive-endpoint-id` described further
   [here](https://docs.api3.org/airnode/latest/reference/packages/admin-cli.html#derive-endpoint-id)

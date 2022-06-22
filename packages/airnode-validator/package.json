@@ -7,14 +7,14 @@
   "module": "./dist/esm/src/index.js",
   "browser": "./dist/es6/src/index.js",
   "bin": {
-    "airnode-validator": "./dist/bin/validator.js"
+    "airnode-validator": "./dist/cjs/bin/validator.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
     "cli": "ts-node bin/validator.ts",
     "compile": "yarn tsc --build tsconfig.json",
     "pack": "yarn pack",

@@ -6,6 +6,7 @@ import { goSync } from '@api3/promise-utils';
 import * as evm from './evm';
 import * as admin from './implementation';
 import { cliExamples } from './cli-examples';
+import { encaseMnemonic } from './mnemonic';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -520,7 +521,7 @@ yargs
           'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
           'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
           '',
-          mnemonic,
+          ...encaseMnemonic(mnemonic),
           '',
           `The Airnode address for this mnemonic is: ${airnodeAddress}`,
           `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,

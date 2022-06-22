@@ -72,6 +72,7 @@ export type Request<T extends {}> = T & {
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
+  readonly chainId: string;
 };
 
 export type ApiCallType = 'template' | 'full';
@@ -95,7 +96,9 @@ export interface ApiCall {
 export type ApiCallWithResponse = ApiCall & RegularApiCallResponse;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Withdrawal {}
+export interface Withdrawal {
+  readonly chainId: string;
+}
 
 export type AnyRequest = ApiCall | Withdrawal;
 
@@ -325,6 +328,7 @@ interface EVMEventLogMetadata {
   readonly minConfirmations: number;
   readonly transactionHash: string;
   readonly logIndex: number;
+  readonly chainId: string;
 }
 
 export type AirnodeLogDescription<Event> = Event extends { readonly args: infer EventArgs }

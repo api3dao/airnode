@@ -15,12 +15,14 @@ describe('initialize (Withdrawal)', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31137',
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
       id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
+      chainId: '31137',
       metadata: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
@@ -68,6 +70,7 @@ describe('mapRequests (Withdrawal)', () => {
       minConfirmations: 0,
       transactionHash: event.transactionHash,
       logIndex: 0,
+      chainId: '31137',
     };
     const [logs, res] = withdrawals.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
@@ -76,6 +79,7 @@ describe('mapRequests (Withdrawal)', () => {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
         id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
+        chainId: '31137',
         metadata: {
           address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
@@ -103,6 +107,7 @@ describe('mapRequests (Withdrawal)', () => {
       minConfirmations: 0,
       transactionHash: requestEvent.transactionHash,
       logIndex: 0,
+      chainId: '31137',
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
@@ -112,6 +117,7 @@ describe('mapRequests (Withdrawal)', () => {
       minConfirmations: 0,
       transactionHash: fulfillEvent.transactionHash,
       logIndex: 0,
+      chainId: '31137',
     };
 
     const [logs, requests] = withdrawals.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);

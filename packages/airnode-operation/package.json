@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "tsc --build tsconfig.json",
     "compile:watch": "tsc --build tsconfig.json -w",
     "dev:api": "ts-node src/server.ts",

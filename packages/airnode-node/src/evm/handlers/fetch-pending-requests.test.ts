@@ -49,6 +49,7 @@ describe('fetchPendingRequests', () => {
       withdrawals: [
         {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+          chainId: '31337',
           sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
           id: '0xcadc095f1dc6808a34d6166a72e3c3bb039fb401a5d90a270091aa1d25e4e342',
           metadata: {

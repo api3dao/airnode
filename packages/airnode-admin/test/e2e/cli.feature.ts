@@ -442,16 +442,22 @@ Template data:
     ];
     expect(out.slice(0, 3)).toEqual(explanationInfo);
 
-    const mnemonic = out[3];
+    const titleRows = [out[3], out[7]];
+    titleRows.forEach((row) => expect(row).toMatch(/^#+ MNEMONIC #+$/));
+
+    const spaceRows = [out[4], out[6]];
+    spaceRows.forEach((row) => expect(row).toMatch(/^\s+$/));
+
+    const mnemonic = out[5];
     const words = mnemonic.split(' ');
     expect(words).toHaveLength(12);
     words.forEach((word) => expect(word).toMatch(/\w+/));
 
     const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
-    expect(out[5]).toEqual(`The Airnode address for this mnemonic is: ${airnodeAddress}`);
+    expect(out[9]).toEqual(`The Airnode address for this mnemonic is: ${airnodeAddress}`);
 
     const airnodeXpub = admin.deriveAirnodeXpub(mnemonic);
-    expect(out[6]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
+    expect(out[10]).toEqual(`The Airnode xpub for this mnemonic is: ${airnodeXpub}`);
 
     const verifyXpubResult = admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
     const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);

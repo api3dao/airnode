@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "yarn run compile:contracts && yarn run compile:tsc",
     "compile:contracts": "hardhat compile",
     "compile:tsc": "yarn compile:contract-dts && yarn compile:copy-contract-dts && tsc --build tsconfig.json",

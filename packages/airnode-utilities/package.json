@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist *.tgz",
+    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "tsc --build tsconfig.json",
     "test": "SILENCE_LOGGER=true jest --selectProjects unit",
     "pack": "yarn pack"

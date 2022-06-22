@@ -5,7 +5,7 @@ import { CloudProvider, loadConfig } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import size from 'lodash/size';
 import { bold } from 'chalk';
-import { CloudProviderExtended, deployAirnode, removeAirnode } from '../infrastructure';
+import { deployAirnode, removeAirnode, CloudProviderExtended } from '../infrastructure';
 import {
   deriveAirnodeAddress,
   writeReceiptFile,
@@ -102,7 +102,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
-  writeReceiptFile(receiptFile, mnemonic, config, output, deploymentTimestamp);
+  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp);
+
+  if (output.httpGatewayUrl) logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
+  if (output.httpSignedDataGatewayUrl) logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
 }
 
 export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: CloudProvider) {
