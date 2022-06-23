@@ -107,22 +107,15 @@ const addKey = (key: string, data: any, force = false) => {
   }
 
   const filePath = join(CACHE_BASE_PATH, key);
+  const fileExists = existsSync(filePath);
 
-  const goFileExists = goSync(() => existsSync(filePath));
-  if (!goFileExists.success) {
-    logger.error(`Unable to remove key from fs cache`);
-    logger.error(goFileExists.error.stack!);
-    return;
-  }
-
-  if (goFileExists.data && !force) {
+  if (fileExists && !force) {
     logger.error(`Unable to overwrite key from fs cache as key exists and force is set to false`);
     logger.error(`Key: ${key}`);
     return;
   }
 
-  if (goFileExists.data) {
-    rmSync(filePath, { force: true });
+  if (fileExists) {
     const goRmSync = goSync(() => rmSync(filePath, { force: true }));
     if (!goRmSync.success) {
       logger.error(`Unable to remove key from fs cache`);

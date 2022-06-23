@@ -10,6 +10,7 @@ import {
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
+import { goSync } from '@api3/promise-utils';
 import * as admin from '../../src';
 import { cliExamples } from '../../src/cli-examples';
 
@@ -48,12 +49,13 @@ describe('CLI', () => {
       .join(' ');
     const formattedCommand = `${command} ${formattedArgs}`;
     if (DEBUG_COMMANDS) logger.log(`Executing command: ${formattedCommand}`);
-    try {
-      return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
-    } catch (e: any) {
+
+    const goExecSync = goSync(() => execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim());
+    if (!goExecSync.success) {
       // rethrow the output of the CLI
-      throw new Error(e.stdout.toString().trim());
+      throw new Error((goExecSync.error as any).reason.stdout.toString().trim());
     }
+    return goExecSync.data;
   };
 
   const deriveSponsorWallet = async (airnodeMnemonic: string, sponsorAddress: string): Promise<ethers.Wallet> => {

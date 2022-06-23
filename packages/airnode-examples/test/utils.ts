@@ -1,5 +1,6 @@
 import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { logger } from '@api3/airnode-utilities';
+import { goSync } from '@api3/promise-utils';
 import { cliPrint } from '../src';
 
 export const runCommand = (command: string) => {
@@ -33,10 +34,9 @@ export const killBackgroundProcess = (processToKill: ChildProcessWithoutNullStre
   //
   // The following reliably kills the Airnode process for unix, but it throws for windows.
   // See: https://azimi.me/2014/12/31/kill-child_process-node-js.html
-  try {
-    process.kill(-processToKill.pid!);
-  } catch (e) {
-    // See: https://stackoverflow.com/a/28163919
-    spawn('taskkill', ['/pid', processToKill.pid!.toString(), '/f', '/t']);
-  }
+
+  const goKillProcess = goSync(() => process.kill(-processToKill.pid!));
+
+  // See: https://stackoverflow.com/a/28163919
+  if (!goKillProcess.success) spawn('taskkill', ['/pid', processToKill.pid!.toString(), '/f', '/t']);
 };

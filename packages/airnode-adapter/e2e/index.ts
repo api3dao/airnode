@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+import { goSync, go, GoResultError } from '@api3/promise-utils';
 import { extractAndEncodeResponse, ReservedParameters } from '../src';
 import type { Contract } from 'ethers';
 
@@ -21,11 +22,8 @@ it('shows the need for assertArrayEquals', () => {
   expect(ethers.BigNumber.from(123)).to.equal(123);
   expect(ethers.BigNumber.from(123)).to.equal('123');
 
-  try {
-    expect(ethers.BigNumber.from([123])).to.equal(['123']);
-    expect.fail();
-    // eslint-disable-next-line no-empty
-  } catch {}
+  const goBigNumber = goSync(() => expect(ethers.BigNumber.from([123])).to.equal(['123']));
+  expect(goBigNumber.success).to.equal(false);
 
   assertArrayEquals([[ethers.BigNumber.from(123)], [ethers.BigNumber.from(456)]], [['123'], [456]]);
 });
@@ -277,12 +275,11 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     });
 
     it('throws when parsing fixed array as non fixed one', async () => {
-      try {
-        await testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }));
-        expect.fail();
-      } catch (e: any) {
-        expect(e.message).to.contain('call revert exception');
-      }
+      const goDecode1DArray = await go(() =>
+        testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }))
+      );
+      expect(goDecode1DArray.success).to.equal(false);
+      expect((goDecode1DArray as GoResultError).error.message).to.contain('call revert exception');
     });
 
     it('throws on invalid path', () => {
@@ -294,17 +291,16 @@ describe('Extraction, encoding and simple on chain decoding', () => {
     });
 
     it('throws on int256 max number', async () => {
-      try {
-        await testDecoder['decodeSignedInt256'](
+      const goExtractAndEncode = await go(() =>
+        testDecoder['decodeSignedInt256'](
           extractAndEncode({
             _type: 'int256',
             _path: 'big.tooLargeDecimal',
           })
-        );
-        expect.fail();
-      } catch (e: any) {
-        expect(e.message).to.contain('out-of-bounds');
-      }
+        )
+      );
+      expect(goExtractAndEncode.success).to.equal(false);
+      expect((goExtractAndEncode as GoResultError).error.message).to.contain('out-of-bounds');
     });
   });
 });

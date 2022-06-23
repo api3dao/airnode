@@ -26,7 +26,6 @@ export function decodeRevertString(callData: string) {
   // Function selector is 4 bytes long and that is why we skip
   // the first 2 bytes (0x) and the rest 8 bytes is the function selector
   // return ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0];
-
   const goDecode = goSync(
     () => ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0]
   );
