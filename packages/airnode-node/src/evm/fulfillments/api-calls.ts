@@ -64,7 +64,7 @@ async function testFulfill(
     );
   const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
-    const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
+    const errorLog = logger.pend('ERROR', `Static call fulfillment failed for Request:${request.id} with ${err}`, err);
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res];

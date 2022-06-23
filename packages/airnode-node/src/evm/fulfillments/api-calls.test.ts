@@ -339,10 +339,12 @@ describe('submitApiCall', () => {
       async (gasTarget: GasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
-        staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
-        staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
-        (failMock as any).mockRejectedValueOnce(new Error('Server still says no'));
-        (failMock as any).mockRejectedValueOnce(new Error('Server still says no'));
+        const staticCallError = new Error('Static call error');
+        staticFulfillMock.mockRejectedValueOnce(staticCallError);
+        staticFulfillMock.mockRejectedValueOnce(staticCallError);
+        const failTxError = new Error('Fail transaction error');
+        failMock.mockRejectedValueOnce(failTxError);
+        failMock.mockRejectedValueOnce(failTxError);
         const apiCall = fixtures.requests.buildSuccessfulApiCall({
           id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
           data: {
@@ -360,18 +362,18 @@ describe('submitApiCall', () => {
         expect(logs).toEqual([
           { level: 'DEBUG', message: `Attempting to fulfill API call for Request:${apiCall.id}...` },
           {
-            error: new Error('Server did not respond'),
+            error: staticCallError,
             level: 'ERROR',
-            message: `Error attempting API call fulfillment for Request:${apiCall.id}`,
+            message: `Static call fulfillment failed for Request:${apiCall.id} with ${staticCallError}`,
           },
           { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
           {
-            error: new Error('Server still says no'),
+            error: failTxError,
             level: 'ERROR',
             message: `Error submitting API call fail transaction for Request:${apiCall.id}`,
           },
         ]);
-        expect(err).toEqual(new Error('Server still says no'));
+        expect(err).toEqual(failTxError);
         expect(data).toEqual(null);
         expect(staticFulfillMock).toHaveBeenCalledTimes(2);
         expect(staticFulfillMock).toHaveBeenNthCalledWith(
@@ -392,7 +394,7 @@ describe('submitApiCall', () => {
           apiCall.airnodeAddress,
           apiCall.fulfillAddress,
           apiCall.fulfillFunctionId,
-          'Server did not respond',
+          'Static call error',
           txOpts
         );
       }
