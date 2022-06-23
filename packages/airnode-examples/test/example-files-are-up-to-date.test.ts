@@ -16,7 +16,7 @@ describe('Verifies that all config.example.json files are up to date', () => {
         import(join(folder, 'create-config.ts')).then((createConfig) => createConfig.default(true))
       );
 
-      if (!goCreateConfig.success) throw goCreateConfig.error.message;
+      if (!goCreateConfig.success) throw goCreateConfig.error;
 
       const generatedConfigFile = readFileSync(path).toString();
 

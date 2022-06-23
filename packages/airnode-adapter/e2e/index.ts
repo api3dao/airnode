@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { goSync, go, GoResultError } from '@api3/promise-utils';
+import { goSync, go, assertGoError } from '@api3/promise-utils';
 import { extractAndEncodeResponse, ReservedParameters } from '../src';
 import type { Contract } from 'ethers';
 
@@ -23,7 +23,8 @@ it('shows the need for assertArrayEquals', () => {
   expect(ethers.BigNumber.from(123)).to.equal('123');
 
   const goBigNumber = goSync(() => expect(ethers.BigNumber.from([123])).to.equal(['123']));
-  expect(goBigNumber.success).to.equal(false);
+  assertGoError(goBigNumber);
+  expect(goBigNumber.error.message).to.contain('invalid BigNumber value');
 
   assertArrayEquals([[ethers.BigNumber.from(123)], [ethers.BigNumber.from(456)]], [['123'], [456]]);
 });
@@ -278,8 +279,8 @@ describe('Extraction, encoding and simple on chain decoding', () => {
       const goDecode1DArray = await go(() =>
         testDecoder.decode1DArray(extractAndEncode({ _type: 'int256[2]', _path: 'array.int256' }))
       );
-      expect(goDecode1DArray.success).to.equal(false);
-      expect((goDecode1DArray as GoResultError).error.message).to.contain('call revert exception');
+      assertGoError(goDecode1DArray);
+      expect(goDecode1DArray.error.message).to.contain('call revert exception');
     });
 
     it('throws on invalid path', () => {
@@ -299,8 +300,8 @@ describe('Extraction, encoding and simple on chain decoding', () => {
           })
         )
       );
-      expect(goExtractAndEncode.success).to.equal(false);
-      expect((goExtractAndEncode as GoResultError).error.message).to.contain('out-of-bounds');
+      assertGoError(goExtractAndEncode);
+      expect(goExtractAndEncode.error.message).to.contain('out-of-bounds');
     });
   });
 });
