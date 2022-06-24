@@ -1,8 +1,9 @@
 import { startCoordinator } from '../../src/workers/local-handlers';
-import { increaseTestTimeout, deployAirnodeAndMakeRequests, fetchAllLogNames } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests, fetchAllLogNames } from '../setup/e2e';
+
+jest.setTimeout(120_000);
 
 it('does not process requests twice', async () => {
-  increaseTestTimeout();
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename);
 
   const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];

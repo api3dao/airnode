@@ -1,9 +1,10 @@
 import { HttpGatewayApiCallResponse } from '../../src';
 import { processHttpRequest } from '../../src/workers/local-handlers';
-import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests } from '../setup/e2e';
+
+jest.setTimeout(120_000);
 
 it('makes a call to test the API', async () => {
-  increaseTestTimeout();
   await deployAirnodeAndMakeRequests(__filename);
 
   const parameters = {

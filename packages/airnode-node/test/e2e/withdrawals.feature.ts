@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { operation } from '../fixtures';
 import { startCoordinator } from '../../src/workers/local-handlers';
 import { getMasterHDNode, deriveSponsorWallet } from '../../src/evm/wallet';
-import { deployAirnodeAndMakeRequests, fetchAllLogNames, increaseTestTimeout } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests, fetchAllLogNames } from '../setup/e2e';
 
 // It's difficult to check exact balances because of the gas costs
 const expectEthInRange = (eth: ethers.BigNumber, from: string, to: string) => {
@@ -10,8 +10,9 @@ const expectEthInRange = (eth: ethers.BigNumber, from: string, to: string) => {
   expect(eth.lt(ethers.utils.parseEther(to))).toEqual(true);
 };
 
+jest.setTimeout(120_000);
+
 it('processes withdrawals only once', async () => {
-  increaseTestTimeout();
   const { deployment, provider, config } = await deployAirnodeAndMakeRequests(__filename, [
     operation.buildWithdrawal(),
   ]);
