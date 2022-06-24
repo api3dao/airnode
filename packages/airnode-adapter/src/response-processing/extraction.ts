@@ -1,6 +1,7 @@
 import isUndefined from 'lodash/isUndefined';
 import range from 'lodash/range';
 import { ethers } from 'ethers';
+import { goSync } from '@api3/promise-utils';
 import { castValue, multiplyValue } from './casting';
 import { parseArrayType, isNumericType, applyToArrayRecursively } from './array-type';
 import { encodeMultipleValues, encodeValue } from './encoding';
@@ -47,12 +48,10 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
   }
 
   return escapeAwareSplit(path, PATH_DELIMETER).reduce((acc, segment) => {
-    try {
-      const nextValue = acc[segment];
-      return nextValue === undefined ? defaultValue : nextValue;
-    } catch (e) {
-      return defaultValue;
-    }
+    const goNextValue = goSync(() => acc[segment]);
+    if (!goNextValue.success) return defaultValue;
+
+    return goNextValue.data === undefined ? defaultValue : goNextValue.data;
   }, data);
 }
 

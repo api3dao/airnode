@@ -1,4 +1,5 @@
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
 import {
@@ -22,11 +23,17 @@ async function spawn<T extends EVMProviderState>(
     payload: { state, functionName } as InitializeProviderPayload | ProcessTransactionsPayload,
   };
 
-  const [err, res] = await go(() => workers.spawn(options));
-  if (err || !res) {
-    const log = logger.pend('ERROR', `${errorMessage}: ${state.settings.name}`, err);
+  const goRes = await go(() => workers.spawn(options));
+  if (!goRes.success) {
+    const log = logger.pend('ERROR', `${errorMessage}: ${state.settings.name}`, goRes.error);
     return [[log], null];
   }
+  if (!goRes.data) {
+    const log = logger.pend('ERROR', `${errorMessage}: ${state.settings.name}`);
+    return [[log], null];
+  }
+
+  const res = goRes.data;
 
   if (!res.ok) {
     if (res.errorLog) {

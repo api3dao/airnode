@@ -3,7 +3,8 @@ import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
@@ -32,13 +33,21 @@ export async function fetchAuthorizationStatus(
       apiCall.requesterAddress
     );
 
-  const [err, authorized] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err || isNil(authorized)) {
-    const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`, err);
+  const goAuthorized = await go(contractCall, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goAuthorized.success) {
+    const log = logger.pend(
+      'ERROR',
+      `Failed to fetch authorization details for Request:${apiCall.id}`,
+      goAuthorized.error
+    );
+    return [[log], null];
+  }
+  if (isNil(goAuthorized.data)) {
+    const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`);
     return [[log], null];
   }
   const successLog = logger.pend('INFO', `Fetched authorization status for Request:${apiCall.id}`);
-  return [[successLog], authorized];
+  return [[successLog], goAuthorized.data];
 }
 
 async function fetchAuthorizationStatuses(
@@ -64,9 +73,9 @@ async function fetchAuthorizationStatuses(
       requesterAddresses
     );
 
-  const [err, data] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err || !data) {
-    const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', err);
+  const goData = await go(contractCall, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goData.success) {
+    const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', goData.error);
 
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
@@ -89,7 +98,7 @@ async function fetchAuthorizationStatuses(
 
   // Authorization statuses are returned in the same order that they are requested.
   const authorizationsById = apiCalls.reduce((acc, apiCall, index) => {
-    return { ...acc, [apiCall.id]: data[index] };
+    return { ...acc, [apiCall.id]: goData.data[index] };
   }, {});
 
   return [[], authorizationsById];

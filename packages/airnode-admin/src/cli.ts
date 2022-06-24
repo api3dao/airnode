@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
 import { logger } from '@api3/airnode-utilities';
+import { goSync } from '@api3/promise-utils';
 import * as evm from './evm';
 import * as admin from './implementation';
 import { cliExamples } from './cli-examples';
@@ -156,7 +157,7 @@ yargs
       'airnode-mnemonic': airnodeMnemonic,
     },
     async (args) => {
-      const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
+      const xpub = admin.deriveAirnodeXpub(args['airnode-mnemonic']);
       logger.log(`Airnode xpub: ${xpub}`);
     }
   )
@@ -168,11 +169,11 @@ yargs
       'airnode-address': airnodeAddress,
     },
     async (args) => {
-      try {
-        admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
-        logger.log(`Airnode xpub is: VALID`);
-      } catch {
+      const goVerifyAirnodeXpub = goSync(() => admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']));
+      if (!goVerifyAirnodeXpub.success) {
         logger.error(`Airnode xpub is: INVALID`);
+      } else {
+        logger.log(`Airnode xpub is: VALID`);
       }
     }
   )

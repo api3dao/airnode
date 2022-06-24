@@ -2,7 +2,7 @@ import { spawnSync } from 'child_process';
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { PromptObject } from 'prompts';
-import { goSync } from '@api3/airnode-utilities';
+import { goSync } from '@api3/promise-utils';
 import { cliPrint, IntegrationInfo, promptQuestions, runAndHandleErrors } from '../';
 
 const createCliOption = (name: string) => ({

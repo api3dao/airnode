@@ -1,4 +1,5 @@
 const { ethers } = require('hardhat');
+const { goSync } = require('@api3/promise-utils');
 
 function deriveWalletPathFromSponsorAddress(sponsorAddress) {
   const sponsorAddressBN = ethers.BigNumber.from(sponsorAddress);
@@ -52,11 +53,12 @@ module.exports = {
   },
   decodeRevertString: (callData) => {
     // Refer to https://ethereum.stackexchange.com/a/83577
-    try {
-      // Skip the signature, only get the revert string
-      return ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0];
-    } catch {
-      return 'No revert string';
-    }
+    // Skip the signature, only get the revert string
+    const goDecode = goSync(
+      () => ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0]
+    );
+    if (!goDecode.success) return 'No revert string';
+
+    return goDecode.data;
   },
 };

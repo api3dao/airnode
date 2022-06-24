@@ -1,5 +1,5 @@
 import { Endpoint, ProcessingSpecification } from '@api3/airnode-ois';
-import { go } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { unsafeEvaluate, unsafeEvaluateAsync } from './unsafe-evaluate';
 import { apiCallParametersSchema } from '../validation';
 import { PROCESSING_TIMEOUT } from '../constants';
@@ -15,7 +15,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
     return payload;
   }
 
-  const [err, processedParameters] = await go(
+  const goProcessedParameters = await go(
     async () =>
       await preProcessingSpecifications.reduce(
         async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
@@ -30,15 +30,15 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
         },
         Promise.resolve(aggregatedApiCall.parameters)
       ),
-    { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
+    { retries: 0, totalTimeoutMs: PROCESSING_TIMEOUT }
   );
 
-  if (err) {
-    throw err;
+  if (!goProcessedParameters.success) {
+    throw goProcessedParameters.error;
   }
 
   // Let this throw if the processed parameters are invalid
-  const parameters = apiCallParametersSchema.parse(processedParameters);
+  const parameters = apiCallParametersSchema.parse(goProcessedParameters.data);
 
   return {
     ...payload,
@@ -56,7 +56,7 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
     return input;
   }
 
-  const [err, result] = await go(
+  const goResult = await go(
     async () =>
       await postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
@@ -69,12 +69,12 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
         }
       }, input),
 
-    { retries: 0, timeoutMs: PROCESSING_TIMEOUT }
+    { retries: 0, totalTimeoutMs: PROCESSING_TIMEOUT }
   );
 
-  if (err) {
-    throw err;
+  if (!goResult.success) {
+    throw goResult.error;
   }
 
-  return result;
+  return goResult.data;
 };

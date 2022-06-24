@@ -1,7 +1,8 @@
 import flatMap from 'lodash/flatMap';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { buildEVMState } from './state';
 import { spawnNewProvider, spawnProviderRequestProcessor } from './worker';
 import {
@@ -24,12 +25,14 @@ async function initializeEVMProvider(
   // Each provider gets 20 seconds to initialize. If it fails to initialize
   // in this time, it is ignored. It is important to catch any potential errors
   // here as a single promise rejecting will cause Promise.all to reject
-  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROVIDER_INITIALIZATION_TIMEOUT });
-  if (err || !logsWithRes) {
-    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
+  const goLogsWithRes = await go(initialization, {
+    totalTimeoutMs: WORKER_PROVIDER_INITIALIZATION_TIMEOUT,
+  });
+  if (!goLogsWithRes.success) {
+    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, goLogsWithRes.error);
     return [[log], null];
   }
-  return logsWithRes;
+  return goLogsWithRes.data;
 }
 
 export async function initialize(
@@ -63,13 +66,14 @@ async function processEvmProviderRequests(
   state: ProviderState<EVMProviderSponsorState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
-  const initialization = () => spawnProviderRequestProcessor(state, workerOpts);
-  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROCESS_TRANSACTIONS_TIMEOUT });
-  if (err || !logsWithRes) {
-    const log = logger.pend('ERROR', `Unable to process provider:${state.settings.name} requests`, err);
+  const goLogsWithRes = await go(() => spawnProviderRequestProcessor(state, workerOpts), {
+    totalTimeoutMs: WORKER_PROCESS_TRANSACTIONS_TIMEOUT,
+  });
+  if (!goLogsWithRes.success) {
+    const log = logger.pend('ERROR', `Unable to process provider:${state.settings.name} requests`, goLogsWithRes.error);
     return [[log], null];
   }
-  return logsWithRes;
+  return goLogsWithRes.data;
 }
 
 export async function processRequests(

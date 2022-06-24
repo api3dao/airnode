@@ -17,7 +17,7 @@
   "types": "dist/index",
   "main": "dist/index.js",
   "dependencies": {
-    "@lifeomic/attempt": "^3.0.0",
+    "@api3/promise-utils": "^0.3.0",
     "date-fns": "^2.16.1",
     "ethers": "^5.4.5"
   },

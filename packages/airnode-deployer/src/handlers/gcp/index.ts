@@ -10,7 +10,8 @@ import {
   WorkerPayload,
   loadTrustedConfig,
 } from '@api3/airnode-node';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -40,17 +41,26 @@ export async function run(req: Request, res: Response) {
 async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
-  if (err || !initializedState) {
+  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig), {
+    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
+  });
+  if (!goInitializedState.success) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
-    logger.log(err!.toString());
-    const errorLog = logger.pend('ERROR', msg, err);
+    logger.log(goInitializedState.error.toString());
+    const errorLog = logger.pend('ERROR', msg, goInitializedState.error);
+    const body = { ok: false, errorLog };
+    res.status(500).send(body);
+    return;
+  }
+  if (!goInitializedState.data) {
+    const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
+    const errorLog = logger.pend('ERROR', msg);
     const body = { ok: false, errorLog };
     res.status(500).send(body);
     return;
   }
 
-  const body = { ok: true, data: providers.scrub(initializedState) };
+  const body = { ok: true, data: providers.scrub(goInitializedState.data) };
   res.status(200).send(body);
 }
 
@@ -65,16 +75,18 @@ async function callApi(payload: CallApiPayload, res: Response) {
 async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
   const stateWithConfig = { ...payload.state, config: parsedConfig };
 
-  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
-  if (err || !updatedState) {
+  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig), {
+    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
+  });
+  if (!goUpdatedState.success) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
-    const errorLog = logger.pend('ERROR', msg, err);
+    const errorLog = logger.pend('ERROR', msg, goUpdatedState.error);
     const body = { ok: false, errorLog };
     res.status(500).send(body);
     return;
   }
 
-  const body = { ok: true, data: providers.scrub(updatedState) };
+  const body = { ok: true, data: providers.scrub(goUpdatedState.data) };
   res.status(200).send(body);
 }
 

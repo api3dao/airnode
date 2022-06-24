@@ -1,6 +1,7 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
@@ -62,12 +63,16 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err) {
-    const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
-    return [[noticeLog, errorLog], err, null];
+  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goRes.success) {
+    const errorLog = logger.pend(
+      'ERROR',
+      `Error attempting API call fulfillment for Request:${request.id}`,
+      goRes.error
+    );
+    return [[noticeLog, errorLog], goRes.error, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, goRes.data];
 }
 
 async function submitFulfill(
@@ -91,16 +96,16 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err) {
+  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goRes.success) {
     const errorLog = logger.pend(
       'ERROR',
       `Error submitting API call fulfillment transaction for Request:${request.id}`,
-      err
+      goRes.error
     );
-    return [[noticeLog, errorLog], err, null];
+    return [[noticeLog, errorLog], goRes.error, null];
   }
-  return [[noticeLog], null, applyTransactionResult(request, res)];
+  return [[noticeLog], null, applyTransactionResult(request, goRes.data)];
 }
 
 async function testAndSubmitFulfill(
@@ -174,12 +179,16 @@ async function submitFail(
       }
     );
 
-  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err) {
-    const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
-    return [[noticeLog, errorLog], err, null];
+  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goRes.success) {
+    const errorLog = logger.pend(
+      'ERROR',
+      `Error submitting API call fail transaction for Request:${request.id}`,
+      goRes.error
+    );
+    return [[noticeLog, errorLog], goRes.error, null];
   }
-  return [[noticeLog], null, applyTransactionResult(request, res)];
+  return [[noticeLog], null, applyTransactionResult(request, goRes.data)];
 }
 
 // =================================================================

@@ -1,6 +1,7 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { applyTransactionResult } from './requests';
 import * as wallet from '../wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
@@ -16,18 +17,18 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
   }
 
   const sponsorWalletAddress = wallet.deriveSponsorWallet(options.masterHDNode, request.sponsorAddress).address;
-  const getBalanceOperation = () => options.provider!.getBalance(sponsorWalletAddress);
-  const [balanceErr, currentBalance] = await go(getBalanceOperation, {
+
+  const goCurrentBalance = await go(() => options.provider!.getBalance(sponsorWalletAddress), {
     retries: 1,
-    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
   });
-  if (balanceErr || !currentBalance) {
+  if (!goCurrentBalance.success) {
     const errLog = logger.pend(
       'ERROR',
       `Failed to fetch sponsor address:${request.sponsorAddress} balance for Request:${request.id}`,
-      balanceErr
+      goCurrentBalance.error
     );
-    return [[errLog], balanceErr, null];
+    return [[errLog], goCurrentBalance.error, null];
   }
 
   const estimateTx = (): Promise<ethers.BigNumber> =>
@@ -40,19 +41,20 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
       // to revert. The transaction cost would need to be subtracted first
       { value: 1 }
     );
+
   // The node calculates how much gas the next transaction will cost (53,654)
-  const [estimateErr, estimatedGasLimit] = await go(estimateTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (estimateErr || !estimatedGasLimit) {
+  const goEstimatedGasLimit = await go(estimateTx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goEstimatedGasLimit.success) {
     const estimateErrorLog = logger.pend(
       'ERROR',
       `Error estimating withdrawal gas limit for Request:${request.id}`,
-      estimateErr
+      goEstimatedGasLimit.error
     );
-    return [[estimateErrorLog], estimateErr, null];
+    return [[estimateErrorLog], goEstimatedGasLimit.error, null];
   }
 
   // Overestimate the gas limit just in case
-  const paddedGasLimit = estimatedGasLimit.add(ethers.BigNumber.from(20_000));
+  const paddedGasLimit = goEstimatedGasLimit.data.add(ethers.BigNumber.from(20_000));
 
   const estimateLog = logger.pend(
     'DEBUG',
@@ -68,7 +70,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
   const txCost = paddedGasLimit.mul(
     options.gasTarget.gasPrice ? options.gasTarget.gasPrice : options.gasTarget.maxFeePerGas!
   );
-  const fundsToSend = currentBalance.sub(txCost).sub(remainder);
+  const fundsToSend = goCurrentBalance.data.sub(txCost).sub(remainder);
 
   // We can't submit a withdrawal with a negative amount
   if (fundsToSend.lt(0)) {
@@ -91,16 +93,16 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
       value: fundsToSend,
     });
   // Note that we're using the sponsor address to call this
-  const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (withdrawalErr || !withdrawalRes) {
+  const goWithdrawalRes = await go(withdrawalTx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  if (!goWithdrawalRes.success) {
     const withdrawalErrLog = logger.pend(
       'ERROR',
       `Error submitting sponsor address:${request.sponsorAddress} withdrawal for Request:${request.id}`,
-      withdrawalErr
+      goWithdrawalRes.error
     );
     const logs = [estimateLog, noticeLog, withdrawalErrLog];
-    return [logs, withdrawalErr, null];
+    return [logs, goWithdrawalRes.error, null];
   }
 
-  return [[estimateLog, noticeLog], null, applyTransactionResult(request, withdrawalRes)];
+  return [[estimateLog, noticeLog], null, applyTransactionResult(request, goWithdrawalRes.data)];
 };

@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 import { logger } from '@api3/airnode-utilities';
+import { goSync } from '@api3/promise-utils';
 
 /**
  * Executes the function passed as an argument and properly shuts down the node environment.
@@ -8,15 +9,9 @@ import { logger } from '@api3/airnode-utilities';
  * Any uncaught error or promise rejection will be printed out in the console.
  */
 export const runAndHandleErrors = (fn: () => Promise<unknown>) => {
-  try {
-    fn()
-      .then(() => process.exit(0))
-      .catch((error) => {
-        cliPrint.error(error);
-        process.exit(1);
-      });
-  } catch (error) {
-    cliPrint.error('' + error);
+  const goFn = goSync(() => fn().then(() => process.exit(0)));
+  if (!goFn.success) {
+    cliPrint.error('' + goFn.error);
     process.exit(1);
   }
 };
