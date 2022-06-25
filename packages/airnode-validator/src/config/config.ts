@@ -109,9 +109,14 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
     .strict(),
 ]);
 
+export const chainAuthorizationsSchema = z.object({
+  requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
+});
+
 export const chainConfigSchema = z
   .object({
     authorizers: z.array(evmAddressSchema),
+    authorizations: chainAuthorizationsSchema,
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
     contracts: chainContractsSchema,
     id: z.string(),
@@ -374,6 +379,7 @@ export type AwsCloudProvider = SchemaType<typeof awsCloudProviderSchema>;
 export type GcpCloudProvider = SchemaType<typeof gcpCloudProviderSchema>;
 export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
+export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;

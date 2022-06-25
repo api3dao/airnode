@@ -10,6 +10,9 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
         authorizers: [],
+        authorizations: {
+          requesterEndpointAuthorizations: {},
+        },
         endpoints: {
           convertToUSD: {
             oisTitle: 'Currency Converter API',

@@ -13,6 +13,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     {
       maxConcurrency: 100,
       authorizers: [],
+      authorizations: {
+        requesterEndpointAuthorizations: {},
+      },
       contracts: {
         AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile),
       },

@@ -22,6 +22,7 @@ export function buildEVMState(
     airnodeAddress,
     airnodeAddressShort: evm.getAirnodeAddressShort(airnodeAddress),
     authorizers: chain.authorizers,
+    authorizations: chain.authorizations,
     // The number of blocks to look back for events to process
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
     chainId: chain.id,

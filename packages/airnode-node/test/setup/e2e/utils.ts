@@ -16,6 +16,9 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
       AirnodeRrp: contracts.AirnodeRrp,
     },
     authorizers: [],
+    authorizations: {
+      requesterEndpointAuthorizations: {},
+    },
     id: '31337',
     type: 'evm',
     options: {

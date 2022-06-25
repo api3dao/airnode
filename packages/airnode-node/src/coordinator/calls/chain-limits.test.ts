@@ -8,6 +8,9 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
   return {
     maxConcurrency: 100,
     authorizers: [],
+    authorizations: {
+      requesterEndpointAuthorizations: {},
+    },
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },

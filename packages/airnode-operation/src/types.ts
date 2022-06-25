@@ -112,6 +112,9 @@ export interface ConfigTemplate {
 
 export interface ConfigAirnode {
   readonly authorizers: string[];
+  readonly authorizations: {
+    requesterEndpointAuthorizations: { [endpointId: string]: string[] };
+  };
   readonly endpoints: { readonly [name: string]: ConfigEndpoint };
   readonly mnemonic: string;
   readonly templates: { readonly [name: string]: ConfigTemplate };

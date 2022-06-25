@@ -3,6 +3,9 @@
     {
       "maxConcurrency": 100,
       "authorizers": [],
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
       "contracts": {
         "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
