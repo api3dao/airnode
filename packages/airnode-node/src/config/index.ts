@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { OIS } from '@api3/airnode-ois';
 import { randomHexString } from '@api3/airnode-utilities';
 import { unsafeParseConfigWithSecrets, parseConfigWithSecrets, config as configTypes } from '@api3/airnode-validator';
+import { goSync } from '@api3/promise-utils';
 
 // Accessing specifically the `config` directory so we can export the content of the `config` module not the module itself
 export * from '@api3/airnode-validator/dist/cjs/src/config';
@@ -18,11 +19,10 @@ function parseOises(oises: OIS[]): OIS[] {
 }
 
 const readConfig = (configPath: string): unknown => {
-  try {
-    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch (e) {
-    throw new Error('Failed to parse config file');
-  }
+  const goParse = goSync(() => JSON.parse(fs.readFileSync(configPath, 'utf8')));
+  if (!goParse.success) throw new Error('Failed to parse config file');
+
+  return goParse.data;
 };
 
 export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {

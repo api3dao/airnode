@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { goSync } from '@api3/promise-utils';
 import { artificialTypes } from '../constants';
 import { ResponseType, ValueType } from '../types';
 
@@ -21,20 +22,18 @@ export function getSolidityType(type: ResponseType) {
 
 export function encodeValue(value: ValueType, type: ResponseType): string {
   const solidityType = getSolidityType(type);
-  try {
-    return ethers.utils.defaultAbiCoder.encode([solidityType], [value]);
-  } catch (e) {
-    if (e instanceof Error) throw new Error((e as Error).message);
-    throw new Error(String(e));
-  }
+
+  const goEncode = goSync(() => ethers.utils.defaultAbiCoder.encode([solidityType], [value]));
+  if (!goEncode.success) throw new Error(goEncode.error.message);
+
+  return goEncode.data;
 }
 
 export function encodeMultipleValues(values: ValueType[], types: ResponseType[]): string {
   const solidityTypes = types.map(getSolidityType);
-  try {
-    return ethers.utils.defaultAbiCoder.encode(solidityTypes, values);
-  } catch (e) {
-    if (e instanceof Error) throw new Error((e as Error).message);
-    throw new Error(String(e));
-  }
+
+  const goEncode = goSync(() => ethers.utils.defaultAbiCoder.encode(solidityTypes, values));
+  if (!goEncode.success) throw new Error(goEncode.error.message);
+
+  return goEncode.data;
 }

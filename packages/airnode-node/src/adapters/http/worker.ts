@@ -1,4 +1,5 @@
-import { logger, go, LogOptions } from '@api3/airnode-utilities';
+import { logger, LogOptions } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import * as workers from '../../workers';
 import { AggregatedApiCall, ApiCallResponse, LogsData, WorkerOptions, CallApiPayload } from '../../types';
 
@@ -12,11 +13,17 @@ export async function spawnNewApiCall(
     payload: { aggregatedApiCall, logOptions, functionName: 'callApi' } as CallApiPayload,
   };
 
-  const [err, res] = await go(() => workers.spawn(options));
-  if (err || !res) {
-    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`, err);
+  const goRes = await go(() => workers.spawn(options));
+  if (!goRes.success) {
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
     return [[log], null];
   }
+  if (!goRes.data) {
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`);
+    return [[log], null];
+  }
+
+  const res = goRes.data;
 
   if (!res.ok) {
     if (res.errorLog) {

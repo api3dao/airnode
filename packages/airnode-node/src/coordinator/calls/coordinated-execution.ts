@@ -1,6 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import { go, logger, LogOptions } from '@api3/airnode-utilities';
+import { logger, LogOptions } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
 import {
   LogsData,
@@ -23,17 +24,17 @@ async function execute(
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process. We need to catch any errors here (like a timeout)
   // as a rejection here will cause Promise.all to fail
-  const [err, logData] = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts), {
-    timeoutMs: WORKER_CALL_API_TIMEOUT,
+  const goLogData = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts), {
+    totalTimeoutMs: WORKER_CALL_API_TIMEOUT,
   });
-  const resLogs = logData ? logData[0] : [];
+  const resLogs = goLogData.success && goLogData.data ? goLogData.data[0] : [];
 
   const finishedAt = new Date();
   const durationMs = Math.abs(finishedAt.getTime() - startedAt.getTime());
 
   // If the worker crashed for whatever reason, mark the request as failed
-  if (err || !logData || !logData[1]) {
-    const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
+  if (!goLogData.success) {
+    const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, goLogData.error);
     const updatedApiCall: RegularAggregatedApiCallWithResponse = {
       ...aggregatedApiCall,
       success: false,
@@ -41,7 +42,18 @@ async function execute(
     };
     return [[...resLogs, log], updatedApiCall];
   }
-  const res = logData[1];
+
+  if (!goLogData.data || !goLogData.data[1]) {
+    const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`);
+    const updatedApiCall: RegularAggregatedApiCallWithResponse = {
+      ...aggregatedApiCall,
+      success: false,
+      errorMessage: RequestErrorMessage.ApiCallFailed,
+    };
+    return [[...resLogs, log], updatedApiCall];
+  }
+
+  const res = goLogData.data[1];
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.

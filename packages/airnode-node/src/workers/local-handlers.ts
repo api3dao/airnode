@@ -1,5 +1,6 @@
 import * as path from 'path';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { loadTrustedConfig } from '../config';
 import * as handlers from '../handlers';
 import * as state from '../providers/state';
@@ -19,14 +20,19 @@ export async function initializeProvider({ state: providerState }: InitializePro
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
-  if (err || !initializedState) {
+  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig));
+  if (!goInitializedState.success) {
     const msg = `Failed to initialize provider:${stateWithConfig.settings.name}`;
-    const errorLog = logger.pend('ERROR', msg, err);
+    const errorLog = logger.pend('ERROR', msg, goInitializedState.error);
+    return { ok: false, errorLog };
+  }
+  if (!goInitializedState.data) {
+    const msg = `Failed to initialize provider:${stateWithConfig.settings.name}`;
+    const errorLog = logger.pend('ERROR', msg);
     return { ok: false, errorLog };
   }
 
-  const scrubbedState = state.scrub(initializedState);
+  const scrubbedState = state.scrub(goInitializedState.data);
   return { ok: true, data: scrubbedState };
 }
 
@@ -43,14 +49,14 @@ export async function processTransactions({
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
-  if (err || !updatedState) {
+  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig));
+  if (!goUpdatedState.success) {
     const msg = `Failed to process provider requests:${stateWithConfig.settings.name}`;
-    const errorLog = logger.pend('ERROR', msg, err);
+    const errorLog = logger.pend('ERROR', msg, goUpdatedState.error);
     return { ok: false, errorLog };
   }
 
-  const scrubbedState = state.scrub(updatedState);
+  const scrubbedState = state.scrub(goUpdatedState.data);
   return { ok: true, data: scrubbedState };
 }
 

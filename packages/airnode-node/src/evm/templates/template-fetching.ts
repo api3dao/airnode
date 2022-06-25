@@ -4,7 +4,8 @@ import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import { logger, go } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { Template } from '../../config';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
@@ -26,18 +27,21 @@ export async function fetchTemplate(
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
   const operation = () => airnodeRrp.templates(templateId);
-  const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
-  if (err || !rawTemplate) {
-    const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
+  const goRawTemplate = await go(operation, {
+    retries: 1,
+    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+  });
+  if (!goRawTemplate.success) {
+    const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, goRawTemplate.error);
     return [[log], null];
   }
 
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
-    airnodeAddress: rawTemplate.airnode,
-    endpointId: rawTemplate.endpointId,
-    encodedParameters: rawTemplate.parameters,
+    airnodeAddress: goRawTemplate.data.airnode,
+    endpointId: goRawTemplate.data.endpointId,
+    encodedParameters: goRawTemplate.data.parameters,
     id: templateId,
   };
   return [[successLog], template];
@@ -48,11 +52,14 @@ async function fetchTemplateGroup(
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
-  const [err, rawTemplates] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goRawTemplates = await go(contractCall, {
+    retries: 1,
+    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+  });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
-  if (err || !rawTemplates) {
-    const groupLog = logger.pend('ERROR', 'Failed to fetch API call templates', err);
+  if (!goRawTemplates.success) {
+    const groupLog = logger.pend('ERROR', 'Failed to fetch API call templates', goRawTemplates.error);
 
     // If the template group cannot be fetched, fallback to fetching templates individually
     const promises = templateIds.map((id) => fetchTemplate(airnodeRrp, id));
@@ -68,9 +75,9 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
-      airnodeAddress: rawTemplates.airnodes[index],
-      endpointId: rawTemplates.endpointIds[index],
-      encodedParameters: rawTemplates.parameters[index],
+      airnodeAddress: goRawTemplates.data.airnodes[index],
+      endpointId: goRawTemplates.data.endpointIds[index],
+      encodedParameters: goRawTemplates.data.parameters[index],
       id: templateId,
     };
     return { ...acc, [templateId]: template };

@@ -2,6 +2,7 @@ import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ethers } from 'ethers';
+import { goSync } from '@api3/promise-utils';
 import { isNumericType, parseArrayType, applyToArrayRecursively } from './array-type';
 import { ResponseType, ValueType } from '../types';
 import { baseResponseTypes } from '../constants';
@@ -97,34 +98,68 @@ function isValidType(type: ResponseType) {
 export function castValue(value: unknown, type: ResponseType): ValueType {
   if (!isValidType(type)) throw new Error(`Invalid type: ${type}`);
 
-  try {
-    if (isNumericType(type)) return castNumber(value);
+  if (isNumericType(type)) {
+    const goCast = goSync(() => castNumber(value));
+    if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
 
-    const parsedArrayType = parseArrayType(type);
-    if (parsedArrayType) return applyToArrayRecursively(value, parsedArrayType, castNumber) as ValueType;
-
-    switch (type) {
-      case 'bool':
-        return castBoolean(value);
-      case 'bytes32':
-        return castBytesLike(value);
-      case 'string':
-        return castString(value);
-      case 'address':
-        return castAddress(value);
-      case 'bytes':
-        return castBytesLike(value);
-      case 'string32':
-        return castString32(value);
-      case 'timestamp':
-        return createTimestamp();
-    }
-
-    // NOTE: Should not happen, we should throw on invalid type sooner
-    throw new Error('Conversion for the given type is not defined');
-  } catch (e) {
-    throw new Error(`Unable to cast value to ${type}`);
+    return goCast.data;
   }
+
+  const parsedArrayType = parseArrayType(type);
+  if (parsedArrayType) {
+    const goApplyToArrayRecursively = goSync(() => applyToArrayRecursively(value, parsedArrayType, castNumber));
+    if (!goApplyToArrayRecursively.success) throw new Error(`Unable to cast value to ${type}`);
+
+    return goApplyToArrayRecursively.data as ValueType;
+  }
+
+  switch (type) {
+    case 'bool': {
+      const goCast = goSync(() => castBoolean(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'bytes32': {
+      const goCast = goSync(() => castBytesLike(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'string': {
+      const goCast = goSync(() => castString(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'address': {
+      const goCast = goSync(() => castAddress(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'bytes': {
+      const goCast = goSync(() => castBytesLike(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'string32': {
+      const goCast = goSync(() => castString32(value));
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+    case 'timestamp': {
+      const goCast = goSync(createTimestamp);
+      if (!goCast.success) throw new Error(`Unable to cast value to ${type}`);
+
+      return goCast.data;
+    }
+  }
+
+  // NOTE: Should not happen, we should throw on invalid type sooner
+  throw new Error('Conversion for the given type is not defined');
 }
 
 export function multiplyValue(value: string | BigNumber, times?: string | BigNumber): string {

@@ -7,6 +7,7 @@ import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
+import { go } from '@api3/promise-utils';
 import { deploy, removeWithReceipt, remove } from './commands';
 import { cliExamples } from './cli-examples';
 import * as logger from '../utils/logger';
@@ -29,13 +30,11 @@ function drawHeader() {
 }
 
 async function runCommand(command: () => Promise<void>) {
-  try {
-    await command();
-  } catch (err) {
+  const goCommand = await go(command);
+  if (!goCommand.success) {
     // Logging an error here likely results in excessive logging since the errors are usually logged at the place where they
     // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
-    if (err instanceof Error) logger.fail(err.message);
-    else logger.fail('' + err);
+    logger.fail(goCommand.error.message);
 
     // eslint-disable-next-line functional/immutable-data
     process.exitCode = 1;

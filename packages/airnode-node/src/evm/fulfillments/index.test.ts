@@ -18,7 +18,7 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import * as fixtures from '../../../test/fixtures';
-import { EVMProviderSponsorState, GroupedRequests, ProviderState } from '../../types';
+import { EVMProviderSponsorState, GroupedRequests, ProviderState, RequestErrorMessage } from '../../types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 
@@ -105,7 +105,12 @@ describe('submit', () => {
     fulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);
-    expect(res.apiCalls).toEqual([apiCall]);
+    expect(res.apiCalls).toEqual([
+      {
+        ...apiCall,
+        errorMessage: `${RequestErrorMessage.FulfillTransactionFailed} with error: Only successful API can be submitted`,
+      },
+    ]);
   });
 
   it('does not submit failed withdrawals', async () => {

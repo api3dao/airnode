@@ -1,14 +1,14 @@
 import * as ethers from 'ethers';
+import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
 import * as logger from '../utils/logger';
 
 export function validateMnemonic(mnemonic: string) {
   logger.debug('Validating mnemonic');
-  try {
-    ethers.Wallet.fromMnemonic(mnemonic);
-  } catch {
-    return false;
-  }
+
+  const goWallet = goSync(() => ethers.Wallet.fromMnemonic(mnemonic));
+  if (!goWallet.success) return false;
+
   return true;
 }
 
@@ -26,11 +26,10 @@ export function deriveAirnodeXpub(mnemonic: string) {
 
 export function shortenAirnodeAddress(airnodeAddress: string) {
   logger.debug('Shortening Airnode Address');
-  try {
-    ethers.utils.getAddress(airnodeAddress);
-  } catch {
-    throw logAndReturnError('"airnodeAddress" is not a valid hex string');
-  }
+
+  const goGetAddress = goSync(() => ethers.utils.getAddress(airnodeAddress));
+  if (!goGetAddress.success) throw logAndReturnError('"airnodeAddress" is not a valid hex string');
+
   // NOTE: AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   return airnodeAddress.substring(2, 9).toLowerCase();
 }
