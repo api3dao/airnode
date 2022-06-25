@@ -67,7 +67,7 @@ async function testFulfill(
   if (!goRes.success) {
     const errorLog = logger.pend(
       'ERROR',
-      `Error attempting API call fulfillment for Request:${request.id}`,
+      `Static call fulfillment failed for Request:${request.id} with ${goRes.error}`,
       goRes.error
     );
     return [[noticeLog, errorLog], goRes.error, null];
