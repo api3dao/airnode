@@ -6,12 +6,12 @@ import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 // An example requester which expects the response from Airnode consists of multiple values.
 contract Requester is RrpRequesterV0 {
     mapping(bytes32 => bool) public incomingFulfillments;
-    mapping(bytes32 => address) public requesterAddress;
-    mapping(bytes32 => address) public sponsorAddress;
-    mapping(bytes32 => address) public sponsorWalletAddress;
-    mapping(bytes32 => uint256) public chainId;
-    mapping(bytes32 => bytes32) public chainType;
-    mapping(bytes32 => bytes32) public theRelayedRequestId;
+    mapping(bytes32 => address) public relayedRequesterAddress;
+    mapping(bytes32 => address) public relayedSponsorAddress;
+    mapping(bytes32 => address) public relayedSponsorWalletAddress;
+    mapping(bytes32 => uint256) public relayedChainId;
+    mapping(bytes32 => bytes32) public relayedChainType;
+    mapping(bytes32 => bytes32) public relayedRequestId;
 
     constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
 
@@ -51,11 +51,11 @@ contract Requester is RrpRequesterV0 {
                 data,
                 (address, address, address, uint256, bytes32, bytes32)
             );
-        requesterAddress[requestId] = v1;
-        sponsorAddress[requestId] = v2;
-        sponsorWalletAddress[requestId] = v3;
-        chainId[requestId] = v4;
-        chainType[requestId] = v5;
-        theRelayedRequestId[requestId] = v6;
+        relayedRequesterAddress[requestId] = v1;
+        relayedSponsorAddress[requestId] = v2;
+        relayedSponsorWalletAddress[requestId] = v3;
+        relayedChainId[requestId] = v4;
+        relayedChainType[requestId] = v5;
+        relayedRequestId[requestId] = v6;
     }
 }
