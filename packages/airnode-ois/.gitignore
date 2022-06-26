@@ -1,8 +1,0 @@
-/node_modules
-/dist
-/build
-/.serverless
-/.build
-
-# Test files
-coverage/
