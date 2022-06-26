@@ -11,6 +11,7 @@ contract Requester is RrpRequesterV0 {
     mapping(bytes32 => address) public sponsorWalletAddress;
     mapping(bytes32 => uint256) public chainId;
     mapping(bytes32 => bytes32) public chainType;
+    mapping(bytes32 => bytes32) public theRelayedRequestId;
 
     constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
 
@@ -39,12 +40,22 @@ contract Requester is RrpRequesterV0 {
     {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];
-        (address v1, address v2, address v3, uint256 v4, bytes32 v5) = abi
-            .decode(data, (address, address, address, uint256, bytes32));
+        (
+            address v1,
+            address v2,
+            address v3,
+            uint256 v4,
+            bytes32 v5,
+            bytes32 v6
+        ) = abi.decode(
+                data,
+                (address, address, address, uint256, bytes32, bytes32)
+            );
         requesterAddress[requestId] = v1;
         sponsorAddress[requestId] = v2;
         sponsorWalletAddress[requestId] = v3;
         chainId[requestId] = v4;
         chainType[requestId] = v5;
+        theRelayedRequestId[requestId] = v6;
     }
 }

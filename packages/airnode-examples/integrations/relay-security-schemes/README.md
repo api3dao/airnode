@@ -14,6 +14,7 @@ demonstrate how the value can be sent via `query`, `header`, and `cookie`:
 - relaySponsorWalletAddress
 - relayChainId
 - relayChainType
+- relayRequestId
 
 For more information on supported security schemes, refer to the
 [docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/api-security.html).
