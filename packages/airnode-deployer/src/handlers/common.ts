@@ -16,6 +16,49 @@ export type VerificationFailure = {
 
 export type VerificationResult<T> = VerificationSuccess<T> | VerificationFailure;
 
+function verifyBody<T>(schema: z.Schema<T>, body: unknown): VerificationResult<z.SafeParseSuccess<T>> {
+  const parsedBody = schema.safeParse(body);
+  if (!parsedBody.success) {
+    return {
+      success: false,
+      // This error and status code is returned by AWS gateway when the request does not match the openAPI
+      // specification. We want the same error to be returned by the GCP gateway.
+      statusCode: 400,
+      error: JSON.stringify({ message: 'Invalid request body' }),
+    };
+  }
+
+  return parsedBody;
+}
+
+function verifyQueryParams<T>(schema: z.Schema<T>, queryParams: unknown): VerificationResult<z.SafeParseSuccess<T>> {
+  const parsedQueryParams = schema.safeParse(queryParams);
+  if (!parsedQueryParams.success) {
+    return {
+      success: false,
+      // Both GCP and AWS gateway throw custom error messages when the "endpointId" is missing completely. This error is
+      // only thrown when the endpoint ID of the request does not match the endpoint ID schema.
+      statusCode: 400,
+      error: JSON.stringify({ message: 'Invalid query parameters' }),
+    };
+  }
+
+  return parsedQueryParams;
+}
+
+const httpRequestBodySchema = z
+  .object({
+    parameters: apiCallParametersSchema,
+  })
+  // TODO: Do we want to be strict here? (AWS doesn't mind this, but we can be stricter)
+  .strict();
+
+const httpRequestQueryParamsSchema = z
+  .object({ endpointId: endpointIdSchema })
+  // TODO: Do we want to be strict here? (Not sure whether there are no extranous properties in the cloud provider
+  // query object)
+  .strict();
+
 export interface HttpRequestData {
   parameters: ApiCallParameters;
   endpointId: string;
@@ -26,42 +69,15 @@ export function verifyHttpRequest(
   body: unknown,
   queryParams: unknown
 ): VerificationResult<HttpRequestData> {
-  const bodySchema = z
-    .object({
-      parameters: apiCallParametersSchema,
-    })
-    // TODO: Do we want to be strict here? (AWS doesn't mind this, but we can be stricter)
-    .strict();
-  const parsedBody = bodySchema.safeParse(body);
-  if (!parsedBody.success) {
-    return {
-      success: false,
-      // This error and status code is returned by AWS gateway when the request does not match the openAPI
-      // specification. We want the same error to be returned by the GCP gateway.
-      statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid request body' }),
-    };
-  }
-  const { parameters } = parsedBody.data;
+  const bodyVerification = verifyBody(httpRequestBodySchema, body);
+  if (!bodyVerification.success) return bodyVerification;
+  const { parameters } = bodyVerification.data;
 
-  const queryParamsSchema = z
-    .object({ endpointId: endpointIdSchema })
-    // TODO: Do we want to be strict here? (Not sure whether there are no extranous properties in the cloud provider
-    // query object)
-    .strict();
-  const parsedQueryParams = queryParamsSchema.safeParse(queryParams);
-  if (!parsedQueryParams.success) {
-    return {
-      success: false,
-      // Both GCP and AWS gateway throw custom error messages when the "endpointId" is missing completely. This error is
-      // only thrown when the endpoint ID of the request does not match the endpoint ID schema.
-      statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid query parameters' }),
-    };
-  }
-  const { endpointId } = parsedQueryParams.data;
+  const queryParamsVerification = verifyQueryParams(httpRequestQueryParamsSchema, queryParams);
+  if (!queryParamsVerification.success) return queryParamsVerification;
+  const { endpointId } = queryParamsVerification.data;
 
-  const trigger = find(config.triggers.http, ['endpointId', parsedQueryParams.data.endpointId]);
+  const trigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!trigger) {
     return { success: false, statusCode: 400, error: `Unable to find endpoint with ID:'${endpointId}'` };
   }
@@ -73,28 +89,28 @@ export interface HttpSignedDataRequestData {
   encodedParameters: string;
   endpointId: string;
 }
+
+const httpSignedDataBodySchema = z
+  .object({
+    encodedParameters: z.string(),
+  })
+  // TODO: Do we want to be strict here? (AWS doesn't mind this, but we can be stricter)
+  .strict();
+
+const httpSignedDataQueryParamsSchema = z
+  .object({ endpointId: endpointIdSchema })
+  // TODO: Do we want to be strict here? (Not sure whether there are no extranous properties in the cloud provider
+  // query object)
+  .strict();
+
 export function verifyHttpSignedDataRequest(
   config: Config,
   body: unknown,
   queryParams: unknown
 ): VerificationResult<HttpSignedDataRequestData> {
-  const bodySchema = z
-    .object({
-      encodedParameters: z.string(),
-    })
-    // TODO: Do we want to be strict here? (AWS doesn't mind this, but we can be stricter)
-    .strict();
-  const parsedBody = bodySchema.safeParse(body);
-  if (!parsedBody.success) {
-    return {
-      success: false,
-      // This error and status code is returned by AWS gateway when the request does not match the openAPI
-      // specification. We want the same error to be returned by the GCP gateway.
-      statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid request body' }),
-    };
-  }
-  const { encodedParameters } = parsedBody.data;
+  const bodyVerification = verifyBody(httpSignedDataBodySchema, body);
+  if (!bodyVerification.success) return bodyVerification;
+  const { encodedParameters } = bodyVerification.data;
 
   // Ensure the encoded parameters are valid. We do it outside of the schema because we want to return a custom error
   const decodedParameters = goSync(() => decode(encodedParameters));
@@ -106,22 +122,9 @@ export function verifyHttpSignedDataRequest(
     };
   }
 
-  const queryParamsSchema = z
-    .object({ endpointId: endpointIdSchema })
-    // TODO: Do we want to be strict here? (Not sure whether there are no extranous properties in the cloud provider
-    // query object)
-    .strict();
-  const parsedQueryParams = queryParamsSchema.safeParse(queryParams);
-  if (!parsedQueryParams.success) {
-    return {
-      success: false,
-      // Both GCP and AWS gateway throw custom error messages when the "endpointId" is missing completely. This error is
-      // only thrown when the endpoint ID of the request does not match the endpoint ID schema.
-      statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid query parameters' }),
-    };
-  }
-  const { endpointId } = parsedQueryParams.data;
+  const queryParamsVerification = verifyQueryParams(httpSignedDataQueryParamsSchema, queryParams);
+  if (!queryParamsVerification.success) return queryParamsVerification;
+  const { endpointId } = queryParamsVerification.data;
 
   const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
   if (!trigger) {
