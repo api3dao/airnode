@@ -5,6 +5,10 @@ import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';
 
+// NOTE: This function must be called outside of the test (the "it" callback), but can be called from inside the
+// "describe" block. See: https://github.com/facebook/jest/issues/11500#issuecomment-1133428341
+export const increaseTestTimeout = (timeoutMs = 120_000) => jest.setTimeout(timeoutMs);
+
 export const deployAirnodeAndMakeRequests = async (filename: string, requests?: Request[]) => {
   const deployerIndex = getDeployerIndex(filename);
   const deployConfig = operation.buildDeployConfig(requests ? { deployerIndex, requests } : { deployerIndex });

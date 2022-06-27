@@ -1,7 +1,7 @@
 import { startCoordinator } from '../../src/workers/local-handlers';
-import { deployAirnodeAndMakeRequests, fetchAllLogNames } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests, fetchAllLogNames, increaseTestTimeout } from '../setup/e2e';
 
-jest.setTimeout(120_000);
+increaseTestTimeout();
 
 it('does not process requests twice', async () => {
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename);

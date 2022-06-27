@@ -3,9 +3,9 @@ import { encode } from '@api3/airnode-abi';
 import { startCoordinator } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
 import { RequestErrorMessage } from '../../src/types';
-import { deployAirnodeAndMakeRequests, fetchAllLogs } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests, fetchAllLogs, increaseTestTimeout } from '../setup/e2e';
 
-jest.setTimeout(120_000);
+increaseTestTimeout();
 
 it('sets the correct status code for both successful and failed requests', async () => {
   const baseParameters = [

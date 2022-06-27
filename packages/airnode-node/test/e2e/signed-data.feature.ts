@@ -1,9 +1,9 @@
 import * as adapter from '@api3/airnode-adapter';
 import { processHttpSignedDataRequest } from '../../src/workers/local-handlers';
-import { deployAirnodeAndMakeRequests } from '../setup/e2e';
+import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 import { HttpSignedDataApiCallSuccessResponse } from '../../src/types';
 
-jest.setTimeout(120_000);
+increaseTestTimeout();
 
 it('makes a call for signed API data', async () => {
   // Set a fake time so that the generated timestamp of the test is always the same
