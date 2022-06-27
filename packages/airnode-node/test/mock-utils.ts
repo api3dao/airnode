@@ -5,7 +5,7 @@ import { AirnodeRrpV0 } from '@api3/airnode-protocol';
 import { BigNumber, ethers } from 'ethers';
 import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '@api3/airnode-utilities';
 
-type AirnodeRrpMocks = { readonly [key in keyof InstanceType<typeof AirnodeRrpV0>['functions']]: jest.Mock };
+type AirnodeRrpMocks = { readonly [key in keyof AirnodeRrpV0['functions']]: jest.Mock };
 type MockProps = {
   readonly airnodeRrpMocks?:
     | Partial<AirnodeRrpMocks>
