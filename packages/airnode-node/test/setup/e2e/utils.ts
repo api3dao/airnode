@@ -15,7 +15,9 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     contracts: {
       AirnodeRrp: contracts.AirnodeRrp,
     },
-    authorizers: [],
+    authorizers: {
+      requesterEndpointAuthorizers: [],
+    },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },

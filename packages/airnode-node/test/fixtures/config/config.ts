@@ -26,7 +26,9 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     chains: [
       {
         maxConcurrency: 100,
-        authorizers: [],
+        authorizers: {
+          requesterEndpointAuthorizers: [],
+        },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },

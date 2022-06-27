@@ -7,7 +7,9 @@ import { ChainConfig } from '../../config';
 const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
   return {
     maxConcurrency: 100,
-    authorizers: [],
+    authorizers: {
+      requesterEndpointAuthorizers: [],
+    },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },

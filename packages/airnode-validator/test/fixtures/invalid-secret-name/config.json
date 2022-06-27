@@ -3,7 +3,9 @@
   "chains": [
     {
       "maxConcurrency": 100,
-      "authorizers": [],
+      "authorizers": {
+        "requesterEndpointAuthorizers": []
+      },
       "authorizations": { 
         "requesterEndpointAuthorizations": {} 
       },

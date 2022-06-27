@@ -12,7 +12,7 @@ describe('create', () => {
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: [ethers.constants.AddressZero],
+      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -45,7 +45,7 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: [ethers.constants.AddressZero],
+        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },
@@ -94,7 +94,7 @@ describe('create', () => {
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: [ethers.constants.AddressZero],
+      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -129,7 +129,7 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: [ethers.constants.AddressZero],
+        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },

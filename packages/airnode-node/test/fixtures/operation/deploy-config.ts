@@ -9,7 +9,9 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         // We need to create a new mnemonic each time otherwise E2E tests
         // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
-        authorizers: [],
+        authorizers: {
+          requesterEndpointAuthorizers: [],
+        },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },

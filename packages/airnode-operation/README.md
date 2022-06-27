@@ -136,15 +136,15 @@ WALLET LINKED TO A TEST MNEMONIC**
 
 **Authorizers**
 
-`authorizers` - a list of `authorizer` contracts. The values must correspond to a value defined in the `authorizers`
-top-level field.
+`authorizers` - a key/value object where the key is the type of `authorizer` and the value is a list of `authorizer`
+contracts. The values must correspond to a value defined in the `authorizers` top-level field.
 
 **Authorizations**
 
-`authorizations` - a key/value object where the key is the type of authorization and the value is an object containing a
-list of the authorized addresses for an endpoint id.
+`authorizations` - a key/value object where the key is the type of `authorization` and the value is an object containing
+a list of the authorized addresses for an endpoint id.
 
-`authorizations.requesterEndpointAuthorizations.[endpointId]` - a key-value object where the key is the endpoint id and
+`authorizations.requesterEndpointAuthorizations.[endpointId]` - a key-value object where the key is the `endpointId` and
 the value is a list of the authorized addresses.
 
 **Endpoints**
@@ -246,7 +246,9 @@ The withdrawn funds should be sent back to the address of the sponsor.
   "airnodes": {
     "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
-      "authorizers": [],
+      "authorizers": {
+        "requesterEndpointAuthorizers": []
+      },
       "authorizations": {
         "requesterEndpointAuthorizations": {}
       },
