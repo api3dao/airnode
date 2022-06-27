@@ -24,8 +24,6 @@ describe('SDK', () => {
   const mnemonic = 'test test test test test test test test test test test junk';
 
   beforeAll(() => {
-    jest.setTimeout(45_000);
-
     provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);

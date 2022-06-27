@@ -10,8 +10,9 @@ const expectEthInRange = (eth: ethers.BigNumber, from: string, to: string) => {
   expect(eth.lt(ethers.utils.parseEther(to))).toEqual(true);
 };
 
+increaseTestTimeout();
+
 it('processes withdrawals only once', async () => {
-  increaseTestTimeout();
   const { deployment, provider, config } = await deployAirnodeAndMakeRequests(__filename, [
     operation.buildWithdrawal(),
   ]);

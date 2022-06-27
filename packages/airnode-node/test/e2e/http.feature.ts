@@ -2,8 +2,9 @@ import { HttpGatewayApiCallResponse } from '../../src';
 import { processHttpRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
+increaseTestTimeout();
+
 it('makes a call to test the API', async () => {
-  increaseTestTimeout();
   await deployAirnodeAndMakeRequests(__filename);
 
   const parameters = {

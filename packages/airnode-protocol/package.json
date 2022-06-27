@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
+    "clean": "rimraf -rf ./src/contracts *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "yarn run compile:contracts && yarn run compile:tsc",
     "compile:contracts": "hardhat compile",
     "compile:tsc": "yarn compile:contract-dts && yarn compile:copy-contract-dts && tsc --build tsconfig.json",
@@ -30,7 +30,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@typechain/ethers-v5": "^7.1.0",
+    "@typechain/ethers-v5": "^10.1.0",
     "chai": "^4.3.4",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.4.0",
@@ -40,7 +40,7 @@
     "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
-    "typechain": "^5.1.2",
+    "typechain": "^8.1.0",
     "typescript": "^4.2.4"
   },
   "dependencies": {
