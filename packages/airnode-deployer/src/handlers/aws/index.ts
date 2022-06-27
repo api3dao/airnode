@@ -92,18 +92,10 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
 export async function processHttpRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  if (!event.body) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Missing request body' }) };
-  }
+  const { parameters } = JSON.parse(event.body!);
+  const { endpointId } = event.pathParameters!;
 
-  if (!event.pathParameters || !event.pathParameters.endpointId) {
-    return { statusCode: 400, body: JSON.stringify({ error: `Missing 'endpointId' path parameter` }) };
-  }
-
-  const parameters = JSON.parse(event.body).parameters;
-  const endpointId = event.pathParameters.endpointId;
-
-  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId!, parameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
@@ -117,18 +109,10 @@ export async function processHttpRequest(
 export async function processHttpSignedDataRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  if (!event.body) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Missing request body' }) };
-  }
+  const { encodedParameters } = JSON.parse(event.body!);
+  const { endpointId } = event.pathParameters!;
 
-  if (!event.pathParameters || !event.pathParameters.endpointId) {
-    return { statusCode: 400, body: JSON.stringify({ error: `Missing 'endpointId' path parameter` }) };
-  }
-
-  const { encodedParameters } = JSON.parse(event.body);
-  const { endpointId } = event.pathParameters;
-
-  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId!, encodedParameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }
