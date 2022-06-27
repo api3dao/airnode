@@ -99,6 +99,11 @@
               "in": "cookie",
               "type": "relayChainType",
               "name": "chainType"
+            },
+            "relayRequestId": {
+              "in": "query",
+              "type": "relayRequestId",
+              "name": "requestId"
             }
           }
         },
@@ -107,7 +112,8 @@
           "relayChainType": [],
           "relayRequesterAddress": [],
           "relaySponsorAddress": [],
-          "relaySponsorWalletAddress": []
+          "relaySponsorWalletAddress": [],
+          "relayRequestId": []
         }
       },
       "endpoints": [
@@ -121,15 +127,15 @@
           "reservedParameters": [
             {
               "name": "_type",
-              "fixed": "address,address,address,uint256,string32"
+              "fixed": "address,address,address,uint256,string32,bytes32"
             },
             {
               "name": "_path",
-              "fixed": "headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,headers.Cookie"
+              "fixed": "headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,headers.Cookie,args.requestId"
             },
             {
               "name": "_times",
-              "fixed": ",,,,"
+              "fixed": ",,,,,"
             }
           ],
           "parameters": []

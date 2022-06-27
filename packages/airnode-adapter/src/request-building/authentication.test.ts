@@ -165,4 +165,21 @@ describe('relay metadata', () => {
       cookies: {},
     });
   });
+
+  it('relays request Id', () => {
+    const ois = fixtures.buildOIS();
+    const scheme: ApiSecurityScheme = {
+      in: 'query',
+      type: 'relayRequestId',
+      name: 'myRequestId',
+    };
+    ois.apiSpecifications.components.securitySchemes.myApiSecurityScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      query: { myRequestId: '0xcf2816af81f9cc7c9879dc84ce29c00fe1e290bcb8d2e4b204be1eeb120811bf' },
+      headers: {},
+      cookies: {},
+    });
+  });
 });

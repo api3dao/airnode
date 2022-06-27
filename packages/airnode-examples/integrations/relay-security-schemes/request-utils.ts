@@ -30,20 +30,26 @@ export const printResponse = async (requestId: string) => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
 
-  const requesterAddress = await requester.requesterAddress(requestId);
-  const sponsorAddress = await requester.sponsorAddress(requestId);
-  const sponsorWalletAddress = await requester.sponsorWalletAddress(requestId);
-  const chainId = await requester.chainId(requestId);
+  const relayedRequesterAddress = await requester.relayedRequesterAddress(requestId);
+  const relayedSponsorAddress = await requester.relayedSponsorAddress(requestId);
+  const relayedSponsorWalletAddress = await requester.relayedSponsorWalletAddress(requestId);
+  const relayedChainId = await requester.relayedChainId(requestId);
+  const relayedRequestId = await requester.relayedRequestId(requestId);
   // decode and extract chain from API response `chainType=evm;`
-  const chainType = ethers.utils
-    .parseBytes32String(await requester.chainType(requestId))
+  const relayedChainType = ethers.utils
+    .parseBytes32String(await requester.relayedChainType(requestId))
     .split('=')[1]
     .split(';')[0];
 
-  cliPrint.info(`The following was successfully relayed:
-    requesterAddress: ${requesterAddress}
-    sponsorAddress: ${sponsorAddress}
-    sponsorWalletAddress: ${sponsorWalletAddress}
-    chainId: ${chainId}
-    chainType: ${chainType}`);
+  cliPrint.info(`
+For requestId: ${requestId}
+the following properties were successfully relayed:
+
+  requesterAddress: ${relayedRequesterAddress}
+  sponsorAddress: ${relayedSponsorAddress}
+  sponsorWalletAddress: ${relayedSponsorWalletAddress}
+  chainId: ${relayedChainId}
+  chainType: ${relayedChainType}
+  requestId: ${relayedRequestId}
+  `);
 };

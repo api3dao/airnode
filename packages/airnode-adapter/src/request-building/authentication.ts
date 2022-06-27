@@ -108,6 +108,8 @@ function getSchemeAuthentication(
       return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'sponsorAddress');
     case 'relaySponsorWalletAddress':
       return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'sponsorWalletAddress');
+    case 'relayRequestId':
+      return getRelayAuthSchemeFromMetadata(apiSecurityScheme, options, 'requestId');
   }
 }
 
