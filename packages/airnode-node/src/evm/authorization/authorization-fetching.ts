@@ -115,7 +115,7 @@ export async function fetch(
   }
 
   // If there are no authorizer contracts then endpoint is public
-  if (isEmpty(Object.values(fetchOptions.authorizers).flatMap((authorizer) => authorizer))) {
+  if (isEmpty(fetchOptions.authorizers.requesterEndpointAuthorizers)) {
     const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
