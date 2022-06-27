@@ -12,7 +12,7 @@ export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
 // https://docs.api3.org/airnode/latest/concepts/endpoint.html#endpointid
-const endpointIdSchema = z.string();
+export const endpointIdSchema = z.string();
 
 export const triggerSchema = z
   .object({

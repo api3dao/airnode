@@ -11,6 +11,7 @@ import {
   CallApiPayload,
   loadTrustedConfig,
 } from '@api3/airnode-node';
+import { verifyHttpSignedDataRequest, verifyHttpRequest } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -92,15 +93,20 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
 export async function processHttpRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  const { parameters } = JSON.parse(event.body!);
-  const { endpointId } = event.pathParameters!;
+  const verificationResult = verifyHttpRequest(parsedConfig, event.body, event.pathParameters);
+  if (!verificationResult.success) {
+    const { statusCode, error } = verificationResult;
+    return { statusCode, body: error };
+  }
+  const { parameters, endpointId } = verificationResult;
 
   const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId!, parameters);
   if (err) {
-    return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    return { statusCode: 500, body: JSON.stringify({ message: err.toString() }) };
   }
 
-  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, body: JSON.stringify(result!.data) };
 }
 
@@ -109,14 +115,19 @@ export async function processHttpRequest(
 export async function processHttpSignedDataRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  const { encodedParameters } = JSON.parse(event.body!);
-  const { endpointId } = event.pathParameters!;
+  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, event.body, event.pathParameters);
+  if (!verificationResult.success) {
+    const { statusCode, error } = verificationResult;
+    return { statusCode, body: error };
+  }
+  const { encodedParameters, endpointId } = verificationResult;
 
-  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId!, encodedParameters);
+  const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
   if (err) {
-    return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    return { statusCode: 500, body: JSON.stringify({ message: err.toString() }) };
   }
 
-  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, body: JSON.stringify(result!.data) };
 }

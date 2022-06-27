@@ -23,6 +23,7 @@
     "webpack:dev": "webpack --mode development"
   },
   "dependencies": {
+    "@api3/airnode-abi": "^0.7.1",
     "@api3/airnode-node": "^0.7.1",
     "@api3/airnode-protocol": "^0.7.1",
     "@api3/airnode-utilities": "^0.7.1",
@@ -35,7 +36,8 @@
     "ethers": "^5.4.5",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
-    "yargs": "^17.0.1"
+    "yargs": "^17.0.1",
+    "zod": "^3.11.6"
   },
   "devDependencies": {
     "@google-cloud/functions-framework": "^3.1.2",
