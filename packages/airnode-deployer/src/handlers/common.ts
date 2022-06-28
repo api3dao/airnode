@@ -30,7 +30,11 @@ function verifyEndpointId(config: Config, endpointId: unknown): VerificationResu
 
   const trigger = find(config.triggers.http, ['endpointId', endpointId]);
   if (!trigger) {
-    return { success: false, statusCode: 400, error: `Unable to find endpoint with ID:'${endpointId}'` };
+    return {
+      success: false,
+      statusCode: 400,
+      error: JSON.stringify({ message: `Unable to find endpoint with ID:'${endpointId}'` }),
+    };
   }
 
   return parsedEndpointId;
@@ -77,7 +81,7 @@ export function verifyHttpSignedDataRequest(
 ): VerificationResult<HttpSignedDataRequestData> {
   // Ensure the encoded parameters are valid. We do it outside of the schema because we want to return a custom error
   const decodedParameters = goSync(() => decode(encodedParameters));
-  if (!decodedParameters) {
+  if (!decodedParameters.success) {
     return {
       success: false,
       statusCode: 400,
