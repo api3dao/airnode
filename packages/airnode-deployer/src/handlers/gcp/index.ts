@@ -12,6 +12,7 @@ import {
 } from '@api3/airnode-node';
 import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
+import { z } from 'zod';
 import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
@@ -105,6 +106,11 @@ export function verifyGcpApiKey(
   return { success: true };
 }
 
+// We do not want to enable ".strict()" - we want to allow extra fields in the request body
+const httpRequestBodySchema = z.object({
+  parameters: z.any(), // Parameter validation is performed later
+});
+
 export async function processHttpRequest(req: Request, res: Response) {
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
@@ -113,7 +119,19 @@ export async function processHttpRequest(req: Request, res: Response) {
     return;
   }
 
-  const verificationResult = verifyHttpRequest(parsedConfig, req.body, req.query);
+  const parsedBody = httpRequestBodySchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    // This error and status code is returned by AWS gateway when the request does not match the openAPI
+    // specification. We want the same error to be returned by the GCP gateway.
+    res.status(400).send({ message: 'Invalid request body' });
+    return;
+  }
+  const { parameters: rawParameters } = parsedBody.data;
+
+  // Guaranteed to exist by the openAPI schema
+  const { endpointId: rawEndpointId } = req.query;
+
+  const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId as string);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
     res.status(statusCode).send(error);
@@ -132,6 +150,11 @@ export async function processHttpRequest(req: Request, res: Response) {
   res.status(200).send(JSON.stringify(result!.data));
 }
 
+// We do not want to enable ".strict()" - we want to allow extra fields in the request body
+const httpSignedDataBodySchema = z.object({
+  encodedParameters: z.string(),
+});
+
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
 export async function processHttpSignedDataRequest(req: Request, res: Response) {
@@ -142,7 +165,19 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     return;
   }
 
-  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, req.body, req.query);
+  const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    // This error and status code is returned by AWS gateway when the request does not match the openAPI
+    // specification. We want the same error to be returned by the GCP gateway.
+    res.status(400).send({ message: 'Invalid request body' });
+    return;
+  }
+  const { encodedParameters: rawEncodedParameters } = parsedBody.data;
+
+  // Guaranteed to exist by the openAPI schema
+  const { endpointId: rawEndpointId } = req.query;
+
+  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId as string);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
     res.status(statusCode).send(error);

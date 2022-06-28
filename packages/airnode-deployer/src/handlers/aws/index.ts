@@ -90,17 +90,26 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
   return { statusCode: 200, body };
 }
 
+interface ProcessHttpRequestBody {
+  parameters: object;
+}
+
 export async function processHttpRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  const verificationResult = verifyHttpRequest(parsedConfig, event.body, event.pathParameters);
+  // The shape of the body is guaranteed by the openAPI spec
+  const rawParameters = (JSON.parse(event.body!) as ProcessHttpRequestBody).parameters;
+  // The "endpointId" path parameter existence is guaranteed by the openAPI spec
+  const rawEndpointId = event.pathParameters!.endpointId!;
+
+  const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
     return { statusCode, body: error };
   }
   const { parameters, endpointId } = verificationResult;
 
-  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId!, parameters);
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
     return { statusCode: 500, body: JSON.stringify({ message: err.toString() }) };
@@ -110,12 +119,21 @@ export async function processHttpRequest(
   return { statusCode: 200, body: JSON.stringify(result!.data) };
 }
 
+interface ProcessHttpSignedDataRequestBody {
+  encodedParameters: string;
+}
+
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
 export async function processHttpSignedDataRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
-  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, event.body, event.pathParameters);
+  // The shape of the body is guaranteed by the openAPI spec
+  const rawEncodedParameters = (JSON.parse(event.body!) as ProcessHttpSignedDataRequestBody).encodedParameters;
+  // The "endpointId" path parameter existence is guaranteed by the openAPI spec
+  const rawEndpointId = event.pathParameters!.endpointId!;
+
+  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
     return { statusCode, body: error };
