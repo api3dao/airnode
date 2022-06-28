@@ -19,7 +19,12 @@ describe('fetch (authorizations)', () => {
 
   beforeEach(() => {
     mutableFetchOptions = {
-      authorizers: ['0x711c93B32c0D28a5d18feD87434cce11C3e5699B', '0x9E0e23766b0ed0C492804872c5164E9187fB56f5'],
+      authorizers: {
+        requesterEndpointAuthorizers: [
+          '0x711c93B32c0D28a5d18feD87434cce11C3e5699B',
+          '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
+        ],
+      },
       airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
@@ -42,7 +47,11 @@ describe('fetch (authorizations)', () => {
         sponsorAddress: 'sponsorAddress',
       });
     });
-    const [logs, res] = await authorization.fetch(apiCalls, { ...mutableFetchOptions, authorizers: [] });
+    const [logs, res] = await authorization.fetch(apiCalls, {
+      ...mutableFetchOptions,
+      authorizers: { requesterEndpointAuthorizers: [] },
+    });
+
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['0']).toEqual(true);
@@ -169,7 +178,7 @@ describe('fetch (authorizations)', () => {
 });
 
 describe('fetchAuthorizationStatus', () => {
-  const authorizers = ['0x0000000000000000000000000000000000000000'];
+  const authorizers = { requesterEndpointAuthorizers: ['0x0000000000000000000000000000000000000000'] };
   const airnodeAddress = '0xairnodeAddress';
   let mutableAirnodeRrp: AirnodeRrpV0;
 

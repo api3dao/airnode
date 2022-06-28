@@ -36,7 +36,7 @@ const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
-    authorizers: [ethers.constants.AddressZero],
+    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },
@@ -62,7 +62,7 @@ const chains: ChainConfig[] = [
     },
   },
   {
-    authorizers: [ethers.constants.AddressZero],
+    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },
@@ -113,7 +113,7 @@ describe('initialize', () => {
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
             airnodeAddressShort: 'a30ca71',
-            authorizers: [ethers.constants.AddressZero],
+            authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
             authorizations: {
               requesterEndpointAuthorizations: {},
             },
@@ -160,7 +160,7 @@ describe('initialize', () => {
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
             airnodeAddressShort: 'a30ca71',
-            authorizers: [ethers.constants.AddressZero],
+            authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
             authorizations: {
               requesterEndpointAuthorizations: {},
             },

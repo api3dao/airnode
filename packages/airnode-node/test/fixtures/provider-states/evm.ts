@@ -12,7 +12,9 @@ export function buildEVMProviderState(
   const chainProviderName = 'Ganache test';
   const chainConfig: ChainConfig = {
     maxConcurrency: 100,
-    authorizers: [],
+    authorizers: {
+      requesterEndpointAuthorizers: [],
+    },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },

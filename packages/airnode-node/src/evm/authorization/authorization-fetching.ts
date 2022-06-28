@@ -8,9 +8,10 @@ import { go } from '@api3/promise-utils';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
+import { ChainAuthorizers } from '../../config';
 
 export interface FetchOptions {
-  readonly authorizers: string[];
+  readonly authorizers: ChainAuthorizers;
   readonly airnodeAddress: string;
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -18,13 +19,13 @@ export interface FetchOptions {
 
 export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: string[],
+  authorizers: ChainAuthorizers,
   airnodeAddress: string,
   apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = (): Promise<boolean> =>
     airnodeRrp.checkAuthorizationStatus(
-      authorizers,
+      authorizers.requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall.id,
       // TODO: make sure endpointId is not null
@@ -52,7 +53,7 @@ export async function fetchAuthorizationStatus(
 
 async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: string[],
+  authorizers: ChainAuthorizers,
   airnodeAddress: string,
   apiCalls: Request<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
@@ -64,7 +65,7 @@ async function fetchAuthorizationStatuses(
 
   const contractCall = (): Promise<boolean[]> =>
     airnodeRrp.checkAuthorizationStatuses(
-      authorizers,
+      authorizers.requesterEndpointAuthorizers,
       airnodeAddress,
       requestIds,
       // TODO: make sure all endpointIds are non null
@@ -114,7 +115,7 @@ export async function fetch(
   }
 
   // If there are no authorizer contracts then endpoint is public
-  if (isEmpty(fetchOptions.authorizers)) {
+  if (isEmpty(fetchOptions.authorizers.requesterEndpointAuthorizers)) {
     const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
