@@ -100,7 +100,7 @@ export function verifyGcpApiKey(
   const apiKey = req.header('x-api-key');
   if (!apiKey || apiKey !== config.getEnvValue(apiKeyName)) {
     // Mimics the behavior of AWS HTTP Gateway
-    return { success: false, statusCode: 403, error: JSON.stringify({ message: 'Forbidden' }) };
+    return { success: false, statusCode: 403, error: { message: 'Forbidden' } };
   }
 
   return { success: true };
@@ -147,7 +147,7 @@ export async function processHttpRequest(req: Request, res: Response) {
   }
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  res.status(200).send(JSON.stringify(result!.data));
+  res.status(200).send(result!.data);
 }
 
 // We do not want to enable ".strict()" - we want to allow extra fields in the request body
@@ -197,5 +197,5 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
   }
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  res.status(200).send(JSON.stringify(result!.data));
+  res.status(200).send(result!.data);
 }

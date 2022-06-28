@@ -4,7 +4,6 @@ import { go } from '@api3/promise-utils';
 import {
   handlers,
   providers,
-  WorkerResponse,
   WorkerPayload,
   InitializeProviderPayload,
   ProcessTransactionsPayload,
@@ -16,14 +15,10 @@ import { verifyHttpSignedDataRequest, verifyHttpRequest } from '../common';
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
 
-function encodeBody(data: WorkerResponse): string {
-  return JSON.stringify(data);
-}
-
 export async function startCoordinator() {
   await handlers.startCoordinator(parsedConfig);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
-  return { statusCode: 200, body: encodeBody(response) };
+  return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayProxyResult> {
@@ -50,17 +45,17 @@ async function initializeProvider(payload: InitializeProviderPayload) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     logger.error(goInitializedState.error.toString());
     const errorLog = logger.pend('ERROR', msg, goInitializedState.error);
-    const body = encodeBody({ ok: false, errorLog });
+    const body = JSON.stringify({ ok: false, errorLog });
     return { statusCode: 500, body };
   }
   if (!goInitializedState.data) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg);
-    const body = encodeBody({ ok: false, errorLog });
+    const body = JSON.stringify({ ok: false, errorLog });
     return { statusCode: 500, body };
   }
 
-  const body = encodeBody({ ok: true, data: providers.scrub(goInitializedState.data) });
+  const body = JSON.stringify({ ok: true, data: providers.scrub(goInitializedState.data) });
   return { statusCode: 200, body };
 }
 
@@ -68,7 +63,7 @@ async function callApi(payload: CallApiPayload) {
   const { aggregatedApiCall, logOptions } = payload;
   const [logs, apiCallResponse] = await handlers.callApi({ config: parsedConfig, aggregatedApiCall });
   logger.logPending(logs, logOptions);
-  const response = encodeBody({ ok: true, data: apiCallResponse });
+  const response = JSON.stringify({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
 }
 
@@ -82,11 +77,11 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     logger.error(goUpdatedState.error.toString());
     const errorLog = logger.pend('ERROR', msg, goUpdatedState.error);
-    const body = encodeBody({ ok: false, errorLog });
+    const body = JSON.stringify({ ok: false, errorLog });
     return { statusCode: 500, body };
   }
 
-  const body = encodeBody({ ok: true, data: providers.scrub(goUpdatedState.data) });
+  const body = JSON.stringify({ ok: true, data: providers.scrub(goUpdatedState.data) });
   return { statusCode: 200, body };
 }
 
@@ -105,7 +100,7 @@ export async function processHttpRequest(
   const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
-    return { statusCode, body: error };
+    return { statusCode, body: JSON.stringify(error) };
   }
   const { parameters, endpointId } = verificationResult;
 
@@ -136,7 +131,7 @@ export async function processHttpSignedDataRequest(
   const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
-    return { statusCode, body: error };
+    return { statusCode, body: JSON.stringify(error) };
   }
   const { encodedParameters, endpointId } = verificationResult;
 

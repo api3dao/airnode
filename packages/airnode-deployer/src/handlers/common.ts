@@ -11,7 +11,7 @@ export type VerificationSuccess<T> = T & {
 export type VerificationFailure = {
   success: false;
   statusCode: number;
-  error: string;
+  error: { message: string };
 };
 
 export type VerificationResult<T> = VerificationSuccess<T> | VerificationFailure;
@@ -24,7 +24,7 @@ function verifyEndpointId(config: Config, endpointId: unknown): VerificationResu
       // Both GCP and AWS gateway throw custom error messages when the "endpointId" is missing completely. This error is
       // only thrown when the endpoint ID of the request does not match the endpoint ID schema.
       statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid query parameters' }),
+      error: { message: 'Invalid query parameters' },
     };
   }
 
@@ -33,7 +33,7 @@ function verifyEndpointId(config: Config, endpointId: unknown): VerificationResu
     return {
       success: false,
       statusCode: 400,
-      error: JSON.stringify({ message: `Unable to find endpoint with ID:'${endpointId}'` }),
+      error: { message: `Unable to find endpoint with ID:'${endpointId}'` },
     };
   }
 
@@ -57,7 +57,7 @@ export function verifyHttpRequest(
       // This error and status code is returned by AWS gateway when the request does not match the openAPI
       // specification. We want the same error to be returned by the GCP gateway.
       statusCode: 400,
-      error: JSON.stringify({ message: 'Invalid request body' }),
+      error: { message: 'Invalid request body' },
     };
   }
   const validParameters = parametersValidation.data;
@@ -85,7 +85,7 @@ export function verifyHttpSignedDataRequest(
     return {
       success: false,
       statusCode: 400,
-      error: JSON.stringify({ message: `Request contains invalid encodedParameters: ${encodedParameters}` }),
+      error: { message: `Request contains invalid encodedParameters: ${encodedParameters}` },
     };
   }
 

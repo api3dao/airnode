@@ -18,7 +18,9 @@ describe('verifyHttpRequest', () => {
     const result = verifyHttpRequest(config, { coinId: 'bitcoin' }, nonExistentEndpointId);
 
     expect(result).toEqual({
-      error: `{"message":"Unable to find endpoint with ID:'0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff'"}`,
+      error: {
+        message: "Unable to find endpoint with ID:'0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff'",
+      },
       statusCode: 400,
       success: false,
     });
@@ -30,7 +32,7 @@ describe('verifyHttpRequest', () => {
     const result = verifyHttpRequest(config, { nonStringValue: 123 }, validEndpointId);
 
     expect(result).toEqual({
-      error: '{"message":"Invalid request body"}',
+      error: { message: 'Invalid request body' },
       statusCode: 400,
       success: false,
     });
@@ -63,7 +65,9 @@ describe('verifyHttpSignedDataRequest', () => {
     );
 
     expect(result).toEqual({
-      error: `{"message":"Unable to find endpoint with ID:'0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff'"}`,
+      error: {
+        message: "Unable to find endpoint with ID:'0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff'",
+      },
       statusCode: 400,
       success: false,
     });
@@ -75,7 +79,7 @@ describe('verifyHttpSignedDataRequest', () => {
     const result = verifyHttpSignedDataRequest(config, '0x-Clearly-Invalid', validEndpointId);
 
     expect(result).toEqual({
-      error: '{"message":"Request contains invalid encodedParameters: 0x-Clearly-Invalid"}',
+      error: { message: 'Request contains invalid encodedParameters: 0x-Clearly-Invalid' },
       statusCode: 400,
       success: false,
     });
