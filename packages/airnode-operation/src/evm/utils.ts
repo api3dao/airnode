@@ -1,3 +1,4 @@
+import { RRP_PROTOCOL_ID } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 
 export function deriveEndpointId(oisTitle: string, endpointName: string): string {
@@ -39,5 +40,5 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `1/${paths.join('/')}`;
+  return `${RRP_PROTOCOL_ID}/${paths.join('/')}`;
 };
