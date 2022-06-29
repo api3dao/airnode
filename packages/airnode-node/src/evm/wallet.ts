@@ -1,4 +1,4 @@
-import { RRP_PROTOCOL_ID } from '@api3/airnode-protocol';
+import { PROTOCOL_IDS } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { getMasterKeyMnemonic, Config } from '../config';
 
@@ -15,10 +15,10 @@ import { getMasterKeyMnemonic, Config } from '../config';
  * 1/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
- * @param protocolId An optional string representing the protocol id. Defaults to RRP_PROTOCOL_ID.
+ * @param protocolId An optional string representing the protocol id. Defaults to PROTOCOL_IDS.RRP.
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = RRP_PROTOCOL_ID) => {
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = PROTOCOL_IDS.RRP) => {
   const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
   for (let i = 0; i < 6; i++) {

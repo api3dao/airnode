@@ -26,12 +26,14 @@ const RequesterAuthorizerWithAirnodeAddresses: { [chainId: string]: string } =
   references.RequesterAuthorizerWithAirnode;
 const networks: { [chainId: string]: ethers.providers.Network } = references.networks;
 
-const RRP_PROTOCOL_ID = '1';
-const PSP_PROTOCOL_ID = '2';
-const RELAYED_RRP_PROTOCOL_ID = '3';
-const RELAYED_PSP_PROTOCOL_ID = '4';
-const AIRSEEKER_PROTOCOL_ID = '5';
-const AIRKEEPER_PROTOCOL_ID = '12345';
+const PROTOCOL_IDS = {
+  RRP: '1',
+  PSP: '2',
+  RELAYED_RRP: '3',
+  RELAYED_PSP: '4',
+  AIRSEEKER: '5',
+  AIRKEEPER: '12345',
+};
 
 const mocks = {
   MockRrpRequesterFactory,
@@ -50,12 +52,7 @@ export {
   mocks,
   authorizers,
   networks,
-  RRP_PROTOCOL_ID,
-  PSP_PROTOCOL_ID,
-  RELAYED_RRP_PROTOCOL_ID,
-  RELAYED_PSP_PROTOCOL_ID,
-  AIRSEEKER_PROTOCOL_ID,
-  AIRKEEPER_PROTOCOL_ID,
+  PROTOCOL_IDS,
 };
 
 export type {
