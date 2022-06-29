@@ -4,10 +4,10 @@ import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
-import { getMasterHDNode, getAirnodeWalletFromPrivateKey } from '../evm';
+import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
-import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
+import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
   AggregatedApiCall,
@@ -100,46 +100,48 @@ async function signWithTemplateId(templateId: string, timestamp: string, data: s
   );
 }
 
+type CallApiConfig = Pick<Config, 'chains' | 'ois' | 'apiCredentials'> &
+  Partial<{
+    nodeSettings: Pick<Config['nodeSettings'], 'airnodeWalletMnemonic'>;
+  }>;
+
 export interface CallApiPayload {
-  readonly config: Config;
+  readonly config: CallApiConfig;
   readonly aggregatedApiCall: AggregatedApiCall;
 }
 
 function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
+
   if (aggregatedApiCall.type !== 'regular') return null;
 
+  const { nodeSettings } = config;
+  if (!nodeSettings) {
+    const message = 'Missing config.nodeSettings object';
+    const log = logger.pend('ERROR', message);
+    return [[log], { success: false, errorMessage: message }];
+  }
+
   const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
-  const hdNode = getMasterHDNode(config);
-  if (isValidSponsorWallet(hdNode, sponsorAddress, sponsorWalletAddress)) return null;
+  const derivedSponsorWallet = deriveSponsorWalletFromMnemonic(nodeSettings.airnodeWalletMnemonic, sponsorAddress);
+  if (derivedSponsorWallet.address === sponsorWalletAddress) return null;
 
   // TODO: Abstract this to a logging utils file
   const message = `${RequestErrorMessage.SponsorWalletInvalid}, Request ID:${id}`;
   const log = logger.pend('ERROR', message);
-  return [
-    [log],
-    {
-      success: false,
-      errorMessage: message,
-    },
-  ];
+  return [[log], { success: false, errorMessage: message }];
 }
 
 function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
+
   if (aggregatedApiCall.type !== 'regular') return null;
 
   if (isValidRequestId(aggregatedApiCall)) return null;
 
   const message = `${RequestErrorMessage.RequestIdInvalid}. Request ID:${aggregatedApiCall.id}`;
   const log = logger.pend('ERROR', message);
-  return [
-    [log],
-    {
-      success: false,
-      errorMessage: message,
-    },
-  ];
+  return [[log], { success: false, errorMessage: message }];
 }
 
 export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
@@ -155,13 +157,7 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
   if (!template) {
     const message = `Ignoring Request:${id} as the template could not be found for verification`;
     const log = logger.pend('ERROR', message);
-    return [
-      [log],
-      {
-        success: false,
-        errorMessage: message,
-      },
-    ];
+    return [[log], { success: false, errorMessage: message }];
   }
 
   const expectedTemplateId =
