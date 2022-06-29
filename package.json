@@ -54,7 +54,7 @@
     "format:check": "yarn prettier:check && yarn terraform:fmt:check",
     "format:write": "yarn prettier:write && yarn terraform:fmt:write",
     "lint": "yarn run lint:eslint && yarn run lint:solhint && yarn format:check && yarn lint:deps-versions && yarn ts-node scripts/validate-ts-references.ts",
-    "lint:deps-versions": "syncpack list-mismatches",
+    "lint:deps-versions": "syncpack list-mismatches --workspace",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
