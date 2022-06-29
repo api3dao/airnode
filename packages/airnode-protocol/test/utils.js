@@ -1,6 +1,8 @@
 const { ethers } = require('hardhat');
 const { goSync } = require('@api3/promise-utils');
 
+const RRP_PROTOCOL_ID = '1';
+
 function deriveWalletPathFromSponsorAddress(sponsorAddress) {
   const sponsorAddressBN = ethers.BigNumber.from(sponsorAddress);
   const paths = [];
@@ -8,7 +10,7 @@ function deriveWalletPathFromSponsorAddress(sponsorAddress) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `1/${paths.join('/')}`;
+  return `${RRP_PROTOCOL_ID}/${paths.join('/')}`;
 }
 
 module.exports = {
