@@ -7,6 +7,20 @@ import * as worker from './worker';
 import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
@@ -31,6 +45,20 @@ describe('spawnNewProvider', () => {
 });
 
 describe('spawnTransactionsProcessor', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },

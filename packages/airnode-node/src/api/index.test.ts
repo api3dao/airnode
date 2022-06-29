@@ -5,6 +5,20 @@ import * as fixtures from '../../test/fixtures';
 import { callApi } from '.';
 
 describe('callApi', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('calls the adapter with the given parameters', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });

@@ -37,6 +37,10 @@ export function getAirnodeWallet(config: Config): ethers.Wallet {
   return ethers.Wallet.fromMnemonic(mnemonic);
 }
 
+export function getAirnodeWalletWithPrivateKey(privateKey: string): ethers.Wallet {
+  return new ethers.Wallet(privateKey);
+}
+
 export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {
   return masterHDNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 }

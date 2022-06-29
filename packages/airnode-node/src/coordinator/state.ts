@@ -1,12 +1,16 @@
 import { randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import { CoordinatorSettings, CoordinatorState } from '../types';
-import { Config } from '../config';
+import { Config, getEnvValue } from '../config';
 import { CoordinatorStateWithApiResponses, RegularAggregatedApiCallsWithResponseById } from '..';
 
 export function create(config: Config): CoordinatorState {
   const coordinatorId = randomHexString(16);
-  const airnodeAddress = wallet.getAirnodeWallet(config).address;
+  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
+  if (!airnodeWalletPrivateKey) {
+    throw new Error('Missing Airnode wallet private key in environment variables.');
+  }
+  const airnodeAddress = wallet.getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey).address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
   const settings: CoordinatorSettings = {

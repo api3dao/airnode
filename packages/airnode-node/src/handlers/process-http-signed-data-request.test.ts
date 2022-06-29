@@ -13,6 +13,20 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
 }
 
 describe('processHttpSignedDataRequests', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('returns an error if no endpoint with given ID is found', async () => {
     const nonExistentEndpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc931ffff';
     const [err, res] = await processHttpSignedDataRequest(fixtures.buildConfig(), nonExistentEndpointId, '');

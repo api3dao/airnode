@@ -31,6 +31,19 @@ import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
   jest.setTimeout(30_000);
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
 
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     const initialConfig = fixtures.buildConfig();

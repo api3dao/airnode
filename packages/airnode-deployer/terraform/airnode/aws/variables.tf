@@ -73,3 +73,8 @@ variable "http_signed_data_max_concurrency" {
   # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#reserved_concurrent_executions
   default = -1
 }
+
+variable "airnode_wallet_private_key" {
+  description = "Airnode wallet private key"
+  default     = null
+}

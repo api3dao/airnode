@@ -13,6 +13,10 @@ module "run" {
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.max_concurrency
+
+  environment_variables = {
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
 }
 
 module "startCoordinator" {
@@ -25,9 +29,11 @@ module "startCoordinator" {
   timeout            = 65
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
+
   environment_variables = {
     HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpGw[0].api_url}"
     HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedGw[0].api_url}"
+    AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
   invoke_targets                 = [module.run.lambda_arn]
@@ -49,6 +55,10 @@ module "httpReq" {
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_max_concurrency
+
+  environment_variables = {
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
 }
 
 module "httpGw" {
@@ -80,6 +90,10 @@ module "httpSignedReq" {
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
+
+  environment_variables = {
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
 }
 
 module "httpSignedGw" {

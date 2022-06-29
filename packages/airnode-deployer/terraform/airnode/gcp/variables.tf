@@ -75,3 +75,8 @@ variable "http_signed_data_max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Cloud Function"
   default     = 0
 }
+
+variable "airnode_wallet_private_key" {
+  description = "Airnode wallet private key"
+  default     = null
+}

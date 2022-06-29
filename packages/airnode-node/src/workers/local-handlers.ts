@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { loadTrustedConfig } from '../config';
@@ -12,6 +13,11 @@ function loadConfig() {
 
 export async function startCoordinator(): Promise<WorkerResponse> {
   const config = loadConfig();
+  // Set the Airnode wallet private key into the environment when running locally
+  // eslint-disable-next-line functional/immutable-data
+  process.env['AIRNODE_WALLET_PRIVATE_KEY'] = ethers.Wallet.fromMnemonic(
+    config.nodeSettings.airnodeWalletMnemonic
+  ).privateKey;
   await handlers.startCoordinator(config);
   return { ok: true, data: { message: 'Coordinator completed' } };
 }

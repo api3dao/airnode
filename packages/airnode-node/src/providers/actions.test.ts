@@ -84,6 +84,20 @@ const chains: ChainConfig[] = [
 ];
 
 describe('initialize', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
     mockReadFileSync('config.json', JSON.stringify(config));
@@ -193,6 +207,20 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %s', async (txType) => {
     const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 

@@ -5,6 +5,20 @@ import * as providerState from '../../providers/state';
 import { GroupedRequests, RegularApiCallSuccessResponse, RequestErrorMessage } from '../../types';
 
 describe('disaggregate - Requests', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('maps aggregated responses back to requests for each provider', () => {
     const requests: GroupedRequests = {
       apiCalls: [fixtures.requests.buildApiCall()],

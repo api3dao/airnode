@@ -9,6 +9,20 @@ import * as workers from '../../workers/index';
 import { RequestErrorMessage, RegularApiCallSuccessResponse } from '../../types';
 
 describe('callApis', () => {
+  const OLD_ENV = process.env;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...OLD_ENV,
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+    };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   const logOptions: LogOptions = {
     format: 'plain',
     level: 'DEBUG',

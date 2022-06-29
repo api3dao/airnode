@@ -132,6 +132,7 @@ interface AirnodeVariables {
   secretsPath?: string;
   httpGateway?: Gateway;
   httpSignedDataGateway?: Gateway;
+  airnodeWalletPrivateKey?: string;
 }
 
 function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
@@ -154,7 +155,15 @@ async function terraformAirnodeManage(
   variables: AirnodeVariables
 ) {
   const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
-  const { airnodeAddressShort, stage, configPath, secretsPath, httpGateway, httpSignedDataGateway } = variables;
+  const {
+    airnodeAddressShort,
+    stage,
+    configPath,
+    secretsPath,
+    httpGateway,
+    httpSignedDataGateway,
+    airnodeWalletPrivateKey,
+  } = variables;
 
   let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
   await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
@@ -189,6 +198,10 @@ async function terraformAirnodeManage(
     }
   }
 
+  if (airnodeWalletPrivateKey) {
+    commonArguments.push(['var', 'airnode_wallet_private_key', airnodeWalletPrivateKey]);
+  }
+
   // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
   if (command === 'apply') {
     const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any);
@@ -221,6 +234,7 @@ interface AirnodeDeployParams {
   readonly httpSignedDataGateway: Gateway;
   readonly configPath: string;
   readonly secretsPath: string;
+  readonly airnodeWalletPrivateKey: string;
 }
 
 export async function deployAirnode(params: AirnodeDeployParams) {
@@ -257,6 +271,7 @@ async function deploy({
   httpSignedDataGateway,
   configPath,
   secretsPath,
+  airnodeWalletPrivateKey,
 }: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
   if (logger.inDebugMode()) {
     spinner.info();
@@ -295,6 +310,7 @@ async function deploy({
     secretsPath,
     httpGateway,
     httpSignedDataGateway,
+    airnodeWalletPrivateKey,
   });
   const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
   return transformTerraformOutput(output);

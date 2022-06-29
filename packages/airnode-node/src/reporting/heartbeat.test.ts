@@ -16,6 +16,7 @@ describe('reportHeartbeat', () => {
       ...OLD_ENV,
       HTTP_GATEWAY_URL: 'https://some.http.gateway.url/v1/',
       HTTP_SIGNED_DATA_GATEWAY_URL: 'https://some.http.signed.data.gateway.url/v1/',
+      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
     };
   });
 
