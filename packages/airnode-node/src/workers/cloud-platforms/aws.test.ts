@@ -11,19 +11,7 @@ import * as fixtures from '../../../test/fixtures';
 import { WorkerParameters } from '../../types';
 
 describe('spawn', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('derives the function name, invokes and returns the response', async () => {
     const lambda = new AWS.Lambda();

@@ -39,19 +39,7 @@ const createConfig = (txType: 'legacy' | 'eip1559') => {
 };
 
 describe('processTransactions', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   test.each(['legacy', 'eip1559'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %s',

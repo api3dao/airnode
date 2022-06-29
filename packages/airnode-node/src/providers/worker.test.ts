@@ -7,19 +7,7 @@ import * as worker from './worker';
 import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({
@@ -45,19 +33,7 @@ describe('spawnNewProvider', () => {
 });
 
 describe('spawnTransactionsProcessor', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({

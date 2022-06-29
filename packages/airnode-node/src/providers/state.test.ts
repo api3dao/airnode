@@ -5,19 +5,7 @@ import { EVMProviderState, ProviderState } from '../types';
 import { ChainConfig } from '../config';
 
 describe('create', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('returns a clean state with defaults', () => {
     const coordinatorId = '837daEf231';
@@ -175,19 +163,7 @@ describe('create', () => {
 });
 
 describe('update', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('updates the state', () => {
     const newState = fixtures.buildEVMProviderState();
@@ -197,19 +173,7 @@ describe('update', () => {
 });
 
 describe('scrub', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   const SCRUB_KEYS = ['config', 'provider'];
 
@@ -224,19 +188,8 @@ describe('scrub', () => {
 });
 
 describe('refresh', () => {
-  const OLD_ENV = process.env;
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
   describe('EVM provider state', () => {
     it('initializes a new provider', () => {
       const newState = fixtures.buildEVMProviderState();
@@ -259,19 +212,7 @@ describe('refresh', () => {
 });
 
 describe('splitStatesBySponsorAddress', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('splits provider states based on the request sponsor address', () => {
     const mixedRequest1 = fixtures.requests.buildApiCall({

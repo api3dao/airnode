@@ -6,20 +6,7 @@ import { EVMProviderSponsorState, GroupedRequests, ProviderState } from '../type
 
 describe('assign', () => {
   let mutableInitialState: ProviderState<EVMProviderSponsorState>;
-
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   beforeEach(() => {
     mutableInitialState = fixtures.buildEVMProviderSponsorState();

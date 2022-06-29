@@ -23,19 +23,7 @@ const providerErrorForWorker = {
 
 workers.forEach((workerType) => {
   describe(`${workerType} worker`, () => {
-    const OLD_ENV = process.env;
-
-    beforeAll(() => {
-      jest.resetModules();
-      process.env = {
-        ...OLD_ENV,
-        AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
-      };
-    });
-
-    afterAll(() => {
-      process.env = OLD_ENV;
-    });
+    fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
     it('handles remote AWS calls', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
