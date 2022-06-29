@@ -26,12 +26,13 @@ describe('deployer commands', () => {
 
   beforeEach(() => {
     mockDeployAirnode = jest.requireMock('../infrastructure').deployAirnode;
-    mockDeployAirnode.mockReturnValueOnce({});
     mockRemoveAirnode = jest.requireMock('../infrastructure').removeAirnode;
     mockWriteReceiptFile = jest.requireMock('../utils').writeReceiptFile;
   });
 
   it('can deploy Airnode', async () => {
+    mockDeployAirnode.mockReturnValueOnce({});
+
     await deploy(
       join(__dirname, '../../config/config.example.json'),
       join(__dirname, '../../config/secrets.example.env'),
@@ -79,6 +80,25 @@ describe('deployer commands', () => {
     await removeWithReceipt(receiptFile);
 
     expect(mockRemoveAirnode).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes receipt even when deployment fails', async () => {
+    mockDeployAirnode.mockImplementation(() => {
+      throw new Error('deployment failed');
+    });
+    const failSpy = jest.spyOn(logger, 'fail').mockImplementation(() => {});
+
+    await expect(() =>
+      deploy(
+        join(__dirname, '../../config/config.example.json'),
+        join(__dirname, '../../config/secrets.example.env'),
+        'mocked receipt filename'
+      )
+    ).rejects.toThrow('deployment failed');
+
+    expect(mockDeployAirnode).toHaveBeenCalledTimes(1);
+    expect(mockWriteReceiptFile).toHaveBeenCalledTimes(1);
+    expect(failSpy).toHaveBeenCalledTimes(1);
   });
 });
 
