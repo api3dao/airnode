@@ -12,6 +12,7 @@ import { deploy, removeWithReceipt, remove } from './commands';
 import { cliExamples } from './cli-examples';
 import * as logger from '../utils/logger';
 import { longArguments, printableArguments } from '../utils/cli';
+import { MultiMessageError } from '../utils/infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -32,9 +33,15 @@ function drawHeader() {
 async function runCommand(command: () => Promise<void>) {
   const goCommand = await go(command);
   if (!goCommand.success) {
+    loggerUtils.log('\n\n\nError details:');
+
     // Logging an error here likely results in excessive logging since the errors are usually logged at the place where they
     // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
-    logger.fail(goCommand.error.message);
+    if (goCommand.error instanceof MultiMessageError) {
+      goCommand.error.messages.forEach((m) => logger.fail(m));
+    } else {
+      logger.fail(goCommand.error.message);
+    }
 
     // eslint-disable-next-line functional/immutable-data
     process.exitCode = 1;
