@@ -51,6 +51,138 @@ describe('callApi', () => {
     );
   });
 
+  it('calls the adapter with the given parameters even if config.chains is missing', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
+
+    const { chains: _, ...rest } = fixtures.buildConfig();
+    const [logs, res] = await callApi({
+      config: rest,
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
+    });
+
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      success: true,
+      data: {
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        signature:
+          '0xe92f5ee40ddb5aa42cab65fcdc025008b2bc026af80a7c93a9aac4e474f8a88f4f2bd861b9cf9a2b050bf0fd13e9714c4575cebbea658d7501e98c0963a5a38b1c',
+      },
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: { from: 'ETH', amount: '1' },
+        metadata: {
+          chainId: '31337',
+          chainType: 'evm',
+          requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
+          requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+          sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
+          sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
+        },
+        apiCredentials: [
+          {
+            securitySchemeName: 'myApiSecurityScheme',
+            securitySchemeValue: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 30_000 }
+    );
+  });
+
+  it('calls the adapter with the given parameters with when request type is http-gateway and config just has ois and apiCredentials props', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
+
+    const [logs, res] = await callApi({
+      config: { ois: [fixtures.buildOIS()], apiCredentials: [fixtures.buildApiCredentials()] },
+      aggregatedApiCall: fixtures.buildAggregatedHttpGatewayApiCall({ parameters }),
+    });
+
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      success: true,
+      data: {
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        rawValue: { price: 1000 },
+        values: ['100000000'],
+      },
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: { from: 'ETH', amount: '1' },
+        metadata: null,
+        apiCredentials: [
+          {
+            securitySchemeName: 'myApiSecurityScheme',
+            securitySchemeValue: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 30_000 }
+    );
+  });
+
+  it('calls the adapter with the given parameters with when request type is http-signed-data-gateway and config just has ois and apiCredentials props', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
+    const encodedParameters =
+      '0x317373730000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000045544800000000000000000000000000000000000000000000000000000000005f74797065000000000000000000000000000000000000000000000000000000696e7432353600000000000000000000000000000000000000000000000000005f706174680000000000000000000000000000000000000000000000000000007072696365000000000000000000000000000000000000000000000000000000';
+    const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
+    const templateId = '0xaa1525fe964092a826934ff09c75e1db395b947543a4ca3eb4a19628bad6c6d5';
+    const [logs, res] = await callApi({
+      config: { ois: [fixtures.buildOIS()], apiCredentials: [fixtures.buildApiCredentials()] },
+      aggregatedApiCall: fixtures.buildAggregatedHttpSignedDataApiCall({
+        endpointId,
+        parameters,
+        templateId,
+        template: {
+          airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+          endpointId,
+          id: templateId,
+          encodedParameters,
+        },
+      }),
+    });
+
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      success: true,
+      data: {
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        signature: expect.any(String),
+        timestamp: expect.any(String),
+      },
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: { from: 'ETH', amount: '1' },
+        metadata: null,
+        apiCredentials: [
+          {
+            securitySchemeName: 'myApiSecurityScheme',
+            securitySchemeValue: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 30_000 }
+    );
+  });
+
   it('uses the default endpoint parameters if no user value is provided', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
@@ -157,6 +289,26 @@ describe('callApi', () => {
       errorMessage: `Unable to cast value to int256`,
       success: false,
     });
+  });
+
+  it('returns an error if aggregatedApiCall arg has type = "regular" but config arg is missing nodeSettings', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+
+    const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const { chains, ois, apiCredentials } = fixtures.buildConfig();
+    const [logs, res] = await callApi({ config: { chains, ois, apiCredentials }, aggregatedApiCall });
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: 'Missing config.nodeSettings object',
+      },
+    ]);
+    expect(res).toEqual({
+      errorMessage: `Missing config.nodeSettings object`,
+      success: false,
+    });
+    expect(spy).not.toHaveBeenCalled();
   });
 
   describe('pre-processing', () => {
