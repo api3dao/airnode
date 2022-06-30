@@ -86,7 +86,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   const deploymentTimestamp = new Date().toISOString();
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
-  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp);
+  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp, goDeployAirnode.success);
 
   if (!goDeployAirnode.success) {
     logger.fail(

@@ -1,9 +1,9 @@
 import { join } from 'path';
 import { mockReadFileSync } from '../../test/mock-utils';
 import { readFileSync } from 'fs';
+import { receipt } from '@api3/airnode-validator';
 import { deploy, remove, removeWithReceipt } from './commands';
 import { version as packageVersion } from '../../package.json';
-import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 
 const readExampleConfig = () => JSON.parse(readFileSync(join(__dirname, '../../config/config.example.json'), 'utf-8'));
@@ -55,7 +55,7 @@ describe('deployer commands', () => {
 
   it('can remove Airnode with receipt', async () => {
     const receiptFile = 'mockedReceiptFile';
-    const receipt: Receipt = {
+    const receipt: receipt.Receipt = {
       airnodeWallet: {
         airnodeAddress: '0xF347ADEd76F7AC2013e379078738aBfF75780C2e',
         airnodeAddressShort: 'f347ade',
@@ -75,6 +75,7 @@ describe('deployer commands', () => {
         stage: 'stage',
         timestamp: new Date('23 March 2022 14:48 UTC').toISOString(),
       },
+      success: true,
     };
     mockReadFileSync('mockedReceiptFile', JSON.stringify(receipt));
     await removeWithReceipt(receiptFile);
