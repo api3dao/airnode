@@ -4,7 +4,7 @@ import { Request } from '@api3/airnode-operation';
 import * as validator from '@api3/airnode-validator';
 import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
-import { buildConfig, operation, getAirnodeWalletPrivateKey, setEnvVariables } from '../../fixtures';
+import { buildConfig, operation, getAirnodeWalletPrivateKey } from '../../fixtures';
 
 // NOTE: This function must be called outside of the test (the "it" callback), but can be called from inside the
 // "describe" block. See: https://github.com/facebook/jest/issues/11500#issuecomment-1133428341
@@ -19,8 +19,8 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
     mnemonic,
     requests ? { deployerIndex, requests } : { deployerIndex }
   );
-  // Set the private key to environment variables for each test
-  setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: getAirnodeWalletPrivateKey(mnemonic) });
+  // Set the correct private key to environment variables for tests
+  process.env['AIRNODE_WALLET_PRIVATE_KEY'] = getAirnodeWalletPrivateKey(mnemonic);
   const deployment = await deployAirnodeRrp(deployConfig);
 
   await makeRequests(deployConfig, deployment);
