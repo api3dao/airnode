@@ -12,6 +12,8 @@ import {
 } from '@api3/airnode-node';
 import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
+import { z } from 'zod';
+import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -90,49 +92,98 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
   res.status(200).send(body);
 }
 
-export async function processHttpRequest(req: Request, res: Response) {
-  // We need to check for an API key manually because GCP HTTP Gateway
-  // doesn't support managing API keys via API
+// We need to check for an API key manually because GCP HTTP Gateway doesn't support managing API keys via API
+export function verifyGcpApiKey(
+  req: Request,
+  apiKeyName: 'HTTP_GATEWAY_API_KEY' | 'HTTP_SIGNED_DATA_GATEWAY_API_KEY'
+): VerificationResult<{}> {
   const apiKey = req.header('x-api-key');
-  if (!apiKey || apiKey !== config.getEnvValue('HTTP_GATEWAY_API_KEY')) {
-    res.status(401).send({ error: 'Wrong API key' });
+  if (!apiKey || apiKey !== config.getEnvValue(apiKeyName)) {
+    // Mimics the behavior of AWS HTTP Gateway
+    return { success: false, statusCode: 403, error: { message: 'Forbidden' } };
   }
 
-  const { parameters } = req.body;
-  const { endpointId } = req.query;
-
-  if (!endpointId) {
-    res.status(400).send({ error: 'Missing endpointId' });
-    return;
-  }
-
-  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId as string, parameters);
-  if (err) {
-    res.status(400).send({ error: err.toString() });
-    return;
-  }
-
-  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  res.status(200).send(JSON.stringify(result!.data));
+  return { success: true };
 }
+
+// We do not want to enable ".strict()" - we want to allow extra fields in the request body
+const httpRequestBodySchema = z.object({
+  parameters: z.any(), // Parameter validation is performed later
+});
+
+export async function processHttpRequest(req: Request, res: Response) {
+  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
+  if (!apiKeyVerification.success) {
+    const { statusCode, error } = apiKeyVerification;
+    res.status(statusCode).send(error);
+    return;
+  }
+
+  const parsedBody = httpRequestBodySchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    // This error and status code is returned by AWS gateway when the request does not match the openAPI
+    // specification. We want the same error to be returned by the GCP gateway.
+    res.status(400).send({ message: 'Invalid request body' });
+    return;
+  }
+  const { parameters: rawParameters } = parsedBody.data;
+
+  // Guaranteed to exist by the openAPI schema
+  const { endpointId: rawEndpointId } = req.query;
+
+  const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId as string);
+  if (!verificationResult.success) {
+    const { statusCode, error } = verificationResult;
+    res.status(statusCode).send(error);
+    return;
+  }
+  const { parameters, endpointId } = verificationResult;
+
+  const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
+  if (err) {
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    res.status(500).send({ message: err.toString() });
+    return;
+  }
+
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  res.status(200).send(result!.data);
+}
+
+// We do not want to enable ".strict()" - we want to allow extra fields in the request body
+const httpSignedDataBodySchema = z.object({
+  encodedParameters: z.string(),
+});
 
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
 export async function processHttpSignedDataRequest(req: Request, res: Response) {
-  // We need to check for an API key manually because GCP HTTP Gateway
-  // doesn't support managing API keys via API
-  const apiKey = req.header('x-api-key');
-  if (!apiKey || apiKey !== config.getEnvValue('HTTP_SIGNED_DATA_GATEWAY_API_KEY')) {
-    res.status(401).send({ error: 'Wrong API key' });
-  }
-
-  const { encodedParameters } = req.body;
-  const { endpointId } = req.query;
-
-  if (!endpointId) {
-    res.status(400).send({ error: 'Missing endpointId' });
+  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
+  if (!apiKeyVerification.success) {
+    const { statusCode, error } = apiKeyVerification;
+    res.status(statusCode).send(error);
     return;
   }
+
+  const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    // This error and status code is returned by AWS gateway when the request does not match the openAPI
+    // specification. We want the same error to be returned by the GCP gateway.
+    res.status(400).send({ message: 'Invalid request body' });
+    return;
+  }
+  const { encodedParameters: rawEncodedParameters } = parsedBody.data;
+
+  // Guaranteed to exist by the openAPI schema
+  const { endpointId: rawEndpointId } = req.query;
+
+  const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId as string);
+  if (!verificationResult.success) {
+    const { statusCode, error } = verificationResult;
+    res.status(statusCode).send(error);
+    return;
+  }
+  const { encodedParameters, endpointId } = verificationResult;
 
   const [err, result] = await handlers.processHttpSignedDataRequest(
     parsedConfig,
@@ -140,10 +191,11 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     encodedParameters
   );
   if (err) {
-    res.status(400).send({ error: err.toString() });
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    res.status(500).send({ message: err.toString() });
     return;
   }
 
-  // NOTE: We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  res.status(200).send(JSON.stringify(result!.data));
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  res.status(200).send(result!.data);
 }
