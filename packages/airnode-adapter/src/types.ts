@@ -3,15 +3,12 @@ import { BigNumber } from 'bignumber.js';
 import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
 export interface RequestMetadata {
-  airnodeAddress: string;
   requesterAddress: string;
   sponsorWalletAddress: string;
-  endpointId: string;
   sponsorAddress: string;
   requestId: string;
   chainId: string;
   chainType: string;
-  airnodeRrpAddress: string;
 }
 
 export interface BaseApiCredentials {

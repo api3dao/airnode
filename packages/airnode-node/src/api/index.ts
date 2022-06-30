@@ -52,10 +52,9 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
       };
     }
     case 'regular': {
-      const { airnodeAddress, requesterAddress, sponsorAddress, sponsorWalletAddress, endpointId, id, chainId } =
-        aggregatedApiCall;
+      const { requesterAddress, sponsorAddress, sponsorWalletAddress, id, chainId } = aggregatedApiCall;
       // Find the chain config based on the aggregatedApiCall chainId
-      const chain = config.chains.find((c) => c.id === chainId)!;
+      const chain = config.chains?.find((c) => c.id === chainId);
 
       return {
         endpointName,
@@ -63,15 +62,12 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
         ois,
         apiCredentials,
         metadata: {
-          airnodeAddress: airnodeAddress,
           requesterAddress: requesterAddress,
           sponsorAddress: sponsorAddress,
           sponsorWalletAddress: sponsorWalletAddress,
-          endpointId: endpointId,
           requestId: id,
           chainId: chainId,
-          chainType: chain.type,
-          airnodeRrpAddress: chain.contracts.AirnodeRrp,
+          chainType: chain?.type || 'evm',
         },
       };
     }
@@ -100,7 +96,8 @@ async function signWithTemplateId(templateId: string, timestamp: string, data: s
   );
 }
 
-type CallApiConfig = Pick<Config, 'chains' | 'ois' | 'apiCredentials'> &
+type CallApiConfig = Pick<Config, 'ois' | 'apiCredentials'> &
+  Partial<Pick<Config, 'chains'>> &
   Partial<{
     nodeSettings: Pick<Config['nodeSettings'], 'airnodeWalletMnemonic'>;
   }>;

@@ -33,11 +33,8 @@ describe('callApi', () => {
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH', amount: '1' },
         metadata: {
-          airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-          airnodeRrpAddress: '0x197F3826040dF832481f835652c290aC7c41f073',
           chainId: '31337',
           chainType: 'evm',
-          endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
           requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
           requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
           sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
