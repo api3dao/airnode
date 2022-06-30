@@ -10,8 +10,9 @@ import {
 
 const expectSameRequestId = (req1: any, req2: any) => expect(req1.args.requestId).toBe(req2.args.requestId);
 
+increaseTestTimeout();
+
 it('should call fail function on AirnodeRrp contract and emit FailedRequest if requester contract fulfillment fails', async () => {
-  increaseTestTimeout();
   const { deployment, provider } = await deployAirnodeAndMakeRequests(__filename, [
     operation.buildTemplateRequest({ fulfillFunctionName: 'fulfillAlwaysReverts' }),
     operation.buildFullRequest(),
@@ -37,7 +38,6 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 });
 
 it('should call fail function on AirnodeRrp contract and emit FailedRequest if requester contract fulfillment runs out of gas', async () => {
-  increaseTestTimeout();
   const { deployment, provider } = await deployAirnodeAndMakeRequests(__filename, [
     operation.buildTemplateRequest({ fulfillFunctionName: 'fulfillAlwaysRunsOutOfGas' }),
     operation.buildFullRequest(),

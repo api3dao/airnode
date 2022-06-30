@@ -14,8 +14,9 @@ import { initializeProvider } from './initialize-provider';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initializeProvider', () => {
+  jest.setTimeout(30_000);
+
   it('fetches, maps and authorizes requests', async () => {
-    jest.setTimeout(30_000);
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     const currentBlockNumber = 18;
     getBlockNumberSpy.mockResolvedValueOnce(currentBlockNumber);

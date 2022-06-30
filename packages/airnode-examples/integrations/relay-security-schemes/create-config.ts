@@ -112,6 +112,11 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               type: 'relayChainType',
               name: 'chainType',
             },
+            relayRequestId: {
+              in: 'query',
+              type: 'relayRequestId',
+              name: 'requestId',
+            },
           },
         },
         security: {
@@ -120,6 +125,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           relayRequesterAddress: [],
           relaySponsorAddress: [],
           relaySponsorWalletAddress: [],
+          relayRequestId: [],
         },
       },
       endpoints: [
@@ -133,16 +139,16 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           reservedParameters: [
             {
               name: '_type',
-              fixed: 'address,address,address,uint256,string32',
+              fixed: 'address,address,address,uint256,string32,bytes32',
             },
             {
               name: '_path',
               fixed:
-                'headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,headers.Cookie',
+                'headers.Requesteraddress,args.sponsorAddress,args.sponsorWalletAddress,args.chainId,headers.Cookie,args.requestId',
             },
             {
               name: '_times',
-              fixed: ',,,,',
+              fixed: ',,,,,',
             },
           ],
           parameters: [],

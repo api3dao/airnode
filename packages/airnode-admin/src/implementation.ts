@@ -1,5 +1,5 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrpV0, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
+import { AirnodeRrpV0, RequesterAuthorizerWithAirnode, PROTOCOL_IDS } from '@api3/airnode-protocol';
 import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
@@ -109,7 +109,7 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `1/${paths.join('/')}`;
+  return `${PROTOCOL_IDS.RRP}/${paths.join('/')}`;
 };
 
 export const deriveAirnodeXpub = (airnodeMnemonic: string): string => {

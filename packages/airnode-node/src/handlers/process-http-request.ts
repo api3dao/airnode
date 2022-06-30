@@ -7,21 +7,17 @@ import { Config } from '../config';
 export async function processHttpRequest(
   config: Config,
   endpointId: string,
-  // TODO: This should be typed as Record<string, string | undefined>
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, HttpGatewayApiCallSuccessResponse]> {
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
-
-  const httpTrigger = find(config.triggers.http, ['endpointId', endpointId]);
-  if (!httpTrigger) {
-    return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
-  }
+  // Guaranteed to exist because validation is already performed in the deployer handler
+  const trigger = find(config.triggers.http, ['endpointId', endpointId])!;
 
   const aggregatedApiCall: AggregatedApiCall = {
     type: 'http-gateway',
-    endpointName: httpTrigger.endpointName,
-    oisTitle: httpTrigger.oisTitle,
+    endpointName: trigger.endpointName,
+    oisTitle: trigger.oisTitle,
     parameters,
   };
 

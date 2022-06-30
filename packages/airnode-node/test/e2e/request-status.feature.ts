@@ -5,9 +5,9 @@ import { operation } from '../fixtures';
 import { RequestErrorMessage } from '../../src/types';
 import { deployAirnodeAndMakeRequests, fetchAllLogs, increaseTestTimeout } from '../setup/e2e';
 
-it('sets the correct status code for both successful and failed requests', async () => {
-  increaseTestTimeout();
+increaseTestTimeout();
 
+it('sets the correct status code for both successful and failed requests', async () => {
   const baseParameters = [
     { type: 'string32', name: 'to', value: 'USD' },
     { type: 'string32', name: '_type', value: 'int256' },

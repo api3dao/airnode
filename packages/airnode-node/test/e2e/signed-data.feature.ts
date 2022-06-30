@@ -3,13 +3,14 @@ import { processHttpSignedDataRequest } from '../../src/workers/local-handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 import { HttpSignedDataApiCallSuccessResponse } from '../../src/types';
 
+increaseTestTimeout();
+
 it('makes a call for signed API data', async () => {
   // Set a fake time so that the generated timestamp of the test is always the same
   const mockedTimestamp = new Date(`2021-02-14`).valueOf();
   jest.spyOn(global.Date, 'now').mockImplementationOnce(() => mockedTimestamp);
   jest.spyOn(adapter, 'buildAndExecuteRequest');
 
-  increaseTestTimeout();
   await deployAirnodeAndMakeRequests(__filename);
 
   const encodedParameters =

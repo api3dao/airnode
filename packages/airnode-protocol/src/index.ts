@@ -26,6 +26,15 @@ const RequesterAuthorizerWithAirnodeAddresses: { [chainId: string]: string } =
   references.RequesterAuthorizerWithAirnode;
 const networks: { [chainId: string]: ethers.providers.Network } = references.networks;
 
+const PROTOCOL_IDS = {
+  RRP: '1',
+  PSP: '2',
+  RELAYED_RRP: '3',
+  RELAYED_PSP: '4',
+  AIRSEEKER: '5',
+  AIRKEEPER: '12345',
+};
+
 const mocks = {
   MockRrpRequesterFactory,
 };
@@ -43,6 +52,7 @@ export {
   mocks,
   authorizers,
   networks,
+  PROTOCOL_IDS,
 };
 
 export type {
@@ -60,9 +70,9 @@ export {
   FailedRequestEvent,
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
-} from './contracts/AirnodeRrpV0'; // eslint-disable-line import/no-unresolved
+} from './contracts/rrp/AirnodeRrpV0'; // eslint-disable-line import/no-unresolved
 // NOTE: there seems to be an issue with eslint-plugin-import
 // not being able to find the above files. Hopefully a future version (> 2.26.0)
 // fixes this. https://github.com/api3dao/airnode/pull/1004#issuecomment-1096152730
 
-export { TypedEventFilter } from './contracts/commons';
+export { TypedEventFilter } from './contracts/common';
