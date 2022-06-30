@@ -25,6 +25,9 @@ describe('fetch (authorizations)', () => {
           '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
         ],
       },
+      authorizations: {
+        requesterEndpointAuthorizations: {},
+      },
       airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
@@ -174,6 +177,81 @@ describe('fetch (authorizations)', () => {
       },
     ]);
     expect(res).toEqual({});
+  });
+
+  it('does not fetch authorizations if found in config and returns true for valid authorizations', async () => {
+    const apiCalls = [
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-0',
+        requesterAddress: '0xrequester-0',
+        endpointId: '0xendpointId-0',
+      }),
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-1',
+        requesterAddress: '0xrequester-1',
+        endpointId: '0xendpointId-0',
+      }),
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-2',
+        requesterAddress: '0xrequester-2',
+        endpointId: '0xendpointId-2',
+      }),
+    ];
+
+    const [logs, res] = await authorization.fetch(apiCalls, {
+      ...mutableFetchOptions,
+      authorizations: {
+        requesterEndpointAuthorizations: {
+          '0xendpointId-0': ['0xrequester-0', '0xrequester-1'],
+          '0xendpointId-2': ['0xrequester-2'],
+        },
+      },
+    });
+
+    expect(checkAuthorizationStatusesMock).not.toHaveBeenCalled();
+    expect(checkAuthorizationStatusMock).not.toHaveBeenCalled();
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      '0xapiCallId-0': true,
+      '0xapiCallId-1': true,
+      '0xapiCallId-2': true,
+    });
+  });
+
+  it('fetches authorizations if the requester address is not included in config authorizations', async () => {
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+    const apiCalls = [
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-0',
+        airnodeAddress: mutableFetchOptions.airnodeAddress,
+        requesterAddress: '0xrequester-0',
+        sponsorAddress: '0xsponsor-0',
+        endpointId: '0xendpointId-0',
+      }),
+    ];
+
+    const [logs, res] = await authorization.fetch(apiCalls, {
+      ...mutableFetchOptions,
+      authorizations: {
+        requesterEndpointAuthorizations: {
+          '0xendpointId-0': ['0xrequester-1'],
+        },
+      },
+    });
+
+    expect(checkAuthorizationStatusesMock).toHaveBeenNthCalledWith(
+      1,
+      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      apiCalls[0].airnodeAddress,
+      [apiCalls[0].id],
+      [apiCalls[0].endpointId],
+      [apiCalls[0].sponsorAddress],
+      [apiCalls[0].requesterAddress]
+    );
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      '0xapiCallId-0': true,
+    });
   });
 });
 

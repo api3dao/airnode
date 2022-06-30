@@ -142,10 +142,11 @@ contracts. The values must correspond to a value defined in the `authorizers` to
 **Authorizations**
 
 `authorizations` - a key/value object where the key is the type of `authorization` and the value is an object containing
-a list of the authorized addresses for an endpoint id.
+a list of the authorized requester addresses for an `endpointId`.
 
-`authorizations.requesterEndpointAuthorizations.[endpointId]` - a key-value object where the key is the `endpointId` and
-the value is a list of the authorized addresses.
+`authorizations.[authorizationType].[endpointId]` - a key-value object where the key is the `endpointId` and the value
+is a list of the authorized addresses. The Airnode will skip fetching the authorization status from the chain for the
+included requester address and endpoint combinations.
 
 **Endpoints**
 
