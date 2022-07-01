@@ -72,7 +72,6 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // deployment error. We want to write a receipt file, because the user might use the receipt to remove the deployed
   // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
   // remove the resources manually in the cloud provider dashboard).
-
   const goDeployAirnode = await go(() =>
     deployAirnode({
       airnodeAddressShort,
@@ -84,6 +83,11 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       secretsPath: tmpSecretsPath,
     })
   );
+  const deploymentTimestamp = new Date().toISOString();
+  logger.debug('Deleting a temporary secrets.json file');
+  fs.rmSync(tmpDir, { recursive: true });
+  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp, goDeployAirnode.success);
+
   if (!goDeployAirnode.success) {
     logger.fail(
       bold(
@@ -97,13 +101,6 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   }
 
   const output = goDeployAirnode.data;
-  const deploymentTimestamp = new Date().toISOString();
-
-  logger.debug('Deleting a temporary secrets.json file');
-  fs.rmSync(tmpDir, { recursive: true });
-
-  writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp);
-
   if (output.httpGatewayUrl) logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
   if (output.httpSignedDataGatewayUrl) logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
 }
