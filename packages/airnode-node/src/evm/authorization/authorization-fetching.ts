@@ -107,29 +107,19 @@ async function fetchAuthorizationStatuses(
 }
 
 export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOptions: FetchOptions) => {
-  return apiCalls.reduce(
-    (
-      acc: { configAuthorizationsByRequestId: AuthorizationByRequestId[]; configAuthorizationRequestIds: string[] },
-      apiCall
-    ) => {
-      // Check if an authorization is found in config for the apiCall endpointId
-      const configAuthorization = fetchOptions.authorizations.requesterEndpointAuthorizations[apiCall.endpointId!];
+  return apiCalls.reduce((acc: AuthorizationByRequestId[], apiCall) => {
+    // Check if an authorization is found in config for the apiCall endpointId
+    const configAuthorization = fetchOptions.authorizations.requesterEndpointAuthorizations[apiCall.endpointId!];
 
-      if (configAuthorization) {
-        const configAuthorizationIncludesRequesterAddress = configAuthorization.includes(apiCall.requesterAddress);
+    if (configAuthorization) {
+      const configAuthorizationIncludesRequesterAddress = configAuthorization.includes(apiCall.requesterAddress);
 
-        // Set the authorization status to true if the requester address is included for the endpointId
-        if (configAuthorizationIncludesRequesterAddress)
-          return {
-            configAuthorizationsByRequestId: [...acc.configAuthorizationsByRequestId, { [apiCall.id]: true }],
-            configAuthorizationRequestIds: [...acc.configAuthorizationRequestIds, apiCall.id],
-          };
-      }
+      // Set the authorization status to true if the requester address is included for the endpointId
+      if (configAuthorizationIncludesRequesterAddress) return [...acc, { [apiCall.id]: true }];
+    }
 
-      return acc;
-    },
-    { configAuthorizationsByRequestId: [], configAuthorizationRequestIds: [] }
-  );
+    return acc;
+  }, []);
 };
 
 export async function fetch(
@@ -151,14 +141,14 @@ export async function fetch(
 
   // Skip fetching authorization statuses if found in config for a specific authorization type
   // and requester address
-  const { configAuthorizationsByRequestId, configAuthorizationRequestIds } = checkConfigAuthorizations(
-    apiCalls,
-    fetchOptions
-  );
+  const configAuthorizationsByRequestId = checkConfigAuthorizations(apiCalls, fetchOptions);
 
   // Filter apiCalls for which a valid authorization was found in config
   const apiCallsToFetchAuthorizationStatus = apiCalls.filter(
-    (apiCall) => !configAuthorizationRequestIds.includes(apiCall.id)
+    (apiCall) =>
+      !configAuthorizationsByRequestId
+        .map((configAuthorizationByRequestId) => Object.keys(configAuthorizationByRequestId)[0])
+        .includes(apiCall.id)
   );
 
   // Request groups of 10 at a time

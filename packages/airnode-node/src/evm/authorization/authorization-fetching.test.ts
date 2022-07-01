@@ -218,6 +218,68 @@ describe('fetch (authorizations)', () => {
     });
   });
 
+  it('handles a combination of both config and on-chain authorizations correctly', async () => {
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false]);
+    const apiCalls = [
+      // Config authorization
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-0',
+        airnodeAddress: mutableFetchOptions.airnodeAddress,
+        requesterAddress: '0xrequester-0',
+        sponsorAddress: '0xsponsor-0',
+        endpointId: '0xendpointId-0',
+      }),
+      // On-chain success authorization
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-1',
+        airnodeAddress: mutableFetchOptions.airnodeAddress,
+        requesterAddress: '0xrequester-1',
+        sponsorAddress: '0xsponsor-1',
+        endpointId: '0xendpointId-1',
+      }),
+      // On-chain failed authorization
+      fixtures.requests.buildApiCall({
+        id: '0xapiCallId-2',
+        airnodeAddress: mutableFetchOptions.airnodeAddress,
+        requesterAddress: '0xrequester-2',
+        sponsorAddress: '0xsponsor-2',
+        endpointId: '0xendpointId-2',
+      }),
+    ];
+
+    const [logs, res] = await authorization.fetch(apiCalls, {
+      ...mutableFetchOptions,
+      authorizations: {
+        requesterEndpointAuthorizations: {
+          '0xendpointId-0': ['0xrequester-0'],
+        },
+      },
+    });
+
+    expect(checkAuthorizationStatusesMock).toHaveBeenCalledWith(
+      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      apiCalls[1].airnodeAddress,
+      [apiCalls[1].id, apiCalls[2].id],
+      [apiCalls[1].endpointId, apiCalls[2].endpointId],
+      [apiCalls[1].sponsorAddress, apiCalls[2].sponsorAddress],
+      [apiCalls[1].requesterAddress, apiCalls[2].requesterAddress]
+    );
+    expect(checkAuthorizationStatusesMock).not.toHaveBeenCalledWith(
+      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      apiCalls[0].airnodeAddress,
+      [apiCalls[0].id],
+      [apiCalls[0].endpointId],
+      [apiCalls[0].sponsorAddress],
+      [apiCalls[0].requesterAddress]
+    );
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      '0xapiCallId-0': true,
+      '0xapiCallId-1': true,
+      '0xapiCallId-2': false,
+    });
+  });
+
   it('fetches authorizations if the requester address is not included in config authorizations', async () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
     const apiCalls = [
