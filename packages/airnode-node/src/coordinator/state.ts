@@ -10,7 +10,7 @@ export function create(config: Config): CoordinatorState {
   if (!airnodeWalletPrivateKey) {
     throw new Error('Missing Airnode wallet private key in environment variables.');
   }
-  const airnodeAddress = wallet.getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey).address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
   const settings: CoordinatorSettings = {

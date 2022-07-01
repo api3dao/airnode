@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
-import { getMasterHDNode, getAirnodeWalletWithPrivateKey } from '../evm';
+import { getMasterHDNode, getAirnodeWalletFromPrivateKey } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
@@ -79,7 +79,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
 }
 
 async function signWithRequestId(requestId: string, data: string, airnodeWalletPrivateKey: string) {
-  const airnodeWallet = getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey);
+  const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
@@ -94,7 +94,7 @@ async function signWithTemplateId(
   data: string,
   airnodeWalletPrivateKey: string
 ) {
-  const airnodeWallet = getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey);
+  const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(

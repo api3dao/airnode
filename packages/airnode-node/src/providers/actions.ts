@@ -37,6 +37,7 @@ async function initializeEVMProvider(
 
 export async function initialize(
   coordinatorId: string,
+  airnodeAddress: string,
   config: Config,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderStates>> {
@@ -48,7 +49,7 @@ export async function initialize(
   const evmInitializations = flatMap(
     evmChains.map((chain) => {
       return map(chain.providers, async (_, providerName) => {
-        const state = buildEVMState(coordinatorId, chain, providerName, config);
+        const state = buildEVMState(coordinatorId, airnodeAddress, chain, providerName, config);
         return initializeEVMProvider(state, workerOpts);
       });
     })

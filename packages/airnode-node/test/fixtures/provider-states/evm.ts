@@ -10,6 +10,7 @@ export function buildEVMProviderState(
   const chainType = 'evm';
   const chainId = '31337';
   const chainProviderName = 'Ganache test';
+  const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
   const chainConfig: ChainConfig = {
     maxConcurrency: 100,
     authorizers: [],
@@ -29,7 +30,7 @@ export function buildEVMProviderState(
     },
   };
   const config = buildConfig({ chains: [chainConfig] });
-  const state = buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
+  const state = buildEVMState(coordinatorId, airnodeAddress, chainConfig, chainProviderName, config);
   return {
     ...state,
     ...overrides,

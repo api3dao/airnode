@@ -12,6 +12,7 @@ describe('create', () => {
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
       authorizers: [ethers.constants.AddressZero],
@@ -36,7 +37,7 @@ describe('create', () => {
       },
     };
     const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
+    const res = state.buildEVMState(coordinatorId, airnodeAddress, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -88,6 +89,7 @@ describe('create', () => {
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
       authorizers: [ethers.constants.AddressZero],
@@ -114,7 +116,7 @@ describe('create', () => {
       },
     };
     const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
+    const res = state.buildEVMState(coordinatorId, airnodeAddress, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',

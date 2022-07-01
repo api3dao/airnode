@@ -5,10 +5,11 @@ import * as evm from '../evm';
 import { EVMProviderState, ProviderSettings, ProviderState, ProviderStates, EVMProviderSponsorState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { groupRequestsBySponsorAddress } from '../requests/grouping';
-import { ChainConfig, ChainType, Config, getEnvValue } from '../config';
+import { ChainConfig, ChainType, Config } from '../config';
 
 export function buildEVMState(
   coordinatorId: string,
+  airnodeAddress: string,
   chain: ChainConfig,
   chainProviderName: string,
   config: Config
@@ -16,11 +17,6 @@ export function buildEVMState(
   const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url;
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    throw new Error('Missing Airnode wallet private key in environment variables.');
-  }
-  const airnodeAddress = evm.getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey).address;
 
   const providerSettings: ProviderSettings = {
     airnodeAddress,

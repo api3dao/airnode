@@ -29,7 +29,7 @@ export async function processHttpSignedDataRequest(
   if (!airnodeWalletPrivateKey) {
     return [new Error('Missing Airnode wallet private key in environment variables.'), null];
   }
-  const airnodeAddress = wallet.getAirnodeWalletWithPrivateKey(airnodeWalletPrivateKey).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey).address;
 
   const template: ApiCallTemplateWithoutId = {
     airnodeAddress,

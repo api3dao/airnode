@@ -2,7 +2,7 @@ import * as path from 'path';
 import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { loadTrustedConfig } from '../config';
+import { loadTrustedConfig, setEnvValue, Config } from '../config';
 import * as handlers from '../handlers';
 import * as state from '../providers/state';
 import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
@@ -10,14 +10,17 @@ import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTrans
 function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
+function setAirnodePrivateKeyToEnv(config: Config) {
+  return setEnvValue(
+    'AIRNODE_WALLET_PRIVATE_KEY',
+    ethers.Wallet.fromMnemonic(config.nodeSettings.airnodeWalletMnemonic).privateKey
+  );
+}
 
 export async function startCoordinator(): Promise<WorkerResponse> {
   const config = loadConfig();
-  // Set the Airnode wallet private key into the environment when running locally
-  // eslint-disable-next-line functional/immutable-data
-  process.env['AIRNODE_WALLET_PRIVATE_KEY'] = ethers.Wallet.fromMnemonic(
-    config.nodeSettings.airnodeWalletMnemonic
-  ).privateKey;
+  setAirnodePrivateKeyToEnv(config);
+
   await handlers.startCoordinator(config);
   return { ok: true, data: { message: 'Coordinator completed' } };
 }
@@ -44,6 +47,7 @@ export async function initializeProvider({ state: providerState }: InitializePro
 
 export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
+  setAirnodePrivateKeyToEnv(config);
   const [logs, response] = await handlers.callApi({ config, aggregatedApiCall });
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
@@ -53,6 +57,7 @@ export async function processTransactions({
   state: providerState,
 }: ProcessTransactionsPayload): Promise<WorkerResponse> {
   const config = loadConfig();
+  setAirnodePrivateKeyToEnv(config);
   const stateWithConfig = state.update(providerState, { config });
 
   const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig));
@@ -78,6 +83,7 @@ export async function processHttpRequest(endpointId: string, parameters: any) {
 
 export async function processHttpSignedDataRequest(endpointId: string, encodedParameters: any) {
   const config = loadConfig();
+  setAirnodePrivateKeyToEnv(config);
   const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
   if (err) {
     throw err;

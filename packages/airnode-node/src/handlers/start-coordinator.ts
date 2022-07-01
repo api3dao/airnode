@@ -47,11 +47,16 @@ function getWorkerOptions(state: CoordinatorState): WorkerOptions {
 }
 
 async function initializeProviders(state: CoordinatorState) {
-  const { coordinatorId, config } = state;
+  const { coordinatorId, config, settings } = state;
   const logOptions = buildBaseOptions(config, { coordinatorId });
 
   logger.info('Forking to initialize providers', logOptions);
-  const [logs, providerStates] = await providers.initialize(coordinatorId, config, getWorkerOptions(state));
+  const [logs, providerStates] = await providers.initialize(
+    coordinatorId,
+    settings.airnodeAddress,
+    config,
+    getWorkerOptions(state)
+  );
   logger.logPending(logs, logOptions);
   logger.info('Forking to initialize providers complete', logOptions);
 
