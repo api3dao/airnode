@@ -17,7 +17,7 @@ import {
 import * as logger from '../utils/logger';
 import { logAndReturnError, MultiMessageError } from '../utils/infrastructure';
 
-export async function deploy(configPath: string, secretsPath: string, receiptFile: string) {
+export async function deploy(configPath: string, secretsPath: string, receiptFile: string, disableAutoRemove: boolean) {
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
 
@@ -87,6 +87,18 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
   writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp, goDeployAirnode.success);
+
+  if (!goDeployAirnode.success && disableAutoRemove) {
+    logger.fail(
+      bold(
+        `Airnode deployment failed due to unexpected errors.\n` +
+          `  It is possible that some resources have been deployed on cloud provider.\n` +
+          `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
+      )
+    );
+
+    throw goDeployAirnode.error;
+  }
 
   if (!goDeployAirnode.success) {
     logger.fail(

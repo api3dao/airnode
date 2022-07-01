@@ -63,7 +63,8 @@ describe('deployer commands', () => {
     await deploy(
       join(__dirname, '../../config/config.example.json'),
       join(__dirname, '../../config/secrets.example.env'),
-      'mocked receipt filename'
+      'mocked receipt filename',
+      false
     );
 
     expect(mockDeployAirnode).toHaveBeenCalledTimes(1);
@@ -98,7 +99,8 @@ describe('deployer commands', () => {
       deploy(
         join(__dirname, '../../config/config.example.json'),
         join(__dirname, '../../config/secrets.example.env'),
-        'mockedReceiptFile'
+        'mockedReceiptFile',
+        false
       )
     ).rejects.toThrow(['Deployment error:', 'deployment failed'].join('\n'));
 
@@ -107,6 +109,24 @@ describe('deployer commands', () => {
     expect(mockWriteReceiptFile).toHaveBeenCalledTimes(1);
     expect(loggerFailSpy).toHaveBeenCalledTimes(1);
     expect(loggerSucceedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('only writes receipt when deployment fails and "auto remove" is disabled', async () => {
+    mockDeployAirnode.mockImplementation(() => {
+      throw new Error('deployment failed');
+    });
+
+    await expect(() =>
+      deploy(
+        join(__dirname, '../../config/config.example.json'),
+        join(__dirname, '../../config/secrets.example.env'),
+        'mockedReceiptFile',
+        true
+      )
+    ).rejects.toThrow('deployment failed');
+
+    expect(mockRemoveAirnode).toHaveBeenCalledTimes(0);
+    expect(loggerSucceedSpy).toHaveBeenCalledTimes(0);
   });
 
   it('prints error details when both deployment and removal fail', async () => {
@@ -122,7 +142,8 @@ describe('deployer commands', () => {
       deploy(
         join(__dirname, '../../config/config.example.json'),
         join(__dirname, '../../config/secrets.example.env'),
-        'mockedReceiptFile'
+        'mockedReceiptFile',
+        false
       )
     ).rejects.toThrow(['Deployment error:', 'deployment failed', 'Removal error:', `removal failed`].join('\n'));
 
@@ -142,7 +163,8 @@ describe('deployer commands', () => {
         deploy(
           join(__dirname, '../../config/config.example.json'),
           join(__dirname, '../../config/secrets.example.env'),
-          'mocked receipt filename'
+          'mocked receipt filename',
+          false
         );
 
       const issues = [
