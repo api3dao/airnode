@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { CloudProvider, Config } from '@api3/airnode-node';
-import { parseReceipt } from '@api3/airnode-validator';
+import { parseReceipt, receipt } from '@api3/airnode-validator';
 import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
-import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 
@@ -17,10 +16,16 @@ export function parseSecretsFile(secretsPath: string) {
   return goDotenvParse.data;
 }
 
-export function writeReceiptFile(receiptFilename: string, mnemonic: string, config: Config, timestamp: string) {
+export function writeReceiptFile(
+  receiptFilename: string,
+  mnemonic: string,
+  config: Config,
+  timestamp: string,
+  success: boolean
+) {
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
-  const receipt: Receipt = {
+  const receipt: receipt.Receipt = {
     airnodeWallet: {
       airnodeAddress,
       airnodeAddressShort,
@@ -36,6 +41,7 @@ export function writeReceiptFile(receiptFilename: string, mnemonic: string, conf
     api: {
       ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
     },
+    success,
   };
 
   logger.debug('Writing receipt.json file');
@@ -56,5 +62,5 @@ export function parseReceiptFile(receiptFilename: string) {
     throw logAndReturnError(`Invalid Airnode receipt file: ${validationResult.error}`);
   }
 
-  return receipt as Receipt;
+  return receipt as receipt.Receipt;
 }
