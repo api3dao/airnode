@@ -76,5 +76,4 @@ variable "http_signed_data_max_concurrency" {
 
 variable "airnode_wallet_private_key" {
   description = "Airnode wallet private key"
-  default     = null
 }

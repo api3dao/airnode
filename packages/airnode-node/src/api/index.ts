@@ -78,7 +78,11 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   }
 }
 
-async function signWithRequestId(requestId: string, data: string, airnodeWalletPrivateKey: string) {
+async function signWithRequestId(requestId: string, data: string) {
+  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
+  if (!airnodeWalletPrivateKey) {
+    throw new Error('Missing Airnode wallet private key in environment variables.');
+  }
   const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
 
   return await airnodeWallet.signMessage(
@@ -88,12 +92,11 @@ async function signWithRequestId(requestId: string, data: string, airnodeWalletP
   );
 }
 
-async function signWithTemplateId(
-  templateId: string,
-  timestamp: string,
-  data: string,
-  airnodeWalletPrivateKey: string
-) {
+async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
+  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
+  if (!airnodeWalletPrivateKey) {
+    throw new Error('Missing Airnode wallet private key in environment variables.');
+  }
   const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
 
   return await airnodeWallet.signMessage(
@@ -247,20 +250,11 @@ async function processSuccessfulApiCall(
 
   const response = goExtractAndEncodeResponse.data;
 
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    const errorMessage = 'Missing Airnode wallet private key in environment variables.';
-    const log = logger.pend('ERROR', errorMessage);
-    return [[log], { success: false, errorMessage }];
-  }
-
   switch (aggregatedApiCall.type) {
     case 'http-gateway':
       return [[], { success: true, data: response }];
     case 'regular': {
-      const goSignWithRequestId = await go(() =>
-        signWithRequestId(aggregatedApiCall.id, response.encodedValue, airnodeWalletPrivateKey)
-      );
+      const goSignWithRequestId = await go(() => signWithRequestId(aggregatedApiCall.id, response.encodedValue));
       if (!goSignWithRequestId.success) {
         const log = logger.pend('ERROR', goSignWithRequestId.error.message);
         return [[log], { success: false, errorMessage: goSignWithRequestId.error.message }];
@@ -274,7 +268,7 @@ async function processSuccessfulApiCall(
     case 'http-signed-data-gateway': {
       const timestamp = Math.floor(Date.now() / 1000).toString();
       const goSignWithTemplateId = await go(() =>
-        signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue, airnodeWalletPrivateKey)
+        signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue)
       );
       if (!goSignWithTemplateId.success) {
         const log = logger.pend('ERROR', goSignWithTemplateId.error.message);

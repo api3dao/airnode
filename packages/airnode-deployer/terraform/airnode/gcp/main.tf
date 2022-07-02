@@ -115,8 +115,7 @@ module "httpReq" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_API_KEY       = var.http_api_key
-    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+    HTTP_GATEWAY_API_KEY = var.http_api_key
   }
 
   max_instances = var.disable_concurrency_reservation ? null : var.http_max_concurrency

@@ -55,10 +55,6 @@ module "httpReq" {
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_max_concurrency
-
-  environment_variables = {
-    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
-  }
 }
 
 module "httpGw" {
