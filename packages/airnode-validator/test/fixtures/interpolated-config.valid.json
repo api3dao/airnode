@@ -24,7 +24,16 @@
         "withdrawalRemainder": {
           "value": 1,
           "unit": "gwei"
-        }
+        },
+        "gasPriceOracle": [
+          {
+            "gasPriceStrategy": "constantGasPrice",
+            "gasPrice": {
+              "value": 10,
+              "unit": "gwei"
+            }
+          }
+        ]
       }
     }
   ],

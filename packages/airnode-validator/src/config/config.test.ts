@@ -15,6 +15,7 @@ import {
   enabledHeartbeatSchema,
   gatewaySchema,
   heartbeatSchema,
+  gasPriceOracleSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
@@ -45,6 +46,71 @@ it(`doesn't allow extraneous properties`, () => {
   );
 });
 
+describe('gasPriceOracleSchema', () => {
+  const latestBlockPercentileGasPriceStrategy = {
+    gasPriceStrategy: 'latestBlockPercentileGasPrice',
+    percentile: 60,
+    minTransactionCount: 10,
+    pastToCompareInBlocks: 20,
+    maxDeviationMultiplier: 2,
+  };
+  const providerRecommendedGasPriceStrategy = {
+    gasPriceStrategy: 'providerRecommendedGasPrice',
+    recommendedGasPriceMultiplier: 1.2,
+  };
+  const constantGasPriceStrategy = {
+    gasPriceStrategy: 'constantGasPrice',
+    gasPrice: {
+      value: 10,
+      unit: 'gwei',
+    },
+  };
+  const gasPriceOracleOptions = [
+    latestBlockPercentileGasPriceStrategy,
+    providerRecommendedGasPriceStrategy,
+    constantGasPriceStrategy,
+  ];
+
+  gasPriceOracleOptions.forEach((gasPriceOracleOption) =>
+    it('allows valid gas price oracle strategy', () => {
+      expect(() => gasPriceOracleSchema.parse([gasPriceOracleOption, constantGasPriceStrategy])).not.toThrow();
+    })
+  );
+
+  it('allows all valid gas price oracle strategies', () => {
+    expect(() => gasPriceOracleSchema.parse(gasPriceOracleOptions)).not.toThrow();
+  });
+
+  it('throws on empty price oracle strategies', () => {
+    expect(() => gasPriceOracleSchema.parse([])).toThrow(
+      new ZodError([
+        {
+          code: 'too_small',
+          minimum: 1,
+          type: 'array',
+          inclusive: true,
+          message: 'Array must contain at least 1 element(s)',
+          path: [],
+        },
+        {
+          code: 'custom',
+          message: 'Missing required constantGasPrice strategy',
+          path: ['gasPriceOracle'],
+        },
+      ])
+    );
+  });
+
+  // Test invalid strategies containing only the gasPriceStrategy field
+  gasPriceOracleOptions
+    .map((oracleStrategy) => oracleStrategy.gasPriceStrategy)
+    .forEach((oracleStrategy) =>
+      it('throws on invalid gas price oracle', () => {
+        expect(() => gasPriceOracleSchema.parse([oracleStrategy, constantGasPriceStrategy])).toThrow();
+      })
+    );
+});
+
 describe('chainOptionsSchema', () => {
   const eip1559ChainOptions: ChainOptions = {
     txType: 'eip1559',
@@ -54,12 +120,30 @@ describe('chainOptionsSchema', () => {
       unit: 'gwei',
     },
     fulfillmentGasLimit: 500000,
+    gasPriceOracle: [
+      {
+        gasPriceStrategy: 'constantGasPrice',
+        gasPrice: {
+          value: 10,
+          unit: 'gwei',
+        },
+      },
+    ],
   };
 
   const legacyChainOptions: ChainOptions = {
     txType: 'legacy',
     gasPriceMultiplier: 1.1,
     fulfillmentGasLimit: 500000,
+    gasPriceOracle: [
+      {
+        gasPriceStrategy: 'constantGasPrice',
+        gasPrice: {
+          value: 10,
+          unit: 'gwei',
+        },
+      },
+    ],
   };
 
   it('does not allow legacy chain options for eip1559 transactions', () => {
