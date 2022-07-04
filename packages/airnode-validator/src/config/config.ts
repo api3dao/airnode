@@ -117,6 +117,7 @@ export const validateGasPriceOracleStrategies: SuperRefinement<GasPriceOracleCon
     (gasPriceOracleStrategy) => gasPriceOracleStrategy.gasPriceStrategy === 'constantGasPrice'
   );
 
+  // Require at least the constantGasPrice strategy to be defined
   if (!constantGasPriceStrategy) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -428,6 +429,7 @@ export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
+export type GasPriceOracleStrategy = z.infer<typeof gasPriceOracleStrategySchema>;
 export type GasPriceOracleConfig = z.infer<typeof gasPriceOracleSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;

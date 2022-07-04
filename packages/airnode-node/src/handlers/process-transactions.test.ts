@@ -8,13 +8,20 @@ describe('processTransactions', () => {
   test.each(['legacy', 'eip1559'] as const)('processes EVM providers - txType: %s', async (txType) => {
     const processSpy = jest.spyOn(evmHandler, 'processTransactions');
     const initialState = fixtures.buildEVMProviderSponsorState();
-    const chainOptions = { txType, fulfillmentGasLimit: 500_000 };
+    const chainOptions = {
+      txType,
+      fulfillmentGasLimit: 500_000,
+    };
 
     const state = {
       ...initialState,
       settings: {
         ...initialState.settings,
-        chainOptions,
+        chainOptions: {
+          ...initialState.settings.chainOptions,
+          ...chainOptions,
+          txType,
+        },
       },
     };
     await processTransactions(state);

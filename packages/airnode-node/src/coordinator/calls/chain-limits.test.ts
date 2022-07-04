@@ -16,6 +16,15 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     options: {
       txType: 'legacy',
       fulfillmentGasLimit: 123456,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     providers: {},
     ...overrides,

@@ -57,6 +57,15 @@ const chains: ChainConfig[] = [
         unit: 'gwei',
       },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
   },
   {
@@ -80,6 +89,15 @@ const chains: ChainConfig[] = [
         unit: 'gwei',
       },
       fulfillmentGasLimit: 600000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
   },
 ];
@@ -122,6 +140,15 @@ describe('initialize', () => {
                 unit: 'gwei',
               },
               fulfillmentGasLimit: 500_000,
+              gasPriceOracle: [
+                {
+                  gasPriceStrategy: 'constantGasPrice',
+                  gasPrice: {
+                    value: 10,
+                    unit: 'gwei',
+                  },
+                },
+              ],
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -166,6 +193,15 @@ describe('initialize', () => {
                 unit: 'gwei',
               },
               fulfillmentGasLimit: 600000,
+              gasPriceOracle: [
+                {
+                  gasPriceStrategy: 'constantGasPrice',
+                  gasPrice: {
+                    value: 10,
+                    unit: 'gwei',
+                  },
+                },
+              ],
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -221,7 +257,10 @@ describe('processRequests', () => {
         ...initialState,
         settings: {
           ...initialState.settings,
-          chainOptions: { txType, fulfillmentGasLimit: 500_000 },
+          chainOptions: {
+            ...initialState.settings.chainOptions,
+            txType,
+          },
         },
       }));
 

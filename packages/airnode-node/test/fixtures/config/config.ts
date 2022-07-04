@@ -35,6 +35,15 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         options: {
           txType: 'legacy',
           fulfillmentGasLimit: 123456,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
           withdrawalRemainder: {
             value: 0,
             unit: 'wei',

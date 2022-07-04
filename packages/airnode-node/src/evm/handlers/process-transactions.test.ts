@@ -22,7 +22,7 @@ mockEthers({
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests } from '../../types';
+import { GroupedRequests, ProviderState, EVMProviderSponsorState } from '../../types';
 
 const createConfig = (txType: 'legacy' | 'eip1559') => {
   const initialConfig = fixtures.buildConfig();
@@ -33,6 +33,15 @@ const createConfig = (txType: 'legacy' | 'eip1559') => {
       options: {
         txType,
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     })),
   };
@@ -91,11 +100,11 @@ describe('processTransactions', () => {
         settings: {
           ...initialState.settings,
           chainOptions: {
+            ...initialState.settings.chainOptions,
             txType,
-            fulfillmentGasLimit: 500_000,
           },
         },
-      };
+      } as ProviderState<EVMProviderSponsorState>;
 
       let res = await processTransactions(state);
 
@@ -137,11 +146,11 @@ describe('processTransactions', () => {
         settings: {
           ...initialState.settings,
           chainOptions: {
+            ...initialState.settings.chainOptions,
             txType,
-            fulfillmentGasLimit: 500_000,
           },
         },
-      };
+      } as ProviderState<EVMProviderSponsorState>;
 
       res = await processTransactions(state);
 
@@ -207,11 +216,11 @@ describe('processTransactions', () => {
         settings: {
           ...initialState.settings,
           chainOptions: {
+            ...initialState.settings.chainOptions,
             txType,
-            fulfillmentGasLimit: 500_000,
           },
         },
-      };
+      } as ProviderState<EVMProviderSponsorState>;
 
       const res = await processTransactions(state);
 

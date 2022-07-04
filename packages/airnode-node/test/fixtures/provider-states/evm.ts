@@ -22,6 +22,15 @@ export function buildEVMProviderState(
     options: {
       txType: 'legacy',
       fulfillmentGasLimit: 123456,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     providers: {
       [chainProviderName]: {

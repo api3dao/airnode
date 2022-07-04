@@ -34,6 +34,15 @@ describe('create', () => {
           unit: 'gwei',
         },
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     };
     const config = fixtures.buildConfig();
@@ -57,6 +66,15 @@ describe('create', () => {
             unit: 'gwei',
           },
           fulfillmentGasLimit: 500_000,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
         },
         logFormat: 'plain',
         logLevel: 'DEBUG',
@@ -113,6 +131,15 @@ describe('create', () => {
           unit: 'gwei',
         },
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     };
     const config = fixtures.buildConfig();
@@ -135,6 +162,15 @@ describe('create', () => {
             unit: 'gwei',
           },
           fulfillmentGasLimit: 500_000,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
         },
         chainType: 'evm',
         logFormat: 'plain',

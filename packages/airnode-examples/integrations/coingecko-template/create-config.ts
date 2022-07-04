@@ -31,6 +31,15 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           unit: 'gwei',
         },
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     },
   ],

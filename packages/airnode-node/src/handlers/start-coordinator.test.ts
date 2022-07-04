@@ -40,6 +40,7 @@ describe('startCoordinator', () => {
       chains: initialConfig.chains.map((chain) => ({
         ...chain,
         options: {
+          ...chain.options,
           txType,
           fulfillmentGasLimit: 500_000,
         },

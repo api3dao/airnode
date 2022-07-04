@@ -26,6 +26,15 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
         unit: 'gwei',
       },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
       withdrawalRemainder: {
         value: 1,
         unit: 'ether',
