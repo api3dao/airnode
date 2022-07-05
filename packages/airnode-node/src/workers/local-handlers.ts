@@ -5,7 +5,13 @@ import { go } from '@api3/promise-utils';
 import { loadTrustedConfig, setEnvValue } from '../config';
 import * as handlers from '../handlers';
 import * as state from '../providers/state';
-import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
+import {
+  WorkerResponse,
+  InitializeProviderPayload,
+  CallApiPayload,
+  ProcessTransactionsPayload,
+  ApiCallPayload,
+} from '../types';
 
 function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
@@ -45,7 +51,7 @@ export async function initializeProvider({ state: providerState }: InitializePro
 export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
-  const [logs, response] = await handlers.callApi({ config, aggregatedApiCall });
+  const [logs, response] = await handlers.callApi({ config, aggregatedApiCall } as ApiCallPayload);
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }

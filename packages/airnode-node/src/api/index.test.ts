@@ -51,14 +51,13 @@ describe('callApi', () => {
     );
   });
 
-  it('calls the adapter with the given parameters even if config.chains is missing', async () => {
+  it('calls the adapter with the given parameters even if config.chains cannot be found', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
 
-    const { chains: _, ...rest } = fixtures.buildConfig();
     const [logs, res] = await callApi({
-      config: rest,
+      config: fixtures.buildConfig({ chains: [] }),
       aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
     });
 
@@ -289,26 +288,6 @@ describe('callApi', () => {
       errorMessage: `Unable to cast value to int256`,
       success: false,
     });
-  });
-
-  it('returns an error if aggregatedApiCall arg has type = "regular" but config arg is missing nodeSettings', async () => {
-    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
-
-    const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-    const { chains, ois, apiCredentials } = fixtures.buildConfig();
-    const [logs, res] = await callApi({ config: { chains, ois, apiCredentials }, aggregatedApiCall });
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: 'Missing config.nodeSettings object',
-      },
-    ]);
-    expect(res).toEqual({
-      errorMessage: `Missing config.nodeSettings object`,
-      success: false,
-    });
-    expect(spy).not.toHaveBeenCalled();
   });
 
   describe('pre-processing', () => {

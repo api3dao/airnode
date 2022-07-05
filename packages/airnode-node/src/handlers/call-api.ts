@@ -1,6 +1,6 @@
-import { LogsData, ApiCallResponse } from '../types';
+import { ApiCallResponse, ApiCallPayload, LogsData } from '../types';
 import * as api from '../api';
 
-export async function callApi(payload: api.CallApiPayload): Promise<LogsData<ApiCallResponse>> {
+export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCallResponse>> {
   return api.callApi(payload);
 }

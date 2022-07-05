@@ -290,6 +290,32 @@ export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
   template: ApiCallTemplate;
 }
 
+export type HttpApiCallConfig = Pick<Config, 'ois' | 'apiCredentials'>;
+
+export type RegularApiCallConfig = HttpApiCallConfig &
+  Pick<Config, 'chains'> & {
+    nodeSettings: Pick<Config['nodeSettings'], 'airnodeWalletMnemonic'>;
+  };
+
+export type ApiCallConfig = RegularApiCallConfig | HttpApiCallConfig;
+
+export interface RegularApiCallPayload {
+  readonly config: RegularApiCallConfig;
+  readonly aggregatedApiCall: RegularAggregatedApiCall;
+}
+
+export interface HttpApiCallPayload {
+  readonly config: HttpApiCallConfig;
+  readonly aggregatedApiCall: HttpAggregatedApiCall;
+}
+
+export interface HttpSignedApiCallPayload {
+  readonly config: HttpApiCallConfig;
+  readonly aggregatedApiCall: HttpSignedDataAggregatedApiCall;
+}
+
+export type ApiCallPayload = RegularApiCallPayload | HttpApiCallPayload | HttpSignedApiCallPayload;
+
 // ===========================================
 // Workers
 // ===========================================

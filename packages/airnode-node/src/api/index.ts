@@ -10,16 +10,18 @@ import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
-  AggregatedApiCall,
   ApiCallResponse,
   LogsData,
   RequestErrorMessage,
   ApiCallErrorResponse,
   ApiCallParameters,
+  ApiCallPayload,
+  RegularApiCallPayload,
+  HttpSignedApiCallPayload,
+  RegularApiCallConfig,
 } from '../types';
-import { Config } from '../config';
 
-function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
+function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
   const { config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
@@ -53,8 +55,10 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
     }
     case 'regular': {
       const { requesterAddress, sponsorAddress, sponsorWalletAddress, id, chainId } = aggregatedApiCall;
+      const regularCallApiConfig = config as RegularApiCallConfig;
+
       // Find the chain config based on the aggregatedApiCall chainId
-      const chain = config.chains?.find((c) => c.id === chainId);
+      const chain = regularCallApiConfig.chains.find((c) => c.id === chainId);
 
       return {
         endpointName,
@@ -96,31 +100,14 @@ async function signWithTemplateId(templateId: string, timestamp: string, data: s
   );
 }
 
-type CallApiConfig = Pick<Config, 'ois' | 'apiCredentials'> &
-  Partial<Pick<Config, 'chains'>> &
-  Partial<{
-    nodeSettings: Pick<Config['nodeSettings'], 'airnodeWalletMnemonic'>;
-  }>;
-
-export interface CallApiPayload {
-  readonly config: CallApiConfig;
-  readonly aggregatedApiCall: AggregatedApiCall;
-}
-
-function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
 
-  if (aggregatedApiCall.type !== 'regular') return null;
-
-  const { nodeSettings } = config;
-  if (!nodeSettings) {
-    const message = 'Missing config.nodeSettings object';
-    const log = logger.pend('ERROR', message);
-    return [[log], { success: false, errorMessage: message }];
-  }
-
   const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
-  const derivedSponsorWallet = deriveSponsorWalletFromMnemonic(nodeSettings.airnodeWalletMnemonic, sponsorAddress);
+  const derivedSponsorWallet = deriveSponsorWalletFromMnemonic(
+    config.nodeSettings.airnodeWalletMnemonic,
+    sponsorAddress
+  );
   if (derivedSponsorWallet.address === sponsorWalletAddress) return null;
 
   // TODO: Abstract this to a logging utils file
@@ -129,10 +116,8 @@ function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResp
   return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-
-  if (aggregatedApiCall.type !== 'regular') return null;
 
   if (isValidRequestId(aggregatedApiCall)) return null;
 
@@ -141,10 +126,10 @@ function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse
   return [[log], { success: false, errorMessage: message }];
 }
 
-export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+export function verifyTemplateId(
+  payload: RegularApiCallPayload | HttpSignedApiCallPayload
+): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-
-  if (aggregatedApiCall.type === 'http-gateway') return null;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -169,13 +154,28 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
   return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyCallApiPayload(payload: CallApiPayload) {
+function verifyCallApi(payload: ApiCallPayload) {
+  switch (payload.aggregatedApiCall.type) {
+    case 'regular':
+      return verifyRegularCallApiParams(payload as RegularApiCallPayload);
+    case 'http-signed-data-gateway':
+      return verifyHttpSignedCallApiParams(payload as HttpSignedApiCallPayload);
+    default:
+      return null;
+  }
+}
+
+function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   const verifications = [verifySponsorWallet, verifyRequestId, verifyTemplateId];
 
   return verifications.reduce((result, verifierFn) => {
     if (result) return result;
     return verifierFn(payload);
   }, null as LogsData<ApiCallErrorResponse> | null);
+}
+
+function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
+  return verifyTemplateId(payload) as LogsData<ApiCallErrorResponse> | null;
 }
 
 interface PerformApiCallSuccess {
@@ -187,7 +187,7 @@ function isPerformApiCallFailure(value: ApiCallErrorResponse | PerformApiCallSuc
 }
 
 async function performApiCall(
-  payload: CallApiPayload
+  payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
@@ -207,7 +207,7 @@ async function performApiCall(
 }
 
 async function processSuccessfulApiCall(
-  payload: CallApiPayload,
+  payload: ApiCallPayload,
   rawResponse: PerformApiCallSuccess
 ): Promise<LogsData<ApiCallResponse>> {
   const { config, aggregatedApiCall } = payload;
@@ -271,8 +271,8 @@ async function processSuccessfulApiCall(
   }
 }
 
-export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
-  const verificationResult = verifyCallApiPayload(payload);
+export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCallResponse>> {
+  const verificationResult = verifyCallApi(payload);
   if (verificationResult) return verificationResult;
 
   const processedPayload = await preProcessApiSpecifications(payload);
