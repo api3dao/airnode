@@ -2,7 +2,7 @@
   "extends": ["config:base", "docker:disable"],
   "packageRules": [
     {
-      "matchPackageNames": ["chalk", "ora", "node"],
+      "matchPackageNames": ["chalk", "ora", "node", "@openzeppelin/contracts"],
       "enabled": false
     },
     {

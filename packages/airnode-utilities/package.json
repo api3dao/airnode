@@ -18,8 +18,8 @@
   "main": "dist/index.js",
   "dependencies": {
     "@api3/promise-utils": "^0.3.0",
-    "date-fns": "^2.16.1",
-    "ethers": "^5.4.5"
+    "date-fns": "^2.28.0",
+    "ethers": "^5.6.9"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
