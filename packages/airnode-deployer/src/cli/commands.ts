@@ -17,7 +17,7 @@ import {
 import * as logger from '../utils/logger';
 import { logAndReturnError, MultiMessageError } from '../utils/infrastructure';
 
-export async function deploy(configPath: string, secretsPath: string, receiptFile: string, disableAutoRemove: boolean) {
+export async function deploy(configPath: string, secretsPath: string, receiptFile: string, autoRemove: boolean) {
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
 
@@ -88,7 +88,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   fs.rmSync(tmpDir, { recursive: true });
   writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp, goDeployAirnode.success);
 
-  if (!goDeployAirnode.success && disableAutoRemove) {
+  if (!goDeployAirnode.success && !autoRemove) {
     logger.fail(
       bold(
         `Airnode deployment failed due to unexpected errors.\n` +

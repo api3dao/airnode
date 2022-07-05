@@ -64,7 +64,7 @@ describe('deployer commands', () => {
       join(__dirname, '../../config/config.example.json'),
       join(__dirname, '../../config/secrets.example.env'),
       'mocked receipt filename',
-      false
+      true
     );
 
     expect(mockDeployAirnode).toHaveBeenCalledTimes(1);
@@ -100,7 +100,7 @@ describe('deployer commands', () => {
         join(__dirname, '../../config/config.example.json'),
         join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
-        false
+        true
       )
     ).rejects.toThrow(['Deployment error:', 'deployment failed'].join('\n'));
 
@@ -121,7 +121,7 @@ describe('deployer commands', () => {
         join(__dirname, '../../config/config.example.json'),
         join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
-        true
+        false
       )
     ).rejects.toThrow('deployment failed');
 
@@ -143,7 +143,7 @@ describe('deployer commands', () => {
         join(__dirname, '../../config/config.example.json'),
         join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
-        false
+        true
       )
     ).rejects.toThrow(['Deployment error:', 'deployment failed', 'Removal error:', `removal failed`].join('\n'));
 
@@ -164,7 +164,7 @@ describe('deployer commands', () => {
           join(__dirname, '../../config/config.example.json'),
           join(__dirname, '../../config/secrets.example.env'),
           'mocked receipt filename',
-          false
+          true
         );
 
       const issues = [

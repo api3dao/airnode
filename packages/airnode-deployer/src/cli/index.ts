@@ -78,16 +78,16 @@ yargs(hideBin(process.argv))
         type: 'string',
       },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
-      'disable-auto-remove': {
+      'auto-remove': {
         description: 'Disable automatic removal of deployed resources for failed deployments',
-        default: false,
+        default: true,
         type: 'boolean',
       },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['disable-auto-remove']));
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
     }
   )
   .command(
