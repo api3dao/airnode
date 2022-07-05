@@ -1,5 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
-import { RESERVED_PARAMETERS } from '@api3/airnode-ois';
+import { RESERVED_PARAMETERS } from '@api3/ois';
 import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';

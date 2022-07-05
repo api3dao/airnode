@@ -59,8 +59,8 @@ module "startCoordinator" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpGw[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedGw[0].api_url}"
+    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "https://${module.httpGw[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "https://${module.httpSignedGw[0].api_url}"
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 

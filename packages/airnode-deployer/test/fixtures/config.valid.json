@@ -46,24 +46,36 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xea74a90bbc78b63658dcae04982d87de2710fe010b3bbb9ceb92cc8f724ea76b",
-        "oisTitle": "Failure Example",
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
         "endpointName": "coinMarketData"
       }
     ],
-    "http": [],
-    "httpSignedData": []
+    "http": [
+      {
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
+      }
+    ],
+    "httpSignedData": [
+      {
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
+      }
+    ]
   },
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.1.1",
-      "title": "Failure Example",
+      "oisFormat": "1.0.0",
+      "title": "CoinGecko basic request",
       "version": "1.0.0",
       "apiSpecifications": {
         "servers": [
           {
-            "url": "https://thisurldoesntexist.abc"
+            "url": "https://api.coingecko.com/api/v3"
           }
         ],
         "paths": {

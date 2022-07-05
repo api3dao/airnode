@@ -1,7 +1,7 @@
 FROM node:14.19.3-alpine3.15
 
 ENV name="airnode-deployer"
-ENV baseTerraformURL="https://releases.hashicorp.com/terraform/1.0.6/terraform_1.0.6_linux_" \
+ENV baseTerraformURL="https://releases.hashicorp.com/terraform/1.2.3/terraform_1.2.3_linux_" \
   appBin="/usr/local/bin/${name}" \
   appDir="/app"
 

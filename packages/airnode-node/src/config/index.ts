@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { OIS } from '@api3/airnode-ois';
+import { OIS } from '@api3/ois';
 import { randomHexString } from '@api3/airnode-utilities';
 import { unsafeParseConfigWithSecrets, parseConfigWithSecrets, config as configTypes } from '@api3/airnode-validator';
 import { goSync } from '@api3/promise-utils';

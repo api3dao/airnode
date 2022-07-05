@@ -65,10 +65,11 @@ export const receiptSchema = z
     airnodeWallet: airnodeWalletSchema,
     deployment: deploymentSchema,
     api: apiSchema,
+    success: z.boolean(),
   })
   .strict()
   .superRefine(({ airnodeWallet, deployment }, ctx) => {
-    // TODO: There's no need to have Arnode short address twice in the receipt.json
+    // TODO: There's no need to have Airnode short address twice in the receipt.json
     if (airnodeWallet.airnodeAddressShort !== deployment.airnodeAddressShort) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

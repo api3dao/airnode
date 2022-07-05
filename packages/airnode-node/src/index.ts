@@ -6,3 +6,4 @@ export * as providers from './providers';
 export * from './types';
 export * from './version';
 export * from './config';
+export * from './validation';
