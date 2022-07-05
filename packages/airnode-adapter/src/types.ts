@@ -1,4 +1,4 @@
-import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
+import { Endpoint, Method, OIS, Operation } from '@api3/ois';
 import { BigNumber } from 'bignumber.js';
 import { baseResponseTypes, MULTIPLE_PARAMETERS_DELIMETER, PATH_DELIMETER } from './constants';
 
