@@ -14,6 +14,7 @@ type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readon
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions: authorizations.FetchOptions = {
     authorizers: currentState.settings.authorizers,
+    authorizations: currentState.settings.authorizations,
     airnodeAddress: currentState.settings.airnodeAddress,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
@@ -112,7 +113,7 @@ export async function initializeProvider(
   // =================================================================
   // STEP 6: Fetch authorizations and transaction counts
   // =================================================================
-  // NOTE: None of these promises cannot fail otherwise Promise.all will reject
+  // NOTE: None of these promises can fail otherwise Promise.all will reject
   const authAndTxCountPromises: readonly ParallelPromise[] = [
     fetchAuthorizations(state5),
     fetchTransactionCounts(state5),
