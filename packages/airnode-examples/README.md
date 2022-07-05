@@ -13,7 +13,9 @@ GCP Cloud Functions.
 The Airnode Examples support a subset of common EVM chains which will be presented when you run
 `yarn choose-integration`. Optionally you may also adapt the configuration to support your target chain.
 
-## Request-Response protocol (RRP)
+## Documentation
+
+### Request-Response protocol (RRP)
 
 Currently, all of the examples utilize the RRP protocol. The example RRP flow consists of two high level parts:
 
@@ -23,7 +25,7 @@ Currently, all of the examples utilize the RRP protocol. The example RRP flow co
 
 If you would like to know more about RRP, read the [API3 docs](https://docs.api3.org/airnode/latest/concepts/).
 
-## Available examples
+### Available examples
 
 The examples are called "integrations" because they are integrations with a public API. Each integration offers a
 different scenario for running an Airnode instance. The integrations have been designed to highlight various Airnode
@@ -53,7 +55,7 @@ reserved parameters. The following list orders integrations alphabetically:
   authenticated weather request encoding multiple parameters including the transaction timestamp, time of sunset,
   temperature, and a description of the weather.
 
-## Setup
+### Setup
 
 First, download the repository source code at a specific tag or release, or, alternatively, clone the repository and
 check out a specific git commit tag; the unreleased master branch is not supported and is for development purposes only.
@@ -67,7 +69,7 @@ Next, make sure you have `yarn` installed and then follow the
 [repository instructions](https://github.com/api3dao/airnode#instructions) to install dependencies and build the
 packages. If you want to run Airnode as a docker container, you'll also need to have `docker` installed.
 
-## Instructions
+### Instructions
 
 The following instructions will guide you step by step through the RRP flow. Please note, that some steps may be skipped
 depending on how you would like to run the example - e.g. you don't need to start a hardhat network locally when you
@@ -77,7 +79,7 @@ If using a Linux distribution that enforces SELinux policies, make sure allow th
 directory by
 [creating an appropriate rule](https://stackoverflow.com/questions/24288616/permission-denied-on-accessing-host-directory-in-docker).
 
-### 1. Choose an example
+#### 1. Choose an example
 
 The first step is to choose an integration and network.
 
@@ -94,7 +96,7 @@ yarn choose-integration
 After you have chosen an integration, be sure to read out its README for details. You will find it in
 `integrations/<integration-name>/README.md`.
 
-### 2. (Only if using local blockchain) Start hardhat network
+#### 2. (Only if using local blockchain) Start hardhat network
 
 Run:
 
@@ -104,7 +106,7 @@ yarn eth-node
 
 which will spin up a [hardhat network](https://hardhat.org/hardhat-network/) on your machine.
 
-### 3. (Optional) Print out the user account information
+#### 3. (Optional) Print out the user account information
 
 Run:
 
@@ -115,7 +117,7 @@ yarn print-account-details
 This script will show you the address of the account derived from the specified mnemonic. This account will be used to
 deploy the contracts and make transactions, so make sure it is funded. The recommended amount is at least 0.3 ETH.
 
-### 4. Deploy the RRP contract
+#### 4. Deploy the RRP contract
 
 The [RRP contract](https://docs.api3.org/airnode/latest/concepts/#airnoderrp-sol) is a contract through which the
 [requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
@@ -128,7 +130,7 @@ yourself using:
 yarn deploy-rrp
 ```
 
-### 5. (Only if deploying to AWS) Create AWS secrets file
+#### 5. (Only if deploying to AWS) Create AWS secrets file
 
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
 [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
@@ -141,7 +143,7 @@ After you know the secrets, run the following script to specify them:
 yarn create-aws-secrets
 ```
 
-### 6. (Only if deploying to GCP) Create GCP credentials
+#### 6. (Only if deploying to GCP) Create GCP credentials
 
 If you intend to deploy Airnode on GCP, you will need to create a service account for your project and create and
 download an access key for the new account. If you haven't already done so, you will also need to enable billing for
@@ -154,7 +156,7 @@ If you are not sure how to create a GCP service account, see or download the acc
 Store the access key file as `gcp.json` in the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
 
-### 7. Create Airnode configuration
+#### 7. Create Airnode configuration
 
 Airnode is configured by two files - `config.json` and `secrets.env`. The configuration changes based on where the
 Airnode is deployed due to differing cloud provider requirements and settings. These differences are minor but for your
@@ -166,7 +168,7 @@ To generate the `config.json`, run:
 yarn create-airnode-config
 ```
 
-### 8. Create Airnode secrets
+#### 8. Create Airnode secrets
 
 Airnode is configured by two files - `config.json` and `secrets.env`. The `config.json` was created in previous step.
 The latter, `secrets.env` can be generated by running:
@@ -186,7 +188,7 @@ Refer to the
 [documentation](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
 more details.
 
-### 9. (Only if deploying to a cloud provider) Deploy Airnode
+#### 9. (Only if deploying to a cloud provider) Deploy Airnode
 
 Now you're ready to deploy Airnode on the cloud provider. To proceed, run:
 
@@ -205,7 +207,7 @@ additional argument. For example:
 yarn deploy-airnode api3/airnode-deployer-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
 ```
 
-### 10. (Only if running Airnode locally) Run the Airnode container
+#### 10. (Only if running Airnode locally) Run the Airnode container
 
 ```sh
 yarn run-airnode-locally
@@ -222,7 +224,7 @@ additional argument. For example:
 yarn run-airnode-locally api3/airnode-client-dev:bb9b8118940ec852c4223b13eba5a6eb97aa3b97
 ```
 
-### 11. Deploy a requester
+#### 11. Deploy a requester
 
 At this point, you have an RRP contract deployed. You will also either have Airnode running as a Docker container
 locally or deployed to a cloud provider. Airnode is now listening for events (requests to be made) from the RRP
@@ -235,7 +237,7 @@ To deploy a requester contract, run:
 yarn deploy-requester
 ```
 
-### 12. Derive and fund the sponsor wallet
+#### 12. Derive and fund the sponsor wallet
 
 Airnode requests require a [sponsor](https://docs.api3.org/airnode/latest/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
@@ -253,7 +255,7 @@ yarn derive-and-fund-sponsor-wallet
 This script will first derive the sponsor wallet and then fund it with 0.1 ETH. This means that your account (derived
 from the mnemonic by `choose-integration` script) must have enough funds.
 
-### 13. Allow the sponsor to pay for requests made by the requester
+#### 13. Allow the sponsor to pay for requests made by the requester
 
 In order to prevent misuse, each sponsor has to explicitly approve a requester. Once the requester is approved, requests
 can be paid by this sponsor.
@@ -262,7 +264,7 @@ can be paid by this sponsor.
 yarn sponsor-requester
 ```
 
-### 14. Make the request
+#### 14. Make the request
 
 The last step is to trigger an Airnode request using the requester contract:
 
@@ -275,7 +277,7 @@ emit an event in response, which Airnode will detect during its next cycle. On r
 will perform the associated API call and submit the response back on chain. The above command will wait for all of this
 to take place and once the request has been fulfilled the output will be sent to the terminal.
 
-### 15. (Optional) Make a withdrawal request
+#### 15. (Optional) Make a withdrawal request
 
 Withdrawal requests instruct the Airnode return the funds of particular sponsor wallet back to the sponsor. This step is
 useful when testing on public testnets. To execute a withdrawal request run:
@@ -284,7 +286,7 @@ useful when testing on public testnets. To execute a withdrawal request run:
 yarn make-withdrawal-request
 ```
 
-### 16. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
+#### 16. (Only if deploying to a cloud provider) Remove Airnode from the cloud provider
 
 If you wish to tear down the Airnode from the cloud provider run:
 
@@ -294,7 +296,7 @@ yarn remove-airnode
 
 This will use the deployer to remove the Airnode functions from the cloud provider.
 
-### 17. (Only if running Airnode locally) Stop the Airnode container
+#### 17. (Only if running Airnode locally) Stop the Airnode container
 
 If you wish to stop the Airnode container running locally run:
 

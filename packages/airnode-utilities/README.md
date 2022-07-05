@@ -1,3 +1,3 @@
 # `@api3/airnode-utilities`
 
-> airnode-utilities provides common utilities for Airnode.
+> Provides common utilities that are used by multiple Airnode packages

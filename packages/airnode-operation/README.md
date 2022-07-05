@@ -1,26 +1,21 @@
 # `@api3/airnode-operation`
 
-> Development and testing utilities for Airnode
+> Development and testing utilities for the core parts of Airnode
 
-## Setup
+## Documentation
 
-This package is currently not intended to be used in a standalone way. Instead you can clone and setup the full monorepo
-by running the following commands:
+This package an internal dependency of other Airnode packages and should not be directly used by Airnode users.
 
-```sh
-# Install and link dependencies
-yarn run bootstrap
+## For developers
 
-# Build each @api3 package
-yarn run build
-```
+This package is intended to be used for Airnode development and running e2e tests.
 
-## Dummy web API
+### Dummy web API
 
-An optional "dummy" web API is also included in this package. This API uses
+There is an optional "dummy" web API included in this package. This API uses
 [express.js](https://github.com/expressjs/express) behind the scenes that exposes a few hardcoded endpoints. These
-endpoint are intended to only be used when developing Airnode and running E2E tests. The server can be controlled with
-the following commands:
+endpoint are intended for developing Airnode and running E2E tests. The server can be controlled with the following
+commands:
 
 ```sh
 # Start the API at http://localhost:5000
@@ -33,11 +28,11 @@ yarn run dev:api:background
 See [Managing background processes](#managing-background-processes) for more information on how to control background
 processes.
 
-## Airnode Development
+### Airnode Development
 
 See below for more details
 
-### tl;dr
+#### tl;dr
 
 ```sh
 # Start an Eth node at http://localhost:8545 (separate terminal)
@@ -56,7 +51,7 @@ yarn run dev:eth-requests
 yarn run dev:invoke
 ```
 
-### Ethereum Development Node
+#### Ethereum Development Node
 
 Start an Ethereum development node by running:
 
@@ -70,7 +65,7 @@ By default, this node listens on `http://127.0.0.1:8545/`. This is important as 
 This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It creates no contracts by itself and only
 pre-funds a (configurable) number of accounts/addresses.
 
-### Deploying Airnode
+#### Deploying Airnode contracts
 
 After starting an Ethereum development node, you can deploy the Airnode RRP contracts to it by running:
 
@@ -89,7 +84,7 @@ context of what these addresses and contracts are. You do not need to edit this 
 It is important to note that the Ethereum development node uses the same mnemonic which means that the contracts will be
 deployed to the same addresses after restarting the node.
 
-### Making Requests
+#### Making Requests
 
 Now that the contracts have been deployed and initial data setup, you can create some requests by running:
 
@@ -101,15 +96,16 @@ A deployment file (`evm-dev.json`) must be present in the deployments folder bef
 
 Airnode can now be invoked which will cause these requests to be actioned.
 
-## Configuration
+### Configuration
 
-### Configuring deployment
+#### Configuring deployment
 
-Deployment can be configured by adjusting the `config/eth-dev-config.json` file. This file has the following top level
+Deployment can be configured by adjusting the `config/evm-dev-config.json` file. This file has the following top level
 structure:
 
 ```json
 {
+  "deployerIndex": 0,
   "airnodes": { ... },
   "authorizers": { ... },
   "authorizations": { ... },
@@ -119,14 +115,16 @@ structure:
 }
 ```
 
-### 1. deployerIndex
+#### 1. deployerIndex
 
 This is the index that will be used to select an account from the list of accounts provided by hardhat when deploying
 the contracts and funding the wallets.
 
-### 2. airnodes
+#### 2. airnodes
 
 `airnodes` must have a unique name as the key.
+
+**Mnemonic**
 
 `mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic
 [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's wallet. The airnode wallet address
@@ -168,20 +166,20 @@ endpoint details. Casing matters here as the endpoint is encoded and hashed to g
 `templates.[name].parameters` - a list of parameters that will be encoded directly using
 [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
-### 3. authorizers
+#### 3. authorizers
 
 `authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an
 existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed,
 while all other values will require a contract of the same name.
 
-### 4. requesters
+#### 4. requesters
 
 `requesters` - a key/value object where the key represents the unique requester contract name and the value represents
 the requester options. All names defined correspond with actual contracts in the `contracts/folder`.
 
 `requester.[name].sponsors` - a list of sponsors who have sponsored the requester.
 
-### 5. sponsors
+#### 5. sponsors
 
 Sponsors represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals
 or businesses.
@@ -196,7 +194,7 @@ Each sponsor object has the following structure:
 `airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the sponsor's wallet
 for the given Airnode. Sponsors have one wallet per Airnode.
 
-### 6. requests
+#### 6. requests
 
 There are currently two types of requests that can be made. Template and Full requests.
 
@@ -239,93 +237,12 @@ be `fulfill` or similar.
 
 The withdrawn funds should be sent back to the address of the sponsor.
 
-#### Full Example
+### Full Example
 
-```json
-{
-  "deployerIndex": 0,
-  "airnodes": {
-    "CurrencyConverterAirnode": {
-      "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
-      "authorizers": {
-        "requesterEndpointAuthorizers": []
-      },
-      "authorizations": {
-        "requesterEndpointAuthorizations": {}
-      },
-      "endpoints": {
-        "convertToUSD": {
-          "oisTitle": "Currency Converter API"
-        }
-      },
-      "templates": {
-        "template-1": {
-          "endpoint": "convertToUSD",
-          "oisTitle": "Currency Converter API",
-          "parameters": [
-            { "type": "bytes32", "name": "to", "value": "USD" },
-            { "type": "bytes32", "name": "_type", "value": "int256" },
-            { "type": "bytes32", "name": "_path", "value": "result" },
-            { "type": "bytes32", "name": "_times", "value": "100000" }
-          ]
-        }
-      }
-    }
-  },
-  "authorizers": {},
-  "requesters": {
-    "MockRrpRequesterFactory": { "sponsors": ["bob"] }
-  },
-  "sponsors": [
-    {
-      "id": "alice",
-      "airnodes": {
-        "CurrencyConverterAirnode": { "ethBalance": "1" }
-      }
-    },
-    {
-      "id": "bob",
-      "airnodes": {
-        "CurrencyConverterAirnode": { "ethBalance": "5" }
-      }
-    }
-  ],
-  "requests": [
-    {
-      "sponsorId": "bob",
-      "type": "template",
-      "airnode": "CurrencyConverterAirnode",
-      "template": "template-1",
-      "requester": "MockRrpRequesterFactory",
-      "fulfillFunctionName": "fulfill",
-      "parameters": [{ "type": "bytes32", "name": "from", "value": "ETH" }]
-    },
-    {
-      "sponsorId": "bob",
-      "type": "full",
-      "airnode": "CurrencyConverterAirnode",
-      "endpoint": "convertToUSD",
-      "oisTitle": "Currency Converter API",
-      "requester": "MockRrpRequesterFactory",
-      "fulfillFunctionName": "fulfill",
-      "parameters": [
-        { "type": "bytes32", "name": "from", "value": "ETH" },
-        { "type": "bytes32", "name": "to", "value": "USD" },
-        { "type": "bytes32", "name": "_type", "value": "int256" },
-        { "type": "bytes32", "name": "_path", "value": "result" },
-        { "type": "bytes32", "name": "_times", "value": "100000" }
-      ]
-    },
-    {
-      "sponsorId": "alice",
-      "type": "withdrawal",
-      "airnode": "CurrencyConverterAirnode"
-    }
-  ]
-}
-```
+See
+[evm-dev-config.json](https://github.com/api3dao/airnode/blob/master/packages/airnode-operation/src/config/evm-dev-config.json)
 
-## Managing background processes
+### Managing background processes
 
 Background processes are managed using [PM2](https://pm2.keymetrics.io/). The configuration for PM2 can be found in the
 `ecosystem.config.js` file. This file also controls where logs for background processes are output. By default, they
