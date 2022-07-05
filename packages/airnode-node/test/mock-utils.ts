@@ -3,7 +3,7 @@
 import fs from 'fs';
 import { AirnodeRrpV0 } from '@api3/airnode-protocol';
 import { BigNumber, ethers } from 'ethers';
-import { BASE_FEE_MULTIPLIER, PRIORITY_FEE_IN_WEI } from '@api3/airnode-utilities';
+import { BASE_FEE_MULTIPLIER } from '@api3/airnode-utilities';
 
 type AirnodeRrpMocks = { readonly [key in keyof AirnodeRrpV0['functions']]: jest.Mock };
 type MockProps = {
@@ -47,24 +47,51 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
  * Creates and mocks gas pricing-related resources based on txType.
  */
 export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
-  const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-  const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
+  const gasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
+  const blockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+  const blockWithTransactionsSpy = jest.spyOn(
+    ethers.providers.StaticJsonRpcProvider.prototype,
+    'getBlockWithTransactions'
+  );
+
   const gasLimit = ethers.BigNumber.from(500_000);
+  const gasPrice = ethers.BigNumber.from(1_000);
+
   if (txType === 'legacy') {
-    const gasPrice = ethers.BigNumber.from(1_000);
     gasPriceSpy.mockResolvedValue(gasPrice);
-    return { gasTarget: { type: 0, gasPrice, gasLimit }, blockSpy, gasPriceSpy };
+    blockWithTransactionsSpy
+      .mockResolvedValue({
+        number: 23,
+        transactions: Array(20).fill({ gasPrice }),
+      } as any)
+      .mockResolvedValue({
+        number: 3,
+        transactions: Array(20).fill({ gasPrice }),
+      } as any);
+    return { gasTarget: { type: 0, gasPrice, gasLimit }, blockSpy, gasPriceSpy, blockWithTransactionsSpy };
   }
 
-  const baseFeePerGas = ethers.BigNumber.from(1000);
+  const baseFeePerGas = ethers.BigNumber.from(999);
   blockSpy.mockResolvedValue({ baseFeePerGas } as ethers.providers.Block);
-  const maxPriorityFeePerGas = BigNumber.from(PRIORITY_FEE_IN_WEI);
+  const maxPriorityFeePerGas = BigNumber.from(1);
   const maxFeePerGas = baseFeePerGas.mul(BASE_FEE_MULTIPLIER).add(maxPriorityFeePerGas);
+  blockWithTransactionsSpy
+    .mockResolvedValue({
+      number: 23,
+      baseFeePerGas,
+      transactions: Array(20).fill({ maxPriorityFeePerGas, maxFeePerGas }),
+    } as any)
+    .mockResolvedValue({
+      number: 3,
+      baseFeePerGas,
+      transactions: Array(20).fill({ maxPriorityFeePerGas, maxFeePerGas }),
+    } as any);
 
   return {
-    gasTarget: { type: 2, maxPriorityFeePerGas, maxFeePerGas, gasLimit },
+    gasTarget: { type: 2, gasPrice, gasLimit },
     blockSpy,
     gasPriceSpy,
+    blockWithTransactionsSpy,
   };
 };
 

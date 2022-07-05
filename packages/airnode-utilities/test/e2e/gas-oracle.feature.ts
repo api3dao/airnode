@@ -102,7 +102,7 @@ describe('Gas oracle', () => {
       });
 
       it('returns latestBlockPercentileGasPrice', async () => {
-        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions, constantGasPriceStrategy);
+        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
 
         const processedPercentileGasPrice = await processBlockData(
           blocksWithGasPrices,
@@ -126,7 +126,7 @@ describe('Gas oracle', () => {
           constantGasPriceStrategy,
         ];
 
-        const gasPrice = await gasOracle.getGasPrice(provider, gasPriceOracleOptions, constantGasPriceStrategy);
+        const gasPrice = await gasOracle.getGasPrice(provider, gasPriceOracleOptions);
         const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
           provider,
           providerRecommendedGasPriceStrategy
@@ -144,7 +144,7 @@ describe('Gas oracle', () => {
           throw new Error('some error');
         });
 
-        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions, constantGasPriceStrategy);
+        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
         const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
           provider,
           providerRecommendedGasPriceStrategy
@@ -166,7 +166,7 @@ describe('Gas oracle', () => {
           throw new Error('some error');
         });
 
-        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions, constantGasPriceStrategy);
+        const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
         const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
         expect(gasPrice).toEqual(constantGasPrice);
@@ -177,11 +177,7 @@ describe('Gas oracle', () => {
           const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
           attemptGasOracleStrategySpy.mockRejectedValue({ success: false, error: 'Some error' });
 
-          const gasPrice = await gasOracle.getGasPrice(
-            provider,
-            defaultGasPriceOracleOptions,
-            constantGasPriceStrategy
-          );
+          const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
           const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
           expect(gasPrice).toEqual(constantGasPrice);
@@ -198,9 +194,7 @@ describe('Gas oracle', () => {
           jest.spyOn(gasOracle, 'fetchConstantGasPrice').mockImplementationOnce(() => {
             throw new Error('Unexpected error');
           });
-          const gasPrice = await go(() =>
-            gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions, constantGasPriceStrategy)
-          );
+          const gasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
           // Ensure that getGasPrice did not throw
           assertGoSuccess(gasPrice);
           expect(gasPrice.data).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));

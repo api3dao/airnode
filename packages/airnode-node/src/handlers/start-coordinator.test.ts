@@ -65,7 +65,7 @@ describe('startCoordinator', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
+    const { gasTarget, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
 
     const txCountSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getTransactionCount');
     txCountSpy.mockResolvedValueOnce(212);
@@ -81,9 +81,7 @@ describe('startCoordinator', () => {
 
     await startCoordinator(config);
 
-    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
-
+    expect(blockWithTransactionsSpy).toHaveBeenCalled();
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(

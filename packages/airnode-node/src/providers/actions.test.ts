@@ -235,8 +235,7 @@ describe('processRequests', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %s', async (txType) => {
-    const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
-
+    const { blockWithTransactionsSpy } = createAndMockGasTarget(txType);
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockResolvedValue({
@@ -266,11 +265,9 @@ describe('processRequests', () => {
 
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await providers.processRequests(allProviders, workerOpts);
+
     expect(logs).toEqual([]);
-
-    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
-
+    expect(blockWithTransactionsSpy).toHaveBeenCalled();
     expect(res.evm.map((evm) => evm.requests.apiCalls[0])).toEqual(
       range(allProviders.length).map(() => ({
         ...apiCall,

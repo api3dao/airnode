@@ -83,7 +83,7 @@ export const getEip1559GasPricing = async (
   ];
 };
 
-export const getGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
+export const getProviderGasPrice = async (options: FetchOptions): Promise<LogsData<GasTarget | null>> => {
   const { chainOptions, provider } = options;
 
   switch (chainOptions.txType) {

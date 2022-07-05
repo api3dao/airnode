@@ -171,8 +171,7 @@ export const attemptGasOracleStrategy = async (
 // Get gas price based on gas price oracle strategies
 export const getGasPrice = async (
   provider: ethers.providers.StaticJsonRpcProvider,
-  gasPriceOracleConfig: config.GasPriceOracleConfig,
-  constantGasPriceConfig: config.ConstantGasPriceStrategy
+  gasPriceOracleConfig: config.GasPriceOracleConfig
 ) => {
   // Attempt gas oracle strategies in order
   for (const strategy of gasPriceOracleConfig) {
@@ -191,8 +190,12 @@ export const getGasPrice = async (
   }
 
   // Return the constant strategy gas price if all other strategies fail
+  const constantGasPriceConfig = gasPriceOracleConfig.find(
+    (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
+  ) as config.ConstantGasPriceStrategy;
   logger.info(
     `All oracle strategies failed to return a gas price, returning constant gas price set to ${constantGasPriceConfig.gasPrice.value} ${constantGasPriceConfig.gasPrice.unit}`
   );
+
   return fetchConstantGasPrice(constantGasPriceConfig);
 };

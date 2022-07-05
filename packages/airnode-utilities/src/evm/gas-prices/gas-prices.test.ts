@@ -148,7 +148,7 @@ describe('getGasPrice', () => {
       });
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
 
-      const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+      const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
       expect(logs).toEqual([]);
       expect(gasPrice).toEqual({
         type: 2,
@@ -168,7 +168,7 @@ describe('getGasPrice', () => {
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(testGasPrice);
 
-    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
 
     expect(logs.length).toEqual(0);
     expect(gasPrice).toEqual({ type: 0, gasPrice: testGasPrice, gasLimit: gasLimit });
@@ -184,7 +184,7 @@ describe('getGasPrice', () => {
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(testGasPrice);
 
-    const [logs, gasPrice] = await gasPrices.getGasPrice({
+    const [logs, gasPrice] = await gasPrices.getProviderGasPrice({
       ...baseOptions,
       chainOptions: { ...baseOptions.chainOptions, gasPriceMultiplier } as LegacyChainOptions,
     });
@@ -205,7 +205,7 @@ describe('getGasPrice', () => {
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
     getGasPrice.mockResolvedValueOnce(testGasPrice);
 
-    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
 
     expect(logs).toEqual([]);
     expect(gasPrice).toEqual({ type: 0, gasPrice: testGasPrice, gasLimit: gasLimit });
@@ -219,7 +219,7 @@ describe('getGasPrice', () => {
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
 
-    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
 
     expect(logs).toEqual([
       {
@@ -242,7 +242,7 @@ describe('getGasPrice', () => {
         baseFeePerGas,
       });
 
-      const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+      const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
 
       expect(logs).toEqual([]);
       expect(gasPrice).toEqual({
@@ -264,7 +264,7 @@ describe('getGasPrice', () => {
       getBlock.mockRejectedValueOnce(new Error('Server is down'));
       getBlock.mockRejectedValueOnce(new Error('Server is down'));
 
-      const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+      const [logs, gasPrice] = await gasPrices.getProviderGasPrice(baseOptions);
 
       expect(logs).toEqual([
         {
