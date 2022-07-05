@@ -15,9 +15,9 @@ import {
   validateMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
-import { logAndReturnError } from '../utils/infrastructure';
+import { logAndReturnError, MultiMessageError } from '../utils/infrastructure';
 
-export async function deploy(configPath: string, secretsPath: string, receiptFile: string) {
+export async function deploy(configPath: string, secretsPath: string, receiptFile: string, autoRemove: boolean) {
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
 
@@ -88,7 +88,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   fs.rmSync(tmpDir, { recursive: true });
   writeReceiptFile(receiptFile, mnemonic, config, deploymentTimestamp, goDeployAirnode.success);
 
-  if (!goDeployAirnode.success) {
+  if (!goDeployAirnode.success && !autoRemove) {
     logger.fail(
       bold(
         `Airnode deployment failed due to unexpected errors.\n` +
@@ -98,6 +98,38 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     );
 
     throw goDeployAirnode.error;
+  }
+
+  if (!goDeployAirnode.success) {
+    logger.fail(
+      bold(
+        `Airnode deployment failed due to unexpected errors.\n` +
+          `  It is possible that some resources have been deployed on cloud provider.\n` +
+          `  Attempting to remove them...\n`
+      )
+    );
+
+    // Try to remove deployed resources
+    const goRemoveAirnode = await go(() => removeWithReceipt(receiptFile));
+    if (!goRemoveAirnode.success) {
+      logger.fail(
+        bold(
+          `Airnode removal failed due to unexpected errors.\n` +
+            `  It is possible that some resources have been deployed on cloud provider.\n` +
+            `  Please check the resources on the cloud provider dashboard and\n` +
+            `  use the "remove" command from the deployer CLI to remove them.\n` +
+            `  If the automatic removal via CLI fails, remove the resources manually.`
+        )
+      );
+
+      throw new MultiMessageError([
+        'Deployment error:\n' + goDeployAirnode.error.message,
+        'Removal error:\n' + goRemoveAirnode.error.message,
+      ]);
+    }
+
+    logger.succeed('Successfully removed the Airnode deployment');
+    throw new Error('Deployment error:\n' + goDeployAirnode.error.message);
   }
 
   const output = goDeployAirnode.data;
