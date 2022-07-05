@@ -1,5 +1,7 @@
 {
   "extends": ["config:base", "docker:disable"],
+  "automerge": true,
+  "automergeType": "pr",
   "packageRules": [
     {
       "matchPackageNames": ["chalk", "ora", "node", "@openzeppelin/contracts"],
