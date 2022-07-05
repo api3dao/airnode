@@ -90,10 +90,10 @@
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.0",
     "@types/node": "^17.0.18",
-    "@typescript-eslint/eslint-plugin": "^5.30.0",
-    "@typescript-eslint/parser": "^5.30.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
     "comment-json": "^4.2.2",
-    "eslint": "^8.18.0",
+    "eslint": "^8.19.0",
     "eslint-plugin-functional": "^4.2.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.5.3",
@@ -104,7 +104,7 @@
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.7",
     "syncpack": "^8.2.4",
-    "ts-node": "^10.8.1",
+    "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   }
 }
