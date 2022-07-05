@@ -107,7 +107,7 @@ async function fetchAuthorizationStatuses(
 }
 
 export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOptions: FetchOptions) => {
-  return apiCalls.reduce((acc: AuthorizationByRequestId[], apiCall) => {
+  return apiCalls.reduce((acc: AuthorizationByRequestId, apiCall) => {
     // Check if an authorization is found in config for the apiCall endpointId
     const configAuthorization = fetchOptions.authorizations.requesterEndpointAuthorizations[apiCall.endpointId!];
 
@@ -115,11 +115,11 @@ export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOpt
       const configAuthorizationIncludesRequesterAddress = configAuthorization.includes(apiCall.requesterAddress);
 
       // Set the authorization status to true if the requester address is included for the endpointId
-      if (configAuthorizationIncludesRequesterAddress) return [...acc, { [apiCall.id]: true }];
+      if (configAuthorizationIncludesRequesterAddress) return { ...acc, [apiCall.id]: true };
     }
 
     return acc;
-  }, []);
+  }, {});
 };
 
 export async function fetch(
@@ -145,10 +145,7 @@ export async function fetch(
 
   // Filter apiCalls for which a valid authorization was found in config
   const apiCallsToFetchAuthorizationStatus = apiCalls.filter(
-    (apiCall) =>
-      !configAuthorizationsByRequestId
-        .map((configAuthorizationByRequestId) => Object.keys(configAuthorizationByRequestId)[0])
-        .includes(apiCall.id)
+    (apiCall) => !Object.keys(configAuthorizationsByRequestId).includes(apiCall.id)
   );
 
   // Request groups of 10 at a time
@@ -172,7 +169,7 @@ export async function fetch(
   const combinedResults = Object.assign(
     {},
     ...successfulResults,
-    ...configAuthorizationsByRequestId
+    configAuthorizationsByRequestId
   ) as AuthorizationByRequestId;
 
   return [responseLogs, combinedResults];
