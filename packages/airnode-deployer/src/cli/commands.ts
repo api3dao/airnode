@@ -105,7 +105,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       bold(
         `Airnode deployment failed due to unexpected errors.\n` +
           `  It is possible that some resources have been deployed on cloud provider.\n` +
-          `  We are attempting to remove them...\n`
+          `  Attempting to remove them...\n`
       )
     );
 
