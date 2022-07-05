@@ -175,6 +175,7 @@ async function terraformAirnodeManage(
     ['var', 'secrets_file', secretsPath ? path.resolve(secretsPath) : 'NULL'],
     ['var', 'handler_dir', handlerDir],
     ['var', 'disable_concurrency_reservation', `${!!cloudProvider.disableConcurrencyReservations}`],
+    ['var', 'airnode_wallet_private_key', airnodeWalletPrivateKey ? airnodeWalletPrivateKey : 'NULL'],
     ['input', 'false'],
     'no-color',
   ];
@@ -196,10 +197,6 @@ async function terraformAirnodeManage(
     if (httpSignedDataGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
     }
-  }
-
-  if (airnodeWalletPrivateKey) {
-    commonArguments.push(['var', 'airnode_wallet_private_key', airnodeWalletPrivateKey]);
   }
 
   // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
