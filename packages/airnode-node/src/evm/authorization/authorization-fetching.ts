@@ -144,8 +144,9 @@ export async function fetch(
   const configAuthorizationsByRequestId = checkConfigAuthorizations(apiCalls, fetchOptions);
 
   // Filter apiCalls for which a valid authorization was found in config
+  const configAuthorizationRequestIds = Object.keys(configAuthorizationsByRequestId);
   const apiCallsToFetchAuthorizationStatus = apiCalls.filter(
-    (apiCall) => !Object.keys(configAuthorizationsByRequestId).includes(apiCall.id)
+    (apiCall) => !configAuthorizationRequestIds.includes(apiCall.id)
   );
 
   // Request groups of 10 at a time
