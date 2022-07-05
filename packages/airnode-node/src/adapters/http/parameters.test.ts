@@ -1,4 +1,4 @@
-import { Endpoint } from '@api3/airnode-ois';
+import { Endpoint } from '@api3/ois';
 import * as parameters from './parameters';
 
 describe('getResponseParameterValue', () => {

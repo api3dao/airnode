@@ -10,6 +10,14 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@api3/ois@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-1.1.1.tgz#8760c3d4d35435d68a4726ac9d4d17e91e0ac02e"
+  integrity sha512-u7LPVmcstVdgNXnZ0JgWV23NA4SPnT8Uk5PkguFnmMr1Or1J7TO4Iq2lpTJnzJcwUTy52MndCfEMVvGvHJ5Pww==
+  dependencies:
+    lodash "^4.17.21"
+    zod "^3.17.3"
+
 "@api3/promise-utils@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@api3/promise-utils/-/promise-utils-0.3.0.tgz#e7ebf92bfd8c1d39983321fc5445070c51fce176"

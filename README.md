@@ -30,9 +30,6 @@ showcasing the features of Airnode
 
 [**node**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-node) Airnode itself
 
-[**ois**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-ois) Types for
-[Oracle Integration Specification (OIS)](https://docs.api3.org/ois/latest/)
-
 [**operation**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-operation) Development and testing
 utilities for the core parts of Airnode
 

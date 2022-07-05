@@ -35,7 +35,6 @@
   "references": [
     { "path": "./packages/airnode-abi" },
     { "path": "./packages/airnode-deployer" },
-    { "path": "./packages/airnode-ois" },
     { "path": "./packages/airnode-utilities" },
     { "path": "./packages/airnode-adapter" },
     { "path": "./packages/airnode-examples" },

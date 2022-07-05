@@ -1,1 +1,1 @@
-export * from './ois';
+export * from '@api3/ois';
