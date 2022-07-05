@@ -42,6 +42,15 @@ const createEip1559BaseOptions = () => {
         unit: 'gwei',
       },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     {
       txType: 'eip1559',
@@ -51,18 +60,45 @@ const createEip1559BaseOptions = () => {
         unit: 'gwei',
       },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     {
       txType: 'eip1559',
       baseFeeMultiplier: BASE_FEE_MULTIPLIER,
       priorityFee: undefined,
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     {
       txType: 'eip1559',
       baseFeeMultiplier: undefined,
       priorityFee: undefined,
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
   ] as const;
 
@@ -70,7 +106,7 @@ const createEip1559BaseOptions = () => {
 };
 
 describe('parsePriorityFee', () => {
-  test.each([
+  [
     [{ value: 123, unit: 'wei' }, BigNumber.from('123')],
     [{ value: 123.4, unit: 'kwei' }, BigNumber.from('123400')],
     [{ value: 123.4, unit: 'mwei' }, BigNumber.from('123400000')],
@@ -78,19 +114,23 @@ describe('parsePriorityFee', () => {
     [{ value: 123.4, unit: 'szabo' }, BigNumber.from('123400000000000')],
     [{ value: 123.4, unit: 'finney' }, BigNumber.from('123400000000000000')],
     [{ value: 123.4, unit: 'ether' }, BigNumber.from('123400000000000000000')],
-  ])('returns parsed wei from numbers - %#', (input: any, result: BigNumber) => {
-    const priorityFeeInWei = gasPrices.parsePriorityFee(input);
-    expect(priorityFeeInWei).toEqual(result);
-  });
+  ].forEach(([input, result]: (any | BigNumber)[]) =>
+    it('returns parsed wei from numbers - %#', () => {
+      const priorityFeeInWei = gasPrices.parsePriorityFee(input);
+      expect(priorityFeeInWei).toEqual(result);
+    })
+  );
 
-  test.each([
+  [
     { value: 3.12, unit: 'pence' },
     { value: '3.1p', unit: 'gwei' },
     { value: 3.12, unit: 'wei' },
-  ])('throws an error for an invalid decimal denominated string, number and unit - %#', (input: any) => {
-    const throwingFunction = () => gasPrices.parsePriorityFee(input);
-    expect(throwingFunction).toThrow();
-  });
+  ].forEach((input: any) =>
+    it('throws an error for an invalid decimal denominated string, number and unit - %#', () => {
+      const throwingFunction = () => gasPrices.parsePriorityFee(input);
+      expect(throwingFunction).toThrow();
+    })
+  );
 });
 
 describe('getGasPrice', () => {
@@ -100,9 +140,8 @@ describe('getGasPrice', () => {
   const testGasPrice = ethers.BigNumber.from('48000000000');
   const gasLimit = ethers.BigNumber.from(500_000);
 
-  test.each(createEip1559BaseOptions())(
-    `returns the gas price from an EIP-1559 provider - test case: %#`,
-    async (baseOptions: FetchOptions) => {
+  createEip1559BaseOptions().forEach((baseOptions: FetchOptions) =>
+    it(`returns the gas price from an EIP-1559 provider - test case: %#`, async () => {
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
       getBlock.mockResolvedValueOnce({
         baseFeePerGas,
@@ -119,7 +158,7 @@ describe('getGasPrice', () => {
       });
       expect(getGasPrice).toHaveBeenCalledTimes(0);
       expect(getBlock).toHaveBeenCalledTimes(1);
-    }
+    })
   );
 
   it('returns the gas price from a non-EIP-1559 provider', async () => {
@@ -193,9 +232,8 @@ describe('getGasPrice', () => {
     expect(baseOptions.provider.getBlock).toHaveBeenCalledTimes(0);
   });
 
-  test.each(createEip1559BaseOptions())(
-    `retries once on failure for an EIP-1559 provider - test case: %#`,
-    async (baseOptions: FetchOptions) => {
+  createEip1559BaseOptions().forEach((baseOptions: FetchOptions) =>
+    it(`retries once on failure for an EIP-1559 provider - test case: %#`, async () => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
 
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
@@ -215,12 +253,11 @@ describe('getGasPrice', () => {
       });
       expect(getGasPrice).toHaveBeenCalledTimes(0);
       expect(getBlock).toHaveBeenCalledTimes(2);
-    }
+    })
   );
 
-  test.each(createEip1559BaseOptions())(
-    `retries a maximum of twice on failure of getBlock for an EIP-1559 provider and then returns null - test case: %#`,
-    async (baseOptions: FetchOptions) => {
+  createEip1559BaseOptions().forEach((baseOptions: FetchOptions) =>
+    it(`retries a maximum of twice on failure of getBlock for an EIP-1559 provider and then returns null - test case: %#`, async () => {
       const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
 
       const getBlock = baseOptions.provider.getBlock as jest.Mock;
@@ -238,6 +275,6 @@ describe('getGasPrice', () => {
       expect(gasPrice).toEqual(null);
       expect(getGasPrice).toHaveBeenCalledTimes(0);
       expect(getBlock).toHaveBeenCalledTimes(2);
-    }
+    })
   );
 });

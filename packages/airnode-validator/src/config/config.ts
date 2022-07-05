@@ -82,7 +82,7 @@ const chainOptionsErrorMap: z.ZodErrorMap = (issue, ctx) => {
   return { message: ctx.defaultError };
 };
 
-export const latestBlockPercentileGasPriceSchema = z
+export const latestBlockPercentileGasPriceStrategySchema = z
   .object({
     gasPriceStrategy: z.literal('latestBlockPercentileGasPrice'),
     percentile: z.number().int(),
@@ -92,14 +92,14 @@ export const latestBlockPercentileGasPriceSchema = z
   })
   .strict();
 
-export const providerRecommendedGasPriceSchema = z
+export const providerRecommendedGasPriceStrategySchema = z
   .object({
     gasPriceStrategy: z.literal('providerRecommendedGasPrice'),
     recommendedGasPriceMultiplier: z.number().positive(),
   })
   .strict();
 
-export const constantGasPriceSchema = z
+export const constantGasPriceStrategySchema = z
   .object({
     gasPriceStrategy: z.literal('constantGasPrice'),
     gasPrice: amountSchema,
@@ -107,9 +107,9 @@ export const constantGasPriceSchema = z
   .strict();
 
 export const gasPriceOracleStrategySchema = z.discriminatedUnion('gasPriceStrategy', [
-  latestBlockPercentileGasPriceSchema,
-  providerRecommendedGasPriceSchema,
-  constantGasPriceSchema,
+  latestBlockPercentileGasPriceStrategySchema,
+  providerRecommendedGasPriceStrategySchema,
+  constantGasPriceStrategySchema,
 ]);
 
 export const validateGasPriceOracleStrategies: SuperRefinement<GasPriceOracleConfig> = (gasPriceOracle, ctx) => {
@@ -429,6 +429,9 @@ export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
+export type LatestBlockPercentileGasPriceStrategy = z.infer<typeof latestBlockPercentileGasPriceStrategySchema>;
+export type ProviderRecommendedGasPriceStrategy = z.infer<typeof providerRecommendedGasPriceStrategySchema>;
+export type ConstantGasPriceStrategy = z.infer<typeof constantGasPriceStrategySchema>;
 export type GasPriceOracleStrategy = z.infer<typeof gasPriceOracleStrategySchema>;
 export type GasPriceOracleConfig = z.infer<typeof gasPriceOracleSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
