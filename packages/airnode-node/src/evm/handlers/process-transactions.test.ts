@@ -101,6 +101,7 @@ describe('processTransactions', () => {
           ...initialState.settings,
           chainOptions: {
             ...initialState.settings.chainOptions,
+            fulfillmentGasLimit: 500_000,
             txType,
           },
         },
@@ -147,6 +148,7 @@ describe('processTransactions', () => {
           ...initialState.settings,
           chainOptions: {
             ...initialState.settings.chainOptions,
+            fulfillmentGasLimit: 500_000,
             txType,
           },
         },

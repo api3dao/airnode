@@ -2,6 +2,7 @@ import * as hre from 'hardhat';
 import { BigNumber } from 'ethers';
 import '@nomiclabs/hardhat-ethers';
 import { config } from '@api3/airnode-validator';
+import { go, assertGoSuccess } from '@api3/promise-utils';
 import * as gasOracle from '../../src/evm/gas-prices/gas-oracle';
 import * as gasPrices from '../../src/evm/gas-prices/gas-prices';
 import { PriorityFee } from '../../src/evm/gas-prices/types';
@@ -169,6 +170,41 @@ describe('Gas oracle', () => {
         const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
         expect(gasPrice).toEqual(constantGasPrice);
+      });
+
+      describe('handles unexpected errors', () => {
+        it('returns constantGasPrice if all attemptGasOracleStrategy retries throw', async () => {
+          const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
+          attemptGasOracleStrategySpy.mockRejectedValue({ success: false, error: 'Some error' });
+
+          const gasPrice = await gasOracle.getGasPrice(
+            provider,
+            defaultGasPriceOracleOptions,
+            constantGasPriceStrategy
+          );
+          const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+
+          expect(gasPrice).toEqual(constantGasPrice);
+        });
+
+        it('returns constantGasPrice if all strategy-specific functions throw', async () => {
+          jest.spyOn(gasOracle, 'fetchLatestBlockPercentileGasPrice').mockImplementation(() => {
+            throw new Error('Unexpected error');
+          });
+          jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice').mockImplementation(() => {
+            throw new Error('Unexpected error');
+          });
+          // Throw on the first call of fetchConstantGasPrice
+          jest.spyOn(gasOracle, 'fetchConstantGasPrice').mockImplementationOnce(() => {
+            throw new Error('Unexpected error');
+          });
+          const gasPrice = await go(() =>
+            gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions, constantGasPriceStrategy)
+          );
+          // Ensure that getGasPrice did not throw
+          assertGoSuccess(gasPrice);
+          expect(gasPrice.data).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+        });
       });
     });
   });
