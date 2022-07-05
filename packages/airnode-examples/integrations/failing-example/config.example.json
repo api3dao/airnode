@@ -62,7 +62,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.0.0",
+      "oisFormat": "1.1.1",
       "title": "Failure Example",
       "version": "1.0.0",
       "apiSpecifications": {

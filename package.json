@@ -23,7 +23,6 @@
     "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
     "build:deployer": "(cd packages/airnode-deployer && yarn run build)",
     "build:node": "(cd packages/airnode-node && yarn run build)",
-    "build:ois": "(cd packages/airnode-ois && yarn run build)",
     "build:operation": "(cd packages/airnode-operation && yarn run build)",
     "build:protocol": "(cd packages/airnode-protocol && yarn run build)",
     "build:validator": "(cd packages/airnode-validator && yarn run build)",

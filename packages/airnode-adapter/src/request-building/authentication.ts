@@ -1,9 +1,4 @@
-import {
-  ApiKeySecurityScheme,
-  ApiSecurityScheme,
-  ConfigurableSecurityScheme,
-  HttpSecurityScheme,
-} from '@api3/airnode-ois';
+import { ApiKeySecurityScheme, ApiSecurityScheme, ConfigurableSecurityScheme, HttpSecurityScheme } from '@api3/ois';
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
 import merge from 'lodash/merge';

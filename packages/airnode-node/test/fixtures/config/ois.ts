@@ -1,8 +1,8 @@
-import { OIS } from '@api3/airnode-ois';
+import { OIS } from '@api3/ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
-    oisFormat: '1.0.0',
+    oisFormat: '1.1.1',
     version: '1.2.3',
     title: 'Currency Converter API',
     apiSpecifications: {

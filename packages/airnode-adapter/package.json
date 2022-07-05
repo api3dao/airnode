@@ -19,11 +19,11 @@
     "test:watch": "yarn test:ts --watch"
   },
   "dependencies": {
-    "@api3/airnode-ois": "^0.7.1",
+    "@api3/ois": "^1.1.1",
     "@api3/promise-utils": "^0.3.0",
     "axios": "^0.27.2",
-    "bignumber.js": "^9.0.0",
-    "ethers": "^5.4.5",
+    "bignumber.js": "^9.0.2",
+    "ethers": "^5.6.9",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

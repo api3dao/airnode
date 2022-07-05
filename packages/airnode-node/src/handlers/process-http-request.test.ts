@@ -1,4 +1,4 @@
-import { Endpoint } from '@api3/airnode-ois';
+import { Endpoint } from '@api3/ois';
 import { processHttpRequest } from './process-http-request';
 import * as api from '../api';
 import * as fixtures from '../../test/fixtures';
