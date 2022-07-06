@@ -10,7 +10,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "downlevelIteration": true,
-    "target": "es5",
+    "target": "es6",
 
     "strict": true,
     // This check doesn't work well in monorepos: https://github.com/microsoft/TypeScript/issues/38538
