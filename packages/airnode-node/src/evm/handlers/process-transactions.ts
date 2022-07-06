@@ -41,9 +41,12 @@ export async function processTransactions(
   // STEP 3: Get the latest gas price
   // =================================================================
   const gasPrice = await getGasPrice(state2.provider, chainOptions.gasPriceOracle);
+  const gasPriceWithType =
+    chainOptions.txType === 'eip1559'
+      ? { type: 2, maxFeePerGas: gasPrice, maxPriorityFeePerGas: gasPrice }
+      : { type: 0, gasPrice };
   const gasTarget = {
-    gasPrice,
-    type: chainOptions.txType === 'eip1559' ? 2 : 0,
+    ...gasPriceWithType,
     ...getGasLimit(chainOptions.fulfillmentGasLimit),
   };
   const state3 = state.update(state2, { gasTarget });
