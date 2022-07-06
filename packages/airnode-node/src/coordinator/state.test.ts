@@ -3,6 +3,8 @@ import * as fixtures from '../../test/fixtures';
 import { RegularAggregatedApiCallsById } from '../types';
 
 describe('create', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('returns a new coordinator state object', () => {
     const config = fixtures.buildConfig();
     const res = state.create(config);
@@ -21,6 +23,8 @@ describe('create', () => {
 });
 
 describe('update', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('updates and returns the new state', () => {
     const aggregatedApiCallsById: RegularAggregatedApiCallsById = {
       apiCallId: fixtures.buildAggregatedRegularApiCall(),

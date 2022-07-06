@@ -34,6 +34,7 @@ import { ChainConfig } from '../config';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
+const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
 const chains: ChainConfig[] = [
   {
     authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
@@ -90,6 +91,8 @@ const chains: ChainConfig[] = [
 ];
 
 describe('initialize', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
     mockReadFileSync('config.json', JSON.stringify(config));
@@ -101,7 +104,7 @@ describe('initialize', () => {
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
     const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await providers.initialize('abcdefg', config, workerOpts);
+    const [logs, res] = await providers.initialize('abcdefg', airnodeAddress, config, workerOpts);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       evm: [
@@ -205,6 +208,8 @@ describe('initialize', () => {
 });
 
 describe('processRequests', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %s', async (txType) => {
     const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
 

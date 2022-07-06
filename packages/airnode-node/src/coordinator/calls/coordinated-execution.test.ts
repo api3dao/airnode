@@ -9,6 +9,8 @@ import * as workers from '../../workers/index';
 import { RequestErrorMessage, RegularApiCallSuccessResponse } from '../../types';
 
 describe('callApis', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   const logOptions: LogOptions = {
     format: 'plain',
     level: 'DEBUG',

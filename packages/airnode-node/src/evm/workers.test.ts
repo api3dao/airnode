@@ -23,6 +23,8 @@ const providerErrorForWorker = {
 
 workers.forEach((workerType) => {
   describe(`${workerType} worker`, () => {
+    fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
     it('handles remote AWS calls', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
       invokeMock.mockImplementationOnce((params, callback) =>

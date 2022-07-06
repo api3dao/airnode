@@ -5,11 +5,14 @@ import { EVMProviderState, ProviderState } from '../types';
 import { ChainConfig } from '../config';
 
 describe('create', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('returns a clean state with defaults', () => {
     const coordinatorId = '837daEf231';
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
       authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
@@ -37,7 +40,7 @@ describe('create', () => {
       },
     };
     const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
+    const res = state.buildEVMState(coordinatorId, airnodeAddress, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -92,6 +95,7 @@ describe('create', () => {
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
       authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
@@ -121,7 +125,7 @@ describe('create', () => {
       },
     };
     const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
+    const res = state.buildEVMState(coordinatorId, airnodeAddress, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -173,6 +177,8 @@ describe('create', () => {
 });
 
 describe('update', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('updates the state', () => {
     const newState = fixtures.buildEVMProviderState();
     const res = state.update(newState, { currentBlock: 123 });
@@ -181,6 +187,8 @@ describe('update', () => {
 });
 
 describe('scrub', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   const SCRUB_KEYS = ['config', 'provider'];
 
   SCRUB_KEYS.forEach((key) => {
@@ -194,6 +202,8 @@ describe('scrub', () => {
 });
 
 describe('refresh', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   describe('EVM provider state', () => {
     it('initializes a new provider', () => {
       const newState = fixtures.buildEVMProviderState();
@@ -216,6 +226,8 @@ describe('refresh', () => {
 });
 
 describe('splitStatesBySponsorAddress', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('splits provider states based on the request sponsor address', () => {
     const mixedRequest1 = fixtures.requests.buildApiCall({
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',

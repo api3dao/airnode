@@ -19,7 +19,7 @@ export async function processHttpSignedDataRequest(
 
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
-  const airnodeAddress = wallet.getAirnodeWallet(config).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey().address;
 
   const template: ApiCallTemplateWithoutId = {
     airnodeAddress,

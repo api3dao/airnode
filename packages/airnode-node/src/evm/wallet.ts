@@ -1,6 +1,6 @@
 import { PROTOCOL_IDS } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
-import { getMasterKeyMnemonic, Config } from '../config';
+import { getMasterKeyMnemonic, getAirnodeWalletPrivateKey, Config } from '../config';
 
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.
@@ -36,6 +36,11 @@ export function getMasterHDNode(config: Config): ethers.utils.HDNode {
 export function getAirnodeWallet(config: Config): ethers.Wallet {
   const mnemonic = getMasterKeyMnemonic(config);
   return ethers.Wallet.fromMnemonic(mnemonic);
+}
+
+export function getAirnodeWalletFromPrivateKey(): ethers.Wallet {
+  const airnodeWalletPrivateKey = getAirnodeWalletPrivateKey();
+  return new ethers.Wallet(airnodeWalletPrivateKey);
 }
 
 export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {

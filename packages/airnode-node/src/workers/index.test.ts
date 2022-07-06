@@ -13,6 +13,8 @@ import { WorkerParameters } from '../types';
 import * as workers from './index';
 
 describe('spawn', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('spawns for aws', async () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
     const state = fixtures.buildEVMProviderState();

@@ -39,6 +39,8 @@ const createConfig = (txType: 'legacy' | 'eip1559') => {
 };
 
 describe('processTransactions', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   test.each(['legacy', 'eip1559'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %s',
     async (txType) => {

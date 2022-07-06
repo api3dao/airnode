@@ -6,6 +6,7 @@ import { EVMProviderSponsorState, GroupedRequests, ProviderState } from '../type
 
 describe('assign', () => {
   let mutableInitialState: ProviderState<EVMProviderSponsorState>;
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   beforeEach(() => {
     mutableInitialState = fixtures.buildEVMProviderSponsorState();

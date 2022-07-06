@@ -9,6 +9,7 @@ import { ChainConfig, ChainType, Config } from '../config';
 
 export function buildEVMState(
   coordinatorId: string,
+  airnodeAddress: string,
   chain: ChainConfig,
   chainProviderName: string,
   config: Config
@@ -16,7 +17,6 @@ export function buildEVMState(
   const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url;
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
-  const airnodeAddress = evm.getAirnodeWallet(config).address;
 
   const providerSettings: ProviderSettings = {
     airnodeAddress,

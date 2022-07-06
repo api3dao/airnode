@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
-import { getMasterHDNode } from '../evm';
+import { getMasterHDNode, getAirnodeWalletFromPrivateKey } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
@@ -78,9 +78,8 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   }
 }
 
-async function signWithRequestId(requestId: string, data: string, config: Config) {
-  const masterHDNode = getMasterHDNode(config);
-  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
+async function signWithRequestId(requestId: string, data: string) {
+  const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
@@ -89,9 +88,8 @@ async function signWithRequestId(requestId: string, data: string, config: Config
   );
 }
 
-async function signWithTemplateId(templateId: string, timestamp: string, data: string, config: Config) {
-  const masterHDNode = getMasterHDNode(config);
-  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
+async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
+  const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
@@ -248,9 +246,7 @@ async function processSuccessfulApiCall(
     case 'http-gateway':
       return [[], { success: true, data: response }];
     case 'regular': {
-      const goSignWithRequestId = await go(() =>
-        signWithRequestId(aggregatedApiCall.id, response.encodedValue, config)
-      );
+      const goSignWithRequestId = await go(() => signWithRequestId(aggregatedApiCall.id, response.encodedValue));
       if (!goSignWithRequestId.success) {
         const log = logger.pend('ERROR', goSignWithRequestId.error.message);
         return [[log], { success: false, errorMessage: goSignWithRequestId.error.message }];
@@ -264,7 +260,7 @@ async function processSuccessfulApiCall(
     case 'http-signed-data-gateway': {
       const timestamp = Math.floor(Date.now() / 1000).toString();
       const goSignWithTemplateId = await go(() =>
-        signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue, config)
+        signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue)
       );
       if (!goSignWithTemplateId.success) {
         const log = logger.pend('ERROR', goSignWithTemplateId.error.message);

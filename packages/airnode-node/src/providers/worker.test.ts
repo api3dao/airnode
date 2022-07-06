@@ -7,6 +7,8 @@ import * as worker from './worker';
 import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
@@ -31,6 +33,8 @@ describe('spawnNewProvider', () => {
 });
 
 describe('spawnTransactionsProcessor', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('returns an EVM provider state for AWS', async () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },

@@ -7,6 +7,8 @@ const ENDPOINT_ID = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c
 const TEMPLATE_ID = '0xaa1525fe964092a826934ff09c75e1db395b947543a4ca3eb4a19628bad6c6d5';
 
 describe('processHttpSignedDataRequests', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('calls the API with given encodedParameters', async () => {
     const spy = jest.spyOn(api, 'callApi');
     // What exactly the API returns doesn't matter for this test

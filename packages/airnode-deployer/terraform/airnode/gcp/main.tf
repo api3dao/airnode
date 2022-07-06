@@ -36,6 +36,9 @@ module "run" {
   region             = var.gcp_region
   project            = var.gcp_project
   max_instances      = var.disable_concurrency_reservation ? null : var.max_concurrency
+  environment_variables = {
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
 
   depends_on = [
     google_project_service.management_apis
@@ -58,6 +61,7 @@ module "startCoordinator" {
   environment_variables = {
     HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "https://${module.httpGw[0].api_url}"
     HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "https://${module.httpSignedGw[0].api_url}"
+    AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
   schedule_interval = 1
@@ -161,6 +165,7 @@ module "httpSignedReq" {
 
   environment_variables = {
     HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
+    AIRNODE_WALLET_PRIVATE_KEY       = var.airnode_wallet_private_key
   }
 
   max_instances = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency

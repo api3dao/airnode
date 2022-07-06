@@ -4,6 +4,8 @@ import * as blocking from '../requests/blocking';
 import * as fixtures from '../../../test/fixtures';
 
 describe('fetchPendingRequests', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('maps and groups requests', async () => {
     const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
     const withdrawal = fixtures.evm.logs.buildRequestedWithdrawal();

@@ -5,6 +5,8 @@ import * as providerState from '../../providers/state';
 import { GroupedRequests, RegularApiCallSuccessResponse, RequestErrorMessage } from '../../types';
 
 describe('disaggregate - Requests', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('maps aggregated responses back to requests for each provider', () => {
     const requests: GroupedRequests = {
       apiCalls: [fixtures.requests.buildApiCall()],

@@ -15,6 +15,7 @@ import * as fixtures from '../../../test/fixtures';
 
 describe('initializeProvider', () => {
   jest.setTimeout(30_000);
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   it('fetches, maps and authorizes requests', async () => {
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');

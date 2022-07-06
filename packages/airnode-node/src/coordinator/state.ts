@@ -6,7 +6,7 @@ import { CoordinatorStateWithApiResponses, RegularAggregatedApiCallsWithResponse
 
 export function create(config: Config): CoordinatorState {
   const coordinatorId = randomHexString(16);
-  const airnodeAddress = wallet.getAirnodeWallet(config).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey().address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
   const settings: CoordinatorSettings = {

@@ -8,19 +8,10 @@ import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
 
 describe('reportHeartbeat', () => {
-  const OLD_ENV = process.env;
-
-  beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      HTTP_GATEWAY_URL: 'https://some.http.gateway.url/v1/',
-      HTTP_SIGNED_DATA_GATEWAY_URL: 'https://some.http.signed.data.gateway.url/v1/',
-    };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
+  fixtures.setEnvVariables({
+    HTTP_GATEWAY_URL: 'https://some.http.gateway.url/v1/',
+    HTTP_SIGNED_DATA_GATEWAY_URL: 'https://some.http.signed.data.gateway.url/v1/',
+    AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
   });
 
   it('does nothing if the heartbeat is disabled', async () => {

@@ -1,14 +1,11 @@
-import { ethers } from 'ethers';
 import { Config } from '@api3/airnode-operation';
 
-export function buildDeployConfig(config?: Partial<Config>): Config {
+export function buildDeployConfig(mnemonic: string, config?: Partial<Config>): Config {
   return {
     deployerIndex: 0,
     airnodes: {
       CurrencyConverterAirnode: {
-        // We need to create a new mnemonic each time otherwise E2E tests
-        // will share the same Airnode wallet
-        mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
+        mnemonic,
         authorizers: {
           requesterEndpointAuthorizers: [],
         },

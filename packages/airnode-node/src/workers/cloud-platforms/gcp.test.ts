@@ -13,6 +13,8 @@ import * as fixtures from '../../../test/fixtures';
 import { WorkerParameters } from '../../types';
 
 describe('spawn', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('derives the function URL, authenticates, invokes and returns the response', async () => {
     requestMock.mockImplementationOnce(() => ({ data: { value: 7777 } }));
     const state = fixtures.buildEVMProviderState();

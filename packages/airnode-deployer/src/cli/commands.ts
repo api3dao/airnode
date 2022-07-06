@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { CloudProvider, loadConfig } from '@api3/airnode-node';
+import { CloudProvider, loadConfig, evm } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import size from 'lodash/size';
 import { bold } from 'chalk';
@@ -67,6 +67,8 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
+  // Derive the Airnode wallet private key to be used as an environment variable
+  const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
 
   // Deployment is not an atomic operation. It is possible that some resources are deployed even when there is a
   // deployment error. We want to write a receipt file, because the user might use the receipt to remove the deployed
@@ -81,6 +83,7 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
       httpSignedDataGateway,
       configPath,
       secretsPath: tmpSecretsPath,
+      airnodeWalletPrivateKey,
     })
   );
   const deploymentTimestamp = new Date().toISOString();

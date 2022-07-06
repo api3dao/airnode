@@ -24,6 +24,7 @@ import * as fulfillments from './index';
 
 describe('submit', () => {
   let mutableInitialState: ProviderState<EVMProviderSponsorState>;
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   beforeEach(() => {
     mutableInitialState = fixtures.buildEVMProviderSponsorState();

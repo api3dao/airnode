@@ -5,6 +5,8 @@ import * as fixtures from '../../test/fixtures';
 import { callApi } from '.';
 
 describe('callApi', () => {
+  fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+
   it('calls the adapter with the given parameters', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
