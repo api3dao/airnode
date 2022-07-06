@@ -4,7 +4,7 @@ import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
 import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
-import { Config, getEnvValue } from '../config';
+import { Config } from '../config';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function processHttpSignedDataRequest(
@@ -19,11 +19,7 @@ export async function processHttpSignedDataRequest(
 
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    return [new Error('Missing Airnode wallet private key in environment variables.'), null];
-  }
-  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey().address;
 
   const template: ApiCallTemplateWithoutId = {
     airnodeAddress,

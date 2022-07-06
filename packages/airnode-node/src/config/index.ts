@@ -61,3 +61,11 @@ export function setEnvValue(envName: string, envValue: string) {
   // eslint-disable-next-line functional/immutable-data
   process.env[envName] = envValue;
 }
+
+export function getAirnodeWalletPrivateKey() {
+  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
+  if (!airnodeWalletPrivateKey) {
+    throw new Error('Missing Airnode wallet private key in environment variables.');
+  }
+  return airnodeWalletPrivateKey;
+}

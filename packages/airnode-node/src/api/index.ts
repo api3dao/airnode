@@ -17,7 +17,7 @@ import {
   ApiCallErrorResponse,
   ApiCallParameters,
 } from '../types';
-import { Config, getEnvValue } from '../config';
+import { Config } from '../config';
 
 function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   const { config, aggregatedApiCall } = payload;
@@ -79,11 +79,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
 }
 
 async function signWithRequestId(requestId: string, data: string) {
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    throw new Error('Missing Airnode wallet private key in environment variables.');
-  }
-  const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
+  const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
@@ -93,11 +89,7 @@ async function signWithRequestId(requestId: string, data: string) {
 }
 
 async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    throw new Error('Missing Airnode wallet private key in environment variables.');
-  }
-  const airnodeWallet = getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey);
+  const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
