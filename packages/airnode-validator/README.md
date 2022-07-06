@@ -4,5 +4,5 @@
 
 ## Documentation
 
-You can find documentation on how to use the deployer in the
+You can find documentation on how to use validator in the
 [validator docs](https://docs.api3.org/airnode/latest/reference/packages/validator.html).

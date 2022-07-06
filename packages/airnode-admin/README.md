@@ -11,4 +11,4 @@ You can find documentation on how to use the admin CLI package in the
 
 ### Build the docker image locally
 
-To build the follow these [instructions](./docker/README.md).
+To build the image follow these [instructions](./docker/README.md).

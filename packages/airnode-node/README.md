@@ -10,7 +10,7 @@ You can learn all the information about Airnode in the [docs](https://docs.api3.
 
 ### Build the docker image locally
 
-To build the follow these [instructions](./docker/README.md).
+To build the image follow these [instructions](./docker/README.md).
 
 ### Configuration
 
@@ -71,18 +71,36 @@ src/
     └── cloud-platforms/ # Implementations for specific cloud vendors
 ```
 
-### Development
-
-#### config.json
+### Local invocation
 
 Before you can use or invoke Airnode locally, you must have a valid `config.json` in the `config` folder. You can find
 the specification in the
 [config.json documentation](https://docs.api3.org/airnode/latest/reference/deployment-files/config-json.html).
 
-For your convenience, example `config.json` and `.env` files are provided in the `config` folder. You can simply copy
-these files and remove the `.example` from the filename.
+For your convenience, example `config.json` and `secrets.env` files are provided in the `config` folder. You can simply
+copy these files and remove the `.example` from the filename.
 
-#### E2E tests
+### Unit tests
+
+Like with a development setup, it is important to ensure that all sibling dependencies are built before running tests.
+Use `yarn run build` from the monorepo root to build all of these packages.
+
+Tests can run using the following commands:
+
+```sh
+# From the monorepo root
+yarn run test:node
+# Watches all changes to node files and re-runs tests when one is changed
+yarn run test:node:watch
+# Watches all changes to a specific node file and re-runs tests when it is changed
+yarn run test:node:watch -f src/evm/handlers/initialize-provider.test.ts
+# From the node package
+yarn run test
+yarn run test:watch
+yarn run test:watch -f evm/handlers/initialize-provider.test.ts
+```
+
+### E2E tests
 
 End-to-end (E2E) tests test the entire Airnode request–response protocol, from start to finish. This includes (but is
 not limited to): deploying Airnode RRP, creating the relevant onchain data, making onchain requests, invoking Airnode
@@ -107,6 +125,9 @@ E2E tests are run in parallel and can be run using the following commands:
 ```sh
 # Run all E2E tests in parallel
 yarn run test:e2e
+
+# Run a specific E2E test and include Airnode log output. Change the test in package.json
+yarn run test:e2e:debug
 ```
 
 E2E tests are defined in the `test/e2e/` folder and are identified by the `feature.ts` extension.

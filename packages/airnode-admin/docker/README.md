@@ -1,6 +1,6 @@
 # Airnode admin CLI docker image
 
-**This README is intended for the developers. Documentation on how to use the deployer image is in the
+**This README is intended for the developers. Documentation on how to use the airnode-admin image is in the
 [docs](https://docs.api3.org/airnode/latest/grp-providers/docker/admin-cli-image.html).**
 
 This documentation focuses on the admin CLI docker image, not the admin CLI itself. If you want to learn more about the
