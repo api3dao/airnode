@@ -79,7 +79,7 @@ yargs(hideBin(process.argv))
       },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
       'auto-remove': {
-        description: 'Disable automatic removal of deployed resources for failed deployments',
+        description: 'Enable automatic removal of deployed resources for failed deployments',
         default: true,
         type: 'boolean',
       },
