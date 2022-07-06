@@ -12,3 +12,11 @@ You can find documentation on how to use the admin CLI package in the
 ### Build the docker image locally
 
 To build the image follow these [instructions](./docker/README.md).
+
+### Run from source
+
+There are two ways how to run the CLI from source without building a docker image:
+
+- Run `yarn cli ...`
+- First build the package using `yarn build`, then make the CLI binary executable by running
+  `chmod +x ./dist/bin/admin.js`. Finally, you can run `yarn airnode-admin ...`.
