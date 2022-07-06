@@ -102,7 +102,7 @@ describe('Gas oracle', () => {
       ];
       blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
@@ -128,7 +128,7 @@ describe('Gas oracle', () => {
       ];
       blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
@@ -151,7 +151,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -183,7 +183,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -218,7 +218,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -249,7 +249,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -282,7 +282,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -315,7 +315,7 @@ describe('Gas oracle', () => {
         throw new Error('some error');
       });
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -336,7 +336,7 @@ describe('Gas oracle', () => {
         throw new Error('some error');
       });
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -383,7 +383,7 @@ describe('Gas oracle', () => {
       const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
       attemptGasOracleStrategySpy.mockRejectedValue({ success: false, error: 'Some error' });
 
-      const gasPrice = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
 
       expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
     });
@@ -399,10 +399,11 @@ describe('Gas oracle', () => {
       jest.spyOn(gasOracle, 'fetchConstantGasPrice').mockImplementationOnce(() => {
         throw new Error('Unexpected error');
       });
-      const gasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
+      const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
       // Ensure that getGasPrice did not throw
-      assertGoSuccess(gasPrice);
-      expect(gasPrice.data).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+      assertGoSuccess(goGasPrice);
+      const [_logs, gasPrice] = goGasPrice.data;
+      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
     });
   });
 });
