@@ -6,7 +6,12 @@ export function buildDeployConfig(mnemonic: string, config?: Partial<Config>): C
     airnodes: {
       CurrencyConverterAirnode: {
         mnemonic,
-        authorizers: [],
+        authorizers: {
+          requesterEndpointAuthorizers: [],
+        },
+        authorizations: {
+          requesterEndpointAuthorizations: {},
+        },
         endpoints: {
           convertToUSD: {
             oisTitle: 'Currency Converter API',

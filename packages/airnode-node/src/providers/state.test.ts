@@ -15,7 +15,10 @@ describe('create', () => {
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: [ethers.constants.AddressZero],
+      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+      authorizations: {
+        requesterEndpointAuthorizations: {},
+      },
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
@@ -45,7 +48,10 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: [ethers.constants.AddressZero],
+        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+        authorizations: {
+          requesterEndpointAuthorizations: {},
+        },
         blockHistoryLimit: 300,
         chainId: '1337',
         chainType: 'evm',
@@ -92,7 +98,10 @@ describe('create', () => {
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: [ethers.constants.AddressZero],
+      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+      authorizations: {
+        requesterEndpointAuthorizations: {},
+      },
       blockHistoryLimit: 150,
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -124,7 +133,10 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: [ethers.constants.AddressZero],
+        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+        authorizations: {
+          requesterEndpointAuthorizations: {},
+        },
         blockHistoryLimit: 150,
         chainId: '1337',
         chainOptions: {

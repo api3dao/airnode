@@ -135,6 +135,50 @@ describe('parseConfigWithSecrets', () => {
       });
     });
   });
+
+  it('accepts valid config and interpolates chain authorizations secrets', () => {
+    const config = loadConfigFixture();
+    config.chains[0].authorizations.requesterEndpointAuthorizations = {
+      ['${ENDPOINT_ID_1}']: ['${REQUESTER_1}'],
+      '0xbe74f8e5e89e096379ffd218a1c357c32fa10da7c131d75c639f99bc8eaeb9c7': [
+        '0x15391C3E06Db67FD72bd80747D131d514E1EA674',
+      ],
+    };
+
+    const secrets = {
+      PROVIDER_URL: 'http://127.0.0.1:8545/',
+      AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+      ENDPOINT_ID_1: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+      REQUESTER_1: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    };
+
+    const interpolatedResult = interpolateSecrets(config, secrets);
+    expect(parseConfigWithSecrets(config, secrets)).toEqual({ success: true, data: interpolatedResult });
+  });
+
+  it('fails with invalid chain authorizations secrets', () => {
+    const config = loadConfigFixture();
+    config.chains[0].authorizations.requesterEndpointAuthorizations = { ['${ENDPOINT_ID_1}']: ['${REQUESTER_1}'] };
+
+    const secrets = {
+      PROVIDER_URL: 'http://127.0.0.1:8545/',
+      AIRNODE_WALLET_MNEMONIC: 'test test test test test test test test test test test junk',
+      ENDPOINT_ID_1: 'invalid',
+      REQUESTER_1: 'invalid',
+    };
+
+    expect(parseConfigWithSecrets(config, secrets)).toEqual({
+      error: new ZodError([
+        {
+          validation: 'regex',
+          code: 'invalid_string',
+          message: 'Invalid',
+          path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'invalid', 0],
+        },
+      ]),
+      success: false,
+    });
+  });
 });
 
 describe('unsafeParseConfigWithSecrets', () => {

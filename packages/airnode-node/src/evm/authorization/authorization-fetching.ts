@@ -8,9 +8,11 @@ import { go } from '@api3/promise-utils';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
+import { ChainAuthorizers, ChainAuthorizations } from '../../config';
 
 export interface FetchOptions {
-  readonly authorizers: string[];
+  readonly authorizers: ChainAuthorizers;
+  readonly authorizations: ChainAuthorizations;
   readonly airnodeAddress: string;
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -18,13 +20,13 @@ export interface FetchOptions {
 
 export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: string[],
+  authorizers: ChainAuthorizers,
   airnodeAddress: string,
   apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = (): Promise<boolean> =>
     airnodeRrp.checkAuthorizationStatus(
-      authorizers,
+      authorizers.requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall.id,
       // TODO: make sure endpointId is not null
@@ -52,7 +54,7 @@ export async function fetchAuthorizationStatus(
 
 async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: string[],
+  authorizers: ChainAuthorizers,
   airnodeAddress: string,
   apiCalls: Request<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
@@ -64,7 +66,7 @@ async function fetchAuthorizationStatuses(
 
   const contractCall = (): Promise<boolean[]> =>
     airnodeRrp.checkAuthorizationStatuses(
-      authorizers,
+      authorizers.requesterEndpointAuthorizers,
       airnodeAddress,
       requestIds,
       // TODO: make sure all endpointIds are non null
@@ -104,6 +106,22 @@ async function fetchAuthorizationStatuses(
   return [[], authorizationsById];
 }
 
+export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOptions: FetchOptions) => {
+  return apiCalls.reduce((acc: AuthorizationByRequestId, apiCall) => {
+    // Check if an authorization is found in config for the apiCall endpointId
+    const configAuthorization = fetchOptions.authorizations.requesterEndpointAuthorizations[apiCall.endpointId!];
+
+    if (configAuthorization) {
+      const configAuthorizationIncludesRequesterAddress = configAuthorization.includes(apiCall.requesterAddress);
+
+      // Set the authorization status to true if the requester address is included for the endpointId
+      if (configAuthorizationIncludesRequesterAddress) return { ...acc, [apiCall.id]: true };
+    }
+
+    return acc;
+  }, {});
+};
+
 export async function fetch(
   apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
@@ -114,15 +132,25 @@ export async function fetch(
   }
 
   // If there are no authorizer contracts then endpoint is public
-  if (isEmpty(fetchOptions.authorizers)) {
+  if (isEmpty(fetchOptions.authorizers.requesterEndpointAuthorizers)) {
     const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
     return [[], Object.assign({}, ...authorizationByRequestIds) as AuthorizationByRequestId];
   }
 
+  // Skip fetching authorization statuses if found in config for a specific authorization type
+  // and requester address
+  const configAuthorizationsByRequestId = checkConfigAuthorizations(apiCalls, fetchOptions);
+
+  // Filter apiCalls for which a valid authorization was found in config
+  const configAuthorizationRequestIds = Object.keys(configAuthorizationsByRequestId);
+  const apiCallsToFetchAuthorizationStatus = apiCalls.filter(
+    (apiCall) => !configAuthorizationRequestIds.includes(apiCall.id)
+  );
+
   // Request groups of 10 at a time
-  const groupedPairs = chunk(apiCalls, CONVENIENCE_BATCH_SIZE);
+  const groupedPairs = chunk(apiCallsToFetchAuthorizationStatus, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
   const airnodeRrp = AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
@@ -139,7 +167,11 @@ export async function fetch(
   const successfulResults = authorizationStatuses.filter((r) => !!r) as AuthorizationByRequestId[];
 
   // Merge all successful results into a single object
-  const combinedResults = Object.assign({}, ...successfulResults) as AuthorizationByRequestId;
+  const combinedResults = Object.assign(
+    {},
+    ...successfulResults,
+    configAuthorizationsByRequestId
+  ) as AuthorizationByRequestId;
 
   return [responseLogs, combinedResults];
 }

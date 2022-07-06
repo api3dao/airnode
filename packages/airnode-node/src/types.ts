@@ -9,7 +9,15 @@ import {
 } from '@api3/airnode-protocol';
 import { PendingLog, LogFormat, LogLevel, LogOptions, GasTarget } from '@api3/airnode-utilities';
 import { z } from 'zod';
-import { Config, ChainOptions, ChainType, LocalOrCloudProvider, Amount } from './config';
+import {
+  Config,
+  ChainOptions,
+  ChainType,
+  LocalOrCloudProvider,
+  Amount,
+  ChainAuthorizers,
+  ChainAuthorizations,
+} from './config';
 import { apiCallParametersSchema } from './validation';
 import { AirnodeRrpV0 } from './evm/contracts';
 
@@ -125,7 +133,8 @@ export interface SubmitRequest<T> {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly authorizers: string[];
+  readonly authorizers: ChainAuthorizers;
+  readonly authorizations: ChainAuthorizations;
   readonly blockHistoryLimit: number;
   readonly chainId: string;
   readonly chainType: ChainType;
