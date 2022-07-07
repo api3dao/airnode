@@ -26,7 +26,12 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     chains: [
       {
         maxConcurrency: 100,
-        authorizers: [],
+        authorizers: {
+          requesterEndpointAuthorizers: [],
+        },
+        authorizations: {
+          requesterEndpointAuthorizations: {},
+        },
         contracts: {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },

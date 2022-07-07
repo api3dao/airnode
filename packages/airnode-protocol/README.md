@@ -2,21 +2,13 @@
 
 > The contracts that implement the Airnode protocols
 
-## Instructions
+## Documentation
 
-Install the dependencies **at the repo root** (i.e., `airnode/`)
+You can learn about Airnode and the protocols used in the [documentation](https://docs.api3.org/airnode/latest/).
 
-```sh
-yarn run bootstrap
-# Move into the protocol package
-cd packages/airnode-protocol
-```
+## For developers
 
-Build the contracts
-
-```
-yarn run build:contracts
-```
+### Running contract tests
 
 Test the contracts, get test coverage and gas report
 
@@ -45,7 +37,7 @@ NETWORK=<NETWORK> yarn run deploy:verify
 NETWORK=<NETWORK> yarn run deploy:verify-local
 ```
 
-## Deterministic deployment addresses
+### Deterministic deployment addresses
 
 AirnodeRrpV0: 0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd
 
@@ -53,7 +45,7 @@ RequesterAuthorizerWithAirnode: 0xf18c105D0375E80980e4EED829a4A68A539E6178
 
 AccessControlRegistry: 0x92E5125adF385d86beDb950793526106143b6Df1
 
-## Integration notes
+### Integration notes
 
 - `arbitrum`, `avalanche`, `metis` and their testnets do not support deterministic deployment and are deployed
   undeterministically, resulting different contract addresses.
@@ -71,7 +63,7 @@ The information below is slightly outdated
 
 ---
 
-## Introduction
+### Introduction
 
 At a high level, there are two Airnode protocols:
 
@@ -104,7 +96,7 @@ necessarily be an admin for another one. Therefore, the Airnode protocol package
 access control functionality for multiple independent entities, and these contracts can be easily extended to build
 various kinds of admin logic.
 
-## Directory structure
+### Directory structure
 
 The contracts are under the `contracts/` directory.
 
@@ -184,7 +176,7 @@ The contracts are under the `contracts/` directory.
   - `admin/AirnodeTokenPaymentRolesWithManager.sol`: A contract that implements the roles for a AirnodeTokenPayment
     contract that will be managed by a single account through an AccessControlRegistry
 
-## Unique patterns
+### Unique patterns
 
 Airnode protocols follow some patterns that you may be unfamiliar with even if you are familiar with existing oracle
 protocols. Below are some brief explanations in no particular order, which should help you with understanding the
@@ -192,7 +184,7 @@ reasoning behind these decisions. You can also refer to the post
 [_Where are the first party oracles?_](https://medium.com/api3/where-are-the-first-party-oracles-5078cebaf17) for more
 information.
 
-### No duplicated contracts
+#### No duplicated contracts
 
 The RRP protocol and its authorizer contracts are deployed once per-chain, and all Airnodes use the same set of
 contracts. The contracts are implemented in a way that they are entirely trustless and permissionless, and not even the
@@ -203,27 +195,27 @@ because deploying contracts causes a lot of UX friction and costs a lot of gas. 
 verify that the individually-deployed contracts are not tampered with, which cannot feasibly be done in a trustless way.
 Implementing the protocol as a single, communal contract solves these problems.
 
-### No transactions needed for Airnode deployment
+#### No transactions needed for Airnode deployment
 
 In some cases, even needing to make a single transaction causes significant friction for onboarding Airnode operators
 (or looking at it from the other way, it would be extremely convenient to onboard Airnode operators if they never had to
 make any transactions). This is why the protocol is implemented in a way to avoid this.
 
-### Requester sponsors all gas costs
+#### Requester sponsors all gas costs
 
 Oracles need to make transactions to affect chain state, which comes with gas costs. This has extremely significant
 financial, accounting and regulation implications that make first-party oracles impossible in practice. Airnode
 protocols are implemented in a way that enables the requester to sponsor all gas costs related to their service and goes
 as far as baking this into the lowest level of the protocol.
 
-### IDs work across chains
+#### IDs work across chains
 
 Airnodes are identified by the address of the default BIP 44 wallet (`m/44'/60'/0'/0/0`) derived from its seed. This
 means that if the Airnode uses the same seed on another chain (which they are expected to), the Airnode will have the
 same ID. In other words, the Airnode operator has to broadcast only a single address as their own, this will be used
 universally across all chains.
 
-### Be mindful of Ethereum provider interactions
+#### Be mindful of Ethereum provider interactions
 
 Oracle protocols typically assume the Ethereum provider to be trustworthy and infinitely capable, which is typically not
 the case in reality. Looking at it from the security side, an external Ethereum provider can tamper with data returned
@@ -241,7 +233,7 @@ EVM-compatible chain providers to apply arbitrary and strict limitations to log 
 avoid this causing breaking issues, data that could have been kept as logs are sometimes kept in storage despite the
 increased gas cost (e.g., templates could have been logged instead of written to storage).
 
-### Usability and future-proofness over over-optimization
+#### Usability and future-proofness over over-optimization
 
 This last point is a bit abstract, yet has guided us through a number of decisions: When needed to choose between a
 slight gas cost optimization and improved upgradability in protocol, we opted for the latter. The reasoning here is that
@@ -252,7 +244,7 @@ request return a single 32 bytes-long type. Even though this decoding operation 
 negligible compared to the value that will be created by an oracle protocol that allows flexible response specifications
 (a simple example is returning multiple fields from an API response).
 
-## RRP flow
+### RRP flow
 
 1. The Airnode operator generates an HD wallet seed. The address of the default BIP 44 wallet (`m/44'/60'/0'/0/0`)
    derived from this seed is used to identify the Airnode. The Airnode (referring to the node application) polls
@@ -323,7 +315,7 @@ trusted with transmitting the signed payload to the chain with a proper transact
 functionality is not available). The `sponsorWallet` failing requests that it should not or returning false error
 messages is not considered a security issue, as failed requests do not call back the fulfillment target.
 
-## Sponsor wallet derivation
+### Sponsor wallet derivation
 
 An Ethereum address is 20 bytes-long, which makes 160 bits. Each index in the HD wallet non-hardened derivation path
 goes up to 2^31. Then, we can divide these 160 bits into six 31 bit-long chunks and the derivation path for a sponsor
@@ -343,14 +335,14 @@ omitted.
 Note that the derivation path starts with `0/...`. The zero here is allocated for RRP, and the other branches will be
 used to derive the sponsor wallets for other protocols such as PSP.
 
-## Withdrawal from the sponsor wallet
+### Withdrawal from the sponsor wallet
 
 Requesters may not want to use up all the ETH deposited in their sponsor wallet. Then, they can use `WithdrawalUtilsV0`
 to request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
 Before serving this request, the Airnode must verify that the specified sponsor wallet address belongs to the maker of
 the request by deriving the sponsor wallet address itself.
 
-## Token Locking
+### Token Locking
 
 For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the
 `RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all

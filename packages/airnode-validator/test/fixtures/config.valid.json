@@ -2,7 +2,12 @@
   "chains": [
     {
       "maxConcurrency": 100,
-      "authorizers": [],
+      "authorizers": {
+        "requesterEndpointAuthorizers": []
+      },
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
       "contracts": {
         "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
@@ -66,7 +71,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.0.0",
+      "oisFormat": "1.1.1",
       "title": "CoinGecko basic request",
       "version": "1.0.0",
       "apiSpecifications": {

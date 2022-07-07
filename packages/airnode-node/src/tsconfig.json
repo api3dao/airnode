@@ -10,7 +10,6 @@
   "references": [
     { "path": "../../airnode-abi/src" },
     { "path": "../../airnode-adapter/src" },
-    { "path": "../../airnode-ois/src" },
     { "path": "../../airnode-protocol/src" },
     { "path": "../../airnode-utilities/src" },
     { "path": "../../airnode-validator/src" },

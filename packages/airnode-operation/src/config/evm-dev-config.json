@@ -3,7 +3,12 @@
   "airnodes": {
     "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
-      "authorizers": [],
+      "authorizers": {
+        "requesterEndpointAuthorizers": []
+      },
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
       "endpoints": {
         "convertToUSD": {
           "oisTitle": "Currency Converter API"

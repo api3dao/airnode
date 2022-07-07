@@ -566,3 +566,60 @@ describe('relay metadata', () => {
     );
   });
 });
+
+describe('authorizations', () => {
+  it('is ok if authorizations are in correct format', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+
+    const validConfig = {
+      ...config,
+      chains: [
+        {
+          ...config.chains[0],
+          authorizations: {
+            requesterEndpointAuthorizations: {
+              '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4': [
+                '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(() => configSchema.parse(validConfig)).not.toThrow();
+  });
+
+  it('fails if authorizations are in wrong format', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+
+    const invalidConfig = {
+      ...config,
+      chains: [
+        {
+          ...config.chains[0],
+          authorizations: {
+            requesterEndpointAuthorizations: {
+              'endpoint-id': ['requester-1'],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          validation: 'regex',
+          code: 'invalid_string',
+          message: 'Invalid',
+          path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'endpoint-id', 0],
+        },
+      ])
+    );
+  });
+});

@@ -12,7 +12,7 @@ export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
 // https://docs.api3.org/airnode/latest/concepts/endpoint.html#endpointid
-const endpointIdSchema = z.string();
+export const endpointIdSchema = z.string();
 
 export const triggerSchema = z
   .object({
@@ -161,9 +161,18 @@ export const chainOptionsSchema = z.discriminatedUnion('txType', [
     .strict(),
 ]);
 
+export const chainAuthorizationsSchema = z.object({
+  requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
+});
+
+export const chainAuthorizersSchema = z.object({
+  requesterEndpointAuthorizers: z.array(evmAddressSchema),
+});
+
 export const chainConfigSchema = z
   .object({
-    authorizers: z.array(evmAddressSchema),
+    authorizers: chainAuthorizersSchema,
+    authorizations: chainAuthorizationsSchema,
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
     contracts: chainContractsSchema,
     id: z.string(),
@@ -426,6 +435,8 @@ export type AwsCloudProvider = SchemaType<typeof awsCloudProviderSchema>;
 export type GcpCloudProvider = SchemaType<typeof gcpCloudProviderSchema>;
 export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
+export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
+export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;

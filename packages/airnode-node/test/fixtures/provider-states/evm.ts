@@ -13,7 +13,12 @@ export function buildEVMProviderState(
   const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
   const chainConfig: ChainConfig = {
     maxConcurrency: 100,
-    authorizers: [],
+    authorizers: {
+      requesterEndpointAuthorizers: [],
+    },
+    authorizations: {
+      requesterEndpointAuthorizations: {},
+    },
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },

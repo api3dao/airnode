@@ -1,5 +1,6 @@
+import { PROTOCOL_IDS } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
-import { getMasterKeyMnemonic, Config } from '../config';
+import { getMasterKeyMnemonic, getAirnodeWalletPrivateKey, Config } from '../config';
 
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.
@@ -14,10 +15,10 @@ import { getMasterKeyMnemonic, Config } from '../config';
  * 1/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
- * @param protocolId An optional string representing the protocol id. Defaults to '1'.
+ * @param protocolId An optional string representing the protocol id. Defaults to PROTOCOL_IDS.RRP.
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = '1') => {
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string, protocolId = PROTOCOL_IDS.RRP) => {
   const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
   for (let i = 0; i < 6; i++) {
@@ -37,8 +38,9 @@ export function getAirnodeWallet(config: Config): ethers.Wallet {
   return ethers.Wallet.fromMnemonic(mnemonic);
 }
 
-export function getAirnodeWalletFromPrivateKey(privateKey: string): ethers.Wallet {
-  return new ethers.Wallet(privateKey);
+export function getAirnodeWalletFromPrivateKey(): ethers.Wallet {
+  const airnodeWalletPrivateKey = getAirnodeWalletPrivateKey();
+  return new ethers.Wallet(airnodeWalletPrivateKey);
 }
 
 export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {

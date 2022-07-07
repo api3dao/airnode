@@ -28,3 +28,9 @@ export const logAndReturnError = (message: string): Error => {
   logger.fail(message);
   return new Error(message);
 };
+
+export class MultiMessageError extends Error {
+  constructor(public messages: string[]) {
+    super(messages.join('\n'));
+  }
+}

@@ -4,7 +4,7 @@ import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
 import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
 import { callApi } from '../api';
-import { Config, getEnvValue } from '../config';
+import { Config } from '../config';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function processHttpSignedDataRequest(
@@ -12,24 +12,14 @@ export async function processHttpSignedDataRequest(
   endpointId: string,
   encodedParameters: string
 ): Promise<[Error, null] | [null, HttpSignedDataApiCallSuccessResponse]> {
-  const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId]);
-  if (!trigger) {
-    return [new Error(`Unable to find endpoint with ID:'${endpointId}'`), null];
-  }
-
-  const decodedParameters = evm.encoding.safeDecode(encodedParameters);
-  // TODO: There should be an TS interface for required params
-  if (!decodedParameters) {
-    return [new Error(`Request contains invalid encodedParameters: ${encodedParameters}`), null];
-  }
+  // Both "trigger" and "decodedParameters" are guaranteed to exist because validation is already performed in the
+  // deployer handler
+  const trigger = find(config.triggers.httpSignedData, ['endpointId', endpointId])!;
+  const decodedParameters = evm.encoding.safeDecode(encodedParameters)!;
 
   const requestId = randomHexString(16);
   const logOptions = buildBaseOptions(config, { requestId });
-  const airnodeWalletPrivateKey = getEnvValue('AIRNODE_WALLET_PRIVATE_KEY');
-  if (!airnodeWalletPrivateKey) {
-    return [new Error('Missing Airnode wallet private key in environment variables.'), null];
-  }
-  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey(airnodeWalletPrivateKey).address;
+  const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey().address;
 
   const template: ApiCallTemplateWithoutId = {
     airnodeAddress,

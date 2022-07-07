@@ -6,43 +6,50 @@
 </p>
 
 Airnode is a fully-serverless oracle node that is designed specifically for API providers to operate their own oracles.
-See the [docs](https://github.com/api3dao/api3-docs) for deployment and usage instructions.
 
-## Structure
+## Documentation
 
-This is a monorepo managed using [Lerna](https://github.com/lerna/lerna). It houses the following packages:
+You can find all information about Airnode in the [documentation](https://docs.api3.org/airnode/latest/).
 
-[**adapter**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-adapter) The module that makes an API
-call, processes the response and returns a single value
+## For developers
 
-[**admin**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin) A package/CLI tool to interact with
-the Airnode contracts across chains
+This is a monorepo managed by [Lerna](https://github.com/lerna/lerna).
+
+### Structure
 
 [**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities
 for Airnode according to the
 [Airnode ABI specifications](https://docs.api3.org/airnode/latest/reference/specifications/airnode-abi-specifications.html)
 
-[**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) Tools to automate Airnode
-deployment
+[**airnode-adapter**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-adapter) Used for building
+requests from an [Oracle Integration Specification (OIS)](https://docs.api3.org/ois/latest/), executing them, parsing
+the responses, but also converting and encoding them for on chain purposes
 
-[**examples**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples) A public list of examples
-showcasing the features of Airnode
+[**airnode-admin**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin) A package/CLI tool to
+interact with the Airnode contracts across chains
 
-[**node**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-node) Airnode itself
+[**airnode-deployer**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) A package/CLI tool to
+automate Airnode deployment
 
-[**ois**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-ois) Types for
-[Oracle Integration Specification (OIS)](https://docs.api3.org/ois/latest/)
+[**airnode-examples**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples) A public list of
+examples showcasing the features of Airnode
 
-[**operation**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-operation) Development and testing
-utilities for the core parts of Airnode
+[**airnode-node**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-node) The node part of Airnode that
+allows for connecting multiple blockchains to the rest of the world
 
-[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-protocol) Contracts that implement
-Airnode RRP (request–response protocol)
+[**airnode-operation**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-operation) Development and
+testing utilities for the core parts of Airnode
 
-[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-validator) A package that can be used
-to validate and convert airnode specification files
+[**airnode-protocol**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-protocol) The contracts that
+implement the Airnode protocols
 
-## Instructions
+[**airnode-utilities**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-utilities) Provides common
+utilities that are used by multiple Airnode packages
+
+[**airnode-validator**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-validator) A package/CLI tool
+that can be used to validate and convert airnode specification files
+
+### Instructions
 
 To install dependencies, run this at the repository root:
 
@@ -68,7 +75,7 @@ cross-package errors in real time. However, we use `ts-node` to run our developm
 [does not support project references](https://github.com/TypeStrong/ts-node/issues/897) at the moment. This means that
 some of the errors are only shown in the IDE or at build time, not when run using `ts-node`.
 
-## Changelog
+### Changelog
 
 We use [changesets](https://github.com/atlassian/changesets) to manage the changelog for us. What that means for
 contributors is that you need to add a changeset by running `yarn changeset` which contains what packages should be
@@ -81,7 +88,7 @@ for renovate PRs.
 > Tip: Add `export EDITOR="code --wait"` to `.bashrc` to make it possible to write changelog description in VS Code (you
 > can adapt the configuration for other editor similarly).
 
-## Contributing
+### Contributing
 
 To request/propose new features, fixes, etc. create an issue. If you wish to contribute to the project, contact us over
 [our Telegram](https://t.me/API3DAO).

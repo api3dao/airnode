@@ -1,21 +1,23 @@
 {
   "extends": ["config:base", "docker:disable"],
+  "automerge": true,
+  "automergeType": "pr",
   "packageRules": [
     {
-      "matchPackageNames": ["chalk", "ora", "node"],
+      "matchPackageNames": ["chalk", "ora", "node", "@openzeppelin/contracts"],
       "enabled": false
     },
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "schedule": ["before 2am on monday"],
-      "groupName": "Update devDependencies (non-major)"
+      "groupName": "devDependencies (non-major)"
     },
     {
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "schedule": ["before 2am on monday"],
-      "groupName": "Update dependencies (non-major)"
+      "groupName": "dependencies (non-major)"
     }
   ],
   "rangeStrategy": "bump",

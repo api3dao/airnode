@@ -2,15 +2,21 @@
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
-## User documentation
+## Documentation
 
 You can find documentation on how to use the admin CLI package in the
 [admin CLI docs](https://docs.api3.org/airnode/latest/reference/packages/admin-cli.html).
 
 ## For developers
 
-This package has multiple features:
+### Build the docker image locally
 
-- Exports a collection of functions for interacting with the Airnode contracts on chain
-- Exports a class based SDK, which is simpler to use
-- A CLI tool which is most commonly used by end users
+To build the image follow these [instructions](./docker/README.md).
+
+### Run from source
+
+There are two ways how to run the CLI from source without building a docker image:
+
+- Run `yarn cli ...`
+- First build the package using `yarn build`, then make the CLI binary executable by running
+  `chmod +x ./dist/bin/admin.js`. Finally, you can run `yarn airnode-admin ...`.

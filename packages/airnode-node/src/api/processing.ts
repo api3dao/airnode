@@ -1,4 +1,4 @@
-import { Endpoint, ProcessingSpecification } from '@api3/airnode-ois';
+import { Endpoint, ProcessingSpecification } from '@api3/ois';
 import { go } from '@api3/promise-utils';
 import { unsafeEvaluate, unsafeEvaluateAsync } from './unsafe-evaluate';
 import { apiCallParametersSchema } from '../validation';
