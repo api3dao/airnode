@@ -18,11 +18,10 @@ import {
   ApiCallPayload,
   RegularApiCallPayload,
   HttpSignedApiCallPayload,
-  RegularApiCallConfig,
 } from '../types';
 
 function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
-  const { config, aggregatedApiCall } = payload;
+  const { type, config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
   const ois = config.ois.find((o) => o.title === oisTitle)!;
@@ -42,7 +41,7 @@ function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const sanitizedParameters: adapter.Parameters = removeKeys(allParameters, RESERVED_PARAMETERS);
 
-  switch (aggregatedApiCall.type) {
+  switch (type) {
     case 'http-signed-data-gateway':
     case 'http-gateway': {
       return {
@@ -55,10 +54,9 @@ function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
     }
     case 'regular': {
       const { requesterAddress, sponsorAddress, sponsorWalletAddress, id, chainId } = aggregatedApiCall;
-      const regularCallApiConfig = config as RegularApiCallConfig;
 
       // Find the chain config based on the aggregatedApiCall chainId
-      const chain = regularCallApiConfig.chains.find((c) => c.id === chainId);
+      const chain = config.chains.find((c) => c.id === chainId);
 
       return {
         endpointName,
@@ -129,7 +127,7 @@ function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorR
 export function verifyTemplateId(
   payload: RegularApiCallPayload | HttpSignedApiCallPayload
 ): LogsData<ApiCallErrorResponse> | null {
-  const { aggregatedApiCall } = payload;
+  const { type, aggregatedApiCall } = payload;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -143,9 +141,7 @@ export function verifyTemplateId(
   }
 
   const expectedTemplateId =
-    aggregatedApiCall.type === 'http-signed-data-gateway'
-      ? getExpectedTemplateIdV1(template)
-      : getExpectedTemplateIdV0(template);
+    type === 'http-signed-data-gateway' ? getExpectedTemplateIdV1(template) : getExpectedTemplateIdV0(template);
 
   if (templateId === expectedTemplateId) return null;
 
@@ -155,11 +151,11 @@ export function verifyTemplateId(
 }
 
 function verifyCallApi(payload: ApiCallPayload) {
-  switch (payload.aggregatedApiCall.type) {
+  switch (payload.type) {
     case 'regular':
-      return verifyRegularCallApiParams(payload as RegularApiCallPayload);
+      return verifyRegularCallApiParams(payload);
     case 'http-signed-data-gateway':
-      return verifyHttpSignedCallApiParams(payload as HttpSignedApiCallPayload);
+      return verifyHttpSignedCallApiParams(payload);
     default:
       return null;
   }
@@ -210,7 +206,7 @@ async function processSuccessfulApiCall(
   payload: ApiCallPayload,
   rawResponse: PerformApiCallSuccess
 ): Promise<LogsData<ApiCallResponse>> {
-  const { config, aggregatedApiCall } = payload;
+  const { type, config, aggregatedApiCall } = payload;
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
@@ -235,7 +231,7 @@ async function processSuccessfulApiCall(
 
   const response = goExtractAndEncodeResponse.data;
 
-  switch (aggregatedApiCall.type) {
+  switch (type) {
     case 'http-gateway':
       return [[], { success: true, data: response }];
     case 'regular': {

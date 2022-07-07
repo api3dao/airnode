@@ -71,7 +71,7 @@ describe('callApi', () => {
 
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const logOptions = fixtures.buildLogOptions();
-    const res = await local.callApi({ aggregatedApiCall, logOptions, functionName: 'callApi' });
+    const res = await local.callApi({ type: 'regular', aggregatedApiCall, logOptions, functionName: 'callApi' });
     expect(res).toEqual({ ok: true, data: callResponse });
   });
 });

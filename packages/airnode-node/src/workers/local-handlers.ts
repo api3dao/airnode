@@ -48,10 +48,10 @@ export async function initializeProvider({ state: providerState }: InitializePro
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
+export async function callApi({ type, aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
-  const [logs, response] = await handlers.callApi({ config, aggregatedApiCall } as ApiCallPayload);
+  const [logs, response] = await handlers.callApi({ type, config, aggregatedApiCall } as ApiCallPayload);
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }

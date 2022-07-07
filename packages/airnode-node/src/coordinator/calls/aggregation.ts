@@ -24,7 +24,6 @@ function buildRegularAggregatedCall(config: Config, request: Request<ApiCall>): 
   const trigger = config.triggers.rrp.find((t) => t.endpointId === endpointId)!;
 
   return {
-    type: 'regular',
     id: id,
     sponsorAddress: sponsorAddress,
     airnodeAddress: airnodeAddress!,

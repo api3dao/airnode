@@ -246,7 +246,7 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export type AggregatedApiCall = RegularAggregatedApiCall | HttpAggregatedApiCall | HttpSignedDataAggregatedApiCall;
+export type AggregatedApiCall = RegularAggregatedApiCall | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
   endpointName: string;
@@ -257,7 +257,6 @@ export interface BaseAggregatedApiCall {
 }
 
 export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'regular';
   id: string;
   airnodeAddress: string;
   endpointId: string;
@@ -278,12 +277,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
 
 export type RegularAggregatedApiCallWithResponse = RegularAggregatedApiCall & RegularApiCallResponse;
 
-export interface HttpAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'http-gateway';
-}
-
 export interface HttpSignedDataAggregatedApiCall extends BaseAggregatedApiCall {
-  type: 'http-signed-data-gateway';
   id: string;
   endpointId: string;
   templateId: string;
@@ -300,16 +294,19 @@ export type RegularApiCallConfig = HttpApiCallConfig &
 export type ApiCallConfig = RegularApiCallConfig | HttpApiCallConfig;
 
 export interface RegularApiCallPayload {
+  type: 'regular';
   readonly config: RegularApiCallConfig;
   readonly aggregatedApiCall: RegularAggregatedApiCall;
 }
 
 export interface HttpApiCallPayload {
+  type: 'http-gateway';
   readonly config: HttpApiCallConfig;
-  readonly aggregatedApiCall: HttpAggregatedApiCall;
+  readonly aggregatedApiCall: BaseAggregatedApiCall;
 }
 
 export interface HttpSignedApiCallPayload {
+  type: 'http-signed-data-gateway';
   readonly config: HttpApiCallConfig;
   readonly aggregatedApiCall: HttpSignedDataAggregatedApiCall;
 }
@@ -337,6 +334,7 @@ export interface ProcessTransactionsPayload {
 
 export interface CallApiPayload {
   readonly functionName: 'callApi';
+  readonly type: 'regular' | 'http-gateway' | 'http-signed-data-gateway';
   readonly aggregatedApiCall: AggregatedApiCall;
   readonly logOptions: LogOptions;
 }

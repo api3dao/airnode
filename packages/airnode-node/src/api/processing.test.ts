@@ -23,7 +23,7 @@ describe('processing', () => {
       const parameters = { _type: 'int256', _path: 'price' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
-      const result = await preProcessApiSpecifications({ config, aggregatedApiCall });
+      const result = await preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
       expect(result.aggregatedApiCall.parameters).toEqual({
         _path: 'price',
@@ -52,7 +52,7 @@ describe('processing', () => {
       const parameters = { _type: 'int256', _path: 'price', from: 'TBD' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
-      const throwingFunc = async () => preProcessApiSpecifications({ config, aggregatedApiCall });
+      const throwingFunc = async () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
       await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
     });
@@ -71,7 +71,7 @@ describe('processing', () => {
       const parameters = { _type: 'int256', _path: 'price', from: '*ETH' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
-      const throwingFunc = async () => preProcessApiSpecifications({ config, aggregatedApiCall });
+      const throwingFunc = async () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
       await expect(throwingFunc).rejects.toEqual(
         new ZodError([

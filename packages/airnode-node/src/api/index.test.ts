@@ -14,6 +14,7 @@ describe('callApi', () => {
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
 
     const [logs, res] = await callApi({
+      type: 'regular',
       config: fixtures.buildConfig(),
       aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
     });
@@ -58,6 +59,7 @@ describe('callApi', () => {
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
 
     const [logs, res] = await callApi({
+      type: 'regular',
       config: fixtures.buildConfig({ chains: [] }),
       aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
     });
@@ -102,6 +104,7 @@ describe('callApi', () => {
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
 
     const [logs, res] = await callApi({
+      type: 'http-gateway',
       config: { ois: [fixtures.buildOIS()], apiCredentials: [fixtures.buildApiCredentials()] },
       aggregatedApiCall: fixtures.buildAggregatedHttpGatewayApiCall({ parameters }),
     });
@@ -142,6 +145,7 @@ describe('callApi', () => {
     const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
     const templateId = '0xaa1525fe964092a826934ff09c75e1db395b947543a4ca3eb4a19628bad6c6d5';
     const [logs, res] = await callApi({
+      type: 'http-signed-data-gateway',
       config: { ois: [fixtures.buildOIS()], apiCredentials: [fixtures.buildApiCredentials()] },
       aggregatedApiCall: fixtures.buildAggregatedHttpSignedDataApiCall({
         endpointId,
@@ -188,6 +192,7 @@ describe('callApi', () => {
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
 
     await callApi({
+      type: 'regular',
       config: fixtures.buildConfig(),
       aggregatedApiCall: fixtures.buildAggregatedRegularApiCall(),
     });
@@ -207,7 +212,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
+    const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
@@ -222,7 +227,7 @@ describe('callApi', () => {
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-    const [logs, res] = await callApi({ config: fixtures.buildConfig(), aggregatedApiCall });
+    const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
     expect(logs).toEqual([{ level: 'ERROR', message: `Unable to find value at path: 'unknown'` }]);
     expect(res).toEqual({
       errorMessage: `Unable to find value at path: 'unknown'`,
@@ -236,6 +241,7 @@ describe('callApi', () => {
     const parameters = { _type: 'uint256', _path: 'price', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({
+      type: 'regular',
       config: fixtures.buildConfig(),
       aggregatedApiCall,
     });
@@ -255,6 +261,7 @@ describe('callApi', () => {
     const parameters = { _type: 'string', _path: 'price', from: 'ETH', test: 'new' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({
+      type: 'regular',
       config: fixtures.buildConfig(),
       aggregatedApiCall,
     });
@@ -276,6 +283,7 @@ describe('callApi', () => {
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH', test: 'new' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({
+      type: 'regular',
       config: fixtures.buildConfig(),
       aggregatedApiCall,
     });
@@ -316,6 +324,7 @@ describe('callApi', () => {
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
       const [logs, res] = await callApi({
+        type: 'regular',
         config,
         aggregatedApiCall,
       });
@@ -359,6 +368,7 @@ describe('callApi', () => {
       config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], postProcessingSpecifications };
 
       const [logs, res] = await callApi({
+        type: 'regular',
         config,
         aggregatedApiCall,
       });
@@ -396,7 +406,7 @@ describe('verifyTemplateId', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ templateId: null });
     const config = fixtures.buildConfig();
 
-    const response = verifyTemplateId({ aggregatedApiCall, config });
+    const response = verifyTemplateId({ type: 'regular', aggregatedApiCall, config });
 
     expect(response).toEqual(null);
   });
@@ -408,7 +418,7 @@ describe('verifyTemplateId', () => {
     });
     const config = fixtures.buildConfig();
 
-    const response = verifyTemplateId({ aggregatedApiCall, config });
+    const response = verifyTemplateId({ type: 'regular', aggregatedApiCall, config });
 
     expect(response).toEqual([
       [
@@ -435,7 +445,7 @@ describe('verifyTemplateId', () => {
     });
     const config = fixtures.buildConfig();
 
-    const response = verifyTemplateId({ aggregatedApiCall, config });
+    const response = verifyTemplateId({ type: 'regular', aggregatedApiCall, config });
 
     expect(response).toEqual(null);
   });
@@ -460,7 +470,7 @@ describe('verifyTemplateId', () => {
           template: invalidTemplate,
         });
         const expectedTemplateId = getExpectedTemplateIdV0(invalidTemplate);
-        const response = verifyTemplateId({ aggregatedApiCall, config });
+        const response = verifyTemplateId({ type: 'regular', aggregatedApiCall, config });
         expect(response).toEqual([
           [
             {

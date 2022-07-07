@@ -2,7 +2,11 @@ import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
-import { AggregatedApiCall, HttpSignedDataApiCallSuccessResponse, ApiCallTemplateWithoutId } from '../types';
+import {
+  HttpSignedDataApiCallSuccessResponse,
+  ApiCallTemplateWithoutId,
+  HttpSignedDataAggregatedApiCall,
+} from '../types';
 import { callApi } from '../api';
 import { Config } from '../config';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
@@ -28,8 +32,7 @@ export async function processHttpSignedDataRequest(
   };
   const templateId = getExpectedTemplateIdV1(template);
 
-  const aggregatedApiCall: AggregatedApiCall = {
-    type: 'http-signed-data-gateway',
+  const aggregatedApiCall: HttpSignedDataAggregatedApiCall = {
     id: requestId,
     endpointId,
     endpointName: trigger.endpointName,
@@ -42,7 +45,7 @@ export async function processHttpSignedDataRequest(
     },
   };
 
-  const [logs, response] = await callApi({ config, aggregatedApiCall });
+  const [logs, response] = await callApi({ type: 'http-signed-data-gateway', config, aggregatedApiCall });
 
   logger.logPending(logs, logOptions);
 
