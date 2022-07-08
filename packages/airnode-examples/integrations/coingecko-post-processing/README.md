@@ -1,7 +1,7 @@
 # Coingecko post-processing integration example
 
 This is a basic example showcasing how to use
-[postprocessing](https://docs.api3.org/ois/v1.0.0/ois.html#_5-10-postprocessingspecifications) to enable an advanced use
+[postprocessing](https://docs.api3.org/ois/v1.0/ois.html#_5-10-postprocessingspecifications) to enable an advanced use
 case which modifies the CoinGecko API response before sending the response on chain.
 
 The `config.json` defines a single callable endpoint, called `coinsMarketData` which you can call with different coin
