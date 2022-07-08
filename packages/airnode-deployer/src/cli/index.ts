@@ -74,7 +74,7 @@ yargs(hideBin(process.argv))
       receipt: {
         alias: 'r',
         description: 'Output path for receipt file',
-        default: 'output/receipt.json',
+        default: 'config/receipt.json',
         type: 'string',
       },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
@@ -91,14 +91,28 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'remove',
-    'Removes a deployed Airnode instance',
+    'remove-with-receipt',
+    'Removes a deployed Airnode instance using a receipt file',
     {
       receipt: {
         alias: 'r',
         description: 'Path to receipt file',
+        default: 'config/receipt.json',
         type: 'string',
       },
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      await runCommand(() => removeWithReceipt(args.receipt!));
+      return;
+    }
+  )
+  .command(
+    'remove-with-deployment-details',
+    'Removes a deployed Airnode instance using the Airnode short address and cloud provider specifications',
+    {
       'airnode-address-short': {
         alias: 'a',
         description: 'Airnode Address (short version)',
@@ -128,7 +142,6 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      const receiptRemove = !!args.receipt;
       const descriptiveArgsCommon = ['airnode-address-short', 'stage', 'cloud-provider', 'region'];
       const descriptiveArgsCloud = {
         aws: descriptiveArgsCommon,
@@ -137,24 +150,13 @@ yargs(hideBin(process.argv))
       const descriptiveArgsAll = uniq(
         Object.values(descriptiveArgsCloud).reduce((result, array) => [...result, ...array])
       );
-      const argsProvided = intersection([...descriptiveArgsAll, 'receipt'], keys(args));
       const descriptiveArgsProvided = intersection(descriptiveArgsAll, keys(args));
 
-      if (isEmpty(argsProvided)) {
+      if (isEmpty(descriptiveArgsProvided)) {
         // Throwing strings to prevent yargs from showing error stack trace
-        throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${printableArguments(
+        throw `Missing arguments. You have to describe the Airnode deployment with ${printableArguments(
           descriptiveArgsAll
         )}.`;
-      }
-
-      if (receiptRemove && !isEmpty(descriptiveArgsProvided)) {
-        // Throwing strings to prevent yargs from showing error stack trace
-        throw "Can't mix data from receipt and data from command line arguments.";
-      }
-
-      if (receiptRemove) {
-        await runCommand(() => removeWithReceipt(args.receipt!));
-        return;
       }
 
       if (!args['cloud-provider']) {

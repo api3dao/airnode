@@ -39,5 +39,5 @@ After, you have the necessary deployment files ready, there are two options how 
 1. Run `yarn cli ...`
 2. First build the package using `yarn build`, then make the CLI binary executable by running
    `chmod +x ./dist/bin/deployer.js`, then use
-   `yarn airnode-deployer deploy -c pathTo/config.json -s pathTo/secrets.env -r myOutput/receipt.json` to deploy or
-   redeploy and use `yarn airnode-deployer remove -r myOutput/receipt.json` to remove Airnode.
+   `yarn airnode-deployer deploy -c pathTo/config.json -s pathTo/secrets.env -r pathTo/receipt.json` to deploy or
+   redeploy and use `yarn airnode-deployer remove-with-receipt -r pathTo/receipt.json` to remove Airnode.

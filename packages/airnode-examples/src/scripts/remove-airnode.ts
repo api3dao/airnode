@@ -22,7 +22,7 @@ const main = async () => {
     integrationInfo.airnodeType === 'aws' && `--env-file ${secretsFilePath}`,
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
     `-v ${integrationPath}:/app/output`,
-    `${imageName} remove -r output/receipt.json`,
+    `${imageName} remove -r config/receipt.json`,
   ]
     .filter(Boolean)
     .join(' ');
