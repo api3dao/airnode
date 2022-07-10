@@ -88,7 +88,7 @@ export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
     } as any);
 
   return {
-    gasTarget: { type: 2, gasPrice, gasLimit },
+    gasTarget: { type: 2, maxFeePerGas: gasPrice, maxPriorityFeePerGas: gasPrice, gasLimit },
     blockSpy,
     gasPriceSpy,
     blockWithTransactionsSpy,

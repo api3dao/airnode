@@ -35,3 +35,27 @@ export interface FetchOptions {
   provider: ethers.providers.Provider;
   chainOptions: ChainOptions;
 }
+
+export interface LatestBlockPercentileGasPriceStrategy {
+  gasPriceStrategy: 'latestBlockPercentileGasPrice';
+  percentile: number;
+  minTransactionCount: number;
+  pastToCompareInBlocks: number;
+  maxDeviationMultiplier: number;
+}
+export interface ProviderRecommendedGasPriceStrategy {
+  gasPriceStrategy: 'providerRecommendedGasPrice';
+  recommendedGasPriceMultiplier: number;
+}
+
+export interface ConstantGasPriceStrategy {
+  gasPriceStrategy: 'constantGasPrice';
+  gasPrice: PriorityFee;
+}
+
+export type GasPriceOracleStrategy =
+  | LatestBlockPercentileGasPriceStrategy
+  | ProviderRecommendedGasPriceStrategy
+  | ConstantGasPriceStrategy;
+
+export type GasPriceOracleConfig = GasPriceOracleStrategy[];

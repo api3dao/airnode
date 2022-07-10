@@ -173,7 +173,11 @@ describe('processTransactions', () => {
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 212,
           // example: balance of 250_000_000 - ((50_000 + 20_000) * 1000)
-          value: balance.sub(ethers.BigNumber.from(50_000).add(ethers.BigNumber.from(20_000)).mul(gasTarget.gasPrice)),
+          value: balance.sub(
+            ethers.BigNumber.from(50_000)
+              .add(ethers.BigNumber.from(20_000))
+              .mul(gasTarget.gasPrice ? gasTarget.gasPrice : gasTarget.maxFeePerGas!)
+          ),
         }
       );
     }

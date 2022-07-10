@@ -1,40 +1,41 @@
 import * as hre from 'hardhat';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import '@nomiclabs/hardhat-ethers';
-import { config } from '@api3/airnode-validator';
 import { go, assertGoSuccess } from '@api3/promise-utils';
 import * as gasOracle from '../../src/evm/gas-prices/gas-oracle';
 import * as gasPrices from '../../src/evm/gas-prices/gas-prices';
-import { PriorityFee } from '../../src/evm/gas-prices/types';
-// import { buildAirseekerConfig, buildLocalSecrets } from '../fixtures/config';
+import {
+  PriorityFee,
+  LatestBlockPercentileGasPriceStrategy,
+  ProviderRecommendedGasPriceStrategy,
+  ConstantGasPriceStrategy,
+  GasPriceOracleConfig,
+} from '../../src/evm/gas-prices/types';
 import { executeTransactions } from '../setup/transactions';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
 jest.setTimeout(60_000);
 
-const providerUrl = 'http://127.0.0.1:8545/';
-const provider = new hre.ethers.providers.StaticJsonRpcProvider(providerUrl);
-
-const latestBlockPercentileGasPriceStrategy: config.LatestBlockPercentileGasPriceStrategy = {
+const latestBlockPercentileGasPriceStrategy: LatestBlockPercentileGasPriceStrategy = {
   gasPriceStrategy: 'latestBlockPercentileGasPrice',
   percentile: 60,
   minTransactionCount: 20,
   pastToCompareInBlocks: 20,
-  maxDeviationMultiplier: 2,
+  maxDeviationMultiplier: 5, // Set high to ensure that e2e tests do not use fallback
 };
-const providerRecommendedGasPriceStrategy: config.ProviderRecommendedGasPriceStrategy = {
+const providerRecommendedGasPriceStrategy: ProviderRecommendedGasPriceStrategy = {
   gasPriceStrategy: 'providerRecommendedGasPrice',
   recommendedGasPriceMultiplier: 1.2,
 };
-const constantGasPriceStrategy: config.ConstantGasPriceStrategy = {
+const constantGasPriceStrategy: ConstantGasPriceStrategy = {
   gasPriceStrategy: 'constantGasPrice',
   gasPrice: {
     value: 10,
     unit: 'gwei',
   },
 };
-const defaultGasPriceOracleOptions: config.GasPriceOracleConfig = [
+const defaultGasPriceOracleOptions: GasPriceOracleConfig = [
   latestBlockPercentileGasPriceStrategy,
   providerRecommendedGasPriceStrategy,
   constantGasPriceStrategy,
@@ -44,6 +45,7 @@ const multiplyGasPrice = (gasPrice: BigNumber, recommendedGasPriceMultiplier?: n
   recommendedGasPriceMultiplier ? gasPrices.multiplyGasPrice(gasPrice, recommendedGasPriceMultiplier) : gasPrice;
 
 const processBlockData = async (
+  provider: ethers.providers.StaticJsonRpcProvider,
   blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[],
   percentile: number,
   maxDeviationMultiplier: number,
@@ -84,6 +86,8 @@ describe('Gas oracle', () => {
   txTypes.forEach((txType) => {
     describe(`${txType} network`, () => {
       let blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[];
+      const providerUrl = 'http://127.0.0.1:8545/';
+      const provider = new hre.ethers.providers.StaticJsonRpcProvider(providerUrl);
 
       beforeEach(async () => {
         // Reset the local hardhat network state for each test to prevent issues with other test contracts
@@ -105,6 +109,7 @@ describe('Gas oracle', () => {
         const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
 
         const processedPercentileGasPrice = await processBlockData(
+          provider,
           blocksWithGasPrices,
           latestBlockPercentileGasPriceStrategy.percentile,
           latestBlockPercentileGasPriceStrategy.maxDeviationMultiplier,
@@ -116,7 +121,7 @@ describe('Gas oracle', () => {
       });
 
       it('returns providerRecommendedGasPrice if maxDeviationMultiplier is exceeded', async () => {
-        const gasPriceOracleOptions: config.GasPriceOracleConfig = [
+        const gasPriceOracleOptions: GasPriceOracleConfig = [
           {
             ...latestBlockPercentileGasPriceStrategy,
             // Set a low maxDeviationMultiplier to test getGasPrice fallback
