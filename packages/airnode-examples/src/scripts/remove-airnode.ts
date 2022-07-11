@@ -21,7 +21,7 @@ const main = async () => {
     isWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     integrationInfo.airnodeType === 'aws' && `--env-file ${secretsFilePath}`,
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
-    `-v ${integrationPath}:/app/output`,
+    `-v ${integrationPath}:/app/config`,
     `${imageName} remove-with-receipt`,
   ]
     .filter(Boolean)
