@@ -8,7 +8,12 @@ import {
   GasPriceOracleStrategy,
   GasPriceOracleConfig,
 } from './types';
-import { GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS, RANDOM_BACKOFF_MIN_MS, RANDOM_BACKOFF_MAX_MS } from '../../constants';
+import {
+  GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
+  GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+  RANDOM_BACKOFF_MIN_MS,
+  RANDOM_BACKOFF_MAX_MS,
+} from '../../constants';
 import { logger, PendingLog, LogsData } from '../../logging';
 
 export const calculateTimeout = (startTime: number, totalTimeout: number) => totalTimeout - (Date.now() - startTime);
@@ -50,9 +55,10 @@ export const fetchProviderRecommendedGasPrice = async (
 ) => {
   const { recommendedGasPriceMultiplier } = gasOracleOptions;
 
+  const startTime = Date.now();
   const gasPrice = await go(() => provider.getGasPrice(), {
-    attemptTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
-    totalTimeoutMs: calculateTimeout(Date.now(), GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+    attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+    totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
     retries: 2,
     delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
     onAttemptError: (goError) => logger.warn(`Failed attempt to get gas price. Error: ${goError.error}.`),
@@ -77,13 +83,14 @@ export const fetchLatestBlockPercentileGasPrice = async (
 
   // Define block tags to fetch
   const blockTagsToFetch = ['latest', -pastToCompareInBlocks];
+  const startTime = Date.now();
 
   // Fetch blocks in parallel
   const blockPromises = blockTagsToFetch.map(
     async (blockTag) =>
       await go(() => provider.getBlockWithTransactions(blockTag), {
-        attemptTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
-        totalTimeoutMs: calculateTimeout(Date.now(), GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+        attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+        totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
         retries: 2,
         delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
         onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
@@ -174,9 +181,7 @@ export const getGasPrice = async (
 
   // Attempt gas oracle strategies in order
   for (const strategy of gasPriceOracleConfig) {
-    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy), {
-      retries: 0,
-    });
+    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy));
 
     // Continue to the next strategy attempt if the current fails
     if (!goAttemptGasOraclePriceStrategy.success) {
