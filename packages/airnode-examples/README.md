@@ -143,6 +143,9 @@ After you know the secrets, run the following script to specify them:
 yarn create-aws-secrets
 ```
 
+The credentials should be stored in the integration directory - e.g. if you have chosen the `coingecko` integration,
+store the file as `integrations/coingecko/aws.env`.
+
 #### 6. (Only if deploying to GCP) Create GCP credentials
 
 If you intend to deploy Airnode on GCP, you will need to create a service account for your project and create and
