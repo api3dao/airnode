@@ -97,6 +97,29 @@ describe('gasPriceOracleSchema', () => {
           message: 'Missing required constantGasPrice strategy',
           path: ['gasPriceOracle'],
         },
+        {
+          code: 'custom',
+          message: 'ConstantGasPrice strategy must be set as the last strategy in the array.',
+          path: ['gasPriceOracle'],
+        },
+      ])
+    );
+  });
+
+  it('throws if constantGasPrice is not the last strategy in the array', () => {
+    expect(() =>
+      gasPriceOracleSchema.parse([
+        latestBlockPercentileGasPriceStrategy,
+        constantGasPriceStrategy,
+        providerRecommendedGasPriceStrategy,
+      ])
+    ).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'ConstantGasPrice strategy must be set as the last strategy in the array.',
+          path: ['gasPriceOracle'],
+        },
       ])
     );
   });

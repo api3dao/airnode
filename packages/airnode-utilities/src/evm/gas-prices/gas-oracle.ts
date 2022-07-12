@@ -161,8 +161,8 @@ export const attemptGasOracleStrategy = async (
       return await fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig);
     case 'providerRecommendedGasPrice':
       return await fetchProviderRecommendedGasPrice(provider, gasOracleConfig);
-    case 'constantGasPrice':
-      return fetchConstantGasPrice(gasOracleConfig);
+    default:
+      throw new Error('Unsupported gas price oracle strategy.');
   }
 };
 
@@ -173,8 +173,12 @@ export const getGasPrice = async (
 ): Promise<LogsData<ethers.BigNumber>> => {
   const logs: PendingLog[] = [];
 
-  // Attempt gas oracle strategies in order
-  for (const strategy of gasPriceOracleConfig) {
+  const gasPriceOracleStrategies = gasPriceOracleConfig.filter(
+    (strategy) => strategy.gasPriceStrategy !== 'constantGasPrice'
+  );
+
+  // Attempt gas oracle strategies (excluding constantGasPrice) in order
+  for (const strategy of gasPriceOracleStrategies) {
     const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy));
 
     // Continue to the next strategy attempt if the current fails

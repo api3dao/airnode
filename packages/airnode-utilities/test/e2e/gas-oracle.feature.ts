@@ -190,10 +190,7 @@ describe('Gas oracle', () => {
           jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice').mockImplementation(() => {
             throw new Error('Unexpected error');
           });
-          // Throw on the first call of fetchConstantGasPrice
-          jest.spyOn(gasOracle, 'fetchConstantGasPrice').mockImplementationOnce(() => {
-            throw new Error('Unexpected error');
-          });
+
           const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
           // Ensure that getGasPrice did not throw
           assertGoSuccess(goGasPrice);

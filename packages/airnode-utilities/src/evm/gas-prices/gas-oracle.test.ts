@@ -5,7 +5,7 @@ import * as gasOracle from './gas-oracle';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
-jest.setTimeout(10_000);
+jest.setTimeout(20_000);
 
 describe('Gas oracle', () => {
   const provider = new ethers.providers.StaticJsonRpcProvider('http://127.0.0.1:8545/');
@@ -81,6 +81,16 @@ describe('Gas oracle', () => {
         2
       );
       expect(isWithinDeviationLimit).toEqual(true);
+    });
+  });
+
+  describe('attemptGasOracleStrategy', () => {
+    it('throws on invalid gasPriceOracle strategy', async () => {
+      const goAttemptGasOraclePriceStrategy = await go(() =>
+        gasOracle.attemptGasOracleStrategy(provider, { gasPriceStrategy: 'invalidStategy' } as any)
+      );
+      assertGoError(goAttemptGasOraclePriceStrategy);
+      expect(goAttemptGasOraclePriceStrategy.error).toEqual(new Error('Unsupported gas price oracle strategy.'));
     });
   });
 
@@ -395,15 +405,22 @@ describe('Gas oracle', () => {
       jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice').mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      // Throw on the first call of fetchConstantGasPrice
-      jest.spyOn(gasOracle, 'fetchConstantGasPrice').mockImplementationOnce(() => {
-        throw new Error('Unexpected error');
-      });
+
       const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
       // Ensure that getGasPrice did not throw
       assertGoSuccess(goGasPrice);
       const [_logs, gasPrice] = goGasPrice.data;
       expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+    });
+
+    it('returns constantGasPrice if gasOracleConfig includes an invalid strategy', async () => {
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, [
+        { gasPriceStrategy: 'invalidStrategy' },
+        constantGasPriceStrategy,
+      ] as any);
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+
+      expect(gasPrice).toEqual(constantGasPrice);
     });
   });
 });

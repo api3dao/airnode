@@ -125,6 +125,14 @@ export const validateGasPriceOracleStrategies: SuperRefinement<GasPriceOracleCon
       path: ['gasPriceOracle'],
     });
   }
+
+  if (gasPriceOracle[gasPriceOracle.length - 1]?.gasPriceStrategy !== 'constantGasPrice') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `ConstantGasPrice strategy must be set as the last strategy in the array.`,
+      path: ['gasPriceOracle'],
+    });
+  }
 };
 
 export const gasPriceOracleSchema = z
