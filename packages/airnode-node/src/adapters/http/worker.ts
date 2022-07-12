@@ -10,7 +10,7 @@ export async function spawnNewApiCall(
 ): Promise<LogsData<ApiCallResponse | null>> {
   const options = {
     ...workerOpts,
-    payload: { type: 'regular', aggregatedApiCall, logOptions, functionName: 'callApi' } as CallApiPayload,
+    payload: { aggregatedApiCall, logOptions, functionName: 'callApi' } as CallApiPayload,
   };
 
   const goRes = await go(() => workers.spawn(options));

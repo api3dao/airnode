@@ -9,7 +9,6 @@ import {
   ProcessTransactionsPayload,
   WorkerPayload,
   loadTrustedConfig,
-  ApiCallPayload,
 } from '@api3/airnode-node';
 import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -69,11 +68,7 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
 
 async function callApi(payload: CallApiPayload, res: Response) {
   const { aggregatedApiCall, logOptions } = payload;
-  const [logs, apiCallResponse] = await handlers.callApi({
-    type: 'regular',
-    config: parsedConfig,
-    aggregatedApiCall,
-  } as ApiCallPayload);
+  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
   logger.logPending(logs, logOptions);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);

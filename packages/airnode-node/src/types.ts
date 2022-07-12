@@ -334,8 +334,7 @@ export interface ProcessTransactionsPayload {
 
 export interface CallApiPayload {
   readonly functionName: 'callApi';
-  readonly type: 'regular' | 'http-gateway' | 'http-signed-data-gateway';
-  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly aggregatedApiCall: RegularAggregatedApiCall;
   readonly logOptions: LogOptions;
 }
 
