@@ -7,6 +7,7 @@
     "rootDir": "./",
     "outDir": "../dist"
   },
+  "references": [{ "path": "../../airnode-validator/src" }],
   "include": ["./**/*.ts"],
   "exclude": ["./**/*.test.ts"]
 }

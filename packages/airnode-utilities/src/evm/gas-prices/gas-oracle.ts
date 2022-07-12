@@ -1,13 +1,7 @@
 import { ethers } from 'ethers';
 import { go } from '@api3/promise-utils';
+import { config } from '@api3/airnode-validator';
 import { multiplyGasPrice, parsePriorityFee } from './gas-prices';
-import {
-  LatestBlockPercentileGasPriceStrategy,
-  ProviderRecommendedGasPriceStrategy,
-  ConstantGasPriceStrategy,
-  GasPriceOracleStrategy,
-  GasPriceOracleConfig,
-} from './types';
 import {
   GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
   GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
@@ -45,13 +39,13 @@ export const checkMaxDeviationLimit = (
 };
 
 // Returns the constant gas price
-export const fetchConstantGasPrice = (constantGasPriceStrategy: ConstantGasPriceStrategy) =>
+export const fetchConstantGasPrice = (constantGasPriceStrategy: config.ConstantGasPriceStrategy) =>
   parsePriorityFee(constantGasPriceStrategy.gasPrice);
 
 // Returns the provider gas price and applies the recommended multiplier
 export const fetchProviderRecommendedGasPrice = async (
   provider: ethers.providers.StaticJsonRpcProvider,
-  gasOracleOptions: ProviderRecommendedGasPriceStrategy
+  gasOracleOptions: config.ProviderRecommendedGasPriceStrategy
 ) => {
   const { recommendedGasPriceMultiplier } = gasOracleOptions;
 
@@ -77,7 +71,7 @@ export const fetchProviderRecommendedGasPrice = async (
 
 export const fetchLatestBlockPercentileGasPrice = async (
   provider: ethers.providers.StaticJsonRpcProvider,
-  gasOracleOptions: LatestBlockPercentileGasPriceStrategy
+  gasOracleOptions: config.LatestBlockPercentileGasPriceStrategy
 ) => {
   const { percentile, minTransactionCount, maxDeviationMultiplier, pastToCompareInBlocks } = gasOracleOptions;
 
@@ -160,7 +154,7 @@ export const fetchLatestBlockPercentileGasPrice = async (
 
 export const attemptGasOracleStrategy = async (
   provider: ethers.providers.StaticJsonRpcProvider,
-  gasOracleConfig: GasPriceOracleStrategy
+  gasOracleConfig: config.GasPriceOracleStrategy
 ) => {
   switch (gasOracleConfig.gasPriceStrategy) {
     case 'latestBlockPercentileGasPrice':
@@ -175,7 +169,7 @@ export const attemptGasOracleStrategy = async (
 // Get gas price based on gas price oracle strategies
 export const getGasPrice = async (
   provider: ethers.providers.StaticJsonRpcProvider,
-  gasPriceOracleConfig: GasPriceOracleConfig
+  gasPriceOracleConfig: config.GasPriceOracleConfig
 ): Promise<LogsData<ethers.BigNumber>> => {
   const logs: PendingLog[] = [];
 
@@ -210,7 +204,7 @@ export const getGasPrice = async (
   // Return the constant strategy gas price if all other strategies fail
   const constantGasPriceConfig = gasPriceOracleConfig.find(
     (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
-  ) as ConstantGasPriceStrategy;
+  ) as config.ConstantGasPriceStrategy;
   const constantGasPrice = fetchConstantGasPrice(constantGasPriceConfig);
   logs.push(
     logger.pend(

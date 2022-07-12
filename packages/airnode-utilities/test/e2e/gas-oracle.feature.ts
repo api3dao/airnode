@@ -2,40 +2,35 @@ import * as hre from 'hardhat';
 import { BigNumber, ethers } from 'ethers';
 import '@nomiclabs/hardhat-ethers';
 import { go, assertGoSuccess } from '@api3/promise-utils';
+import { config } from '@api3/airnode-validator';
 import * as gasOracle from '../../src/evm/gas-prices/gas-oracle';
 import * as gasPrices from '../../src/evm/gas-prices/gas-prices';
-import {
-  PriorityFee,
-  LatestBlockPercentileGasPriceStrategy,
-  ProviderRecommendedGasPriceStrategy,
-  ConstantGasPriceStrategy,
-  GasPriceOracleConfig,
-} from '../../src/evm/gas-prices/types';
+import { PriorityFee } from '../../src/evm/gas-prices/types';
 import { executeTransactions } from '../setup/transactions';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
 jest.setTimeout(60_000);
 
-const latestBlockPercentileGasPriceStrategy: LatestBlockPercentileGasPriceStrategy = {
+const latestBlockPercentileGasPriceStrategy: config.LatestBlockPercentileGasPriceStrategy = {
   gasPriceStrategy: 'latestBlockPercentileGasPrice',
   percentile: 60,
   minTransactionCount: 20,
   pastToCompareInBlocks: 20,
   maxDeviationMultiplier: 5, // Set high to ensure that e2e tests do not use fallback
 };
-const providerRecommendedGasPriceStrategy: ProviderRecommendedGasPriceStrategy = {
+const providerRecommendedGasPriceStrategy: config.ProviderRecommendedGasPriceStrategy = {
   gasPriceStrategy: 'providerRecommendedGasPrice',
   recommendedGasPriceMultiplier: 1.2,
 };
-const constantGasPriceStrategy: ConstantGasPriceStrategy = {
+const constantGasPriceStrategy: config.ConstantGasPriceStrategy = {
   gasPriceStrategy: 'constantGasPrice',
   gasPrice: {
     value: 10,
     unit: 'gwei',
   },
 };
-const defaultGasPriceOracleOptions: GasPriceOracleConfig = [
+const defaultGasPriceOracleOptions: config.GasPriceOracleConfig = [
   latestBlockPercentileGasPriceStrategy,
   providerRecommendedGasPriceStrategy,
   constantGasPriceStrategy,
@@ -121,7 +116,7 @@ describe('Gas oracle', () => {
       });
 
       it('returns providerRecommendedGasPrice if maxDeviationMultiplier is exceeded', async () => {
-        const gasPriceOracleOptions: GasPriceOracleConfig = [
+        const gasPriceOracleOptions: config.GasPriceOracleConfig = [
           {
             ...latestBlockPercentileGasPriceStrategy,
             // Set a low maxDeviationMultiplier to test getGasPrice fallback

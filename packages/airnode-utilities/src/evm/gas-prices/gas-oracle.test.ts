@@ -1,12 +1,7 @@
 import { ethers } from 'ethers';
 import { go, assertGoError, assertGoSuccess } from '@api3/promise-utils';
+import { config } from '@api3/airnode-validator';
 import * as gasOracle from './gas-oracle';
-import {
-  LatestBlockPercentileGasPriceStrategy,
-  ProviderRecommendedGasPriceStrategy,
-  ConstantGasPriceStrategy,
-  GasPriceOracleConfig,
-} from './types';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
@@ -14,25 +9,25 @@ jest.setTimeout(10_000);
 
 describe('Gas oracle', () => {
   const provider = new ethers.providers.StaticJsonRpcProvider('http://127.0.0.1:8545/');
-  const latestBlockPercentileGasPriceStrategy: LatestBlockPercentileGasPriceStrategy = {
+  const latestBlockPercentileGasPriceStrategy: config.LatestBlockPercentileGasPriceStrategy = {
     gasPriceStrategy: 'latestBlockPercentileGasPrice',
     percentile: 60,
     minTransactionCount: 20,
     pastToCompareInBlocks: 20,
     maxDeviationMultiplier: 2,
   };
-  const providerRecommendedGasPriceStrategy: ProviderRecommendedGasPriceStrategy = {
+  const providerRecommendedGasPriceStrategy: config.ProviderRecommendedGasPriceStrategy = {
     gasPriceStrategy: 'providerRecommendedGasPrice',
     recommendedGasPriceMultiplier: 1.2,
   };
-  const constantGasPriceStrategy: ConstantGasPriceStrategy = {
+  const constantGasPriceStrategy: config.ConstantGasPriceStrategy = {
     gasPriceStrategy: 'constantGasPrice',
     gasPrice: {
       value: 10,
       unit: 'gwei',
     },
   };
-  const defaultGasPriceOracleOptions: GasPriceOracleConfig = [
+  const defaultGasPriceOracleOptions: config.GasPriceOracleConfig = [
     latestBlockPercentileGasPriceStrategy,
     providerRecommendedGasPriceStrategy,
     constantGasPriceStrategy,
