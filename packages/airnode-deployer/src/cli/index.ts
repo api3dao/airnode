@@ -144,6 +144,7 @@ yargs(hideBin(process.argv))
 
       if (args['cloud-provider'] === 'gcp') {
         if (!args['project-id']) {
+          // Throwing strings to prevent yargs from showing error stack trace
           throw `Missing required argument '--project-id' for removing a GCP deployment`;
         }
       }
