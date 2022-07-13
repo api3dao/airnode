@@ -1,13 +1,12 @@
 import {
   RegularAggregatedApiCall,
   HttpSignedDataAggregatedApiCall,
-  HttpAggregatedApiCall,
+  BaseAggregatedApiCall,
   RegularAggregatedApiCallWithResponse,
 } from '../../src/types';
 
 export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregatedApiCall>): RegularAggregatedApiCall {
   return {
-    type: 'regular',
     sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
     requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
@@ -53,9 +52,8 @@ export function buildAggregatedRegularApiCallWithResponse(
   };
 }
 
-export function buildAggregatedHttpGatewayApiCall(params?: Partial<HttpAggregatedApiCall>): HttpAggregatedApiCall {
+export function buildAggregatedHttpGatewayApiCall(params?: Partial<BaseAggregatedApiCall>): BaseAggregatedApiCall {
   return {
-    type: 'http-gateway',
     endpointName: 'convertToUSD',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
@@ -67,7 +65,6 @@ export function buildAggregatedHttpSignedDataApiCall(
   params?: Partial<HttpSignedDataAggregatedApiCall>
 ): HttpSignedDataAggregatedApiCall {
   return {
-    type: 'http-signed-data-gateway',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
     id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',

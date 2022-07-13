@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
-import { AggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
+import { BaseAggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config';
 
@@ -14,14 +14,13 @@ export async function processHttpRequest(
   // Guaranteed to exist because validation is already performed in the deployer handler
   const trigger = find(config.triggers.http, ['endpointId', endpointId])!;
 
-  const aggregatedApiCall: AggregatedApiCall = {
-    type: 'http-gateway',
+  const aggregatedApiCall: BaseAggregatedApiCall = {
     endpointName: trigger.endpointName,
     oisTitle: trigger.oisTitle,
     parameters,
   };
 
-  const [logs, response] = await callApi({ config, aggregatedApiCall });
+  const [logs, response] = await callApi({ type: 'http-gateway', config, aggregatedApiCall });
 
   logger.logPending(logs, logOptions);
 

@@ -44,6 +44,6 @@ describe('processHttpSignedDataRequests', () => {
     expect(err).toBeNull();
     expect(res).toEqual(mockedResponse);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith({ config, aggregatedApiCall });
+    expect(spy).toHaveBeenCalledWith({ type: 'http-signed-data-gateway', config, aggregatedApiCall });
   });
 });
