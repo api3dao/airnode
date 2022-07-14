@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { go, assertGoError, assertGoSuccess } from '@api3/promise-utils';
 import { config } from '@api3/airnode-validator';
 import * as gasOracle from './gas-oracle';
+import { GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS } from '../../constants';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
@@ -365,11 +366,14 @@ describe('Gas oracle', () => {
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
-      const goLatestBlockPercentileGasPrice = await go(() =>
-        gasOracle.fetchLatestBlockPercentileGasPrice(provider, latestBlockPercentileGasPriceStrategy)
+      await go(() =>
+        gasOracle.processGasPriceOracleStrategies(
+          provider,
+          [latestBlockPercentileGasPriceStrategy, constantGasPriceStrategy] as config.GasPriceOracleConfig,
+          Date.now()
+        )
       );
-      assertGoError(goLatestBlockPercentileGasPrice);
-      expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(6);
+      expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(4);
     });
 
     it('retries provider getGasPrice', async () => {
@@ -380,11 +384,62 @@ describe('Gas oracle', () => {
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
-      const goProviderRecommendedGasPrice = await go(() =>
-        gasOracle.fetchProviderRecommendedGasPrice(provider, providerRecommendedGasPriceStrategy)
+      await go(() =>
+        gasOracle.processGasPriceOracleStrategies(
+          provider,
+          [providerRecommendedGasPriceStrategy, constantGasPriceStrategy],
+          Date.now()
+        )
       );
-      assertGoError(goProviderRecommendedGasPrice);
-      expect(getGasPriceSpy).toHaveBeenCalledTimes(3);
+      expect(getGasPriceSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('handles timeouts', () => {
+    it('return constantGasPrice after totalTimeoutMs is exceeded due to processGasPriceOracleStrategies timeout', async () => {
+      const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
+      processGasPriceOracleStrategiesSpy.mockImplementation(
+        async () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              return resolve([[], ethers.BigNumber.from(10)] as any);
+            }, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
+          })
+      );
+
+      // totalTimeoutMs is 10 seconds and each strategy attempt has 2 attempts so
+      // we need to attempt at least 5 strategies to test exceeding the totalTimeoutMs of getGasPrice
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+
+      // processGasPriceOracleStrategiesSpy should have been called once when totalTimeoutMs is exceeded
+      expect(processGasPriceOracleStrategiesSpy).toHaveBeenCalledTimes(1);
+      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+    });
+
+    it('return constantGasPrice after totalTimeoutMs is exceeded due to attemptGasOracleStrategy timeout', async () => {
+      const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
+      attemptGasOracleStrategySpy.mockImplementation(
+        async () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              return resolve([[], ethers.BigNumber.from(10)] as any);
+            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+          })
+      );
+      // Mock random backoff time
+      jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
+
+      // totalTimeoutMs is 10 seconds, each strategy attempt has 2 attempts, and so with a delay of 1 second to test exceeding totalTimeoutMs we need at least 3 strategies
+      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, [
+        latestBlockPercentileGasPriceStrategy,
+        latestBlockPercentileGasPriceStrategy,
+        latestBlockPercentileGasPriceStrategy,
+        constantGasPriceStrategy,
+      ]);
+
+      // attemptGasOracleStrategySpy should have been called 4 times
+      expect(attemptGasOracleStrategySpy).toHaveBeenCalledTimes(4);
+      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
     });
   });
 

@@ -49,12 +49,7 @@ export const fetchProviderRecommendedGasPrice = async (
 ) => {
   const { recommendedGasPriceMultiplier } = gasOracleOptions;
 
-  const startTime = Date.now();
   const gasPrice = await go(() => provider.getGasPrice(), {
-    attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
-    totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
-    retries: 2,
-    delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
     onAttemptError: (goError) => logger.warn(`Failed attempt to get gas price. Error: ${goError.error}.`),
   });
 
@@ -77,16 +72,11 @@ export const fetchLatestBlockPercentileGasPrice = async (
 
   // Define block tags to fetch
   const blockTagsToFetch = ['latest', -pastToCompareInBlocks];
-  const startTime = Date.now();
 
   // Fetch blocks in parallel
   const blockPromises = blockTagsToFetch.map(
     async (blockTag) =>
       await go(() => provider.getBlockWithTransactions(blockTag), {
-        attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
-        totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
-        retries: 2,
-        delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
         onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
       })
   );
@@ -170,7 +160,43 @@ export const attemptGasOracleStrategy = async (
 export const getGasPrice = async (
   provider: ethers.providers.StaticJsonRpcProvider,
   gasPriceOracleConfig: config.GasPriceOracleConfig
-): Promise<LogsData<ethers.BigNumber>> => {
+) => {
+  const startTime = Date.now();
+
+  const goProcessGasPriceOracleStrategies = await go(
+    () => processGasPriceOracleStrategies(provider, gasPriceOracleConfig, startTime),
+    { totalTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS }
+  );
+
+  // Return the constant strategy gas price if all other strategies fail
+  if (!goProcessGasPriceOracleStrategies.success || !goProcessGasPriceOracleStrategies.data[1]) {
+    const constantGasPriceConfig = gasPriceOracleConfig.find(
+      (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
+    ) as config.ConstantGasPriceStrategy;
+    const constantGasPrice = fetchConstantGasPrice(constantGasPriceConfig);
+
+    const log = logger.pend(
+      'INFO',
+      `All oracle strategies failed to return a gas price, returning constant gas price set to ${ethers.utils.formatUnits(
+        constantGasPrice,
+        'gwei'
+      )} gwei.`
+    );
+    const strategyLogs = goProcessGasPriceOracleStrategies.success ? goProcessGasPriceOracleStrategies.data[0] : [];
+
+    return [[log, ...strategyLogs], constantGasPrice];
+  }
+
+  const [logs, strategyGasPrice] = goProcessGasPriceOracleStrategies.data;
+
+  return [logs, strategyGasPrice];
+};
+
+export const processGasPriceOracleStrategies = async (
+  provider: ethers.providers.StaticJsonRpcProvider,
+  gasPriceOracleConfig: config.GasPriceOracleConfig,
+  startTime: number
+): Promise<LogsData<ethers.BigNumber | null>> => {
   const logs: PendingLog[] = [];
 
   const gasPriceOracleStrategies = gasPriceOracleConfig.filter(
@@ -179,7 +205,12 @@ export const getGasPrice = async (
 
   // Attempt gas oracle strategies (excluding constantGasPrice) in order
   for (const strategy of gasPriceOracleStrategies) {
-    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy));
+    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy), {
+      attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+      totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+      retries: 1,
+      delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+    });
 
     // Continue to the next strategy attempt if the current fails
     if (!goAttemptGasOraclePriceStrategy.success) {
@@ -205,20 +236,6 @@ export const getGasPrice = async (
     return [logs, goAttemptGasOraclePriceStrategy.data];
   }
 
-  // Return the constant strategy gas price if all other strategies fail
-  const constantGasPriceConfig = gasPriceOracleConfig.find(
-    (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
-  ) as config.ConstantGasPriceStrategy;
-  const constantGasPrice = fetchConstantGasPrice(constantGasPriceConfig);
-  logs.push(
-    logger.pend(
-      'INFO',
-      `All oracle strategies failed to return a gas price, returning constant gas price set to ${ethers.utils.formatUnits(
-        constantGasPrice,
-        'gwei'
-      )} gwei.`
-    )
-  );
-
-  return [logs, constantGasPrice];
+  // Return logs and null if all strategies fail
+  return [logs, null];
 };
