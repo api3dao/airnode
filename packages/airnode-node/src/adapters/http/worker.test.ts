@@ -17,7 +17,7 @@ describe('spawnNewApiCall', () => {
   };
 
   it('handles remote AWS calls', async () => {
-    invokeMock.mockImplementationOnce((params, callback) =>
+    invokeMock.mockImplementationOnce((_params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: { value: '0x123' } }) }) })
     );
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
@@ -38,7 +38,7 @@ describe('spawnNewApiCall', () => {
   });
 
   it('returns an error if the worker rejects', async () => {
-    invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
+    invokeMock.mockImplementationOnce((_params, callback) => callback(new Error('Something went wrong'), null));
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
@@ -60,7 +60,7 @@ describe('spawnNewApiCall', () => {
 
   it('returns an error if the response has an error log', async () => {
     const errorLog = logger.pend('ERROR', 'Something went wrong');
-    invokeMock.mockImplementationOnce((params, callback) =>
+    invokeMock.mockImplementationOnce((_params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
     );
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
@@ -81,7 +81,7 @@ describe('spawnNewApiCall', () => {
   });
 
   it('returns an error if the response is not ok', async () => {
-    invokeMock.mockImplementationOnce((params, callback) =>
+    invokeMock.mockImplementationOnce((_params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
     );
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();

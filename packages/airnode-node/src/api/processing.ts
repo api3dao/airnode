@@ -3,9 +3,9 @@ import { go } from '@api3/promise-utils';
 import { unsafeEvaluate, unsafeEvaluateAsync } from './unsafe-evaluate';
 import { apiCallParametersSchema } from '../validation';
 import { PROCESSING_TIMEOUT } from '../constants';
-import { CallApiPayload } from './index';
+import { ApiCallPayload } from '../types';
 
-export const preProcessApiSpecifications = async (payload: CallApiPayload): Promise<CallApiPayload> => {
+export const preProcessApiSpecifications = async (payload: ApiCallPayload): Promise<ApiCallPayload> => {
   const { config, aggregatedApiCall } = payload;
   const { endpointName, oisTitle } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
@@ -46,7 +46,7 @@ export const preProcessApiSpecifications = async (payload: CallApiPayload): Prom
       ...aggregatedApiCall,
       parameters,
     },
-  };
+  } as ApiCallPayload;
 };
 
 export const postProcessApiSpecifications = async (input: unknown, endpoint: Endpoint) => {

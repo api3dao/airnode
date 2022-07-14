@@ -4,11 +4,6 @@ import * as wallet from '../wallet';
 import { ApiCall, Request, LogsData, UpdatedRequests } from '../../types';
 import { Trigger } from '../../config';
 
-export const isValidSponsorWallet = (hdNode: ethers.utils.HDNode, sponsor: string, sponsorWallet: string) => {
-  const derivedSponsorWallet = wallet.deriveSponsorWallet(hdNode, sponsor);
-  return derivedSponsorWallet.address === sponsorWallet;
-};
-
 // TODO: Remove this once https://api3dao.atlassian.net/browse/AN-400 is done
 export function verifySponsorWallets<T>(
   unverifiedRequests: Request<T>[],

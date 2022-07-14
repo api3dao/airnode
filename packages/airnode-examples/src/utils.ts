@@ -34,7 +34,11 @@ export const readIntegrationInfo = (): IntegrationInfo =>
 /**
  * @returns The contents of the "aws.env" file (throws if it doesn't exist)
  */
-export const readAwsSecrets = () => parseEnvFile(readFileSync(join(__dirname, '../aws.env')));
+export const readAwsSecrets = () => {
+  const integrationInfo = readIntegrationInfo();
+
+  return parseEnvFile(readFileSync(join(__dirname, `../integrations/${integrationInfo.integration}/aws.env`)));
+};
 
 /**
  * @returns The contents of the "secrets.env" file for the current integration (throws if it doesn't exist)
