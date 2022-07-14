@@ -20,8 +20,8 @@ const main = async () => {
     isWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     integrationInfo.airnodeType === 'aws' && `-v "${integrationPath}/aws.env:/app/aws.env"`,
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
-    `-v ${integrationPath}:/app/output`,
-    `${imageName} remove -r output/receipt.json`,
+    `-v ${integrationPath}:/app/config`,
+    `${imageName} remove-with-receipt`,
   ]
     .filter(Boolean)
     .join(' ');

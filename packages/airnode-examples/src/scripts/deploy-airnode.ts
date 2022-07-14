@@ -21,7 +21,6 @@ const main = async () => {
     integrationInfo.airnodeType === 'aws' && `-v "${integrationPath}/aws.env:/app/aws.env"`,
     integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
     `-v ${integrationPath}:/app/config`,
-    `-v ${integrationPath}:/app/output`,
     `${imageName} deploy`,
   ]
     .filter(Boolean)
