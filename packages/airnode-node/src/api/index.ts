@@ -4,23 +4,24 @@ import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
-import { getMasterHDNode, getAirnodeWalletFromPrivateKey } from '../evm';
+import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
-import { isValidSponsorWallet, isValidRequestId } from '../evm/verification';
+import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
-  AggregatedApiCall,
   ApiCallResponse,
   LogsData,
   RequestErrorMessage,
   ApiCallErrorResponse,
   ApiCallParameters,
+  ApiCallPayload,
+  RegularApiCallPayload,
+  HttpSignedApiCallPayload,
 } from '../types';
-import { Config } from '../config';
 
-function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
-  const { config, aggregatedApiCall } = payload;
+function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
+  const { type, config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
   const ois = config.ois.find((o) => o.title === oisTitle)!;
@@ -40,7 +41,7 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const sanitizedParameters: adapter.Parameters = removeKeys(allParameters, RESERVED_PARAMETERS);
 
-  switch (aggregatedApiCall.type) {
+  switch (type) {
     case 'http-signed-data-gateway':
     case 'http-gateway': {
       return {
@@ -52,10 +53,10 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
       };
     }
     case 'regular': {
-      const { airnodeAddress, requesterAddress, sponsorAddress, sponsorWalletAddress, endpointId, id, chainId } =
-        aggregatedApiCall;
+      const { requesterAddress, sponsorAddress, sponsorWalletAddress, id, chainId } = aggregatedApiCall;
+
       // Find the chain config based on the aggregatedApiCall chainId
-      const chain = config.chains.find((c) => c.id === chainId)!;
+      const chain = config.chains.find((c) => c.id === chainId);
 
       return {
         endpointName,
@@ -63,15 +64,12 @@ function buildOptions(payload: CallApiPayload): adapter.BuildRequestOptions {
         ois,
         apiCredentials,
         metadata: {
-          airnodeAddress: airnodeAddress,
           requesterAddress: requesterAddress,
           sponsorAddress: sponsorAddress,
           sponsorWalletAddress: sponsorWalletAddress,
-          endpointId: endpointId,
           requestId: id,
           chainId: chainId,
-          chainType: chain.type,
-          airnodeRrpAddress: chain.contracts.AirnodeRrp,
+          chainType: chain?.type || 'evm',
         },
       };
     }
@@ -100,52 +98,36 @@ async function signWithTemplateId(templateId: string, timestamp: string, data: s
   );
 }
 
-export interface CallApiPayload {
-  readonly config: Config;
-  readonly aggregatedApiCall: AggregatedApiCall;
-}
-
-function verifySponsorWallet(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type !== 'regular') return null;
 
   const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
-  const hdNode = getMasterHDNode(config);
-  if (isValidSponsorWallet(hdNode, sponsorAddress, sponsorWalletAddress)) return null;
+  const derivedSponsorWallet = deriveSponsorWalletFromMnemonic(
+    config.nodeSettings.airnodeWalletMnemonic,
+    sponsorAddress
+  );
+  if (derivedSponsorWallet.address === sponsorWalletAddress) return null;
 
   // TODO: Abstract this to a logging utils file
   const message = `${RequestErrorMessage.SponsorWalletInvalid}, Request ID:${id}`;
   const log = logger.pend('ERROR', message);
-  return [
-    [log],
-    {
-      success: false,
-      errorMessage: message,
-    },
-  ];
+  return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyRequestId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
+function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
-  if (aggregatedApiCall.type !== 'regular') return null;
 
   if (isValidRequestId(aggregatedApiCall)) return null;
 
   const message = `${RequestErrorMessage.RequestIdInvalid}. Request ID:${aggregatedApiCall.id}`;
   const log = logger.pend('ERROR', message);
-  return [
-    [log],
-    {
-      success: false,
-      errorMessage: message,
-    },
-  ];
+  return [[log], { success: false, errorMessage: message }];
 }
 
-export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallErrorResponse> | null {
-  const { aggregatedApiCall } = payload;
-
-  if (aggregatedApiCall.type === 'http-gateway') return null;
+export function verifyTemplateId(
+  payload: RegularApiCallPayload | HttpSignedApiCallPayload
+): LogsData<ApiCallErrorResponse> | null {
+  const { type, aggregatedApiCall } = payload;
 
   const { templateId, template, id } = aggregatedApiCall;
   if (!templateId) {
@@ -155,19 +137,11 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
   if (!template) {
     const message = `Ignoring Request:${id} as the template could not be found for verification`;
     const log = logger.pend('ERROR', message);
-    return [
-      [log],
-      {
-        success: false,
-        errorMessage: message,
-      },
-    ];
+    return [[log], { success: false, errorMessage: message }];
   }
 
   const expectedTemplateId =
-    aggregatedApiCall.type === 'http-signed-data-gateway'
-      ? getExpectedTemplateIdV1(template)
-      : getExpectedTemplateIdV0(template);
+    type === 'http-signed-data-gateway' ? getExpectedTemplateIdV1(template) : getExpectedTemplateIdV0(template);
 
   if (templateId === expectedTemplateId) return null;
 
@@ -176,13 +150,28 @@ export function verifyTemplateId(payload: CallApiPayload): LogsData<ApiCallError
   return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyCallApiPayload(payload: CallApiPayload) {
+function verifyCallApi(payload: ApiCallPayload) {
+  switch (payload.type) {
+    case 'regular':
+      return verifyRegularCallApiParams(payload);
+    case 'http-signed-data-gateway':
+      return verifyHttpSignedCallApiParams(payload);
+    default:
+      return null;
+  }
+}
+
+function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   const verifications = [verifySponsorWallet, verifyRequestId, verifyTemplateId];
 
   return verifications.reduce((result, verifierFn) => {
     if (result) return result;
     return verifierFn(payload);
   }, null as LogsData<ApiCallErrorResponse> | null);
+}
+
+function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
+  return verifyTemplateId(payload) as LogsData<ApiCallErrorResponse> | null;
 }
 
 interface PerformApiCallSuccess {
@@ -194,7 +183,7 @@ function isPerformApiCallFailure(value: ApiCallErrorResponse | PerformApiCallSuc
 }
 
 async function performApiCall(
-  payload: CallApiPayload
+  payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
@@ -214,10 +203,10 @@ async function performApiCall(
 }
 
 async function processSuccessfulApiCall(
-  payload: CallApiPayload,
+  payload: ApiCallPayload,
   rawResponse: PerformApiCallSuccess
 ): Promise<LogsData<ApiCallResponse>> {
-  const { config, aggregatedApiCall } = payload;
+  const { type, config, aggregatedApiCall } = payload;
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
@@ -242,7 +231,7 @@ async function processSuccessfulApiCall(
 
   const response = goExtractAndEncodeResponse.data;
 
-  switch (aggregatedApiCall.type) {
+  switch (type) {
     case 'http-gateway':
       return [[], { success: true, data: response }];
     case 'regular': {
@@ -278,8 +267,8 @@ async function processSuccessfulApiCall(
   }
 }
 
-export async function callApi(payload: CallApiPayload): Promise<LogsData<ApiCallResponse>> {
-  const verificationResult = verifyCallApiPayload(payload);
+export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCallResponse>> {
+  const verificationResult = verifyCallApi(payload);
   if (verificationResult) return verificationResult;
 
   const processedPayload = await preProcessApiSpecifications(payload);

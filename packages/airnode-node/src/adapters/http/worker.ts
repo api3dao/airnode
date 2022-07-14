@@ -1,10 +1,10 @@
 import { logger, LogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as workers from '../../workers';
-import { AggregatedApiCall, ApiCallResponse, LogsData, WorkerOptions, CallApiPayload } from '../../types';
+import { ApiCallResponse, LogsData, WorkerOptions, CallApiPayload, RegularAggregatedApiCall } from '../../types';
 
 export async function spawnNewApiCall(
-  aggregatedApiCall: AggregatedApiCall,
+  aggregatedApiCall: RegularAggregatedApiCall,
   logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ApiCallResponse | null>> {

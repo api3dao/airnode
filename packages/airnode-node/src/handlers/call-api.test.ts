@@ -5,12 +5,11 @@ import { callApi } from '.';
 describe('callApi', () => {
   it('calls API', () => {
     const initializeSpy = jest.spyOn(api, 'callApi');
-    const payload = {
-      config: fixtures.buildConfig(),
-      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall(),
-    };
-    callApi(payload);
+    const config = fixtures.buildConfig();
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
+
+    callApi(config, aggregatedApiCall);
     expect(initializeSpy).toHaveBeenCalledTimes(1);
-    expect(initializeSpy).toHaveBeenCalledWith(payload);
+    expect(initializeSpy).toHaveBeenCalledWith({ type: 'regular', config, aggregatedApiCall });
   });
 });
