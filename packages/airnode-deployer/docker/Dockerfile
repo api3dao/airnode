@@ -30,7 +30,7 @@ RUN dos2unix /entrypoint.sh
 RUN find ${appDir}/terraform -type f -exec dos2unix -q {} {} \;
 
 # Default placement for GCP credentials
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcp.json
 
 WORKDIR ${appDir}
 

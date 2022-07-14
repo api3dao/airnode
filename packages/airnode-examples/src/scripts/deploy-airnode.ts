@@ -18,8 +18,8 @@ const main = async () => {
   const deployCommand = [
     `docker run -it --rm`,
     isWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
-    integrationInfo.airnodeType === 'aws' && `-v "${integrationPath}/aws.env:/app/aws.env"`,
-    integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/gcp.json"`,
+    integrationInfo.airnodeType === 'aws' && `-v "${integrationPath}/aws.env:/app/config/aws.env"`,
+    integrationInfo.airnodeType === 'gcp' && `-v "${integrationPath}/gcp.json:/app/config/gcp.json"`,
     `-v ${integrationPath}:/app/config`,
     `${imageName} deploy`,
   ]
