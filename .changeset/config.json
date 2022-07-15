@@ -1,8 +1,8 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.6.1/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "api3dao/airnode" }],
+  "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "linked": [["@api3/*"]],
+  "fixed": [["@api3/*"]],
   "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
