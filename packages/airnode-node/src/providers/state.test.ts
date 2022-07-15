@@ -30,12 +30,6 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: 'eip1559',
-        baseFeeMultiplier: 2,
-        priorityFee: {
-          value: 3.12,
-          unit: 'gwei',
-        },
         fulfillmentGasLimit: 500_000,
         gasPriceOracle: [
           {
@@ -65,12 +59,6 @@ describe('create', () => {
         chainId: '1337',
         chainType: 'evm',
         chainOptions: {
-          txType: 'eip1559',
-          baseFeeMultiplier: 2,
-          priorityFee: {
-            value: 3.12,
-            unit: 'gwei',
-          },
           fulfillmentGasLimit: 500_000,
           gasPriceOracle: [
             {
@@ -133,12 +121,6 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: 'eip1559',
-        baseFeeMultiplier: 2,
-        priorityFee: {
-          value: 3.12,
-          unit: 'gwei',
-        },
         fulfillmentGasLimit: 500_000,
         gasPriceOracle: [
           {
@@ -167,12 +149,6 @@ describe('create', () => {
         blockHistoryLimit: 150,
         chainId: '1337',
         chainOptions: {
-          txType: 'eip1559',
-          baseFeeMultiplier: 2,
-          priorityFee: {
-            value: 3.12,
-            unit: 'gwei',
-          },
           fulfillmentGasLimit: 500_000,
           gasPriceOracle: [
             {

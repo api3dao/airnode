@@ -41,7 +41,6 @@ describe('startCoordinator', () => {
         ...chain,
         options: {
           ...chain.options,
-          txType,
           fulfillmentGasLimit: 500_000,
         },
       })),
@@ -65,7 +64,12 @@ describe('startCoordinator', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const { gasTarget, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+    const { gasTarget: gasTargetMock, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+    // Set gasTarget to type 0 since only providerRecommendedEip1559GasPriceStrategy returns type 2 values
+    const gasTarget =
+      txType === 'eip1559'
+        ? { type: 0, gasPrice: gasTargetMock.maxFeePerGas, gasLimit: gasTargetMock.gasLimit }
+        : gasTargetMock;
 
     const txCountSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getTransactionCount');
     txCountSpy.mockResolvedValueOnce(212);

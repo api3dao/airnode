@@ -1,6 +1,6 @@
 import * as airnodeAbi from '@api3/airnode-abi';
 import { AirnodeRrpV0, RequesterAuthorizerWithAirnode, PROTOCOL_IDS } from '@api3/airnode-protocol';
-import { getEip1559GasPricing, getLegacyGasPrice } from '@api3/airnode-utilities';
+import { fetchProviderRecommendedEip1559GasPrice, fetchProviderRecommendedGasPrice } from '@api3/airnode-utilities';
 import { ethers } from 'ethers';
 import { Arguments } from 'yargs';
 import { config } from '@api3/airnode-validator';
@@ -65,7 +65,14 @@ export const parseOverrides = async (
 
   // EIP1559 network and no EIP1559 overrides or legacy overrides
   if (supportsEip1559 && !hasEip1559Overrides && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await getEip1559GasPricing(provider, { txType: 'eip1559' });
+    const gasTarget = await fetchProviderRecommendedEip1559GasPrice(provider, {
+      gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
+      baseFeeMultiplier: 2,
+      priorityFee: {
+        value: 3.12,
+        unit: 'gwei',
+      },
+    });
 
     return {
       ...overrides,
@@ -75,7 +82,10 @@ export const parseOverrides = async (
 
   // Legacy network and no legacy overrides
   if (!supportsEip1559 && !hasLegacyOverrides) {
-    const [_gasPriceLogs, gasTarget] = await getLegacyGasPrice(provider, { txType: 'legacy' });
+    const gasTarget = await fetchProviderRecommendedGasPrice(provider, {
+      gasPriceStrategy: 'providerRecommendedGasPrice',
+      recommendedGasPriceMultiplier: 1,
+    });
 
     return {
       ...overrides,

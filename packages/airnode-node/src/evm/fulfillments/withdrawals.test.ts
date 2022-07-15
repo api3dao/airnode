@@ -30,12 +30,12 @@ import { Amount } from '../../config';
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;
 const config = fixtures.buildConfig();
 
-const gasTarget = {
+const gasTarget: GasTarget = {
   type: 2,
   maxPriorityFeePerGas: ethers.BigNumber.from(1),
   maxFeePerGas: ethers.BigNumber.from(1000),
 };
-const gasTargetFallback = {
+const gasTargetFallback: GasTarget = {
   type: 0,
   gasPrice: ethers.BigNumber.from('1000'),
 };
@@ -45,7 +45,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `subtracts transaction costs and submits the remaining balance for pending requests - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -87,7 +87,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `subtracts transaction costs plus a withdrawal remainder and submits the remaining balance for pending requests - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -134,7 +134,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `does nothing if the withdrawal amount would be negative - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000_000));
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
@@ -160,7 +160,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `does nothing if the withdrawal does not have a nonce - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: undefined });
       const options = {
@@ -183,7 +183,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `returns an error if the current balance cannot be fetched - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockRejectedValueOnce(new Error('Could not fetch balance'));
       getBalanceMock.mockRejectedValueOnce(new Error('Could not fetch balance'));
@@ -209,7 +209,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `returns an error if the estimate gas limit call fails - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
       estimateGasWithdrawalMock.mockRejectedValueOnce(new Error('Server did not respond'));
@@ -236,7 +236,7 @@ describe('submitWithdrawal', () => {
 
   test.each([gasTarget, gasTargetFallback])(
     `returns an error if the withdrawal fails to submit - %#`,
-    async (gasTarget: GasTarget) => {
+    async (gasTarget) => {
       const provider = new ethers.providers.JsonRpcProvider();
       getBalanceMock.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
       estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));

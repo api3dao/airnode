@@ -38,7 +38,6 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         id: '31337',
         type: 'evm',
         options: {
-          txType: 'legacy',
           fulfillmentGasLimit: 123456,
           gasPriceOracle: [
             {

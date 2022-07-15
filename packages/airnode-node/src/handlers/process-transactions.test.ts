@@ -11,10 +11,6 @@ describe('processTransactions', () => {
 
     const processSpy = jest.spyOn(evmHandler, 'processTransactions');
     const initialState = fixtures.buildEVMProviderSponsorState();
-    const chainOptions = {
-      txType,
-      fulfillmentGasLimit: 500_000,
-    };
 
     const state = {
       ...initialState,
@@ -22,8 +18,7 @@ describe('processTransactions', () => {
         ...initialState.settings,
         chainOptions: {
           ...initialState.settings.chainOptions,
-          ...chainOptions,
-          txType,
+          fulfillmentGasLimit: 500_000,
         },
       },
     };

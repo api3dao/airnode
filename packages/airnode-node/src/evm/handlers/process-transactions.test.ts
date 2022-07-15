@@ -24,14 +24,13 @@ import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, ProviderState, EVMProviderSponsorState } from '../../types';
 
-const createConfig = (txType: 'legacy' | 'eip1559') => {
+const createConfig = () => {
   const initialConfig = fixtures.buildConfig();
   return {
     ...initialConfig,
     chains: initialConfig.chains.map((chain) => ({
       ...chain,
       options: {
-        txType,
         fulfillmentGasLimit: 500_000,
         gasPriceOracle: [
           {
@@ -53,8 +52,13 @@ describe('processTransactions', () => {
   test.each(['legacy', 'eip1559'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %s',
     async (txType) => {
-      const config = createConfig(txType);
-      const { gasTarget, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+      const config = createConfig();
+      const { gasTarget: gasTargetMock, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+      // Set gasTarget to type 0 since only providerRecommendedEip1559GasPriceStrategy returns type 2 values
+      const gasTarget =
+        txType === 'eip1559'
+          ? { type: 0, gasPrice: gasTargetMock.maxFeePerGas!, gasLimit: gasTargetMock.gasLimit }
+          : gasTargetMock;
 
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       const balance = ethers.utils.parseEther('1000');
@@ -102,7 +106,6 @@ describe('processTransactions', () => {
           chainOptions: {
             ...initialState.settings.chainOptions,
             fulfillmentGasLimit: 500_000,
-            txType,
           },
         },
       } as ProviderState<EVMProviderSponsorState>;
@@ -148,7 +151,6 @@ describe('processTransactions', () => {
           chainOptions: {
             ...initialState.settings.chainOptions,
             fulfillmentGasLimit: 500_000,
-            txType,
           },
         },
       } as ProviderState<EVMProviderSponsorState>;
@@ -173,11 +175,7 @@ describe('processTransactions', () => {
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 212,
           // example: balance of 250_000_000 - ((50_000 + 20_000) * 1000)
-          value: balance.sub(
-            ethers.BigNumber.from(50_000)
-              .add(ethers.BigNumber.from(20_000))
-              .mul(gasTarget.gasPrice ? gasTarget.gasPrice : gasTarget.maxFeePerGas!)
-          ),
+          value: balance.sub(ethers.BigNumber.from(50_000).add(ethers.BigNumber.from(20_000)).mul(gasTarget.gasPrice!)),
         }
       );
     }

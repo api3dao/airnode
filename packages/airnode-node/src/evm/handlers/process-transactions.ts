@@ -1,8 +1,7 @@
-import { getGasPrice, getGasLimit, logger } from '@api3/airnode-utilities';
+import { getGasPrice, logger } from '@api3/airnode-utilities';
 import * as fulfillments from '../fulfillments';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
-// import * as utils from '../utils';
 import { EVMProviderSponsorState, ProviderState } from '../../types';
 
 export async function processTransactions(
@@ -33,17 +32,9 @@ export async function processTransactions(
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
-  const [logs, gasPrice] = await getGasPrice(state2.provider, chainOptions.gasPriceOracle);
+  const [logs, gasTarget] = await getGasPrice(state2.provider, chainOptions);
   logger.logPending(logs, baseLogOptions);
 
-  const gasPriceWithType =
-    chainOptions.txType === 'eip1559'
-      ? { type: 2, maxFeePerGas: gasPrice, maxPriorityFeePerGas: gasPrice }
-      : { type: 0, gasPrice };
-  const gasTarget = {
-    ...gasPriceWithType,
-    ...getGasLimit(chainOptions.fulfillmentGasLimit),
-  };
   const state3 = state.update(state2, { gasTarget });
 
   // =================================================================

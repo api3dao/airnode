@@ -25,7 +25,6 @@ export function buildEVMProviderState(
     id: chainId,
     type: chainType,
     options: {
-      txType: 'legacy',
       fulfillmentGasLimit: 123456,
       gasPriceOracle: [
         {

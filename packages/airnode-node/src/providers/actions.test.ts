@@ -53,12 +53,6 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: 'eip1559',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
-      },
       fulfillmentGasLimit: 500_000,
       gasPriceOracle: [
         {
@@ -88,12 +82,6 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: 'eip1559',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
-      },
       fulfillmentGasLimit: 600000,
       gasPriceOracle: [
         {
@@ -142,12 +130,6 @@ describe('initialize', () => {
             chainId: '1',
             chainType: 'evm',
             chainOptions: {
-              txType: 'eip1559',
-              baseFeeMultiplier: 2,
-              priorityFee: {
-                value: 3.12,
-                unit: 'gwei',
-              },
               fulfillmentGasLimit: 500_000,
               gasPriceOracle: [
                 {
@@ -198,12 +180,6 @@ describe('initialize', () => {
             chainId: '3',
             chainType: 'evm',
             chainOptions: {
-              txType: 'eip1559',
-              baseFeeMultiplier: 2,
-              priorityFee: {
-                value: 3.12,
-                unit: 'gwei',
-              },
               fulfillmentGasLimit: 600000,
               gasPriceOracle: [
                 {
@@ -270,7 +246,6 @@ describe('processRequests', () => {
           ...initialState.settings,
           chainOptions: {
             ...initialState.settings.chainOptions,
-            txType,
           },
         },
       }));

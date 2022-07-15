@@ -21,6 +21,14 @@ describe('Gas oracle', () => {
     gasPriceStrategy: 'providerRecommendedGasPrice',
     recommendedGasPriceMultiplier: 1.2,
   };
+  const providerRecommendedEip1559GasPriceStrategy: config.ProviderRecommendedEip1559GasPriceStrategy = {
+    gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
+    baseFeeMultiplier: 2,
+    priorityFee: {
+      value: 3.12,
+      unit: 'gwei',
+    },
+  };
   const constantGasPriceStrategy: config.ConstantGasPriceStrategy = {
     gasPriceStrategy: 'constantGasPrice',
     gasPrice: {
@@ -33,9 +41,42 @@ describe('Gas oracle', () => {
     providerRecommendedGasPriceStrategy,
     constantGasPriceStrategy,
   ];
+  const fulfillmentGasLimit = 500_000;
+  const defaultChainOptions: config.ChainOptions = {
+    gasPriceOracle: defaultGasPriceOracleOptions,
+    fulfillmentGasLimit,
+  };
 
   beforeEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('parsePriorityFee', () => {
+    [
+      [{ value: 123, unit: 'wei' }, ethers.BigNumber.from('123')],
+      [{ value: 123.4, unit: 'kwei' }, ethers.BigNumber.from('123400')],
+      [{ value: 123.4, unit: 'mwei' }, ethers.BigNumber.from('123400000')],
+      [{ value: 123.4, unit: 'gwei' }, ethers.BigNumber.from('123400000000')],
+      [{ value: 123.4, unit: 'szabo' }, ethers.BigNumber.from('123400000000000')],
+      [{ value: 123.4, unit: 'finney' }, ethers.BigNumber.from('123400000000000000')],
+      [{ value: 123.4, unit: 'ether' }, ethers.BigNumber.from('123400000000000000000')],
+    ].forEach(([input, result]: (any | ethers.BigNumber)[]) =>
+      it('returns parsed wei from numbers - %#', () => {
+        const priorityFeeInWei = gasOracle.parsePriorityFee(input);
+        expect(priorityFeeInWei).toEqual(result);
+      })
+    );
+
+    [
+      { value: 3.12, unit: 'pence' },
+      { value: '3.1p', unit: 'gwei' },
+      { value: 3.12, unit: 'wei' },
+    ].forEach((input: any) =>
+      it('throws an error for an invalid decimal denominated string, number and unit - %#', () => {
+        const throwingFunction = () => gasOracle.parsePriorityFee(input);
+        expect(throwingFunction).toThrow();
+      })
+    );
   });
 
   describe('getPercentile', () => {
@@ -113,11 +154,13 @@ describe('Gas oracle', () => {
       ];
       blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(ethers.BigNumber.from(22));
+      expect(gasTarget).toEqual(
+        gasOracle.getGasTargetWithGasLimit({ gasPrice: ethers.BigNumber.from(22), type: 0 }, fulfillmentGasLimit)
+      );
     });
 
     it('returns gas price with eip1559 values', async () => {
@@ -139,11 +182,35 @@ describe('Gas oracle', () => {
       ];
       blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(ethers.BigNumber.from(22));
+      expect(gasTarget).toEqual(
+        gasOracle.getGasTargetWithGasLimit({ gasPrice: ethers.BigNumber.from(22), type: 0 }, fulfillmentGasLimit)
+      );
+    });
+
+    it('returns providerRecommendedEip1559GasPrice', async () => {
+      jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockImplementation(
+        async () =>
+          ({
+            baseFeePerGas: ethers.BigNumber.from(18),
+          } as any)
+      );
+
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+        ...defaultChainOptions,
+        gasPriceOracle: [providerRecommendedEip1559GasPriceStrategy, constantGasPriceStrategy],
+      });
+      const providerRecommendedEip1559GasTarget = await gasOracle.fetchProviderRecommendedEip1559GasPrice(
+        provider,
+        providerRecommendedEip1559GasPriceStrategy
+      );
+
+      expect(gasTarget).toEqual(
+        gasOracle.getGasTargetWithGasLimit(providerRecommendedEip1559GasTarget, fulfillmentGasLimit)
+      );
     });
 
     it('returns providerRecommendedGasPrice if not enough blocks', async () => {
@@ -162,16 +229,16 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
-      const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
+      const providerRecommendedGasTarget = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
         providerRecommendedGasPriceStrategy
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(providerRecommendedGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasTarget, fulfillmentGasLimit));
     });
 
     it('returns providerRecommendedGasPrice if not enough transactions with legacy gas prices', async () => {
@@ -194,7 +261,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -203,7 +270,7 @@ describe('Gas oracle', () => {
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(providerRecommendedGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
     it('returns providerRecommendedGasPrice if not enough transactions with eip1559 gas prices', async () => {
@@ -229,7 +296,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -238,7 +305,7 @@ describe('Gas oracle', () => {
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(providerRecommendedGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
     it('returns providerRecommendedGasPrice if no block data', async () => {
@@ -260,7 +327,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -269,7 +336,7 @@ describe('Gas oracle', () => {
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(providerRecommendedGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
     it('returns providerRecommendedGasPrice if no block transactions', async () => {
@@ -293,7 +360,7 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
@@ -302,7 +369,7 @@ describe('Gas oracle', () => {
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(providerRecommendedGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
     it('returns constantGasPrice if not enough blocks and fallback fails', async () => {
@@ -326,12 +393,12 @@ describe('Gas oracle', () => {
         throw new Error('some error');
       });
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(constantGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
 
     it('returns constantGasPrice if failing to fetch both blocks and provider gas price', async () => {
@@ -347,12 +414,22 @@ describe('Gas oracle', () => {
         throw new Error('some error');
       });
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
-      expect(gasPrice).toEqual(constantGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
+    });
+
+    it('returns constantGasPrice if processGasPriceOracleStrategies returns null', async () => {
+      const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
+      processGasPriceOracleStrategiesSpy.mockImplementation(async () => [[], null]);
+
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
 
     it('retries provider getBlockWithTransactions', async () => {
@@ -409,11 +486,12 @@ describe('Gas oracle', () => {
 
       // totalTimeoutMs is 10 seconds and each strategy attempt has 2 attempts so
       // we need to attempt at least 5 strategies to test exceeding the totalTimeoutMs of getGasPrice
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       // processGasPriceOracleStrategiesSpy should have been called once when totalTimeoutMs is exceeded
       expect(processGasPriceOracleStrategiesSpy).toHaveBeenCalledTimes(1);
-      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
 
     it('return constantGasPrice after totalTimeoutMs is exceeded due to attemptGasOracleStrategy timeout', async () => {
@@ -430,16 +508,20 @@ describe('Gas oracle', () => {
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
 
       // totalTimeoutMs is 10 seconds, each strategy attempt has 2 attempts, and so with a delay of 1 second to test exceeding totalTimeoutMs we need at least 3 strategies
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, [
-        latestBlockPercentileGasPriceStrategy,
-        latestBlockPercentileGasPriceStrategy,
-        latestBlockPercentileGasPriceStrategy,
-        constantGasPriceStrategy,
-      ]);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+        ...defaultChainOptions,
+        gasPriceOracle: [
+          latestBlockPercentileGasPriceStrategy,
+          latestBlockPercentileGasPriceStrategy,
+          latestBlockPercentileGasPriceStrategy,
+          constantGasPriceStrategy,
+        ],
+      });
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
       // attemptGasOracleStrategySpy should have been called 4 times
       expect(attemptGasOracleStrategySpy).toHaveBeenCalledTimes(4);
-      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
   });
 
@@ -448,9 +530,10 @@ describe('Gas oracle', () => {
       const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
       attemptGasOracleStrategySpy.mockRejectedValue({ success: false, error: 'Some error' });
 
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
-      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
 
     it('returns constantGasPrice if all strategy-specific functions throw', async () => {
@@ -461,21 +544,23 @@ describe('Gas oracle', () => {
         throw new Error('Unexpected error');
       });
 
-      const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultGasPriceOracleOptions));
+      const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultChainOptions));
       // Ensure that getGasPrice did not throw
       assertGoSuccess(goGasPrice);
-      const [_logs, gasPrice] = goGasPrice.data;
-      expect(gasPrice).toEqual(gasOracle.fetchConstantGasPrice(constantGasPriceStrategy));
+      const [_logs, gasTarget] = goGasPrice.data;
+
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
 
     it('returns constantGasPrice if gasOracleConfig includes an invalid strategy', async () => {
-      const [_logs, gasPrice] = await gasOracle.getGasPrice(provider, [
-        { gasPriceStrategy: 'invalidStrategy' },
-        constantGasPriceStrategy,
-      ] as any);
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+        ...defaultChainOptions,
+        gasPriceOracle: [{ gasPriceStrategy: 'invalidStrategy' }, constantGasPriceStrategy] as any,
+      });
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
-      expect(gasPrice).toEqual(constantGasPrice);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
   });
 });
