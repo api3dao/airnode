@@ -34,7 +34,7 @@ cp config/secrets.example.env config/secrets.env
 # Edit both `config.json` and `secrets.env` to reflect your configuration
 ```
 
-After, you have the necessary deployment files ready, there are two options how to run the CLI:
+After you prepare the necessary deployment files, there are two options for running the CLI:
 
 1. Run `yarn cli ...`
 2. First build the package using `yarn build`, then make the CLI binary executable by running
