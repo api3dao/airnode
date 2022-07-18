@@ -65,11 +65,16 @@ export const fetchConstantGasPrice = (constantGasPriceStrategy: config.ConstantG
 // Returns the provider gas price and applies the recommended multiplier
 export const fetchProviderRecommendedGasPrice = async (
   provider: Provider,
-  gasOracleOptions: config.ProviderRecommendedGasPriceStrategy
+  gasOracleOptions: config.ProviderRecommendedGasPriceStrategy,
+  startTime: number
 ): Promise<LegacyGasTarget> => {
   const { recommendedGasPriceMultiplier } = gasOracleOptions;
 
   const goGasPrice = await go(() => provider.getGasPrice(), {
+    attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+    totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+    retries: 1,
+    delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
     onAttemptError: (goError) => logger.warn(`Failed attempt to get gas price. Error: ${goError.error}.`),
   });
 
@@ -89,9 +94,16 @@ export const fetchProviderRecommendedGasPrice = async (
 
 export const fetchProviderRecommendedEip1559GasPrice = async (
   provider: Provider,
-  gasOracleOptions: config.ProviderRecommendedEip1559GasPriceStrategy
+  gasOracleOptions: config.ProviderRecommendedEip1559GasPriceStrategy,
+  startTime: number
 ): Promise<Eip1559GasTarget> => {
-  const goBlockHeader = await go(() => provider.getBlock('latest'));
+  const goBlockHeader = await go(() => provider.getBlock('latest'), {
+    attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+    totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+    retries: 1,
+    delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+    onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
+  });
   if (!goBlockHeader.success || !goBlockHeader.data?.baseFeePerGas) {
     throw new Error(`Unable to get provider recommended EIP1559 gas price.`);
   }
@@ -112,7 +124,8 @@ export const fetchProviderRecommendedEip1559GasPrice = async (
 
 export const fetchLatestBlockPercentileGasPrice = async (
   provider: Provider,
-  gasOracleOptions: config.LatestBlockPercentileGasPriceStrategy
+  gasOracleOptions: config.LatestBlockPercentileGasPriceStrategy,
+  startTime: number
 ): Promise<LegacyGasTarget> => {
   const { percentile, minTransactionCount, maxDeviationMultiplier, pastToCompareInBlocks } = gasOracleOptions;
 
@@ -123,6 +136,10 @@ export const fetchLatestBlockPercentileGasPrice = async (
   const blockPromises = blockTagsToFetch.map(
     async (blockTag) =>
       await go(() => provider.getBlockWithTransactions(blockTag), {
+        attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+        totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+        retries: 1,
+        delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
         onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
       })
   );
@@ -190,15 +207,16 @@ export const fetchLatestBlockPercentileGasPrice = async (
 
 export const attemptGasOracleStrategy = async (
   provider: Provider,
-  gasOracleConfig: config.GasPriceOracleStrategy
+  gasOracleConfig: config.GasPriceOracleStrategy,
+  startTime: number
 ): Promise<GasTarget> => {
   switch (gasOracleConfig.gasPriceStrategy) {
     case 'latestBlockPercentileGasPrice':
-      return await fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig);
+      return await fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedGasPrice':
-      return await fetchProviderRecommendedGasPrice(provider, gasOracleConfig);
+      return await fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedEip1559GasPrice':
-      return await fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig);
+      return await fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
     default:
       throw new Error('Unsupported gas price oracle strategy.');
   }
@@ -210,12 +228,10 @@ export const getGasPrice = async (
   chainOptions: config.ChainOptions
 ): Promise<LogsData<GasTarget>> => {
   const { gasPriceOracle, fulfillmentGasLimit } = chainOptions;
-  const startTime = Date.now();
 
-  const goProcessGasPriceOracleStrategies = await go(
-    () => processGasPriceOracleStrategies(provider, gasPriceOracle, startTime),
-    { totalTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS }
-  );
+  const goProcessGasPriceOracleStrategies = await go(() => processGasPriceOracleStrategies(provider, gasPriceOracle), {
+    totalTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
+  });
 
   // Return the constant strategy gas price if all other strategies fail
   if (!goProcessGasPriceOracleStrategies.success || !goProcessGasPriceOracleStrategies.data[1]) {
@@ -243,10 +259,10 @@ export const getGasPrice = async (
 
 export const processGasPriceOracleStrategies = async (
   provider: Provider,
-  gasPriceOracleConfig: config.GasPriceOracleConfig,
-  startTime: number
+  gasPriceOracleConfig: config.GasPriceOracleConfig
 ): Promise<LogsData<GasTarget | null>> => {
   const logs: PendingLog[] = [];
+  const startTime = Date.now();
 
   const gasPriceOracleStrategies = gasPriceOracleConfig.filter(
     (strategy) => strategy.gasPriceStrategy !== 'constantGasPrice'
@@ -254,12 +270,7 @@ export const processGasPriceOracleStrategies = async (
 
   // Attempt gas oracle strategies (excluding constantGasPrice) in order
   for (const strategy of gasPriceOracleStrategies) {
-    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy), {
-      attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
-      totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
-      retries: 1,
-      delay: { type: 'random' as const, minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
-    });
+    const goAttemptGasOraclePriceStrategy = await go(() => attemptGasOracleStrategy(provider, strategy, startTime));
 
     // Continue to the next strategy attempt if the current fails
     if (!goAttemptGasOraclePriceStrategy.success) {

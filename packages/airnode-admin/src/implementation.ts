@@ -65,14 +65,18 @@ export const parseOverrides = async (
 
   // EIP1559 network and no EIP1559 overrides or legacy overrides
   if (supportsEip1559 && !hasEip1559Overrides && !hasLegacyOverrides) {
-    const gasTarget = await fetchProviderRecommendedEip1559GasPrice(provider, {
-      gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
+    const gasTarget = await fetchProviderRecommendedEip1559GasPrice(
+      provider,
+      {
+        gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
+        baseFeeMultiplier: 2,
+        priorityFee: {
+          value: 3.12,
+          unit: 'gwei',
+        },
       },
-    });
+      Date.now()
+    );
 
     return {
       ...overrides,
@@ -82,10 +86,14 @@ export const parseOverrides = async (
 
   // Legacy network and no legacy overrides
   if (!supportsEip1559 && !hasLegacyOverrides) {
-    const gasTarget = await fetchProviderRecommendedGasPrice(provider, {
-      gasPriceStrategy: 'providerRecommendedGasPrice',
-      recommendedGasPriceMultiplier: 1,
-    });
+    const gasTarget = await fetchProviderRecommendedGasPrice(
+      provider,
+      {
+        gasPriceStrategy: 'providerRecommendedGasPrice',
+        recommendedGasPriceMultiplier: 1,
+      },
+      Date.now()
+    );
 
     return {
       ...overrides,

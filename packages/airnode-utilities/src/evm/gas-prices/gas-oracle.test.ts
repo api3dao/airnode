@@ -47,8 +47,11 @@ describe('Gas oracle', () => {
     fulfillmentGasLimit,
   };
 
+  let startTime: number;
+
   beforeEach(() => {
     jest.restoreAllMocks();
+    startTime = Date.now();
   });
 
   describe('parsePriorityFee', () => {
@@ -129,7 +132,7 @@ describe('Gas oracle', () => {
   describe('attemptGasOracleStrategy', () => {
     it('throws on invalid gasPriceOracle strategy', async () => {
       const goAttemptGasOraclePriceStrategy = await go(() =>
-        gasOracle.attemptGasOracleStrategy(provider, { gasPriceStrategy: 'invalidStategy' } as any)
+        gasOracle.attemptGasOracleStrategy(provider, { gasPriceStrategy: 'invalidStategy' } as any, startTime)
       );
       assertGoError(goAttemptGasOraclePriceStrategy);
       expect(goAttemptGasOraclePriceStrategy.error).toEqual(new Error('Unsupported gas price oracle strategy.'));
@@ -205,7 +208,8 @@ describe('Gas oracle', () => {
       });
       const providerRecommendedEip1559GasTarget = await gasOracle.fetchProviderRecommendedEip1559GasPrice(
         provider,
-        providerRecommendedEip1559GasPriceStrategy
+        providerRecommendedEip1559GasPriceStrategy,
+        startTime
       );
 
       expect(gasTarget).toEqual(
@@ -233,7 +237,8 @@ describe('Gas oracle', () => {
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasTarget = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
-        providerRecommendedGasPriceStrategy
+        providerRecommendedGasPriceStrategy,
+        startTime
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -265,7 +270,8 @@ describe('Gas oracle', () => {
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
-        providerRecommendedGasPriceStrategy
+        providerRecommendedGasPriceStrategy,
+        startTime
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -300,7 +306,8 @@ describe('Gas oracle', () => {
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
-        providerRecommendedGasPriceStrategy
+        providerRecommendedGasPriceStrategy,
+        startTime
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -331,7 +338,8 @@ describe('Gas oracle', () => {
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
-        providerRecommendedGasPriceStrategy
+        providerRecommendedGasPriceStrategy,
+        startTime
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -364,7 +372,8 @@ describe('Gas oracle', () => {
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
         provider,
-        providerRecommendedGasPriceStrategy
+        providerRecommendedGasPriceStrategy,
+        startTime
       );
 
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
@@ -444,11 +453,10 @@ describe('Gas oracle', () => {
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
       await go(() =>
-        gasOracle.processGasPriceOracleStrategies(
-          provider,
-          [latestBlockPercentileGasPriceStrategy, constantGasPriceStrategy] as config.GasPriceOracleConfig,
-          Date.now()
-        )
+        gasOracle.processGasPriceOracleStrategies(provider, [
+          latestBlockPercentileGasPriceStrategy,
+          constantGasPriceStrategy,
+        ] as config.GasPriceOracleConfig)
       );
       expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(4);
     });
@@ -462,11 +470,10 @@ describe('Gas oracle', () => {
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
       await go(() =>
-        gasOracle.processGasPriceOracleStrategies(
-          provider,
-          [providerRecommendedGasPriceStrategy, constantGasPriceStrategy],
-          Date.now()
-        )
+        gasOracle.processGasPriceOracleStrategies(provider, [
+          providerRecommendedGasPriceStrategy,
+          constantGasPriceStrategy,
+        ])
       );
       expect(getGasPriceSpy).toHaveBeenCalledTimes(2);
     });
@@ -500,27 +507,69 @@ describe('Gas oracle', () => {
         async () =>
           new Promise((resolve) => {
             setTimeout(() => {
-              return resolve([[], ethers.BigNumber.from(10)] as any);
-            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+              return resolve([[], ethers.BigNumber.from(33)] as any);
+            }, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
           })
       );
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
 
-      // totalTimeoutMs is 10 seconds, each strategy attempt has 2 attempts, and so with a delay of 1 second to test exceeding totalTimeoutMs we need at least 3 strategies
+      // We only need 1 strategy as we are testing attemptGasOracleStrategy timeout
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+        ...defaultChainOptions,
+        gasPriceOracle: [latestBlockPercentileGasPriceStrategy, constantGasPriceStrategy],
+      });
+      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+
+      // attemptGasOracleStrategy should have been called once when totalTimeoutMs is exceeded
+      expect(attemptGasOracleStrategySpy).toHaveBeenCalledTimes(1);
+      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
+    });
+
+    it('return constantGasPrice after totalTimeoutMs is exceeded due to provider timeouts', async () => {
+      const getBlockWithTransactionsSpy = jest.spyOn(
+        ethers.providers.StaticJsonRpcProvider.prototype,
+        'getBlockWithTransactions'
+      );
+      getBlockWithTransactionsSpy.mockImplementation(
+        async () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              return resolve({} as any);
+            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+          })
+      );
+      const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
+      getGasPriceSpy.mockImplementation(
+        async () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              return resolve(ethers.BigNumber.from(33) as any);
+            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+          })
+      );
+      const getBlock = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+      // Mock random backoff time
+      jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
+
+      // totalTimeoutMs is 10 seconds and each provider call has 2 attempts so with a 1 second delay
+      // we need to attempt at least 3 strategies to test exceeding the totalTimeoutMs
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
         ...defaultChainOptions,
         gasPriceOracle: [
           latestBlockPercentileGasPriceStrategy,
-          latestBlockPercentileGasPriceStrategy,
-          latestBlockPercentileGasPriceStrategy,
+          providerRecommendedGasPriceStrategy,
+          providerRecommendedEip1559GasPriceStrategy,
           constantGasPriceStrategy,
         ],
       });
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
-      // attemptGasOracleStrategySpy should have been called 4 times
-      expect(attemptGasOracleStrategySpy).toHaveBeenCalledTimes(4);
+      // getBlockWithTransactions should have been called 4 times (i.e. one strategy with two retry attempts for two blocks each)
+      expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(4);
+      expect(getGasPriceSpy).toHaveBeenCalledTimes(2);
+      // totalTimeoutMs would have been exceeded and the third strategy would not have been attempted
+      expect(getBlock).not.toHaveBeenCalled();
       expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
     });
   });

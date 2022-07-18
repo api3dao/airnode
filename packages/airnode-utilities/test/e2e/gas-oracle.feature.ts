@@ -95,12 +95,13 @@ const processBlockData = async (
 
 describe('Gas oracle', () => {
   const txTypes: ('legacy' | 'eip1559')[] = ['legacy', 'eip1559'];
+  const providerUrl = 'http://127.0.0.1:8545/';
+  const provider = new hre.ethers.providers.StaticJsonRpcProvider(providerUrl);
+  let startTime: number;
 
   txTypes.forEach((txType) => {
     describe(`${txType} network`, () => {
       let blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[];
-      const providerUrl = 'http://127.0.0.1:8545/';
-      const provider = new hre.ethers.providers.StaticJsonRpcProvider(providerUrl);
 
       beforeEach(async () => {
         // Reset the local hardhat network state for each test to prevent issues with other test contracts
@@ -116,6 +117,8 @@ describe('Gas oracle', () => {
 
         // Set automining to true
         await hre.network.provider.send('evm_setAutomine', [true]);
+
+        startTime = Date.now();
       });
 
       it('returns latestBlockPercentileGasPrice', async () => {
@@ -140,7 +143,8 @@ describe('Gas oracle', () => {
         });
         const providerRecommendedEip1559GasPrice = await gasOracle.fetchProviderRecommendedEip1559GasPrice(
           provider,
-          providerRecommendedEip1559GasPriceStrategy
+          providerRecommendedEip1559GasPriceStrategy,
+          startTime
         );
 
         expect(gasTarget).toEqual(
@@ -165,7 +169,8 @@ describe('Gas oracle', () => {
         });
         const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
           provider,
-          providerRecommendedGasPriceStrategy
+          providerRecommendedGasPriceStrategy,
+          startTime
         );
 
         expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
@@ -183,7 +188,8 @@ describe('Gas oracle', () => {
         const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
         const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
           provider,
-          providerRecommendedGasPriceStrategy
+          providerRecommendedGasPriceStrategy,
+          startTime
         );
 
         expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
