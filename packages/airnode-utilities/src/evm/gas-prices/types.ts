@@ -1,37 +1,22 @@
-import { BigNumber, ethers } from 'ethers';
-import { GoAsyncOptions } from '@api3/promise-utils';
+import { z } from 'zod';
+import { BigNumber, providers } from 'ethers';
 
-export interface GasTarget {
-  type: number;
-  maxPriorityFeePerGas?: BigNumber;
-  maxFeePerGas?: BigNumber;
-  gasPrice?: BigNumber;
-  gasLimit?: BigNumber;
-}
+export const legacyGasTargetSchema = z.object({
+  type: z.literal(0),
+  gasPrice: z.instanceof(BigNumber),
+  gasLimit: z.instanceof(BigNumber).optional(),
+});
 
-export interface PriorityFee {
-  value: number;
-  unit: 'wei' | 'kwei' | 'mwei' | 'gwei' | 'szabo' | 'finney' | 'ether';
-}
+export const eip1559GasTargetSchema = z.object({
+  type: z.literal(2),
+  maxPriorityFeePerGas: z.instanceof(BigNumber),
+  maxFeePerGas: z.instanceof(BigNumber),
+  gasLimit: z.instanceof(BigNumber).optional(),
+});
 
-export type Eip1559ChainOptions = {
-  txType: 'eip1559';
-  // If not provided, default values will be used instead
-  baseFeeMultiplier?: number;
-  priorityFee?: PriorityFee;
-  fulfillmentGasLimit?: number;
-} & GoAsyncOptions;
+export const gasTargetSchema = z.discriminatedUnion('type', [legacyGasTargetSchema, eip1559GasTargetSchema]);
 
-export type LegacyChainOptions = {
-  txType: 'legacy';
-  // If not provided, default values will be used instead
-  gasPriceMultiplier?: number;
-  fulfillmentGasLimit?: number;
-} & GoAsyncOptions;
-
-export type ChainOptions = LegacyChainOptions | Eip1559ChainOptions;
-
-export interface FetchOptions {
-  provider: ethers.providers.Provider;
-  chainOptions: ChainOptions;
-}
+export type LegacyGasTarget = z.infer<typeof legacyGasTargetSchema>;
+export type Eip1559GasTarget = z.infer<typeof eip1559GasTargetSchema>;
+export type GasTarget = z.infer<typeof gasTargetSchema>;
+export type Provider = providers.StaticJsonRpcProvider | providers.Provider;

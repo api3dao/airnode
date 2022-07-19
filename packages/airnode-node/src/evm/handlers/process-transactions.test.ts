@@ -22,17 +22,25 @@ mockEthers({
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests } from '../../types';
+import { GroupedRequests, ProviderState, EVMProviderSponsorState } from '../../types';
 
-const createConfig = (txType: 'legacy' | 'eip1559') => {
+const createConfig = () => {
   const initialConfig = fixtures.buildConfig();
   return {
     ...initialConfig,
     chains: initialConfig.chains.map((chain) => ({
       ...chain,
       options: {
-        txType,
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     })),
   };
@@ -44,8 +52,13 @@ describe('processTransactions', () => {
   test.each(['legacy', 'eip1559'] as const)(
     'fetches the gas price, assigns nonces and submits transactions - txType: %s',
     async (txType) => {
-      const config = createConfig(txType);
-      const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
+      const config = createConfig();
+      const { gasTarget: gasTargetMock, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+      // Set gasTarget to type 0 since only providerRecommendedEip1559GasPriceStrategy returns type 2 values
+      const gasTarget =
+        txType === 'eip1559'
+          ? { type: 0, gasPrice: gasTargetMock.maxFeePerGas!, gasLimit: gasTargetMock.gasLimit }
+          : gasTargetMock;
 
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       const balance = ethers.utils.parseEther('1000');
@@ -91,16 +104,15 @@ describe('processTransactions', () => {
         settings: {
           ...initialState.settings,
           chainOptions: {
-            txType,
+            ...initialState.settings.chainOptions,
             fulfillmentGasLimit: 500_000,
           },
         },
-      };
+      } as ProviderState<EVMProviderSponsorState>;
 
       let res = await processTransactions(state);
 
-      expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-      expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
+      expect(blockWithTransactionsSpy).toHaveBeenCalled();
       expect(res.requests.apiCalls[0]).toEqual({
         ...apiCall,
         nonce: 79,
@@ -137,11 +149,11 @@ describe('processTransactions', () => {
         settings: {
           ...initialState.settings,
           chainOptions: {
-            txType,
+            ...initialState.settings.chainOptions,
             fulfillmentGasLimit: 500_000,
           },
         },
-      };
+      } as ProviderState<EVMProviderSponsorState>;
 
       res = await processTransactions(state);
 
@@ -163,63 +175,9 @@ describe('processTransactions', () => {
           gasLimit: ethers.BigNumber.from(70_000),
           nonce: 212,
           // example: balance of 250_000_000 - ((50_000 + 20_000) * 1000)
-          value: balance.sub(
-            ethers.BigNumber.from(50_000)
-              .add(ethers.BigNumber.from(20_000))
-              .mul(gasTarget.gasPrice ? gasTarget.gasPrice : gasTarget.maxFeePerGas!)
-          ),
+          value: balance.sub(ethers.BigNumber.from(50_000).add(ethers.BigNumber.from(20_000)).mul(gasTarget.gasPrice!)),
         }
       );
-    }
-  );
-
-  test.each(['legacy', 'eip1559'] as const)(
-    `does not submit transactions if a gas price cannot be fetched - txType: %s`,
-    async (txType) => {
-      const config = createConfig(txType);
-      const contract = new ethers.Contract('address', ['ABI']);
-      const fulfillMock = jest.spyOn(contract, 'fulfill');
-      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-      const blockSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlock');
-      if (txType === 'legacy') {
-        gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
-      } else {
-        blockSpy.mockRejectedValue(new Error('Block header cannot be fetched'));
-      }
-
-      const apiCall = fixtures.requests.buildSuccessfulApiCall({
-        sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      });
-      const requests: GroupedRequests = {
-        apiCalls: [apiCall],
-        withdrawals: [],
-      };
-      const transactionCountsBySponsorAddress = { '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 79 };
-      const initialState = fixtures.buildEVMProviderSponsorState({
-        requests,
-        transactionCountsBySponsorAddress,
-        sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-      });
-
-      const state = {
-        ...initialState,
-        config,
-        settings: {
-          ...initialState.settings,
-          chainOptions: {
-            txType,
-            fulfillmentGasLimit: 500_000,
-          },
-        },
-      };
-
-      const res = await processTransactions(state);
-
-      expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });
-      expect(res.gasTarget).toEqual(null);
-
-      // API call was NOT submitted
-      expect(fulfillMock).not.toHaveBeenCalled();
     }
   );
 });

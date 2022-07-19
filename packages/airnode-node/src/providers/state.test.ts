@@ -30,13 +30,16 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: 'eip1559',
-        baseFeeMultiplier: 2,
-        priorityFee: {
-          value: 3.12,
-          unit: 'gwei',
-        },
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     };
     const config = fixtures.buildConfig();
@@ -56,13 +59,16 @@ describe('create', () => {
         chainId: '1337',
         chainType: 'evm',
         chainOptions: {
-          txType: 'eip1559',
-          baseFeeMultiplier: 2,
-          priorityFee: {
-            value: 3.12,
-            unit: 'gwei',
-          },
           fulfillmentGasLimit: 500_000,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
         },
         logFormat: 'plain',
         logLevel: 'DEBUG',
@@ -115,13 +121,16 @@ describe('create', () => {
       },
       type: chainType,
       options: {
-        txType: 'eip1559',
-        baseFeeMultiplier: 2,
-        priorityFee: {
-          value: 3.12,
-          unit: 'gwei',
-        },
         fulfillmentGasLimit: 500_000,
+        gasPriceOracle: [
+          {
+            gasPriceStrategy: 'constantGasPrice',
+            gasPrice: {
+              value: 10,
+              unit: 'gwei',
+            },
+          },
+        ],
       },
     };
     const config = fixtures.buildConfig();
@@ -140,13 +149,16 @@ describe('create', () => {
         blockHistoryLimit: 150,
         chainId: '1337',
         chainOptions: {
-          txType: 'eip1559',
-          baseFeeMultiplier: 2,
-          priorityFee: {
-            value: 3.12,
-            unit: 'gwei',
-          },
           fulfillmentGasLimit: 500_000,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
         },
         chainType: 'evm',
         logFormat: 'plain',

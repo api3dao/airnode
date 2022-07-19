@@ -38,8 +38,27 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         id: '31337',
         type: 'evm',
         options: {
-          txType: 'legacy',
           fulfillmentGasLimit: 123456,
+          gasPriceOracle: [
+            {
+              gasPriceStrategy: 'latestBlockPercentileGasPrice',
+              percentile: 60,
+              minTransactionCount: 20,
+              pastToCompareInBlocks: 20,
+              maxDeviationMultiplier: 2,
+            },
+            {
+              gasPriceStrategy: 'providerRecommendedGasPrice',
+              recommendedGasPriceMultiplier: 1.2,
+            },
+            {
+              gasPriceStrategy: 'constantGasPrice',
+              gasPrice: {
+                value: 10,
+                unit: 'gwei',
+              },
+            },
+          ],
           withdrawalRemainder: {
             value: 0,
             unit: 'wei',

@@ -19,17 +19,20 @@
       },
       "type": "evm",
       "options": {
-        "txType": "eip1559",
-        "baseFeeMultiplier": 2,
-        "priorityFee": {
-          "value": 3.12,
-          "unit": "gwei"
-        },
         "fulfillmentGasLimit": 500000,
         "withdrawalRemainder": {
           "value": 1,
           "unit": "gwei"
-        }
+        },
+        "gasPriceOracle": [
+          {
+            "gasPriceStrategy": "constantGasPrice",
+            "gasPrice": {
+              "value": 10,
+              "unit": "gwei"
+            }
+          }
+        ]
       }
     }
   ],

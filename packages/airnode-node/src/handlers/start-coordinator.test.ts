@@ -40,7 +40,7 @@ describe('startCoordinator', () => {
       chains: initialConfig.chains.map((chain) => ({
         ...chain,
         options: {
-          txType,
+          ...chain.options,
           fulfillmentGasLimit: 500_000,
         },
       })),
@@ -64,7 +64,12 @@ describe('startCoordinator', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const { gasTarget, blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
+    const { gasTarget: gasTargetMock, blockWithTransactionsSpy } = createAndMockGasTarget(txType);
+    // Set gasTarget to type 0 since only providerRecommendedEip1559GasPriceStrategy returns type 2 values
+    const gasTarget =
+      txType === 'eip1559'
+        ? { type: 0, gasPrice: gasTargetMock.maxFeePerGas, gasLimit: gasTargetMock.gasLimit }
+        : gasTargetMock;
 
     const txCountSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getTransactionCount');
     txCountSpy.mockResolvedValueOnce(212);
@@ -80,9 +85,7 @@ describe('startCoordinator', () => {
 
     await startCoordinator(config);
 
-    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
-
+    expect(blockWithTransactionsSpy).toHaveBeenCalled();
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(

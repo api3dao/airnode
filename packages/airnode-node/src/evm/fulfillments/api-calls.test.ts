@@ -27,12 +27,12 @@ const config = fixtures.buildConfig();
 
 describe('submitApiCall', () => {
   const masterHDNode = wallet.getMasterHDNode(config);
-  const gasPriceFallback = {
+  const gasPriceFallback: GasTarget = {
     type: 0,
     gasPrice: ethers.BigNumber.from('1000'),
     gasLimit: ethers.BigNumber.from(500_000),
   };
-  const gasPrice = {
+  const gasPrice: GasTarget = {
     type: 2,
     maxPriorityFeePerGas: ethers.BigNumber.from(1),
     maxFeePerGas: ethers.BigNumber.from(1000),
@@ -42,7 +42,7 @@ describe('submitApiCall', () => {
   describe('Pending API calls', () => {
     test.each([gasPrice, gasPriceFallback])(
       `does nothing for API call requests that do not have a nonce - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const provider = new ethers.providers.JsonRpcProvider();
         const apiCall = fixtures.requests.buildSuccessfulApiCall({ nonce: undefined });
         const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
@@ -66,7 +66,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `successfully tests and submits a fulfill transaction for pending requests - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: true, callData: '0x' });
@@ -121,7 +121,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `returns an error if the fulfill transaction for pending requests fails - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: true, callData: '0x' });
@@ -180,7 +180,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction if the fulfill call would revert with empty string - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({ callSuccess: false, callData: '0x' });
@@ -234,7 +234,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction if the fulfill call would revert with a revert string - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce({
@@ -292,7 +292,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `does nothing if the fulfill test returns nothing - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         staticFulfillMock.mockResolvedValueOnce(null);
@@ -334,77 +334,74 @@ describe('submitApiCall', () => {
       }
     );
 
-    test.each([gasPrice, gasPriceFallback])(
-      `returns an error if everything fails - %#`,
-      async (gasTarget: GasTarget) => {
-        const txOpts = { ...gasTarget, nonce: 5 };
-        const provider = new ethers.providers.JsonRpcProvider();
-        const staticCallError = new Error('Static call error');
-        staticFulfillMock.mockRejectedValueOnce(staticCallError);
-        staticFulfillMock.mockRejectedValueOnce(staticCallError);
-        const failTxError = new Error('Fail transaction error');
-        failMock.mockRejectedValueOnce(failTxError);
-        failMock.mockRejectedValueOnce(failTxError);
-        const apiCall = fixtures.requests.buildSuccessfulApiCall({
-          id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
-          data: {
-            encodedValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
-            signature:
-              '0xda6d5aa27f48aa951ba401c8a779645f7d1fa4a46a5e99eb7da04b4e059449a834ca1058c85dfe8117305265228f8cf7ae64c3ef3c4d1cc191f77807227dac461b',
-          },
-          nonce: 5,
-        });
-        const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
-          gasTarget,
-          masterHDNode,
-          provider,
-        });
-        expect(logs).toEqual([
-          { level: 'DEBUG', message: `Attempting to fulfill API call for Request:${apiCall.id}...` },
-          {
-            error: staticCallError,
-            level: 'ERROR',
-            message: `Static call fulfillment failed for Request:${apiCall.id} with ${staticCallError}`,
-          },
-          { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
-          {
-            error: failTxError,
-            level: 'ERROR',
-            message: `Error submitting API call fail transaction for Request:${apiCall.id}`,
-          },
-        ]);
-        expect(err).toEqual(failTxError);
-        expect(data).toEqual(null);
-        expect(staticFulfillMock).toHaveBeenCalledTimes(2);
-        expect(staticFulfillMock).toHaveBeenNthCalledWith(
-          2,
-          apiCall.id,
-          apiCall.airnodeAddress,
-          apiCall.fulfillAddress,
-          apiCall.fulfillFunctionId,
-          '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
-          '0xda6d5aa27f48aa951ba401c8a779645f7d1fa4a46a5e99eb7da04b4e059449a834ca1058c85dfe8117305265228f8cf7ae64c3ef3c4d1cc191f77807227dac461b',
-          txOpts
-        );
-        expect(fulfillMock).not.toHaveBeenCalled();
-        expect(failMock).toHaveBeenCalledTimes(2);
-        expect(failMock).toHaveBeenNthCalledWith(
-          2,
-          apiCall.id,
-          apiCall.airnodeAddress,
-          apiCall.fulfillAddress,
-          apiCall.fulfillFunctionId,
-          'Static call error',
-          txOpts
-        );
-      }
-    );
+    test.each([gasPrice, gasPriceFallback])(`returns an error if everything fails - %#`, async (gasTarget) => {
+      const txOpts = { ...gasTarget, nonce: 5 };
+      const provider = new ethers.providers.JsonRpcProvider();
+      const staticCallError = new Error('Static call error');
+      staticFulfillMock.mockRejectedValueOnce(staticCallError);
+      staticFulfillMock.mockRejectedValueOnce(staticCallError);
+      const failTxError = new Error('Fail transaction error');
+      failMock.mockRejectedValueOnce(failTxError);
+      failMock.mockRejectedValueOnce(failTxError);
+      const apiCall = fixtures.requests.buildSuccessfulApiCall({
+        id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
+        data: {
+          encodedValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
+          signature:
+            '0xda6d5aa27f48aa951ba401c8a779645f7d1fa4a46a5e99eb7da04b4e059449a834ca1058c85dfe8117305265228f8cf7ae64c3ef3c4d1cc191f77807227dac461b',
+        },
+        nonce: 5,
+      });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasTarget,
+        masterHDNode,
+        provider,
+      });
+      expect(logs).toEqual([
+        { level: 'DEBUG', message: `Attempting to fulfill API call for Request:${apiCall.id}...` },
+        {
+          error: staticCallError,
+          level: 'ERROR',
+          message: `Static call fulfillment failed for Request:${apiCall.id} with ${staticCallError}`,
+        },
+        { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
+        {
+          error: failTxError,
+          level: 'ERROR',
+          message: `Error submitting API call fail transaction for Request:${apiCall.id}`,
+        },
+      ]);
+      expect(err).toEqual(failTxError);
+      expect(data).toEqual(null);
+      expect(staticFulfillMock).toHaveBeenCalledTimes(2);
+      expect(staticFulfillMock).toHaveBeenNthCalledWith(
+        2,
+        apiCall.id,
+        apiCall.airnodeAddress,
+        apiCall.fulfillAddress,
+        apiCall.fulfillFunctionId,
+        '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
+        '0xda6d5aa27f48aa951ba401c8a779645f7d1fa4a46a5e99eb7da04b4e059449a834ca1058c85dfe8117305265228f8cf7ae64c3ef3c4d1cc191f77807227dac461b',
+        txOpts
+      );
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).toHaveBeenCalledTimes(2);
+      expect(failMock).toHaveBeenNthCalledWith(
+        2,
+        apiCall.id,
+        apiCall.airnodeAddress,
+        apiCall.fulfillAddress,
+        apiCall.fulfillFunctionId,
+        'Static call error',
+        txOpts
+      );
+    });
   });
 
   describe('Errored API calls', () => {
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction with errorMessage for errored requests - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         failMock.mockResolvedValueOnce({ hash: '0xfailtransaction' });
@@ -445,7 +442,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `submits a fail transaction with a trimmed errorMessage for errored requests - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         const longError = 'This very long error message should get trimmed'.repeat(10);
@@ -490,7 +487,7 @@ describe('submitApiCall', () => {
 
     test.each([gasPrice, gasPriceFallback])(
       `returns an error if the error transaction fails - %#`,
-      async (gasTarget: GasTarget) => {
+      async (gasTarget) => {
         const txOpts = { ...gasTarget, nonce: 5 };
         const provider = new ethers.providers.JsonRpcProvider();
         failMock.mockRejectedValueOnce(new Error('Server did not respond'));

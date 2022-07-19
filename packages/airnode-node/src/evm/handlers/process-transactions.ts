@@ -1,14 +1,13 @@
-import { logger, getGasPrice } from '@api3/airnode-utilities';
+import { getGasPrice, logger } from '@api3/airnode-utilities';
 import * as fulfillments from '../fulfillments';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
-import * as utils from '../utils';
 import { EVMProviderSponsorState, ProviderState } from '../../types';
 
 export async function processTransactions(
   initialState: ProviderState<EVMProviderSponsorState>
 ): Promise<ProviderState<EVMProviderSponsorState>> {
-  const { chainId, chainType, chainOptions, name: providerName } = initialState.settings;
+  const { chainOptions, chainId, chainType, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
   const baseLogOptions = {
@@ -33,26 +32,8 @@ export async function processTransactions(
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
-  const gasPriceOptions = { provider: state2.provider, chainOptions };
-  const [gasPriceLogs, gasTarget] = await getGasPrice(gasPriceOptions);
-  logger.logPending(gasPriceLogs, baseLogOptions);
-
-  if (!gasTarget) {
-    logger.error('Unable to submit transactions without gas price. Returning...', baseLogOptions);
-    return state2;
-  }
-
-  if (chainOptions.txType === 'eip1559') {
-    const gweiMaxFee = utils.weiToGwei(gasTarget.maxFeePerGas!);
-    const gweiPriorityFee = utils.weiToGwei(gasTarget.maxPriorityFeePerGas!);
-    logger.info(
-      `Gas price (EIP-1559) set to a Max Fee of ${gweiMaxFee} Gwei and a Priority Fee of ${gweiPriorityFee} Gwei`,
-      baseLogOptions
-    );
-  } else {
-    const gweiPrice = utils.weiToGwei(gasTarget.gasPrice!);
-    logger.info(`Gas price (legacy) set to ${gweiPrice} Gwei`, baseLogOptions);
-  }
+  const [logs, gasTarget] = await getGasPrice(state2.provider, chainOptions);
+  logger.logPending(logs, baseLogOptions);
 
   const state3 = state.update(state2, { gasTarget });
 

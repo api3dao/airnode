@@ -68,7 +68,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
     ? ethers.utils.parseUnits(options.withdrawalRemainder.value.toString(), options.withdrawalRemainder.unit)
     : 0;
   const txCost = paddedGasLimit.mul(
-    options.gasTarget.gasPrice ? options.gasTarget.gasPrice : options.gasTarget.maxFeePerGas!
+    options.gasTarget.type === 2 ? options.gasTarget.maxFeePerGas : options.gasTarget.gasPrice
   );
   const fundsToSend = goCurrentBalance.data.sub(txCost).sub(remainder);
 

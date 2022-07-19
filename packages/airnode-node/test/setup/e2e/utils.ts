@@ -24,13 +24,27 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     id: '31337',
     type: 'evm',
     options: {
-      txType: 'eip1559',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
-      },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'latestBlockPercentileGasPrice',
+          percentile: 60,
+          minTransactionCount: 20,
+          pastToCompareInBlocks: 20,
+          maxDeviationMultiplier: 2,
+        },
+        {
+          gasPriceStrategy: 'providerRecommendedGasPrice',
+          recommendedGasPriceMultiplier: 1.2,
+        },
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
       withdrawalRemainder: {
         value: 1,
         unit: 'ether',

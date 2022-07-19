@@ -17,6 +17,7 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
+import { GasTarget } from '@api3/airnode-utilities';
 import * as fixtures from '../../../test/fixtures';
 import { EVMProviderSponsorState, GroupedRequests, ProviderState, RequestErrorMessage } from '../../types';
 import * as providerState from '../../providers/state';
@@ -52,7 +53,7 @@ describe('submit', () => {
         }),
       ],
     };
-    const gasTarget = { type: 2, gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget: GasTarget = { type: 0, gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
@@ -97,7 +98,7 @@ describe('submit', () => {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const gasTarget = { type: 2, gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget: GasTarget = { type: 0, gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
@@ -124,7 +125,7 @@ describe('submit', () => {
       apiCalls: [],
       withdrawals: [withdrawal],
     };
-    const gasTarget = { type: 2, gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget: GasTarget = { type: 0, gasPrice: ethers.BigNumber.from(1000) };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 

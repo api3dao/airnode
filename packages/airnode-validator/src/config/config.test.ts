@@ -4,10 +4,8 @@ import { ZodError } from 'zod';
 import zip from 'lodash/zip';
 import {
   Config,
-  chainOptionsSchema,
   configSchema,
   nodeSettingsSchema,
-  ChainOptions,
   NodeSettings,
   amountSchema,
   Amount,
@@ -15,6 +13,7 @@ import {
   enabledHeartbeatSchema,
   gatewaySchema,
   heartbeatSchema,
+  gasPriceOracleSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
@@ -45,58 +44,101 @@ it(`doesn't allow extraneous properties`, () => {
   );
 });
 
-describe('chainOptionsSchema', () => {
-  const eip1559ChainOptions: ChainOptions = {
-    txType: 'eip1559',
+describe('gasPriceOracleSchema', () => {
+  const latestBlockPercentileGasPriceStrategy = {
+    gasPriceStrategy: 'latestBlockPercentileGasPrice',
+    percentile: 60,
+    minTransactionCount: 10,
+    pastToCompareInBlocks: 20,
+    maxDeviationMultiplier: 2,
+  };
+  const providerRecommendedGasPriceStrategy = {
+    gasPriceStrategy: 'providerRecommendedGasPrice',
+    recommendedGasPriceMultiplier: 1.2,
+  };
+  const providerRecommendedEip1559GasPriceStrategy = {
+    gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
     baseFeeMultiplier: 2,
     priorityFee: {
       value: 3.12,
       unit: 'gwei',
     },
-    fulfillmentGasLimit: 500000,
   };
-
-  const legacyChainOptions: ChainOptions = {
-    txType: 'legacy',
-    gasPriceMultiplier: 1.1,
-    fulfillmentGasLimit: 500000,
+  const constantGasPriceStrategy = {
+    gasPriceStrategy: 'constantGasPrice',
+    gasPrice: {
+      value: 10,
+      unit: 'gwei',
+    },
   };
+  const gasPriceOracleOptions = [
+    latestBlockPercentileGasPriceStrategy,
+    providerRecommendedGasPriceStrategy,
+    providerRecommendedEip1559GasPriceStrategy,
+    constantGasPriceStrategy,
+  ];
 
-  it('does not allow legacy chain options for eip1559 transactions', () => {
-    expect(() => chainOptionsSchema.parse(eip1559ChainOptions)).not.toThrow();
+  gasPriceOracleOptions.forEach((gasPriceOracleOption) =>
+    it('allows valid gas price oracle strategy', () => {
+      expect(() => gasPriceOracleSchema.parse([gasPriceOracleOption, constantGasPriceStrategy])).not.toThrow();
+    })
+  );
 
-    const invalidEip1559Settings = { ...eip1559ChainOptions, gasPriceMultiplier: 2 };
-    expect(() => chainOptionsSchema.parse(invalidEip1559Settings)).toThrow(
+  it('allows all valid gas price oracle strategies', () => {
+    expect(() => gasPriceOracleSchema.parse(gasPriceOracleOptions)).not.toThrow();
+  });
+
+  it('throws on empty price oracle strategies', () => {
+    expect(() => gasPriceOracleSchema.parse([])).toThrow(
       new ZodError([
         {
-          code: 'unrecognized_keys',
-          keys: ['gasPriceMultiplier'],
+          code: 'too_small',
+          minimum: 1,
+          type: 'array',
+          inclusive: true,
+          message: 'Array must contain at least 1 element(s)',
           path: [],
-          message: `Unrecognized or disallowed key(s) for the given transaction type: 'gasPriceMultiplier'`,
+        },
+        {
+          code: 'custom',
+          message: 'Missing required constantGasPrice strategy',
+          path: ['gasPriceOracle'],
+        },
+        {
+          code: 'custom',
+          message: 'ConstantGasPrice strategy must be set as the last strategy in the array.',
+          path: ['gasPriceOracle'],
         },
       ])
     );
   });
 
-  it('does not allow eip1559 chain options for legacy transactions', () => {
-    expect(() => chainOptionsSchema.parse(legacyChainOptions)).not.toThrow();
-
-    const invalidLegacySettings = {
-      ...legacyChainOptions,
-      baseFeeMultiplier: 2,
-      priorityFee: { value: 3.12, unit: 'gwei' },
-    };
-    expect(() => chainOptionsSchema.parse(invalidLegacySettings)).toThrow(
+  it('throws if constantGasPrice is not the last strategy in the array', () => {
+    expect(() =>
+      gasPriceOracleSchema.parse([
+        latestBlockPercentileGasPriceStrategy,
+        constantGasPriceStrategy,
+        providerRecommendedGasPriceStrategy,
+      ])
+    ).toThrow(
       new ZodError([
         {
-          code: 'unrecognized_keys',
-          keys: ['baseFeeMultiplier', 'priorityFee'],
-          path: [],
-          message: `Unrecognized or disallowed key(s) for the given transaction type: 'baseFeeMultiplier', 'priorityFee'`,
+          code: 'custom',
+          message: 'ConstantGasPrice strategy must be set as the last strategy in the array.',
+          path: ['gasPriceOracle'],
         },
       ])
     );
   });
+
+  // Test invalid strategies containing only the gasPriceStrategy field
+  gasPriceOracleOptions
+    .map((oracleStrategy) => oracleStrategy.gasPriceStrategy)
+    .forEach((oracleStrategy) =>
+      it('throws on invalid gas price oracle', () => {
+        expect(() => gasPriceOracleSchema.parse([oracleStrategy, constantGasPriceStrategy])).toThrow();
+      })
+    );
 });
 
 describe('amountSchema', () => {

@@ -19,8 +19,16 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     id: '31337',
     type: 'evm',
     options: {
-      txType: 'legacy',
       fulfillmentGasLimit: 123456,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     providers: {},
     ...overrides,

@@ -25,8 +25,27 @@ export function buildEVMProviderState(
     id: chainId,
     type: chainType,
     options: {
-      txType: 'legacy',
       fulfillmentGasLimit: 123456,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'latestBlockPercentileGasPrice',
+          percentile: 60,
+          minTransactionCount: 20,
+          pastToCompareInBlocks: 20,
+          maxDeviationMultiplier: 2,
+        },
+        {
+          gasPriceStrategy: 'providerRecommendedGasPrice',
+          recommendedGasPriceMultiplier: 1.2,
+        },
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
     providers: {
       [chainProviderName]: {

@@ -53,13 +53,16 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: 'eip1559',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
-      },
       fulfillmentGasLimit: 500_000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
   },
   {
@@ -79,13 +82,16 @@ const chains: ChainConfig[] = [
     },
     type: 'evm',
     options: {
-      txType: 'eip1559',
-      baseFeeMultiplier: 2,
-      priorityFee: {
-        value: 3.12,
-        unit: 'gwei',
-      },
       fulfillmentGasLimit: 600000,
+      gasPriceOracle: [
+        {
+          gasPriceStrategy: 'constantGasPrice',
+          gasPrice: {
+            value: 10,
+            unit: 'gwei',
+          },
+        },
+      ],
     },
   },
 ];
@@ -124,13 +130,16 @@ describe('initialize', () => {
             chainId: '1',
             chainType: 'evm',
             chainOptions: {
-              txType: 'eip1559',
-              baseFeeMultiplier: 2,
-              priorityFee: {
-                value: 3.12,
-                unit: 'gwei',
-              },
               fulfillmentGasLimit: 500_000,
+              gasPriceOracle: [
+                {
+                  gasPriceStrategy: 'constantGasPrice',
+                  gasPrice: {
+                    value: 10,
+                    unit: 'gwei',
+                  },
+                },
+              ],
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -171,13 +180,16 @@ describe('initialize', () => {
             chainId: '3',
             chainType: 'evm',
             chainOptions: {
-              txType: 'eip1559',
-              baseFeeMultiplier: 2,
-              priorityFee: {
-                value: 3.12,
-                unit: 'gwei',
-              },
               fulfillmentGasLimit: 600000,
+              gasPriceOracle: [
+                {
+                  gasPriceStrategy: 'constantGasPrice',
+                  gasPrice: {
+                    value: 10,
+                    unit: 'gwei',
+                  },
+                },
+              ],
             },
             logFormat: 'plain',
             logLevel: 'DEBUG',
@@ -211,8 +223,7 @@ describe('processRequests', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
   test.each(['legacy', 'eip1559'] as const)('processes requests for each EVM provider - txType: %s', async (txType) => {
-    const { blockSpy, gasPriceSpy } = createAndMockGasTarget(txType);
-
+    const { blockWithTransactionsSpy } = createAndMockGasTarget(txType);
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockResolvedValue({
@@ -233,17 +244,17 @@ describe('processRequests', () => {
         ...initialState,
         settings: {
           ...initialState.settings,
-          chainOptions: { txType, fulfillmentGasLimit: 500_000 },
+          chainOptions: {
+            ...initialState.settings.chainOptions,
+          },
         },
       }));
 
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await providers.processRequests(allProviders, workerOpts);
+
     expect(logs).toEqual([]);
-
-    expect(txType === 'legacy' ? blockSpy : gasPriceSpy).not.toHaveBeenCalled();
-    expect(txType === 'eip1559' ? blockSpy : gasPriceSpy).toHaveBeenCalled();
-
+    expect(blockWithTransactionsSpy).toHaveBeenCalled();
     expect(res.evm.map((evm) => evm.requests.apiCalls[0])).toEqual(
       range(allProviders.length).map(() => ({
         ...apiCall,

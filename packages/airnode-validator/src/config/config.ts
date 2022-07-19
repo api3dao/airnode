@@ -71,43 +71,80 @@ export const amountSchema = z
   })
   .strict();
 
-const chainOptionsErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === z.ZodIssueCode.unrecognized_keys) {
-    return {
-      message: `Unrecognized or disallowed key(s) for the given transaction type: ${issue.keys
-        .map((val) => `'${val}'`)
-        .join(', ')}`,
-    };
+export const latestBlockPercentileGasPriceStrategySchema = z
+  .object({
+    gasPriceStrategy: z.literal('latestBlockPercentileGasPrice'),
+    percentile: z.number().int(),
+    minTransactionCount: z.number().int(),
+    pastToCompareInBlocks: z.number().int(),
+    maxDeviationMultiplier: z.number(),
+  })
+  .strict();
+
+export const providerRecommendedGasPriceStrategySchema = z
+  .object({
+    gasPriceStrategy: z.literal('providerRecommendedGasPrice'),
+    recommendedGasPriceMultiplier: z.number().positive(),
+  })
+  .strict();
+
+export const providerRecommendedEip1559GasPriceStrategySchema = z
+  .object({
+    gasPriceStrategy: z.literal('providerRecommendedEip1559GasPrice'),
+    baseFeeMultiplier: z.number().int(),
+    priorityFee: amountSchema,
+  })
+  .strict();
+
+export const constantGasPriceStrategySchema = z
+  .object({
+    gasPriceStrategy: z.literal('constantGasPrice'),
+    gasPrice: amountSchema,
+  })
+  .strict();
+
+export const gasPriceOracleStrategySchema = z.discriminatedUnion('gasPriceStrategy', [
+  latestBlockPercentileGasPriceStrategySchema,
+  providerRecommendedGasPriceStrategySchema,
+  providerRecommendedEip1559GasPriceStrategySchema,
+  constantGasPriceStrategySchema,
+]);
+
+export const validateGasPriceOracleStrategies: SuperRefinement<GasPriceOracleConfig> = (gasPriceOracle, ctx) => {
+  const constantGasPriceStrategy = gasPriceOracle.find(
+    (gasPriceOracleStrategy) => gasPriceOracleStrategy.gasPriceStrategy === 'constantGasPrice'
+  );
+
+  // Require at least the constantGasPrice strategy to be defined
+  if (!constantGasPriceStrategy) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Missing required constantGasPrice strategy`,
+      path: ['gasPriceOracle'],
+    });
   }
-  return { message: ctx.defaultError };
+
+  if (gasPriceOracle[gasPriceOracle.length - 1]?.gasPriceStrategy !== 'constantGasPrice') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `ConstantGasPrice strategy must be set as the last strategy in the array.`,
+      path: ['gasPriceOracle'],
+    });
+  }
 };
 
-export const chainOptionsSchema = z.discriminatedUnion('txType', [
-  z
-    .object(
-      {
-        txType: z.literal('eip1559'),
-        baseFeeMultiplier: z.number().int().optional(), // Defaults to BASE_FEE_MULTIPLIER defined in airnode-utilities
-        priorityFee: amountSchema.optional(), // Defaults to PRIORITY_FEE_IN_WEI defined in airnode-utilities
-        fulfillmentGasLimit: z.number().int(),
-        withdrawalRemainder: amountSchema.optional(),
-      },
-      { errorMap: chainOptionsErrorMap }
-    )
-    .strict(),
-  z
-    .object(
-      {
-        txType: z.literal('legacy'),
-        // No multiplier is used by default. See airnode-utilities for details
-        gasPriceMultiplier: z.number().optional(),
-        fulfillmentGasLimit: z.number().int(),
-        withdrawalRemainder: amountSchema.optional(),
-      },
-      { errorMap: chainOptionsErrorMap }
-    )
-    .strict(),
-]);
+export const gasPriceOracleSchema = z
+  .array(gasPriceOracleStrategySchema)
+  .nonempty()
+  .superRefine(validateGasPriceOracleStrategies);
+
+export const chainOptionsSchema = z
+  .object({
+    fulfillmentGasLimit: z.number().int(),
+    withdrawalRemainder: amountSchema.optional(),
+    gasPriceOracle: gasPriceOracleSchema,
+  })
+  .strict();
 
 export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
@@ -388,6 +425,14 @@ export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
+export type LatestBlockPercentileGasPriceStrategy = z.infer<typeof latestBlockPercentileGasPriceStrategySchema>;
+export type ProviderRecommendedGasPriceStrategy = z.infer<typeof providerRecommendedGasPriceStrategySchema>;
+export type ProviderRecommendedEip1559GasPriceStrategy = z.infer<
+  typeof providerRecommendedEip1559GasPriceStrategySchema
+>;
+export type ConstantGasPriceStrategy = z.infer<typeof constantGasPriceStrategySchema>;
+export type GasPriceOracleStrategy = z.infer<typeof gasPriceOracleStrategySchema>;
+export type GasPriceOracleConfig = z.infer<typeof gasPriceOracleSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;

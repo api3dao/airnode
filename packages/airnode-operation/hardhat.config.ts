@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from 'hardhat/types';
+import '@nomiclabs/hardhat-ethers';
 
 const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
