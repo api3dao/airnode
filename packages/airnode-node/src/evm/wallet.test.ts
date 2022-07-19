@@ -1,5 +1,6 @@
 import * as wallet from './wallet';
 import * as fixtures from '../../test/fixtures';
+import { getMasterKeyMnemonic } from '../config';
 
 const config = fixtures.buildConfig();
 
@@ -34,5 +35,28 @@ describe('deriveSponsorWallet', () => {
     const signingWallet = wallet.deriveSponsorWallet(masterHDNode, '0x06f509f73eefba36352bc8228f9112c3786100da');
     expect(signingWallet._isSigner).toEqual(true);
     expect(signingWallet.address).toEqual('0x228A54F33E46fbb32a62ca650Fcc9eD3C730511d');
+  });
+});
+
+describe('deriveSponsorWalletFromMnemonic', () => {
+  it('returns the wallet for the given sponsor (will use default protocolId = 1)', () => {
+    const mnemonic = getMasterKeyMnemonic(config);
+    const signingWallet = wallet.deriveSponsorWalletFromMnemonic(
+      mnemonic,
+      '0x06f509f73eefba36352bc8228f9112c3786100da'
+    );
+    expect(signingWallet._isSigner).toEqual(true);
+    expect(signingWallet.address).toEqual('0x228A54F33E46fbb32a62ca650Fcc9eD3C730511d');
+  });
+
+  it('returns the wallet for the given sponsor and protocolId', () => {
+    const mnemonic = getMasterKeyMnemonic(config);
+    const signingWallet = wallet.deriveSponsorWalletFromMnemonic(
+      mnemonic,
+      '0x06f509f73eefba36352bc8228f9112c3786100da',
+      '2'
+    );
+    expect(signingWallet._isSigner).toEqual(true);
+    expect(signingWallet.address).toEqual('0x9F3c41801c55a557ddCEdd25E29bA05780f31c37');
   });
 });

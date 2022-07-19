@@ -1,9 +1,4 @@
 import yargs from 'yargs';
-import intersection from 'lodash/intersection';
-import difference from 'lodash/difference';
-import keys from 'lodash/keys';
-import isEmpty from 'lodash/isEmpty';
-import uniq from 'lodash/uniq';
 import { hideBin } from 'yargs/helpers';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
@@ -11,7 +6,7 @@ import { go } from '@api3/promise-utils';
 import { deploy, removeWithReceipt, remove } from './commands';
 import { cliExamples } from './cli-examples';
 import * as logger from '../utils/logger';
-import { longArguments, printableArguments } from '../utils/cli';
+import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
 
 function drawHeader() {
@@ -74,7 +69,7 @@ yargs(hideBin(process.argv))
       receipt: {
         alias: 'r',
         description: 'Output path for receipt file',
-        default: 'output/receipt.json',
+        default: 'config/receipt.json',
         type: 'string',
       },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
@@ -91,95 +86,77 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'remove',
-    'Removes a deployed Airnode instance',
+    'remove-with-receipt',
+    'Removes a deployed Airnode instance using a receipt file',
     {
       receipt: {
         alias: 'r',
         description: 'Path to receipt file',
-        type: 'string',
-      },
-      'airnode-address-short': {
-        alias: 'a',
-        description: 'Airnode Address (short version)',
-        type: 'string',
-      },
-      stage: {
-        alias: 's',
-        description: 'Stage (environment)',
-        type: 'string',
-      },
-      'cloud-provider': {
-        alias: 'c',
-        description: 'Cloud provider',
-        choices: ['aws', 'gcp'] as const,
-      },
-      region: {
-        alias: 'e',
-        description: 'Region',
-        type: 'string',
-      },
-      'project-id': {
-        alias: 'p',
-        description: 'Project ID (GCP only)',
+        default: 'config/receipt.json',
         type: 'string',
       },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      const receiptRemove = !!args.receipt;
-      const descriptiveArgsCommon = ['airnode-address-short', 'stage', 'cloud-provider', 'region'];
-      const descriptiveArgsCloud = {
-        aws: descriptiveArgsCommon,
-        gcp: [...descriptiveArgsCommon, 'project-id'],
-      };
-      const descriptiveArgsAll = uniq(
-        Object.values(descriptiveArgsCloud).reduce((result, array) => [...result, ...array])
+
+      await runCommand(() => removeWithReceipt(args.receipt));
+      return;
+    }
+  )
+  .command(
+    'remove-with-deployment-details',
+    'Removes a deployed Airnode instance using the Airnode short address and cloud provider specifications',
+    {
+      'airnode-address-short': {
+        alias: 'a',
+        description: 'Airnode Address (short version)',
+        type: 'string',
+        demandOption: true,
+      },
+      stage: {
+        alias: 's',
+        description: 'Stage (environment)',
+        type: 'string',
+        demandOption: true,
+      },
+      'cloud-provider': {
+        alias: 'c',
+        description: 'Cloud provider',
+        choices: ['aws', 'gcp'] as const,
+        demandOption: true,
+      },
+      region: {
+        alias: 'e',
+        description: 'Region',
+        type: 'string',
+        demandOption: true,
+      },
+      'project-id': {
+        alias: 'p',
+        description: 'Project ID (required for GCP only)',
+        type: 'string',
+      },
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      if (args['cloud-provider'] === 'gcp') {
+        if (!args['project-id']) {
+          // Throwing strings to prevent yargs from showing error stack trace
+          throw `Missing required argument '--project-id' for removing a GCP deployment`;
+        }
+      }
+
+      await runCommand(() =>
+        remove(args['airnode-address-short'].toLowerCase(), args.stage, {
+          type: args['cloud-provider'],
+          region: args.region,
+          projectId: args['project-id'],
+        } as CloudProvider)
       );
-      const argsProvided = intersection([...descriptiveArgsAll, 'receipt'], keys(args));
-      const descriptiveArgsProvided = intersection(descriptiveArgsAll, keys(args));
-
-      if (isEmpty(argsProvided)) {
-        // Throwing strings to prevent yargs from showing error stack trace
-        throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${printableArguments(
-          descriptiveArgsAll
-        )}.`;
-      }
-
-      if (receiptRemove && !isEmpty(descriptiveArgsProvided)) {
-        // Throwing strings to prevent yargs from showing error stack trace
-        throw "Can't mix data from receipt and data from command line arguments.";
-      }
-
-      if (receiptRemove) {
-        await runCommand(() => removeWithReceipt(args.receipt!));
-        return;
-      }
-
-      if (!args['cloud-provider']) {
-        // Throwing strings to prevent yargs from showing error stack trace
-        throw "Missing argument, must provide '--cloud-provider";
-      }
-
-      const descriptiveArgsRequired = descriptiveArgsCloud[args['cloud-provider']];
-      const descriptiveArgsMissing = difference(descriptiveArgsRequired, descriptiveArgsProvided);
-
-      if (isEmpty(descriptiveArgsMissing)) {
-        await runCommand(() =>
-          remove(args['airnode-address-short']!.toLowerCase(), args.stage!, {
-            type: args['cloud-provider']!,
-            region: args.region!,
-            projectId: args['project-id'],
-          } as CloudProvider)
-        );
-        return;
-      }
-
-      if (!isEmpty(descriptiveArgsMissing)) {
-        // Throwing strings to prevent yargs from showing error stack trace
-        throw `Missing arguments: ${printableArguments(descriptiveArgsMissing)}.`;
-      }
+      return;
     }
   )
   .example(cliExamples.map((line) => [`$0 ${line}\n`]))

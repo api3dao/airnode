@@ -63,7 +63,7 @@ export function deriveSponsorWallet(
   return new ethers.Wallet(sponsorWalletHdNode.privateKey);
 }
 
-export const deriveSponsorWalletFromMnemonic = (airnodeMnemonic: string, sponsorAddress: string, protocolId: string) =>
+export const deriveSponsorWalletFromMnemonic = (airnodeMnemonic: string, sponsorAddress: string, protocolId?: string) =>
   ethers.Wallet.fromMnemonic(
     airnodeMnemonic,
     `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress, protocolId)}`
