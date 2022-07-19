@@ -233,28 +233,28 @@ export const getGasPrice = async (
     totalTimeoutMs: GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
   });
 
-  // Return the constant strategy gas price if all other strategies fail
-  if (!goProcessGasPriceOracleStrategies.success || !goProcessGasPriceOracleStrategies.data[1]) {
-    const constantGasPriceConfig = gasPriceOracle.find(
-      (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
-    ) as config.ConstantGasPriceStrategy;
-    const constantGasTarget = fetchConstantGasPrice(constantGasPriceConfig);
-
-    const log = logger.pend(
-      'INFO',
-      `All oracle strategies failed to return a gas price, returning constant gas price set to ${ethers.utils.formatUnits(
-        constantGasTarget.gasPrice,
-        'gwei'
-      )} gwei.`
-    );
-    const strategyLogs = goProcessGasPriceOracleStrategies.success ? goProcessGasPriceOracleStrategies.data[0] : [];
-
-    return [[log, ...strategyLogs], getGasTargetWithGasLimit(constantGasTarget, fulfillmentGasLimit)];
+  // Return the strategy gas price if successful
+  if (goProcessGasPriceOracleStrategies.success && goProcessGasPriceOracleStrategies.data[1]) {
+    const [logs, strategyGasTarget] = goProcessGasPriceOracleStrategies.data;
+    return [logs, getGasTargetWithGasLimit(strategyGasTarget, fulfillmentGasLimit)];
   }
 
-  const [logs, strategyGasTarget] = goProcessGasPriceOracleStrategies.data;
+  // Return the constant strategy gas price if all other strategies fail
+  const constantGasPriceConfig = gasPriceOracle.find(
+    (strategy) => strategy.gasPriceStrategy === 'constantGasPrice'
+  ) as config.ConstantGasPriceStrategy;
+  const constantGasTarget = fetchConstantGasPrice(constantGasPriceConfig);
 
-  return [logs, getGasTargetWithGasLimit(strategyGasTarget, fulfillmentGasLimit)];
+  const log = logger.pend(
+    'INFO',
+    `All oracle strategies failed to return a gas price, returning constant gas price set to ${ethers.utils.formatUnits(
+      constantGasTarget.gasPrice,
+      'gwei'
+    )} gwei.`
+  );
+  const strategyLogs = goProcessGasPriceOracleStrategies.success ? goProcessGasPriceOracleStrategies.data[0] : [];
+
+  return [[log, ...strategyLogs], getGasTargetWithGasLimit(constantGasTarget, fulfillmentGasLimit)];
 };
 
 export const processGasPriceOracleStrategies = async (
