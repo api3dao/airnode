@@ -1,4 +1,4 @@
-import { logger, LogOptions } from '@api3/airnode-utilities';
+import { logger, LogOptions, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as workers from '../../workers';
 import { ApiCallResponse, LogsData, WorkerOptions, CallApiPayload, RegularAggregatedApiCall } from '../../types';
@@ -12,6 +12,7 @@ export async function spawnNewApiCall(
     ...workerOpts,
     payload: { aggregatedApiCall, logOptions, functionName: 'callApi' } as CallApiPayload,
   };
+  setLogOptions(logOptions);
 
   const goRes = await go(() => workers.spawn(options));
   if (!goRes.success) {

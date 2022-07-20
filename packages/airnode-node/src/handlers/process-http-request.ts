@@ -1,5 +1,5 @@
 import find from 'lodash/find';
-import { buildBaseOptions, logger, randomHexString } from '@api3/airnode-utilities';
+import { logger, setLogOptions, randomHexString } from '@api3/airnode-utilities';
 import { BaseAggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config';
@@ -10,7 +10,12 @@ export async function processHttpRequest(
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, HttpGatewayApiCallSuccessResponse]> {
   const requestId = randomHexString(16);
-  const logOptions = buildBaseOptions(config, { requestId });
+  setLogOptions({
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+    meta: { requestId },
+  });
+
   // Guaranteed to exist because validation is already performed in the deployer handler
   const trigger = find(config.triggers.http, ['endpointId', endpointId])!;
 
@@ -22,7 +27,7 @@ export async function processHttpRequest(
 
   const [logs, response] = await callApi({ type: 'http-gateway', config, aggregatedApiCall });
 
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
 
   if (!response.success) {
     const err = new Error(response.errorMessage || 'An unknown error occurred');

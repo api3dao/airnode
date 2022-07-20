@@ -7,14 +7,7 @@ import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
 import { FetchOptions } from '../requests/event-logs';
 
 export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {
-  const { chainId, chainType, name: providerName } = state.settings;
-  const { coordinatorId } = state;
-
-  const baseLogOptions = {
-    format: state.settings.logFormat,
-    level: state.settings.logLevel,
-    meta: { coordinatorId, providerName, chainType, chainId },
-  };
+  const { chainId } = state.settings;
 
   const fetchOptions: FetchOptions = {
     address: state.contracts.AirnodeRrp,
@@ -32,10 +25,10 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
 
   // Cast the raw logs into the various typed request models
   const [apiLogs, apiCallRequests] = apiCalls.mapRequests(groupedLogs.apiCalls);
-  logger.logPending(apiLogs, baseLogOptions);
+  logger.logPending(apiLogs);
 
   const [withdrawLogs, withdrawalRequests] = withdrawals.mapRequests(groupedLogs.withdrawals);
-  logger.logPending(withdrawLogs, baseLogOptions);
+  logger.logPending(withdrawLogs);
 
   const groupedRequests: GroupedRequests = {
     apiCalls: apiCallRequests,
@@ -45,7 +38,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   // Block (filter out) any requests that cannot be processed
   // TODO: Better naming
   const [blockRequestsLogs, allowedRequests] = blocking.blockRequests(groupedRequests);
-  logger.logPending(blockRequestsLogs, baseLogOptions);
+  logger.logPending(blockRequestsLogs);
 
   return allowedRequests;
 }

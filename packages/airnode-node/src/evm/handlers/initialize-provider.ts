@@ -1,4 +1,4 @@
-import { logger, PendingLog } from '@api3/airnode-utilities';
+import { logger, setLogOptions, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as authorizations from '../authorization';
@@ -41,11 +41,11 @@ export async function initializeProvider(
 ): Promise<ProviderState<EVMProviderState> | null> {
   const { coordinatorId } = initialState;
   const { chainId, chainType, name: providerName } = initialState.settings;
-  const baseLogOptions = {
+  setLogOptions({
     format: initialState.settings.logFormat,
     level: initialState.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
-  };
+  });
 
   // =================================================================
   // STEP 1: Re-instantiate any classes
@@ -63,12 +63,12 @@ export async function initializeProvider(
   // =================================================================
   const goGroupedRequests = await go(() => fetchPendingRequests(state2));
   if (!goGroupedRequests.success) {
-    logger.error('Unable to get pending requests', { ...baseLogOptions, error: goGroupedRequests.error });
+    logger.error('Unable to get pending requests', { error: goGroupedRequests.error });
     return null;
   }
   const apiCalls = goGroupedRequests.data.apiCalls;
   const withdrawals = goGroupedRequests.data.withdrawals;
-  logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`, baseLogOptions);
+  logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`);
   const state3 = state.update(state2, { requests: goGroupedRequests.data });
 
   // =================================================================
@@ -82,13 +82,13 @@ export async function initializeProvider(
   };
   // This should not throw
   const [templateFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
-  logger.logPending(templateFetchLogs, baseLogOptions);
+  logger.logPending(templateFetchLogs);
 
   const [templApplicationLogs, templatedApiCalls] = templates.mergeApiCallsWithTemplates(
     state3.requests.apiCalls,
     templatesById
   );
-  logger.logPending(templApplicationLogs, baseLogOptions);
+  logger.logPending(templApplicationLogs);
 
   const state4 = state.update(state3, {
     requests: { ...state3.requests, apiCalls: templatedApiCalls },
@@ -101,7 +101,7 @@ export async function initializeProvider(
     state4.requests.apiCalls,
     state4.config!.triggers.rrp
   );
-  logger.logPending(verifyRrpTriggersLogs, baseLogOptions);
+  logger.logPending(verifyRrpTriggersLogs);
 
   const state5 = state.update(state4, {
     requests: {
@@ -122,10 +122,10 @@ export async function initializeProvider(
 
   // These promises can resolve in any order, so we need to find each one by it's key
   const txCountRes = authAndTxResults.find((r) => r.id === 'transaction-counts')!;
-  logger.logPending(txCountRes.logs, baseLogOptions);
+  logger.logPending(txCountRes.logs);
 
   const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
-  logger.logPending(authRes.logs, baseLogOptions);
+  logger.logPending(authRes.logs);
 
   const transactionCountsBySponsorAddress = txCountRes.data!;
   const authorizationsByRequestId = authRes.data!;
@@ -139,7 +139,7 @@ export async function initializeProvider(
     state5.requests.apiCalls,
     authorizationsByRequestId
   );
-  logger.logPending(authLogs, baseLogOptions);
+  logger.logPending(authLogs);
 
   const state7 = state.update(state6, {
     requests: { ...state6.requests, apiCalls: authorizedApiCalls },

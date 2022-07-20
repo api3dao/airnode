@@ -1,3 +1,4 @@
+import { randomHexString } from '@api3/airnode-utilities';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
 import { RegularAggregatedApiCallsById } from '../types';
@@ -7,7 +8,8 @@ describe('create', () => {
 
   it('returns a new coordinator state object', () => {
     const config = fixtures.buildConfig();
-    const res = state.create(config);
+    const coordinatorId = randomHexString(16);
+    const res = state.create(config, coordinatorId);
     expect(Object.keys(res).sort()).toEqual([
       'aggregatedApiCallsById',
       'config',
@@ -30,7 +32,8 @@ describe('update', () => {
       apiCallId: fixtures.buildAggregatedRegularApiCall(),
     };
     const config = fixtures.buildConfig();
-    const newState = state.create(config);
+    const coordinatorId = randomHexString(16);
+    const newState = state.create(config, coordinatorId);
     const res = state.update(newState, { aggregatedApiCallsById });
     expect(Object.keys(res).sort()).toEqual([
       'aggregatedApiCallsById',

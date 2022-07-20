@@ -22,17 +22,6 @@ interface OrderedRequest<T> {
   makeRequest: () => Promise<Request<T> | Error>;
 }
 
-function getBaseLogOptions(state: ProviderState<EVMProviderSponsorState>) {
-  const { chainId, chainType, name: providerName } = state.settings;
-  const { coordinatorId } = state;
-
-  return {
-    format: state.settings.logFormat,
-    level: state.settings.logLevel,
-    meta: { coordinatorId, providerName, chainType, chainId },
-  };
-}
-
 function getTransactionOptions(state: ProviderState<EVMProviderSponsorState>) {
   return {
     gasTarget: state.gasTarget!,
@@ -52,7 +41,7 @@ function prepareRequestSubmissions<T>(
   return requests.map((request) => {
     const makeRequest = async () => {
       const [logs, err, submittedRequest] = await submitFunction(contract, request, getTransactionOptions(state));
-      logger.logPending(logs, getBaseLogOptions(state));
+      logger.logPending(logs);
 
       if (err) return err;
       return submittedRequest || request;
@@ -97,7 +86,7 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
     requests.withdrawals,
     state.masterHDNode
   );
-  logger.logPending(verifyWithdrawalLogs, getBaseLogOptions(state));
+  logger.logPending(verifyWithdrawalLogs);
 
   // Prepare transactions for withdrawals
   const preparedWithdrawalSubmissions = prepareRequestSubmissions(
@@ -129,10 +118,7 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
   // Perform the requests sequentially to in order to respect the nonce value
   for (const requestSubmission of allRequestSubmissions) {
     if (previousTransactionFailed) {
-      logger.info(
-        `Request:${requestSubmission.request.id} skipped because one of the previous requests failed`,
-        getBaseLogOptions(state)
-      );
+      logger.info(`Request:${requestSubmission.request.id} skipped because one of the previous requests failed`);
 
       saveRequest(requestSubmission.type, requestSubmission.request);
       continue;
@@ -148,10 +134,7 @@ export async function submit(state: ProviderState<EVMProviderSponsorState>): Pro
     }
 
     if (submittedRequest.fulfillment?.hash) {
-      logger.info(
-        `Transaction:${submittedRequest.fulfillment.hash} submitted for Request:${submittedRequest.id}`,
-        getBaseLogOptions(state)
-      );
+      logger.info(`Transaction:${submittedRequest.fulfillment.hash} submitted for Request:${submittedRequest.id}`);
     }
 
     saveRequest(requestSubmission.type, submittedRequest);

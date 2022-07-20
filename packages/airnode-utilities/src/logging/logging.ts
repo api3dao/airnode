@@ -1,5 +1,15 @@
-import { LogLevel, LogOptions, PendingLog, LogMetadata, LogConfig } from './types';
+import { LogLevel, LogOptions, PendingLog } from './types';
 import { formatDateTimeMs } from '../date';
+
+let logOptions: LogOptions;
+
+export const getLogOptions = () => {
+  return logOptions;
+};
+
+export const setLogOptions = (newLogOptions: LogOptions) => {
+  logOptions = newLogOptions;
+};
 
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -8,15 +18,8 @@ const logLevels: { readonly [key in LogLevel]: number } = {
   ERROR: 3,
 };
 
-export function buildBaseOptions(config: LogConfig, meta: LogMetadata) {
-  return {
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta,
-  };
-}
-
 export const logger = {
+  options: 'test',
   log: (message: string, options?: LogOptions) => {
     if (options) {
       logFull('INFO', message, options);
@@ -24,39 +27,18 @@ export const logger = {
     }
     consoleLog(message);
   },
-  debug: (message: string, options?: LogOptions) => {
-    if (options) {
-      logFull('DEBUG', message, options);
-      return;
-    }
-    consoleLog(message);
-  },
-  info: (message: string, options?: LogOptions) => {
-    if (options) {
-      logFull('INFO', message, options);
-      return;
-    }
-    consoleLog(message);
-  },
-  warn: (message: string, options?: LogOptions) => {
-    if (options) {
-      logFull('WARN', message, options);
-      return;
-    }
-    consoleLog(message);
-  },
-  error: (message: string, options?: LogOptions) => {
-    if (options) {
-      logFull('ERROR', message, options);
-      return;
-    }
-    consoleLog(message);
-  },
-  logPending: (pendingLogs: PendingLog[], options: LogOptions) => {
-    pendingLogs.forEach((pendingLog) => {
-      logFull(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
-    });
-  },
+  debug: (message: string, options?: Partial<LogOptions>) =>
+    logFull('DEBUG', message, { ...getLogOptions(), ...options }),
+  info: (message: string, options?: Partial<LogOptions>) =>
+    logFull('INFO', message, { ...getLogOptions(), ...options }),
+  warn: (message: string, options?: Partial<LogOptions>) =>
+    logFull('WARN', message, { ...getLogOptions(), ...options }),
+  error: (message: string, options?: Partial<LogOptions>) =>
+    logFull('ERROR', message, { ...getLogOptions(), ...options }),
+  logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
+    pendingLogs.forEach((pendingLog) =>
+      logFull(pendingLog.level, pendingLog.message, { ...getLogOptions(), ...options, error: pendingLog.error })
+    ),
   // NOTE: In many cases it is not ideal to pass the entire state in to a
   // function just to have access to the provider name. This would tightly
   // couple many parts of the application together. For this reason, functions
@@ -123,8 +105,8 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
     timestamp,
     level,
     message,
-    ...(options.meta || {}),
-    ...(options.additional || {}),
+    ...options.meta,
+    ...options.additional,
   };
 
   consoleLog(JSON.stringify(logObject));

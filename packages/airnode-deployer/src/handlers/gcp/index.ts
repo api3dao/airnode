@@ -68,8 +68,8 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
 
 async function callApi(payload: CallApiPayload, res: Response) {
   const { aggregatedApiCall, logOptions } = payload;
-  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
-  logger.logPending(logs, logOptions);
+  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall, logOptions);
+  logger.logPending(logs);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
 }

@@ -45,8 +45,8 @@ export async function initializeProvider({ state: providerState }: InitializePro
 export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
-  const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
-  logger.logPending(logs, logOptions);
+  const [logs, response] = await handlers.callApi(config, aggregatedApiCall, logOptions);
+  logger.logPending(logs);
   return { ok: true, data: response };
 }
 

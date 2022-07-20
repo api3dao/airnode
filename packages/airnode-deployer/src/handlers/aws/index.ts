@@ -61,8 +61,8 @@ async function initializeProvider(payload: InitializeProviderPayload) {
 
 async function callApi(payload: CallApiPayload) {
   const { aggregatedApiCall, logOptions } = payload;
-  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
-  logger.logPending(logs, logOptions);
+  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall, logOptions);
+  logger.logPending(logs);
   const response = JSON.stringify({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
 }
