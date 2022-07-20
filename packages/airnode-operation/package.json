@@ -38,7 +38,7 @@
     "pm2": "^5.2.0"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.6",
+    "@nomiclabs/hardhat-ethers": "^2.1.0",
     "@types/express": "^4.17.13",
     "@types/morgan": "^1.9.3",
     "rimraf": "^3.0.2",
