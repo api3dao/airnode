@@ -171,7 +171,7 @@ yargs
     async (args) => {
       const goVerifyAirnodeXpub = goSync(() => admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']));
       if (!goVerifyAirnodeXpub.success) {
-        logger.error(`Airnode xpub is: INVALID`);
+        logger.log(`Airnode xpub is: INVALID`);
       } else {
         logger.log(`Airnode xpub is: VALID`);
       }
@@ -543,7 +543,7 @@ yargs
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
-    logger.error(message ? message : `Command failed with unexpected error:\n\n${err.message}`);
+    logger.log(message ? message : `Command failed with unexpected error:\n\n${err.message}`);
 
     exit(1);
   })

@@ -13,15 +13,15 @@ const EC_TERRAFORM = 23; // Terraform command failed
 const EC_FORMATTING = 24; // Formatting issue
 
 if (process.argv.length !== 3) {
-  logger.error('Wrong script usage!');
-  logger.error('terraform-fmt.ts check | write');
+  logger.log('Wrong script usage!');
+  logger.log('terraform-fmt.ts check | write');
   exit(EC_ARGUMENTS);
 }
 
 const command = process.argv[2];
 
 if (!['check', 'write'].includes(command)) {
-  logger.error(`Unknown command '${command}'`);
+  logger.log(`Unknown command '${command}'`);
   exit(EC_ARGUMENTS);
 }
 
@@ -64,9 +64,9 @@ exec(BINARY_TEST, (err, _stdout, _stderr) => {
 
 function failOnError(message: string, err: ExecException | null, stderr: string) {
   if (err) {
-    logger.error(message);
-    logger.error(err.message);
-    logger.error(stderr);
+    logger.log(message);
+    logger.log(err.message);
+    logger.log(stderr);
     exit(EC_TERRAFORM);
   }
 }
