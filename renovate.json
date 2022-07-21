@@ -24,5 +24,6 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "reviewers": ["team:airnode"]
+  "reviewers": ["team:airnode"],
+  "dependencyDashboard": false
 }
