@@ -4,7 +4,7 @@
   "automergeType": "pr",
   "packageRules": [
     {
-      "matchPackageNames": ["chalk", "ora", "node", "@openzeppelin/contracts"],
+      "matchPackageNames": ["chalk", "ora", "node", "@openzeppelin/contracts", "zod"],
       "enabled": false
     },
     {
