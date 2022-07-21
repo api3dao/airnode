@@ -12,10 +12,13 @@ export interface LogMetadata {
 
 export interface LogOptions {
   readonly additional?: any;
-  readonly error?: Error | null;
   readonly format: LogFormat;
   readonly level: LogLevel;
   readonly meta: LogMetadata;
+}
+
+export interface ErrorLogOptions extends LogOptions {
+  readonly error: Error | null;
 }
 
 export interface PendingLog {

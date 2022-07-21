@@ -28,7 +28,7 @@ export async function startCoordinator(config: Config) {
   // Heartbeat is not core part of coordinator because it may return early in case there are no actionable requests
   const goHeartbeatRes = await go(() => reportHeartbeat(endState));
   if (!goHeartbeatRes.success) {
-    logger.error('Failed to send Airnode heartbeat', { error: goHeartbeatRes.error });
+    logger.error('Failed to send Airnode heartbeat', goHeartbeatRes.error);
   }
 }
 

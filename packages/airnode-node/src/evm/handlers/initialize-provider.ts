@@ -63,7 +63,7 @@ export async function initializeProvider(
   // =================================================================
   const goGroupedRequests = await go(() => fetchPendingRequests(state2));
   if (!goGroupedRequests.success) {
-    logger.error('Unable to get pending requests', { error: goGroupedRequests.error });
+    logger.error('Unable to get pending requests', goGroupedRequests.error);
     return null;
   }
   const apiCalls = goGroupedRequests.data.apiCalls;
