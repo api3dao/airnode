@@ -34,7 +34,7 @@
     "chai": "^4.3.6",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.4.4",
-    "hardhat": "^2.9.9",
+    "hardhat": "2.9.9",
     "hardhat-deploy": "^0.11.11",
     "hardhat-gas-reporter": "^1.0.8",
     "replace-in-file": "^6.3.5",
