@@ -325,11 +325,13 @@ export interface WorkerOptions {
 export interface InitializeProviderPayload {
   readonly functionName: 'initializeProvider';
   readonly state: ProviderState<EVMProviderState>;
+  readonly logOptions: LogOptions;
 }
 
 export interface ProcessTransactionsPayload {
   readonly functionName: 'processTransactions';
   readonly state: ProviderState<EVMProviderSponsorState>;
+  readonly logOptions: LogOptions;
 }
 
 export interface CallApiPayload {

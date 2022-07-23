@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import { getLogOptions, logger } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
 import {
@@ -23,7 +23,7 @@ async function execute(
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process. We need to catch any errors here (like a timeout)
   // as a rejection here will cause Promise.all to fail
-  const goLogData = await go(() => spawnNewApiCall(aggregatedApiCall, getLogOptions(), workerOpts), {
+  const goLogData = await go(() => spawnNewApiCall(aggregatedApiCall, workerOpts), {
     totalTimeoutMs: WORKER_CALL_API_TIMEOUT,
   });
   const resLogs = goLogData.success && goLogData.data ? goLogData.data[0] : [];

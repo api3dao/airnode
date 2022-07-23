@@ -29,6 +29,6 @@ export const runShellCommand = (command: string) => {
 
 export const cliPrint = {
   info: (text: string) => logger.log(chalk.bold.white(text)),
-  warning: (text: string) => logger.log(chalk.bold.hex('#FFA500')(text)), // Orange color
-  error: (text: string) => logger.log(chalk.bold.red(text)),
+  warning: (text: string) => logger.warn(chalk.bold.hex('#FFA500')(text)), // Orange color
+  error: (text: string) => logger.error(chalk.bold.red(text)),
 };

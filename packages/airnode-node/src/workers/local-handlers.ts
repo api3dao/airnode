@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { ethers } from 'ethers';
-import { logger } from '@api3/airnode-utilities';
+import { logger, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { loadTrustedConfig, setEnvValue } from '../config';
 import * as handlers from '../handlers';
@@ -16,9 +16,15 @@ function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
 
 export async function startCoordinator(): Promise<WorkerResponse> {
   const config = loadConfig();
+  const coordinatorId = randomHexString(16);
+  setLogOptions({
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+    meta: { coordinatorId },
+  });
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
 
-  await handlers.startCoordinator(config);
+  await handlers.startCoordinator(config, coordinatorId);
   return { ok: true, data: { message: 'Coordinator completed' } };
 }
 
@@ -42,10 +48,10 @@ export async function initializeProvider({ state: providerState }: InitializePro
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }: CallApiPayload): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall }: CallApiPayload): Promise<WorkerResponse> {
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
-  const [logs, response] = await handlers.callApi(config, aggregatedApiCall, logOptions);
+  const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
   logger.logPending(logs);
   return { ok: true, data: response };
 }
@@ -70,6 +76,10 @@ export async function processTransactions({
 
 export async function processHttpRequest(endpointId: string, parameters: any) {
   const config = loadConfig();
+  setLogOptions({
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+  });
   const [err, result] = await handlers.processHttpRequest(config, endpointId, parameters);
   if (err) {
     throw err;
@@ -80,6 +90,10 @@ export async function processHttpRequest(endpointId: string, parameters: any) {
 
 export async function processHttpSignedDataRequest(endpointId: string, encodedParameters: any) {
   const config = loadConfig();
+  setLogOptions({
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+  });
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
   const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
   if (err) {

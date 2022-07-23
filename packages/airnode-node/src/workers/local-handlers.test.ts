@@ -32,7 +32,8 @@ describe('initializeProvider', () => {
     jest.spyOn(handlers, 'initializeProvider').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
-    const res = await local.initializeProvider({ state, functionName: 'initializeProvider' });
+    const logOptions = fixtures.buildLogOptions();
+    const res = await local.initializeProvider({ state, functionName: 'initializeProvider', logOptions });
     expect(res).toEqual({ ok: true, data: scrubbed });
   });
 
@@ -47,7 +48,8 @@ describe('initializeProvider', () => {
     jest.spyOn(handlers, 'initializeProvider').mockRejectedValue(error);
 
     const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to initialize provider:Ganache test' };
-    const res = await local.initializeProvider({ state, functionName: 'initializeProvider' });
+    const logOptions = fixtures.buildLogOptions();
+    const res = await local.initializeProvider({ state, functionName: 'initializeProvider', logOptions });
     expect(res).toEqual({ ok: false, errorLog });
   });
 });
@@ -87,7 +89,8 @@ describe('processTransactions', () => {
     jest.spyOn(handlers, 'processTransactions').mockResolvedValue(state);
 
     const scrubbed = scrub(state);
-    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
+    const logOptions = fixtures.buildLogOptions();
+    const res = await local.processTransactions({ state, functionName: 'processTransactions', logOptions });
     expect(res).toEqual({ ok: true, data: scrubbed });
   });
 
@@ -102,7 +105,8 @@ describe('processTransactions', () => {
     jest.spyOn(handlers, 'processTransactions').mockRejectedValue(error);
 
     const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to process provider requests:Ganache test' };
-    const res = await local.processTransactions({ state, functionName: 'processTransactions' });
+    const logOptions = fixtures.buildLogOptions();
+    const res = await local.processTransactions({ state, functionName: 'processTransactions', logOptions });
     expect(res).toEqual({ ok: false, errorLog });
   });
 });

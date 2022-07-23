@@ -1,5 +1,5 @@
 import find from 'lodash/find';
-import { logger, setLogOptions, randomHexString } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import { BaseAggregatedApiCall, HttpGatewayApiCallSuccessResponse } from '../types';
 import { callApi } from '../api';
 import { Config } from '../config';
@@ -9,13 +9,6 @@ export async function processHttpRequest(
   endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, HttpGatewayApiCallSuccessResponse]> {
-  const requestId = randomHexString(16);
-  setLogOptions({
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta: { requestId },
-  });
-
   // Guaranteed to exist because validation is already performed in the deployer handler
   const trigger = find(config.triggers.http, ['endpointId', endpointId])!;
 

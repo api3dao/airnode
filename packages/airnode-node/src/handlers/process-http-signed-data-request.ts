@@ -1,5 +1,5 @@
 import find from 'lodash/find';
-import { logger, setLogOptions, randomHexString } from '@api3/airnode-utilities';
+import { logger, randomHexString } from '@api3/airnode-utilities';
 import * as wallet from '../evm/wallet';
 import * as evm from '../evm';
 import {
@@ -17,11 +17,6 @@ export async function processHttpSignedDataRequest(
   encodedParameters: string
 ): Promise<[Error, null] | [null, HttpSignedDataApiCallSuccessResponse]> {
   const requestId = randomHexString(16);
-  setLogOptions({
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta: { requestId },
-  });
 
   // Both "trigger" and "decodedParameters" are guaranteed to exist because validation is already performed in the
   // deployer handler

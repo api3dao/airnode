@@ -21,9 +21,10 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ ok: true, data: { value: 777 } });
@@ -35,9 +36,10 @@ describe('spawn', () => {
     spawnLocalMock.mockResolvedValueOnce({ ok: true, data: { value: 777 } });
     const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: { type: 'local' } });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ ok: true, data: { value: 777 } });

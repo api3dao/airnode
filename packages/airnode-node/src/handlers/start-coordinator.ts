@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
-import { logger, formatDateTime, setLogOptions, randomHexString } from '@api3/airnode-utilities';
+import { logger, formatDateTime } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
@@ -11,14 +11,8 @@ import * as coordinatorState from '../coordinator/state';
 import { CoordinatorState, CoordinatorStateWithApiResponses, WorkerOptions } from '../types';
 import { Config } from '../config';
 
-export async function startCoordinator(config: Config) {
+export async function startCoordinator(config: Config, coordinatorId: string) {
   const startedAt = new Date();
-  const coordinatorId = randomHexString(16);
-  setLogOptions({
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta: { coordinatorId },
-  });
   const endState = await coordinator(config, coordinatorId);
   const completedAt = new Date();
 
@@ -28,7 +22,7 @@ export async function startCoordinator(config: Config) {
   // Heartbeat is not core part of coordinator because it may return early in case there are no actionable requests
   const goHeartbeatRes = await go(() => reportHeartbeat(endState));
   if (!goHeartbeatRes.success) {
-    logger.error('Failed to send Airnode heartbeat', { error: goHeartbeatRes.error });
+    logger.error('Failed to send Airnode heartbeat', goHeartbeatRes.error);
   }
 }
 

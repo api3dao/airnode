@@ -6,10 +6,9 @@ describe('callApi', () => {
   it('calls API', () => {
     const initializeSpy = jest.spyOn(api, 'callApi');
     const config = fixtures.buildConfig();
-    const logOptions = fixtures.buildLogOptions();
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
 
-    callApi(config, aggregatedApiCall, logOptions);
+    callApi(config, aggregatedApiCall);
     expect(initializeSpy).toHaveBeenCalledTimes(1);
     expect(initializeSpy).toHaveBeenCalledWith({ type: 'regular', config, aggregatedApiCall });
   });

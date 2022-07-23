@@ -1,4 +1,4 @@
-import { logger, setLogOptions, PendingLog } from '@api3/airnode-utilities';
+import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as authorizations from '../authorization';
@@ -39,14 +39,6 @@ async function fetchTransactionCounts(currentState: ProviderState<EVMProviderSta
 export async function initializeProvider(
   initialState: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState> | null> {
-  const { coordinatorId } = initialState;
-  const { chainId, chainType, name: providerName } = initialState.settings;
-  setLogOptions({
-    format: initialState.settings.logFormat,
-    level: initialState.settings.logLevel,
-    meta: { coordinatorId, providerName, chainType, chainId },
-  });
-
   // =================================================================
   // STEP 1: Re-instantiate any classes
   // =================================================================
@@ -63,7 +55,7 @@ export async function initializeProvider(
   // =================================================================
   const goGroupedRequests = await go(() => fetchPendingRequests(state2));
   if (!goGroupedRequests.success) {
-    logger.error('Unable to get pending requests', { error: goGroupedRequests.error });
+    logger.error('Unable to get pending requests', goGroupedRequests.error);
     return null;
   }
   const apiCalls = goGroupedRequests.data.apiCalls;

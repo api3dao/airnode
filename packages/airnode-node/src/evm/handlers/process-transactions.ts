@@ -1,4 +1,4 @@
-import { getGasPrice, logger, setLogOptions } from '@api3/airnode-utilities';
+import { getGasPrice, logger } from '@api3/airnode-utilities';
 import * as fulfillments from '../fulfillments';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
@@ -7,13 +7,7 @@ import { EVMProviderSponsorState, ProviderState } from '../../types';
 export async function processTransactions(
   initialState: ProviderState<EVMProviderSponsorState>
 ): Promise<ProviderState<EVMProviderSponsorState>> {
-  const { chainOptions, chainId, chainType, name: providerName } = initialState.settings;
-  const { coordinatorId } = initialState;
-  setLogOptions({
-    format: initialState.settings.logFormat,
-    level: initialState.settings.logLevel,
-    meta: { coordinatorId, providerName, chainType, chainId },
-  });
+  const { chainOptions } = initialState.settings;
 
   // =================================================================
   // STEP 1: Re-instantiate any classes
