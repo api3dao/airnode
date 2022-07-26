@@ -24,7 +24,7 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
           for i in latestVersion latestBeaconVersion latestOisVersion; do
-            path=$(grep $i config.js | cut -d\' -f2);
+            path=$(grep $i: config.js | cut -d\' -f2);
             echo "Renaming: $i --> $path";
             sed -i "s@$i@$path@" .github/workflows/mlc_config.json;
           done
