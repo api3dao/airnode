@@ -42,7 +42,10 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    app.post('/http-signed-data/:endpointId', async function (req, res) {
+    const httpSignedDataGatewayPath = '/http-signed-data/:endpointId';
+    app.post(httpSignedDataGatewayPath, async function (req, res) {
+      logger.log(`Received request for http signed data`, logOptions);
+
       const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
       if (!apiKeyVerification.success) {
         const { statusCode, error } = apiKeyVerification;
@@ -78,10 +81,18 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
     });
+
+    logger.log(
+      `HTTP signed data gateway listening for request to "http://localhost:${port}${httpSignedDataGatewayPath}"`,
+      logOptions
+    );
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    app.post('/http-data/:endpointId', async function (req, res) {
+    const httpGatewayPath = '/http-data/:endpointId';
+    app.post(httpGatewayPath, async function (req, res) {
+      logger.log(`Received request for http data`, logOptions);
+
       const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
       if (!apiKeyVerification.success) {
         const { statusCode, error } = apiKeyVerification;
@@ -117,9 +128,14 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
     });
+
+    logger.log(
+      `HTTP (testing) gateway listening for request to "http://localhost:${port}${httpGatewayPath}"`,
+      logOptions
+    );
   }
 
   app.listen(port, () => {
-    logger.log(`API gateway server running on http://localhost:${port}`, logOptions);
+    logger.log(`API gateway server running on "http://localhost:${port}"`, logOptions);
   });
 }

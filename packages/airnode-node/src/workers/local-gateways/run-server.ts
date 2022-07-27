@@ -16,8 +16,9 @@ const logOptions = buildBaseOptions(config, {});
 // Determine which gateways are enabled
 const gatewayNames = ['httpGateway', 'httpSignedDataGateway'] as const;
 const enabledGateways = gatewayNames.filter((gatewayName) => config.nodeSettings[gatewayName].enabled);
-enabledGateways.forEach((gatewayName) => {
-  logger.log(`Preparing to start ${gatewayName} API gateway.`, logOptions);
+const disabledGateways = gatewayNames.filter((gatewayName) => !config.nodeSettings[gatewayName].enabled);
+disabledGateways.forEach((gatewayName) => {
+  logger.log(`Gateway "${gatewayName}" not enabled.`, logOptions);
 });
 
 startGatewayServer(config, logOptions, enabledGateways);
