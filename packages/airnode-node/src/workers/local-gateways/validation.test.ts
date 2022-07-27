@@ -7,7 +7,7 @@ import {
   checkRequestOrigin,
   verifyRequestOrigin,
   buildCorsHeaders,
-} from './common';
+} from './validation';
 
 const loadConfigFixture = (): Config =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are

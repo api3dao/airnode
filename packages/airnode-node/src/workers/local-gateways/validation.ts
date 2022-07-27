@@ -1,8 +1,10 @@
-import { Config, endpointIdSchema, apiCallParametersSchema, ApiCallParameters } from '@api3/airnode-node';
 import { decode } from '@api3/airnode-abi';
 import find from 'lodash/find';
 import { z } from 'zod';
 import { goSync } from '@api3/promise-utils';
+import { ApiCallParameters } from '../../types';
+import { Config, endpointIdSchema } from '../../config';
+import { apiCallParametersSchema } from '../../validation';
 
 export type VerificationSuccess<T> = T & {
   success: true;
