@@ -18,7 +18,7 @@ it('makes a call for signed API data', async () => {
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await processHttpSignedDataRequest(config, endpointId, encodedParameters);
+  const [_err, result] = await processHttpSignedDataRequest(config, endpointId, encodedParameters);
 
   const expected: HttpSignedDataApiCallSuccessResponse = {
     // Value is returned by the mock server from the operation package

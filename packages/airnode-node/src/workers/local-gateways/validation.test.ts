@@ -12,7 +12,7 @@ import {
 const loadConfigFixture = (): Config =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
   // not interpolated
-  JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/config.valid.json')).toString());
+  JSON.parse(readFileSync(join(__dirname, '../../../test/fixtures/config/config.valid.json')).toString());
 
 const validEndpointId = '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4';
 
