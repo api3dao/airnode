@@ -30,6 +30,13 @@ const httpSignedDataBodySchema = z.object({
 });
 const DEFAULT_PORT = 3000;
 
+export function getGatewaysBaseUrl(port: number | undefined) {
+  return `http://localhost:${port || DEFAULT_PORT}`;
+}
+
+export const HTTP_SIGNED_DATA_BASE_PATH = '/http-signed-data';
+export const HTTP_BASE_PATH = '/http-data';
+
 export function startGatewayServer(config: Config, logOptions: LogOptions, enabledGateways: GatewayName[]) {
   if (enabledGateways.length === 0) {
     logger.log('Not starting API gateway server because there is no gateway enabled.');
@@ -42,7 +49,7 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    const httpSignedDataGatewayPath = '/http-signed-data/:endpointId';
+    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/:endpointId`;
     app.post(httpSignedDataGatewayPath, async function (req, res) {
       logger.log(`Received request for http signed data`, logOptions);
 
@@ -83,13 +90,13 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
     });
 
     logger.log(
-      `HTTP signed data gateway listening for request to "http://localhost:${port}${httpSignedDataGatewayPath}"`,
+      `HTTP signed data gateway listening for request on "${getGatewaysBaseUrl(port)}${httpSignedDataGatewayPath}"`,
       logOptions
     );
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    const httpGatewayPath = '/http-data/:endpointId';
+    const httpGatewayPath = `/${HTTP_BASE_PATH}/:endpointId`;
     app.post(httpGatewayPath, async function (req, res) {
       logger.log(`Received request for http data`, logOptions);
 
@@ -130,12 +137,12 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
     });
 
     logger.log(
-      `HTTP (testing) gateway listening for request to "http://localhost:${port}${httpGatewayPath}"`,
+      `HTTP (testing) gateway listening for request on "${getGatewaysBaseUrl(port)}${httpGatewayPath}"`,
       logOptions
     );
   }
 
   app.listen(port, () => {
-    logger.log(`API gateway server running on "http://localhost:${port}"`, logOptions);
+    logger.log(`API gateway server running on "${getGatewaysBaseUrl(port)}"`, logOptions);
   });
 }

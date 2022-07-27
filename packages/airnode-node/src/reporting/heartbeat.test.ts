@@ -4,9 +4,11 @@ jest.mock('@api3/airnode-adapter', () => ({
 }));
 
 import { randomHexString } from '@api3/airnode-utilities';
+import cloneDeep from 'lodash/cloneDeep';
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
+import { Config } from '../config';
 
 describe('reportHeartbeat', () => {
   fixtures.setEnvVariables({
@@ -44,8 +46,8 @@ describe('reportHeartbeat', () => {
       },
       data: {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
-        http_gateway_url: 'https://some.http.gateway.url/v1/',
-        http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
+        http_gateway_url: 'http://localhost:3000/http-data',
+        http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       },
       timeout: 5_000,
     });
@@ -70,10 +72,121 @@ describe('reportHeartbeat', () => {
       },
       data: {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
-        http_gateway_url: 'https://some.http.gateway.url/v1/',
-        http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
+        http_gateway_url: 'http://localhost:3000/http-data',
+        http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       },
       timeout: 5_000,
+    });
+  });
+
+  describe('getHttpGatewayUrl', () => {
+    it('returns correct local gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'local', gatewayServerPort: 8765 } },
+      } as unknown as Config;
+
+      expect(heartbeat.getHttpGatewayUrl(mockedConfig)).toEqual('http://localhost:8765/http-data');
+    });
+
+    it('returns correct serverless gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'aws', region: 'us-east1', disableConcurrencyReservations: false } },
+      } as unknown as Config;
+
+      expect(heartbeat.getHttpGatewayUrl(mockedConfig)).toEqual('https://some.http.gateway.url/v1/');
+    });
+  });
+
+  describe('getHttpSignedDataGatewayUrl', () => {
+    it('returns correct local gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'local', gatewayServerPort: 8765 } },
+      } as unknown as Config;
+
+      expect(heartbeat.getHttpSignedDataGatewayUrl(mockedConfig)).toEqual('http://localhost:8765/http-signed-data');
+    });
+
+    it('returns correct serverless gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'aws', region: 'us-east1', disableConcurrencyReservations: false } },
+      } as unknown as Config;
+
+      expect(heartbeat.getHttpSignedDataGatewayUrl(mockedConfig)).toEqual(
+        'https://some.http.signed.data.gateway.url/v1/'
+      );
+    });
+  });
+
+  describe('gateway URLs in heartbeat', () => {
+    const baseConfig = fixtures.buildConfig();
+    baseConfig.nodeSettings = {
+      ...baseConfig.nodeSettings,
+      httpSignedDataGateway: {
+        enabled: true,
+        apiKey: 'e537bd93-9b4e-4fb3-b2c5-e2f3c66c1ace',
+        maxConcurrency: 20,
+      },
+      httpGateway: {
+        enabled: true,
+        apiKey: '9cf5a3b1-250d-4116-9a6e-5c37e525ecb3',
+        maxConcurrency: 20,
+      },
+    };
+
+    it('are send when deployed to cloud', async () => {
+      executeMock.mockResolvedValueOnce({ received: true });
+      const config = cloneDeep(baseConfig);
+      config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region: 'us-east1' };
+      const state = coordinatorState.create(config);
+
+      const logs = await heartbeat.reportHeartbeat(state);
+
+      expect(logs).toEqual([
+        { level: 'INFO', message: 'Sending heartbeat...' },
+        { level: 'INFO', message: 'Heartbeat sent successfully' },
+      ]);
+      expect(executeMock).toHaveBeenCalledTimes(1);
+      expect(executeMock).toHaveBeenCalledWith({
+        url: 'https://example.com',
+        method: 'post',
+        headers: {
+          'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
+        },
+        data: {
+          deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
+          http_gateway_url: 'https://some.http.gateway.url/v1/',
+          http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
+        },
+        timeout: 5_000,
+      });
+    });
+
+    it('are send when run inside Airnode client', async () => {
+      executeMock.mockResolvedValueOnce({ received: true });
+      const config = cloneDeep(baseConfig);
+      config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
+      const state = coordinatorState.create(config);
+
+      const logs = await heartbeat.reportHeartbeat(state);
+
+      expect(logs).toEqual([
+        { level: 'INFO', message: 'Sending heartbeat...' },
+        { level: 'INFO', message: 'Heartbeat sent successfully' },
+      ]);
+      expect(executeMock).toHaveBeenCalledTimes(1);
+      expect(executeMock).toHaveBeenCalledWith({
+        url: 'https://example.com',
+        method: 'post',
+        headers: {
+          'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
+        },
+        data: {
+          deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
+          http_gateway_url: 'http://localhost:8765/http-data',
+          http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
+        },
+        timeout: 5_000,
+      });
     });
   });
 });
