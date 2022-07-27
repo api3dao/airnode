@@ -10,7 +10,7 @@ import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTrans
 function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
-function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
+export function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
   return setEnvValue('AIRNODE_WALLET_PRIVATE_KEY', ethers.Wallet.fromMnemonic(airnodeWalletMnemonic).privateKey);
 }
 

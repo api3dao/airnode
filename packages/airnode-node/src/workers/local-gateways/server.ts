@@ -1,16 +1,14 @@
-import { readFileSync } from 'fs';
-import path from 'path';
-import { logger, buildBaseOptions } from '@api3/airnode-utilities';
+import { logger, LogOptions } from '@api3/airnode-utilities';
 import express, { Request } from 'express';
-import dotenv from 'dotenv';
 import { z } from 'zod';
+import bodyParser from 'body-parser';
 import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest } from './validation';
-import { loadTrustedConfig, LocalProvider } from '../../config';
+import { Config, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
 
 type GatewayName = 'httpGateway' | 'httpSignedDataGateway';
 
-function verifyApiKey(req: Request, gatewayName: GatewayName): VerificationResult<{}> {
+function verifyApiKey(config: Config, req: Request, gatewayName: GatewayName): VerificationResult<{}> {
   const apiKey = req.header('x-api-key');
   const gateway = config.nodeSettings[gatewayName];
 
@@ -32,19 +30,20 @@ const httpSignedDataBodySchema = z.object({
 });
 const DEFAULT_PORT = 3000;
 
-function startGatewayServer(enabledGateways: GatewayName[]) {
+export function startGatewayServer(config: Config, logOptions: LogOptions, enabledGateways: GatewayName[]) {
   if (enabledGateways.length === 0) {
     logger.log('Not starting API gateway server because there is no gateway enabled.');
     return;
   }
 
   const app = express();
+  app.use(bodyParser.json());
   const cloudProviderSettings = config.nodeSettings.cloudProvider as LocalProvider;
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    app.get('/http-signed-data', async function (req, res) {
-      const apiKeyVerification = verifyApiKey(req, 'httpSignedDataGateway');
+    app.post('/http-signed-data/:endpointId', async function (req, res) {
+      const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
       if (!apiKeyVerification.success) {
         const { statusCode, error } = apiKeyVerification;
         res.status(statusCode).send(error);
@@ -54,16 +53,14 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
       const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
-        // specification. We want the same error to be returned by the GCP gateway.
+        // specification.
         res.status(400).send({ message: 'Invalid request body' });
         return;
       }
       const { encodedParameters: rawEncodedParameters } = parsedBody.data;
 
-      // Guaranteed to exist by the openAPI schema
-      const { endpointId: rawEndpointId } = req.query;
-
-      const verificationResult = verifyHttpSignedDataRequest(config, rawEncodedParameters, rawEndpointId as string);
+      const rawEndpointId = req.params.endpointId;
+      const verificationResult = verifyHttpSignedDataRequest(config, rawEncodedParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
         res.status(statusCode).send(error);
@@ -71,7 +68,7 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
       }
       const { encodedParameters, endpointId } = verificationResult;
 
-      const [err, result] = await processHttpSignedDataRequest(config, endpointId as string, encodedParameters);
+      const [err, result] = await processHttpSignedDataRequest(config, endpointId, encodedParameters);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
         res.status(500).send({ message: err.toString() });
@@ -84,8 +81,8 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    app.get('/http-data', async function (req, res) {
-      const apiKeyVerification = verifyApiKey(req, 'httpGateway');
+    app.post('/http-data/:endpointId', async function (req, res) {
+      const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
       if (!apiKeyVerification.success) {
         const { statusCode, error } = apiKeyVerification;
         res.status(statusCode).send(error);
@@ -95,16 +92,14 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
       const parsedBody = httpRequestBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
-        // specification. We want the same error to be returned by the GCP gateway.
+        // specification.
         res.status(400).send({ message: 'Invalid request body' });
         return;
       }
       const { parameters: rawParameters } = parsedBody.data;
 
-      // Guaranteed to exist by the openAPI schema
-      const { endpointId: rawEndpointId } = req.query;
-
-      const verificationResult = verifyHttpRequest(config, rawParameters, rawEndpointId as string);
+      const rawEndpointId = req.params.endpointId;
+      const verificationResult = verifyHttpRequest(config, rawParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
         res.status(statusCode).send(error);
@@ -128,18 +123,3 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
     logger.log(`API gateway server running on http://localhost:${port}`, logOptions);
   });
 }
-
-const rawSecrets = readFileSync(path.resolve(`${__dirname}/../../../config/secrets.env`));
-const secrets = dotenv.parse(rawSecrets);
-// Configuration is checked when at the start of the container
-const config = loadTrustedConfig(path.resolve(`${__dirname}/../../../config/config.json`), secrets);
-const logOptions = buildBaseOptions(config, {});
-
-// Determine which gateways are enabled
-const gatewayNames = ['httpGateway', 'httpSignedDataGateway'] as const;
-const enabledGateways = gatewayNames.filter((gatewayName) => config.nodeSettings[gatewayName].enabled);
-enabledGateways.forEach((gatewayName) => {
-  logger.log(`Preparing to start ${gatewayName} API gateway.`);
-});
-
-startGatewayServer(enabledGateways);
