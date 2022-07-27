@@ -113,7 +113,7 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
 }
 
 // We need to check for an API key manually because GCP HTTP Gateway doesn't support managing API keys via API
-export function verifyGcpApiKey(
+function verifyGcpApiKey(
   req: Request,
   apiKeyName: 'HTTP_GATEWAY_API_KEY' | 'HTTP_SIGNED_DATA_GATEWAY_API_KEY'
 ): VerificationResult<{}> {
