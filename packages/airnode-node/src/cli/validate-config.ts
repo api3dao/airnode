@@ -5,5 +5,9 @@ import { loadConfig } from '../config';
 
 const rawSecrets = readFileSync(path.resolve(`${__dirname}/../../config/secrets.env`));
 const secrets = dotenv.parse(rawSecrets);
-// We don't care about the config itself, we just need it to be validated when the airnode-client starts
-loadConfig(path.resolve(`${__dirname}/../../config/config.json`), secrets);
+const config = loadConfig(path.resolve(`${__dirname}/../../config/config.json`), secrets);
+
+// Make sure that the "cloudProvider" section is set to use the local cloud provider
+if (config.nodeSettings.cloudProvider.type !== 'local') {
+  throw new Error('Expected "nodeSettings.cloudProvider.type" to be set to "local"');
+}

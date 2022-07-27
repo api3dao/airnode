@@ -5,7 +5,7 @@ import express, { Request } from 'express';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest } from './validation';
-import { loadTrustedConfig } from '../../config';
+import { loadTrustedConfig, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
 
 type GatewayName = 'httpGateway' | 'httpSignedDataGateway';
@@ -30,6 +30,7 @@ const httpRequestBodySchema = z.object({
 const httpSignedDataBodySchema = z.object({
   encodedParameters: z.string(),
 });
+const DEFAULT_PORT = 3000;
 
 function startGatewayServer(enabledGateways: GatewayName[]) {
   if (enabledGateways.length === 0) {
@@ -38,8 +39,8 @@ function startGatewayServer(enabledGateways: GatewayName[]) {
   }
 
   const app = express();
-  // TODO: get this from config (important when the docker is run in network host mode)
-  const port = 3000;
+  const cloudProviderSettings = config.nodeSettings.cloudProvider as LocalProvider;
+  const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
     app.get('/http-signed-data', async function (req, res) {
