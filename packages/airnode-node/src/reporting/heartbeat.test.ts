@@ -3,6 +3,7 @@ jest.mock('@api3/airnode-adapter', () => ({
   execute: executeMock,
 }));
 
+import { randomHexString } from '@api3/airnode-utilities';
 import * as heartbeat from './heartbeat';
 import * as coordinatorState from '../coordinator/state';
 import * as fixtures from '../../test/fixtures';
@@ -17,7 +18,8 @@ describe('reportHeartbeat', () => {
   it('does nothing if the heartbeat is disabled', async () => {
     const nodeSettings = fixtures.buildNodeSettings({ heartbeat: { enabled: false } });
     const config = fixtures.buildConfig({ nodeSettings });
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
     const res = await heartbeat.reportHeartbeat(state);
     expect(res).toEqual([{ level: 'INFO', message: `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled` }]);
     expect(executeMock).not.toHaveBeenCalled();
@@ -26,7 +28,8 @@ describe('reportHeartbeat', () => {
   it('handles heartbeat errors', async () => {
     executeMock.mockRejectedValueOnce(new Error('Server is down'));
     const config = fixtures.buildConfig();
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
     const res = await heartbeat.reportHeartbeat(state);
     expect(res).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
@@ -51,7 +54,8 @@ describe('reportHeartbeat', () => {
   it('sends the heartbeat successfully', async () => {
     executeMock.mockResolvedValueOnce({ received: true });
     const config = fixtures.buildConfig();
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
     const logs = await heartbeat.reportHeartbeat(state);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },

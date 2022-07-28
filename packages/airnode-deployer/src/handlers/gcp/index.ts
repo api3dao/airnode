@@ -10,7 +10,7 @@ import {
   WorkerPayload,
   loadTrustedConfig,
 } from '@api3/airnode-node';
-import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
+import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
 import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult } from '../common';
@@ -19,13 +19,20 @@ const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
 
 export async function startCoordinator(_req: Request, res: Response) {
-  await handlers.startCoordinator(parsedConfig);
+  const coordinatorId = randomHexString(16);
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+    meta: { coordinatorId },
+  });
+  await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
   res.status(200).send(response);
 }
 
 export async function run(req: Request, res: Response) {
   const payload: WorkerPayload = req.body;
+  setLogOptions(payload.logOptions);
 
   switch (payload.functionName) {
     case 'initializeProvider':
@@ -67,9 +74,9 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
 }
 
 async function callApi(payload: CallApiPayload, res: Response) {
-  const { aggregatedApiCall, logOptions } = payload;
+  const { aggregatedApiCall } = payload;
   const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
 }
@@ -112,6 +119,10 @@ const httpRequestBodySchema = z.object({
 });
 
 export async function processHttpRequest(req: Request, res: Response) {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
     const { statusCode, error } = apiKeyVerification;
@@ -158,6 +169,10 @@ const httpSignedDataBodySchema = z.object({
 // TODO: Copy&paste for now, will refactor as part of
 // https://api3dao.atlassian.net/browse/AN-527
 export async function processHttpSignedDataRequest(req: Request, res: Response) {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
     const { statusCode, error } = apiKeyVerification;

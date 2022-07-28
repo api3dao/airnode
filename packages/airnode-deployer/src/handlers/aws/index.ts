@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { logger, DEFAULT_RETRY_DELAY_MS } from '@api3/airnode-utilities';
+import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import {
   handlers,
@@ -16,12 +16,20 @@ const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
 
 export async function startCoordinator() {
-  await handlers.startCoordinator(parsedConfig);
+  const coordinatorId = randomHexString(16);
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+    meta: { coordinatorId },
+  });
+  await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayProxyResult> {
+  setLogOptions(payload.logOptions);
+
   switch (payload.functionName) {
     case 'initializeProvider':
       return initializeProvider(payload);
@@ -60,9 +68,9 @@ async function initializeProvider(payload: InitializeProviderPayload) {
 }
 
 async function callApi(payload: CallApiPayload) {
-  const { aggregatedApiCall, logOptions } = payload;
+  const { aggregatedApiCall } = payload;
   const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
   const response = JSON.stringify({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
 }
@@ -92,6 +100,10 @@ interface ProcessHttpRequestBody {
 export async function processHttpRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
   // The shape of the body is guaranteed by the openAPI spec
   const rawParameters = (JSON.parse(event.body!) as ProcessHttpRequestBody).parameters;
   // The "endpointId" path parameter existence is guaranteed by the openAPI spec
@@ -123,6 +135,10 @@ interface ProcessHttpSignedDataRequestBody {
 export async function processHttpSignedDataRequest(
   event: AWSLambda.APIGatewayProxyEvent
 ): Promise<AWSLambda.APIGatewayProxyResult> {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
   // The shape of the body is guaranteed by the openAPI spec
   const rawEncodedParameters = (JSON.parse(event.body!) as ProcessHttpSignedDataRequestBody).encodedParameters;
   // The "endpointId" path parameter existence is guaranteed by the openAPI spec

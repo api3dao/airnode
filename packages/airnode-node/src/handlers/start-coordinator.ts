@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
-import { logger, formatDateTime, buildBaseOptions } from '@api3/airnode-utilities';
+import { logger, formatDateTime } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
@@ -11,28 +11,25 @@ import * as coordinatorState from '../coordinator/state';
 import { CoordinatorState, CoordinatorStateWithApiResponses, WorkerOptions } from '../types';
 import { Config } from '../config';
 
-export async function startCoordinator(config: Config) {
+export async function startCoordinator(config: Config, coordinatorId: string) {
   const startedAt = new Date();
-  const endState = await coordinator(config);
+  const endState = await coordinator(config, coordinatorId);
   const completedAt = new Date();
 
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
-  const logOptions = buildBaseOptions(config, { coordinatorId: endState.coordinatorId });
-  logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, logOptions);
+  logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`);
 
   // Heartbeat is not core part of coordinator because it may return early in case there are no actionable requests
   const goHeartbeatRes = await go(() => reportHeartbeat(endState));
   if (!goHeartbeatRes.success) {
-    logger.error('Failed to send Airnode heartbeat', { ...logOptions, error: goHeartbeatRes.error });
+    logger.error('Failed to send Airnode heartbeat', goHeartbeatRes.error);
   }
 }
 
-function createInitialCoordinatorState(config: Config) {
-  const state = coordinatorState.create(config);
-  const { coordinatorId } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
+function createInitialCoordinatorState(config: Config, coordinatorId: string) {
+  const state = coordinatorState.create(config, coordinatorId);
 
-  logger.info(`Created initial coordinator state`, logOptions);
+  logger.info(`Created initial coordinator state`);
   return state;
 }
 
@@ -48,25 +45,24 @@ function getWorkerOptions(state: CoordinatorState): WorkerOptions {
 
 async function initializeProviders(state: CoordinatorState) {
   const { coordinatorId, config, settings } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
 
-  logger.info('Forking to initialize providers', logOptions);
+  logger.info('Forking to initialize providers');
   const [logs, providerStates] = await providers.initialize(
     coordinatorId,
     settings.airnodeAddress,
     config,
     getWorkerOptions(state)
   );
-  logger.logPending(logs, logOptions);
-  logger.info('Forking to initialize providers complete', logOptions);
+  logger.logPending(logs);
+  logger.info('Forking to initialize providers complete');
 
   const newState = coordinatorState.update(state, { providerStates });
   const evmProviders = newState.providerStates.evm;
   if (isEmpty(evmProviders)) {
-    logger.info('No providers found', logOptions);
+    logger.info('No providers found');
   } else {
     evmProviders.forEach((evmProvider) => {
-      logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, logOptions);
+      logger.info(`Initialized EVM provider:${evmProvider.settings.name}`);
     });
   }
 
@@ -80,29 +76,23 @@ function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
 }
 
 function aggregateApiCalls(state: CoordinatorState) {
-  const { providerStates, config, coordinatorId } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
+  const { providerStates, config } = state;
 
   const flatApiCalls = flatMap(providerStates.evm, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(config, flatApiCalls);
 
-  logger.info('Aggregated API calls', logOptions);
+  logger.info('Aggregated API calls');
   return coordinatorState.update(state, { aggregatedApiCallsById });
 }
 
 async function executeApiCalls(state: CoordinatorState) {
-  const { aggregatedApiCallsById, config, coordinatorId } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
+  const { aggregatedApiCallsById } = state;
 
   const aggregatedApiCalls = Object.values(aggregatedApiCallsById);
-  const [logs, processedAggregatedApiCalls] = await calls.callApis(
-    aggregatedApiCalls,
-    logOptions,
-    getWorkerOptions(state)
-  );
-  logger.logPending(logs, logOptions);
+  const [logs, processedAggregatedApiCalls] = await calls.callApis(aggregatedApiCalls, getWorkerOptions(state));
+  logger.logPending(logs);
 
-  logger.info('Executed API calls', logOptions);
+  logger.info('Executed API calls');
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
   return coordinatorState.update(state, {
     aggregatedApiCallsById: processedAggregatedApiCallsById,
@@ -110,55 +100,49 @@ async function executeApiCalls(state: CoordinatorState) {
 }
 
 function disaggregateApiCalls(state: CoordinatorStateWithApiResponses) {
-  const { config, coordinatorId } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
-
   // TODO: Disaggregation should be chain agnostic - currently only updated EVM providers are returned
   const [logs, evmProvidersWithApiResponses] = calls.disaggregate(state);
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
 
-  logger.info('Disaggregated API calls', logOptions);
+  logger.info('Disaggregated API calls');
   return coordinatorState.update(state, { providerStates: { evm: evmProvidersWithApiResponses } });
 }
 
 async function initiateTransactions(state: CoordinatorStateWithApiResponses) {
-  const { providerStates, config, coordinatorId } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
+  const { providerStates } = state;
 
   const sponsorProviderStates = providers.splitStatesBySponsorAddress(providerStates);
   sponsorProviderStates.forEach((sponsorProviderState) => {
     logger.info(
-      `Forking to submit transactions for EVM provider: ${sponsorProviderState.settings.name} and sponsor: ${sponsorProviderState.sponsorAddress}...`,
-      logOptions
+      `Forking to submit transactions for EVM provider: ${sponsorProviderState.settings.name} and sponsor: ${sponsorProviderState.sponsorAddress}...`
     );
   });
 
   // NOTE: Not merging responses and logs back (based on the provider, regardless of sponsor)
   // as the data don't go anywhere from here but be aware if that changes in the future.
   const [logs, processedProviders] = await providers.processRequests(sponsorProviderStates, getWorkerOptions(state));
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
 
-  logger.info('Forking to submit transactions complete', logOptions);
+  logger.info('Forking to submit transactions complete');
   return coordinatorState.update(state, { providerStates: processedProviders });
 }
 
 function applyChainRequestLimits(state: CoordinatorState) {
-  const { config, coordinatorId, providerStates } = state;
-  const logOptions = buildBaseOptions(config, { coordinatorId });
+  const { config, providerStates } = state;
 
-  logger.info('Applying chain request limits', logOptions);
+  logger.info('Applying chain request limits');
   const [logs, processedProviders] = calls.applyChainLimits(config, providerStates);
-  logger.logPending(logs, logOptions);
+  logger.logPending(logs);
 
-  logger.info('Applied chain request limits', logOptions);
+  logger.info('Applied chain request limits');
   return coordinatorState.update(state, { providerStates: processedProviders });
 }
 
-async function coordinator(config: Config): Promise<CoordinatorState> {
+async function coordinator(config: Config, coordinatorId: string): Promise<CoordinatorState> {
   // =================================================================
   // STEP 1: Create a blank coordinator state
   // =================================================================
-  let state = createInitialCoordinatorState(config);
+  let state = createInitialCoordinatorState(config, coordinatorId);
 
   // =================================================================
   // STEP 2: Create the initial state from each provider
@@ -169,9 +153,7 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   // STEP 3: Return early if there are no actionable requests
   // =================================================================
   if (hasCoordinatorNoActionableRequests(state)) {
-    const { coordinatorId } = state;
-    const logOptions = buildBaseOptions(config, { coordinatorId });
-    logger.info('No actionable requests detected. Returning', logOptions);
+    logger.info('No actionable requests detected. Returning');
     return state;
   }
 

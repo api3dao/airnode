@@ -26,9 +26,10 @@ describe('spawn', () => {
         disableConcurrencyReservations: false,
       },
     });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
 
@@ -57,9 +58,10 @@ describe('spawn', () => {
         disableConcurrencyReservations: false,
       },
     });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
 

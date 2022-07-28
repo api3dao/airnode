@@ -2,7 +2,6 @@ import { mockReadFileSync } from '../../../test/mock-utils';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
-import { LogOptions } from '@api3/airnode-utilities';
 import * as coordinatedExecution from './coordinated-execution';
 import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
@@ -11,19 +10,13 @@ import { RequestErrorMessage, RegularApiCallSuccessResponse } from '../../types'
 describe('callApis', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 
-  const logOptions: LogOptions = {
-    format: 'plain',
-    level: 'DEBUG',
-    meta: { coordinatorId: '123456' },
-  };
-
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({
       errorMessage: RequestErrorMessage.Unauthorized,
     });
     const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], workerOpts);
     expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping API calls...' }]);
     expect(res).toEqual([{ ...aggregatedApiCall, success: false }]);
     expect(spy).not.toHaveBeenCalled();
@@ -39,7 +32,7 @@ describe('callApis', () => {
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
 
-    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], workerOpts);
 
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
@@ -78,7 +71,7 @@ describe('callApis', () => {
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], workerOpts);
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
@@ -106,7 +99,7 @@ describe('callApis', () => {
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], workerOpts);
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
@@ -131,7 +124,7 @@ describe('callApis', () => {
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall();
     const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
+    const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], workerOpts);
     expect(logs.length).toEqual(5);
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1]).toEqual({

@@ -1,4 +1,4 @@
-import { logger } from '@api3/airnode-utilities';
+import { getLogOptions, logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
@@ -20,7 +20,11 @@ async function spawn<T extends EVMProviderState>(
 ): Promise<LogsData<ProviderState<T> | null>> {
   const options = {
     ...workerOpts,
-    payload: { state, functionName } as InitializeProviderPayload | ProcessTransactionsPayload,
+    payload: {
+      state,
+      functionName,
+      logOptions: getLogOptions(),
+    } as InitializeProviderPayload | ProcessTransactionsPayload,
   };
 
   const goRes = await go(() => workers.spawn(options));

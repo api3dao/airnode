@@ -23,9 +23,10 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     const res = await aws.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
@@ -33,7 +34,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-run',
-        Payload: JSON.stringify({ functionName: 'initializeProvider', state }),
+        Payload: JSON.stringify({ functionName: 'initializeProvider', state, logOptions }),
       },
       expect.any(Function)
     );
@@ -47,16 +48,17 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
+    const logOptions = fixtures.buildLogOptions();
     const parameters: WorkerParameters = {
       ...workerOpts,
-      payload: { functionName: 'initializeProvider', state },
+      payload: { functionName: 'initializeProvider', state, logOptions },
     };
     await expect(aws.spawn(parameters)).rejects.toThrow(new Error('Something went wrong'));
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-run',
-        Payload: JSON.stringify({ functionName: 'initializeProvider', state }),
+        Payload: JSON.stringify({ functionName: 'initializeProvider', state, logOptions }),
       },
       expect.any(Function)
     );
