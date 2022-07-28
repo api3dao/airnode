@@ -19,7 +19,6 @@ const logLevels: { readonly [key in LogLevel]: number } = {
 };
 
 export const logger = {
-  options: 'test',
   log: (message: string, options: LogOptions = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
