@@ -23,8 +23,8 @@ jobs:
       - name: Update latest paths
         run: |
           wget https://raw.githubusercontent.com/api3dao/api3-docs/main/docs/.vuepress/config.js
-          for i in latestVersion latestBeaconVersion latestOisVersion; do
-            path=$(grep $i config.js | cut -d\' -f2);
+          for i in latestVersion latestOisVersion; do
+            path=$(grep $i: config.js | cut -d\' -f2);
             echo "Renaming: $i --> $path";
             sed -i "s@$i@$path@" .github/workflows/mlc_config.json;
           done
@@ -68,7 +68,7 @@ jobs:
           path: ./*
           key: pre-build-${{ github.sha }}
   docker-artifacts:
-    name: Build airnode-artifacts and push to Docker Hub
+    name: Build airnode-artifacts docker image
     runs-on: ubuntu-latest
     needs: pre-build
     steps:
@@ -89,7 +89,7 @@ jobs:
         run: |
           docker push api3/airnode-artifacts-dev:${{ github.sha }}
   docker-build-general:
-    name: Build non-artifact docker images
+    name: Build docker image
     runs-on: ubuntu-latest
     needs: docker-artifacts
     strategy:
@@ -193,7 +193,7 @@ jobs:
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
   e2e-tests:
-    name: E2E tests - admin, node, utilities and validator
+    name: E2E tests
     runs-on: ubuntu-latest
     needs: build
     strategy:

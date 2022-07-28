@@ -1,8 +1,8 @@
 resource "google_project_service" "resourcemanager_api" {
   service = "cloudresourcemanager.googleapis.com"
 
-  disable_dependent_services = true
-  disable_on_destroy         = true
+  disable_dependent_services = false
+  disable_on_destroy         = false
 }
 
 resource "google_project_service" "management_apis" {
@@ -15,8 +15,8 @@ resource "google_project_service" "management_apis" {
   ])
   service = each.key
 
-  disable_dependent_services = true
-  disable_on_destroy         = true
+  disable_dependent_services = false
+  disable_on_destroy         = false
 
   depends_on = [
     google_project_service.resourcemanager_api
@@ -79,8 +79,8 @@ resource "google_project_service" "apigateway_api" {
 
   service = "apigateway.googleapis.com"
 
-  disable_dependent_services = true
-  disable_on_destroy         = true
+  disable_dependent_services = false
+  disable_on_destroy         = false
 
   depends_on = [
     google_project_service.resourcemanager_api
@@ -92,8 +92,8 @@ resource "google_project_service" "servicecontrol_api" {
 
   service = "servicecontrol.googleapis.com"
 
-  disable_dependent_services = true
-  disable_on_destroy         = true
+  disable_dependent_services = false
+  disable_on_destroy         = false
 
   depends_on = [
     google_project_service.resourcemanager_api
