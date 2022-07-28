@@ -18,7 +18,11 @@ export type VerificationFailure = {
 
 export type VerificationResult<T> = VerificationSuccess<T> | VerificationFailure;
 
-function verifyEndpointId(config: Config, endpointId: unknown): VerificationResult<z.SafeParseSuccess<string>> {
+function verifyEndpointId(
+  config: Config,
+  endpointId: unknown,
+  gateway: 'http' | 'httpSignedData'
+): VerificationResult<z.SafeParseSuccess<string>> {
   const parsedEndpointId = endpointIdSchema.safeParse(endpointId);
   if (!parsedEndpointId.success) {
     return {
@@ -30,7 +34,7 @@ function verifyEndpointId(config: Config, endpointId: unknown): VerificationResu
     };
   }
 
-  const trigger = find(config.triggers.http, ['endpointId', endpointId]);
+  const trigger = find(config.triggers[gateway], ['endpointId', endpointId]);
   if (!trigger) {
     return {
       success: false,
@@ -64,7 +68,7 @@ export function verifyHttpRequest(
   }
   const validParameters = parametersValidation.data;
 
-  const endpointIdValidation = verifyEndpointId(config, endpointId);
+  const endpointIdValidation = verifyEndpointId(config, endpointId, 'http');
   if (!endpointIdValidation.success) return endpointIdValidation;
   const validEndpointId = endpointIdValidation.data;
 
@@ -91,7 +95,7 @@ export function verifyHttpSignedDataRequest(
     };
   }
 
-  const endpointIdVerification = verifyEndpointId(config, endpointId);
+  const endpointIdVerification = verifyEndpointId(config, endpointId, 'httpSignedData');
   if (!endpointIdVerification.success) return endpointIdVerification;
   const validEndpointId = endpointIdVerification.data;
 
