@@ -23,7 +23,7 @@ export async function startCoordinator(_req: Request, res: Response) {
   setLogOptions({
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
-    meta: { coordinatorId },
+    meta: { 'Coordinator-ID': coordinatorId },
   });
   await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };

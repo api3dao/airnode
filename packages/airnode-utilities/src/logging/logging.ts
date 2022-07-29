@@ -1,4 +1,4 @@
-import { LogLevel, LogOptions, ErrorLogOptions, PendingLog } from './types';
+import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
 import { formatDateTimeMs } from '../date';
 
 let logOptions: LogOptions;
@@ -99,26 +99,22 @@ export function logFull(level: LogLevel, message: string, options: LogOptions | 
   }
 }
 
+function formatMetadataField(meta: LogMetadata, key: string) {
+  return `${key}:${meta[key]}`;
+}
+
+export function formatMetadata(meta: LogMetadata) {
+  return Object.keys(meta)
+    .map((key) => formatMetadataField(meta!, key))
+    .join(', ');
+}
+
 export function plain(level: LogLevel, message: string, options: LogOptions) {
   const timestamp = formatDateTimeMs(new Date());
   const paddedMsg = message.padEnd(80);
 
-  // The following are "special" fields that get spacing, capitalization etc applied
-  // Additional fields can be included, but they must have the full name as the keys
-  const chainType = options.meta?.chainType ? ` Chain:${options.meta.chainType.toUpperCase()}` : '';
-  const chainId = options.meta?.chainId ? ` Chain-ID:${options.meta.chainId}` : '';
-  const coordId = options.meta?.coordinatorId ? ` Coordinator-ID:${options.meta.coordinatorId}` : '';
-  const provider = options.meta?.providerName ? ` Provider:${options.meta.providerName}` : '';
-  const meta = [coordId, provider, chainType, chainId].filter((l) => !!l).join(',');
-
-  const additional = Object.keys(options.additional || {}).reduce((acc, key) => {
-    if (!options.additional || !options.additional[key]) {
-      return acc;
-    }
-    return `${acc}, ${key}: ${options.additional[key]}`;
-  }, '');
-
-  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
+  const metadata = formatMetadata(options.meta ?? {});
+  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${metadata}`);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
@@ -128,7 +124,6 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
     level,
     message,
     ...options.meta,
-    ...options.additional,
   };
 
   consoleLog(JSON.stringify(logObject));

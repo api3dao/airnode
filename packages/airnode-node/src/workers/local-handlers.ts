@@ -20,7 +20,7 @@ export async function startCoordinator(): Promise<WorkerResponse> {
   setLogOptions({
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
-    meta: { coordinatorId },
+    meta: { 'Coordinator-ID': coordinatorId },
   });
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
 
