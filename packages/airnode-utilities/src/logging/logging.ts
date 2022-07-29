@@ -1,3 +1,4 @@
+import omit from 'lodash/omit';
 import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
 import { formatDateTimeMs } from '../date';
 
@@ -9,6 +10,20 @@ export const getLogOptions = () => {
 
 export const setLogOptions = (newLogOptions: LogOptions) => {
   logOptions = newLogOptions;
+};
+
+export const addMetadata = (meta: LogMetadata) => {
+  logOptions = {
+    ...logOptions,
+    meta: { ...logOptions.meta, ...meta },
+  };
+};
+
+export const removeMetadata = (metaKeys: string[]) => {
+  logOptions = {
+    ...logOptions,
+    meta: omit(logOptions.meta, metaKeys),
+  };
 };
 
 const logLevels: { readonly [key in LogLevel]: number } = {
