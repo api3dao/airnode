@@ -536,7 +536,8 @@ describe('Gas oracle', () => {
           new Promise((resolve) => {
             setTimeout(() => {
               return resolve({} as any);
-            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+              // Set timeout to exceed attempt maximum
+            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
           })
       );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
@@ -545,14 +546,15 @@ describe('Gas oracle', () => {
           new Promise((resolve) => {
             setTimeout(() => {
               return resolve(ethers.BigNumber.from(33) as any);
-            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS);
+              // Set timeout to exceed attempt maximum
+            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
           })
       );
       const getBlock = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
 
-      // totalTimeoutMs is 10 seconds and each provider call has 2 attempts so with a 1 second delay
+      // totalTimeoutMs is 10 seconds and each provider call has 2 attempts so with a 2.5 second delay
       // we need to attempt at least 3 strategies to test exceeding the totalTimeoutMs
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
         ...defaultChainOptions,
