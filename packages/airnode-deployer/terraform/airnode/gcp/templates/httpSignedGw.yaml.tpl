@@ -52,3 +52,24 @@ paths:
       x-google-backend:
         address: https://${region}-${project}.cloudfunctions.net/${cloud_function_name}
         path_translation: CONSTANT_ADDRESS
+    options:
+      operationId: corsTestEndpoint
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: "#/parameters/endpointId"
+        - name: request
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/EndpointRequest"
+      responses:
+        "200":
+          description: Request called
+          schema:
+            $ref: "#/definitions/EndpointResponse"
+      x-google-backend:
+        address: https://${region}-${project}.cloudfunctions.net/${cloud_function_name}
+        path_translation: CONSTANT_ADDRESS

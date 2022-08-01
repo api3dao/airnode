@@ -171,11 +171,14 @@ export const chainConfigSchema = z
 
 export const apiKeySchema = z.string().min(30).max(120);
 
+export const corsOriginsSchema = z.array(z.string());
+
 export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
     apiKey: apiKeySchema,
     maxConcurrency: z.number().int(),
+    corsOrigins: corsOriginsSchema,
   })
   .strict();
 

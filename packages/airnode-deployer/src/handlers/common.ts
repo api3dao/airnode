@@ -95,3 +95,22 @@ export function verifyHttpSignedDataRequest(
 
   return { success: true, encodedParameters, endpointId: validEndpointId };
 }
+
+export const checkRequestOrigin = (allowedOrigins: string[], origin?: string) =>
+  allowedOrigins.find((allowedOrigin) => allowedOrigin === '*') ||
+  (origin && allowedOrigins.find((allowedOrigin) => allowedOrigin === origin));
+
+export const buildCorsHeaders = (origin: string) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Methods': 'OPTIONS,POST',
+  'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+});
+
+export const verifyRequestOrigin = (allowedOrigins: string[], origin?: string) => {
+  const allowedOrigin = checkRequestOrigin(allowedOrigins, origin);
+
+  // Return CORS headers to be used by the response if the origin is allowed
+  if (allowedOrigin) return { success: true, headers: buildCorsHeaders(allowedOrigin) };
+
+  return { success: false };
+};

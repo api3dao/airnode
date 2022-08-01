@@ -207,11 +207,13 @@ describe('nodeSettingsSchema', () => {
         enabled: true,
         apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
+        corsOrigins: [],
       },
       httpSignedDataGateway: {
         enabled: true,
         apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
         maxConcurrency: 10,
+        corsOrigins: [],
       },
     };
 
@@ -357,6 +359,7 @@ describe('apiKey schemas', () => {
     enabled: true,
     apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
     maxConcurrency: 100,
+    corsOrigins: [],
   };
   const heartbeat: SchemaType<typeof enabledHeartbeatSchema> = {
     enabled: true,
