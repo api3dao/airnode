@@ -1,7 +1,13 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Config } from '@api3/airnode-node';
-import { verifyHttpRequest, verifyHttpSignedDataRequest } from './common';
+import {
+  verifyHttpRequest,
+  verifyHttpSignedDataRequest,
+  checkRequestOrigin,
+  verifyRequestOrigin,
+  buildCorsHeaders,
+} from './common';
 
 const loadConfigFixture = (): Config =>
   // We type the result as "Config", however it will not pass validation in it's current state because the secrets are
@@ -99,6 +105,61 @@ describe('verifyHttpSignedDataRequest', () => {
       encodedParameters:
         '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000',
       endpointId: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+    });
+  });
+});
+
+describe('cors', () => {
+  const origin = 'https://origin.com';
+  const notAllowedOrigin = 'https://notallowed.com';
+  const allAllowedOrigin = '*';
+
+  describe('buildCorsHeaders', () => {
+    it('returns headers with input origin', () => {
+      const headers = buildCorsHeaders(origin);
+      expect(headers).toEqual({
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': 'OPTIONS,POST',
+        'Access-Control-Allow-Headers': 'Content-Type,x-api-key',
+      });
+    });
+  });
+
+  describe('checkRequestOrigin', () => {
+    it('returns allowed origin', () => {
+      const allowedOrigin = checkRequestOrigin([origin], origin);
+      expect(allowedOrigin).toEqual(origin);
+    });
+
+    it('returns allow all origins', () => {
+      const allowedOrigin = checkRequestOrigin([allAllowedOrigin], origin);
+      expect(allowedOrigin).toEqual(allAllowedOrigin);
+    });
+
+    it('returns undefined if no allowed origin match', () => {
+      const allowedOrigin = checkRequestOrigin([origin], notAllowedOrigin);
+      expect(allowedOrigin).toBeUndefined();
+    });
+
+    it('returns undefined if empty allowedOrigins', () => {
+      const allowedOrigin = checkRequestOrigin([], notAllowedOrigin);
+      expect(allowedOrigin).toBeUndefined();
+    });
+  });
+
+  describe('verifyRequestOrigin', () => {
+    it('handles disabling cors', () => {
+      const originVerification = verifyRequestOrigin([], notAllowedOrigin);
+      expect(originVerification).toEqual({ success: false });
+    });
+    it('handles allow all origins', () => {
+      const originVerification = verifyRequestOrigin([allAllowedOrigin], notAllowedOrigin);
+      expect(originVerification).toEqual({ success: true, headers: buildCorsHeaders(allAllowedOrigin) });
+    });
+
+    it('handles allowed origin', () => {
+      const originVerification = verifyRequestOrigin([origin], origin);
+      expect(originVerification).toEqual({ success: true, headers: buildCorsHeaders(origin) });
     });
   });
 });

@@ -103,7 +103,7 @@ export const checkRequestOrigin = (allowedOrigins: string[], origin?: string) =>
 export const buildCorsHeaders = (origin: string) => ({
   'Access-Control-Allow-Origin': origin,
   'Access-Control-Allow-Methods': 'OPTIONS,POST',
-  'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+  'Access-Control-Allow-Headers': 'Content-Type,x-api-key',
 });
 
 export const verifyRequestOrigin = (allowedOrigins: string[], origin?: string) => {
