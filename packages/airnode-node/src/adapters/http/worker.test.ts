@@ -5,7 +5,7 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import { logger, LogOptions } from '@api3/airnode-utilities';
+import { logger, LogOptions, setLogOptions } from '@api3/airnode-utilities';
 import * as worker from './worker';
 import * as fixtures from '../../../test/fixtures';
 
@@ -15,6 +15,7 @@ describe('spawnNewApiCall', () => {
     level: 'DEBUG',
     meta: { coordinatorId: '837daEf231' },
   };
+  setLogOptions(logOptions);
 
   it('handles remote AWS calls', async () => {
     invokeMock.mockImplementationOnce((_params, callback) =>
@@ -24,7 +25,7 @@ describe('spawnNewApiCall', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
-    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, workerOpts);
     expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x123' });
     expect(invokeMock).toHaveBeenCalledTimes(1);
@@ -43,7 +44,7 @@ describe('spawnNewApiCall', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
-    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, workerOpts);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to call API endpoint:convertToUSD', error: new Error('Something went wrong') },
     ]);
@@ -67,7 +68,7 @@ describe('spawnNewApiCall', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
-    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, workerOpts);
     expect(logs).toEqual([errorLog]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);
@@ -88,7 +89,7 @@ describe('spawnNewApiCall', () => {
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
     });
-    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, workerOpts);
     expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to call API endpoint:convertToUSD' }]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);

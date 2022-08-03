@@ -7,14 +7,7 @@ import { EVMProviderSponsorState, ProviderState } from '../../types';
 export async function processTransactions(
   initialState: ProviderState<EVMProviderSponsorState>
 ): Promise<ProviderState<EVMProviderSponsorState>> {
-  const { chainOptions, chainId, chainType, name: providerName } = initialState.settings;
-  const { coordinatorId } = initialState;
-
-  const baseLogOptions = {
-    format: initialState.settings.logFormat,
-    level: initialState.settings.logLevel,
-    meta: { coordinatorId, providerName, chainType, chainId },
-  };
+  const { chainOptions } = initialState.settings;
 
   // =================================================================
   // STEP 1: Re-instantiate any classes
@@ -33,7 +26,7 @@ export async function processTransactions(
   // STEP 3: Get the latest gas price
   // =================================================================
   const [logs, gasTarget] = await getGasPrice(state2.provider, chainOptions);
-  logger.logPending(logs, baseLogOptions);
+  logger.logPending(logs);
 
   const state3 = state.update(state2, { gasTarget });
 

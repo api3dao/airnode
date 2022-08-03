@@ -26,12 +26,14 @@ mockEthers({
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
+import { randomHexString } from '@api3/airnode-utilities';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
   jest.setTimeout(30_000);
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+  const coordinatorId = randomHexString(16);
 
   test.each(['legacy', 'eip1559'] as const)(`fetches and processes requests - txType: %s`, async (txType) => {
     const initialConfig = fixtures.buildConfig();
@@ -83,7 +85,7 @@ describe('startCoordinator', () => {
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
-    await startCoordinator(config);
+    await startCoordinator(config, coordinatorId);
 
     expect(blockWithTransactionsSpy).toHaveBeenCalled();
     // API call was submitted
@@ -119,7 +121,7 @@ describe('startCoordinator', () => {
 
     const contract = new ethers.Contract('address', ['ABI']);
 
-    await startCoordinator(config);
+    await startCoordinator(config, coordinatorId);
 
     expect(gasPriceSpy).not.toHaveBeenCalled();
     expect(executeSpy).not.toHaveBeenCalled();

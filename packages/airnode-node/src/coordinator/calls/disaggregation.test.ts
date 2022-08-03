@@ -1,3 +1,4 @@
+import { randomHexString } from '@api3/airnode-utilities';
 import * as disaggregation from './disaggregation';
 import * as fixtures from '../../../test/fixtures';
 import * as coordinatorState from '../state';
@@ -30,7 +31,8 @@ describe('disaggregate - Requests', () => {
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
     const stateWithResponses = coordinatorState.addResponses(state, { aggregatedApiCallsById, providerStates });
@@ -75,7 +77,8 @@ describe('disaggregate - Requests', () => {
     const aggregatedApiCallsById = { btcCall: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1] };
     const stateWithResponses = coordinatorState.addResponses(state, { aggregatedApiCallsById, providerStates });
@@ -108,7 +111,8 @@ describe('disaggregate - Requests', () => {
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    const state = coordinatorState.create(config);
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
 
     const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
     const stateWithResponses = coordinatorState.addResponses(state, {

@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import { logger, LogOptions } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
 import {
@@ -15,7 +15,6 @@ import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 
 async function execute(
   aggregatedApiCall: RegularAggregatedApiCall,
-  logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<RegularAggregatedApiCallWithResponse>> {
   const startedAt = new Date();
@@ -24,7 +23,7 @@ async function execute(
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process. We need to catch any errors here (like a timeout)
   // as a rejection here will cause Promise.all to fail
-  const goLogData = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts), {
+  const goLogData = await go(() => spawnNewApiCall(aggregatedApiCall, workerOpts), {
     totalTimeoutMs: WORKER_CALL_API_TIMEOUT,
   });
   const resLogs = goLogData.success && goLogData.data ? goLogData.data[0] : [];
@@ -81,7 +80,6 @@ async function execute(
 
 export async function callApis(
   aggregatedApiCalls: RegularAggregatedApiCall[],
-  logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<RegularAggregatedApiCallWithResponse[]>> {
   const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorMessage);
@@ -97,7 +95,7 @@ export async function callApis(
 
   // Execute all pending API calls concurrently
   const calls = pendingAggregatedCalls.map(async (aggregatedApiCall) => {
-    return await execute(aggregatedApiCall, logOptions, workerOpts);
+    return await execute(aggregatedApiCall, workerOpts);
   });
 
   const logsWithresponses = await Promise.all(calls);
