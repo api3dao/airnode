@@ -20,7 +20,7 @@
   "dependencies": {
     "@api3/airnode-validator": "^0.7.1",
     "@api3/promise-utils": "^0.3.0",
-    "date-fns": "^2.28.0",
+    "date-fns": "^2.29.1",
     "ethers": "^5.6.9"
   },
   "devDependencies": {
