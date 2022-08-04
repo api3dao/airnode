@@ -129,16 +129,18 @@ export async function processHttpRequest(req: Request, res: Response) {
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
     req.headers['origin']
   );
+  if (!originVerification.success) {
+    res.status(400).send(originVerification.error);
+    return;
+  }
 
-  if (originVerification.success) {
-    // Set headers for the responses
-    res.set(originVerification.headers);
+  // Set headers for the responses
+  res.set(originVerification.headers);
 
-    // Respond to preflight requests if the origin is allowed
-    if (req.method === 'OPTIONS') {
-      res.status(204).send('');
-      return;
-    }
+  // Respond to preflight requests if the origin is allowed
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
   }
 
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
@@ -197,16 +199,18 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
     req.headers['origin']
   );
+  if (!originVerification.success) {
+    res.status(400).send(originVerification.error);
+    return;
+  }
 
-  if (originVerification.success) {
-    // Set headers for the responses
-    res.set(originVerification.headers);
+  // Set headers for the responses
+  res.set(originVerification.headers);
 
-    // Respond to preflight requests if the origin is allowed
-    if (req.method === 'OPTIONS') {
-      res.status(204).send('');
-      return;
-    }
+  // Respond to preflight requests if the origin is allowed
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
   }
 
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');

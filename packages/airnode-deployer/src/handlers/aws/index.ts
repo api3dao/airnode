@@ -110,8 +110,12 @@ export async function processHttpRequest(
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
     event.headers['origin']
   );
+  if (!originVerification.success) {
+    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+  }
+
   // Respond to preflight requests if the origin is allowed
-  if (originVerification.success && event.httpMethod === 'OPTIONS') {
+  if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
 
@@ -156,8 +160,12 @@ export async function processHttpSignedDataRequest(
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
     event.headers['origin']
   );
+  if (!originVerification.success) {
+    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+  }
+
   // Respond to preflight requests if the origin is allowed
-  if (originVerification.success && event.httpMethod === 'OPTIONS') {
+  if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
 

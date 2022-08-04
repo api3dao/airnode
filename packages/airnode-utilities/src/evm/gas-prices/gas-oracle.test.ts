@@ -536,7 +536,7 @@ describe('Gas oracle', () => {
           new Promise((resolve) => {
             setTimeout(() => {
               return resolve({} as any);
-              // Set timeout to exceed attempt maximum
+              // Set timeout to exceed attempt maximum to reduce test flakiness
             }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
           })
       );
@@ -546,7 +546,7 @@ describe('Gas oracle', () => {
           new Promise((resolve) => {
             setTimeout(() => {
               return resolve(ethers.BigNumber.from(33) as any);
-              // Set timeout to exceed attempt maximum
+              // Set timeout to exceed attempt maximum to reduce test flakiness
             }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
           })
       );

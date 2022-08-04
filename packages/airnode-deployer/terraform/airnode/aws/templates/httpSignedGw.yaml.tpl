@@ -101,7 +101,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/endpointId"
       responses:
-        "200":
+        "204":
           description: CORS preflight response
           headers:
             Access-Control-Allow-Headers:
@@ -117,7 +117,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndpointResponse"
-      x-amazon-apigateway-request-validator: none
       x-amazon-apigateway-integration:
         passthroughBehavior: "when_no_match"
         type: aws_proxy

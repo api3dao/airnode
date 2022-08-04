@@ -112,5 +112,5 @@ export const verifyRequestOrigin = (allowedOrigins: string[], origin?: string) =
   // Return CORS headers to be used by the response if the origin is allowed
   if (allowedOrigin) return { success: true, headers: buildCorsHeaders(allowedOrigin) };
 
-  return { success: false };
+  return { success: false, error: { message: 'CORS origin verification failed.' } };
 };

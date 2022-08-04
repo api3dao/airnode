@@ -150,7 +150,7 @@ describe('cors', () => {
   describe('verifyRequestOrigin', () => {
     it('handles disabling cors', () => {
       const originVerification = verifyRequestOrigin([], notAllowedOrigin);
-      expect(originVerification).toEqual({ success: false });
+      expect(originVerification).toEqual({ success: false, error: { message: 'CORS origin verification failed.' } });
     });
     it('handles allow all origins', () => {
       const originVerification = verifyRequestOrigin([allAllowedOrigin], notAllowedOrigin);

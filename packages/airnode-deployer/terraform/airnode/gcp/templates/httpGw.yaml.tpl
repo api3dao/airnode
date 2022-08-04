@@ -66,7 +66,7 @@ paths:
           schema:
             $ref: "#/definitions/EndpointRequest"
       responses:
-        "200":
+        "204":
           description: Request called
           schema:
             $ref: "#/definitions/EndpointResponse"
