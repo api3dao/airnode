@@ -108,7 +108,7 @@ export async function processHttpRequest(
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
-    event.headers['origin']
+    event.headers.origin
   );
   if (!originVerification.success) {
     return { statusCode: 400, body: JSON.stringify(originVerification.error) };
@@ -158,7 +158,7 @@ export async function processHttpSignedDataRequest(
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
     parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
-    event.headers['origin']
+    event.headers.origin
   );
   if (!originVerification.success) {
     return { statusCode: 400, body: JSON.stringify(originVerification.error) };
