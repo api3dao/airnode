@@ -5,10 +5,7 @@ export function buildLogOptions(params?: Partial<LogOptions>): LogOptions {
     format: 'plain',
     level: 'DEBUG',
     meta: {
-      coordinatorId: '12345678',
-      chainId: '3',
-      chainType: 'evm',
-      providerName: 'test-provider',
+      'Coordinator-ID': '12345678',
     },
     ...params,
   };

@@ -2,19 +2,12 @@ export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
 export type LogFormat = 'json' | 'plain';
 
-export interface LogMetadata {
-  readonly coordinatorId?: string;
-  readonly chainId?: string;
-  readonly chainType?: 'evm';
-  readonly providerName?: string;
-  readonly requestId?: string;
-}
+export type LogMetadata = { [key: string]: string };
 
 export interface LogOptions {
-  readonly additional?: any;
+  readonly meta?: LogMetadata;
   readonly format: LogFormat;
   readonly level: LogLevel;
-  readonly meta?: LogMetadata;
 }
 
 export interface ErrorLogOptions extends LogOptions {

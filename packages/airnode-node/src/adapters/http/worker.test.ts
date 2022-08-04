@@ -13,7 +13,7 @@ describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {
     format: 'plain',
     level: 'DEBUG',
-    meta: { coordinatorId: '837daEf231' },
+    meta: { 'Coordinator-ID': '837daEf231' },
   };
   setLogOptions(logOptions);
 
