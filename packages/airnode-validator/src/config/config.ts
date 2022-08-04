@@ -446,4 +446,4 @@ export type Trigger = SchemaType<typeof triggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;
 export type Amount = SchemaType<typeof amountSchema>;
-export type EnabledGatewaySchema = SchemaType<typeof enabledGatewaySchema>;
+export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;

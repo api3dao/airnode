@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import bodyParser from 'body-parser';
 import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
-import { Config, EnabledGatewaySchema, LocalProvider } from '../../config';
+import { Config, EnabledGateway, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
 
 type GatewayName = 'httpGateway' | 'httpSignedDataGateway';
@@ -56,7 +56,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       logger.log(`Received request for http signed data`);
 
       const originVerification = verifyRequestOrigin(
-        (config.nodeSettings.httpSignedDataGateway as EnabledGatewaySchema).corsOrigins,
+        (config.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
         req.headers.origin
       );
       if (req.method === 'OPTIONS') {
@@ -65,10 +65,13 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
           return;
         }
 
-        // Set headers for the responses
+        // Set headers for the OPTIONS responses
         res.set(originVerification.headers).status(204).send('');
         return;
       }
+      // The CORS origin header needs to be sent on the POST request (sent after OPTIONS). If the request is NOT pre
+      // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
+      // requests work as expected.
       res.set(originVerification.headers);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
@@ -121,7 +124,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       logger.log(`Received request for http data`);
 
       const originVerification = verifyRequestOrigin(
-        (config.nodeSettings.httpGateway as EnabledGatewaySchema).corsOrigins,
+        (config.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
         req.headers.origin
       );
 
@@ -131,10 +134,13 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
           return;
         }
 
-        // Set headers for the responses
+        // Set headers for the OPTIONS response
         res.set(originVerification.headers).status(204).send('');
         return;
       }
+      // The CORS origin header needs to be sent on the POST request (sent after OPTIONS). If the request is NOT pre
+      // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
+      // requests work as expected.
       res.set(originVerification.headers);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
