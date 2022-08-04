@@ -2,7 +2,7 @@ import omit from 'lodash/omit';
 import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
 import { formatDateTimeMs } from '../date';
 
-let logOptions: LogOptions;
+let logOptions: LogOptions | undefined;
 
 export const getLogOptions = () => {
   return logOptions;
@@ -13,6 +13,8 @@ export const setLogOptions = (newLogOptions: LogOptions) => {
 };
 
 export const addMetadata = (meta: LogMetadata) => {
+  if (!logOptions) return;
+
   logOptions = {
     ...logOptions,
     meta: { ...logOptions.meta, ...meta },
@@ -20,6 +22,8 @@ export const addMetadata = (meta: LogMetadata) => {
 };
 
 export const removeMetadata = (metaKeys: string[]) => {
+  if (!logOptions) return;
+
   logOptions = {
     ...logOptions,
     meta: omit(logOptions.meta, metaKeys),
@@ -34,35 +38,35 @@ const logLevels: { readonly [key in LogLevel]: number } = {
 };
 
 export const logger = {
-  log: (message: string, options: LogOptions = logOptions) => {
+  log: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
       return;
     }
     consoleLog(message);
   },
-  debug: (message: string, options: LogOptions = logOptions) => {
+  debug: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('DEBUG', message, options);
       return;
     }
     consoleLog(message);
   },
-  info: (message: string, options: LogOptions = logOptions) => {
+  info: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
       return;
     }
     consoleLog(message);
   },
-  warn: (message: string, options: LogOptions = logOptions) => {
+  warn: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('WARN', message, options);
       return;
     }
     consoleLog(message);
   },
-  error: (message: string, error: Error | null = null, options: LogOptions = logOptions) => {
+  error: (message: string, error: Error | null = null, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('ERROR', message, { ...options, error });
       return;
@@ -71,6 +75,11 @@ export const logger = {
   },
   logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
     pendingLogs.forEach((pendingLog) => {
+      if (!logOptions) {
+        consoleLog(pendingLog.message);
+        return;
+      }
+
       if (pendingLog.error) {
         logFull(pendingLog.level, pendingLog.message, { ...logOptions, ...options, error: pendingLog.error });
       } else {
@@ -91,9 +100,8 @@ export const logger = {
 };
 
 export function logFull(level: LogLevel, message: string, options: LogOptions | ErrorLogOptions) {
-  if (process.env.SILENCE_LOGGER) {
-    return;
-  }
+  if (process.env.SILENCE_LOGGER) return;
+
   const systemLevel = logLevels[options.level];
   const messageLevel = logLevels[level];
   if (systemLevel > messageLevel) {
@@ -145,6 +153,7 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
 }
 
 export function consoleLog(message: string) {
+  if (process.env.SILENCE_LOGGER) return;
   // eslint-disable-next-line no-console
   console.log(message);
 }
