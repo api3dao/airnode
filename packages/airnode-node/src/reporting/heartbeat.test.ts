@@ -137,7 +137,7 @@ describe('reportHeartbeat', () => {
       executeMock.mockResolvedValueOnce({ received: true });
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region: 'us-east1' };
-      const state = coordinatorState.create(config);
+      const state = coordinatorState.create(config, 'coordinatorId');
 
       const logs = await heartbeat.reportHeartbeat(state);
 
@@ -165,7 +165,7 @@ describe('reportHeartbeat', () => {
       executeMock.mockResolvedValueOnce({ received: true });
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
-      const state = coordinatorState.create(config);
+      const state = coordinatorState.create(config, 'coordinatorId');
 
       const logs = await heartbeat.reportHeartbeat(state);
 

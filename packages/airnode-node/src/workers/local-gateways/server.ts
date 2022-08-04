@@ -37,7 +37,7 @@ export function getGatewaysBaseUrl(port: number | undefined) {
 export const HTTP_SIGNED_DATA_BASE_PATH = '/http-signed-data';
 export const HTTP_BASE_PATH = '/http-data';
 
-export function startGatewayServer(config: Config, logOptions: LogOptions, enabledGateways: GatewayName[]) {
+export function startGatewayServer(config: Config, enabledGateways: GatewayName[]) {
   if (enabledGateways.length === 0) {
     logger.log('Not starting API gateway server because there is no gateway enabled.');
     return;
@@ -51,7 +51,7 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
   if (enabledGateways.includes('httpSignedDataGateway')) {
     const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/:endpointId`;
     app.post(httpSignedDataGatewayPath, async function (req, res) {
-      logger.log(`Received request for http signed data`, logOptions);
+      logger.log(`Received request for http signed data`);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
       if (!apiKeyVerification.success) {
@@ -90,15 +90,14 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
     });
 
     logger.log(
-      `HTTP signed data gateway listening for request on "${getGatewaysBaseUrl(port)}${httpSignedDataGatewayPath}"`,
-      logOptions
+      `HTTP signed data gateway listening for request on "${getGatewaysBaseUrl(port)}${httpSignedDataGatewayPath}"`
     );
   }
 
   if (enabledGateways.includes('httpGateway')) {
     const httpGatewayPath = `/${HTTP_BASE_PATH}/:endpointId`;
     app.post(httpGatewayPath, async function (req, res) {
-      logger.log(`Received request for http data`, logOptions);
+      logger.log(`Received request for http data`);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
       if (!apiKeyVerification.success) {
@@ -136,13 +135,10 @@ export function startGatewayServer(config: Config, logOptions: LogOptions, enabl
       res.status(200).send(result!.data);
     });
 
-    logger.log(
-      `HTTP (testing) gateway listening for request on "${getGatewaysBaseUrl(port)}${httpGatewayPath}"`,
-      logOptions
-    );
+    logger.log(`HTTP (testing) gateway listening for request on "${getGatewaysBaseUrl(port)}${httpGatewayPath}"`);
   }
 
   app.listen(port, () => {
-    logger.log(`API gateway server running on "${getGatewaysBaseUrl(port)}"`, logOptions);
+    logger.log(`API gateway server running on "${getGatewaysBaseUrl(port)}"`);
   });
 }
