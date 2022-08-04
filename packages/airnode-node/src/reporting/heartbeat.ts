@@ -3,11 +3,11 @@ import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { Config, getEnvValue } from '../config';
 import { CoordinatorState } from '../types';
-import { getGatewaysBaseUrl, HTTP_BASE_PATH, HTTP_SIGNED_DATA_BASE_PATH } from '../workers/local-gateways/server';
+import { getGatewaysUrl, HTTP_BASE_PATH, HTTP_SIGNED_DATA_BASE_PATH } from '../workers/local-gateways/server';
 
 export function getHttpGatewayUrl(config: Config) {
   if (config.nodeSettings.cloudProvider.type === 'local') {
-    return getGatewaysBaseUrl(config.nodeSettings.cloudProvider.gatewayServerPort) + HTTP_BASE_PATH;
+    return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, HTTP_BASE_PATH);
   }
 
   return getEnvValue('HTTP_GATEWAY_URL');
@@ -15,7 +15,7 @@ export function getHttpGatewayUrl(config: Config) {
 
 export function getHttpSignedDataGatewayUrl(config: Config) {
   if (config.nodeSettings.cloudProvider.type === 'local') {
-    return getGatewaysBaseUrl(config.nodeSettings.cloudProvider.gatewayServerPort) + HTTP_SIGNED_DATA_BASE_PATH;
+    return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, HTTP_SIGNED_DATA_BASE_PATH);
   }
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 }

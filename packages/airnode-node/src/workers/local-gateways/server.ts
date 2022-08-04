@@ -30,8 +30,10 @@ const httpSignedDataBodySchema = z.object({
 });
 const DEFAULT_PORT = 3000;
 
-export function getGatewaysBaseUrl(port: number | undefined) {
-  return `http://localhost:${port || DEFAULT_PORT}`;
+export function getGatewaysUrl(port: number = DEFAULT_PORT, path?: string) {
+  const base = `http://localhost:${port || DEFAULT_PORT}`;
+  if (!path) return base;
+  return base + (path.startsWith('/') ? path : `/${path}`);
 }
 
 export const HTTP_SIGNED_DATA_BASE_PATH = '/http-signed-data';
@@ -90,7 +92,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
     });
 
     logger.log(
-      `HTTP signed data gateway listening for request on "${getGatewaysBaseUrl(port)}${httpSignedDataGatewayPath}"`
+      `HTTP signed data gateway listening for request on "${getGatewaysUrl(port, httpSignedDataGatewayPath)}"`
     );
   }
 
@@ -135,10 +137,10 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       res.status(200).send(result!.data);
     });
 
-    logger.log(`HTTP (testing) gateway listening for request on "${getGatewaysBaseUrl(port)}${httpGatewayPath}"`);
+    logger.log(`HTTP (testing) gateway listening for request on "${getGatewaysUrl(port, httpGatewayPath)}"`);
   }
 
   app.listen(port, () => {
-    logger.log(`API gateway server running on "${getGatewaysBaseUrl(port)}"`);
+    logger.log(`API gateway server running on "${getGatewaysUrl(port)}"`);
   });
 }
