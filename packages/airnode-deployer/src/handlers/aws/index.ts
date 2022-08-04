@@ -10,7 +10,7 @@ import {
   CallApiPayload,
   loadTrustedConfig,
 } from '@api3/airnode-node';
-import { verifyHttpSignedDataRequest, verifyHttpRequest } from '../common';
+import { verifyHttpSignedDataRequest, verifyHttpRequest, verifyRequestOrigin } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -114,6 +114,21 @@ export async function processHttpRequest(
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    event.headers.origin
+  );
+  if (!originVerification.success) {
+    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+  }
+
+  // Respond to preflight requests if the origin is allowed
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: originVerification.headers, body: '' };
+  }
+
   // The shape of the body is guaranteed by the openAPI spec
   const rawParameters = (JSON.parse(event.body!) as ProcessHttpRequestBody).parameters;
   // The "endpointId" path parameter existence is guaranteed by the openAPI spec
@@ -130,11 +145,11 @@ export async function processHttpRequest(
   const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
-    return { statusCode: 500, body: JSON.stringify({ message: err.toString() }) };
+    return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  return { statusCode: 200, body: JSON.stringify(result!.data) };
+  return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
 }
 
 interface ProcessHttpSignedDataRequestBody {
@@ -150,6 +165,21 @@ export async function processHttpSignedDataRequest(
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    event.headers.origin
+  );
+  if (!originVerification.success) {
+    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+  }
+
+  // Respond to preflight requests if the origin is allowed
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: originVerification.headers, body: '' };
+  }
+
   // The shape of the body is guaranteed by the openAPI spec
   const rawEncodedParameters = (JSON.parse(event.body!) as ProcessHttpSignedDataRequestBody).encodedParameters;
   // The "endpointId" path parameter existence is guaranteed by the openAPI spec
@@ -158,7 +188,7 @@ export async function processHttpSignedDataRequest(
   const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
-    return { statusCode, body: JSON.stringify(error) };
+    return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { encodedParameters, endpointId } = verificationResult;
 
@@ -166,9 +196,9 @@ export async function processHttpSignedDataRequest(
   const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
-    return { statusCode: 500, body: JSON.stringify({ message: err.toString() }) };
+    return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
-  return { statusCode: 200, body: JSON.stringify(result!.data) };
+  return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
 }

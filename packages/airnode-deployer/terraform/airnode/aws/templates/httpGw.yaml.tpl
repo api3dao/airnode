@@ -59,9 +59,6 @@ components:
       name: x-api-key
       in: header
 
-security:
-  - apiKey: []
-
 paths:
   /{endpointId}:
     post:
@@ -78,6 +75,16 @@ paths:
       responses:
         "200":
           description: Request called
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -88,6 +95,36 @@ paths:
       security:
         - apiKey: []
       x-amazon-apigateway-integration:
+        type: aws_proxy
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${proxy_lambda}/invocations
+        credentials: ${role}
+        httpMethod: POST
+        payloadFormatVersion: "1.0"
+        responses:
+          default:
+            statusCode: 200
+    options:
+      parameters:
+        - $ref: "#/components/parameters/endpointId"
+      responses:
+        "204":
+          description: CORS preflight response
+          headers:
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndpointResponse"
+      x-amazon-apigateway-integration:
+        passthroughBehavior: "when_no_match"
         type: aws_proxy
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${proxy_lambda}/invocations
         credentials: ${role}

@@ -13,7 +13,7 @@ import {
 import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
-import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult } from '../common';
+import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult, verifyRequestOrigin } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -133,6 +133,26 @@ export async function processHttpRequest(req: Request, res: Response) {
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    req.headers.origin
+  );
+  if (!originVerification.success) {
+    res.status(400).send(originVerification.error);
+    return;
+  }
+
+  // Set headers for the responses
+  res.set(originVerification.headers);
+
+  // Respond to preflight requests if the origin is allowed
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
     const { statusCode, error } = apiKeyVerification;
@@ -184,6 +204,26 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    req.headers.origin
+  );
+  if (!originVerification.success) {
+    res.status(400).send(originVerification.error);
+    return;
+  }
+
+  // Set headers for the responses
+  res.set(originVerification.headers);
+
+  // Respond to preflight requests if the origin is allowed
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
     const { statusCode, error } = apiKeyVerification;
