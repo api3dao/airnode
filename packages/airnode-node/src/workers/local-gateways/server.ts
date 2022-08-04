@@ -1,4 +1,4 @@
-import { logger, LogOptions } from '@api3/airnode-utilities';
+import { logger } from '@api3/airnode-utilities';
 import express, { Request } from 'express';
 import { z } from 'zod';
 import bodyParser from 'body-parser';
