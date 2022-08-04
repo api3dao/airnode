@@ -124,21 +124,21 @@ export async function processHttpRequest(req: Request, res: Response) {
     level: parsedConfig.nodeSettings.logLevel,
   });
 
-  // Check if the request origin header is allowed in the config
-  const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
-    req.headers.origin
-  );
-  if (!originVerification.success) {
-    res.status(400).send(originVerification.error);
-    return;
-  }
-
-  // Set headers for the responses
-  res.set(originVerification.headers);
-
-  // Respond to preflight requests if the origin is allowed
   if (req.method === 'OPTIONS') {
+    // Check if the request origin header is allowed in the config
+    const originVerification = verifyRequestOrigin(
+      parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+      req.headers.origin
+    );
+    if (!originVerification.success) {
+      res.status(400).send(originVerification.error);
+      return;
+    }
+
+    // Set headers for the responses
+    res.set(originVerification.headers);
+
+    // Respond to preflight requests if the origin is allowed
     res.status(204).send('');
     return;
   }
@@ -194,21 +194,23 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     level: parsedConfig.nodeSettings.logLevel,
   });
 
-  // Check if the request origin header is allowed in the config
-  const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
-    req.headers.origin
-  );
-  if (!originVerification.success) {
-    res.status(400).send(originVerification.error);
-    return;
-  }
-
-  // Set headers for the responses
-  res.set(originVerification.headers);
-
-  // Respond to preflight requests if the origin is allowed
   if (req.method === 'OPTIONS') {
+    // Check if the request origin header is allowed in the config
+    const originVerification = verifyRequestOrigin(
+      parsedConfig.nodeSettings.httpSignedDataGateway.enabled
+        ? parsedConfig.nodeSettings.httpSignedDataGateway.corsOrigins
+        : [],
+      req.headers.origin
+    );
+    if (!originVerification.success) {
+      res.status(400).send(originVerification.error);
+      return;
+    }
+
+    // Set headers for the responses
+    res.set(originVerification.headers);
+
+    // Respond to preflight requests if the origin is allowed
     res.status(204).send('');
     return;
   }
