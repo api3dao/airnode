@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { ethers } from 'ethers';
-import { logger, randomHexString, setLogOptions } from '@api3/airnode-utilities';
+import { addMetadata, logger, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { loadTrustedConfig, setEnvValue } from '../config';
 import * as handlers from '../handlers';
@@ -20,7 +20,7 @@ export async function startCoordinator(): Promise<WorkerResponse> {
   setLogOptions({
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
-    meta: { coordinatorId },
+    meta: { 'Coordinator-ID': coordinatorId },
   });
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
 
@@ -29,6 +29,9 @@ export async function startCoordinator(): Promise<WorkerResponse> {
 }
 
 export async function initializeProvider({ state: providerState }: InitializeProviderPayload): Promise<WorkerResponse> {
+  const { chainId, name: providerName } = providerState.settings;
+  addMetadata({ 'Chain-ID': chainId, Provider: providerName });
+
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
@@ -49,6 +52,9 @@ export async function initializeProvider({ state: providerState }: InitializePro
 }
 
 export async function callApi({ aggregatedApiCall }: CallApiPayload): Promise<WorkerResponse> {
+  const { chainId, endpointId } = aggregatedApiCall;
+  addMetadata({ 'Chain-ID': chainId, 'Endpoint-ID': endpointId });
+
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
   const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
@@ -59,6 +65,9 @@ export async function callApi({ aggregatedApiCall }: CallApiPayload): Promise<Wo
 export async function processTransactions({
   state: providerState,
 }: ProcessTransactionsPayload): Promise<WorkerResponse> {
+  const { chainId, name: providerName } = providerState.settings;
+  addMetadata({ 'Chain-ID': chainId, Provider: providerName, 'Sponsor-Address': providerState.sponsorAddress });
+
   const config = loadConfig();
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
   const stateWithConfig = state.update(providerState, { config });
@@ -79,7 +88,9 @@ export async function processHttpRequest(endpointId: string, parameters: any) {
   setLogOptions({
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
+    meta: { 'Endpoint-ID': endpointId },
   });
+
   const [err, result] = await handlers.processHttpRequest(config, endpointId, parameters);
   if (err) {
     throw err;
@@ -93,7 +104,9 @@ export async function processHttpSignedDataRequest(endpointId: string, encodedPa
   setLogOptions({
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
+    meta: { 'Endpoint-ID': endpointId },
   });
+
   setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
   const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
   if (err) {

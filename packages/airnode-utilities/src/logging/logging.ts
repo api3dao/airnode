@@ -1,7 +1,8 @@
-import { LogLevel, LogOptions, ErrorLogOptions, PendingLog } from './types';
+import omit from 'lodash/omit';
+import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
 import { formatDateTimeMs } from '../date';
 
-let logOptions: LogOptions;
+let logOptions: LogOptions | undefined;
 
 export const getLogOptions = () => {
   return logOptions;
@@ -9,6 +10,24 @@ export const getLogOptions = () => {
 
 export const setLogOptions = (newLogOptions: LogOptions) => {
   logOptions = newLogOptions;
+};
+
+export const addMetadata = (meta: LogMetadata) => {
+  if (!logOptions) return;
+
+  logOptions = {
+    ...logOptions,
+    meta: { ...logOptions.meta, ...meta },
+  };
+};
+
+export const removeMetadata = (metaKeys: string[]) => {
+  if (!logOptions) return;
+
+  logOptions = {
+    ...logOptions,
+    meta: omit(logOptions.meta, metaKeys),
+  };
 };
 
 const logLevels: { readonly [key in LogLevel]: number } = {
@@ -19,35 +38,35 @@ const logLevels: { readonly [key in LogLevel]: number } = {
 };
 
 export const logger = {
-  log: (message: string, options: LogOptions = logOptions) => {
+  log: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
       return;
     }
     consoleLog(message);
   },
-  debug: (message: string, options: LogOptions = logOptions) => {
+  debug: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('DEBUG', message, options);
       return;
     }
     consoleLog(message);
   },
-  info: (message: string, options: LogOptions = logOptions) => {
+  info: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
       return;
     }
     consoleLog(message);
   },
-  warn: (message: string, options: LogOptions = logOptions) => {
+  warn: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('WARN', message, options);
       return;
     }
     consoleLog(message);
   },
-  error: (message: string, error: Error | null = null, options: LogOptions = logOptions) => {
+  error: (message: string, error: Error | null = null, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('ERROR', message, { ...options, error });
       return;
@@ -56,6 +75,11 @@ export const logger = {
   },
   logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
     pendingLogs.forEach((pendingLog) => {
+      if (!logOptions) {
+        consoleLog(pendingLog.message);
+        return;
+      }
+
       if (pendingLog.error) {
         logFull(pendingLog.level, pendingLog.message, { ...logOptions, ...options, error: pendingLog.error });
       } else {
@@ -76,9 +100,8 @@ export const logger = {
 };
 
 export function logFull(level: LogLevel, message: string, options: LogOptions | ErrorLogOptions) {
-  if (process.env.SILENCE_LOGGER) {
-    return;
-  }
+  if (process.env.SILENCE_LOGGER) return;
+
   const systemLevel = logLevels[options.level];
   const messageLevel = logLevels[level];
   if (systemLevel > messageLevel) {
@@ -99,26 +122,22 @@ export function logFull(level: LogLevel, message: string, options: LogOptions | 
   }
 }
 
+function formatMetadataField(meta: LogMetadata, key: string) {
+  return `${key}:${meta[key]}`;
+}
+
+export function formatMetadata(meta: LogMetadata) {
+  return Object.keys(meta)
+    .map((key) => formatMetadataField(meta!, key))
+    .join(', ');
+}
+
 export function plain(level: LogLevel, message: string, options: LogOptions) {
   const timestamp = formatDateTimeMs(new Date());
   const paddedMsg = message.padEnd(80);
 
-  // The following are "special" fields that get spacing, capitalization etc applied
-  // Additional fields can be included, but they must have the full name as the keys
-  const chainType = options.meta?.chainType ? ` Chain:${options.meta.chainType.toUpperCase()}` : '';
-  const chainId = options.meta?.chainId ? ` Chain-ID:${options.meta.chainId}` : '';
-  const coordId = options.meta?.coordinatorId ? ` Coordinator-ID:${options.meta.coordinatorId}` : '';
-  const provider = options.meta?.providerName ? ` Provider:${options.meta.providerName}` : '';
-  const meta = [coordId, provider, chainType, chainId].filter((l) => !!l).join(',');
-
-  const additional = Object.keys(options.additional || {}).reduce((acc, key) => {
-    if (!options.additional || !options.additional[key]) {
-      return acc;
-    }
-    return `${acc}, ${key}: ${options.additional[key]}`;
-  }, '');
-
-  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
+  const metadata = formatMetadata(options.meta ?? {});
+  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${metadata}`);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
@@ -128,13 +147,13 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
     level,
     message,
     ...options.meta,
-    ...options.additional,
   };
 
   consoleLog(JSON.stringify(logObject));
 }
 
 export function consoleLog(message: string) {
+  if (process.env.SILENCE_LOGGER) return;
   // eslint-disable-next-line no-console
   console.log(message);
 }

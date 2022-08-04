@@ -11,7 +11,7 @@ import {
   loadTrustedConfig,
   EnabledGateway,
 } from '@api3/airnode-node';
-import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions } from '@api3/airnode-utilities';
+import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
 import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult, verifyRequestOrigin } from '../common';
@@ -24,7 +24,7 @@ export async function startCoordinator(_req: Request, res: Response) {
   setLogOptions({
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
-    meta: { coordinatorId },
+    meta: { 'Coordinator-ID': coordinatorId },
   });
   await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
@@ -49,7 +49,10 @@ export async function run(req: Request, res: Response) {
 // https://api3dao.atlassian.net/browse/AN-527
 
 async function initializeProvider(payload: InitializeProviderPayload, res: Response) {
-  const stateWithConfig = { ...payload.state, config: parsedConfig };
+  const { state } = payload;
+  const { chainId, name: providerName } = state.settings;
+  addMetadata({ 'Chain-ID': chainId, Provider: providerName });
+  const stateWithConfig = { ...state, config: parsedConfig };
 
   const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig), {
     delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
@@ -76,14 +79,21 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
 
 async function callApi(payload: CallApiPayload, res: Response) {
   const { aggregatedApiCall } = payload;
+  const { chainId, endpointId } = aggregatedApiCall;
+  addMetadata({ 'Chain-ID': chainId, 'Endpoint-ID': endpointId });
+
   const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
   logger.logPending(logs);
+
   const response = { ok: true, data: apiCallResponse };
   res.status(200).send(response);
 }
 
 async function processTransactions(payload: ProcessTransactionsPayload, res: Response) {
-  const stateWithConfig = { ...payload.state, config: parsedConfig };
+  const { state } = payload;
+  const { chainId, name: providerName } = state.settings;
+  const stateWithConfig = { ...state, config: parsedConfig };
+  addMetadata({ 'Chain-ID': chainId, Provider: providerName, 'Sponsor-Address': state.sponsorAddress });
 
   const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig), {
     delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
@@ -170,6 +180,7 @@ export async function processHttpRequest(req: Request, res: Response) {
   }
   const { parameters, endpointId } = verificationResult;
 
+  addMetadata({ 'Endpoint-ID': endpointId });
   const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
@@ -239,6 +250,7 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
   }
   const { encodedParameters, endpointId } = verificationResult;
 
+  addMetadata({ 'Endpoint-ID': endpointId });
   const [err, result] = await handlers.processHttpSignedDataRequest(
     parsedConfig,
     endpointId as string,
