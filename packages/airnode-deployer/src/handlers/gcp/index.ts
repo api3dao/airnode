@@ -9,6 +9,7 @@ import {
   ProcessTransactionsPayload,
   WorkerPayload,
   loadTrustedConfig,
+  EnabledGateway,
 } from '@api3/airnode-node';
 import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -126,13 +127,9 @@ export async function processHttpRequest(req: Request, res: Response) {
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
     req.headers.origin
   );
-  // Set headers for the responses
-  if (originVerification.success) {
-    res.set(originVerification.headers);
-  }
   // Respond to preflight requests
   if (req.method === 'OPTIONS') {
     if (!originVerification.success) {
@@ -140,9 +137,11 @@ export async function processHttpRequest(req: Request, res: Response) {
       return;
     }
 
-    res.status(204).send('');
+    res.set(originVerification.headers).status(204).send('');
     return;
   }
+  // Set headers for the responses
+  res.set(originVerification.headers);
 
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {
@@ -197,15 +196,9 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpSignedDataGateway.enabled
-      ? parsedConfig.nodeSettings.httpSignedDataGateway.corsOrigins
-      : [],
+    (parsedConfig.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
     req.headers.origin
   );
-  // Set headers for the responses
-  if (originVerification.success) {
-    res.set(originVerification.headers);
-  }
   // Respond to preflight requests
   if (req.method === 'OPTIONS') {
     if (!originVerification.success) {
@@ -213,9 +206,11 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
       return;
     }
 
-    res.status(204).send('');
+    res.set(originVerification.headers).status(204).send('');
     return;
   }
+  // Set headers for the responses
+  res.set(originVerification.headers);
 
   const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
   if (!apiKeyVerification.success) {

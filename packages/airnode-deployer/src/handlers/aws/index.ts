@@ -9,6 +9,7 @@ import {
   ProcessTransactionsPayload,
   CallApiPayload,
   loadTrustedConfig,
+  EnabledGateway,
 } from '@api3/airnode-node';
 import { verifyHttpSignedDataRequest, verifyHttpRequest, verifyRequestOrigin } from '../common';
 
@@ -107,7 +108,7 @@ export async function processHttpRequest(
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
     event.headers.origin
   );
   // Respond to preflight requests
@@ -157,9 +158,7 @@ export async function processHttpSignedDataRequest(
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpSignedDataGateway.enabled
-      ? parsedConfig.nodeSettings.httpSignedDataGateway.corsOrigins
-      : [],
+    (parsedConfig.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
     event.headers.origin
   );
   // Respond to preflight requests
