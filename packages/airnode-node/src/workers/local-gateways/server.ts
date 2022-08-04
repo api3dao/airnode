@@ -1,9 +1,9 @@
 import { logger } from '@api3/airnode-utilities';
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import bodyParser from 'body-parser';
-import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest } from './validation';
-import { Config, LocalProvider } from '../../config';
+import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
+import { Config, EnabledGatewaySchema, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
 
 type GatewayName = 'httpGateway' | 'httpSignedDataGateway';
@@ -52,8 +52,24 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
     const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/:endpointId`;
-    app.post(httpSignedDataGatewayPath, async function (req, res) {
+    const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http signed data`);
+
+      const originVerification = verifyRequestOrigin(
+        (config.nodeSettings.httpSignedDataGateway as EnabledGatewaySchema).corsOrigins,
+        req.headers.origin
+      );
+      if (req.method === 'OPTIONS') {
+        if (!originVerification.success) {
+          res.status(400).send(originVerification.error);
+          return;
+        }
+
+        // Set headers for the responses
+        res.set(originVerification.headers).status(204).send('');
+        return;
+      }
+      res.set(originVerification.headers);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
       if (!apiKeyVerification.success) {
@@ -89,7 +105,10 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
-    });
+    };
+
+    app.post(httpSignedDataGatewayPath, httpSignedDataRequestHandler);
+    app.options(httpSignedDataGatewayPath, httpSignedDataRequestHandler);
 
     logger.log(
       `HTTP signed data gateway listening for request on "${getGatewaysUrl(port, httpSignedDataGatewayPath)}"`
@@ -98,8 +117,25 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
 
   if (enabledGateways.includes('httpGateway')) {
     const httpGatewayPath = `/${HTTP_BASE_PATH}/:endpointId`;
-    app.post(httpGatewayPath, async function (req, res) {
+    const httpRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http data`);
+
+      const originVerification = verifyRequestOrigin(
+        (config.nodeSettings.httpGateway as EnabledGatewaySchema).corsOrigins,
+        req.headers.origin
+      );
+
+      if (req.method === 'OPTIONS') {
+        if (!originVerification.success) {
+          res.status(400).send(originVerification.error);
+          return;
+        }
+
+        // Set headers for the responses
+        res.set(originVerification.headers).status(204).send('');
+        return;
+      }
+      res.set(originVerification.headers);
 
       const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
       if (!apiKeyVerification.success) {
@@ -135,7 +171,10 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
-    });
+    };
+
+    app.post(httpGatewayPath, httpRequestHandler);
+    app.options(httpGatewayPath, httpRequestHandler);
 
     logger.log(`HTTP (testing) gateway listening for request on "${getGatewaysUrl(port, httpGatewayPath)}"`);
   }
