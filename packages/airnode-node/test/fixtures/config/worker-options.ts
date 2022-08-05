@@ -4,6 +4,7 @@ export function buildWorkerOptions(options?: Partial<WorkerOptions>): WorkerOpti
   return {
     cloudProvider: {
       type: 'local',
+      gatewayServerPort: 3000,
     },
     airnodeAddressShort: '19255a4',
     stage: 'test',

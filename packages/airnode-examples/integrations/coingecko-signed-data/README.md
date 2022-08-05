@@ -5,15 +5,10 @@ This example contains the same API integration as `../coingecko`.
 The only difference is that this integration allows the endpoint to return signed data that can be then submitted on
 chain.
 
-Note that currently this integration cannot be run with the local Airnode client as it does not yet support http
-gateways.
-
 See the documentation for the
 [signed data gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html#http-signed-data-gateway).
 
-## Testing the API call
-
-### Encode parameters
+## Encode parameters
 
 The coingecko requests expects a parameter `coinId` which needs to be passed to the gateway encoded using
 [Airnode ABI](https://docs.api3.org/airnode/latest/reference/specifications/airnode-abi-specifications.html).
@@ -27,13 +22,15 @@ We have encoded two basic parameter types:
 
 Feel free to encode a different parameter type to make a different request.
 
-### Trigger a request
+## Trigger a request
 
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
 curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
+
+### When deployed on cloud
 
 Before making the request, you need to replace the following placeholders:
 
@@ -50,6 +47,19 @@ The correct command may look like this:
 ```sh
 curl -X POST -H 'x-api-key: 5da75575-e1c0-40ce-b2eb-5b9dcd2a460b' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'https://am6ncplkx4.execute-api.us-east-1.amazonaws.com/v1/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
+
+### When running Airnode locally
+
+When Airnode is run locally, the HTTP signed data gateway endpoint is always
+`http://localhost:<PORT>/http-signed-data/<ENDPOINT_ID>`. For now, `PORT` number is hardcoded to 3000.
+
+For example:
+
+```sh
+curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+```
+
+## Output
 
 The example output might look like this:
 
