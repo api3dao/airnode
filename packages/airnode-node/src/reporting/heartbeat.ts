@@ -1,8 +1,24 @@
 import { execute } from '@api3/airnode-adapter';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { getEnvValue } from '../config';
+import { Config, getEnvValue } from '../config';
 import { CoordinatorState } from '../types';
+import { getGatewaysUrl, HTTP_BASE_PATH, HTTP_SIGNED_DATA_BASE_PATH } from '../workers/local-gateways/server';
+
+export function getHttpGatewayUrl(config: Config) {
+  if (config.nodeSettings.cloudProvider.type === 'local') {
+    return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, HTTP_BASE_PATH);
+  }
+
+  return getEnvValue('HTTP_GATEWAY_URL');
+}
+
+export function getHttpSignedDataGatewayUrl(config: Config) {
+  if (config.nodeSettings.cloudProvider.type === 'local') {
+    return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, HTTP_SIGNED_DATA_BASE_PATH);
+  }
+  return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
+}
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
   const heartbeat = state.config.nodeSettings.heartbeat;
@@ -13,8 +29,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const { apiKey, url, id } = heartbeat;
-  const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
-  const httpSignedDataGatewayUrl = getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
+  const httpGatewayUrl = getHttpGatewayUrl(state.config);
+  const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(state.config);
 
   const request = {
     url,

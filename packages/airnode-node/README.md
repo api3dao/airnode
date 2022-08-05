@@ -40,7 +40,7 @@ You can test the endpoints specified in your `config.json` by running the follow
 ```sh
 # --endpoint-id Endpoint ID
 # --parameters Parameters as JSON
-yarn run dev:testApi --endpoint-id "0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6" --parameters '{"from": "EUR"}'
+yarn run dev:http-data-invoke --endpoint-id "0xd9e8c9bcc8960df5f954c0817757d2f7f9601bd638ea2f94e890ae5481681153" --parameters '{"coinId": "bitcoin"}'
 ```
 
 ### Directory Structure

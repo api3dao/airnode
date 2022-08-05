@@ -9,8 +9,10 @@ import {
   ProcessTransactionsPayload,
   CallApiPayload,
   loadTrustedConfig,
+  verifyHttpRequest,
+  verifyHttpSignedDataRequest,
+  verifyRequestOrigin,
 } from '@api3/airnode-node';
-import { verifyHttpSignedDataRequest, verifyHttpRequest, verifyRequestOrigin } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);

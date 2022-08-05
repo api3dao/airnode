@@ -9,7 +9,14 @@ import { goSync } from '@api3/promise-utils';
  * Any uncaught error or promise rejection will be printed out in the console.
  */
 export const runAndHandleErrors = (fn: () => Promise<unknown>) => {
-  const goFn = goSync(() => fn().then(() => process.exit(0)));
+  const goFn = goSync(() =>
+    fn()
+      .then(() => process.exit(0))
+      .catch((error) => {
+        cliPrint.error(error);
+        process.exit(1);
+      })
+  );
   if (!goFn.success) {
     cliPrint.error('' + goFn.error);
     process.exit(1);

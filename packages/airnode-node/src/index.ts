@@ -7,3 +7,4 @@ export * from './types';
 export * from './version';
 export * from './config';
 export * from './validation';
+export * from './workers/local-gateways';

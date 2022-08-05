@@ -10,7 +10,7 @@ import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTrans
 function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
-function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
+export function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
   return setEnvValue('AIRNODE_WALLET_PRIVATE_KEY', ethers.Wallet.fromMnemonic(airnodeWalletMnemonic).privateKey);
 }
 
@@ -81,37 +81,4 @@ export async function processTransactions({
 
   const scrubbedState = state.scrub(goUpdatedState.data);
   return { ok: true, data: scrubbedState };
-}
-
-export async function processHttpRequest(endpointId: string, parameters: any) {
-  const config = loadConfig();
-  setLogOptions({
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta: { 'Endpoint-ID': endpointId },
-  });
-
-  const [err, result] = await handlers.processHttpRequest(config, endpointId, parameters);
-  if (err) {
-    throw err;
-  }
-
-  return result;
-}
-
-export async function processHttpSignedDataRequest(endpointId: string, encodedParameters: any) {
-  const config = loadConfig();
-  setLogOptions({
-    format: config.nodeSettings.logFormat,
-    level: config.nodeSettings.logLevel,
-    meta: { 'Endpoint-ID': endpointId },
-  });
-
-  setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
-  const [err, result] = await handlers.processHttpSignedDataRequest(config, endpointId, encodedParameters);
-  if (err) {
-    throw err;
-  }
-
-  return result;
 }

@@ -6,3 +6,4 @@ export * from './logging';
 export * from './evm';
 export * from './caching';
 export * from './constants';
+export * from './testing';

@@ -9,11 +9,11 @@ import {
   NodeSettings,
   amountSchema,
   Amount,
-  enabledGatewaySchema,
   enabledHeartbeatSchema,
   gatewaySchema,
   heartbeatSchema,
   gasPriceOracleSchema,
+  EnabledGateway,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
@@ -355,7 +355,7 @@ describe('triggers references', () => {
 });
 
 describe('apiKey schemas', () => {
-  const gateway: SchemaType<typeof enabledGatewaySchema> = {
+  const gateway: EnabledGateway = {
     enabled: true,
     apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
     maxConcurrency: 100,

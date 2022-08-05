@@ -1,11 +1,11 @@
 import { HttpGatewayApiCallResponse } from '../../src';
-import { processHttpRequest } from '../../src/workers/local-handlers';
+import { processHttpRequest } from '../../src/handlers';
 import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
 increaseTestTimeout();
 
 it('makes a call to test the API', async () => {
-  await deployAirnodeAndMakeRequests(__filename);
+  const { config } = await deployAirnodeAndMakeRequests(__filename);
 
   const parameters = {
     from: 'ETH',
@@ -15,7 +15,7 @@ it('makes a call to test the API', async () => {
   // EndpointID from the trigger fixture ../fixtures/config/config.ts
   const endpointId = '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6';
 
-  const result = await processHttpRequest(endpointId, parameters);
+  const [_err, result] = await processHttpRequest(config, endpointId, parameters);
 
   const expected: HttpGatewayApiCallResponse = {
     // Value is returned by the mock server from the operation package

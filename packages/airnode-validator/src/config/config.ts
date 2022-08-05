@@ -210,6 +210,11 @@ export const heartbeatSchema = z.discriminatedUnion('enabled', [enabledHeartbeat
 export const localProviderSchema = z
   .object({
     type: z.literal('local'),
+    // Gateway server port is optional, because docker ports need to be published when starting the Airnode client
+    // container. Users can bind (publish) the default port to any port they want. This property is useful if the
+    // container is run in "network host" mode, where the container uses the host network natively (and no port
+    // publishing is needed).
+    gatewayServerPort: z.number().optional(),
   })
   .strict();
 
@@ -419,6 +424,7 @@ export type ApiCredentials = SchemaType<typeof apiCredentialsSchema>;
 export type NodeSettings = SchemaType<typeof nodeSettingsSchema>;
 export type Template = SchemaType<typeof templateSchema>;
 export type CloudProvider = SchemaType<typeof cloudProviderSchema>;
+export type LocalProvider = SchemaType<typeof localProviderSchema>;
 export type AwsCloudProvider = SchemaType<typeof awsCloudProviderSchema>;
 export type GcpCloudProvider = SchemaType<typeof gcpCloudProviderSchema>;
 export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>;
@@ -440,3 +446,4 @@ export type Trigger = SchemaType<typeof triggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;
 export type Amount = SchemaType<typeof amountSchema>;
+export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
