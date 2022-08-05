@@ -1,5 +1,5 @@
 import { spawnSync, spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { logger } from '@api3/airnode-utilities';
+import { consoleLog, logger } from '@api3/airnode-utilities';
 import { goSync } from '@api3/promise-utils';
 import { cliPrint } from '../src';
 
@@ -18,13 +18,21 @@ export const runCommand = (command: string) => {
     cliPrint.warning(`Stderr output:\n${stderr}`);
   }
 
-  return result.stdout.toString();
+  const stdout = result.stdout.toString();
+  if (stdout) {
+    consoleLog(`Stdout output:\n${stdout}`);
+  }
+  return stdout;
 };
 
 export const runCommandInBackground = (command: string) => {
   logger.log(`Running background command:\n${command}`);
   return spawn(command, {
     detached: true,
+    // This will make the output visible, but since this (child) command is running in background
+    // it will get mixed with the output of parent command. Still, this is the best way to have the logs
+    // appear on the CI which simplifies debugging.
+    stdio: 'inherit',
     shell: true,
   });
 };
