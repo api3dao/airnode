@@ -9,6 +9,7 @@ import {
   ProcessTransactionsPayload,
   CallApiPayload,
   loadTrustedConfig,
+  EnabledGateway,
   verifyHttpRequest,
   verifyHttpSignedDataRequest,
   verifyRequestOrigin,
@@ -119,15 +120,15 @@ export async function processHttpRequest(
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
     event.headers.origin
   );
-  if (!originVerification.success) {
-    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
-  }
-
-  // Respond to preflight requests if the origin is allowed
+  // Respond to preflight requests
   if (event.httpMethod === 'OPTIONS') {
+    if (!originVerification.success) {
+      return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+    }
+
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
 
@@ -139,7 +140,7 @@ export async function processHttpRequest(
   const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
-    return { statusCode, body: JSON.stringify(error) };
+    return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { parameters, endpointId } = verificationResult;
 
@@ -170,15 +171,15 @@ export async function processHttpSignedDataRequest(
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
-    parsedConfig.nodeSettings.httpGateway.enabled ? parsedConfig.nodeSettings.httpGateway.corsOrigins : [],
+    (parsedConfig.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
     event.headers.origin
   );
-  if (!originVerification.success) {
-    return { statusCode: 400, body: JSON.stringify(originVerification.error) };
-  }
-
-  // Respond to preflight requests if the origin is allowed
+  // Respond to preflight requests
   if (event.httpMethod === 'OPTIONS') {
+    if (!originVerification.success) {
+      return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+    }
+
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
 
