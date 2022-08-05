@@ -509,7 +509,7 @@ yargs
     }
   )
   .command(
-    'generate-mnemonic',
+    'generate-airnode-mnemonic',
     'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
@@ -525,6 +525,28 @@ yargs
           '',
           `The Airnode address for this mnemonic is: ${airnodeAddress}`,
           `The Airnode xpub for this mnemonic is: ${airnodeXpub}`,
+          '',
+        ].join('\n')
+      );
+    }
+  )
+  .command(
+    'generate-mnemonic',
+    'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
+    async () => {
+      const mnemonic = await admin.generateMnemonic();
+      const address = await admin.deriveAirnodeAddress(mnemonic);
+      const xpub = admin.deriveAirnodeXpub(mnemonic);
+
+      logger.log(
+        [
+          'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
+          'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
+          '',
+          ...encaseMnemonic(mnemonic),
+          '',
+          `The default wallet address (path:m/44'/60'/0'/0/0) for this mnemonic is: ${address}`,
+          `The default wallet xpub (path:m/44'/60'/0'/0/0) for this mnemonic is: ${xpub}`,
           '',
         ].join('\n')
       );
