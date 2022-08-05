@@ -510,7 +510,7 @@ yargs
   )
   .command(
     'generate-airnode-mnemonic',
-    'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood',
+    'Generates a random mnemonic which can be used in the Airnode config and displays the corresponding address and extended public key. Uses "ethers.Wallet.createRandom" under the hood',
     async () => {
       const mnemonic = await admin.generateMnemonic();
       const airnodeAddress = await admin.deriveAirnodeAddress(mnemonic);
