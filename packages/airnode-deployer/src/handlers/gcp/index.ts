@@ -10,11 +10,14 @@ import {
   WorkerPayload,
   loadTrustedConfig,
   EnabledGateway,
+  verifyHttpSignedDataRequest,
+  verifyHttpRequest,
+  VerificationResult,
+  verifyRequestOrigin,
 } from '@api3/airnode-node';
 import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
-import { verifyHttpSignedDataRequest, verifyHttpRequest, VerificationResult, verifyRequestOrigin } from '../common';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -111,7 +114,7 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
 }
 
 // We need to check for an API key manually because GCP HTTP Gateway doesn't support managing API keys via API
-export function verifyGcpApiKey(
+function verifyGcpApiKey(
   req: Request,
   apiKeyName: 'HTTP_GATEWAY_API_KEY' | 'HTTP_SIGNED_DATA_GATEWAY_API_KEY'
 ): VerificationResult<{}> {

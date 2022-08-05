@@ -1,8 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { logger } from '@api3/airnode-utilities';
-import { goSync } from '@api3/promise-utils';
-import { killBackgroundProcess, runCommand, runCommandInBackground } from '../utils';
+import { runCommand, runCommandInBackground } from '../utils';
 
 const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
@@ -28,17 +27,15 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
 
-    const airnodeDocker = runCommandInBackground('yarn run-airnode-locally');
+    runCommandInBackground('yarn run-airnode-locally');
 
     // Try running the rest of the commands, but make sure to kill the Airnode running in background process gracefully.
     // We need to do this otherwise Airnode will continue running in the background forever
-    const operation = () => {
+    try {
       runCommand('yarn deploy-requester');
       runCommand('yarn derive-and-fund-sponsor-wallet');
       runCommand('yarn sponsor-requester');
       const response = runCommand('yarn make-request');
-
-      killBackgroundProcess(airnodeDocker);
 
       const pathOfResponseText = 'Ethereum price is';
       expect(response).toContain(pathOfResponseText);
@@ -51,12 +48,8 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
       expect(Number(price).toString()).toBe(price);
 
       logger.log(`The Ethereum price is ${price} USD.`);
-    };
-
-    const goOperation = goSync(operation);
-    if (!goOperation.success) {
-      killBackgroundProcess(airnodeDocker);
-      throw goOperation.error;
+    } finally {
+      runCommand('yarn stop-local-airnode');
     }
   });
 });

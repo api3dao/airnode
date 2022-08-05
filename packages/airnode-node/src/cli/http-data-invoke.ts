@@ -1,23 +1,17 @@
 import * as path from 'path';
 import dotenv from 'dotenv';
-import omitBy from 'lodash/omitBy';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { logger } from '@api3/airnode-utilities';
-import * as local from '../workers/local-handlers';
-
-// yargs prepares the args object with both long and short version of arguments.
-// This removes short versions so we can list used flags without duplicates.
-function longArguments(args: Record<string, any>) {
-  return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
-}
+import { processHttpRequest } from '../handlers';
+import { loadTrustedConfig } from '../config';
 
 dotenv.config({ path: path.resolve(`${__dirname}/../../config/secrets.env`) });
 
 yargs(hideBin(process.argv))
   .command(
     '$0',
-    'Test API calls',
+    'Invoke HTTP data handler',
     {
       'endpoint-id': {
         alias: 'e',
@@ -33,12 +27,13 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
-      logger.log(`Running API test call with arguments ${longArguments(args)}`);
+      logger.log(`Invoke HTTP data handler`);
+      const config = loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
       const parameters = JSON.parse(args.parameters);
       if (!parameters) {
         throw new Error('Missing request parameters');
       }
-      logger.log(JSON.stringify(await local.processHttpRequest(args['endpoint-id'], parameters)));
+      logger.log(JSON.stringify(await processHttpRequest(config, args['endpoint-id'], parameters)));
     }
   )
   .help()
