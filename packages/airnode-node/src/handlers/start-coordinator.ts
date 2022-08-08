@@ -1,7 +1,8 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
-import { logger, formatDateTime } from '@api3/airnode-utilities';
+import pickBy from 'lodash/pickBy';
+import { logger, formatDateTime, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
@@ -88,12 +89,50 @@ function aggregateApiCalls(state: CoordinatorState) {
 async function executeApiCalls(state: CoordinatorState) {
   const { aggregatedApiCallsById } = state;
 
-  const aggregatedApiCalls = Object.values(aggregatedApiCallsById);
+  // TODO: make caching conditional upon endpoint flag "cacheResponses"
+  // https://github.com/api3dao/ois/pull/16
+
+  // TODO: add tests
+
+  const cachedKeys = caching.getKeys('requestId-');
+
+  const filteredUncachedAggregatedApiCalls = pickBy(
+    aggregatedApiCallsById,
+    (value, key) => !cachedKeys.includes(`requestId-${key}`)
+  );
+
+  const filteredCachedAggregatedApiCalls = Object.entries(aggregatedApiCallsById)
+    .filter(([key, _value]) => cachedKeys.includes(`requestId-${key}`))
+    .map(([key, value]) => {
+      const { encodedValue, signature } = caching.getValueForKey(`requestId-${key}`);
+      return {
+        // value.responseValue
+        ...value,
+        // errorMessage: undefined,
+        encodedValue,
+        signature,
+      };
+    });
+
+  const aggregatedApiCalls = Object.values(filteredUncachedAggregatedApiCalls);
+
   const [logs, processedAggregatedApiCalls] = await calls.callApis(aggregatedApiCalls, getWorkerOptions(state));
   logger.logPending(logs);
 
+  processedAggregatedApiCalls
+    .filter((call) => call.success)
+    .forEach((call) => {
+      // "as any" from: https://github.com/api3dao/airnode/pull/871/files#diff-d9e817fb4873840d22bada5236869347e19f945d65b42eb439f5c9dc689404bfR38
+      const { encodedValue, signature } = (call as any).data;
+      caching.addKey(`requestId-${call.id}`, { encodedValue, signature });
+    });
+
+  caching.syncFsASync();
+
+  const mergedProcessedAggregatedApiCalls = [...processedAggregatedApiCalls, ...filteredCachedAggregatedApiCalls];
+
   logger.info('Executed API calls');
-  const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
+  const processedAggregatedApiCallsById = keyBy(mergedProcessedAggregatedApiCalls, 'id');
   return coordinatorState.update(state, {
     aggregatedApiCallsById: processedAggregatedApiCallsById,
   }) as CoordinatorStateWithApiResponses;
@@ -139,6 +178,8 @@ function applyChainRequestLimits(state: CoordinatorState) {
 }
 
 async function coordinator(config: Config, coordinatorId: string): Promise<CoordinatorState> {
+  caching.initPath();
+
   // =================================================================
   // STEP 1: Create a blank coordinator state
   // =================================================================

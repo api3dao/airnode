@@ -15,9 +15,18 @@ import {
   VerificationResult,
   verifyRequestOrigin,
 } from '@api3/airnode-node';
-import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
+import {
+  logger,
+  DEFAULT_RETRY_DELAY_MS,
+  randomHexString,
+  setLogOptions,
+  addMetadata,
+  caching,
+} from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
+
+caching.init();
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
@@ -31,6 +40,9 @@ export async function startCoordinator(_req: Request, res: Response) {
   });
   await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
+  // TODO: line below (suspiciously?) not present in original PR:
+  // https://github.com/api3dao/airnode-qrng/commit/75c54a0f5dddbd2a29b7f303310356750d2fd1fc#diff-307ba728f020f0438491dbae15a76ec9421457225fcf4f4966f698b74a87263cR4-R8
+  caching.syncFsSync();
   res.status(200).send(response);
 }
 
