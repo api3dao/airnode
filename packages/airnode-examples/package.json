@@ -31,7 +31,6 @@
     "run-airnode-locally": "ts-node src/scripts/run-airnode-locally.ts",
     "sponsor-requester": "ts-node src/scripts/sponsor-requester.ts",
     "stop-local-airnode": "ts-node src/scripts/stop-local-airnode.ts",
-    "test:coingecko-aws": "ts-node src/scripts/aws-test/coingecko-aws-test.ts",
     "test": "jest --selectProjects unit",
     "test:e2e": "jest --selectProjects e2e"
   },

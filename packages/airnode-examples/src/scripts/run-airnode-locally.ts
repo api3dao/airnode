@@ -1,5 +1,12 @@
 import { join } from 'path';
-import { cliPrint, readIntegrationInfo, readPackageVersion, runAndHandleErrors, runShellCommand } from '../';
+import {
+  cliPrint,
+  readIntegrationInfo,
+  readPackageVersion,
+  runAndHandleErrors,
+  runShellCommand,
+  isMacOrWindows,
+} from '../';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -23,7 +30,13 @@ const main = async () => {
   }
 
   const integrationPath = join(__dirname, '../../integrations', integrationInfo.integration);
-  runShellCommand(`docker run --rm -v ${integrationPath}:/app/config --network="host" --name airnode ${imageName}`);
+  if (isMacOrWindows()) {
+    runShellCommand(
+      `docker run --rm -v ${integrationPath}:/app/config --publish 3000:3000 --name airnode ${imageName}`
+    );
+  } else {
+    runShellCommand(`docker run --rm -v ${integrationPath}:/app/config --network host --name airnode ${imageName}`);
+  }
 };
 
 runAndHandleErrors(main);

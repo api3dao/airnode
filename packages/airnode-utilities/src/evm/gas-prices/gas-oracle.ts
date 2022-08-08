@@ -150,7 +150,7 @@ export const fetchLatestBlockPercentileGasPrice = async (
   // Calculate gas price percentiles for each block
   const blockPercentileGasPrices = resolvedGoBlocks.reduce(
     (acc: { blockNumber: number; percentileGasPrice: ethers.BigNumber }[], block) => {
-      // Stop processing if fetching the block was not succesful, there is no block data,
+      // Stop processing if fetching the block was not successful, there is no block data,
       // or if the block does not have enough transactions
       if (!block.success || !block?.data?.transactions || block.data.transactions.length < minTransactionCount)
         return acc;

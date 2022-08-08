@@ -5,6 +5,7 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
   return {
     cloudProvider: {
       type: 'local',
+      gatewayServerPort: 3000,
     },
     airnodeWalletMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
     httpGateway: {

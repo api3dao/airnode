@@ -1,8 +1,14 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { go, assertGoError, assertGoSuccess } from '@api3/promise-utils';
+import { advanceTimersByTime } from '@api3/airnode-utilities';
 import { config } from '@api3/airnode-validator';
 import * as gasOracle from './gas-oracle';
-import { GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS } from '../../constants';
+import {
+  GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+  GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
+  RANDOM_BACKOFF_MAX_MS,
+  RANDOM_BACKOFF_MIN_MS,
+} from '../../constants';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
@@ -480,83 +486,69 @@ describe('Gas oracle', () => {
   });
 
   describe('handles timeouts', () => {
-    it('return constantGasPrice after totalTimeoutMs is exceeded due to processGasPriceOracleStrategies timeout', async () => {
-      const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
-      processGasPriceOracleStrategiesSpy.mockImplementation(
-        async () =>
-          new Promise((resolve) => {
-            setTimeout(() => {
-              return resolve([[], ethers.BigNumber.from(10)] as any);
-            }, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
-          })
-      );
-
-      // totalTimeoutMs is 10 seconds and each strategy attempt has 2 attempts so
-      // we need to attempt at least 5 strategies to test exceeding the totalTimeoutMs of getGasPrice
-      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
-      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
-
-      // processGasPriceOracleStrategiesSpy should have been called once when totalTimeoutMs is exceeded
-      expect(processGasPriceOracleStrategiesSpy).toHaveBeenCalledTimes(1);
-      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
+    beforeEach(() => {
+      jest.useFakeTimers();
     });
 
-    it('return constantGasPrice after totalTimeoutMs is exceeded due to attemptGasOracleStrategy timeout', async () => {
+    const expectedConstantGasTarget = {
+      gasLimit: BigNumber.from(500000),
+      gasPrice: BigNumber.from(10000000000),
+      type: 0,
+    };
+
+    it('due to processGasPriceOracleStrategies timeout', async () => {
+      const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
+      processGasPriceOracleStrategiesSpy.mockImplementation(async () => new Promise(() => {})); // never resolve
+
+      const gasPricePromise = gasOracle.getGasPrice(provider, defaultChainOptions);
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
+      const [_logs, gasTarget] = await gasPricePromise;
+
+      expect(processGasPriceOracleStrategiesSpy).toHaveBeenCalledTimes(1);
+      expect(gasTarget).toEqual(expectedConstantGasTarget);
+    });
+
+    it('due to attemptGasOracleStrategy timeout', async () => {
       const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
       attemptGasOracleStrategySpy.mockImplementation(
-        async () =>
-          new Promise((resolve) => {
-            setTimeout(() => {
-              return resolve([[], ethers.BigNumber.from(33)] as any);
-            }, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
-          })
+        async () => new Promise(() => {}) // never resolve
       );
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
 
-      // We only need 1 strategy as we are testing attemptGasOracleStrategy timeout
-      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+      const gasPricePromise = gasOracle.getGasPrice(provider, {
         ...defaultChainOptions,
+        // We only need 1 non constant gas strategy as we are testing attemptGasOracleStrategy timeout
         gasPriceOracle: [latestBlockPercentileGasPriceStrategy, constantGasPriceStrategy],
       });
-      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
+      const [_logs, gasTarget] = await gasPricePromise;
 
       // attemptGasOracleStrategy should have been called once when totalTimeoutMs is exceeded
       expect(attemptGasOracleStrategySpy).toHaveBeenCalledTimes(1);
-      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
+      expect(gasTarget).toEqual(expectedConstantGasTarget);
     });
 
-    it('return constantGasPrice after totalTimeoutMs is exceeded due to provider timeouts', async () => {
+    it('due to provider timeouts', async () => {
       const getBlockWithTransactionsSpy = jest.spyOn(
         ethers.providers.StaticJsonRpcProvider.prototype,
         'getBlockWithTransactions'
       );
       getBlockWithTransactionsSpy.mockImplementation(
-        async () =>
-          new Promise((resolve) => {
-            setTimeout(() => {
-              return resolve({} as any);
-              // Set timeout to exceed attempt maximum to reduce test flakiness
-            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
-          })
+        async () => new Promise(() => {}) // never resolve
       );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       getGasPriceSpy.mockImplementation(
-        async () =>
-          new Promise((resolve) => {
-            setTimeout(() => {
-              return resolve(ethers.BigNumber.from(33) as any);
-              // Set timeout to exceed attempt maximum to reduce test flakiness
-            }, GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS + 10);
-          })
+        async () => new Promise(() => {}) // never resolve
       );
       const getBlock = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
+      const delayMs = 0.4 * (RANDOM_BACKOFF_MAX_MS - RANDOM_BACKOFF_MIN_MS) + RANDOM_BACKOFF_MIN_MS;
 
-      // totalTimeoutMs is 10 seconds and each provider call has 2 attempts so with a 2.5 second delay
-      // we need to attempt at least 3 strategies to test exceeding the totalTimeoutMs
-      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+      // totalTimeoutMs is 10 seconds and each strategy has 2 attempts with a ~1 second retry delay.
+      // We need to attempt at least 3 strategies before exceeding the totalTimeoutMs
+      const gasPricePromise = gasOracle.getGasPrice(provider, {
         ...defaultChainOptions,
         gasPriceOracle: [
           latestBlockPercentileGasPriceStrategy,
@@ -565,14 +557,27 @@ describe('Gas oracle', () => {
           constantGasPriceStrategy,
         ],
       });
-      const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
 
-      // getBlockWithTransactions should have been called 4 times (i.e. one strategy with two retry attempts for two blocks each)
+      expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(2);
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS); // attempt latestBlockPercentileGasPriceStrategy
+      await advanceTimersByTime(delayMs); // delay
       expect(getBlockWithTransactionsSpy).toHaveBeenCalledTimes(4);
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS); // retry latestBlockPercentileGasPriceStrategy
+      // TODO: This is a bug in promise utils. There should not be a delay after last attempt
+      await advanceTimersByTime(delayMs); // delay
+
+      expect(getGasPriceSpy).toHaveBeenCalledTimes(1);
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS); // attempt providerRecommendedGasPriceStrategy
+      await advanceTimersByTime(delayMs); // delay
       expect(getGasPriceSpy).toHaveBeenCalledTimes(2);
-      // totalTimeoutMs would have been exceeded and the third strategy would not have been attempted
-      expect(getBlock).not.toHaveBeenCalled();
-      expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(constantGasPrice, fulfillmentGasLimit));
+      await advanceTimersByTime(GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS); // retry providerRecommendedGasPriceStrategy
+
+      const [_logs, gasTarget] = await gasPricePromise; // at this point the promise should have already timeouted
+      // Note: The third strategy eventually gets called because there is no way to cancel running promise. The result
+      // of this strategy is ignored though (because of timeout) and constant price is returned
+      // TODO: promise utils should not call the attempt callback if timeout is negative
+      expect(getBlock).toHaveBeenCalledTimes(1);
+      expect(gasTarget).toEqual(expectedConstantGasTarget);
     });
   });
 

@@ -76,6 +76,7 @@ describe('create', () => {
         name: 'Ganache test',
         cloudProvider: {
           type: 'local',
+          gatewayServerPort: 3000,
         },
         stage: 'test',
         url: 'http://localhost:4111',
@@ -167,6 +168,7 @@ describe('create', () => {
         name: 'Ganache test',
         cloudProvider: {
           type: 'local',
+          gatewayServerPort: 3000,
         },
         stage: 'test',
         url: 'http://localhost:4111',

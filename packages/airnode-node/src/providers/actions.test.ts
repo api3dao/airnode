@@ -147,6 +147,7 @@ describe('initialize', () => {
             name: 'Pocket Ethereum Mainnet',
             cloudProvider: {
               type: 'local',
+              gatewayServerPort: 3000,
             },
             stage: 'test',
             url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
@@ -197,6 +198,7 @@ describe('initialize', () => {
             name: 'Infura Ropsten',
             cloudProvider: {
               type: 'local',
+              gatewayServerPort: 3000,
             },
             stage: 'test',
             url: 'https://ropsten.infura.io/v3/<key>',
