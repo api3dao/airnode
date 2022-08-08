@@ -489,13 +489,6 @@ Template data:
 
     const address = await admin.deriveAirnodeAddress(mnemonic);
     expect(out[9]).toEqual(`The default wallet address (path:m/44'/60'/0'/0/0) for this mnemonic is: ${address}`);
-
-    const xpub = admin.deriveAirnodeXpub(mnemonic);
-    expect(out[10]).toEqual(`The default wallet xpub (path:m/44'/60'/0'/0/0) for this mnemonic is: ${xpub}`);
-
-    const verifyXpubResult = admin.verifyAirnodeXpub(xpub, address);
-    const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
-    expect(verifyXpubResult).toEqual(hdNode);
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {

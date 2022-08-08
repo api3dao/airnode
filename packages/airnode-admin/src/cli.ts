@@ -536,7 +536,6 @@ yargs
     async () => {
       const mnemonic = await admin.generateMnemonic();
       const address = await admin.deriveAirnodeAddress(mnemonic);
-      const xpub = admin.deriveAirnodeXpub(mnemonic);
 
       logger.log(
         [
@@ -546,7 +545,6 @@ yargs
           ...encaseMnemonic(mnemonic),
           '',
           `The default wallet address (path:m/44'/60'/0'/0/0) for this mnemonic is: ${address}`,
-          `The default wallet xpub (path:m/44'/60'/0'/0/0) for this mnemonic is: ${xpub}`,
           '',
         ].join('\n')
       );
