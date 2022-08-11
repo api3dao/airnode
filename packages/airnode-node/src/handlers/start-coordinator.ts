@@ -9,7 +9,12 @@ import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { CoordinatorState, CoordinatorStateWithApiResponses, WorkerOptions } from '../types';
+import {
+  CoordinatorState,
+  CoordinatorStateWithApiResponses,
+  WorkerOptions,
+  RegularApiCallSuccessResponse,
+} from '../types';
 import { Config } from '../config';
 
 export async function startCoordinator(config: Config, coordinatorId: string) {
@@ -98,7 +103,7 @@ async function executeApiCalls(state: CoordinatorState) {
 
   const filteredUncachedAggregatedApiCalls = pickBy(
     aggregatedApiCallsById,
-    (value, key) => !cachedKeys.includes(`requestId-${key}`)
+    (_value, key) => !cachedKeys.includes(`requestId-${key}`)
   );
 
   const filteredCachedAggregatedApiCalls = Object.entries(aggregatedApiCallsById)
@@ -122,9 +127,7 @@ async function executeApiCalls(state: CoordinatorState) {
   processedAggregatedApiCalls
     .filter((call) => call.success)
     .forEach((call) => {
-      // "as any" from: https://github.com/api3dao/airnode/pull/871/files#diff-d9e817fb4873840d22bada5236869347e19f945d65b42eb439f5c9dc689404bfR38
-      const { encodedValue, signature } = (call as any).data;
-      caching.addKey(`requestId-${call.id}`, { encodedValue, signature });
+      caching.addKey(`requestId-${call.id}`, (call as RegularApiCallSuccessResponse).data);
     });
 
   caching.syncFsASync();
