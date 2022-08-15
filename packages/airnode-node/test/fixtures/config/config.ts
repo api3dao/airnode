@@ -8,7 +8,7 @@ export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
     endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
     endpointName: 'convertToUSD',
     oisTitle: 'Currency Converter API',
-    cacheResponses: 'true',
+    cacheResponses: 'false',
     ...overrides,
   };
 }

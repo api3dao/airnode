@@ -36,6 +36,7 @@ describe('aggregate (API calls)', () => {
         requestCount: '12',
         requestType: 'template',
         templateId: null,
+        cacheResponses: false,
       },
     });
   });
@@ -73,6 +74,7 @@ describe('aggregate (API calls)', () => {
         requestCount: '12',
         requestType: 'template',
         templateId: null,
+        cacheResponses: false,
       },
     });
   });
