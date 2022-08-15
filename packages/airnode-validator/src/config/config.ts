@@ -19,6 +19,7 @@ export const triggerSchema = z
     endpointId: endpointIdSchema,
     endpointName: z.string(),
     oisTitle: z.string(),
+    cacheResponses: z.string().optional(),
   })
   .strict();
 

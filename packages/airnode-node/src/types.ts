@@ -273,6 +273,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   fulfillFunctionId: string;
   encodedParameters: string;
   template?: ApiCallTemplate;
+  cacheResponses?: boolean;
 }
 
 export type RegularAggregatedApiCallWithResponse = RegularAggregatedApiCall & RegularApiCallResponse;

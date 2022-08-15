@@ -94,9 +94,6 @@ function aggregateApiCalls(state: CoordinatorState) {
 async function executeApiCalls(state: CoordinatorState) {
   const { aggregatedApiCallsById } = state;
 
-  // TODO: make caching conditional upon endpoint flag "cacheResponses"
-  // https://github.com/api3dao/ois/pull/16
-
   // TODO: add tests
 
   const cachedKeys = caching.getKeys('requestId-');
@@ -111,9 +108,7 @@ async function executeApiCalls(state: CoordinatorState) {
     .map(([key, value]) => {
       const { encodedValue, signature } = caching.getValueForKey(`requestId-${key}`);
       return {
-        // value.responseValue
         ...value,
-        // errorMessage: undefined,
         encodedValue,
         signature,
       };
@@ -125,7 +120,7 @@ async function executeApiCalls(state: CoordinatorState) {
   logger.logPending(logs);
 
   processedAggregatedApiCalls
-    .filter((call) => call.success)
+    .filter((call) => call.success && call.cacheResponses)
     .forEach((call) => {
       caching.addKey(`requestId-${call.id}`, (call as RegularApiCallSuccessResponse).data);
     });
