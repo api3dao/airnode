@@ -104,11 +104,11 @@ async function executeApiCalls(state: CoordinatorState) {
   );
 
   const filteredCachedAggregatedApiCalls = Object.entries(aggregatedApiCallsById)
-    .filter(([key, _value]) => cachedKeys.includes(`requestId-${key}`))
-    .map(([key, value]) => {
-      const { encodedValue, signature } = caching.getValueForKey(`requestId-${key}`);
+    .filter(([id, _value]) => cachedKeys.includes(`requestId-${id}`))
+    .map(([id, apiCall]) => {
+      const { encodedValue, signature } = caching.getValueForKey(`requestId-${id}`);
       return {
-        ...value,
+        ...apiCall,
         encodedValue,
         signature,
       };
