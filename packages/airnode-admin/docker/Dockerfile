@@ -1,22 +1,24 @@
 FROM node:14.19.3-alpine3.15
 
-ENV name="airnode-admin"
-ENV appDir="/app"
+ARG npmRegistryUrl=https://registry.npmjs.org/
+ARG npmTag=latest
+
+ENV name="airnode-admin" \
+    appDir="/app"
+ENV packageName="@api3/${name}"
 
 LABEL application=${name} \
-  description="Airnode Admin CLI"
+      description="Airnode Admin CLI"
+
+    # Install airnode-admin
+RUN npm set registry ${npmRegistryUrl} && \
+    yarn global add ${packageName}@${npmTag} && \
+    ln -s /usr/local/share/.config/yarn/global/node_modules/${packageName}/dist ${appDir} && \
+    # Create user
+    adduser -h ${appDir} -s /bin/false -S -D -H ${name}
 
 WORKDIR ${appDir}
 
-COPY --from=api3/airnode-artifacts /dependencies/common ${appDir}/node_modules
-COPY --from=api3/airnode-artifacts /dependencies/airnode-admin ${appDir}/node_modules
-COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/airnode-artifacts /build/packages/airnode-admin/dist ${appDir}/
-
-# Make the binary available within PATH
-RUN ln -s ${appDir}/bin/admin.js "/usr/local/bin/airnode-admin" && chmod +x "/usr/local/bin/airnode-admin"
-# Create Airnode user
-RUN adduser -h ${appDir} -s /bin/false -S -D -H ${name}
 USER ${name}
 
-ENTRYPOINT ["node", "/usr/local/bin/airnode-admin"]
+ENTRYPOINT ["airnode-admin"]
