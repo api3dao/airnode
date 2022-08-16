@@ -2,7 +2,7 @@
 
 set -e
 
-DEPLOYER_BINARY="/usr/local/bin/airnode-deployer"
+DEPLOYER_BINARY="airnode-deployer"
 USER_ID="${USER_ID:-0}"
 GROUP_ID="${GROUP_ID:-0}"
 
