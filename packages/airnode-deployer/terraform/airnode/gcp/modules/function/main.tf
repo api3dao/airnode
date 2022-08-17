@@ -97,7 +97,7 @@ resource "google_app_engine_application" "app" {
   count = var.schedule_interval == 0 ? 0 : 1
 
   project     = data.google_project.project.project_id
-  location_id = var.region
+  location_id = local.app_engine_location_id
 }
 
 resource "google_service_account" "scheduler_service_account" {
