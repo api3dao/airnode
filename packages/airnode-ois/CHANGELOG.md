@@ -1,5 +1,14 @@
 # @api3/airnode-ois
 
+## 0.7.3
+
+### Patch Changes
+
+- [`cf234cb2`](https://github.com/api3dao/airnode/commit/cf234cb230985f0649f146be22d7708d4f9d6c90) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`cf234cb2`](https://github.com/api3dao/airnode/commit/cf234cb230985f0649f146be22d7708d4f9d6c90)]:
+  - @api3/airnode-validator@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes
