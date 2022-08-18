@@ -1,5 +1,14 @@
 # @api3/airnode-ois
 
+## 0.6.6
+
+### Patch Changes
+
+- [`be0abf86`](https://github.com/api3dao/airnode/commit/be0abf86b88de4dca0f4077af0b009e7e7c0cbb1) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`be0abf86`](https://github.com/api3dao/airnode/commit/be0abf86b88de4dca0f4077af0b009e7e7c0cbb1)]:
+  - @api3/airnode-validator@0.6.6
+
 ## 0.6.5
 
 ### Patch Changes
