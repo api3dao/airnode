@@ -4,6 +4,10 @@ locals {
   tmp_configuration_dir = "${local.tmp_input_dir}/config-data"
   tmp_handlers_dir      = "${local.tmp_input_dir}/handlers"
   tmp_output_dir        = "${local.tmp_dir}/output"
+  # Two locations, which are called europe-west and us-central in App Engine commands and in the Google Cloud console,
+  # are called europe-west1 and us-central1, respectively, elsewhere in Google documentation.
+  # https://cloud.google.com/appengine/docs/locations
+  app_engine_location_id = var.region == "europe-west1" ? "europe-west" : (var.region == "us-central1" ? "us-central" : var.region)
 }
 
 variable "entry_point" {

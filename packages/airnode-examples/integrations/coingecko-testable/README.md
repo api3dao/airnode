@@ -15,7 +15,7 @@ more information.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <HTTP_GATEWAY_API_KEY>' -d '{"parameters": {"coinId": "bitcoin"}}' '<HTTP_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'x-api-key: <HTTP_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' '<HTTP_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 ### When deployed on cloud
