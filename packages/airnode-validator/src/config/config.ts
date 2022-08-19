@@ -19,13 +19,20 @@ export const triggerSchema = z
     endpointId: endpointIdSchema,
     endpointName: z.string(),
     oisTitle: z.string(),
-    cacheResponses: z.string().optional(),
   })
+  .strict();
+
+export const rrpTriggerSchema = triggerSchema
+  .merge(
+    z.object({
+      cacheResponses: z.boolean().optional(),
+    })
+  )
   .strict();
 
 export const triggersSchema = z
   .object({
-    rrp: z.array(triggerSchema),
+    rrp: z.array(rrpTriggerSchema),
     http: z.array(triggerSchema),
     httpSignedData: z.array(triggerSchema),
   })
@@ -444,6 +451,7 @@ export type ConstantGasPriceStrategy = z.infer<typeof constantGasPriceStrategySc
 export type GasPriceOracleStrategy = z.infer<typeof gasPriceOracleStrategySchema>;
 export type GasPriceOracleConfig = z.infer<typeof gasPriceOracleSchema>;
 export type Trigger = SchemaType<typeof triggerSchema>;
+export type RrpTrigger = SchemaType<typeof rrpTriggerSchema>;
 export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;
 export type Amount = SchemaType<typeof amountSchema>;

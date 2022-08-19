@@ -52,7 +52,6 @@
         "method": "get",
         "path": "/convert"
       },
-      "cacheResponses": "false",
       "fixedOperationParameters": [
         {
           "operationParameter": {
