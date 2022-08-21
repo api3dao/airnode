@@ -111,6 +111,7 @@ async function executeApiCalls(state: CoordinatorState) {
       return {
         ...apiCall,
         data,
+        // only previously successful API calls are cached
         success: true,
       };
     });
