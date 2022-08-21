@@ -14,6 +14,7 @@ import {
   CoordinatorStateWithApiResponses,
   WorkerOptions,
   RegularApiCallSuccessResponse,
+  RegularAggregatedApiCallWithResponse,
 } from '../types';
 import { Config } from '../config';
 
@@ -94,8 +95,6 @@ function aggregateApiCalls(state: CoordinatorState) {
 async function executeApiCalls(state: CoordinatorState) {
   const { aggregatedApiCallsById } = state;
 
-  // TODO: add tests
-
   const cachedKeys = caching.getKeys('requestId-');
 
   const filteredUncachedAggregatedApiCalls = pickBy(
@@ -103,14 +102,16 @@ async function executeApiCalls(state: CoordinatorState) {
     (_value, key) => !cachedKeys.includes(`requestId-${key}`)
   );
 
-  const filteredCachedAggregatedApiCalls = Object.entries(aggregatedApiCallsById)
+  const filteredCachedAggregatedApiCalls: RegularAggregatedApiCallWithResponse[] = Object.entries(
+    aggregatedApiCallsById
+  )
     .filter(([id, _value]) => cachedKeys.includes(`requestId-${id}`))
     .map(([id, apiCall]) => {
-      const { encodedValue, signature } = caching.getValueForKey(`requestId-${id}`);
+      const data = caching.getValueForKey(`requestId-${id}`);
       return {
         ...apiCall,
-        encodedValue,
-        signature,
+        data,
+        success: true,
       };
     });
 
