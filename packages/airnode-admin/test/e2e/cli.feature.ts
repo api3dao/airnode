@@ -434,8 +434,8 @@ Template data:
     });
   });
 
-  it('generates mnemonic', async () => {
-    const out = execCommand('generate-mnemonic').split('\n');
+  it('generates airnode mnemonic', async () => {
+    const out = execCommand('generate-airnode-mnemonic').split('\n');
 
     const explanationInfo = [
       'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
@@ -464,6 +464,31 @@ Template data:
     const verifyXpubResult = admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
     const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
     expect(verifyXpubResult).toEqual(hdNode);
+  });
+
+  it('generates mnemonic', async () => {
+    const out = execCommand('generate-mnemonic').split('\n');
+
+    const explanationInfo = [
+      'This mnemonic is created locally on your machine using "ethers.Wallet.createRandom" under the hood.',
+      'Make sure to back it up securely, e.g., by writing it down on a piece of paper:',
+      '',
+    ];
+    expect(out.slice(0, 3)).toEqual(explanationInfo);
+
+    const titleRows = [out[3], out[7]];
+    titleRows.forEach((row) => expect(row).toMatch(/^#+ MNEMONIC #+$/));
+
+    const spaceRows = [out[4], out[6]];
+    spaceRows.forEach((row) => expect(row).toMatch(/^\s+$/));
+
+    const mnemonic = out[5];
+    const words = mnemonic.split(' ');
+    expect(words).toHaveLength(12);
+    words.forEach((word) => expect(word).toMatch(/\w+/));
+
+    const address = await admin.deriveAirnodeAddress(mnemonic);
+    expect(out[9]).toEqual(`The default wallet address (path:m/44'/60'/0'/0/0) for this mnemonic is: ${address}`);
   });
 
   describe('RequesterAuthorizerWithAirnode', () => {

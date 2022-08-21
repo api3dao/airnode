@@ -245,7 +245,13 @@ export const gcpCloudProviderSchema = z
 
 export const cloudProviderSchema = z.discriminatedUnion('type', [awsCloudProviderSchema, gcpCloudProviderSchema]);
 
-export const localOrCloudProviderSchema = z.union([localProviderSchema, cloudProviderSchema]);
+export const localOrCloudProviderSchema = z.discriminatedUnion('type', [
+  localProviderSchema,
+  // AWS and GCP schemas used in favor of cloudProviderSchema as
+  // discriminatedUnion methods cannot be nested
+  awsCloudProviderSchema,
+  gcpCloudProviderSchema,
+]);
 
 export const nodeSettingsSchema = z
   .object({

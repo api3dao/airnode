@@ -14,6 +14,7 @@ import {
   heartbeatSchema,
   gasPriceOracleSchema,
   EnabledGateway,
+  localOrCloudProviderSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
@@ -239,6 +240,26 @@ describe('nodeSettingsSchema', () => {
     };
 
     expect(() => nodeSettingsSchema.parse(validNodeSettings)).not.toThrow();
+  });
+
+  it('returns a sensible error with a malformed cloudProvider object', () => {
+    const invalidCloudProvider = {
+      // missing projectId
+      type: 'gcp',
+      region: 'us-east1',
+      disableConcurrencyReservations: false,
+    };
+    expect(() => localOrCloudProviderSchema.parse(invalidCloudProvider)).toThrow(
+      new ZodError([
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: ['projectId'],
+          message: `Required`,
+        },
+      ])
+    );
   });
 });
 
