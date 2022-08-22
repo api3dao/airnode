@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-examples",
   "license": "MIT",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "private": false,
   "description": "A collection of examples showcasing the features of Airnode",
   "files": [
@@ -36,12 +36,12 @@
     "test:e2e": "jest --selectProjects e2e"
   },
   "dependencies": {
-    "@api3/airnode-abi": "^0.7.4",
-    "@api3/airnode-admin": "^0.7.4",
-    "@api3/airnode-deployer": "^0.7.4",
-    "@api3/airnode-node": "^0.7.4",
-    "@api3/airnode-protocol": "^0.7.4",
-    "@api3/airnode-utilities": "^0.7.4",
+    "@api3/airnode-abi": "^0.7.5",
+    "@api3/airnode-admin": "^0.7.5",
+    "@api3/airnode-deployer": "^0.7.5",
+    "@api3/airnode-node": "^0.7.5",
+    "@api3/airnode-protocol": "^0.7.5",
+    "@api3/airnode-utilities": "^0.7.5",
     "ethers": "^5.4.5",
     "is-wsl": "^2.2.0"
   },

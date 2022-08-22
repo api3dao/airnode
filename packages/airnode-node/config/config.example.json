@@ -37,7 +37,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.7.4",
+    "nodeVersion": "0.7.5",
     "cloudProvider": {
       "type": "local"
     },
