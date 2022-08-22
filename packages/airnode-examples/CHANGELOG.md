@@ -1,5 +1,18 @@
 # @api3/airnode-examples
 
+## 0.6.7
+
+### Patch Changes
+
+- [`68559877`](https://github.com/api3dao/airnode/commit/685598776413e5bee3eda35ddef36051a8489c68) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`68559877`](https://github.com/api3dao/airnode/commit/685598776413e5bee3eda35ddef36051a8489c68)]:
+  - @api3/airnode-abi@0.6.7
+  - @api3/airnode-admin@0.6.7
+  - @api3/airnode-deployer@0.6.7
+  - @api3/airnode-node@0.6.7
+  - @api3/airnode-protocol@0.6.7
+
 ## 0.6.6
 
 ### Patch Changes

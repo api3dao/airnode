@@ -1,5 +1,14 @@
 # @api3/airnode-adapter
 
+## 0.6.7
+
+### Patch Changes
+
+- [`68559877`](https://github.com/api3dao/airnode/commit/685598776413e5bee3eda35ddef36051a8489c68) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`68559877`](https://github.com/api3dao/airnode/commit/685598776413e5bee3eda35ddef36051a8489c68)]:
+  - @api3/airnode-ois@0.6.7
+
 ## 0.6.6
 
 ### Patch Changes
