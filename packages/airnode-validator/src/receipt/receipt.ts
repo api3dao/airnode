@@ -53,18 +53,10 @@ export const deploymentSchema = z
   })
   .strict();
 
-export const apiSchema = z
-  .object({
-    // This field is optional depending on whether the respective Airnode feature has been enabled or not
-    heartbeatId: z.string().optional(),
-  })
-  .strict();
-
 export const receiptSchema = z
   .object({
     airnodeWallet: airnodeWalletSchema,
     deployment: deploymentSchema,
-    api: apiSchema,
     success: z.boolean(),
   })
   .strict()
@@ -81,5 +73,4 @@ export const receiptSchema = z
 
 export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
 export type Deployment = SchemaType<typeof deploymentSchema>;
-export type Api = SchemaType<typeof apiSchema>;
 export type Receipt = SchemaType<typeof receiptSchema>;
