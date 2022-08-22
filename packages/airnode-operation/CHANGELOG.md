@@ -1,5 +1,16 @@
 # @api3/airnode-operation
 
+## 0.7.4
+
+### Patch Changes
+
+- [`b6d0c9a8`](https://github.com/api3dao/airnode/commit/b6d0c9a865ab7d65db5e75de02d6010a3db43ddb) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
+
+- Updated dependencies [[`b6d0c9a8`](https://github.com/api3dao/airnode/commit/b6d0c9a865ab7d65db5e75de02d6010a3db43ddb)]:
+  - @api3/airnode-abi@0.7.4
+  - @api3/airnode-protocol@0.7.4
+  - @api3/airnode-utilities@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
