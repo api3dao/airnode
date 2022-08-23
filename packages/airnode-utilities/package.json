@@ -24,8 +24,8 @@
     "ethers": "^5.6.9"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.1.0",
-    "@types/jest": "^28.1.6",
+    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@types/jest": "^28.1.7",
     "@types/node": "^17.0.18",
     "hardhat": "2.9.9",
     "jest": "^28.1.3",
