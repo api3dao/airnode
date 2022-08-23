@@ -1,7 +1,4 @@
-// The maximum TOTAL time an API call has before it is timed out (including retries).
-export const API_CALL_TOTAL_TIMEOUT = 30_000;
-
-// The maximum time an API call has before it is timed out (and retried).
+// The maximum time a single API call has before it is timed out
 export const API_CALL_TIMEOUT = 30_000;
 
 // The number of past blocks to lookup when fetching Airnode RRP events.
