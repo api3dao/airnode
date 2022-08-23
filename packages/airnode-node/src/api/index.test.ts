@@ -4,6 +4,7 @@ import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
 import { callApi, verifyTemplateId } from '.';
+import { API_CALL_TIMEOUT } from '../constants';
 
 describe('callApi', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
@@ -49,7 +50,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -94,7 +95,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -132,7 +133,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -183,7 +184,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -202,7 +203,7 @@ describe('callApi', () => {
       expect.objectContaining({
         parameters: { from: 'ETH', amount: '1' },
       }),
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -343,7 +344,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'BTC', source: 'airnode', amount: '1' },
         }),
-        { timeout: 30_000 }
+        { timeout: API_CALL_TIMEOUT }
       );
     });
 
@@ -387,7 +388,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'ETH', amount: '1' },
         }),
-        { timeout: 30_000 }
+        { timeout: API_CALL_TIMEOUT }
       );
     });
   });
