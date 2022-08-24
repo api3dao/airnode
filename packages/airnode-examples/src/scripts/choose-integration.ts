@@ -3,7 +3,15 @@ import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { PromptObject } from 'prompts';
 import { goSync } from '@api3/promise-utils';
-import { cliPrint, IntegrationInfo, promptQuestions, runAndHandleErrors } from '../';
+import {
+  cliPrint,
+  getExistingAirnodeRrpV0,
+  IntegrationInfo,
+  promptQuestions,
+  runAndHandleErrors,
+  supportedNetworks,
+  writeAddressToDeploymentsFile,
+} from '../';
 
 const createCliOption = (name: string) => ({
   title: name,
@@ -42,7 +50,7 @@ const questions: PromptObject[] = [
     name: 'network',
     message: 'Select target blockchain network',
     choices: (prev) => {
-      const options = ['rinkeby', 'ropsten', 'polygon-mumbai', 'goerli', 'kovan'].map(createCliOption);
+      const options = supportedNetworks.map(createCliOption);
       // Only allow running on localhost if running Airnode locally
       if (prev === 'local') options.push(createCliOption('localhost'));
       return options;
@@ -122,8 +130,15 @@ const checkGitTag = () => {
 const main = async () => {
   goSync(checkGitTag);
   const integration = await chooseIntegration();
+
   writeFileSync(join(__dirname, '../../integration-info.json'), JSON.stringify(integration, null, 2));
   cliPrint.info(`A file 'integration-info.json' was created!`);
+
+  // save API3-deployed AirnodeRrpV0 contract address for networks other than localhost
+  if (integration.network !== 'localhost') {
+    const airnodeAddress = getExistingAirnodeRrpV0(integration.network);
+    writeAddressToDeploymentsFile('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol', airnodeAddress);
+  }
 };
 
 runAndHandleErrors(main);
