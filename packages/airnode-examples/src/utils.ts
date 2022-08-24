@@ -3,6 +3,7 @@ import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
+import { default as references } from '@api3/airnode-protocol/deployments/references.json';
 
 export interface IntegrationInfo {
   integration: string;
@@ -14,6 +15,8 @@ export interface IntegrationInfo {
   providerUrl: string;
   gcpProjectId?: string;
 }
+
+export const supportedNetworks = ['rinkeby', 'ropsten', 'polygon-testnet', 'goerli', 'kovan'];
 
 /**
  * @returns true if this platform is MacOS, Windows or WSL
@@ -92,3 +95,22 @@ export const promptQuestions = (questions: PromptObject[]) =>
 
 export const setMaxPromiseTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
   Promise.race([promise, new Promise<never>((_, reject) => setTimeout(() => reject('Timeout exceeded!'), timeoutMs))]);
+
+/**
+ * @param networkName The network name as listed in airnode-protocol/deployments
+ * @returns The AirnodeRrpV0 contract address for the named network
+ */
+export const getExistingAirnodeRrpV0 = (networkName: string) => {
+  const { chainNames, AirnodeRrpV0 } = references;
+
+  // get network ID (key) for a given network name (value)
+  const networkId = (Object.keys(chainNames) as (keyof typeof chainNames)[]).find((name) => {
+    return chainNames[name] === networkName;
+  });
+
+  if (networkId) {
+    return AirnodeRrpV0[networkId];
+  } else {
+    throw new Error(`Missing AirnodeRrpV0 address for network: ${networkName}`);
+  }
+};
