@@ -2,6 +2,9 @@ FROM node:14.19.3-alpine3.15 AS environment
 
 ENV buildDir="/build"
 
+# For macOS we need to add additional dependencies
+RUN apk add --update --no-cache git $([ $(arch) == "aarch64" ] && echo "python3 make g++");
+
 RUN apk add --update --no-cache git rsync docker && \
     yarn global add npm && \
     # Download both solidity compilers as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
