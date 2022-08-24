@@ -17,12 +17,15 @@ describe('reportHeartbeat', () => {
     AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
   });
 
+  const durationMs = 1000;
+  const requestResults = { '31337': { successCount: 0, errorCount: 0, withdrawalCount: 0 } };
+
   it('does nothing if the heartbeat is disabled', async () => {
     const nodeSettings = fixtures.buildNodeSettings({ heartbeat: { enabled: false } });
     const config = fixtures.buildConfig({ nodeSettings });
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
-    const res = await heartbeat.reportHeartbeat(state);
+    const res = await heartbeat.reportHeartbeat(state, durationMs);
     expect(res).toEqual([{ level: 'INFO', message: `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled` }]);
     expect(executeMock).not.toHaveBeenCalled();
   });
@@ -32,7 +35,7 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
-    const res = await heartbeat.reportHeartbeat(state);
+    const res = await heartbeat.reportHeartbeat(state, durationMs);
     expect(res).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
       { level: 'ERROR', message: 'Failed to send heartbeat', error: new Error('Server is down') },
@@ -48,6 +51,8 @@ describe('reportHeartbeat', () => {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
         http_gateway_url: 'http://localhost:3000/http-data',
         http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+        durationMs,
+        requestResults,
       },
       timeout: 5_000,
     });
@@ -58,7 +63,7 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
-    const logs = await heartbeat.reportHeartbeat(state);
+    const logs = await heartbeat.reportHeartbeat(state, durationMs);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
       { level: 'INFO', message: 'Heartbeat sent successfully' },
@@ -74,6 +79,8 @@ describe('reportHeartbeat', () => {
         deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
         http_gateway_url: 'http://localhost:3000/http-data',
         http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+        durationMs,
+        requestResults,
       },
       timeout: 5_000,
     });
@@ -141,7 +148,7 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region: 'us-east1' };
       const state = coordinatorState.create(config, 'coordinatorId');
 
-      const logs = await heartbeat.reportHeartbeat(state);
+      const logs = await heartbeat.reportHeartbeat(state, durationMs);
 
       expect(logs).toEqual([
         { level: 'INFO', message: 'Sending heartbeat...' },
@@ -158,6 +165,8 @@ describe('reportHeartbeat', () => {
           deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
           http_gateway_url: 'https://some.http.gateway.url/v1/',
           http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
+          durationMs,
+          requestResults,
         },
         timeout: 5_000,
       });
@@ -169,7 +178,7 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
 
-      const logs = await heartbeat.reportHeartbeat(state);
+      const logs = await heartbeat.reportHeartbeat(state, durationMs);
 
       expect(logs).toEqual([
         { level: 'INFO', message: 'Sending heartbeat...' },
@@ -186,6 +195,8 @@ describe('reportHeartbeat', () => {
           deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
           http_gateway_url: 'http://localhost:8765/http-data',
           http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
+          durationMs,
+          requestResults,
         },
         timeout: 5_000,
       });

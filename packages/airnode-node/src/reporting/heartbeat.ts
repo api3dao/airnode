@@ -20,8 +20,18 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 }
 
-export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
+export async function reportHeartbeat(state: CoordinatorState, durationMs: number): Promise<PendingLog[]> {
   const heartbeat = state.config.nodeSettings.heartbeat;
+
+  // console.log('HEARTBEAT REQUESTS', JSON.stringify(state.providerStates.evm.map((e) => e.requests)));
+
+  const requestResults = state.providerStates.evm.reduce((acc, providerState) => {
+    const successCount = providerState.requests.apiCalls.filter((request: any) => request.success!).length;
+    const errorCount = providerState.requests.apiCalls.filter((request: any) => !request.success!).length;
+    const withdrawalCount = providerState.requests.withdrawals.length;
+
+    return { ...acc, [providerState.settings.chainId]: { successCount, errorCount, withdrawalCount } };
+  }, {});
 
   if (!heartbeat.enabled) {
     const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled`);
@@ -42,6 +52,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
       deployment_id: id,
       ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
       ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
+      durationMs,
+      requestResults,
     },
     timeout: 5_000,
   };
