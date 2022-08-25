@@ -216,22 +216,6 @@ export const syncFsSync = () => {
   }
 };
 
-/**
- * Syncs the temporary filesystem asynchronously.
- * Lambda will "freeze" and "thaw" the execution context and with it any async promises in progress. We create and
- * forget this promise here, but it will resolve at some point, either in this invocation or a later one.
- */
-export const syncFsASync = () => {
-  try {
-    new Promise(() => {
-      spawn(`sync`, [`-f`, CACHE_BASE_PATH]);
-    });
-  } catch (e) {
-    logger.error(`Unable to sync cache fs`);
-    logger.error((e as Error).message);
-  }
-};
-
 export const caching = {
   init,
   wipe,
@@ -242,5 +226,4 @@ export const caching = {
   sweep,
   initPath,
   syncFsSync,
-  syncFsASync,
 };

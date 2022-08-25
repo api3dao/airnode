@@ -127,7 +127,7 @@ async function executeApiCalls(state: CoordinatorState) {
       caching.addKey(`requestId-${call.id}`, (call as RegularApiCallSuccessResponse).data);
     });
 
-  caching.syncFsASync();
+  caching.syncFsSync();
 
   const mergedProcessedAggregatedApiCalls = [...processedAggregatedApiCalls, ...filteredCachedAggregatedApiCalls];
 
