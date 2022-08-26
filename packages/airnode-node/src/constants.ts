@@ -38,3 +38,6 @@ export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
 
 // The maximum amount of time in milliseconds that pre and post processing is allowed to execute
 export const PROCESSING_TIMEOUT = 10_000;
+
+// The salt used to in heartbeat signing
+export const HEARTBEAT_SALT = 'Airnode heartbeat authentication';
