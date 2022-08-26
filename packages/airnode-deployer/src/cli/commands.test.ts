@@ -26,7 +26,6 @@ const gcpReceipt: receipt.Receipt = {
     airnodeXpub:
       'xpub6CZqcAR5RtRPYYGbJe7MzFGbJkJ86ub9KtYvTtenPQRgxFXNCmR7woXjV8SdFPWrTBooAqWVLKe19KWBnaktkwUsvSEfH18HyxeNZQRJq8k',
   },
-  api: {},
   deployment: {
     airnodeAddressShort: 'f347ade',
     cloudProvider: {

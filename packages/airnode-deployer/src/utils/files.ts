@@ -38,9 +38,6 @@ export function writeReceiptFile(
       nodeVersion: config.nodeSettings.nodeVersion,
       timestamp,
     },
-    api: {
-      ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
-    },
     success,
   };
 
