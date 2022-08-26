@@ -42,7 +42,7 @@ function buildRegularAggregatedCall(config: Config, request: Request<ApiCall>): 
     requestCount,
     templateId,
     template,
-    cacheResponses: trigger.cacheResponses === true,
+    cacheResponses: trigger.cacheResponses,
   };
 }
 

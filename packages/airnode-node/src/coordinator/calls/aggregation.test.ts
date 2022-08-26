@@ -21,6 +21,7 @@ describe('aggregate (API calls)', () => {
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',
+        cacheResponses: false,
         parameters: { from: 'ETH' },
         encodedParameters: 'encodedParameters',
         fulfillAddress: 'fulfillAddress',
@@ -36,7 +37,6 @@ describe('aggregate (API calls)', () => {
         requestCount: '12',
         requestType: 'template',
         templateId: null,
-        cacheResponses: false,
       },
     });
   });
@@ -59,6 +59,7 @@ describe('aggregate (API calls)', () => {
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',
+        cacheResponses: false,
         parameters: { from: 'ETH' },
         encodedParameters: 'encodedParameters',
         fulfillAddress: '0x123',
@@ -74,7 +75,6 @@ describe('aggregate (API calls)', () => {
         requestCount: '12',
         requestType: 'template',
         templateId: null,
-        cacheResponses: false,
       },
     });
   });

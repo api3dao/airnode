@@ -1,4 +1,3 @@
-
 {
   "chains": [
     {
@@ -6,8 +5,8 @@
       "authorizers": {
         "requesterEndpointAuthorizers": []
       },
-      "authorizations": { 
-        "requesterEndpointAuthorizations": {} 
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
       },
       "contracts": {
         "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
@@ -57,7 +56,8 @@
       {
         "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
         "oisTitle": "CoinGecko basic request",
-        "endpointName": "coinMarketData"
+        "endpointName": "coinMarketData",
+        "cacheResponses": false
       }
     ],
     "http": [],

@@ -75,6 +75,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointId: '0xea74a90bbc78b63658dcae04982d87de2710fe010b3bbb9ceb92cc8f724ea76b',
         oisTitle: 'Failure Example',
         endpointName: 'coinMarketData',
+        cacheResponses: false,
       },
     ],
     http: [],

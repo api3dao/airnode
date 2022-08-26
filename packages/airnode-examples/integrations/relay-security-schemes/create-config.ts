@@ -75,6 +75,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointId: '0x825a9b8e4e78772cd07cc4307de6737b67cf6d624fff2fa56f71318e479f624b',
         oisTitle: 'Relay Security Schemes via httpbin',
         endpointName: 'httpbinRelaySecuritySchemes',
+        cacheResponses: false,
       },
     ],
     http: [],

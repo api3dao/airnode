@@ -25,7 +25,7 @@ export const triggerSchema = z
 export const rrpTriggerSchema = triggerSchema
   .merge(
     z.object({
-      cacheResponses: z.boolean().optional(),
+      cacheResponses: z.boolean(),
     })
   )
   .strict();
