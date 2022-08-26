@@ -75,6 +75,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointId: '0x642598611f0dcbe389079bf555108513e3e8a15991887bb61126b7200f13c666',
         oisTitle: 'CoinGecko history data request',
         endpointName: 'coinHistoryData',
+        cacheResponses: false,
       },
     ],
     http: [],

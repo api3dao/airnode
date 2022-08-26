@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from 'fs';
+import { spawn } from 'child_process';
 import { join } from 'path';
 import { goSync } from '@api3/promise-utils';
 import { logger } from '../logging';
@@ -202,6 +203,19 @@ const init = () => {
   sweep();
 };
 
+/**
+ * Calls the OS syncs command to forcefully sync the cache filesystem.
+ * This is the functional equivalent of "commit" from SQL.
+ */
+export const syncFsSync = () => {
+  try {
+    spawn(`sync`, [`-f`, CACHE_BASE_PATH]);
+  } catch (e) {
+    logger.error(`Unable to sync cache fs`);
+    logger.error((e as Error).message);
+  }
+};
+
 export const caching = {
   init,
   wipe,
@@ -211,4 +225,5 @@ export const caching = {
   getKeys,
   sweep,
   initPath,
+  syncFsSync,
 };

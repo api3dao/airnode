@@ -16,6 +16,7 @@ export function buildAggregatedRegularApiCall(params?: Partial<RegularAggregated
     endpointName: 'convertToUSD',
     id: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
     oisTitle: 'Currency Converter API',
+    cacheResponses: false,
     parameters: { from: 'ETH' },
     templateId: null,
     requestType: 'full',

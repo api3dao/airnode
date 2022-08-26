@@ -75,6 +75,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointId: '0x433630cf60e103fec2be7c3c8349d4969c974bcc5c913fe466df06d7ba662f4c',
         oisTitle: 'OpenWeather Multiple Encoded Values',
         endpointName: 'histLatLonData',
+        cacheResponses: false,
       },
     ],
     http: [],

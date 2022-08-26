@@ -99,7 +99,7 @@ describe('verifyTriggers', () => {
   });
 
   it('does nothing if the API call is linked to a valid trigger and OIS endpoint', () => {
-    const rrpTrigger = fixtures.buildTrigger();
+    const rrpTrigger = fixtures.buildRrpTrigger();
     const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
     const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger]);
     expect(logs).toEqual([

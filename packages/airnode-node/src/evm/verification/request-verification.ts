@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
 import * as wallet from '../wallet';
 import { ApiCall, Request, LogsData, UpdatedRequests } from '../../types';
-import { Trigger } from '../../config';
+import { RrpTrigger } from '../../config';
 
 // TODO: Remove this once https://api3dao.atlassian.net/browse/AN-400 is done
 export function verifySponsorWallets<T>(
@@ -27,7 +27,10 @@ export function verifySponsorWallets<T>(
   return [logs, requests];
 }
 
-export function verifyRrpTriggers(apiCalls: Request<ApiCall>[], rrpTriggers: Trigger[]): LogsData<Request<ApiCall>[]> {
+export function verifyRrpTriggers(
+  apiCalls: Request<ApiCall>[],
+  rrpTriggers: RrpTrigger[]
+): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       const rrpTrigger = rrpTriggers.find((t) => t.endpointId === apiCall.endpointId);

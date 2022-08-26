@@ -15,9 +15,18 @@ import {
   VerificationResult,
   verifyRequestOrigin,
 } from '@api3/airnode-node';
-import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
+import {
+  logger,
+  DEFAULT_RETRY_DELAY_MS,
+  randomHexString,
+  setLogOptions,
+  addMetadata,
+  caching,
+} from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
+
+caching.init();
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
