@@ -5,4 +5,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Add optional response caching by endpoint
+Add per-endpoint rrp response caching via new (required) `cacheResponses` flag in triggers.rrp[n] of config.json.
