@@ -18,8 +18,8 @@ describe('executeRequest', () => {
     };
     const res = await execution.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'get',
       headers: { api_key: 'supersecret' },
@@ -38,8 +38,8 @@ describe('executeRequest', () => {
     };
     const res = await execution.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'get',
       headers: { api_key: 'supersecret' },
@@ -59,8 +59,8 @@ describe('executeRequest', () => {
     };
     const res = await execution.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'post',
       headers: { api_key: 'supersecret' },
@@ -79,8 +79,8 @@ describe('executeRequest', () => {
     };
     const res = await execution.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'post',
       headers: { api_key: 'supersecret' },
@@ -96,8 +96,8 @@ describe('buildAndExecuteRequest', () => {
     const options = fixtures.buildRequestOptions();
     const res = await execution.buildAndExecuteRequest(options);
     expect(res).toEqual({ value: '10000' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'get',
       headers: {},
@@ -115,8 +115,8 @@ describe('buildAndExecuteRequest', () => {
     const options = fixtures.buildRequestOptions();
     const res = await execution.buildAndExecuteRequest(options, { timeout: 3500 });
     expect(res).toEqual({ value: '7777' });
-    expect(axios).toBeCalledTimes(1);
-    expect(axios).toBeCalledWith({
+    expect(axios).toHaveBeenCalledTimes(1);
+    expect(axios).toHaveBeenCalledWith({
       url: 'http://localhost:5000/convert',
       method: 'get',
       headers: {},

@@ -42,29 +42,29 @@ describe('castValue', () => {
   ['uint256', 'int256'].forEach((type) => {
     describe(`casting ${type} values`, () => {
       it('throws an error for invalid numbers', () => {
-        expect(() => castValue(undefined, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue(null, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue(NaN, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue(Infinity, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue('', type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue('123.123.123', type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue('-true', type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue(undefined, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue(null, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue(NaN, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue(Infinity, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue('', type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue('123.123.123', type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue('-true', type)).toThrow(`Unable to cast value to ${type}`);
       });
 
       it('throws an error for unknown strings', () => {
-        expect(() => castValue('', type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue('unknown', type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue('', type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue('unknown', type)).toThrow(`Unable to cast value to ${type}`);
       });
 
       it('throws an error for complex values', () => {
         // Arrays
-        expect(() => castValue([], type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue(['unknown'], type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue([{ a: 1 }], type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue([], type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue(['unknown'], type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue([{ a: 1 }], type)).toThrow(`Unable to cast value to ${type}`);
 
         // Objects
-        expect(() => castValue({}, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue({ a: 1 }, type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue({}, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue({ a: 1 }, type)).toThrow(`Unable to cast value to ${type}`);
       });
 
       it('casts boolean-like values to either 1 or 0', () => {
@@ -97,15 +97,15 @@ describe('castValue', () => {
   ['string', 'string32'].forEach((type) => {
     describe(`casting ${type} values`, () => {
       it('throws an error for object values', () => {
-        expect(() => castValue({}, type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue({ a: 1 }, type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue({}, type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue({ a: 1 }, type)).toThrow(`Unable to cast value to ${type}`);
       });
 
       it('throws an error for array values', () => {
-        expect(() => castValue([], type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue([false], type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue(['unknown'], type)).toThrowError(`Unable to cast value to ${type}`);
-        expect(() => castValue([{ a: 1 }], type)).toThrowError(`Unable to cast value to ${type}`);
+        expect(() => castValue([], type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue([false], type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue(['unknown'], type)).toThrow(`Unable to cast value to ${type}`);
+        expect(() => castValue([{ a: 1 }], type)).toThrow(`Unable to cast value to ${type}`);
       });
     });
   });
@@ -204,10 +204,10 @@ describe('castValue', () => {
 
     it('throws an error if unable to cast the value', () => {
       const beforeCast = [0, '123', '777.789', false, true];
-      expect(() => castValue(beforeCast, 'uint256[][]')).toThrowError('Unable to cast value to uint256[][]');
-      expect(() => castValue(beforeCast, 'uint256[-7]')).toThrowError('Invalid type: uint256[-7]');
+      expect(() => castValue(beforeCast, 'uint256[][]')).toThrow('Unable to cast value to uint256[][]');
+      expect(() => castValue(beforeCast, 'uint256[-7]')).toThrow('Invalid type: uint256[-7]');
 
-      expect(() => castValue(nestedBeforeCast, 'uint256[]')).toThrowError(`Unable to cast value to uint256[]`);
+      expect(() => castValue(nestedBeforeCast, 'uint256[]')).toThrow(`Unable to cast value to uint256[]`);
     });
   });
 
