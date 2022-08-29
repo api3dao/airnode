@@ -3,8 +3,8 @@
 exports[`validator CLI shows help 1`] = `
 "Options:
       --version  Show version number                                                                           [boolean]
-  -c, --config   Path to \\"config.json\\" file to validate                                              [string] [required]
-  -s, --secrets  Path to \\"secrets.env\\" file to interpolate in the config                             [string] [required]
+  -c, --config   Path to "config.json" file to validate                                              [string] [required]
+  -s, --secrets  Path to "secrets.env" file to interpolate in the config                             [string] [required]
       --help     Show help                                                                                     [boolean]
 
 Examples:
