@@ -17,7 +17,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "ethers": "^5.6.9",
+    "ethers": "^5.7.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
