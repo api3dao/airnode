@@ -13,6 +13,20 @@ type MockProps = {
     | { readonly estimateGas: Partial<AirnodeRrpMocks> };
   readonly ethersMocks?: any; // it's OK to be with typing lenient here
 };
+type GasTargetMock = {
+  gasPriceSpy: jest.SpyInstance<Promise<BigNumber>>;
+  blockSpy: jest.SpyInstance<Promise<ethers.providers.Block>>;
+  blockWithTransactionsSpy: jest.SpyInstance<
+    Promise<ethers.providers.Block & { transactions: ethers.providers.TransactionResponse[] }>
+  >;
+  gasTarget: {
+    type: number;
+    gasPrice?: BigNumber;
+    gasLimit: BigNumber;
+    maxFeePerGas?: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
+  };
+};
 
 /**
  * Mocks ethers library and AirnodeRrpV0Factory (from @api3/airnode-protocol) to return contract
@@ -46,13 +60,16 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
 /**
  * Creates and mocks gas pricing-related resources based on txType.
  */
-export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559') => {
+export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559'): GasTargetMock => {
   const gasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
   const blockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+  // Ethers does not export BlockWithTransactions so using a custom type definiton to include the transactions array
   const blockWithTransactionsSpy = jest.spyOn(
     ethers.providers.StaticJsonRpcProvider.prototype,
     'getBlockWithTransactions'
-  );
+  ) as unknown as jest.SpyInstance<
+    Promise<ethers.providers.Block & { transactions: ethers.providers.TransactionResponse[] }>
+  >;
 
   const gasLimit = ethers.BigNumber.from(500_000);
   const gasPrice = ethers.BigNumber.from(1_000);
