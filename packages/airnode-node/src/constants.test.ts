@@ -6,7 +6,7 @@ describe('constants', () => {
 
     // Ensure all constant values are checked
     expect.assertions(constCount + 1);
-    expect(Object.keys(constants).length).toEqual(14);
+    expect(Object.keys(constants).length).toEqual(13);
 
     expect(constants.API_CALL_TIMEOUT).toEqual(30_000);
     expect(constants.API_CALL_TOTAL_TIMEOUT).toEqual(30_000);
@@ -21,6 +21,5 @@ describe('constants', () => {
     expect(constants.MAXIMUM_SPONSOR_WALLET_REQUESTS).toBe(5);
     expect(constants.MAXIMUM_ONCHAIN_ERROR_LENGTH).toEqual(100);
     expect(constants.PROCESSING_TIMEOUT).toEqual(10_000);
-    expect(constants.HEARTBEAT_SALT).toEqual('Airnode heartbeat authentication');
   });
 });
