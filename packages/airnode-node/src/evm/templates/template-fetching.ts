@@ -9,7 +9,7 @@ import { go } from '@api3/promise-utils';
 import { Template } from '../../config';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
-import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE, BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT } from '../../constants';
 
 export interface FetchOptions {
   readonly airnodeRrpAddress: string;
@@ -29,7 +29,7 @@ export async function fetchTemplate(
   const operation = () => airnodeRrp.templates(templateId);
   const goRawTemplate = await go(operation, {
     retries: 1,
-    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+    attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT,
   });
   if (!goRawTemplate.success) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, goRawTemplate.error);
@@ -54,7 +54,7 @@ async function fetchTemplateGroup(
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
   const goRawTemplates = await go(contractCall, {
     retries: 1,
-    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+    attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT,
   });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run

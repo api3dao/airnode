@@ -4,7 +4,7 @@ import flatMap from 'lodash/flatMap';
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as wallet from './wallet';
-import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
+import { BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT } from '../constants';
 import { LogsData } from '../types';
 
 export interface TransactionCountBySponsorAddress {
@@ -25,7 +25,7 @@ async function getWalletTransactionCount(
   const address = wallet.deriveSponsorWallet(options.masterHDNode, sponsorAddress).address;
   const operation = () =>
     options.provider.getTransactionCount(address, options.currentBlock - options.minConfirmations);
-  const goCount = await go(operation, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goCount = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goCount.success) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, goCount.error);
     return [[log], null];
