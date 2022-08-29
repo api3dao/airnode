@@ -767,9 +767,12 @@ Template data:
     });
 
     it('returns legacy overrides on legacy network with empty input', async () => {
-      jest
-        .spyOn(provider, 'getFeeData')
-        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      jest.spyOn(provider, 'getFeeData').mockResolvedValueOnce({
+        gasPrice: ethers.BigNumber.from(50),
+        maxFeePerGas: null,
+        maxPriorityFeePerGas: null,
+        lastBaseFeePerGas: null,
+      });
       const overrides = await admin.parseOverrides(provider);
 
       expect(overrides.gasPrice).toBeDefined();
@@ -808,9 +811,12 @@ Template data:
     });
 
     it('throws when providing EIP1559 overrides on legacy network', async () => {
-      jest
-        .spyOn(provider, 'getFeeData')
-        .mockResolvedValueOnce({ gasPrice: ethers.BigNumber.from(50), maxFeePerGas: null, maxPriorityFeePerGas: null });
+      jest.spyOn(provider, 'getFeeData').mockResolvedValueOnce({
+        gasPrice: ethers.BigNumber.from(50),
+        maxFeePerGas: null,
+        maxPriorityFeePerGas: null,
+        lastBaseFeePerGas: null,
+      });
       await expect(
         admin.parseOverrides(provider, {
           gasLimit: ethers.BigNumber.from('200000'),
