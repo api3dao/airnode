@@ -20,6 +20,6 @@ describe('parsePathWithParameters', () => {
     const parameters = { id: '123' };
     expect(() => {
       parser.parsePathWithParameters(rawPath, parameters);
-    }).toThrowError(new Error("The following path parameters were expected but not provided: 'action', 'value'"));
+    }).toThrow(new Error("The following path parameters were expected but not provided: 'action', 'value'"));
   });
 });

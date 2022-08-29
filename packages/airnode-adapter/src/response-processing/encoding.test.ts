@@ -5,7 +5,7 @@ import { encodeValue, getSolidityType } from './encoding';
   describe(`Encodes ${type} values`, () => {
     if (type === 'uint256') {
       it(`throws when encoding negative number`, () => {
-        expect(() => encodeValue('-777', type)).toThrowError();
+        expect(() => encodeValue('-777', type)).toThrow();
       });
 
       it('handles uint256 max number', () => {
@@ -21,7 +21,7 @@ import { encodeValue, getSolidityType } from './encoding';
       it('throws on uint256 max number', () => {
         expect(() =>
           encodeValue('115792089237316195423570985008687907853269984665640564039457584007913129639935', type)
-        ).toThrowError('out-of-bounds');
+        ).toThrow('out-of-bounds');
       });
     }
 
@@ -35,7 +35,7 @@ import { encodeValue, getSolidityType } from './encoding';
     it('throws on floating point numbers', () => {
       expect(() => {
         encodeValue('12.3', type);
-      }).toThrowError();
+      }).toThrow();
     });
   });
 });

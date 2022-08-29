@@ -88,19 +88,19 @@ describe('decode', () => {
   });
 
   it('throws an error for AddressZero', () => {
-    expect(() => decoding.decode(ethers.constants.AddressZero)).toThrowError();
+    expect(() => decoding.decode(ethers.constants.AddressZero)).toThrow();
   });
 
   it('throws an error for HashZero', () => {
-    expect(() => decoding.decode(ethers.constants.HashZero)).toThrowError();
+    expect(() => decoding.decode(ethers.constants.HashZero)).toThrow();
   });
 
   it('throws an error for empty strings', () => {
-    expect(() => decoding.decode('')).toThrowError();
+    expect(() => decoding.decode('')).toThrow();
   });
 
   it('throws an error when invalid data is provided', () => {
-    expect(() => decoding.decode('0x123456')).toThrowError();
+    expect(() => decoding.decode('0x123456')).toThrow();
   });
 
   it('shows the need to check for trailing bytes', () => {
@@ -122,6 +122,6 @@ describe('decode', () => {
   it('throws an error when data has trailing bytes', () => {
     const data =
       '0x316900000000000000000000000000000000000000000000000000000000000054657374496e744e616d65000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc1800';
-    expect(() => decoding.decode(data)).toThrowError('Re-encoding mismatch');
+    expect(() => decoding.decode(data)).toThrow('Re-encoding mismatch');
   });
 });
