@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
-import { callApi, verifyTemplateId } from '.';
 import { API_CALL_TIMEOUT } from '../constants';
+import { callApi, verifyTemplateId } from '.';
 
 describe('callApi', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
