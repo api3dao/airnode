@@ -96,7 +96,7 @@
     "eslint": "^8.22.0",
     "eslint-plugin-functional": "^4.2.2",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^26.8.7",
+    "eslint-plugin-jest": "^27.0.1",
     "fast-glob": "^3.2.11",
     "husky": "^8.0.1",
     "lerna": "^5.4.3",
