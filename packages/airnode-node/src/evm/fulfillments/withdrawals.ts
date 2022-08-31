@@ -4,7 +4,7 @@ import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { applyTransactionResult } from './requests';
 import * as wallet from '../wallet';
-import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
+import { BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT } from '../../constants';
 import { Withdrawal, SubmitRequest } from '../../types';
 
 export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, request, options) => {
@@ -20,7 +20,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
 
   const goCurrentBalance = await go(() => options.provider!.getBalance(sponsorWalletAddress), {
     retries: 1,
-    attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+    attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT,
   });
   if (!goCurrentBalance.success) {
     const errLog = logger.pend(
@@ -43,7 +43,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
     );
 
   // The node calculates how much gas the next transaction will cost (53,654)
-  const goEstimatedGasLimit = await go(estimateTx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goEstimatedGasLimit = await go(estimateTx, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goEstimatedGasLimit.success) {
     const estimateErrorLog = logger.pend(
       'ERROR',
@@ -93,7 +93,7 @@ export const submitWithdrawal: SubmitRequest<Withdrawal> = async (airnodeRrp, re
       value: fundsToSend,
     });
   // Note that we're using the sponsor address to call this
-  const goWithdrawalRes = await go(withdrawalTx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goWithdrawalRes = await go(withdrawalTx, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goWithdrawalRes.success) {
     const withdrawalErrLog = logger.pend(
       'ERROR',

@@ -6,7 +6,7 @@ import { go, goSync } from '@api3/promise-utils';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
-import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
+import { API_CALL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
@@ -186,12 +186,10 @@ async function performApiCall(
   payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
-  // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
-  // maximum timeout is reached.
-  const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
-  // If the request times out, we attempt to call the API again. Any other errors will not result in retries
-  const goRes = await go(() => adapter.buildAndExecuteRequest(options, adapterConfig), {
-    totalTimeoutMs: API_CALL_TOTAL_TIMEOUT,
+  const timeout = API_CALL_TIMEOUT;
+  // We also pass the timeout to adapter to gracefully abort the request after the timeout
+  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout }), {
+    totalTimeoutMs: timeout,
   });
   if (!goRes.success) {
     const { aggregatedApiCall } = payload;
