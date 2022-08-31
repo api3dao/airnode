@@ -5,8 +5,8 @@ import { GasTarget, LegacyGasTarget, Eip1559GasTarget, Provider } from './types'
 import {
   GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
   GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
-  RANDOM_BACKOFF_MIN_MS,
-  RANDOM_BACKOFF_MAX_MS,
+  GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
+  GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
 } from '../../constants';
 import { logger, PendingLog, LogsData } from '../../logging';
 
@@ -74,7 +74,11 @@ export const fetchProviderRecommendedGasPrice = async (
     attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
     totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
     retries: 1,
-    delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+    delay: {
+      type: 'random',
+      minDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
+      maxDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
+    },
     onAttemptError: (goError) => logger.warn(`Failed attempt to get gas price. Error: ${goError.error}.`),
   });
 
@@ -101,7 +105,11 @@ export const fetchProviderRecommendedEip1559GasPrice = async (
     attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
     totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
     retries: 1,
-    delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+    delay: {
+      type: 'random',
+      minDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
+      maxDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
+    },
     onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
   });
   if (!goBlockHeader.success || !goBlockHeader.data?.baseFeePerGas) {
@@ -138,7 +146,11 @@ export const fetchLatestBlockPercentileGasPrice = async (
       attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
       totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
       retries: 1,
-      delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+      delay: {
+        type: 'random',
+        minDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
+        maxDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
+      },
       onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
     })
   );

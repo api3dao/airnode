@@ -6,8 +6,8 @@ import * as gasOracle from './gas-oracle';
 import {
   GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
   GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS,
-  RANDOM_BACKOFF_MAX_MS,
-  RANDOM_BACKOFF_MIN_MS,
+  GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
+  GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
 } from '../../constants';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
@@ -550,7 +550,8 @@ describe('Gas oracle', () => {
       const getBlock = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
-      const delayMs = 0.4 * (RANDOM_BACKOFF_MAX_MS - RANDOM_BACKOFF_MIN_MS) + RANDOM_BACKOFF_MIN_MS;
+      const delayMs =
+        0.4 * (GAS_ORACLE_RANDOM_BACKOFF_MAX_MS - GAS_ORACLE_RANDOM_BACKOFF_MIN_MS) + GAS_ORACLE_RANDOM_BACKOFF_MIN_MS;
 
       // totalTimeoutMs is 10 seconds and each strategy has 2 attempts with a ~1 second retry delay.
       // We need to attempt at least 3 strategies before exceeding the totalTimeoutMs
