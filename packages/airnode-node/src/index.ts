@@ -1,4 +1,5 @@
 export * as adapters from './adapters';
+export * as api from './api';
 export * as config from './config';
 export * as evm from './evm';
 export * as handlers from './handlers';
