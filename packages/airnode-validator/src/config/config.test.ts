@@ -402,7 +402,6 @@ describe('apiKey schemas', () => {
   const heartbeat: SchemaType<typeof enabledHeartbeatSchema> = {
     enabled: true,
     apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
-    id: 'some-id',
     url: 'https://www.uuidgenerator.net/version4',
   };
 
