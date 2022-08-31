@@ -28,7 +28,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     return [log];
   }
 
-  const { apiKey, url, id } = heartbeat;
+  const { apiKey, url } = heartbeat;
   const httpGatewayUrl = getHttpGatewayUrl(state.config);
   const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(state.config);
 
@@ -39,7 +39,6 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
       'airnode-heartbeat-api-key': apiKey,
     },
     data: {
-      deployment_id: id,
       ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
       ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
     },

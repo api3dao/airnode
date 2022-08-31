@@ -202,7 +202,6 @@ export const enabledHeartbeatSchema = z
   .object({
     enabled: z.literal(true),
     apiKey: apiKeySchema,
-    id: z.string(),
     url: z.string(),
   })
   .strict();

@@ -45,7 +45,6 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
         http_gateway_url: 'http://localhost:3000/http-data',
         http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       },
@@ -71,7 +70,6 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
         http_gateway_url: 'http://localhost:3000/http-data',
         http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       },
@@ -155,7 +153,6 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
           http_gateway_url: 'https://some.http.gateway.url/v1/',
           http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
         },
@@ -183,7 +180,6 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
           http_gateway_url: 'http://localhost:8765/http-data',
           http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
         },
