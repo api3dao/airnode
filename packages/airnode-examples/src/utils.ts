@@ -3,7 +3,7 @@ import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
-import { default as references } from '@api3/airnode-protocol/deployments/references.json';
+import references from '@api3/airnode-protocol/deployments/references.json';
 
 export interface IntegrationInfo {
   integration: string;

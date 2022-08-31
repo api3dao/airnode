@@ -123,7 +123,7 @@ The [RRP contract](https://docs.api3.org/airnode/latest/concepts/#airnoderrp-sol
 [requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
 is common for all Airnodes and requesters on a chain.
 
-If you are using the local blockchain, deploy the contact using the command below. Otherwise, the contract deployed by
+If you are using a local blockchain, deploy the contact using the command below. Otherwise, the contract deployed by
 API3 on the chosen chain will be used automatically.
 
 ```sh
