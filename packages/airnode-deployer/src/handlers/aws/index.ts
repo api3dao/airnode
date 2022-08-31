@@ -55,9 +55,7 @@ async function initializeProvider(payload: InitializeProviderPayload) {
   addMetadata({ 'Chain-ID': chainId, Provider: providerName });
   const stateWithConfig = { ...state, config: parsedConfig };
 
-  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig), {
-    delay: { type: 'static', delayMs: 50 },
-  });
+  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig));
   if (!goInitializedState.success) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     logger.error(goInitializedState.error.toString());
@@ -94,9 +92,7 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
   const stateWithConfig = { ...state, config: parsedConfig };
   addMetadata({ 'Chain-ID': chainId, Provider: providerName, 'Sponsor-Address': state.sponsorAddress });
 
-  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig), {
-    delay: { type: 'static', delayMs: 50 },
-  });
+  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig));
   if (!goUpdatedState.success) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     logger.error(goUpdatedState.error.toString());
