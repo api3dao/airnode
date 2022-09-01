@@ -20,7 +20,7 @@ import {
   HttpSignedApiCallPayload,
 } from '../types';
 
-function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
+export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
   const { type, config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
@@ -76,7 +76,7 @@ function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
   }
 }
 
-async function signWithRequestId(requestId: string, data: string) {
+export async function signWithRequestId(requestId: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
@@ -86,7 +86,7 @@ async function signWithRequestId(requestId: string, data: string) {
   );
 }
 
-async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
+export async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return await airnodeWallet.signMessage(
@@ -98,7 +98,7 @@ async function signWithTemplateId(templateId: string, timestamp: string, data: s
   );
 }
 
-function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
+export function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { config, aggregatedApiCall } = payload;
 
   const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
@@ -114,7 +114,7 @@ function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallEr
   return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
+export function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
 
   if (isValidRequestId(aggregatedApiCall)) return null;
@@ -150,7 +150,7 @@ export function verifyTemplateId(
   return [[log], { success: false, errorMessage: message }];
 }
 
-function verifyCallApi(payload: ApiCallPayload) {
+export function verifyCallApi(payload: ApiCallPayload) {
   switch (payload.type) {
     case 'regular':
       return verifyRegularCallApiParams(payload);
@@ -161,7 +161,7 @@ function verifyCallApi(payload: ApiCallPayload) {
   }
 }
 
-function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
+export function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   const verifications = [verifySponsorWallet, verifyRequestId, verifyTemplateId];
 
   return verifications.reduce((result, verifierFn) => {
@@ -170,19 +170,21 @@ function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   }, null as LogsData<ApiCallErrorResponse> | null);
 }
 
-function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
+export function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
   return verifyTemplateId(payload) as LogsData<ApiCallErrorResponse> | null;
 }
 
-interface PerformApiCallSuccess {
+export interface PerformApiCallSuccess {
   data: unknown;
 }
 
-function isPerformApiCallFailure(value: ApiCallErrorResponse | PerformApiCallSuccess): value is ApiCallErrorResponse {
+export function isPerformApiCallFailure(
+  value: ApiCallErrorResponse | PerformApiCallSuccess
+): value is ApiCallErrorResponse {
   return !!(value as ApiCallErrorResponse).errorMessage;
 }
 
-async function performApiCall(
+export async function performApiCall(
   payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
@@ -202,7 +204,7 @@ async function performApiCall(
   return [[], { ...goRes.data }];
 }
 
-async function processSuccessfulApiCall(
+export async function processSuccessfulApiCall(
   payload: ApiCallPayload,
   rawResponse: PerformApiCallSuccess
 ): Promise<LogsData<ApiCallResponse>> {
