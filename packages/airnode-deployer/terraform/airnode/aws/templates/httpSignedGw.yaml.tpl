@@ -49,15 +49,8 @@ components:
         example:
           $ref: "#/components/examples/EndpointIdParameterExample"
 
-  securitySchemes:
-    apiKey:
-      description: Airnode API Gateway API key
-      type: apiKey
-      name: x-api-key
-      in: header
-
 paths:
-  /{endpointId}:
+  ${path_key}//{endpointId}:
     post:
       parameters:
         - $ref: "#/components/parameters/endpointId"
@@ -86,8 +79,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndpointResponse"
-      security:
-        - apiKey: []
       x-amazon-apigateway-integration:
         type: aws_proxy
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${proxy_lambda}/invocations

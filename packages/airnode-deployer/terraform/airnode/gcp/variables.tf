@@ -54,8 +54,8 @@ variable "disable_concurrency_reservation" {
   default     = false
 }
 
-variable "http_api_key" {
-  description = "API key to access Airnode HTTP Gateway"
+variable "http_path_key" {
+  description = "Path key to access Airnode HTTP Gateway"
   type        = string
   default     = null
 }
@@ -65,8 +65,8 @@ variable "http_max_concurrency" {
   default     = 0
 }
 
-variable "http_signed_data_api_key" {
-  description = "API key to access Airnode Signed Data Gateway"
+variable "http_signed_data_path_key" {
+  description = "Path key to access Airnode Signed Data Gateway"
   type        = string
   default     = null
 }

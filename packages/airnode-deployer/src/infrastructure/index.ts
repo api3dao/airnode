@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
+import { randomUUID } from 'crypto';
 import { Ora } from 'ora';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Gateway } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
@@ -186,14 +187,14 @@ async function terraformAirnodeManage(
   }
 
   if (httpGateway?.enabled) {
-    commonArguments.push(['var', 'http_api_key', httpGateway.apiKey!]);
+    commonArguments.push(['var', 'http_path_key', randomUUID()]);
     if (httpGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_max_concurrency', `${httpGateway.maxConcurrency}`]);
     }
   }
 
   if (httpSignedDataGateway?.enabled) {
-    commonArguments.push(['var', 'http_signed_data_api_key', httpSignedDataGateway.apiKey!]);
+    commonArguments.push(['var', 'http_signed_data_path_key', randomUUID()]);
     if (httpSignedDataGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
     }

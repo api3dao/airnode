@@ -59,8 +59,8 @@ module "startCoordinator" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "https://${module.httpGw[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "https://${module.httpSignedGw[0].api_url}"
+    HTTP_GATEWAY_URL             = var.http_path_key == null ? null : "https://${module.httpGw[0].api_url}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_path_key == null ? null : "https://${module.httpSignedGw[0].api_url}"
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -75,7 +75,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_path_key == null && var.http_signed_data_path_key == null ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -88,7 +88,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_path_key == null && var.http_signed_data_path_key == null ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
@@ -102,7 +102,7 @@ resource "google_project_service" "servicecontrol_api" {
 
 module "httpReq" {
   source = "./modules/function"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_path_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-httpReq"
   entry_point        = "httpReq"
@@ -114,10 +114,6 @@ module "httpReq" {
   region             = var.gcp_region
   project            = var.gcp_project
 
-  environment_variables = {
-    HTTP_GATEWAY_API_KEY = var.http_api_key
-  }
-
   max_instances = var.disable_concurrency_reservation ? null : var.http_max_concurrency
 
   depends_on = [
@@ -127,7 +123,7 @@ module "httpReq" {
 
 module "httpGw" {
   source = "./modules/apigateway"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_path_key == null ? 0 : 1
 
   name          = "${local.name_prefix}-httpGw"
   template_file = "./templates/httpGw.yaml.tpl"
@@ -135,6 +131,7 @@ module "httpGw" {
     project             = var.gcp_project
     region              = var.gcp_region
     cloud_function_name = module.httpReq[0].function_name
+    path_key            = var.http_path_key
   }
   project = var.gcp_project
 
@@ -151,7 +148,7 @@ module "httpGw" {
 
 module "httpSignedReq" {
   source = "./modules/function"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_path_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-httpSignedReq"
   entry_point        = "httpSignedReq"
@@ -164,8 +161,7 @@ module "httpSignedReq" {
   project            = var.gcp_project
 
   environment_variables = {
-    HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
-    AIRNODE_WALLET_PRIVATE_KEY       = var.airnode_wallet_private_key
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
   max_instances = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency
@@ -177,7 +173,7 @@ module "httpSignedReq" {
 
 module "httpSignedGw" {
   source = "./modules/apigateway"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_path_key == null ? 0 : 1
 
   name          = "${local.name_prefix}-httpSignedGw"
   template_file = "./templates/httpSignedGw.yaml.tpl"
@@ -185,6 +181,7 @@ module "httpSignedGw" {
     project             = var.gcp_project
     region              = var.gcp_region
     cloud_function_name = module.httpSignedReq[0].function_name
+    path_key            = var.http_signed_data_path_key
   }
   project = var.gcp_project
 
