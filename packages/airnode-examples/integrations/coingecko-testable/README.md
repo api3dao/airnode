@@ -15,21 +15,20 @@ more information.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <HTTP_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' '<HTTP_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' '<HTTP_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 ### When deployed on cloud
 
 Before making the request, you need to replace the example values:
 
-- `<HTTP_GATEWAY_API_KEY>` - You can find this value in `secrets.env`
 - `<HTTP_GATEWAY_URL>` - You can find this value as part of the terminal output of the `yarn deploy-airnode` command
 - `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.rrp[0].endpointId` path
 
 The correct command may look like this:
 
 ```sh
-curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'https://x9sidy9ln0.execute-api.us-east-1.amazonaws.com/v1/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'https://x9sidy9ln0.execute-api.us-east-1.amazonaws.com/v1/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
 
 ### When running Airnode locally
@@ -39,5 +38,5 @@ When Airnode is run locally, the HTTP gateway endpoint is always `http://localho
 For example:
 
 ```sh
-curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'http://localhost:3000/http-data/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'http://localhost:3000/http-data/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```

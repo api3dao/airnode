@@ -3,7 +3,6 @@ import { Request, Response } from '@google-cloud/functions-framework/build/src/f
 import {
   handlers,
   providers,
-  config,
   InitializeProviderPayload,
   CallApiPayload,
   ProcessTransactionsPayload,
@@ -12,7 +11,6 @@ import {
   EnabledGateway,
   verifyHttpSignedDataRequest,
   verifyHttpRequest,
-  VerificationResult,
   verifyRequestOrigin,
 } from '@api3/airnode-node';
 import { logger, randomHexString, setLogOptions, addMetadata, caching } from '@api3/airnode-utilities';
@@ -111,20 +109,6 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
   res.status(200).send(body);
 }
 
-// We need to check for an API key manually because GCP HTTP Gateway doesn't support managing API keys via API
-function verifyGcpApiKey(
-  req: Request,
-  apiKeyName: 'HTTP_GATEWAY_API_KEY' | 'HTTP_SIGNED_DATA_GATEWAY_API_KEY'
-): VerificationResult<{}> {
-  const apiKey = req.header('x-api-key');
-  if (!apiKey || apiKey !== config.getEnvValue(apiKeyName)) {
-    // Mimics the behavior of AWS HTTP Gateway
-    return { success: false, statusCode: 403, error: { message: 'Forbidden' } };
-  }
-
-  return { success: true };
-}
-
 // We do not want to enable ".strict()" - we want to allow extra fields in the request body
 const httpRequestBodySchema = z.object({
   parameters: z.any(), // Parameter validation is performed later
@@ -153,13 +137,6 @@ export async function processHttpRequest(req: Request, res: Response) {
   }
   // Set headers for the responses
   res.set(originVerification.headers);
-
-  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
-  if (!apiKeyVerification.success) {
-    const { statusCode, error } = apiKeyVerification;
-    res.status(statusCode).send(error);
-    return;
-  }
 
   const parsedBody = httpRequestBodySchema.safeParse(req.body);
   if (!parsedBody.success) {
@@ -223,13 +200,6 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
   }
   // Set headers for the responses
   res.set(originVerification.headers);
-
-  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
-  if (!apiKeyVerification.success) {
-    const { statusCode, error } = apiKeyVerification;
-    res.status(statusCode).send(error);
-    return;
-  }
 
   const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
   if (!parsedBody.success) {
