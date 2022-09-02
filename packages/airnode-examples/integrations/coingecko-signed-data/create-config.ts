@@ -63,7 +63,6 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     },
     httpSignedDataGateway: {
       enabled: true,
-      apiKey: '${HTTP_SIGNED_DATA_GATEWAY_API_KEY}',
       maxConcurrency: 20,
       corsOrigins: [],
     },

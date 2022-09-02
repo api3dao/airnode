@@ -184,7 +184,6 @@ export const corsOriginsSchema = z.array(z.string());
 export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
-    apiKey: apiKeySchema,
     maxConcurrency: z.number().int(),
     corsOrigins: corsOriginsSchema,
   })
@@ -272,22 +271,7 @@ export const nodeSettingsSchema = z
       });
     }),
   })
-  .strict()
-  .superRefine((settings, ctx) => {
-    const { cloudProvider, httpGateway, httpSignedDataGateway } = settings;
-    if (
-      cloudProvider.type === 'aws' &&
-      httpGateway.enabled &&
-      httpSignedDataGateway.enabled &&
-      httpGateway.apiKey === httpSignedDataGateway.apiKey
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Using the same gateway keys is not allowed on AWS`,
-        path: [],
-      });
-    }
-  });
+  .strict();
 
 export const baseApiCredentialsSchema = z
   .object({

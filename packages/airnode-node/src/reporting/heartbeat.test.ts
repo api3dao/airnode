@@ -122,13 +122,11 @@ describe('reportHeartbeat', () => {
       httpSignedDataGateway: {
         corsOrigins: [],
         enabled: true,
-        apiKey: 'e537bd93-9b4e-4fb3-b2c5-e2f3c66c1ace',
         maxConcurrency: 20,
       },
       httpGateway: {
         corsOrigins: [],
         enabled: true,
-        apiKey: '9cf5a3b1-250d-4116-9a6e-5c37e525ecb3',
         maxConcurrency: 20,
       },
     };

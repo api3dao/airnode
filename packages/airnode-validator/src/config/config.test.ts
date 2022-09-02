@@ -10,10 +10,8 @@ import {
   amountSchema,
   Amount,
   enabledHeartbeatSchema,
-  gatewaySchema,
   heartbeatSchema,
   gasPriceOracleSchema,
-  EnabledGateway,
   localOrCloudProviderSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
@@ -196,39 +194,6 @@ describe('nodeSettingsSchema', () => {
     );
   });
 
-  it('does not allow same gateway keys on AWS', () => {
-    const invalidNodeSettings = {
-      ...nodeSettings,
-      cloudProvider: {
-        type: 'aws',
-        region: 'region',
-        disableConcurrencyReservations: false,
-      },
-      httpGateway: {
-        enabled: true,
-        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
-        maxConcurrency: 10,
-        corsOrigins: [],
-      },
-      httpSignedDataGateway: {
-        enabled: true,
-        apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
-        maxConcurrency: 10,
-        corsOrigins: [],
-      },
-    };
-
-    expect(() => nodeSettingsSchema.parse(invalidNodeSettings)).toThrow(
-      new ZodError([
-        {
-          code: 'custom',
-          message: `Using the same gateway keys is not allowed on AWS`,
-          path: [],
-        },
-      ])
-    );
-  });
-
   it('is ok if both gateways are disabled on AWS', () => {
     const validNodeSettings = {
       ...nodeSettings,
@@ -376,19 +341,13 @@ describe('triggers references', () => {
 });
 
 describe('apiKey schemas', () => {
-  const gateway: EnabledGateway = {
-    enabled: true,
-    apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
-    maxConcurrency: 100,
-    corsOrigins: [],
-  };
   const heartbeat: SchemaType<typeof enabledHeartbeatSchema> = {
     enabled: true,
     apiKey: 'e83856ed-36cd-4b5f-a559-c8291e96e17e',
     url: 'https://www.uuidgenerator.net/version4',
   };
 
-  zip([gateway, heartbeat], [gatewaySchema, heartbeatSchema]).forEach(([_value, _schema]) => {
+  zip([heartbeat], [heartbeatSchema]).forEach(([_value, _schema]) => {
     const value = _value!;
     const schema = _schema!;
 
