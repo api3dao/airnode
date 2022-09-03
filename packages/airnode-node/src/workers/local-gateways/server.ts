@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { logger } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
@@ -39,7 +40,8 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/:endpointId`;
+    const pathKey = randomUUID();
+    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/${pathKey}/:endpointId`;
     const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http signed data`);
 
@@ -100,7 +102,8 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    const httpGatewayPath = `/${HTTP_BASE_PATH}/:endpointId`;
+    const pathKey = randomUUID();
+    const httpGatewayPath = `${HTTP_BASE_PATH}/${pathKey}/:endpointId`;
     const httpRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http data`);
 
