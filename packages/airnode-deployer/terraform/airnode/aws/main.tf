@@ -72,7 +72,6 @@ module "httpGw" {
   lambdas = [
     module.httpReq[0].lambda_arn
   ]
-  path_key = var.http_path_key
 }
 
 module "httpSignedReq" {
@@ -108,5 +107,4 @@ module "httpSignedGw" {
   lambdas = [
     module.httpSignedReq[0].lambda_arn
   ]
-  path_key = var.http_signed_data_path_key
 }

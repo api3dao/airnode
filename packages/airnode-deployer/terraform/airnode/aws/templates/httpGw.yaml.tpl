@@ -53,7 +53,7 @@ components:
           $ref: "#/components/examples/EndpointIdParameterExample"
 
 paths:
-  ${path_key}/{endpointId}:
+  /${path_key}/{endpointId}:
     post:
       parameters:
         - $ref: "#/components/parameters/endpointId"

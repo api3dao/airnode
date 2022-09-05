@@ -49,12 +49,14 @@ curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x31
 ### When running Airnode locally
 
 When Airnode is run locally, the HTTP signed data gateway endpoint is always
-`http://localhost:<PORT>/http-signed-data/<ENDPOINT_ID>`. For now, `PORT` number is hardcoded to 3000.
+`http://localhost:<PORT>/http-signed-data/<PATH_KEY>/<ENDPOINT_ID>`. For now, `PORT` number is hardcoded to 3000. The
+`PATH_KEY` is a random UUID generated when the server is started and can be found in the logs after the container is
+run.
 
 For example:
 
 ```sh
-curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/664f6a73-ff1d-411b-aec7-f054fb2e3d9d/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
 
 ## Output

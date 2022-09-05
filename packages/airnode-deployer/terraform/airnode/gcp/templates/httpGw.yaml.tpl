@@ -30,7 +30,7 @@ parameters:
     required: true
 
 paths:
-  ${path_key}/{endpointId}:
+  /${path_key}/{endpointId}:
     post:
       operationId: testEndpoint
       consumes:
