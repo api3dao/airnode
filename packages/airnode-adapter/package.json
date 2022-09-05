@@ -27,13 +27,12 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.3",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
-    "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@types/lodash": "^4.14.184",
     "@types/mocha": "^9.1.1",
     "chai": "^4.3.6",
-    "ethereum-waffle": "^3.4.4",
-    "hardhat": "2.9.9",
+    "hardhat": "^2.11.0",
     "jest": "^29.0.2",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",

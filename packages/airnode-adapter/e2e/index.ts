@@ -24,7 +24,7 @@ it('shows the need for assertArrayEquals', () => {
 
   const goBigNumber = goSync(() => expect(ethers.BigNumber.from([123])).to.equal(['123']));
   assertGoError(goBigNumber);
-  expect(goBigNumber.error.message).to.contain('invalid BigNumber value');
+  expect(goBigNumber.error.message).to.contain('The input value cannot be normalized to a BigInt');
 
   assertArrayEquals([[ethers.BigNumber.from(123)], [ethers.BigNumber.from(456)]], [['123'], [456]]);
 });

@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["@nomiclabs/hardhat-waffle", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"],
+    "types": ["@nomicfoundation/hardhat-chai-matchers", "@nomiclabs/hardhat-ethers", "chai", "mocha", "hardhat"],
     "rootDir": "..",
     // The output files of this TS config are for development only. See the referenced TS configs
     // which build the sources into the "dist" folder in the root of the validator project.
