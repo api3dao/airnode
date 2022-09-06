@@ -41,7 +41,6 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = {
-      airnode_address: state.settings.airnodeAddress,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
@@ -75,7 +74,6 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = {
-      airnode_address: state.settings.airnodeAddress,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
@@ -164,7 +162,6 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = {
-        airnode_address: state.settings.airnodeAddress,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         region,
@@ -200,7 +197,6 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = {
-        airnode_address: state.settings.airnodeAddress,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         http_gateway_url: 'http://localhost:8765/http-data',
@@ -233,7 +229,6 @@ describe('reportHeartbeat', () => {
   describe('signHearbeat', () => {
     const airnodeAddress = fixtures.getAirnodeWallet().address;
     const heartbeatPayload = {
-      airnode_address: airnodeAddress,
       stage: 'test',
       cloud_provider: 'local',
       http_gateway_url: httpGatewayUrl,
@@ -250,7 +245,7 @@ describe('reportHeartbeat', () => {
       );
 
       expect(signature).toEqual(
-        '0x076fc568e8c915b5686a6d9dc22ceab4eab3c88f57cf36f8494586c484f730db396f59c7eeb92c1cf00cc7af479b553130896dbfb4446ba7ca902221ff6825ce1b'
+        '0x3d63a776155b1ea16eff0a8399fe16ed25e1f207300136918979074e80bd2cab75ee200bb4148e294a0867a42520eeed1a2214f190e3369914b5d2116c2cde141b'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });

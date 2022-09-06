@@ -24,7 +24,6 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
 
 export const signHeartbeat = async (
   heartbeatPayload: {
-    airnode_address: string;
     cloud_provider: string;
     stage: string;
     region?: string;
@@ -43,7 +42,7 @@ export const signHeartbeat = async (
 };
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
-  const { settings, config } = state;
+  const { config } = state;
   const {
     nodeSettings: { heartbeat, cloudProvider, stage },
   } = config;
@@ -58,7 +57,6 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
 
   const heartbeatPayload = {
-    airnode_address: settings.airnodeAddress,
     stage,
     cloud_provider: cloudProvider.type,
     ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
