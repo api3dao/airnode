@@ -15,6 +15,7 @@ import {
   gasPriceOracleSchema,
   EnabledGateway,
   localOrCloudProviderSchema,
+  chainConfigSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
@@ -257,6 +258,22 @@ describe('nodeSettingsSchema', () => {
           received: 'undefined',
           path: ['projectId'],
           message: `Required`,
+        },
+      ])
+    );
+  });
+
+  it('does not allow invalid mnemonic', () => {
+    const invalidMnemonicNodeSettings = {
+      ...nodeSettings,
+      airnodeWalletMnemonic: 'invalid mnemonic',
+    };
+    expect(() => nodeSettingsSchema.parse(invalidMnemonicNodeSettings)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: 'Airnode wallet mnemonic is not a valid mnemonic',
+          path: ['airnodeWalletMnemonic'],
         },
       ])
     );
@@ -604,6 +621,37 @@ describe('authorizations', () => {
           code: 'invalid_string',
           message: 'Invalid',
           path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'endpoint-id', 0],
+        },
+      ])
+    );
+  });
+});
+
+describe('chainConfigSchema', () => {
+  it('validates maximum concurrency limit', () => {
+    const config = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/config.valid.json')).toString());
+
+    const invalidConcurrencyChainConfig = {
+      ...config.chains[0],
+      maxConcurrency: 2,
+      providers: {
+        provider1: {
+          url: 'http://some.random.url',
+        },
+        provider2: {
+          url: 'http://some.random.url',
+        },
+        provider3: {
+          url: 'http://some.random.url',
+        },
+      },
+    };
+    expect(() => chainConfigSchema.parse(invalidConcurrencyChainConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `Concurrency limit can't be lower than the number of providers for given chain`,
+          path: ['maxConcurrency'],
         },
       ])
     );
