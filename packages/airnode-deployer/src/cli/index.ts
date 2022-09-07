@@ -3,11 +3,11 @@ import { hideBin } from 'yargs/helpers';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { deploy, removeWithReceipt, remove } from './commands';
-import { cliExamples } from './cli-examples';
+import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
+import { removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -42,6 +42,12 @@ async function runCommand(command: () => Promise<void>) {
     process.exitCode = 1;
   }
 }
+
+const cliExamples = [
+  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
+  'remove-with-receipt -r config/receipt.json',
+  'remove-with-deployment-details --airnode-address-short abd9eaa --stage dev --cloud-provider aws --region us-east-1',
+];
 
 drawHeader();
 yargs(hideBin(process.argv))
@@ -108,9 +114,9 @@ yargs(hideBin(process.argv))
     'remove-with-deployment-details',
     'Removes a deployed Airnode instance using the Airnode short address and cloud provider specifications',
     {
-      'airnode-address-short': {
+      'airnode-address': {
         alias: 'a',
-        description: 'Airnode Address (short version)',
+        description: 'Airnode Address',
         type: 'string',
         demandOption: true,
       },
@@ -150,7 +156,7 @@ yargs(hideBin(process.argv))
       }
 
       await runCommand(() =>
-        remove(args['airnode-address-short'].toLowerCase(), args.stage, {
+        removeAirnode(args['airnode-address'], args.stage, {
           type: args['cloud-provider'],
           region: args.region,
           projectId: args['project-id'],

@@ -3,15 +3,6 @@ import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
 import * as logger from '../utils/logger';
 
-export function validateMnemonic(mnemonic: string) {
-  logger.debug('Validating mnemonic');
-
-  const goWallet = goSync(() => ethers.Wallet.fromMnemonic(mnemonic));
-  if (!goWallet.success) return false;
-
-  return true;
-}
-
 export function deriveAirnodeAddress(mnemonic: string) {
   logger.debug('Deriving airnode wallet from mnemonic');
   const airnodeWallet = ethers.Wallet.fromMnemonic(mnemonic);

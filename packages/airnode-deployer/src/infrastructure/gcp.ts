@@ -1,22 +1,183 @@
 import { GcpCloudProvider } from '@api3/airnode-node';
+import { go } from '@api3/promise-utils';
 import { Storage } from '@google-cloud/storage';
+import {
+  BUCKET_NAME_REGEX,
+  Directory,
+  FileSystemType,
+  generateBucketName,
+  translatePathsToDirectoryStructure,
+} from '../utils/infrastructure';
 import * as logger from '../utils/logger';
 
-export async function stateExists(bucketName: string, cloudProvider: GcpCloudProvider) {
-  logger.debug('Checking Terraform state existence in GCP');
-  const { projectId } = cloudProvider;
-  const storage = new Storage({ projectId });
-  const bucket = storage.bucket(bucketName);
+const initializeGcsService = (cloudProvider: GcpCloudProvider) => new Storage({ projectId: cloudProvider.projectId });
 
-  return (await bucket.exists())[0] as boolean;
-}
+const initializeGcsBucket = (cloudProvider: GcpCloudProvider, bucketName: string) =>
+  initializeGcsService(cloudProvider).bucket(bucketName);
 
-export async function removeState(bucketName: string, cloudProvider: GcpCloudProvider) {
-  logger.debug('Removing Terraform state from GCP');
-  const { projectId } = cloudProvider;
-  const storage = new Storage({ projectId });
-  const bucket = storage.bucket(bucketName);
+export const getAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
+  const storage = initializeGcsService(cloudProvider);
 
-  await bucket.deleteFiles({ force: true, versions: true });
-  await bucket.delete();
-}
+  logger.debug('Listing GCS buckets');
+  const goBuckets = await go(() => storage.getBuckets());
+  if (!goBuckets.success) {
+    throw new Error(`Failed to list GCS buckets: ${goBuckets.error}`);
+  }
+
+  const [buckets] = goBuckets.data;
+  const airnodeBuckets = buckets.filter((bucket) => bucket.name.match(BUCKET_NAME_REGEX));
+  if (airnodeBuckets.length > 1) {
+    throw new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(airnodeBuckets)}`);
+  }
+
+  return airnodeBuckets[0]?.name || null;
+};
+
+export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
+  const storage = initializeGcsService(cloudProvider);
+  const bucketName = generateBucketName();
+
+  logger.debug(`Creating GCS bucket '${bucketName}'`);
+  const goCreate = await go(() => storage.createBucket(bucketName));
+  if (!goCreate.success) {
+    throw new Error(`Failed to create an GCS bucket: ${goCreate.error}`);
+  }
+
+  const [bucket] = goCreate.data;
+
+  logger.debug(`Setting uniform bucket-level access for GCS bucket '${bucketName}'`);
+  const goMetadata = await go(() =>
+    bucket.setMetadata({
+      iamConfiguration: { uniformBucketLevelAccess: { enabled: true }, publicAccessPrevention: 'enforced' },
+    })
+  );
+  if (!goMetadata.success) {
+    throw new Error(`Failed to setup a puniform bucket-level access for bucket '${bucketName}': ${goMetadata.error}`);
+  }
+
+  const policy = {
+    bindings: [
+      {
+        role: 'roles/storage.legacyBucketReader',
+        members: [`projectViewer:${cloudProvider.projectId}`],
+      },
+      {
+        role: 'roles/storage.legacyBucketOwner',
+        members: [`projectEditor:${cloudProvider.projectId}`, `projectOwner:${cloudProvider.projectId}`],
+      },
+      {
+        role: 'roles/storage.legacyObjectReader',
+        members: [`projectViewer:${cloudProvider.projectId}`],
+      },
+      {
+        role: 'roles/storage.legacyObjectOwner',
+        members: [`projectEditor:${cloudProvider.projectId}`, `projectOwner:${cloudProvider.projectId}`],
+      },
+    ],
+  };
+  logger.debug(`Setting necessary IAM policy for GCS bucket '${bucketName}'`);
+  const goPolicy = await go(() => bucket.iam.setPolicy(policy));
+  if (!goPolicy.success) {
+    throw new Error(`Failed to setup IAM policy for bucket '${bucketName}': ${goPolicy.error}`);
+  }
+
+  return bucketName;
+};
+
+export const getBucketDirectoryStructure = async (cloudProvider: GcpCloudProvider, bucketName: string) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+
+  const goGet = await go(() => bucket.getFiles());
+  if (!goGet.success) {
+    throw new Error(`Failed to list content of bucket '${bucketName}': ${goGet.error}`);
+  }
+
+  return translatePathsToDirectoryStructure(goGet.data[0].map((file) => file.name));
+};
+
+export const storeFileToBucket = async (
+  cloudProvider: GcpCloudProvider,
+  bucketName: string,
+  bucketFilePath: string,
+  filePath: string
+) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+
+  logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to GCS bucket '${bucketName}'`);
+  const goSave = await go(() => bucket.upload(filePath, { destination: bucketFilePath }));
+  if (!goSave.success) {
+    throw new Error(
+      `Failed to store file '${filePath}' to GCS bucket '${bucketName}': ${JSON.stringify(goSave.error)}`
+    );
+  }
+};
+
+export const getFileFromBucket = async (cloudProvider: GcpCloudProvider, bucketName: string, filePath: string) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+  const file = bucket.file(filePath);
+
+  logger.debug(`Fetching file '${filePath}' from GCS bucket '${bucketName}'`);
+  const goDownload = await go(() => file.download());
+  if (!goDownload.success) {
+    throw new Error(`Failed to fetch file '${filePath}' from GCS bucket '${bucketName}': ${goDownload.error}`);
+  }
+
+  return goDownload.data[0].toString('utf-8');
+};
+
+export const copyFileInBucket = async (
+  cloudProvider: GcpCloudProvider,
+  bucketName: string,
+  fromFilePath: string,
+  toFilePath: string
+) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+  const file = bucket.file(fromFilePath);
+
+  logger.debug(`Copying file '${fromFilePath}' to file '${toFilePath}' within GCS bucket '${bucketName}'`);
+  const goCopy = await go(() => file.copy(toFilePath));
+  if (!goCopy.success) {
+    throw new Error(
+      `Failed to copy file '${fromFilePath}' to file '${toFilePath}' within GCS bucket '${bucketName}': ${goCopy.error}`
+    );
+  }
+};
+
+const gatherBucketKeys = (directory: Directory): string[] => [
+  ...Object.values(directory.children).reduce(
+    (results: string[], fsItem) => [
+      ...results,
+      ...(fsItem.type === FileSystemType.File ? [fsItem.bucketKey] : gatherBucketKeys(fsItem)),
+    ],
+    []
+  ),
+];
+
+export const deleteBucketDirectory = async (
+  cloudProvider: GcpCloudProvider,
+  bucketName: string,
+  directory: Directory
+) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+
+  const bucketKeys = gatherBucketKeys(directory);
+  logger.debug(`Deleting files from GCS bucket '${bucketName}': ${JSON.stringify(bucketKeys)}`);
+  for (const bucketKey of bucketKeys.reverse()) {
+    // I could use Bucket.deleteFiles() instead but you can't list the files to be deleted and it makes multiple API calls anyway
+    logger.debug(`Deleting file '${bucketKey}' from GCS bucket '${bucketName}'`);
+    const goDelete = await go(() => bucket.file(bucketKey).delete());
+    if (!goDelete.success) {
+      throw new Error(`Failed to delete bucket file '${bucketKey}': ${goDelete.error}`);
+    }
+  }
+};
+
+export const deleteBucket = async (cloudProvider: GcpCloudProvider, bucketName: string) => {
+  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+
+  logger.debug(`Deleting GCS bucket '${bucketName}'`);
+  const goDelete = await go(() => bucket.delete());
+  if (!goDelete.success) {
+    throw new Error(`Failed to delete GCS bucket '${bucketName}': ${goDelete.error}`);
+  }
+};

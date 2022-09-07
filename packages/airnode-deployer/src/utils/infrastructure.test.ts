@@ -1,4 +1,4 @@
-import { formatTerraformArguments } from './infrastructure';
+import { BUCKET_NAME_REGEX, formatTerraformArguments, generateBucketName } from './infrastructure';
 
 describe('formatTerraformArguments', () => {
   it(`prepends string arguments with '-'`, () => {
@@ -26,5 +26,11 @@ describe('formatTerraformArguments', () => {
       '-outer_key2="inner_key2=value2"',
       '-outer_key3="inner_key3=value3"',
     ]);
+  });
+});
+
+describe('generateBucketName', () => {
+  it('generate bucket name in the correct format', () => {
+    expect(generateBucketName()).toMatch(BUCKET_NAME_REGEX);
   });
 });

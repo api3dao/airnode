@@ -48,26 +48,10 @@ describe('airnodeWalletSchema', () => {
       ])
     );
   });
-
-  it(`doesn't allow mismatch between Airnode address and Airnode short address`, () => {
-    expect(() => airnodeWalletSchema.parse(airnodeWallet)).not.toThrow();
-
-    const invalidAirnodeWallet = { ...airnodeWallet, airnodeAddressShort: 'abcdef0' };
-    expect(() => airnodeWalletSchema.parse(invalidAirnodeWallet)).toThrow(
-      new ZodError([
-        {
-          code: 'custom',
-          message: `Short Airnode address doesn't match Airnode address`,
-          path: ['airnodeAddressShort'],
-        },
-      ])
-    );
-  });
 });
 
 describe('deploymentSchema', () => {
   const deployment: Deployment = {
-    airnodeAddressShort: 'a30ca71',
     cloudProvider: {
       type: 'aws',
       region: 'us-east-1',
@@ -132,25 +116,6 @@ describe('deploymentSchema', () => {
           code: 'invalid_string',
           message: 'Invalid',
           path: ['timestamp'],
-        },
-      ])
-    );
-  });
-});
-
-describe('receiptSchema', () => {
-  const receipt = JSON.parse(readFileSync(join(__dirname, '../../test/fixtures/receipt.valid.json')).toString());
-
-  it(`doesn't allow mismatch between Airnode short addresses`, () => {
-    expect(() => receiptSchema.parse(receipt)).not.toThrow();
-
-    const invalidReceipt = { ...receipt, deployment: { ...receipt.deployment, airnodeAddressShort: 'abcdef0' } };
-    expect(() => receiptSchema.parse(invalidReceipt)).toThrow(
-      new ZodError([
-        {
-          code: 'custom',
-          message: `Airnode short addresses don't match`,
-          path: ['airnodeWallet', 'airnodeAddressShort'],
         },
       ])
     );

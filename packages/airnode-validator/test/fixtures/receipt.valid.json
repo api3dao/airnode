@@ -5,7 +5,6 @@
     "airnodeXpub": "xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY"
   },
   "deployment": {
-    "airnodeAddressShort": "a30ca71",
     "cloudProvider": {
       "type": "aws",
       "region": "us-east-1",

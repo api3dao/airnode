@@ -4,7 +4,7 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { Ora } from 'ora';
-import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Gateway } from '@api3/airnode-node';
+import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Config, evm } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
@@ -13,7 +13,17 @@ import isNil from 'lodash/isNil';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
-import { logAndReturnError, formatTerraformArguments } from '../utils/infrastructure';
+import {
+  logAndReturnError,
+  formatTerraformArguments,
+  getStageDirectory,
+  getAddressDirectory,
+  Directory,
+} from '../utils/infrastructure';
+import { version as nodeVersion } from '../../package.json';
+import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
+
+const TF_STATE_FILENAME = 'default.tfstate';
 
 type TerraformAirnodeOutput = {
   http_gateway_url?: {
@@ -30,13 +40,9 @@ export type DeployAirnodeOutput = {
 };
 
 const exec = util.promisify(child.exec);
-// TODO:
-// Pass handler as argument
+
 const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
 const terraformDir = path.resolve(`${__dirname}/../../terraform`);
-const terraformStateDir = `${terraformDir}/state`;
-const terraformAirnodeDir = `${terraformDir}/airnode`;
-
 let spinner: Ora;
 
 interface CommandOptions extends child.ExecOptions {
@@ -75,26 +81,33 @@ function execTerraform(execOptions: CommandOptions, command: string, args: Comma
   return runCommand(fullCommand, execOptions);
 }
 
-function awsApplyArguments(cloudProvider: AwsCloudProvider): CommandArg[] {
+function awsApplyDestroyArguments(cloudProvider: AwsCloudProvider, _bucket: string, _path: string): CommandArg[] {
   return [['var', 'aws_region', cloudProvider.region]];
 }
 
-function gcpApplyArguments(cloudProvider: GcpCloudProvider): CommandArg[] {
+function gcpApplyDestroyArguments(cloudProvider: GcpCloudProvider, bucket: string, path: string): CommandArg[] {
   return [
     ['var', 'gcp_region', cloudProvider.region],
     ['var', 'gcp_project', cloudProvider.projectId],
+    ['var', 'airnode_bucket', bucket],
+    ['var', 'deployment_bucket_dir', path],
   ];
 }
 
-function awsAirnodeInitArguments(cloudProvider: AwsCloudProvider, bucket: string): CommandArg[] {
+function awsAirnodeInitArguments(cloudProvider: AwsCloudProvider, bucket: string, path: string): CommandArg[] {
   return [
     ['backend-config', 'region', cloudProvider.region],
     ['backend-config', 'bucket', bucket],
+    // This is the filename used by GCP and can't be configured there. Using it here as well to keep it consistent.
+    ['backend-config', 'key', `${path}/${TF_STATE_FILENAME}`],
   ];
 }
 
-function gcpAirnodeInitArguments(_cloudProvider: GcpCloudProvider, bucket: string): CommandArg[] {
-  return [['backend-config', 'bucket', bucket]];
+function gcpAirnodeInitArguments(_cloudProvider: GcpCloudProvider, bucket: string, path: string): CommandArg[] {
+  return [
+    ['backend-config', 'bucket', bucket],
+    ['backend-config', 'prefix', path],
+  ];
 }
 
 function awsAirnodeImportOptions(_cloudProvider: AwsCloudProvider): string[] {
@@ -110,9 +123,9 @@ const cloudProviderLib = {
   gcp: gcp,
 };
 
-const cloudProviderAirnodeManageArguments = {
-  aws: awsApplyArguments,
-  gcp: gcpApplyArguments,
+const cloudProviderAirnodeApplyDestoryArguments = {
+  aws: awsApplyDestroyArguments,
+  gcp: gcpApplyDestroyArguments,
 };
 
 const cloudProviderAirnodeInitArguments = {
@@ -125,65 +138,195 @@ const cloudProviderAirnodeImportOptions = {
   gcp: gcpAirnodeImportOptions,
 };
 
-interface AirnodeVariables {
+function prepareAirnodeInitArguments(
+  cloudProvider: CloudProvider,
+  bucket: string,
+  path: string,
+  commonArguments: CommandArg[]
+) {
+  return [
+    ...cloudProviderAirnodeInitArguments[cloudProvider.type](cloudProvider as any, bucket, path),
+    ...commonArguments,
+  ];
+}
+
+function prepareCloudProviderAirnodeApplyDestoryArguments(
+  cloudProvider: CloudProvider,
+  bucket: string,
+  path: string,
+  commonArguments: CommandArg[]
+) {
+  return [
+    ...cloudProviderAirnodeApplyDestoryArguments[cloudProvider.type](cloudProvider as any, bucket, path),
+    ...commonArguments,
+  ];
+}
+
+export const deployAirnode = async (config: Config, configPath: string, secretsPath: string) => {
+  const { airnodeWalletMnemonic, cloudProvider, stage } = config.nodeSettings;
+  const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
+  const { type, region } = cloudProvider as CloudProvider;
+
+  spinner = logger.spinner(`Deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
+  if (logger.inDebugMode()) {
+    spinner.info();
+  }
+
+  const goDeploy = await go(async () => {
+    logger.debug('Fetching Airnode bucket');
+    let bucketName = await cloudProviderLib[type].getAirnodeBucket(cloudProvider as any);
+    if (!bucketName) {
+      logger.debug('No Airnode bucket found, creating');
+      bucketName = await cloudProviderLib[type].createAirnodeBucket(cloudProvider as any);
+    }
+    logger.debug(`Using Airnode bucket '${bucketName}'`);
+
+    logger.debug('Fetching Airnode bucket content');
+    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(
+      cloudProvider as any,
+      bucketName
+    );
+
+    const timestamp = Date.now();
+    const bucketStagePath = `${airnodeAddress}/${stage}`;
+    const bucketDeploymentPath = `${bucketStagePath}/${timestamp}`;
+
+    const stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage);
+    if (stageDirectory) {
+      logger.debug(`Deployment '${bucketStagePath}' already exists`);
+      const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+      const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
+      logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
+      const config = JSON.parse(
+        await cloudProviderLib[type].getFileFromBucket(cloudProvider as any, bucketName, bucketConfigPath)
+      ) as Config;
+
+      const remoteNodeSettings = config.nodeSettings;
+      const remoteCloudProvider = remoteNodeSettings.cloudProvider as CloudProvider;
+      if (remoteNodeSettings.nodeVersion !== nodeVersion) {
+        throw new Error(
+          `Can't update an Airnode deployment with airnode-deployer of a different version. Deployed version: ${remoteNodeSettings.nodeVersion}, airnode-deployer version: ${nodeVersion}`
+        );
+      }
+      if (remoteCloudProvider.region !== region) {
+        throw new Error(
+          `Can't change a region of an already deployed Airnode. Current region: ${remoteCloudProvider.region}, new region: ${region}`
+        );
+      }
+
+      logger.debug(`Copying Terraform state file for new deployment ${bucketDeploymentPath}`);
+      const latestBucketTerraformStatePath = `${bucketStagePath}/${latestDeployment}/${TF_STATE_FILENAME}`;
+      const newBucketTerraformStatePath = `${bucketDeploymentPath}/${TF_STATE_FILENAME}`;
+      await cloudProviderLib[type].copyFileInBucket(
+        cloudProvider as any,
+        bucketName,
+        latestBucketTerraformStatePath,
+        newBucketTerraformStatePath
+      );
+    }
+
+    logger.debug(`Storing configuration file for new deployment ${bucketDeploymentPath}`);
+    const bucketConfigPath = `${bucketDeploymentPath}/config.json`;
+    await cloudProviderLib[type].storeFileToBucket(cloudProvider as any, bucketName, bucketConfigPath, configPath);
+
+    logger.debug(`Storing secrets file for new deployment ${bucketDeploymentPath}`);
+    const bucketSecretsPath = `${bucketDeploymentPath}/secrets.env`;
+    await cloudProviderLib[type].storeFileToBucket(cloudProvider as any, bucketName, bucketSecretsPath, secretsPath);
+
+    logger.debug('Deploying Airnode via Terraform recipes');
+    const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+    const execOptions = { cwd: airnodeTmpDir };
+    await terraformAirnodeApply(execOptions, config, bucketName, bucketDeploymentPath, configPath, secretsPath);
+    const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
+    fs.rmSync(airnodeTmpDir, { recursive: true });
+    return output;
+  });
+
+  if (!goDeploy.success) {
+    spinner.fail(`Failed deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
+    throw goDeploy.error;
+  }
+
+  spinner.succeed(`Deployed Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
+  return transformTerraformOutput(goDeploy.data);
+};
+
+type AirndoeApplyDestroyVariables = {
   airnodeAddressShort: string;
   stage: string;
   configPath?: string;
   secretsPath?: string;
-  httpGateway?: Gateway;
-  httpSignedDataGateway?: Gateway;
+  handlerDir: string;
+  disableConcurrencyReservations: boolean;
   airnodeWalletPrivateKey?: string;
-}
+};
 
-function prepareAirnodeInitArguments(cloudProvider: CloudProvider, bucket: string, commonArguments: CommandArg[]) {
-  return [...cloudProviderAirnodeInitArguments[cloudProvider.type](cloudProvider as any, bucket), ...commonArguments];
-}
-
-function prepareAirnodeManageArguments(cloudProvider: CloudProvider, commonArguments: CommandArg[]) {
-  return [...cloudProviderAirnodeManageArguments[cloudProvider.type](cloudProvider as any), ...commonArguments];
-}
-
-function getBucketName(airnodeAddressShort: string, stage: string) {
-  return `airnode-${airnodeAddressShort}-${stage}-terraform`.toLowerCase();
-}
-
-async function terraformAirnodeManage(
-  command: string,
-  execOptions: child.ExecOptions,
-  cloudProvider: CloudProviderExtended,
-  bucket: string,
-  variables: AirnodeVariables
-) {
-  const terraformAirnodeCloudProviderDir = path.join(terraformAirnodeDir, cloudProvider.type);
+function prepareAirnodeApplyDestroyArguments(variables: AirndoeApplyDestroyVariables): CommandArg[] {
   const {
     airnodeAddressShort,
     stage,
     configPath,
     secretsPath,
-    httpGateway,
-    httpSignedDataGateway,
+    handlerDir,
+    disableConcurrencyReservations,
     airnodeWalletPrivateKey,
   } = variables;
 
-  let commonArguments: CommandArg[] = [['from-module', terraformAirnodeCloudProviderDir]];
-  await execTerraform(execOptions, 'init', prepareAirnodeInitArguments(cloudProvider, bucket, commonArguments));
-
-  commonArguments = [
+  return [
     ['var', 'airnode_address_short', airnodeAddressShort],
     ['var', 'stage', stage],
     ['var', 'configuration_file', configPath ? path.resolve(configPath) : 'NULL'],
     ['var', 'secrets_file', secretsPath ? path.resolve(secretsPath) : 'NULL'],
     ['var', 'handler_dir', handlerDir],
-    ['var', 'disable_concurrency_reservation', `${!!cloudProvider.disableConcurrencyReservations}`],
+    ['var', 'disable_concurrency_reservation', `${!!disableConcurrencyReservations}`],
     ['var', 'airnode_wallet_private_key', airnodeWalletPrivateKey ? airnodeWalletPrivateKey : 'NULL'],
     ['input', 'false'],
     'no-color',
   ];
+}
 
-  // In case of Airnode removal the concurrency information is not available so can't be passed as a variable
-  if (cloudProvider.maxConcurrency) {
-    commonArguments.push(['var', 'max_concurrency', `${cloudProvider.maxConcurrency}`]);
-  }
+async function terraformAirnodeInit(
+  execOptions: child.ExecOptions,
+  cloudProvider: CloudProvider,
+  bucket: string,
+  bucketPath: string
+) {
+  const terraformCloudProviderDirectory = path.join(terraformDir, cloudProvider.type);
+
+  const commonArguments: CommandArg[] = [['from-module', terraformCloudProviderDirectory]];
+  await execTerraform(
+    execOptions,
+    'init',
+    prepareAirnodeInitArguments(cloudProvider, bucket, bucketPath, commonArguments)
+  );
+}
+
+async function terraformAirnodeApply(
+  execOptions: child.ExecOptions,
+  config: Config,
+  bucket: string,
+  bucketPath: string,
+  configPath: string,
+  secretsPath: string
+) {
+  const { airnodeWalletMnemonic, stage, httpGateway, httpSignedDataGateway } = config.nodeSettings;
+  const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
+  const airnodeAddressShort = shortenAirnodeAddress(deriveAirnodeAddress(airnodeWalletMnemonic));
+  const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
+  const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
+
+  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketPath);
+
+  const commonArguments = prepareAirnodeApplyDestroyArguments({
+    airnodeAddressShort,
+    stage,
+    configPath,
+    secretsPath,
+    handlerDir,
+    disableConcurrencyReservations: cloudProvider.disableConcurrencyReservations,
+    airnodeWalletPrivateKey,
+  });
+  commonArguments.push(['var', 'max_concurrency', `${maxConcurrency}`]);
 
   if (httpGateway?.enabled) {
     commonArguments.push(['var', 'http_api_key', httpGateway.apiKey!]);
@@ -199,54 +342,23 @@ async function terraformAirnodeManage(
     }
   }
 
-  // Run import ONLY for an `apply` command (deployment). Do NOT run for `destroy` command (removal).
-  if (command === 'apply') {
-    const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any);
-
-    if (!isEmpty(importOptions)) {
-      await execTerraform(
-        { ...execOptions, ignoreError: true },
-        'import',
-        prepareAirnodeManageArguments(cloudProvider, commonArguments),
-        cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any)
-      );
-    }
+  const importOptions = cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any);
+  if (!isEmpty(importOptions)) {
+    await execTerraform(
+      { ...execOptions, ignoreError: true },
+      'import',
+      prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments),
+      cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any)
+    );
   }
 
   commonArguments.push('auto-approve');
 
-  await execTerraform(execOptions, command, prepareAirnodeManageArguments(cloudProvider, commonArguments));
-}
-
-// `maxConcurrency` field is required for deployment but missing for removal. This is the easiest way to type it.
-export type CloudProviderExtended = CloudProvider & {
-  readonly maxConcurrency?: number;
-};
-
-interface AirnodeDeployParams {
-  readonly airnodeAddressShort: string;
-  readonly stage: string;
-  readonly cloudProvider: CloudProviderExtended;
-  readonly httpGateway: Gateway;
-  readonly httpSignedDataGateway: Gateway;
-  readonly configPath: string;
-  readonly secretsPath: string;
-  readonly airnodeWalletPrivateKey: string;
-}
-
-export async function deployAirnode(params: AirnodeDeployParams) {
-  const { airnodeAddressShort, stage, cloudProvider } = params;
-  const { type, region } = cloudProvider;
-  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-
-  const goDeploy = await go(() => deploy(params));
-  if (!goDeploy.success) {
-    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-    throw goDeploy.error;
-  }
-
-  spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${type} ${region}`);
-  return goDeploy.data;
+  await execTerraform(
+    execOptions,
+    'apply',
+    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments)
+  );
 }
 
 function transformTerraformOutput(terraformOutput: string): DeployAirnodeOutput {
@@ -260,91 +372,112 @@ function transformTerraformOutput(terraformOutput: string): DeployAirnodeOutput 
   );
 }
 
-async function deploy({
-  airnodeAddressShort,
-  stage,
-  cloudProvider,
-  httpGateway,
-  httpSignedDataGateway,
-  configPath,
-  secretsPath,
-  airnodeWalletPrivateKey,
-}: AirnodeDeployParams): Promise<DeployAirnodeOutput> {
+async function terraformAirnodeDestroy(
+  execOptions: child.ExecOptions,
+  cloudProvider: CloudProvider,
+  airnodeAddressShort: string,
+  stage: string,
+  bucket: string,
+  bucketPath: string
+) {
+  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketPath);
+
+  const commonArguments = prepareAirnodeApplyDestroyArguments({
+    airnodeAddressShort,
+    stage,
+    handlerDir,
+    disableConcurrencyReservations: cloudProvider.disableConcurrencyReservations,
+  });
+  commonArguments.push('auto-approve');
+
+  await execTerraform(
+    execOptions,
+    'destroy',
+    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments)
+  );
+}
+
+export async function removeAirnode(airnodeAddress: string, stage: string, cloudProvider: CloudProvider) {
+  const { type, region } = cloudProvider;
+  spinner = logger.spinner(`Removing Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
-  const { type: cloudProviderType } = cloudProvider;
-  const bucket = getBucketName(airnodeAddressShort, stage);
-  const terraformStateCloudProviderDir = path.join(terraformStateDir, cloudProviderType);
+  const goRemove = await go(async () => {
+    logger.debug('Fetching Airnode bucket');
+    const bucketName = await cloudProviderLib[type].getAirnodeBucket(cloudProvider as any);
+    if (!bucketName) {
+      throw new Error(`There's no Airnode bucket available`);
+    }
 
-  if (!(await cloudProviderLib[cloudProviderType].stateExists(bucket, cloudProvider as any))) {
-    // Run state recipes
-    logger.debug('Running state Terraform recipes');
-    const stateTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+    logger.debug('Fetching Airnode bucket content');
+    let directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(cloudProvider as any, bucketName);
+    let addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress);
+    let stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage);
+    if (!addressDirectory || !stageDirectory) {
+      throw new Error(`There's no Airnode deployment with address '${airnodeAddress}' and stage '${stage}`);
+    }
 
-    const execOptions = { cwd: stateTmpDir };
-    await execTerraform(execOptions, 'init', [['from-module', terraformStateCloudProviderDir]]);
+    const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+    const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
+    const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
+    logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
+    const config = JSON.parse(
+      await cloudProviderLib[type].getFileFromBucket(cloudProvider as any, bucketName, bucketConfigPath)
+    ) as Config;
 
-    const commonArguments: CommandArg[] = [
-      ['var', 'airnode_address_short', airnodeAddressShort],
-      ['var', 'stage', stage],
-      ['input', 'false'],
-      'no-color',
-      'auto-approve',
-    ];
-    await execTerraform(execOptions, 'apply', prepareAirnodeManageArguments(cloudProvider, commonArguments));
-  }
+    const remoteNodeSettings = config.nodeSettings;
+    if (remoteNodeSettings.nodeVersion !== nodeVersion) {
+      throw new Error(
+        `Can't remove an Airnode deployment with airnode-deployer of a different version. Deployed version: ${remoteNodeSettings.nodeVersion}, airnode-deployer version: ${nodeVersion}`
+      );
+    }
 
-  // Run airnode recipes
-  logger.debug('Running Airnode Terraform recipes');
-  const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-  const execOptions = { cwd: airnodeTmpDir };
-  await terraformAirnodeManage('apply', execOptions, cloudProvider, bucket, {
-    airnodeAddressShort,
-    stage,
-    configPath,
-    secretsPath,
-    httpGateway,
-    httpSignedDataGateway,
-    airnodeWalletPrivateKey,
+    logger.debug('Removing Airnode via Terraform recipes');
+    const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
+    const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+    const execOptions = { cwd: airnodeTmpDir };
+    await terraformAirnodeDestroy(
+      execOptions,
+      cloudProvider,
+      airnodeAddressShort,
+      stage,
+      bucketName,
+      bucketLatestDeploymentPath
+    );
+
+    // Refreshing the bucket content because the source code archives were removed by Terraform
+    logger.debug('Refreshing Airnode bucket content');
+    directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(cloudProvider as any, bucketName);
+    addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
+    stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
+
+    // Delete stage directory and its content
+    logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
+    await cloudProviderLib[type].deleteBucketDirectory(cloudProvider as any, bucketName, stageDirectory);
+    // eslint-disable-next-line functional/immutable-data
+    delete addressDirectory.children[stage];
+
+    // Delete Airnode address directory if empty
+    if (Object.keys(addressDirectory.children).length === 0) {
+      logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
+      await cloudProviderLib[type].deleteBucketDirectory(cloudProvider as any, bucketName, addressDirectory);
+      // eslint-disable-next-line functional/immutable-data
+      delete directoryStructure[airnodeAddress];
+    }
+
+    // Delete the whole bucket if empty
+    if (Object.keys(directoryStructure).length === 0) {
+      logger.debug(`Deleting Airnode bucket '${bucketName}'`);
+      await cloudProviderLib[type].deleteBucket(cloudProvider as any, bucketName);
+    }
   });
-  const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
-  return transformTerraformOutput(output);
-}
 
-interface AirnodeRemoveParams {
-  readonly airnodeAddressShort: string;
-  readonly stage: string;
-  readonly cloudProvider: CloudProvider;
-}
-
-export async function removeAirnode(params: AirnodeRemoveParams) {
-  const { airnodeAddressShort, stage, cloudProvider } = params;
-  const { type, region } = cloudProvider;
-  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
-
-  const goRemove = await go(() => remove(params));
   if (!goRemove.success) {
-    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
+    spinner.fail(`Failed removing Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
     throw goRemove.error;
   }
 
-  spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${type} ${region}`);
-}
-
-async function remove({ airnodeAddressShort, stage, cloudProvider }: AirnodeRemoveParams) {
-  if (logger.inDebugMode()) {
-    spinner.info();
-  }
-
-  const { type: cloudProviderType } = cloudProvider;
-  const bucket = getBucketName(airnodeAddressShort, stage);
-
-  // Remove airnode
-  logger.debug('Removing Airnode via Terraform recipes');
-  const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-  const execOptions = { cwd: airnodeTmpDir };
-  await terraformAirnodeManage('destroy', execOptions, cloudProvider, bucket, { airnodeAddressShort, stage });
-  await cloudProviderLib[cloudProviderType].removeState(bucket, cloudProvider as any);
+  spinner.succeed(`Removed Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
 }
