@@ -3,6 +3,7 @@ jest.mock('@api3/airnode-adapter', () => ({
   execute: executeMock,
 }));
 
+import { ethers } from 'ethers';
 import { randomHexString } from '@api3/airnode-utilities';
 import cloneDeep from 'lodash/cloneDeep';
 import * as heartbeat from './heartbeat';
@@ -11,10 +12,17 @@ import * as fixtures from '../../test/fixtures';
 import { Config } from '../config';
 
 describe('reportHeartbeat', () => {
+  const httpGatewayUrl = 'https://some.http.gateway.url/v1/';
+  const httpSignedDataGatewayUrl = 'https://some.http.signed.data.gateway.url/v1/';
   fixtures.setEnvVariables({
-    HTTP_GATEWAY_URL: 'https://some.http.gateway.url/v1/',
-    HTTP_SIGNED_DATA_GATEWAY_URL: 'https://some.http.signed.data.gateway.url/v1/',
+    HTTP_GATEWAY_URL: httpGatewayUrl,
+    HTTP_SIGNED_DATA_GATEWAY_URL: httpSignedDataGatewayUrl,
     AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
+  });
+  const timestamp = 1661582890984;
+
+  beforeEach(() => {
+    jest.spyOn(Date, 'now').mockImplementation(() => timestamp);
   });
 
   it('does nothing if the heartbeat is disabled', async () => {
@@ -32,6 +40,11 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
+    const heartbeatPayload = {
+      http_gateway_url: 'http://localhost:3000/http-data',
+      http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+    };
+    const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
     const res = await heartbeat.reportHeartbeat(state);
     expect(res).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
@@ -45,8 +58,9 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        http_gateway_url: 'http://localhost:3000/http-data',
-        http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+        ...heartbeatPayload,
+        signature,
+        timestamp,
       },
       timeout: 5_000,
     });
@@ -57,6 +71,11 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
+    const heartbeatPayload = {
+      http_gateway_url: 'http://localhost:3000/http-data',
+      http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+    };
+    const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
     const logs = await heartbeat.reportHeartbeat(state);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
@@ -70,8 +89,9 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        http_gateway_url: 'http://localhost:3000/http-data',
-        http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+        ...heartbeatPayload,
+        signature,
+        timestamp,
       },
       timeout: 5_000,
     });
@@ -91,7 +111,7 @@ describe('reportHeartbeat', () => {
         nodeSettings: { cloudProvider: { type: 'aws', region: 'us-east1', disableConcurrencyReservations: false } },
       } as unknown as Config;
 
-      expect(heartbeat.getHttpGatewayUrl(mockedConfig)).toEqual('https://some.http.gateway.url/v1/');
+      expect(heartbeat.getHttpGatewayUrl(mockedConfig)).toEqual(httpGatewayUrl);
     });
   });
 
@@ -109,9 +129,7 @@ describe('reportHeartbeat', () => {
         nodeSettings: { cloudProvider: { type: 'aws', region: 'us-east1', disableConcurrencyReservations: false } },
       } as unknown as Config;
 
-      expect(heartbeat.getHttpSignedDataGatewayUrl(mockedConfig)).toEqual(
-        'https://some.http.signed.data.gateway.url/v1/'
-      );
+      expect(heartbeat.getHttpSignedDataGatewayUrl(mockedConfig)).toEqual(httpSignedDataGatewayUrl);
     });
   });
 
@@ -138,7 +156,11 @@ describe('reportHeartbeat', () => {
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region: 'us-east1' };
       const state = coordinatorState.create(config, 'coordinatorId');
-
+      const heartbeatPayload = {
+        http_gateway_url: httpGatewayUrl,
+        http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+      };
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
       const logs = await heartbeat.reportHeartbeat(state);
 
       expect(logs).toEqual([
@@ -153,8 +175,10 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          http_gateway_url: 'https://some.http.gateway.url/v1/',
-          http_signed_data_gateway_url: 'https://some.http.signed.data.gateway.url/v1/',
+          http_gateway_url: httpGatewayUrl,
+          http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+          signature,
+          timestamp,
         },
         timeout: 5_000,
       });
@@ -165,7 +189,11 @@ describe('reportHeartbeat', () => {
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
-
+      const heartbeatPayload = {
+        http_gateway_url: 'http://localhost:8765/http-data',
+        http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
+      };
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
       const logs = await heartbeat.reportHeartbeat(state);
 
       expect(logs).toEqual([
@@ -180,11 +208,49 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          http_gateway_url: 'http://localhost:8765/http-data',
-          http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
+          ...heartbeatPayload,
+          signature,
+          timestamp,
         },
         timeout: 5_000,
       });
     });
+  });
+
+  describe('signHearbeat', () => {
+    const heartbeatPayload = {
+      http_gateway_url: httpGatewayUrl,
+      http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+    };
+    const airnodeAddress = fixtures.getAirnodeWallet().address;
+
+    it('signs verifiable heartbeat', async () => {
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
+      const signerAddress = ethers.utils.verifyMessage(
+        ethers.utils.arrayify(
+          ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
+        ),
+        signature
+      );
+
+      expect(signature).toEqual(
+        '0xde49c22487107a1f46f1a35f47d2e50fdb94a518c8fc79a93ef046984ac2108a0f0b68269076b3de97d4447b04563527fd0d86fbe72f31eadb2dc4f6eea33c161c'
+      );
+      expect(signerAddress).toEqual(airnodeAddress);
+    });
+  });
+
+  it('handles signature errors', async () => {
+    const signatureError = new Error('Signature error');
+    jest.spyOn(heartbeat, 'signHeartbeat').mockImplementationOnce(() => {
+      throw signatureError;
+    });
+
+    const config = fixtures.buildConfig();
+    const coordinatorId = randomHexString(16);
+    const state = coordinatorState.create(config, coordinatorId);
+    const res = await heartbeat.reportHeartbeat(state);
+
+    expect(res).toEqual([{ level: 'ERROR', message: 'Failed to sign heartbeat', error: signatureError }]);
   });
 });

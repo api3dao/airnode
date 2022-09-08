@@ -9,3 +9,12 @@ export const getAirnodeWalletPrivateKey = (mnemonic?: string) => {
   const { airnodeWalletMnemonic } = buildNodeSettings();
   return ethers.Wallet.fromMnemonic(airnodeWalletMnemonic).privateKey;
 };
+
+export const getAirnodeWallet = (mnemonic?: string) => {
+  // Return the wallet from the input mnemonic
+  if (mnemonic) return ethers.Wallet.fromMnemonic(mnemonic);
+
+  // Otherwise return the wallet of the default fixtures mnemonic
+  const { airnodeWalletMnemonic } = buildNodeSettings();
+  return ethers.Wallet.fromMnemonic(airnodeWalletMnemonic);
+};
