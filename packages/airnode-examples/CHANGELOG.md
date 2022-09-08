@@ -107,7 +107,7 @@
 
 - [#1158](https://github.com/api3dao/airnode/pull/1158) [`e42aa310`](https://github.com/api3dao/airnode/commit/e42aa3101d35f7968443ed166f57ae653e754095) Thanks [@Siegrift](https://github.com/Siegrift)! - Improve TS project references structure, fix published files for airnode-examples
 
-* [#1130](https://github.com/api3dao/airnode/pull/1130) [`8b421f64`](https://github.com/api3dao/airnode/commit/8b421f64e2b720098b22109c2df49f86a1f2531f) Thanks [@kolenic-martin](https://github.com/kolenic-martin)! - Added SELinux information to airnode-examples README.
+* [#1130](https://github.com/api3dao/airnode/pull/1130) [`8b421f64`](https://github.com/api3dao/airnode/commit/8b421f64e2b720098b22109c2df49f86a1f2531f) Thanks [@kolenic-martin](https://github.com/martinkolenic)! - Added SELinux information to airnode-examples README.
 
 - [#1228](https://github.com/api3dao/airnode/pull/1228) [`df92a04f`](https://github.com/api3dao/airnode/commit/df92a04fd6ddc0763d3b3d2fc3aa3d0d3f0a8b92) Thanks [@dcroote](https://github.com/dcroote)! - Improve coingecko-signed-data examples integration
 
@@ -127,7 +127,7 @@
 
 ### Minor Changes
 
-- [#940](https://github.com/api3dao/airnode/pull/940) [`f222f89a`](https://github.com/api3dao/airnode/commit/f222f89a0ec8643ca4f505ed786764d4c5bdf6a7) Thanks [@kolenic-martin](https://github.com/kolenic-martin)! - Added an Airnode example demonstrating invalid API request
+- [#940](https://github.com/api3dao/airnode/pull/940) [`f222f89a`](https://github.com/api3dao/airnode/commit/f222f89a0ec8643ca4f505ed786764d4c5bdf6a7) Thanks [@kolenic-martin](https://github.com/martinkolenic)! - Added an Airnode example demonstrating invalid API request
 
 * [`048a4c83`](https://github.com/api3dao/airnode/commit/048a4c830151947c4869cde9b6d5a7f67a606c31) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Release new version
 
