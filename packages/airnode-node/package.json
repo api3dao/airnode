@@ -31,12 +31,12 @@
     "@api3/airnode-validator": "^0.7.1",
     "@api3/ois": "^1.1.1",
     "@api3/promise-utils": "^0.3.0",
-    "aws-sdk": "^2.1194.0",
+    "aws-sdk": "^2.1204.0",
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
-    "ethers": "^5.6.9",
+    "ethers": "^5.7.0",
     "express": "^4.18.1",
-    "google-auth-library": "^8.1.1",
+    "google-auth-library": "^8.4.0",
     "lodash": "^4.17.21",
     "yargs": "^17.5.1",
     "zod": "^3.17.3"
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@api3/airnode-operation": "^0.7.1",
     "@types/express": "^4.17.13",
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^28.1.8",
     "@types/lodash": "^4.14.184",
     "@types/node": "^17.0.18",
     "@types/yargs": "^17.0.11",
@@ -53,6 +53,6 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   }
 }

@@ -61,7 +61,7 @@ describe('encode', () => {
       { type: 'int256', name: 'balance', value: '-100' },
       { type: 'xyz', name: 'holders', value: '100' },
     ];
-    expect(() => encoding.encode(parameters as any)).toThrowError();
+    expect(() => encoding.encode(parameters as any)).toThrow();
   });
 
   describe('encoding boolean value', () => {

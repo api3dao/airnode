@@ -24,9 +24,6 @@
     "make-request": "ts-node src/scripts/make-request.ts",
     "make-withdrawal-request": "ts-node src/scripts/make-withdrawal-request.ts",
     "print-account-details": "ts-node src/scripts/print-account-details.ts",
-    "rebuild-airnode-container": "ts-node src/scripts/rebuild-airnode-container.ts",
-    "rebuild-artifacts-container": "ts-node src/scripts/rebuild-artifacts-container.ts",
-    "rebuild-deployer-container": "ts-node src/scripts/rebuild-deployer-container.ts",
     "remove-airnode": "ts-node src/scripts/remove-airnode.ts",
     "run-airnode-locally": "ts-node src/scripts/run-airnode-locally.ts",
     "sponsor-requester": "ts-node src/scripts/sponsor-requester.ts",
@@ -41,13 +38,13 @@
     "@api3/airnode-node": "^0.7.1",
     "@api3/airnode-protocol": "^0.7.1",
     "@api3/airnode-utilities": "^0.7.1",
-    "ethers": "^5.6.9",
+    "ethers": "^5.7.0",
     "is-wsl": "^2.2.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^28.1.8",
     "@types/node": "^17.0.18",
     "@types/prompts": "^2.0.14",
     "chalk": "^4.1.2",
@@ -58,6 +55,6 @@
     "prompts": "^2.4.2",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   }
 }

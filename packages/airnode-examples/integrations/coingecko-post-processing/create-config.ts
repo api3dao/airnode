@@ -75,6 +75,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         endpointId: '0x7ad7519b2b0ebd54c68356a314ffcacd7f897a08523e2ec9e0edd837fe995422',
         oisTitle: 'CoinGecko coins markets request',
         endpointName: 'coinsMarketData',
+        cacheResponses: false,
       },
     ],
     http: [],

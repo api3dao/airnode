@@ -1,14 +1,21 @@
 import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
-import { logger, formatDateTime } from '@api3/airnode-utilities';
+import pickBy from 'lodash/pickBy';
+import { logger, formatDateTime, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import * as calls from '../coordinator/calls';
 import * as providers from '../providers';
 import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as coordinatorState from '../coordinator/state';
-import { CoordinatorState, CoordinatorStateWithApiResponses, WorkerOptions } from '../types';
+import {
+  CoordinatorState,
+  CoordinatorStateWithApiResponses,
+  WorkerOptions,
+  RegularApiCallSuccessResponse,
+  RegularAggregatedApiCallWithResponse,
+} from '../types';
 import { Config } from '../config';
 
 export async function startCoordinator(config: Config, coordinatorId: string) {
@@ -88,12 +95,44 @@ function aggregateApiCalls(state: CoordinatorState) {
 async function executeApiCalls(state: CoordinatorState) {
   const { aggregatedApiCallsById } = state;
 
-  const aggregatedApiCalls = Object.values(aggregatedApiCallsById);
+  const cachedKeys = caching.getKeys('requestId-');
+
+  const filteredUncachedAggregatedApiCalls = pickBy(
+    aggregatedApiCallsById,
+    (_value, key) => !cachedKeys.includes(`requestId-${key}`)
+  );
+
+  const filteredCachedAggregatedApiCalls: RegularAggregatedApiCallWithResponse[] = Object.entries(
+    aggregatedApiCallsById
+  )
+    .filter(([id, _value]) => cachedKeys.includes(`requestId-${id}`))
+    .map(([id, apiCall]) => {
+      const data = caching.getValueForKey(`requestId-${id}`);
+      return {
+        ...apiCall,
+        data,
+        // only previously successful API calls are cached
+        success: true,
+      };
+    });
+
+  const aggregatedApiCalls = Object.values(filteredUncachedAggregatedApiCalls);
+
   const [logs, processedAggregatedApiCalls] = await calls.callApis(aggregatedApiCalls, getWorkerOptions(state));
   logger.logPending(logs);
 
+  processedAggregatedApiCalls
+    .filter((call) => call.success && call.cacheResponses)
+    .forEach((call) => {
+      caching.addKey(`requestId-${call.id}`, (call as RegularApiCallSuccessResponse).data);
+    });
+
+  caching.syncFsSync();
+
+  const mergedProcessedAggregatedApiCalls = [...processedAggregatedApiCalls, ...filteredCachedAggregatedApiCalls];
+
   logger.info('Executed API calls');
-  const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
+  const processedAggregatedApiCallsById = keyBy(mergedProcessedAggregatedApiCalls, 'id');
   return coordinatorState.update(state, {
     aggregatedApiCallsById: processedAggregatedApiCallsById,
   }) as CoordinatorStateWithApiResponses;
@@ -139,6 +178,8 @@ function applyChainRequestLimits(state: CoordinatorState) {
 }
 
 async function coordinator(config: Config, coordinatorId: string): Promise<CoordinatorState> {
+  caching.initPath();
+
   // =================================================================
   // STEP 1: Create a blank coordinator state
   // =================================================================

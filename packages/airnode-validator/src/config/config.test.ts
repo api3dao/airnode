@@ -465,6 +465,10 @@ describe('relay metadata', () => {
     ],
   };
 
+  // exclude cacheResponses specific to rrp
+  const { endpointId, endpointName, oisTitle } = configWithRelayedMetadataSecurityScheme.triggers.rrp[0];
+  const trigger = { endpointId, endpointName, oisTitle };
+
   it(`is ok if there are relay metadata security schemes but there are no gateways`, () => {
     expect(() => configSchema.parse(configWithRelayedMetadataSecurityScheme)).not.toThrow();
   });
@@ -474,7 +478,7 @@ describe('relay metadata', () => {
       ...config,
       triggers: {
         ...config.triggers,
-        http: [{ ...config.triggers.rrp[0] }],
+        http: [trigger],
       },
     };
 
@@ -486,7 +490,7 @@ describe('relay metadata', () => {
       ...configWithRelayedMetadataSecurityScheme,
       triggers: {
         ...configWithRelayedMetadataSecurityScheme.triggers,
-        http: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+        http: [trigger],
       },
     };
 
@@ -506,7 +510,7 @@ describe('relay metadata', () => {
       ...configWithRelayedMetadataSecurityScheme,
       triggers: {
         ...configWithRelayedMetadataSecurityScheme.triggers,
-        httpSignedData: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+        httpSignedData: [trigger],
       },
     };
 
@@ -526,8 +530,8 @@ describe('relay metadata', () => {
       ...configWithRelayedMetadataSecurityScheme,
       triggers: {
         ...configWithRelayedMetadataSecurityScheme.triggers,
-        http: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
-        httpSignedData: [{ ...configWithRelayedMetadataSecurityScheme.triggers.rrp[0] }],
+        http: [trigger],
+        httpSignedData: [trigger],
       },
     };
 

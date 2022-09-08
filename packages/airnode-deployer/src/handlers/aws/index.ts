@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { logger, DEFAULT_RETRY_DELAY_MS, randomHexString, setLogOptions, addMetadata } from '@api3/airnode-utilities';
+import { logger, randomHexString, setLogOptions, addMetadata, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import {
   handlers,
@@ -15,6 +15,8 @@ import {
   verifyRequestOrigin,
 } from '@api3/airnode-node';
 
+caching.init();
+
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const parsedConfig = loadTrustedConfig(configFile, process.env);
 
@@ -27,6 +29,7 @@ export async function startCoordinator() {
   });
   await handlers.startCoordinator(parsedConfig, coordinatorId);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
+  caching.syncFsSync();
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
@@ -52,9 +55,7 @@ async function initializeProvider(payload: InitializeProviderPayload) {
   addMetadata({ 'Chain-ID': chainId, Provider: providerName });
   const stateWithConfig = { ...state, config: parsedConfig };
 
-  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig), {
-    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
-  });
+  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig));
   if (!goInitializedState.success) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     logger.error(goInitializedState.error.toString());
@@ -91,9 +92,7 @@ async function processTransactions(payload: ProcessTransactionsPayload) {
   const stateWithConfig = { ...state, config: parsedConfig };
   addMetadata({ 'Chain-ID': chainId, Provider: providerName, 'Sponsor-Address': state.sponsorAddress });
 
-  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig), {
-    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
-  });
+  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig));
   if (!goUpdatedState.success) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     logger.error(goUpdatedState.error.toString());

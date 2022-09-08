@@ -71,7 +71,7 @@ export interface RequestFulfillment {
   readonly hash: string;
 }
 
-export type Request<T extends {}> = T & {
+export type Request<T> = T & {
   readonly id: string;
   readonly airnodeAddress: string;
   readonly sponsorAddress: string;
@@ -145,7 +145,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly xpub: string;
 }
 
-export type ProviderState<T extends {}> = T & {
+export type ProviderState<T> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
   readonly id: string;
@@ -273,6 +273,7 @@ export interface RegularAggregatedApiCall extends BaseAggregatedApiCall {
   fulfillFunctionId: string;
   encodedParameters: string;
   template?: ApiCallTemplate;
+  cacheResponses?: boolean;
 }
 
 export type RegularAggregatedApiCallWithResponse = RegularAggregatedApiCall & RegularApiCallResponse;

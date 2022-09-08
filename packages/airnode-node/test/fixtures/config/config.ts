@@ -1,13 +1,23 @@
 import { parseConfig } from '@api3/airnode-validator';
 import * as ois from './ois';
 import * as settings from './node-settings';
-import { ApiCredentials, Config, Trigger } from '../../../src/config';
+import { ApiCredentials, Config, RrpTrigger, Trigger } from '../../../src/config';
 
 export function buildTrigger(overrides?: Partial<Trigger>): Trigger {
   return {
     endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
     endpointName: 'convertToUSD',
     oisTitle: 'Currency Converter API',
+    ...overrides,
+  };
+}
+
+export function buildRrpTrigger(overrides?: Partial<RrpTrigger>): RrpTrigger {
+  return {
+    endpointId: '0x13dea3311fe0d6b84f4daeab831befbc49e19e6494c41e9e065a09c3c68f43b6',
+    endpointName: 'convertToUSD',
+    oisTitle: 'Currency Converter API',
+    cacheResponses: false,
     ...overrides,
   };
 }
@@ -73,7 +83,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
     ],
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
-      rrp: [buildTrigger()],
+      rrp: [buildRrpTrigger()],
       http: [buildTrigger()],
       httpSignedData: [buildTrigger()],
     },
