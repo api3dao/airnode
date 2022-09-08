@@ -119,7 +119,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    const httpGatewayPath = `/${HTTP_BASE_PATH}/:endpointId`;
+    const httpGatewayPath = `${HTTP_BASE_PATH}/:endpointId`;
     const httpRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http data`);
 

@@ -117,14 +117,14 @@ yarn print-account-details
 This script will show you the address of the account derived from the specified mnemonic. This account will be used to
 deploy the contracts and make transactions, so make sure it is funded. The recommended amount is at least 0.3 ETH.
 
-#### 4. Deploy the RRP contract
+#### 4. (Only if using local blockchain) Deploy the RRP contract
 
 The [RRP contract](https://docs.api3.org/airnode/latest/concepts/#airnoderrp-sol) is a contract through which the
 [requester](https://docs.api3.org/airnode/latest/concepts/requester.html) triggers a request for Airnode. This contract
 is common for all Airnodes and requesters on a chain.
 
-The API3 team will deploy this contract for the most popular chains at some point, but for now you have to deploy it
-yourself using:
+If you are using a local blockchain, deploy the contact using the command below. Otherwise, the contract deployed by
+API3 on the chosen chain will be used automatically.
 
 ```sh
 yarn deploy-rrp

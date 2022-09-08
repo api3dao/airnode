@@ -36,7 +36,7 @@ const runNpmRegistry = async () => {
   // Waiting for container to become ready
   const goPing = await go(() => axios.get(npmRegistryContainerUrl), {
     retries: 10,
-    delay: { type: 'static', delayMs: 500 },
+    delay: { type: 'static', delayMs: 1000 },
   });
   if (!goPing.success) {
     stopNpmRegistry(npmRegistryContainerName);
