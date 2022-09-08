@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { logger } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
@@ -18,6 +17,7 @@ const httpSignedDataBodySchema = z.object({
   encodedParameters: z.string(),
 });
 const DEFAULT_PORT = 3000;
+const DEFAULT_PATH_KEY = '05701bc4-4eb4-4f60-b4eb-075c80ea98c6';
 
 export function getGatewaysUrl(port: number = DEFAULT_PORT, path?: string) {
   const base = `http://localhost:${port || DEFAULT_PORT}`;
@@ -40,8 +40,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    const pathKey = randomUUID();
-    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/${pathKey}/:endpointId`;
+    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http signed data`);
 
@@ -102,8 +101,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    const pathKey = randomUUID();
-    const httpGatewayPath = `${HTTP_BASE_PATH}/${pathKey}/:endpointId`;
+    const httpGatewayPath = `${HTTP_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http data`);
 

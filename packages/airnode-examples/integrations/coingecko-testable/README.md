@@ -34,11 +34,10 @@ curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "
 ### When running Airnode locally
 
 When Airnode is run locally, the HTTP gateway endpoint is always
-`http://localhost:<PORT>/http-data/<PATH_KEY>/<ENDPOINT_ID>`. The `PATH_KEY` is a random UUID generated when the server
-is started and can be found in the logs after the container is run.
+`http://localhost:<PORT>/http-data/05701bc4-4eb4-4f60-b4eb-075c80ea98c6/<ENDPOINT_ID>`.
 
 For example:
 
 ```sh
-curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'http://localhost:3000/http-data/664f6a73-ff1d-411b-aec7-f054fb2e3d9d/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "bitcoin"}}' 'http://localhost:3000/http-data/05701bc4-4eb4-4f60-b4eb-075c80ea98c6/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
