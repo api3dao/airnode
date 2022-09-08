@@ -1,9 +1,11 @@
+import { ethers } from 'ethers';
 import { execute } from '@api3/airnode-adapter';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { Config, getEnvValue } from '../config';
 import { CoordinatorState } from '../types';
 import { getGatewaysUrl, HTTP_BASE_PATH, HTTP_SIGNED_DATA_BASE_PATH } from '../workers/local-gateways/server';
+import { getAirnodeWalletFromPrivateKey } from '../evm';
 
 export function getHttpGatewayUrl(config: Config) {
   if (config.nodeSettings.cloudProvider.type === 'local') {
@@ -20,8 +22,30 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 }
 
+export const signHeartbeat = async (
+  heartbeatPayload: {
+    cloud_provider: string;
+    stage: string;
+    region?: string;
+    http_gateway_url?: string;
+    httpSignedDataGatewayUrl?: string;
+  },
+  timestamp: number
+) => {
+  const airnodeWallet = getAirnodeWalletFromPrivateKey();
+
+  return await airnodeWallet.signMessage(
+    ethers.utils.arrayify(
+      ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
+    )
+  );
+};
+
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
-  const heartbeat = state.config.nodeSettings.heartbeat;
+  const { config } = state;
+  const {
+    nodeSettings: { heartbeat, cloudProvider, stage },
+  } = config;
 
   if (!heartbeat.enabled) {
     const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled`);
@@ -29,8 +53,23 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const { apiKey, url } = heartbeat;
-  const httpGatewayUrl = getHttpGatewayUrl(state.config);
-  const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(state.config);
+  const httpGatewayUrl = getHttpGatewayUrl(config);
+  const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
+
+  const heartbeatPayload = {
+    stage,
+    cloud_provider: cloudProvider.type,
+    ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
+    ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
+    ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
+  };
+  const timestamp = Date.now();
+
+  const goSignHeartbeat = await go(() => signHeartbeat(heartbeatPayload, timestamp));
+  if (!goSignHeartbeat.success) {
+    const log = logger.pend('ERROR', 'Failed to sign heartbeat', goSignHeartbeat.error);
+    return [log];
+  }
 
   const request = {
     url,
@@ -39,8 +78,9 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
       'airnode-heartbeat-api-key': apiKey,
     },
     data: {
-      ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
-      ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
+      ...heartbeatPayload,
+      signature: goSignHeartbeat.data,
+      timestamp,
     },
     timeout: 5_000,
   };

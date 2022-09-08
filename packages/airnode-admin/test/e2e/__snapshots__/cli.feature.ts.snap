@@ -27,8 +27,8 @@ Commands:
                                           use the Airnode–endpoint pair
   cli.js generate-airnode-mnemonic        Generates a random mnemonic which can be used in the Airnode config and
                                           displays the corresponding address and extended public key. Uses
-                                          \\"ethers.Wallet.createRandom\\" under the hood
-  cli.js generate-mnemonic                Generates a random mnemonic. Uses \\"ethers.Wallet.createRandom\\" under the hood
+                                          "ethers.Wallet.createRandom" under the hood
+  cli.js generate-mnemonic                Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood
   cli.js derive-airnode-address           Derives the airnode address which is the identifier of the particular Airnode
                                           on chain
 
@@ -37,12 +37,12 @@ Options:
   --help     Show help                                                                                         [boolean]
 
 Examples:
-  cli.js derive-airnode-address --airnode-mnemonic \\"test test test test test test test test test test test junk\\"
+  cli.js derive-airnode-address --airnode-mnemonic "test test test test test test test test test test test junk"
 
   cli.js derive-sponsor-wallet-address --airnode-xpub
   xpub6Ce9NcJvTk36xtLSrJLZqE7wtgA5deCeYs7rSQtreh4cj6ByPtrg9sD7V2FNFLPnf8heNP3FGkeV9qwfzvZNSd54JoNXVsXFYSYwHsnJxqP
   --airnode-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --sponsor-address
   0x70997970c51812dc3a010c7d01b50e0d17dc79c8
 
-  cli.js derive-endpoint-id --ois-title \\"title\\" --endpoint-name \\"endpoint\\""
+  cli.js derive-endpoint-id --ois-title "title" --endpoint-name "endpoint""
 `;

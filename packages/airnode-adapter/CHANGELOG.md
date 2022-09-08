@@ -1,5 +1,19 @@
 # @api3/airnode-adapter
 
+## 0.8.0
+
+### Minor Changes
+
+- b799a215: Add authorizations configuration to config.json
+- c7d689e7: Add authorizer type to config.json
+- 115c13db: Use @api3/ois package and remove @api3/airnode-ois
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- ffba0579: Implement relayRequestId security scheme and use it in the the relay security schemes example integration
+- eade375b: callApi handler argument refactor
+
 ## 0.7.1
 
 ### Patch Changes
