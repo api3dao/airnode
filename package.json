@@ -16,7 +16,7 @@
     ]
   },
   "scripts": {
-    "bootstrap": "yarn install && lerna bootstrap",
+    "bootstrap": "yarn install --frozen-lockfile && lerna bootstrap",
     "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
     "build:adapter": "(cd packages/airnode-adapter && yarn run build)",
     "build:admin": "(cd packages/airnode-admin && yarn run build)",
