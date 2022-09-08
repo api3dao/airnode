@@ -1,5 +1,37 @@
 # @api3/airnode-utilities
 
+## 0.8.0
+
+### Minor Changes
+
+- 19349611: Update logger options to be set at the start of a handler invocation instead of each logger call
+- f7c3bb9f: Replace attempt library retries with promise-utils
+- c4e33ea7: Add per-endpoint rrp response caching via new (required) `cacheResponses` flag in triggers.rrp[n] of config.json.
+- b799a215: Add authorizations configuration to config.json
+- 85da1624: Replace gas prices with gas oracle strategies
+- 28d1d81b: Merge meta and additional fields of logger
+- c7d689e7: Add authorizer type to config.json
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- Updated dependencies [87ff06e3]
+- Updated dependencies [8abc3d4e]
+- Updated dependencies [c2c2281e]
+- Updated dependencies [aac8fab3]
+- Updated dependencies [eedbba54]
+- Updated dependencies [c4e33ea7]
+- Updated dependencies [b799a215]
+- Updated dependencies [85da1624]
+- Updated dependencies [ffba0579]
+- Updated dependencies [d7ca4af8]
+- Updated dependencies [c7d689e7]
+- Updated dependencies [0f68d678]
+- Updated dependencies [e34bfb8e]
+- Updated dependencies [11d49f21]
+- Updated dependencies [55022c55]
+  - @api3/airnode-validator@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

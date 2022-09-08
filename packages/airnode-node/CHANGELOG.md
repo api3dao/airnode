@@ -1,5 +1,61 @@
 # @api3/airnode-node
 
+## 0.8.0
+
+### Minor Changes
+
+- 08fc5aa2: Define protocol indices in airnode-protocol
+- 87ff06e3: Unify error handling of AWS and GCP gateways
+- 19349611: Update logger options to be set at the start of a handler invocation instead of each logger call
+- aac8fab3: Support HTTP gateways with airnode-client
+- f7c3bb9f: Replace attempt library retries with promise-utils
+- c4e33ea7: Add per-endpoint rrp response caching via new (required) `cacheResponses` flag in triggers.rrp[n] of config.json.
+- b799a215: Add authorizations configuration to config.json
+- 85da1624: Replace gas prices with gas oracle strategies
+- 28d1d81b: Merge meta and additional fields of logger
+- c7d689e7: Add authorizer type to config.json
+- 192156fd: Rework building of Docker images
+- 115c13db: Use @api3/ois package and remove @api3/airnode-ois
+- d2b588e8: Derive Airnode wallet private key during deployment, add it to environment variables, use private key to derive Airnode wallet
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- d63e89a0: Use config chainId instead of the chainId from event logs
+- 45198315: Add networks mapping to airnode-protocol references.json
+- eade375b: callApi handler argument refactor
+- a56c4605: Fix airnode-client httpGatewayPath by removing extra `/`
+- af3abb0d: Export functions in /api directory
+- fe0c102b: Properly handle error when doing sequential request submit
+- 69dfe2ac: Improve Airnode logs for callStatic errors by including error message
+- Updated dependencies [08fc5aa2]
+- Updated dependencies [87ff06e3]
+- Updated dependencies [8abc3d4e]
+- Updated dependencies [19349611]
+- Updated dependencies [c2c2281e]
+- Updated dependencies [aac8fab3]
+- Updated dependencies [eedbba54]
+- Updated dependencies [f7c3bb9f]
+- Updated dependencies [45198315]
+- Updated dependencies [c4e33ea7]
+- Updated dependencies [b799a215]
+- Updated dependencies [85da1624]
+- Updated dependencies [ffba0579]
+- Updated dependencies [eade375b]
+- Updated dependencies [d7ca4af8]
+- Updated dependencies [28d1d81b]
+- Updated dependencies [c7d689e7]
+- Updated dependencies [115c13db]
+- Updated dependencies [0f68d678]
+- Updated dependencies [e34bfb8e]
+- Updated dependencies [11d49f21]
+- Updated dependencies [55022c55]
+  - @api3/airnode-protocol@0.8.0
+  - @api3/airnode-validator@0.8.0
+  - @api3/airnode-utilities@0.8.0
+  - @api3/airnode-adapter@0.8.0
+  - @api3/airnode-abi@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

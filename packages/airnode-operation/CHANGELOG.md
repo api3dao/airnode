@@ -1,5 +1,30 @@
 # @api3/airnode-operation
 
+## 0.8.0
+
+### Minor Changes
+
+- 08fc5aa2: Define protocol indices in airnode-protocol
+- b799a215: Add authorizations configuration to config.json
+- c7d689e7: Add authorizer type to config.json
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- Updated dependencies [08fc5aa2]
+- Updated dependencies [19349611]
+- Updated dependencies [f7c3bb9f]
+- Updated dependencies [45198315]
+- Updated dependencies [c4e33ea7]
+- Updated dependencies [b799a215]
+- Updated dependencies [85da1624]
+- Updated dependencies [28d1d81b]
+- Updated dependencies [c7d689e7]
+- Updated dependencies [e34bfb8e]
+  - @api3/airnode-protocol@0.8.0
+  - @api3/airnode-utilities@0.8.0
+  - @api3/airnode-abi@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

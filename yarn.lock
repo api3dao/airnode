@@ -10,7 +10,7 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@api3/ois@^1.1.1":
+"@api3/ois@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-1.1.1.tgz#8760c3d4d35435d68a4726ac9d4d17e91e0ac02e"
   integrity sha512-u7LPVmcstVdgNXnZ0JgWV23NA4SPnT8Uk5PkguFnmMr1Or1J7TO4Iq2lpTJnzJcwUTy52MndCfEMVvGvHJ5Pww==
@@ -7472,7 +7472,6 @@ ethereumjs-abi@0.6.8, ethereumjs-abi@^0.6.8:
 
 "ethereumjs-abi@git+https://github.com/ethereumjs/ethereumjs-abi.git":
   version "0.6.8"
-  uid ee3994657fa7a427238e6ba92a84d0b529bbcde0
   resolved "git+https://github.com/ethereumjs/ethereumjs-abi.git#ee3994657fa7a427238e6ba92a84d0b529bbcde0"
   dependencies:
     bn.js "^4.11.8"
