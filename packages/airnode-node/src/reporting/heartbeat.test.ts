@@ -41,6 +41,8 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = {
+      stage: state.config.nodeSettings.stage,
+      cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
     };
@@ -72,6 +74,8 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = {
+      stage: state.config.nodeSettings.stage,
+      cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
     };
@@ -151,12 +155,16 @@ describe('reportHeartbeat', () => {
       },
     };
 
-    it('are send when deployed to cloud', async () => {
+    it('are sent when deployed to cloud', async () => {
       executeMock.mockResolvedValueOnce({ received: true });
       const config = cloneDeep(baseConfig);
-      config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region: 'us-east1' };
+      const region = 'us-east1';
+      config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = {
+        stage: state.config.nodeSettings.stage,
+        cloud_provider: state.config.nodeSettings.cloudProvider.type,
+        region,
         http_gateway_url: httpGatewayUrl,
         http_signed_data_gateway_url: httpSignedDataGatewayUrl,
       };
@@ -175,8 +183,7 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          http_gateway_url: httpGatewayUrl,
-          http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+          ...heartbeatPayload,
           signature,
           timestamp,
         },
@@ -184,12 +191,14 @@ describe('reportHeartbeat', () => {
       });
     });
 
-    it('are send when run inside Airnode client', async () => {
+    it('are sent when run inside Airnode client', async () => {
       executeMock.mockResolvedValueOnce({ received: true });
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = {
+        stage: state.config.nodeSettings.stage,
+        cloud_provider: state.config.nodeSettings.cloudProvider.type,
         http_gateway_url: 'http://localhost:8765/http-data',
         http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
       };
@@ -218,11 +227,13 @@ describe('reportHeartbeat', () => {
   });
 
   describe('signHearbeat', () => {
+    const airnodeAddress = fixtures.getAirnodeWallet().address;
     const heartbeatPayload = {
+      stage: 'test',
+      cloud_provider: 'local',
       http_gateway_url: httpGatewayUrl,
       http_signed_data_gateway_url: httpSignedDataGatewayUrl,
     };
-    const airnodeAddress = fixtures.getAirnodeWallet().address;
 
     it('signs verifiable heartbeat', async () => {
       const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
@@ -234,7 +245,7 @@ describe('reportHeartbeat', () => {
       );
 
       expect(signature).toEqual(
-        '0xde49c22487107a1f46f1a35f47d2e50fdb94a518c8fc79a93ef046984ac2108a0f0b68269076b3de97d4447b04563527fd0d86fbe72f31eadb2dc4f6eea33c161c'
+        '0x3d63a776155b1ea16eff0a8399fe16ed25e1f207300136918979074e80bd2cab75ee200bb4148e294a0867a42520eeed1a2214f190e3369914b5d2116c2cde141b'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });

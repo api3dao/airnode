@@ -24,6 +24,9 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
 
 export const signHeartbeat = async (
   heartbeatPayload: {
+    cloud_provider: string;
+    stage: string;
+    region?: string;
     http_gateway_url?: string;
     httpSignedDataGatewayUrl?: string;
   },
@@ -39,7 +42,10 @@ export const signHeartbeat = async (
 };
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
-  const heartbeat = state.config.nodeSettings.heartbeat;
+  const { config } = state;
+  const {
+    nodeSettings: { heartbeat, cloudProvider, stage },
+  } = config;
 
   if (!heartbeat.enabled) {
     const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled`);
@@ -47,10 +53,13 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   }
 
   const { apiKey, url } = heartbeat;
-  const httpGatewayUrl = getHttpGatewayUrl(state.config);
-  const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(state.config);
+  const httpGatewayUrl = getHttpGatewayUrl(config);
+  const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
 
   const heartbeatPayload = {
+    stage,
+    cloud_provider: cloudProvider.type,
+    ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
     ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
     ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
   };
