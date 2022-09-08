@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.8.0
+
+### Minor Changes
+
+- e34bfb8e: Link monorepo packages using project references
+
 ## 0.7.1
 
 ### Patch Changes

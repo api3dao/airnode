@@ -1,5 +1,28 @@
 # @api3/airnode-validator
 
+## 0.8.0
+
+### Minor Changes
+
+- 87ff06e3: Unify error handling of AWS and GCP gateways
+- 8abc3d4e: Automatically try removing failed Airnode deployment
+- aac8fab3: Support HTTP gateways with airnode-client
+- eedbba54: Remove gateway URLs from receipt.json
+- c4e33ea7: Add per-endpoint rrp response caching via new (required) `cacheResponses` flag in triggers.rrp[n] of config.json.
+- b799a215: Add authorizations configuration to config.json
+- 85da1624: Replace gas prices with gas oracle strategies
+- d7ca4af8: Add corsOrigins field to config.json, handle CORS checks in deployer handlers, add OPTIONS http method to terraform templates
+- c7d689e7: Add authorizer type to config.json
+- 0f68d678: Add success property inside receipt.json
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- c2c2281e: Remove `hearbeatId` and `api` object from `receipt.json`
+- ffba0579: Implement relayRequestId security scheme and use it in the the relay security schemes example integration
+- 11d49f21: Support multiline secrets in validator
+- 55022c55: Improve validator cloudProvider error message
+
 ## 0.7.1
 
 ### Patch Changes

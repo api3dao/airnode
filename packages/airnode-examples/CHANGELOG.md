@@ -1,5 +1,72 @@
 # @api3/airnode-examples
 
+## 0.8.0
+
+### Minor Changes
+
+- aac8fab3: Support HTTP gateways with airnode-client
+- eedbba54: Remove gateway URLs from receipt.json
+- f7c3bb9f: Replace attempt library retries with promise-utils
+- b799a215: Add authorizations configuration to config.json
+- 85da1624: Replace gas prices with gas oracle strategies
+- d7ca4af8: Add corsOrigins field to config.json, handle CORS checks in deployer handlers, add OPTIONS http method to terraform templates
+- c7d689e7: Add authorizer type to config.json
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- d5662649: Splits deployer remove command in two and changes default receipt.json output folder to config/ rather than output/
+- f0a18d43: Mount aws.env to the deployer docker image and export with the entryfile
+- ffba0579: Implement relayRequestId security scheme and use it in the the relay security schemes example integration
+- 62f9449f: Add latestBlockPercentileGasPrice and providerRecommendedGasPrice to airnode-examples configs
+- a766807f: Fix naming for some of the GCP regions
+- e5ac77b8: Move cloud auth files into the config directory
+- 661a6f17: Default to deployed AirnodeRrpV0 in airnode-examples rather than requiring the user to deploy the contract themselves
+- Updated dependencies [d5662649]
+- Updated dependencies [08fc5aa2]
+- Updated dependencies [87ff06e3]
+- Updated dependencies [8abc3d4e]
+- Updated dependencies [19349611]
+- Updated dependencies [c2c2281e]
+- Updated dependencies [aac8fab3]
+- Updated dependencies [f0a18d43]
+- Updated dependencies [eb2de5fc]
+- Updated dependencies [eedbba54]
+- Updated dependencies [d63e89a0]
+- Updated dependencies [f7c3bb9f]
+- Updated dependencies [45198315]
+- Updated dependencies [ad64d01d]
+- Updated dependencies [c4e33ea7]
+- Updated dependencies [b799a215]
+- Updated dependencies [85da1624]
+- Updated dependencies [4a1f2336]
+- Updated dependencies [eade375b]
+- Updated dependencies [d7ca4af8]
+- Updated dependencies [a56c4605]
+- Updated dependencies [28d1d81b]
+- Updated dependencies [20be431a]
+- Updated dependencies [a766807f]
+- Updated dependencies [c7d689e7]
+- Updated dependencies [af3abb0d]
+- Updated dependencies [192156fd]
+- Updated dependencies [115c13db]
+- Updated dependencies [d2b588e8]
+- Updated dependencies [b9abf103]
+- Updated dependencies [0f68d678]
+- Updated dependencies [e5ac77b8]
+- Updated dependencies [e34bfb8e]
+- Updated dependencies [fe0c102b]
+- Updated dependencies [9be7fa09]
+- Updated dependencies [69dfe2ac]
+- Updated dependencies [1b873194]
+- Updated dependencies [604085c9]
+  - @api3/airnode-deployer@0.8.0
+  - @api3/airnode-admin@0.8.0
+  - @api3/airnode-node@0.8.0
+  - @api3/airnode-protocol@0.8.0
+  - @api3/airnode-utilities@0.8.0
+  - @api3/airnode-abi@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes
