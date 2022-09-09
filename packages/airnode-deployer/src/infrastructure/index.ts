@@ -267,14 +267,14 @@ export async function terraformAirnodeApply(
   commonArguments.push(['var', 'max_concurrency', `${maxConcurrency}`]);
 
   if (httpGateway?.enabled) {
-    commonArguments.push(['var', 'http_api_key', httpGateway.apiKey!]);
+    commonArguments.push(['var', 'http_gateway_enabled', 'true']);
     if (httpGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_max_concurrency', `${httpGateway.maxConcurrency}`]);
     }
   }
 
   if (httpSignedDataGateway?.enabled) {
-    commonArguments.push(['var', 'http_signed_data_api_key', httpSignedDataGateway.apiKey!]);
+    commonArguments.push(['var', 'http_signed_data_gateway_enabled', 'true']);
     if (httpSignedDataGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
     }

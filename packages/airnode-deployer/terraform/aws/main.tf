@@ -2,6 +2,12 @@
 # * switch between local and remote lambda source
 # * variable validation
 
+resource "random_uuid" "http_path_key" {
+}
+
+resource "random_uuid" "http_signed_data_path_key" {
+}
+
 module "run" {
   source = "./modules/function"
 
@@ -117,7 +123,7 @@ module "startCoordinatorBothGws" {
 
 module "httpReq" {
   source = "./modules/function"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_gateway_enabled == false ? 0 : 1
 
   name                           = "${local.name_prefix}-httpReq"
   handler                        = "index.httpReq"
@@ -131,7 +137,7 @@ module "httpReq" {
 
 module "httpGw" {
   source = "./modules/apigateway"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_gateway_enabled == false ? 0 : 1
 
   name          = "${local.name_prefix}-httpGw"
   stage         = "v1"
@@ -139,16 +145,16 @@ module "httpGw" {
   template_variables = {
     proxy_lambda = module.httpReq[0].lambda_arn
     region       = var.aws_region
+    path_key     = random_uuid.http_path_key.result
   }
   lambdas = [
     module.httpReq[0].lambda_arn
   ]
-  api_key = var.http_api_key
 }
 
 module "httpSignedReq" {
   source = "./modules/function"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   name                           = "${local.name_prefix}-httpSignedReq"
   handler                        = "index.httpSignedReq"
@@ -166,7 +172,7 @@ module "httpSignedReq" {
 
 module "httpSignedGw" {
   source = "./modules/apigateway"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   name          = "${local.name_prefix}-httpSignedGw"
   stage         = "v1"
@@ -174,9 +180,9 @@ module "httpSignedGw" {
   template_variables = {
     proxy_lambda = module.httpSignedReq[0].lambda_arn
     region       = var.aws_region
+    path_key     = random_uuid.http_signed_data_path_key.result
   }
   lambdas = [
     module.httpSignedReq[0].lambda_arn
   ]
-  api_key = var.http_signed_data_api_key
 }

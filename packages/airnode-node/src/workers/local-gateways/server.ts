@@ -2,23 +2,11 @@ import { logger } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import bodyParser from 'body-parser';
-import { VerificationResult, verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
+import { verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
 import { Config, EnabledGateway, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
 
 type GatewayName = 'httpGateway' | 'httpSignedDataGateway';
-
-function verifyApiKey(config: Config, req: Request, gatewayName: GatewayName): VerificationResult<{}> {
-  const apiKey = req.header('x-api-key');
-  const gateway = config.nodeSettings[gatewayName];
-
-  if (!apiKey || !gateway.enabled || apiKey !== gateway.apiKey) {
-    // Mimics the behavior of AWS HTTP Gateway
-    return { success: false, statusCode: 403, error: { message: 'Forbidden' } };
-  }
-
-  return { success: true };
-}
 
 // We do not want to enable ".strict()" - we want to allow extra fields in the request body
 const httpRequestBodySchema = z.object({
@@ -29,6 +17,7 @@ const httpSignedDataBodySchema = z.object({
   encodedParameters: z.string(),
 });
 const DEFAULT_PORT = 3000;
+const DEFAULT_PATH_KEY = '01234567-abcd-abcd-abcd-012345678abc';
 
 export function getGatewaysUrl(port: number = DEFAULT_PORT, path?: string) {
   const base = `http://localhost:${port || DEFAULT_PORT}`;
@@ -51,7 +40,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
   if (enabledGateways.includes('httpSignedDataGateway')) {
-    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/:endpointId`;
+    const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http signed data`);
 
@@ -73,13 +62,6 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
       // requests work as expected.
       res.set(originVerification.headers);
-
-      const apiKeyVerification = verifyApiKey(config, req, 'httpSignedDataGateway');
-      if (!apiKeyVerification.success) {
-        const { statusCode, error } = apiKeyVerification;
-        res.status(statusCode).send(error);
-        return;
-      }
 
       const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
@@ -119,7 +101,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   }
 
   if (enabledGateways.includes('httpGateway')) {
-    const httpGatewayPath = `${HTTP_BASE_PATH}/:endpointId`;
+    const httpGatewayPath = `${HTTP_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpRequestHandler = async function (req: Request, res: Response) {
       logger.log(`Received request for http data`);
 
@@ -142,13 +124,6 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
       // requests work as expected.
       res.set(originVerification.headers);
-
-      const apiKeyVerification = verifyApiKey(config, req, 'httpGateway');
-      if (!apiKeyVerification.success) {
-        const { statusCode, error } = apiKeyVerification;
-        res.status(statusCode).send(error);
-        return;
-      }
 
       const parsedBody = httpRequestBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
