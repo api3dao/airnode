@@ -13,7 +13,7 @@ contract Requester is RrpRequesterV0 {
     mapping(bytes32 => bytes32) public relayedChainType;
     mapping(bytes32 => bytes32) public relayedRequestId;
 
-    constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
+    constructor(address airnodeRrp) RrpRequesterV0(airnodeRrp) {}
 
     function makeRequest(
         address airnode,
