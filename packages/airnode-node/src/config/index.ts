@@ -5,7 +5,7 @@ import { unsafeParseConfigWithSecrets, parseConfigWithSecrets, config as configT
 import { goSync } from '@api3/promise-utils';
 
 // Accessing specifically the `config` directory so we can export the content of the `config` module not the module itself
-export * from '@api3/airnode-validator/dist/cjs/src/config';
+export * from '@api3/airnode-validator/dist/src/config';
 
 // TODO: Is this needed?
 function parseOises(oises: OIS[]): OIS[] {

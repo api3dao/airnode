@@ -15,4 +15,4 @@ There are two ways how to run the CLI from source:
 
 - Run `yarn cli ...`
 - First build the package using `yarn build`, then make the CLI binary executable by running
-  `chmod +x ./dist/cjs/bin/validator.js`. Finally, you can run `yarn airnode-validator ...`.
+  `chmod +x ./dist/bin/validator.js`. Finally, you can run `yarn airnode-validator ...`.
