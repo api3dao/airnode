@@ -1,5 +1,45 @@
 # @api3/airnode-admin
 
+## 0.8.0
+
+### Minor Changes
+
+- 08fc5aa2: Define protocol indices in airnode-protocol
+- eb2de5fc: Improve mnemonic visibility for `generate-mnemonic` command
+- b799a215: Add authorizations configuration to config.json
+- 4a1f2336: Improve mnemonic visibility in `generate-mnemonic` command
+- 20be431a: Add generate-airnode-mnemonic cli command to admin and update generate-mnemonic cli command to be more generic
+- c7d689e7: Add authorizer type to config.json
+- 192156fd: Rework building of Docker images
+- e34bfb8e: Link monorepo packages using project references
+
+### Patch Changes
+
+- Updated dependencies [08fc5aa2]
+- Updated dependencies [87ff06e3]
+- Updated dependencies [8abc3d4e]
+- Updated dependencies [19349611]
+- Updated dependencies [c2c2281e]
+- Updated dependencies [aac8fab3]
+- Updated dependencies [eedbba54]
+- Updated dependencies [f7c3bb9f]
+- Updated dependencies [45198315]
+- Updated dependencies [c4e33ea7]
+- Updated dependencies [b799a215]
+- Updated dependencies [85da1624]
+- Updated dependencies [ffba0579]
+- Updated dependencies [d7ca4af8]
+- Updated dependencies [28d1d81b]
+- Updated dependencies [c7d689e7]
+- Updated dependencies [0f68d678]
+- Updated dependencies [e34bfb8e]
+- Updated dependencies [11d49f21]
+- Updated dependencies [55022c55]
+  - @api3/airnode-protocol@0.8.0
+  - @api3/airnode-validator@0.8.0
+  - @api3/airnode-utilities@0.8.0
+  - @api3/airnode-abi@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-validator",
   "license": "MIT",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": false,
   "main": "./dist/cjs/src/index.js",
   "module": "./dist/esm/src/index.js",
