@@ -8,7 +8,7 @@ contract Requester is RrpRequesterV0 {
     mapping(bytes32 => bool) public incomingFulfillments;
     mapping(bytes32 => int256) public fulfilledData;
 
-    constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
+    constructor(address airnodeRrp) RrpRequesterV0(airnodeRrp) {}
 
     function makeRequest(
         address airnode,

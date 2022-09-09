@@ -11,7 +11,7 @@ contract Requester is RrpRequesterV0 {
     mapping(bytes32 => string) public weatherData;
     mapping(bytes32 => uint256) public timestampData;
 
-    constructor(address airnodeAddress) RrpRequesterV0(airnodeAddress) {}
+    constructor(address airnodeRrp) RrpRequesterV0(airnodeRrp) {}
 
     function makeRequest(
         address airnode,
