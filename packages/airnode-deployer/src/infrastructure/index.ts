@@ -69,7 +69,7 @@ async function runCommand(command: string, options: CommandOptions) {
 
 type CommandArg = string | [string, string] | [string, string, string];
 
-async function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
+function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
   const formattedArgs = formatTerraformArguments(args);
   const fullCommand = compact(['terraform', command, formattedArgs.join(' '), options?.join(' ')]).join(' ');
   return runCommand(fullCommand, execOptions);

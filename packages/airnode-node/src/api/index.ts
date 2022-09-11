@@ -76,7 +76,7 @@ export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptio
   }
 }
 
-export async function signWithRequestId(requestId: string, data: string) {
+export function signWithRequestId(requestId: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return airnodeWallet.signMessage(
@@ -86,7 +86,7 @@ export async function signWithRequestId(requestId: string, data: string) {
   );
 }
 
-export async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
+export function signWithTemplateId(templateId: string, timestamp: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
   return airnodeWallet.signMessage(

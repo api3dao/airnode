@@ -14,7 +14,7 @@ describe('config validation', () => {
     expect(notThrowingFunction).not.toThrow();
   });
 
-  it('loads the config with validation and fails because the config is invalid', async () => {
+  it('loads the config with validation and fails because the config is invalid', () => {
     const invalidConfig = JSON.parse(readFileSync(exampleConfigPath, 'utf-8'));
     invalidConfig.nodeSettings.nodeVersion = '0.4.0';
     mockReadFileSync('config.example.json', JSON.stringify(invalidConfig));

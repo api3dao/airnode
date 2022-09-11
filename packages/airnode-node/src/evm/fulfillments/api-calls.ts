@@ -194,13 +194,13 @@ async function submitFail(
 // =================================================================
 // Main functions
 // =================================================================
-export const submitApiCall: SubmitRequest<ApiCallWithResponse> = async (airnodeRrp, request, options) => {
+export const submitApiCall: SubmitRequest<ApiCallWithResponse> = (airnodeRrp, request, options) => {
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
       `API call for Request:${request.id} cannot be submitted as it does not have a nonce`
     );
-    return [[log], null, null];
+    return Promise.resolve([[log], null, null]);
   }
 
   // Should not throw

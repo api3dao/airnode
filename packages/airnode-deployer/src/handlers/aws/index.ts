@@ -40,7 +40,7 @@ export async function startCoordinator() {
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
-export async function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayProxyResult> {
+export function run(payload: WorkerPayload): Promise<AWSLambda.APIGatewayProxyResult> {
   setLogOptions(payload.logOptions);
 
   switch (payload.functionName) {

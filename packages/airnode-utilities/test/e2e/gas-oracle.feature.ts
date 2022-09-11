@@ -181,7 +181,7 @@ describe('Gas oracle', () => {
           hre.ethers.providers.StaticJsonRpcProvider.prototype,
           'getBlockWithTransactions'
         );
-        getBlockWithTransactionsSpy.mockImplementation(async () => {
+        getBlockWithTransactionsSpy.mockImplementation(() => {
           throw new Error('some error');
         });
 
@@ -201,10 +201,10 @@ describe('Gas oracle', () => {
           'getBlockWithTransactions'
         );
         const getGasPriceSpy = jest.spyOn(hre.ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-        getBlockWithTransactionsSpy.mockImplementation(async () => {
+        getBlockWithTransactionsSpy.mockImplementation(() => {
           throw new Error('some error');
         });
-        getGasPriceSpy.mockImplementation(async () => {
+        getGasPriceSpy.mockImplementation(() => {
           throw new Error('some error');
         });
 

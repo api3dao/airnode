@@ -133,7 +133,7 @@ export const fetchLatestBlockPercentileGasPrice = async (
   const blockTagsToFetch = ['latest', -pastToCompareInBlocks];
 
   // Fetch blocks in parallel
-  const blockPromises = blockTagsToFetch.map(async (blockTag) =>
+  const blockPromises = blockTagsToFetch.map((blockTag) =>
     go(() => provider.getBlockWithTransactions(blockTag), {
       attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
       totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
@@ -204,7 +204,7 @@ export const fetchLatestBlockPercentileGasPrice = async (
   }
 };
 
-export const attemptGasOracleStrategy = async (
+export const attemptGasOracleStrategy = (
   provider: Provider,
   gasOracleConfig: config.GasPriceOracleStrategy,
   startTime: number

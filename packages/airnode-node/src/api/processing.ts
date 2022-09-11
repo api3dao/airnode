@@ -16,7 +16,7 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   }
 
   const goProcessedParameters = await go(
-    async () =>
+    () =>
       preProcessingSpecifications.reduce(async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
@@ -54,7 +54,7 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
   }
 
   const goResult = await go(
-    async () =>
+    () =>
       postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node 14':
@@ -64,7 +64,7 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
-      }, input),
+      }, Promise.resolve(input)),
 
     { retries: 0, totalTimeoutMs: PROCESSING_TIMEOUT }
   );

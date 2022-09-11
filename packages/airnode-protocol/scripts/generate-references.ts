@@ -4,7 +4,7 @@ import { logger } from '@api3/airnode-utilities';
 import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
-async function main() {
+function main() {
   const networkNames = fs
     .readdirSync(path.join('deployments'), { withFileTypes: true })
     .filter((item) => item.isDirectory())

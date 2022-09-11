@@ -161,7 +161,9 @@ describe('Gas oracle', () => {
           transactions: Array(20).fill({ gasPrice: ethers.BigNumber.from(20) }),
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
 
@@ -189,7 +191,9 @@ describe('Gas oracle', () => {
           transactions: Array(20).fill({ maxPriorityFeePerGas: ethers.BigNumber.from(2) }),
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
 
@@ -202,7 +206,7 @@ describe('Gas oracle', () => {
 
     it('returns providerRecommendedEip1559GasPrice', async () => {
       jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockImplementation(
-        async () =>
+        () =>
           ({
             baseFeePerGas: ethers.BigNumber.from(18),
           } as any)
@@ -234,10 +238,12 @@ describe('Gas oracle', () => {
           transactions: Array(20).fill({ gasPrice: ethers.BigNumber.from(20) }),
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
-      getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
+      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -267,10 +273,12 @@ describe('Gas oracle', () => {
           transactions: Array(20).fill({ gasPrice: ethers.BigNumber.from(20) }),
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
-      getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
+      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -303,10 +311,12 @@ describe('Gas oracle', () => {
         },
       ];
 
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
-      getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
+      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -335,10 +345,12 @@ describe('Gas oracle', () => {
         null,
       ];
 
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
-      getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
+      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -369,10 +381,12 @@ describe('Gas oracle', () => {
           transactions: null,
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
-      getGasPriceSpy.mockImplementation(async () => getGasPriceMock);
+      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -402,9 +416,11 @@ describe('Gas oracle', () => {
           transactions: [{ gasPrice: ethers.BigNumber.from(20) }, { gasPrice: ethers.BigNumber.from(20) }],
         },
       ];
-      blockDataMock.forEach((block) => getBlockWithTransactionsSpy.mockImplementationOnce(async () => block as any));
+      blockDataMock.forEach((block) =>
+        getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
+      );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(async () => {
+      getGasPriceSpy.mockImplementation(() => {
         throw new Error('some error');
       });
 
@@ -421,11 +437,11 @@ describe('Gas oracle', () => {
         ethers.providers.StaticJsonRpcProvider.prototype,
         'getBlockWithTransactions'
       );
-      getBlockWithTransactionsSpy.mockImplementation(async () => {
+      getBlockWithTransactionsSpy.mockImplementation(() => {
         throw new Error('some error');
       });
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(async () => {
+      getGasPriceSpy.mockImplementation(() => {
         throw new Error('some error');
       });
 
@@ -439,7 +455,7 @@ describe('Gas oracle', () => {
 
     it('returns constantGasPrice if processGasPriceOracleStrategies returns null', async () => {
       const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
-      processGasPriceOracleStrategiesSpy.mockImplementation(async () => [[], null]);
+      processGasPriceOracleStrategiesSpy.mockImplementation(() => Promise.resolve([[], null]));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
@@ -452,7 +468,7 @@ describe('Gas oracle', () => {
         ethers.providers.StaticJsonRpcProvider.prototype,
         'getBlockWithTransactions'
       );
-      getBlockWithTransactionsSpy.mockImplementation(async () => {
+      getBlockWithTransactionsSpy.mockImplementation(() => {
         throw new Error('some error');
       });
       // Mock random backoff time
@@ -469,7 +485,7 @@ describe('Gas oracle', () => {
 
     it('retries provider getGasPrice', async () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(async () => {
+      getGasPriceSpy.mockImplementation(() => {
         throw new Error('some error');
       });
       // Mock random backoff time
@@ -498,7 +514,7 @@ describe('Gas oracle', () => {
 
     it('due to processGasPriceOracleStrategies timeout', async () => {
       const processGasPriceOracleStrategiesSpy = jest.spyOn(gasOracle, 'processGasPriceOracleStrategies');
-      processGasPriceOracleStrategiesSpy.mockImplementation(async () => new Promise(() => {})); // never resolve
+      processGasPriceOracleStrategiesSpy.mockImplementation(() => new Promise(() => {})); // never resolve
 
       const gasPricePromise = gasOracle.getGasPrice(provider, defaultChainOptions);
       await advanceTimersByTime(GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS);
@@ -511,7 +527,7 @@ describe('Gas oracle', () => {
     it('due to attemptGasOracleStrategy timeout', async () => {
       const attemptGasOracleStrategySpy = jest.spyOn(gasOracle, 'attemptGasOracleStrategy');
       attemptGasOracleStrategySpy.mockImplementation(
-        async () => new Promise(() => {}) // never resolve
+        () => new Promise(() => {}) // never resolve
       );
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.4);
@@ -535,11 +551,11 @@ describe('Gas oracle', () => {
         'getBlockWithTransactions'
       );
       getBlockWithTransactionsSpy.mockImplementation(
-        async () => new Promise(() => {}) // never resolve
+        () => new Promise(() => {}) // never resolve
       );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       getGasPriceSpy.mockImplementation(
-        async () => new Promise(() => {}) // never resolve
+        () => new Promise(() => {}) // never resolve
       );
       const getBlock = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
       // Mock random backoff time

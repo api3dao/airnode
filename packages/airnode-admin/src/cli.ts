@@ -156,7 +156,7 @@ yargs
     {
       'airnode-mnemonic': airnodeMnemonic,
     },
-    async (args) => {
+    (args) => {
       const xpub = admin.deriveAirnodeXpub(args['airnode-mnemonic']);
       logger.log(`Airnode xpub: ${xpub}`);
     }
@@ -168,7 +168,7 @@ yargs
       'airnode-xpub': airnodeXpub,
       'airnode-address': airnodeAddress,
     },
-    async (args) => {
+    (args) => {
       const goVerifyAirnodeXpub = goSync(() => admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']));
       if (!goVerifyAirnodeXpub.success) {
         logger.error(`Airnode xpub is: INVALID`);

@@ -60,7 +60,7 @@ describe('CLI', () => {
     return goExecSync.data;
   };
 
-  const deriveSponsorWallet = async (airnodeMnemonic: string, sponsorAddress: string): Promise<ethers.Wallet> => {
+  const deriveSponsorWallet = (airnodeMnemonic: string, sponsorAddress: string): ethers.Wallet => {
     return ethers.Wallet.fromMnemonic(
       airnodeMnemonic,
       `m/44'/60'/0'/${admin.deriveWalletPathFromSponsorAddress(sponsorAddress)}`
@@ -178,7 +178,7 @@ describe('CLI', () => {
       // Check that they generate the same wallet address
       expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
     });
-    it('errors out with wrong xpub message', async () => {
+    it('errors out with wrong xpub message', () => {
       const sponsorAddress = alice.address;
 
       const randomWallet = ethers.Wallet.createRandom();
@@ -215,7 +215,7 @@ describe('CLI', () => {
       expect(sponsored).toBe(true);
     });
 
-    it('uses transaction overrides', async () => {
+    it('uses transaction overrides', () => {
       const requesterAddress = bob.address;
       expect(() =>
         execCommand(
@@ -285,7 +285,7 @@ describe('CLI', () => {
         ['--template-file-path', `${__dirname}/../fixtures/${fileName}`]
       );
 
-    it('can create template', async () => {
+    it('can create template', () => {
       const out = createTemplate('template.json');
       expect(out).toMatch(new RegExp('Template ID: 0x\\w+'));
     });
@@ -334,7 +334,7 @@ Template data:
   describe('withdrawal', () => {
     let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
-    const sponsorBalance = async () => sponsor.getBalance();
+    const sponsorBalance = () => sponsor.getBalance();
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
@@ -414,7 +414,7 @@ Template data:
       ).toThrow('Unknown arguments: mnemonic, provider-url, providerUrl, not-existent-command');
     });
 
-    it('mixes legacy and EIP-1559 arguments', async () => {
+    it('mixes legacy and EIP-1559 arguments', () => {
       const requesterAddress = bob.address;
 
       expect(() =>
