@@ -86,7 +86,7 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
 export const getBucketDirectoryStructure = async (cloudProvider: AwsCloudProvider, bucketName: string) => {
   const s3 = initializeS3Service(cloudProvider);
 
-  let paths: String[] = [];
+  let paths: string[] = [];
   let truncated = true;
   let listParams: AWS.S3.ListObjectsV2Request = {
     Bucket: bucketName,

@@ -52,7 +52,7 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
     })
   );
   if (!goMetadata.success) {
-    throw new Error(`Failed to setup a puniform bucket-level access for bucket '${bucketName}': ${goMetadata.error}`);
+    throw new Error(`Failed to setup a uniform bucket-level access for bucket '${bucketName}': ${goMetadata.error}`);
   }
 
   const policy = {
@@ -106,9 +106,7 @@ export const storeFileToBucket = async (
   logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to GCS bucket '${bucketName}'`);
   const goSave = await go(() => bucket.upload(filePath, { destination: bucketFilePath }));
   if (!goSave.success) {
-    throw new Error(
-      `Failed to store file '${filePath}' to GCS bucket '${bucketName}': ${JSON.stringify(goSave.error)}`
-    );
+    throw new Error(`Failed to store file '${filePath}' to GCS bucket '${bucketName}': ${goSave.error}`);
   }
 };
 
