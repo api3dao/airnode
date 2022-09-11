@@ -79,7 +79,7 @@ export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptio
 export async function signWithRequestId(requestId: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
-  return await airnodeWallet.signMessage(
+  return airnodeWallet.signMessage(
     ethers.utils.arrayify(
       ethers.utils.keccak256(ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data || '0x']))
     )
@@ -89,7 +89,7 @@ export async function signWithRequestId(requestId: string, data: string) {
 export async function signWithTemplateId(templateId: string, timestamp: string, data: string) {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
-  return await airnodeWallet.signMessage(
+  return airnodeWallet.signMessage(
     ethers.utils.arrayify(
       ethers.utils.keccak256(
         ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [templateId, timestamp, data || '0x'])

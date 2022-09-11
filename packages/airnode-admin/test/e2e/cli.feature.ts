@@ -334,7 +334,7 @@ Template data:
   describe('withdrawal', () => {
     let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
-    const sponsorBalance = async () => await sponsor.getBalance();
+    const sponsorBalance = async () => sponsor.getBalance();
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details

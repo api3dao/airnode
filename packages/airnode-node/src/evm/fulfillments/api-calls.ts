@@ -115,7 +115,7 @@ async function testAndSubmitFulfill(
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const errorMessage = requests.getErrorMessage(request);
   if (errorMessage) {
-    return await submitFail(airnodeRrp, request, errorMessage, options);
+    return submitFail(airnodeRrp, request, errorMessage, options);
   }
 
   // Should not throw

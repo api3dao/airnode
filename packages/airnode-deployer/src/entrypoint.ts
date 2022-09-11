@@ -5,7 +5,7 @@ if (!cloudProvider) {
 }
 
 async function cloudHandler() {
-  return await import(/* webpackIgnore: true */ `./handlers/${cloudProvider}`);
+  return import(/* webpackIgnore: true */ `./handlers/${cloudProvider}`);
 }
 
 export async function startCoordinator(...args: unknown[]) {

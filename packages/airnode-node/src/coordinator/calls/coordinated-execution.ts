@@ -95,7 +95,7 @@ export async function callApis(
 
   // Execute all pending API calls concurrently
   const calls = pendingAggregatedCalls.map(async (aggregatedApiCall) => {
-    return await execute(aggregatedApiCall, workerOpts);
+    return execute(aggregatedApiCall, workerOpts);
   });
 
   const logsWithresponses = await Promise.all(calls);

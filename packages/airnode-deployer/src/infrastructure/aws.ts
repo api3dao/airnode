@@ -70,5 +70,5 @@ export async function stateExists(bucket: string, cloudProvider: AwsCloudProvide
   AWS.config.update({ region });
   const s3 = new AWS.S3();
 
-  return await bucketExists(s3, bucket);
+  return bucketExists(s3, bucket);
 }
