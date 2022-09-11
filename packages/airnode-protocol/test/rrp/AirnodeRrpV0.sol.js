@@ -411,9 +411,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -527,9 +525,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -642,9 +638,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -743,9 +737,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -858,9 +850,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -958,9 +948,7 @@ describe('AirnodeRrpV0', () => {
               const sponsorWallet = utils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
-              const fulfillData = hre.ethers.utils.keccak256(
-                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-              );
+              const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
               const invalidSignature1 = await airnodeWallet.signMessage(
                 hre.ethers.utils.arrayify(
                   hre.ethers.utils.keccak256(
@@ -1073,9 +1061,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -1153,9 +1139,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -1233,9 +1217,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -1313,9 +1295,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -1385,9 +1365,7 @@ describe('AirnodeRrpV0', () => {
             )
           );
           // Attempt to fulfill the request
-          const fulfillData = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-          );
+          const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
           const signature = await airnodeWallet.signMessage(
             hre.ethers.utils.arrayify(
               hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
@@ -1464,9 +1442,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -1574,9 +1550,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -1683,9 +1657,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -1778,9 +1750,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -1887,9 +1857,7 @@ describe('AirnodeRrpV0', () => {
                 const sponsorWallet = utils
                   .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                   .connect(hre.ethers.provider);
-                const fulfillData = hre.ethers.utils.keccak256(
-                  hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-                );
+                const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
                 const signature = await airnodeWallet.signMessage(
                   hre.ethers.utils.arrayify(
                     hre.ethers.utils.keccak256(
@@ -1984,9 +1952,7 @@ describe('AirnodeRrpV0', () => {
               const sponsorWallet = utils
                 .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
                 .connect(hre.ethers.provider);
-              const fulfillData = hre.ethers.utils.keccak256(
-                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-              );
+              const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
               const invalidSignature1 = await airnodeWallet.signMessage(
                 hre.ethers.utils.arrayify(
                   hre.ethers.utils.keccak256(
@@ -2096,9 +2062,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -2173,9 +2137,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -2250,9 +2212,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -2327,9 +2287,7 @@ describe('AirnodeRrpV0', () => {
             const sponsorWallet = utils
               .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
               .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
+            const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
             const signature = await airnodeWallet.signMessage(
               hre.ethers.utils.arrayify(
                 hre.ethers.utils.keccak256(
@@ -2396,9 +2354,7 @@ describe('AirnodeRrpV0', () => {
             )
           );
           // Attempt to fulfill the request
-          const fulfillData = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-          );
+          const fulfillData = hre.ethers.utils.defaultAbiCoder.encode(['uint256', 'string'], ['123456', 'hello']);
           const signature = await airnodeWallet.signMessage(
             hre.ethers.utils.arrayify(
               hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
