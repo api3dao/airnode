@@ -420,9 +420,7 @@ describe('Gas oracle', () => {
         getBlockWithTransactionsSpy.mockImplementationOnce(() => Promise.resolve(block as any))
       );
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(() => {
-        throw new Error('some error');
-      });
+      getGasPriceSpy.mockRejectedValue(new Error('some error'));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
@@ -437,13 +435,9 @@ describe('Gas oracle', () => {
         ethers.providers.StaticJsonRpcProvider.prototype,
         'getBlockWithTransactions'
       );
-      getBlockWithTransactionsSpy.mockImplementation(() => {
-        throw new Error('some error');
-      });
+      getBlockWithTransactionsSpy.mockRejectedValue(new Error('some error'));
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(() => {
-        throw new Error('some error');
-      });
+      getGasPriceSpy.mockRejectedValue(new Error('some error'));
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       const constantGasPrice = gasOracle.fetchConstantGasPrice(constantGasPriceStrategy);
@@ -468,9 +462,7 @@ describe('Gas oracle', () => {
         ethers.providers.StaticJsonRpcProvider.prototype,
         'getBlockWithTransactions'
       );
-      getBlockWithTransactionsSpy.mockImplementation(() => {
-        throw new Error('some error');
-      });
+      getBlockWithTransactionsSpy.mockRejectedValue(new Error('some error'));
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
@@ -485,9 +477,7 @@ describe('Gas oracle', () => {
 
     it('retries provider getGasPrice', async () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      getGasPriceSpy.mockImplementation(() => {
-        throw new Error('some error');
-      });
+      getGasPriceSpy.mockRejectedValue(new Error('some error'));
       // Mock random backoff time
       jest.spyOn(global.Math, 'random').mockImplementation(() => 0.5);
 
@@ -609,12 +599,8 @@ describe('Gas oracle', () => {
     });
 
     it('returns constantGasPrice if all strategy-specific functions throw', async () => {
-      jest.spyOn(gasOracle, 'fetchLatestBlockPercentileGasPrice').mockImplementation(() => {
-        throw new Error('Unexpected error');
-      });
-      jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice').mockImplementation(() => {
-        throw new Error('Unexpected error');
-      });
+      jest.spyOn(gasOracle, 'fetchLatestBlockPercentileGasPrice').mockRejectedValue(new Error('Unexpected error'));
+      jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice').mockRejectedValue(new Error('Unexpected error'));
 
       const goGasPrice = await go(() => gasOracle.getGasPrice(provider, defaultChainOptions));
       // Ensure that getGasPrice did not throw
