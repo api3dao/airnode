@@ -60,5 +60,9 @@ module.exports = {
     'no-useless-escape': 'off',
     semi: 'error',
     eqeqeq: ['error', 'smart'],
+
+    // Other
+    'require-await': 'error',
+    'no-return-await': 'error',
   },
 };

@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { Airnode, DeployState as State, SponsorWallet, SponsorAccount } from '../../types';
 import { deriveWalletFromMnemonic, getSponsorWallet } from '../utils';
 
-export async function assignAirnodeAccounts(state: State): Promise<State> {
+export function assignAirnodeAccounts(state: State): State {
   const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
@@ -17,7 +17,7 @@ export async function assignAirnodeAccounts(state: State): Promise<State> {
   return { ...state, airnodesByName };
 }
 
-export async function assignRequesterAccounts(state: State): Promise<State> {
+export function assignRequesterAccounts(state: State): State {
   const sponsorsById: { [id: string]: SponsorAccount } = {};
   for (const configSponsor of state.config.sponsors) {
     const sponsorWallet = ethers.Wallet.createRandom().connect(state.provider);
@@ -33,7 +33,7 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
   return { ...state, sponsorsById };
 }
 
-export async function assignSponsorWallets(state: State): Promise<State> {
+export function assignSponsorWallets(state: State): State {
   const sponsorsById: { [id: string]: SponsorAccount } = {};
   for (const configSponsor of state.config.sponsors) {
     const sponsor = state.sponsorsById[configSponsor.id];

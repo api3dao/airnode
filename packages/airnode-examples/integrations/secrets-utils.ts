@@ -10,7 +10,7 @@ const createAirnodeWalletMnemonic = (generateExampleFile: boolean) => {
   return wallet.mnemonic.phrase;
 };
 
-export const getCommonSecrets = async (generateExampleFile: boolean) => {
+export const getCommonSecrets = (generateExampleFile: boolean) => {
   // NOTE: Avoid reading integrationInfo.json when generating example file
   return [
     `AIRNODE_WALLET_MNEMONIC=${createAirnodeWalletMnemonic(generateExampleFile)}`,

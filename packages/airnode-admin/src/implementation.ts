@@ -146,7 +146,7 @@ export const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): 
   return hdNode;
 };
 
-export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {
+export function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {
   const hdNode = verifyAirnodeXpub(airnodeXpub, airnodeAddress);
   const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
   return hdNode.derivePath(derivationPath).address;
@@ -254,7 +254,7 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrpV0, requestId
   return { ...logParams, amount: amount.toString() };
 }
 
-export async function deriveEndpointId(oisTitle: string, endpointName: string) {
+export function deriveEndpointId(oisTitle: string, endpointName: string) {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string', 'string'], [oisTitle, endpointName]));
 }
 
@@ -422,7 +422,7 @@ export async function getWhitelistStatus(
   };
 }
 
-export async function isRequesterWhitelisted(
+export function isRequesterWhitelisted(
   requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode,
   airnodeAddress: string,
   endpointId: string,
@@ -431,11 +431,11 @@ export async function isRequesterWhitelisted(
   return requesterAuthorizerWithAirnode.isAuthorized(airnodeAddress, endpointId, requesterAddress);
 }
 
-export async function generateMnemonic() {
+export function generateMnemonic() {
   const wallet = ethers.Wallet.createRandom();
   return wallet.mnemonic.phrase;
 }
 
-export async function deriveAirnodeAddress(airnodeMnemonic: string) {
+export function deriveAirnodeAddress(airnodeMnemonic: string) {
   return ethers.Wallet.fromMnemonic(airnodeMnemonic).address;
 }

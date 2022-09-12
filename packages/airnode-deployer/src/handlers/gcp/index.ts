@@ -43,7 +43,7 @@ export async function startCoordinator(_req: Request, res: Response) {
   res.status(200).send(response);
 }
 
-export async function run(req: Request, res: Response) {
+export function run(req: Request, res: Response) {
   const payload: WorkerPayload = req.body;
   setLogOptions(payload.logOptions);
 

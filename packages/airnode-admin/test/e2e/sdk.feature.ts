@@ -39,7 +39,7 @@ describe('SDK', () => {
     sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
   });
 
-  it('provides same API', async () => {
+  it('provides same API', () => {
     expect(airnodeRrp.address).toBeDefined();
     expect(accessControlRegistry.address).toBeDefined();
     expect(requesterAuthorizerWithAirnode.address).toBeDefined();

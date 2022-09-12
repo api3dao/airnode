@@ -48,7 +48,7 @@ export async function initialize(
   // to configure duplicated providers safely (if they want the added redundancy)
   const evmInitializations = flatMap(
     evmChains.map((chain) => {
-      return map(chain.providers, async (_, providerName) => {
+      return map(chain.providers, (_, providerName) => {
         const state = buildEVMState(coordinatorId, airnodeAddress, chain, providerName, config);
         return initializeEVMProvider(state, workerOpts);
       });

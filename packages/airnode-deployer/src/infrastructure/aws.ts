@@ -64,11 +64,11 @@ async function bucketExists(s3: AWS.S3, bucket: string) {
   return true;
 }
 
-export async function stateExists(bucket: string, cloudProvider: AwsCloudProvider) {
+export function stateExists(bucket: string, cloudProvider: AwsCloudProvider) {
   logger.debug('Checking Terraform state existence in AWS');
   const { region } = cloudProvider;
   AWS.config.update({ region });
   const s3 = new AWS.S3();
 
-  return await bucketExists(s3, bucket);
+  return bucketExists(s3, bucket);
 }

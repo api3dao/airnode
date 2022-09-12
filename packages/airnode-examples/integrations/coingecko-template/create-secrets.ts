@@ -1,7 +1,7 @@
 import { readIntegrationInfo } from '../../src';
 import { writeSecrets } from '../secrets-utils';
 
-const createSecrets = async (generateExampleFile = false) => {
+const createSecrets = (generateExampleFile = false) => {
   const secrets = [
     // NOTE: We use a hardcoded mnemonic for convenience.
     // For production use, make sure to generate the mnemonic from a reliable source.

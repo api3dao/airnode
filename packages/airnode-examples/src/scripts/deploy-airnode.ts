@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { cliPrint, isWindows, readIntegrationInfo, readPackageVersion, runAndHandleErrors, runShellCommand } from '../';
 
+// eslint-disable-next-line require-await
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType === 'local') {

@@ -133,15 +133,14 @@ export const fetchLatestBlockPercentileGasPrice = async (
   const blockTagsToFetch = ['latest', -pastToCompareInBlocks];
 
   // Fetch blocks in parallel
-  const blockPromises = blockTagsToFetch.map(
-    async (blockTag) =>
-      await go(() => provider.getBlockWithTransactions(blockTag), {
-        attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
-        totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
-        retries: 1,
-        delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
-        onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
-      })
+  const blockPromises = blockTagsToFetch.map((blockTag) =>
+    go(() => provider.getBlockWithTransactions(blockTag), {
+      attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+      totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+      retries: 1,
+      delay: { type: 'random', minDelayMs: RANDOM_BACKOFF_MIN_MS, maxDelayMs: RANDOM_BACKOFF_MAX_MS },
+      onAttemptError: (goError) => logger.warn(`Failed attempt to get block. Error: ${goError.error}.`),
+    })
   );
 
   // Reject as soon as possible if fetching a block fails for speed
@@ -205,18 +204,18 @@ export const fetchLatestBlockPercentileGasPrice = async (
   }
 };
 
-export const attemptGasOracleStrategy = async (
+export const attemptGasOracleStrategy = (
   provider: Provider,
   gasOracleConfig: config.GasPriceOracleStrategy,
   startTime: number
 ): Promise<GasTarget> => {
   switch (gasOracleConfig.gasPriceStrategy) {
     case 'latestBlockPercentileGasPrice':
-      return await fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig, startTime);
+      return fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedGasPrice':
-      return await fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
+      return fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedEip1559GasPrice':
-      return await fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
+      return fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
     default:
       throw new Error('Unsupported gas price oracle strategy.');
   }

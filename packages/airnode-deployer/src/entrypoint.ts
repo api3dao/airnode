@@ -4,8 +4,8 @@ if (!cloudProvider) {
   throw new Error('Missing cloud specification');
 }
 
-async function cloudHandler() {
-  return await import(/* webpackIgnore: true */ `./handlers/${cloudProvider}`);
+function cloudHandler() {
+  return import(/* webpackIgnore: true */ `./handlers/${cloudProvider}`);
 }
 
 export async function startCoordinator(...args: unknown[]) {

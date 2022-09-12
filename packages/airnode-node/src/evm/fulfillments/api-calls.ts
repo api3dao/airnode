@@ -115,7 +115,7 @@ async function testAndSubmitFulfill(
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   const errorMessage = requests.getErrorMessage(request);
   if (errorMessage) {
-    return await submitFail(airnodeRrp, request, errorMessage, options);
+    return submitFail(airnodeRrp, request, errorMessage, options);
   }
 
   // Should not throw
@@ -194,13 +194,13 @@ async function submitFail(
 // =================================================================
 // Main functions
 // =================================================================
-export const submitApiCall: SubmitRequest<ApiCallWithResponse> = async (airnodeRrp, request, options) => {
+export const submitApiCall: SubmitRequest<ApiCallWithResponse> = (airnodeRrp, request, options) => {
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
       `API call for Request:${request.id} cannot be submitted as it does not have a nonce`
     );
-    return [[log], null, null];
+    return Promise.resolve([[log], null, null]);
   }
 
   // Should not throw

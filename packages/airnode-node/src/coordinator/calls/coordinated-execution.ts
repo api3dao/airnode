@@ -94,9 +94,7 @@ export async function callApis(
   const processLog = logger.pend('INFO', `Processing ${pendingAggregatedCalls.length} pending API call(s)...`);
 
   // Execute all pending API calls concurrently
-  const calls = pendingAggregatedCalls.map(async (aggregatedApiCall) => {
-    return await execute(aggregatedApiCall, workerOpts);
-  });
+  const calls = pendingAggregatedCalls.map((aggregatedApiCall) => execute(aggregatedApiCall, workerOpts));
 
   const logsWithresponses = await Promise.all(calls);
   const responseLogs = flatMap(logsWithresponses, (r) => r[0]);

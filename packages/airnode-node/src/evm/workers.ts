@@ -51,14 +51,14 @@ async function spawn<T extends EVMProviderState>(
   return [[], refreshedState];
 }
 
-export async function spawnNewProvider(
+export function spawnNewProvider(
   state: ProviderState<EVMProviderState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
   return spawn(state, workerOpts, 'initializeProvider', 'Unable to initialize provider');
 }
 
-export async function spawnProviderRequestProcessor(
+export function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderSponsorState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderSponsorState> | null>> {
