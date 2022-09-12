@@ -110,7 +110,7 @@ module "httpReq" {
   entry_point           = "httpReq"
   source_dir            = var.handler_dir
   memory_size           = 128
-  timeout               = 15
+  timeout               = 30
   configuration_file    = var.configuration_file
   secrets_file          = var.secrets_file
   region                = var.gcp_region
@@ -159,7 +159,7 @@ module "httpSignedReq" {
   entry_point           = "httpSignedReq"
   source_dir            = var.handler_dir
   memory_size           = 128
-  timeout               = 15
+  timeout               = 30
   configuration_file    = var.configuration_file
   secrets_file          = var.secrets_file
   region                = var.gcp_region
