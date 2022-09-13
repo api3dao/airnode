@@ -45,6 +45,7 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
     throw new Error(`Failed to create an S3 bucket: ${goCreate.error}`);
   }
 
+  // Enable bucket encryption
   logger.debug(`Setting encryption for S3 bucket '${bucketName}'`);
   const goPutEncryption = await go(() =>
     s3
@@ -60,6 +61,8 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
     throw new Error(`Failed to enable encryption for bucket '${bucketName}': ${goPutEncryption.error}`);
   }
 
+  // Blocking public access to the bucket
+  // https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
   logger.debug(`Setting public access block for S3 bucket '${bucketName}'`);
   const goPutPublicAccessBlock = await go(() =>
     s3

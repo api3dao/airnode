@@ -45,6 +45,8 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
 
   const [bucket] = goCreate.data;
 
+  // Setting uniform bucket-level access
+  // https://cloud.google.com/storage/docs/uniform-bucket-level-access
   logger.debug(`Setting uniform bucket-level access for GCS bucket '${bucketName}'`);
   const goMetadata = await go(() =>
     bucket.setMetadata({
@@ -55,6 +57,8 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
     throw new Error(`Failed to setup a uniform bucket-level access for bucket '${bucketName}': ${goMetadata.error}`);
   }
 
+  // Adding roles that are by default added when adding bucket via GCP Console. Some are missing when creating bucket via SDK,
+  // causing user not being able to see the bucket content in the GCP Console.
   const policy = {
     bindings: [
       {
