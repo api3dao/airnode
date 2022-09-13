@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 import { SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
+import size from 'lodash/size';
+import { goSync } from '@api3/promise-utils';
 import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema, RELAY_METADATA_TYPES } from '../ois';
 import { SchemaType } from '../types';
@@ -63,6 +65,8 @@ export const providerSchema = z
     url: z.string().url(),
   })
   .strict();
+
+export const providersSchema = z.record(z.string(), providerSchema);
 
 export const amountSchema = z
   .object({
@@ -162,6 +166,21 @@ export const chainAuthorizersSchema = z.object({
   requesterEndpointAuthorizers: z.array(evmAddressSchema),
 });
 
+export const maxConcurrencySchema = z.number().int().positive();
+
+const validateMaxConcurrency: SuperRefinement<{ providers: Providers; maxConcurrency: MaxConcurrency }> = (
+  chainConfig,
+  ctx
+) => {
+  if (chainConfig.maxConcurrency < size(chainConfig.providers)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Concurrency limit can't be lower than the number of providers for given chain`,
+      path: ['maxConcurrency'],
+    });
+  }
+};
+
 export const chainConfigSchema = z
   .object({
     authorizers: chainAuthorizersSchema,
@@ -172,10 +191,11 @@ export const chainConfigSchema = z
     minConfirmations: z.number().int().optional(), // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node
     type: chainTypeSchema,
     options: chainOptionsSchema,
-    providers: z.record(z.string(), providerSchema),
-    maxConcurrency: z.number().int(),
+    providers: providersSchema,
+    maxConcurrency: maxConcurrencySchema,
   })
-  .strict();
+  .strict()
+  .superRefine(validateMaxConcurrency);
 
 export const apiKeySchema = z.string().min(30).max(120);
 
@@ -185,7 +205,7 @@ export const enabledGatewaySchema = z
   .object({
     enabled: z.literal(true),
     apiKey: apiKeySchema,
-    maxConcurrency: z.number().int(),
+    maxConcurrency: z.number().int().positive(),
     corsOrigins: corsOriginsSchema,
   })
   .strict();
@@ -253,9 +273,20 @@ export const localOrCloudProviderSchema = z.discriminatedUnion('type', [
   gcpCloudProviderSchema,
 ]);
 
+const validateMnemonic: SuperRefinement<string> = (mnemonic, ctx) => {
+  const goWallet = goSync(() => ethers.Wallet.fromMnemonic(mnemonic));
+  if (!goWallet.success) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Airnode wallet mnemonic is not a valid mnemonic',
+      path: [],
+    });
+  }
+};
+
 export const nodeSettingsSchema = z
   .object({
-    airnodeWalletMnemonic: z.string(),
+    airnodeWalletMnemonic: z.string().superRefine(validateMnemonic),
     heartbeat: heartbeatSchema,
     httpGateway: gatewaySchema,
     httpSignedDataGateway: gatewaySchema,
@@ -442,6 +473,7 @@ export type LocalProvider = SchemaType<typeof localProviderSchema>;
 export type AwsCloudProvider = SchemaType<typeof awsCloudProviderSchema>;
 export type GcpCloudProvider = SchemaType<typeof gcpCloudProviderSchema>;
 export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>;
+export type Providers = SchemaType<typeof providersSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
@@ -462,3 +494,4 @@ export type Triggers = SchemaType<typeof triggersSchema>;
 export type Heartbeat = SchemaType<typeof heartbeatSchema>;
 export type Amount = SchemaType<typeof amountSchema>;
 export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
+export type MaxConcurrency = SchemaType<typeof maxConcurrencySchema>;

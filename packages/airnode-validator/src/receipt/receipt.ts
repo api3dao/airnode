@@ -46,7 +46,6 @@ export const deploymentSchema = z
         path: [],
       });
     }),
-    airnodeAddressShort: z.string(),
     stage: z.string().regex(/^[a-z0-9-]{1,16}$/),
     cloudProvider: cloudProviderSchema,
     timestamp: z.string().regex(ISO_DATE_REGEX),
@@ -59,17 +58,7 @@ export const receiptSchema = z
     deployment: deploymentSchema,
     success: z.boolean(),
   })
-  .strict()
-  .superRefine(({ airnodeWallet, deployment }, ctx) => {
-    // TODO: There's no need to have Airnode short address twice in the receipt.json
-    if (airnodeWallet.airnodeAddressShort !== deployment.airnodeAddressShort) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Airnode short addresses don't match`,
-        path: ['airnodeWallet', 'airnodeAddressShort'],
-      });
-    }
-  });
+  .strict();
 
 export type AirnodeWallet = SchemaType<typeof airnodeWalletSchema>;
 export type Deployment = SchemaType<typeof deploymentSchema>;

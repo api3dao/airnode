@@ -68,3 +68,11 @@ variable "project" {
 variable "memory_size" {
   description = "GCP memory allocation"
 }
+
+variable "airnode_bucket" {
+  description = "Common Airnode bucket"
+}
+
+variable "deployment_bucket_dir" {
+  description = "Directory of the current deployment within the common Airnode bucket"
+}

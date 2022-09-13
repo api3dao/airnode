@@ -2,9 +2,10 @@ import { join } from 'path';
 import { mockReadFileSync } from '../../test/mock-utils';
 import { readFileSync } from 'fs';
 import { receipt } from '@api3/airnode-validator';
-import { deploy, remove, removeWithReceipt } from './commands';
+import { deploy, removeWithReceipt } from './commands';
 import { version as packageVersion } from '../../package.json';
 import * as logger from '../utils/logger';
+import { removeAirnode } from '../infrastructure';
 
 const readExampleConfig = () => JSON.parse(readFileSync(join(__dirname, '../../config/config.example.json'), 'utf-8'));
 
@@ -27,7 +28,6 @@ const gcpReceipt: receipt.Receipt = {
       'xpub6CZqcAR5RtRPYYGbJe7MzFGbJkJ86ub9KtYvTtenPQRgxFXNCmR7woXjV8SdFPWrTBooAqWVLKe19KWBnaktkwUsvSEfH18HyxeNZQRJq8k',
   },
   deployment: {
-    airnodeAddressShort: 'f347ade',
     cloudProvider: {
       type: 'gcp',
       region: 'us-east1',
@@ -71,7 +71,7 @@ describe('deployer commands', () => {
   });
 
   it('can remove Airnode', async () => {
-    await remove('airnodeAddressShort', 'stage', {
+    await removeAirnode('airnodeAddressShort', 'stage', {
       type: 'aws',
       region: 'region',
       disableConcurrencyReservations: false,

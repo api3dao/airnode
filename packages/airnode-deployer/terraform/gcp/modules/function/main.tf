@@ -54,17 +54,10 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
   project        = var.project
 }
 
-resource "google_storage_bucket" "function_bucket" {
-  name                        = lower("${var.name}-code")
-  location                    = var.region
-  storage_class               = "STANDARD"
-  uniform_bucket_level_access = true
-}
-
 resource "google_storage_bucket_object" "function_zip" {
-  # Append file SHA256 to force bucket to be recreated
-  name   = "${var.name}-source.zip#${data.archive_file.function_zip.output_base64sha256}"
-  bucket = google_storage_bucket.function_bucket.name
+  # Append file SHA1 to force bucket to be recreated
+  name   = "${var.deployment_bucket_dir}/${var.name}-source#${data.archive_file.function_zip.output_sha}.zip"
+  bucket = var.airnode_bucket
   source = data.archive_file.function_zip.output_path
 }
 
@@ -73,13 +66,13 @@ resource "google_cloudfunctions_function" "function" {
   runtime = "nodejs14"
 
   available_memory_mb   = var.memory_size
-  source_archive_bucket = google_storage_bucket.function_bucket.name
+  source_archive_bucket = google_storage_bucket_object.function_zip.bucket
   source_archive_object = google_storage_bucket_object.function_zip.name
   trigger_http          = true
   entry_point           = var.entry_point
   timeout               = var.timeout
   max_instances         = var.max_instances
-  environment_variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {}), { AIRNODE_CLOUD_PROVIDER = "gcp" })
+  environment_variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => tuple[1] } : {}), { AIRNODE_CLOUD_PROVIDER = "gcp" })
   service_account_email = google_service_account.function_service_account.email
 }
 

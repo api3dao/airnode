@@ -51,7 +51,7 @@ module "httpReq" {
   handler                        = "index.httpReq"
   source_dir                     = var.handler_dir
   memory_size                    = 128
-  timeout                        = 15
+  timeout                        = 30
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_max_concurrency
@@ -82,7 +82,7 @@ module "httpSignedReq" {
   handler                        = "index.httpSignedReq"
   source_dir                     = var.handler_dir
   memory_size                    = 128
-  timeout                        = 15
+  timeout                        = 30
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file
   reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.http_signed_data_max_concurrency

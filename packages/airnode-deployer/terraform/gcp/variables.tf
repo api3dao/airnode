@@ -80,3 +80,11 @@ variable "airnode_wallet_private_key" {
   description = "Airnode wallet private key"
   default     = null
 }
+
+variable "airnode_bucket" {
+  description = "Common Airnode bucket"
+}
+
+variable "deployment_bucket_dir" {
+  description = "Directory of the current deployment within the common Airnode bucket"
+}
