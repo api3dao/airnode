@@ -19,7 +19,7 @@ Instructions on how to build and use the deployer CLI from source:
 
 1. Install [Terraform](https://www.terraform.io/downloads.html) and make sure that the `terraform` binary is available
    in your `PATH` environment variable. Make sure the version is compatible with the
-   [required_version](https://github.com/api3dao/airnode/blob/master/packages/airnode-deployer/terraform/airnode/aws/backend.tf#L2)
+   [required_version](https://github.com/api3dao/airnode/blob/master/packages/airnode-deployer/terraform/aws/backend.tf#L2)
    of terraform modules used.
 2. Prepare necessary cloud credentials. See the
    [instructions in the docs](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html#cloud-provider-credentials).
