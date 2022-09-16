@@ -1,6 +1,3 @@
-resource "random_uuid" "uuid" {
-}
-
 resource "random_string" "function_service_account_id" {
   length  = 20
   lower   = true
@@ -9,23 +6,19 @@ resource "random_string" "function_service_account_id" {
   number  = false
 }
 
-resource "null_resource" "fetch_function_files" {
-  provisioner "local-exec" {
-    command = <<EOC
-rm -rf ${local.tmp_dir}
-mkdir -p "${local.tmp_input_dir}" "${local.tmp_configuration_dir}"
-cp -r "${var.source_dir}/." "${local.tmp_input_dir}"
-rm -rf "${local.tmp_handlers_dir}"
-mkdir -p "${local.tmp_handlers_dir}"
-cp -r "${var.source_dir}/handlers/gcp" "${local.tmp_handlers_dir}/gcp"
-cp "${var.configuration_file}" "${local.tmp_configuration_dir}"
-EOC
-  }
+resource "local_file" "index_js" {
+  source   = "${var.source_dir}/index.js"
+  filename = "${local.tmp_dir}/index.js"
+}
 
-  triggers = {
-    // Run always
-    trigger = uuid()
-  }
+resource "local_file" "gcp_index_js" {
+  source   = "${var.source_dir}/handlers/gcp/index.js"
+  filename = "${local.tmp_dir}/handlers/gcp/index.js"
+}
+
+resource "local_file" "config_json" {
+  source   = var.configuration_file
+  filename = "${local.tmp_dir}/config-data/config.json"
 }
 
 resource "google_service_account" "function_service_account" {

@@ -1,23 +1,16 @@
-resource "random_uuid" "uuid" {
+resource "local_file" "index_js" {
+  source   = "${var.source_dir}/index.js"
+  filename = "${local.tmp_dir}/index.js"
 }
 
-resource "null_resource" "fetch_lambda_files" {
-  provisioner "local-exec" {
-    command = <<EOC
-rm -rf ${local.tmp_dir}
-mkdir -p "${local.tmp_input_dir}" "${local.tmp_configuration_dir}"
-cp -r "${var.source_dir}/." "${local.tmp_input_dir}"
-rm -rf "${local.tmp_handlers_dir}"
-mkdir -p "${local.tmp_handlers_dir}"
-cp -r "${var.source_dir}/handlers/aws" "${local.tmp_handlers_dir}/aws"
-cp "${var.configuration_file}" "${local.tmp_configuration_dir}"
-EOC
-  }
+resource "local_file" "aws_index_js" {
+  source   = "${var.source_dir}/handlers/aws/index.js"
+  filename = "${local.tmp_dir}/handlers/aws/index.js"
+}
 
-  triggers = {
-    // Run always
-    trigger = uuid()
-  }
+resource "local_file" "config_json" {
+  source   = var.configuration_file
+  filename = "${local.tmp_dir}/config-data/config.json"
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -45,7 +38,7 @@ resource "aws_iam_role_policy" "invoke_lambda_role_policy" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename                       = "${local.tmp_output_dir}/${var.name}.zip"
+  filename                       = data.archive_file.lambda_zip.output_path
   source_code_hash               = data.archive_file.lambda_zip.output_base64sha256
   function_name                  = var.name
   handler                        = var.handler
