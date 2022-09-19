@@ -52,7 +52,11 @@ resource "aws_lambda_function" "lambda" {
   ]
 
   environment {
-    variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => tuple[1] } : {}), { AIRNODE_CLOUD_PROVIDER = "aws" })
+    variables = merge(
+      var.environment_variables,
+      fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => tuple[1] } : {},
+      { AIRNODE_CLOUD_PROVIDER = "aws" }
+    )
   }
 }
 

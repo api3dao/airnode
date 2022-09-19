@@ -65,7 +65,11 @@ resource "google_cloudfunctions_function" "function" {
   entry_point           = var.entry_point
   timeout               = var.timeout
   max_instances         = var.max_instances
-  environment_variables = merge(merge(var.environment_variables, fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => tuple[1] } : {}), { AIRNODE_CLOUD_PROVIDER = "gcp" })
+  environment_variables = merge(
+    var.environment_variables,
+    fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => tuple[1] } : {},
+    { AIRNODE_CLOUD_PROVIDER = "gcp" }
+  )
   service_account_email = google_service_account.function_service_account.email
 }
 
