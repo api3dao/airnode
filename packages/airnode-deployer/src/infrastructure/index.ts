@@ -285,7 +285,7 @@ export function transformTerraformOutput(terraformOutput: string): DeployAirnode
   );
 }
 
-export const deployAirnode = async (config: Config, configPath: string, secretsPath: string) => {
+export const deployAirnode = async (config: Config, configPath: string, secretsPath: string, timestamp: number) => {
   const { airnodeWalletMnemonic, cloudProvider, stage } = config.nodeSettings;
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const { type, region } = cloudProvider as CloudProvider;
@@ -310,7 +310,6 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       bucketName
     );
 
-    const timestamp = Date.now();
     const bucketStagePath = `${airnodeAddress}/${stage}`;
     const bucketDeploymentPath = `${bucketStagePath}/${timestamp}`;
 
