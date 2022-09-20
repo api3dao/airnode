@@ -16,7 +16,7 @@ export function parseSecretsFile(secretsPath: string) {
   return goDotenvParse.data;
 }
 
-export function writeReceiptFile(receiptFilename: string, config: Config, success: boolean) {
+export function writeReceiptFile(receiptFilename: string, config: Config, timestamp: string, success: boolean) {
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
@@ -30,7 +30,7 @@ export function writeReceiptFile(receiptFilename: string, config: Config, succes
       cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
       stage: config.nodeSettings.stage,
       nodeVersion: config.nodeSettings.nodeVersion,
-      timestamp: new Date().toISOString(),
+      timestamp,
     },
     success,
   };
