@@ -38,7 +38,7 @@
     "@api3/airnode-node": "^0.8.0",
     "@api3/airnode-protocol": "^0.8.0",
     "@api3/airnode-utilities": "^0.8.0",
-    "ethers": "^5.7.0",
+    "ethers": "^5.7.1",
     "is-wsl": "^2.2.0"
   },
   "devDependencies": {
