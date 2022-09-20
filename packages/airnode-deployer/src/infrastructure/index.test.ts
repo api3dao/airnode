@@ -443,20 +443,18 @@ describe('deployAirnode', () => {
   it('deploys Airnode', async () => {
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider, bucket);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(awsCopyFileInBucketSpy).not.toHaveBeenCalled();
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
@@ -483,21 +481,19 @@ describe('deployAirnode', () => {
 
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
     expect(awsCreateAirnodeBucket).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider, newBucket);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(newBucket);
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(awsCopyFileInBucketSpy).not.toHaveBeenCalled();
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      config.nodeSettings.cloudProvider,
       newBucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      config.nodeSettings.cloudProvider,
       newBucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
@@ -522,29 +518,25 @@ describe('deployAirnode', () => {
 
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider, bucket);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
     );
     expect(awsCopyFileInBucketSpy).toHaveBeenCalledWith(
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/default.tfstate',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/default.tfstate'
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      config.nodeSettings.cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
@@ -697,10 +689,9 @@ describe('removeAirnode', () => {
     const happyPathAirnodeAddress = '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6';
 
     await infrastructure.removeAirnode(happyPathAirnodeAddress, stage, cloudProvider);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, cloudProvider, bucket);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      cloudProvider,
       bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010/config.json'
     );
@@ -714,9 +705,8 @@ describe('removeAirnode', () => {
       `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=d0624e6" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, cloudProvider, bucket);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenCalledWith(
-      cloudProvider,
       bucket,
       (mockBucketDirectoryStructure['0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6'] as Directory).children['dev']
     );
@@ -726,10 +716,9 @@ describe('removeAirnode', () => {
 
   it('deletes the address directory if there are no other deployments with that address', async () => {
     await infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, cloudProvider, bucket);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
     );
@@ -743,14 +732,13 @@ describe('removeAirnode', () => {
       `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, cloudProvider, bucket);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(
       1,
-      cloudProvider,
       bucket,
       (mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory).children['dev']
     );
-    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, cloudProvider, bucket, {
+    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket, {
       ...mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'],
       children: {},
     });
@@ -766,10 +754,9 @@ describe('removeAirnode', () => {
       );
 
     await infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider);
-    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, cloudProvider, bucket);
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      cloudProvider,
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
     );
@@ -783,19 +770,18 @@ describe('removeAirnode', () => {
       `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, cloudProvider, bucket);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(
       1,
-      cloudProvider,
       bucket,
       (mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory).children['dev']
     );
-    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, cloudProvider, bucket, {
+    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket, {
       ...mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'],
       children: {},
     });
     expect(awsDeleteBucketDirectory).toHaveBeenCalledTimes(2);
-    expect(awsDeleteBucket).toHaveBeenCalledWith(cloudProvider, bucket);
+    expect(awsDeleteBucket).toHaveBeenCalledWith(bucket);
   });
 
   it(`fails if there's no Airnode bucket available`, async () => {

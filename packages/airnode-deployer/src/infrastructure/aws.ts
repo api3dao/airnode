@@ -13,13 +13,12 @@ import {
   translatePathsToDirectoryStructure,
 } from '../utils/infrastructure';
 
-const initializeS3Service = (cloudProvider: AwsCloudProvider) => {
-  AWS.config.update({ region: cloudProvider.region });
+const initializeS3Service = () => {
   return new AWS.S3();
 };
 
-export const getAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getAirnodeBucket = async () => {
+  const s3 = initializeS3Service();
 
   logger.debug('Listing S3 buckets');
   const goBuckets = await go(() => s3.listBuckets().promise());
@@ -35,8 +34,8 @@ export const getAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
   return airnodeBuckets?.[0]?.Name ?? null;
 };
 
-export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const createAirnodeBucket = async (_cloudProvider: AwsCloudProvider) => {
+  const s3 = initializeS3Service();
   const bucketName = generateBucketName();
 
   logger.debug(`Creating S3 bucket '${bucketName}'`);
@@ -86,8 +85,8 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
   return bucketName;
 };
 
-export const getBucketDirectoryStructure = async (cloudProvider: AwsCloudProvider, bucketName: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getBucketDirectoryStructure = async (bucketName: string) => {
+  const s3 = initializeS3Service();
 
   let paths: string[] = [];
   let truncated = true;
@@ -112,13 +111,8 @@ export const getBucketDirectoryStructure = async (cloudProvider: AwsCloudProvide
   return translatePathsToDirectoryStructure(paths);
 };
 
-export const storeFileToBucket = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  bucketFilePath: string,
-  filePath: string
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const storeFileToBucket = async (bucketName: string, bucketFilePath: string, filePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to S3 bucket '${bucketName}'`);
   const goPut = await go(() =>
@@ -131,8 +125,8 @@ export const storeFileToBucket = async (
   }
 };
 
-export const getFileFromBucket = async (cloudProvider: AwsCloudProvider, bucketName: string, filePath: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getFileFromBucket = async (bucketName: string, filePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Fetching file '${filePath}' from S3 bucket '${bucketName}'`);
   const goGet = await go(() => s3.getObject({ Bucket: bucketName, Key: filePath }).promise());
@@ -146,13 +140,8 @@ export const getFileFromBucket = async (cloudProvider: AwsCloudProvider, bucketN
   return goGet.data.Body.toString('utf-8');
 };
 
-export const copyFileInBucket = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  fromFilePath: string,
-  toFilePath: string
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const copyFileInBucket = async (bucketName: string, fromFilePath: string, toFilePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Copying file '${fromFilePath}' to file '${toFilePath}' within S3 bucket '${bucketName}'`);
   const goCopy = await go(() =>
@@ -176,12 +165,8 @@ const gatherBucketKeys = (directory: Directory): string[] => [
   ),
 ];
 
-export const deleteBucketDirectory = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  directory: Directory
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const deleteBucketDirectory = async (bucketName: string, directory: Directory) => {
+  const s3 = initializeS3Service();
 
   const bucketKeys = gatherBucketKeys(directory);
   logger.debug(`Deleting files from S3 bucket '${bucketName}': ${JSON.stringify(bucketKeys)}`);
@@ -195,8 +180,8 @@ export const deleteBucketDirectory = async (
   }
 };
 
-export const deleteBucket = async (cloudProvider: AwsCloudProvider, bucketName: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const deleteBucket = async (bucketName: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Deleting S3 bucket '${bucketName}'`);
   const goDelete = await go(() => s3.deleteBucket({ Bucket: bucketName }).promise());

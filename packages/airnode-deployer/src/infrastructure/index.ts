@@ -297,7 +297,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 
   const goDeploy = await go(async () => {
     logger.debug('Fetching Airnode bucket');
-    let bucketName = await cloudProviderLib[type].getAirnodeBucket(cloudProvider as any);
+    let bucketName = await cloudProviderLib[type].getAirnodeBucket();
     if (!bucketName) {
       logger.debug('No Airnode bucket found, creating');
       bucketName = await cloudProviderLib[type].createAirnodeBucket(cloudProvider as any);
@@ -305,10 +305,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
     logger.debug(`Using Airnode bucket '${bucketName}'`);
 
     logger.debug('Fetching Airnode bucket content');
-    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(
-      cloudProvider as any,
-      bucketName
-    );
+    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
 
     const bucketStagePath = `${airnodeAddress}/${stage}`;
     const bucketDeploymentPath = `${bucketStagePath}/${timestamp}`;
@@ -320,7 +317,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const remoteConfig = JSON.parse(
-        await cloudProviderLib[type].getFileFromBucket(cloudProvider as any, bucketName, bucketConfigPath)
+        await cloudProviderLib[type].getFileFromBucket(bucketName, bucketConfigPath)
       ) as Config;
 
       const remoteNodeSettings = remoteConfig.nodeSettings;
@@ -340,7 +337,6 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const latestBucketTerraformStatePath = `${bucketStagePath}/${latestDeployment}/${TF_STATE_FILENAME}`;
       const newBucketTerraformStatePath = `${bucketDeploymentPath}/${TF_STATE_FILENAME}`;
       await cloudProviderLib[type].copyFileInBucket(
-        cloudProvider as any,
         bucketName,
         latestBucketTerraformStatePath,
         newBucketTerraformStatePath
@@ -349,11 +345,11 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 
     logger.debug(`Storing configuration file for new deployment ${bucketDeploymentPath}`);
     const bucketConfigPath = `${bucketDeploymentPath}/config.json`;
-    await cloudProviderLib[type].storeFileToBucket(cloudProvider as any, bucketName, bucketConfigPath, configPath);
+    await cloudProviderLib[type].storeFileToBucket(bucketName, bucketConfigPath, configPath);
 
     logger.debug(`Storing secrets file for new deployment ${bucketDeploymentPath}`);
     const bucketSecretsPath = `${bucketDeploymentPath}/secrets.env`;
-    await cloudProviderLib[type].storeFileToBucket(cloudProvider as any, bucketName, bucketSecretsPath, secretsPath);
+    await cloudProviderLib[type].storeFileToBucket(bucketName, bucketSecretsPath, secretsPath);
 
     logger.debug('Deploying Airnode via Terraform recipes');
     const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
@@ -407,13 +403,13 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
 
   const goRemove = await go(async () => {
     logger.debug('Fetching Airnode bucket');
-    const bucketName = await cloudProviderLib[type].getAirnodeBucket(cloudProvider as any);
+    const bucketName = await cloudProviderLib[type].getAirnodeBucket();
     if (!bucketName) {
       throw new Error(`There's no Airnode bucket available`);
     }
 
     logger.debug('Fetching Airnode bucket content');
-    let directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(cloudProvider as any, bucketName);
+    let directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
     let addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress);
     let stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage);
     if (!addressDirectory || !stageDirectory) {
@@ -424,9 +420,7 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
     const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
     const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
     logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
-    const config = JSON.parse(
-      await cloudProviderLib[type].getFileFromBucket(cloudProvider as any, bucketName, bucketConfigPath)
-    ) as Config;
+    const config = JSON.parse(await cloudProviderLib[type].getFileFromBucket(bucketName, bucketConfigPath)) as Config;
 
     const remoteNodeSettings = config.nodeSettings;
     const remoteCloudProvider = remoteNodeSettings.cloudProvider as CloudProvider;
@@ -457,20 +451,20 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
 
     // Refreshing the bucket content because the source code archives were removed by Terraform
     logger.debug('Refreshing Airnode bucket content');
-    directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(cloudProvider as any, bucketName);
+    directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
     addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
     stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
 
     // Delete stage directory and its content
     logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
-    await cloudProviderLib[type].deleteBucketDirectory(cloudProvider as any, bucketName, stageDirectory);
+    await cloudProviderLib[type].deleteBucketDirectory(bucketName, stageDirectory);
     // eslint-disable-next-line functional/immutable-data
     delete addressDirectory.children[stage];
 
     // Delete Airnode address directory if empty
     if (Object.keys(addressDirectory.children).length === 0) {
       logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
-      await cloudProviderLib[type].deleteBucketDirectory(cloudProvider as any, bucketName, addressDirectory);
+      await cloudProviderLib[type].deleteBucketDirectory(bucketName, addressDirectory);
       // eslint-disable-next-line functional/immutable-data
       delete directoryStructure[airnodeAddress];
     }
@@ -478,7 +472,7 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
     // Delete the whole bucket if empty
     if (Object.keys(directoryStructure).length === 0) {
       logger.debug(`Deleting Airnode bucket '${bucketName}'`);
-      await cloudProviderLib[type].deleteBucket(cloudProvider as any, bucketName);
+      await cloudProviderLib[type].deleteBucket(bucketName);
     }
   });
 
