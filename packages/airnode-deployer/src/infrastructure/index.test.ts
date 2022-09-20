@@ -441,7 +441,7 @@ describe('deployAirnode', () => {
   });
 
   it('deploys Airnode', async () => {
-    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath);
+    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider, bucket);
@@ -481,7 +481,7 @@ describe('deployAirnode', () => {
       .spyOn(aws, 'createAirnodeBucket')
       .mockImplementation(() => Promise.resolve(newBucket));
 
-    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath);
+    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
     expect(awsCreateAirnodeBucket).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
@@ -520,7 +520,7 @@ describe('deployAirnode', () => {
       .spyOn(aws, 'getBucketDirectoryStructure')
       .mockImplementation(() => Promise.resolve(mockBucketDirectoryStructure));
 
-    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath);
+    const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(config.nodeSettings.cloudProvider, bucket);
@@ -577,7 +577,7 @@ describe('deployAirnode', () => {
       .spyOn(aws, 'getFileFromBucket')
       .mockImplementation(() => Promise.resolve(JSON.stringify(wrongVersionConfig)));
 
-    await expect(infrastructure.deployAirnode(config, configPath, secretsPath)).rejects.toThrow(
+    await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
       new Error(
         `Can't update an Airnode deployment with airnode-deployer of a different version. Deployed version: 0.0.1, airnode-deployer version: ${nodeVersion}`
       )
@@ -602,7 +602,7 @@ describe('deployAirnode', () => {
       .spyOn(aws, 'getFileFromBucket')
       .mockImplementation(() => Promise.resolve(JSON.stringify(wrongRegionConfig)));
 
-    await expect(infrastructure.deployAirnode(config, configPath, secretsPath)).rejects.toThrow(
+    await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
       new Error(
         `Can't change a region of an already deployed Airnode. Current region: eu-central-1, new region: us-east-1`
       )
@@ -613,7 +613,7 @@ describe('deployAirnode', () => {
     const expectedError = new Error('example error');
     exec.mockRejectedValue(expectedError);
 
-    await expect(infrastructure.deployAirnode(config, configPath, secretsPath)).rejects.toThrow(
+    await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
       expectedError.toString()
     );
   });
