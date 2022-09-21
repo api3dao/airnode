@@ -67,7 +67,7 @@ const cloudProvider = {
 const bucketName = 'airnode-aabbccdd0011';
 const fileContent = 'file content';
 const filePath = '/path/to/config.json';
-const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json';
+const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json';
 const gcsErrorMessage = 'Unexpected GCS error';
 const gcsError = new Error(gcsErrorMessage);
 
@@ -242,7 +242,7 @@ describe('getFileFromBucket', () => {
 });
 
 describe('copyFileInBucket', () => {
-  const toBucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662557994/config.json';
+  const toBucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662557994854/config.json';
 
   it('copies file within a bucket', async () => {
     gcsCopySpy.mockImplementation(() => {});
