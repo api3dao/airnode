@@ -5,11 +5,13 @@ import pick from 'lodash/pick';
 import cloneDeep from 'lodash/cloneDeep';
 import { AwsCloudProvider, GcpCloudProvider, loadConfig } from '@api3/airnode-node';
 import * as aws from './aws';
+import * as gcp from './gcp';
 import { version as nodeVersion } from '../../package.json';
 import { getSpinner } from '../utils/logger';
 import { parseSecretsFile } from '../utils';
-import { mockBucketDirectoryStructure } from '../../test/fixtures';
 import { Directory, DirectoryStructure } from '../utils/infrastructure';
+import { mockBucketDirectoryStructure } from '../../test/fixtures';
+import { listAirnodes01, listAirnodes02, listAirnodes03 } from '../../test/snapshots';
 
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
@@ -850,5 +852,153 @@ describe('removeAirnode', () => {
     await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
       expectedError.toString()
     );
+  });
+});
+
+describe('listAirnodes', () => {
+  const bucket = 'airnode-123456789';
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const directoryStructure = pick(mockBucketDirectoryStructure, [
+    '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
+    '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+  ]);
+
+  let awsGetAirnodeBucketSpy: jest.SpyInstance;
+  let awsGetBucketDirectoryStructureSpy: jest.SpyInstance;
+  let awsGetFileFromBucketSpy: jest.SpyInstance;
+  let gcpGetAirnodeBucketSpy: jest.SpyInstance;
+  let gcpGetBucketDirectoryStructureSpy: jest.SpyInstance;
+  let gcpGetFileFromBucketSpy: jest.SpyInstance;
+  let consoleSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
+    awsGetBucketDirectoryStructureSpy = jest
+      .spyOn(aws, 'getBucketDirectoryStructure')
+      .mockImplementation(() => Promise.resolve(directoryStructure));
+    awsGetFileFromBucketSpy = jest
+      .spyOn(aws, 'getFileFromBucket')
+      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
+    gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
+    gcpGetBucketDirectoryStructureSpy = jest
+      .spyOn(gcp, 'getBucketDirectoryStructure')
+      .mockImplementation(() => Promise.resolve(directoryStructure));
+    gcpGetFileFromBucketSpy = jest
+      .spyOn(gcp, 'getFileFromBucket')
+      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
+    consoleSpy = jest.spyOn(console, 'log');
+  });
+
+  it('lists Airnodes from multiple cloud providers', async () => {
+    consoleSpy.mockImplementationOnce((output: string) => {
+      for (const line of listAirnodes01.split('\n')) {
+        expect(output).toContain(line);
+      }
+    });
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    const cloudProviders = ['aws', 'gcp'] as const;
+    await infrastructure.listAirnodes(cloudProviders);
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+  });
+
+  it('lists Airnodes only from non-failing cloud providers', async () => {
+    consoleSpy.mockImplementationOnce((output: string) => {
+      for (const line of listAirnodes02.split('\n')) {
+        expect(output).toContain(line);
+      }
+    });
+    const expectedError = new Error('example error');
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockRejectedValue(expectedError);
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    const cloudProviders = ['aws', 'gcp'] as const;
+    await infrastructure.listAirnodes(cloudProviders);
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+  });
+
+  it(`shows no Airnodes if there's no Airnode bucket`, async () => {
+    consoleSpy.mockImplementationOnce((output: string) => {
+      expect(output).toEqual(listAirnodes03);
+    });
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(null);
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    const cloudProviders = ['aws'] as const;
+    await infrastructure.listAirnodes(cloudProviders);
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
+    expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
+    expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
   });
 });
