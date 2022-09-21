@@ -4,11 +4,14 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Config, evm } from '@api3/airnode-node';
+import { consoleLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
+import sortBy from 'lodash/sortBy';
+import Table from 'cli-table3';
 import * as aws from './aws';
 import * as gcp from './gcp';
 import * as logger from '../utils/logger';
@@ -18,9 +21,11 @@ import {
   getStageDirectory,
   getAddressDirectory,
   Directory,
+  FileSystemType,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
+import { airnodeAddressReadable, cloudProviderReadable, hashDeployment, lastUpdateReadable } from '../utils/cli';
 
 export const TF_STATE_FILENAME = 'default.tfstate';
 
@@ -482,4 +487,103 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
   }
 
   spinner.succeed(`Removed Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
+}
+
+export type Deployment = {
+  id: string;
+  cloudProvider: string;
+  airnodeAddress: string;
+  stage: string;
+  airnodeVersion: string;
+  lastUpdate: string;
+};
+
+export async function listAirnodes(cloudProviders: readonly CloudProvider['type'][]) {
+  const deployments: Deployment[] = [];
+
+  for (const cloudProvider of cloudProviders) {
+    // Using different line of text for each cloud provider so we can easily convey which cloud provider failed
+    // and which succeeded
+    const spinner = logger
+      .getSpinner()
+      .start(`Listing Airnode deployments from cloud provider ${cloudProvider.toUpperCase()}`);
+    if (logger.inDebugMode()) {
+      spinner.info();
+    }
+
+    const goListCloudAirnodes = await go(async () => {
+      const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
+      if (!bucketName) {
+        logger.debug(`No deployment available on ${cloudProvider.toUpperCase()}. Skipping.`);
+        return;
+      }
+
+      const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
+      for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
+        if (addressDirectory.type !== FileSystemType.Directory) {
+          logger.warn(
+            `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+              addressDirectory.bucketKey
+            }'. Skipping.`
+          );
+          continue;
+        }
+
+        for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
+          if (stageDirectory.type !== FileSystemType.Directory) {
+            logger.warn(
+              `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+                stageDirectory.bucketKey
+              }'. Skipping.`
+            );
+            continue;
+          }
+
+          const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+          const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
+          const config = JSON.parse(
+            await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
+          ) as Config;
+          const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
+          const airnodeVersion = config.nodeSettings.nodeVersion;
+          const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
+
+          deployments.push({
+            id,
+            cloudProvider: cloudProviderReadable(cloudProvider, region),
+            airnodeAddress: airnodeAddressReadable(airnodeAddress),
+            stage,
+            airnodeVersion,
+            lastUpdate: lastUpdateReadable(latestDeployment),
+          });
+        }
+      }
+    });
+
+    if (goListCloudAirnodes.success) {
+      spinner.succeed();
+    } else {
+      spinner.fail(`Failed to list deployments from ${cloudProvider.toUpperCase()}: ${goListCloudAirnodes.error}`);
+    }
+  }
+  const sortedDeployments = sortBy(deployments, ['cloudProvider', 'airnodeAddress', 'stage', 'airnodeVersion']);
+  const table = new Table({
+    head: ['Deployment ID', 'Cloud provider', 'Airnode address', 'Stage', 'Airnode version', 'Last update'],
+    style: {
+      head: ['bold'],
+    },
+  });
+
+  table.push(
+    ...sortedDeployments.map(({ id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
+      id,
+      cloudProvider,
+      airnodeAddress,
+      stage,
+      airnodeVersion,
+      lastUpdate,
+    ])
+  );
+
+  consoleLog(table.toString());
 }

@@ -1,5 +1,7 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import uniq from 'lodash/uniq';
+import sortBy from 'lodash/sortBy';
 import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -7,7 +9,7 @@ import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
-import { removeAirnode } from '../infrastructure';
+import { listAirnodes, removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -45,6 +47,7 @@ async function runCommand(command: () => Promise<void>) {
 
 const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
+  'list --cloud-providers gcp',
   'remove-with-receipt -r config/receipt.json',
   'remove-with-deployment-details --airnode-address 0x6abEdc0A4d1A79eD62160396456c95C5607369D3 --stage dev --cloud-provider aws --region us-east-1',
 ];
@@ -163,6 +166,26 @@ yargs(hideBin(process.argv))
         } as CloudProvider)
       );
       return;
+    }
+  )
+  .command(
+    'list',
+    'Lists deployed Airnode instances',
+    {
+      'cloud-providers': {
+        alias: 'c',
+        description: 'Cloud providers to list Airnodes from',
+        default: ['aws', 'gcp'] as const,
+        choices: ['aws', 'gcp'] as const,
+        type: 'array',
+        coerce: (option: CloudProvider['type'][]) => sortBy(uniq(option)),
+      },
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      await listAirnodes(args.cloudProviders);
     }
   )
   .example(cliExamples.map((line) => [`$0 ${line}\n`]))
