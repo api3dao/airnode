@@ -522,11 +522,11 @@ describe('deployAirnode', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsCopyFileInBucketSpy).toHaveBeenCalledWith(
       bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/default.tfstate',
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/default.tfstate',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/default.tfstate'
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
@@ -693,11 +693,11 @@ describe('removeAirnode', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010/config.json'
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
-      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010/default.tfstate" -from-module=${terraformDir}/aws`,
+      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/default.tfstate" -from-module=${terraformDir}/aws`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(
@@ -720,11 +720,11 @@ describe('removeAirnode', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
-      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/default.tfstate" -from-module=${terraformDir}/aws`,
+      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/default.tfstate" -from-module=${terraformDir}/aws`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(
@@ -758,11 +758,11 @@ describe('removeAirnode', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json'
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
-      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/default.tfstate" -from-module=${terraformDir}/aws`,
+      `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/default.tfstate" -from-module=${terraformDir}/aws`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(
