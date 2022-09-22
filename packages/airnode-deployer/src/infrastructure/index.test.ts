@@ -428,15 +428,13 @@ describe('deployAirnode', () => {
     const commandOutput =
       '{"http_gateway_url": {"value": "http://some.http.gateway.address/random_path/"}, "http_signed_data_gateway_url": {"value": "http://some.http.signed.data.gateway.address/random_path/"}}';
     exec.mockImplementation(() => ({ stdout: commandOutput }));
-    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
-    awsGetBucketDirectoryStructureSpy = jest
-      .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve({}));
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
+    awsGetBucketDirectoryStructureSpy = jest.spyOn(aws, 'getBucketDirectoryStructure').mockResolvedValue({});
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
-    awsCopyFileInBucketSpy = jest.spyOn(aws, 'copyFileInBucket').mockImplementation(() => Promise.resolve());
-    awsStoreFileToBucketSpy = jest.spyOn(aws, 'storeFileToBucket').mockImplementation(() => Promise.resolve());
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    awsCopyFileInBucketSpy = jest.spyOn(aws, 'copyFileInBucket').mockResolvedValue();
+    awsStoreFileToBucketSpy = jest.spyOn(aws, 'storeFileToBucket').mockResolvedValue();
     jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => 'tmpDir');
     jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
     jest.spyOn(Date, 'now').mockImplementation(() => 1662730904);
@@ -475,11 +473,9 @@ describe('deployAirnode', () => {
   });
 
   it(`creates a bucket if it doesn't exist`, async () => {
-    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(null));
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(null);
     const newBucket = 'airnode-987654321';
-    const awsCreateAirnodeBucket = jest
-      .spyOn(aws, 'createAirnodeBucket')
-      .mockImplementation(() => Promise.resolve(newBucket));
+    const awsCreateAirnodeBucket = jest.spyOn(aws, 'createAirnodeBucket').mockResolvedValue(newBucket);
 
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
@@ -516,7 +512,7 @@ describe('deployAirnode', () => {
   it(`deploys a new version of an existing deployment`, async () => {
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(mockBucketDirectoryStructure));
+      .mockResolvedValue(mockBucketDirectoryStructure);
 
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
@@ -566,10 +562,10 @@ describe('deployAirnode', () => {
     };
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(mockBucketDirectoryStructure));
+      .mockResolvedValue(mockBucketDirectoryStructure);
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(JSON.stringify(wrongVersionConfig)));
+      .mockResolvedValue(JSON.stringify(wrongVersionConfig));
 
     await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
       new Error(
@@ -591,10 +587,8 @@ describe('deployAirnode', () => {
     };
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(mockBucketDirectoryStructure));
-    awsGetFileFromBucketSpy = jest
-      .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(JSON.stringify(wrongRegionConfig)));
+      .mockResolvedValue(mockBucketDirectoryStructure);
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockResolvedValue(JSON.stringify(wrongRegionConfig));
 
     await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
       new Error(
@@ -674,15 +668,15 @@ describe('removeAirnode', () => {
   beforeEach(() => {
     mutableDirectoryStructure = cloneDeep(mockBucketDirectoryStructure);
     exec.mockImplementation(() => ({}));
-    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(mutableDirectoryStructure));
+      .mockResolvedValue(mutableDirectoryStructure);
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
-    awsDeleteBucketDirectory = jest.spyOn(aws, 'deleteBucketDirectory').mockImplementation(() => Promise.resolve());
-    awsDeleteBucket = jest.spyOn(aws, 'deleteBucket').mockImplementation(() => Promise.resolve());
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    awsDeleteBucketDirectory = jest.spyOn(aws, 'deleteBucketDirectory').mockResolvedValue();
+    awsDeleteBucket = jest.spyOn(aws, 'deleteBucket').mockResolvedValue();
     jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => 'tmpDir');
     jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
   });
@@ -751,9 +745,7 @@ describe('removeAirnode', () => {
   it('deletes the whole bucket if there are no more deployments', async () => {
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() =>
-        Promise.resolve(pick(mutableDirectoryStructure, '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'))
-      );
+      .mockResolvedValue(pick(mutableDirectoryStructure, '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'));
 
     await infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
@@ -787,7 +779,7 @@ describe('removeAirnode', () => {
   });
 
   it(`fails if there's no Airnode bucket available`, async () => {
-    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(null));
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(null);
 
     await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
       new Error(`There's no Airnode bucket available`)
@@ -814,7 +806,7 @@ describe('removeAirnode', () => {
     };
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(JSON.stringify(wrongVersionConfig)));
+      .mockResolvedValue(JSON.stringify(wrongVersionConfig));
 
     await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
       new Error(
@@ -834,9 +826,7 @@ describe('removeAirnode', () => {
         },
       },
     };
-    awsGetFileFromBucketSpy = jest
-      .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(JSON.stringify(wrongRegionConfig)));
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockResolvedValue(JSON.stringify(wrongRegionConfig));
 
     await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
       new Error(
@@ -872,20 +862,20 @@ describe('listAirnodes', () => {
   let consoleSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(directoryStructure));
+      .mockResolvedValue(directoryStructure);
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
-    gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockImplementation(() => Promise.resolve(bucket));
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
     gcpGetBucketDirectoryStructureSpy = jest
       .spyOn(gcp, 'getBucketDirectoryStructure')
-      .mockImplementation(() => Promise.resolve(directoryStructure));
+      .mockResolvedValue(directoryStructure);
     gcpGetFileFromBucketSpy = jest
       .spyOn(gcp, 'getFileFromBucket')
-      .mockImplementation(() => Promise.resolve(fs.readFileSync(configPath).toString()));
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
     consoleSpy = jest.spyOn(console, 'log');
   });
 
