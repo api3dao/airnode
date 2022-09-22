@@ -52,7 +52,6 @@ const cliExamples = [
   'remove-with-deployment-details --airnode-address 0x6abEdc0A4d1A79eD62160396456c95C5607369D3 --stage dev --cloud-provider aws --region us-east-1',
 ];
 
-drawHeader();
 yargs(hideBin(process.argv))
   .option('debug', {
     description: 'Run in debug mode',
@@ -89,6 +88,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      drawHeader();
+
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
@@ -106,6 +107,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      drawHeader();
+
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
@@ -148,6 +151,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      drawHeader();
+
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
