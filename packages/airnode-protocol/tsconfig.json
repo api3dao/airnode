@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "files": [],
-  "references": [{ "path": "./src" }, { "path": "./test" }]
+  "references": [{ "path": "./src" }, { "path": "./test" }, { "path": "./scripts" }]
 }
