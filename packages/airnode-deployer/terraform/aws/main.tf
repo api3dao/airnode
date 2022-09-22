@@ -19,8 +19,9 @@ module "run" {
   }
 }
 
-module "startCoordinator" {
+module "startCoordinatorNoGws" {
   source = "./modules/function"
+  count  = var.http_api_key == null && var.http_signed_data_api_key == null ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -31,8 +32,79 @@ module "startCoordinator" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "${module.httpGw[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "${module.httpSignedGw[0].api_url}"
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorHttpGw" {
+  source = "./modules/function"
+  count  = var.http_api_key != null && var.http_signed_data_api_key == null ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_GATEWAY_URL           = module.httpGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorHttpSignedGw" {
+  source = "./modules/function"
+  count  = var.http_api_key == null && var.http_signed_data_api_key != null ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorBothGws" {
+  source = "./modules/function"
+  count  = var.http_api_key != null && var.http_signed_data_api_key != null ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_GATEWAY_URL             = module.httpGw[0].api_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 

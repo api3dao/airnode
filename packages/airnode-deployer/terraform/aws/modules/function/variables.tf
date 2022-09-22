@@ -1,9 +1,7 @@
 locals {
-  tmp_dir               = "/tmp/${var.name}-${random_uuid.uuid.result}"
-  tmp_input_dir         = "${local.tmp_dir}/input"
-  tmp_configuration_dir = "${local.tmp_input_dir}/config-data"
-  tmp_handlers_dir      = "${local.tmp_input_dir}/handlers"
-  tmp_output_dir        = "${local.tmp_dir}/output"
+  uuid        = uuid()
+  tmp_dir     = "/tmp/${var.name}#${local.uuid}"
+  tmp_archive = "/tmp/${var.name}#${local.uuid}.zip"
 }
 
 variable "handler" {
