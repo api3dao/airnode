@@ -23,7 +23,7 @@
     "test:e2e:update-snapshot": "yarn test:e2e --updateSnapshot"
   },
   "dependencies": {
-    "@api3/ois": "1.2.0",
+    "@api3/ois": "~1.2",
     "@api3/promise-utils": "^0.3.0",
     "dotenv": "^16.0.2",
     "ethers": "^5.7.1",
