@@ -77,7 +77,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.1.2",
+      "oisFormat": "1.2.0",
       "title": "CoinGecko history data request",
       "version": "1.0.0",
       "apiSpecifications": {
