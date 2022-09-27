@@ -83,7 +83,6 @@ const questions: PromptObject[] = [
         case 'localhost':
           return 'http://127.0.0.1:8545/';
         case 'goerli':
-        case 'kovan':
           return getExamplePocketNetwork(values.network);
         case 'polygon-testnet':
           return `https://polygon-mumbai.g.alchemy.com/v2/`;
