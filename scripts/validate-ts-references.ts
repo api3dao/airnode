@@ -20,13 +20,23 @@ packageNames.forEach((packageName) => {
     (dependency) => dependency.startsWith('@api3/') && packageNames.includes(dependency.replace('@api3/', ''))
   );
 
-  const tsConfig: any = parseJsonWithComments(
-    readFileSync(join(packageDir, 'src/tsconfig.json'), 'utf-8'),
+  const packageTsConfig: any = parseJsonWithComments(
+    readFileSync(join(packageDir, 'tsconfig.json'), 'utf-8'),
     undefined,
     true
   );
-  const tsConfigReferences: string[] = (tsConfig.references ?? []).map((reference: any) => reference.path);
-  const monorepoReferences = tsConfigReferences.filter((reference) => reference.startsWith('../../'));
+  const refs: string[] = packageTsConfig.references.map((ref: any) => ref.path);
+  const monorepoReferences = refs
+    .map((ref) => {
+      const tsConfig: any = parseJsonWithComments(
+        readFileSync(join(packageDir, ref, 'tsconfig.json'), 'utf-8'),
+        undefined,
+        true
+      );
+      const tsConfigReferences: string[] = (tsConfig.references ?? []).map((reference: any) => reference.path);
+      return tsConfigReferences.filter((reference) => reference.startsWith('../../'));
+    })
+    .reduce((acc, tsConfigRefs) => [...acc, ...tsConfigRefs], []);
 
   if (monorepoDependencies.length !== monorepoReferences.length) {
     throw new Error(
