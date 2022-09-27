@@ -18,4 +18,4 @@ fi
 yarn bootstrap
 yarn build
 
-yarn ts-node docker/scripts/prepare-containers.ts "$@"
+yarn ts-node --transpileOnly docker/scripts/prepare-containers.ts "$@"

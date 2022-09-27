@@ -13,7 +13,7 @@
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
-    "cli": "ts-node bin/admin.ts",
+    "cli": "ts-node --transpileOnly bin/admin.ts",
     "compile": "tsc --build tsconfig.json",
     "pack": "yarn pack",
     "test:e2e": "jest --selectProjects e2e",

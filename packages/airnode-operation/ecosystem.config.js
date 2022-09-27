@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'web-api',
-      script: 'ts-node src/server.ts',
+      script: 'ts-node --transpileOnly src/server.ts',
       env: {
         NODE_ENV: 'development',
       },

@@ -14,5 +14,5 @@ template.
 
 ```sh
 # Run from the <airnode/packages/airnode-examples> directory
-yarn ts-node integrations/coingecko-template/create-template-on-chain.ts
+yarn ts-node --transpileOnly integrations/coingecko-template/create-template-on-chain.ts
 ```
