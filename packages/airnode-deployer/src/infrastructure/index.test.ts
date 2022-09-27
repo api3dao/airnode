@@ -11,7 +11,7 @@ import { getSpinner } from '../utils/logger';
 import { parseSecretsFile } from '../utils';
 import { Directory, DirectoryStructure } from '../utils/infrastructure';
 import { mockBucketDirectoryStructure } from '../../test/fixtures';
-import { listAirnodes01, listAirnodes02, listAirnodes03 } from '../../test/snapshots';
+import { deploymentInfo01, listAirnodes01, listAirnodes02, listAirnodes03 } from '../../test/snapshots';
 
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
@@ -990,5 +990,172 @@ describe('listAirnodes', () => {
     expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('deploymentInfo', () => {
+  const bucket = 'airnode-123456789';
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const directoryStructure = pick(mockBucketDirectoryStructure, [
+    '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
+    '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+  ]);
+
+  let awsGetAirnodeBucketSpy: jest.SpyInstance;
+  let awsGetBucketDirectoryStructureSpy: jest.SpyInstance;
+  let awsGetFileFromBucketSpy: jest.SpyInstance;
+  let gcpGetAirnodeBucketSpy: jest.SpyInstance;
+  let gcpGetBucketDirectoryStructureSpy: jest.SpyInstance;
+  let gcpGetFileFromBucketSpy: jest.SpyInstance;
+  let consoleSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
+    awsGetBucketDirectoryStructureSpy = jest
+      .spyOn(aws, 'getBucketDirectoryStructure')
+      .mockResolvedValue(directoryStructure);
+    awsGetFileFromBucketSpy = jest
+      .spyOn(aws, 'getFileFromBucket')
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
+    gcpGetBucketDirectoryStructureSpy = jest
+      .spyOn(gcp, 'getBucketDirectoryStructure')
+      .mockResolvedValue(directoryStructure);
+    gcpGetFileFromBucketSpy = jest
+      .spyOn(gcp, 'getFileFromBucket')
+      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    consoleSpy = jest.spyOn(console, 'log');
+  });
+
+  it('shows info about the deployment', async () => {
+    consoleSpy.mockImplementationOnce(() => {});
+    consoleSpy.mockImplementationOnce(() => {});
+    consoleSpy.mockImplementationOnce(() => {});
+    consoleSpy.mockImplementationOnce(() => {});
+    consoleSpy.mockImplementationOnce(() => {});
+    consoleSpy.mockImplementationOnce((output: string) => {
+      for (const line of deploymentInfo01.split('\n')) {
+        expect(output).toContain(line);
+        if (line.includes('3580a278')) {
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(output).toContain('(current)');
+        }
+      }
+    });
+
+    const deploymentId = '7195b548';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await infrastructure.deploymentInfo(deploymentId);
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Cloud provider: AWS (us-east-1)');
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Airnode address: 0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6');
+    expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Stage: dev');
+    expect(consoleSpy).toHaveBeenNthCalledWith(4, 'Airnode version: 0.8.0');
+    expect(consoleSpy).toHaveBeenNthCalledWith(5, 'Deployment ID: 7195b548');
+  });
+
+  it(`fails if there's a problem with the cloud provider`, async () => {
+    const expectedError = new Error('example error');
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockRejectedValue(expectedError);
+
+    const deploymentId = '7195b548';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(infrastructure.deploymentInfo(deploymentId)).rejects.toThrow(
+      new Error(`No deployment with id '${deploymentId}' found`)
+    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+  });
+
+  it(`fails if the deployment can't be found`, async () => {
+    const nonexistingDeploymentId = '2c6ef2b3';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(infrastructure.deploymentInfo(nonexistingDeploymentId)).rejects.toThrow(
+      new Error(`No deployment with id '${nonexistingDeploymentId}' found`)
+    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
   });
 });
