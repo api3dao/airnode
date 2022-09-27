@@ -25,7 +25,13 @@ import {
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
-import { airnodeAddressReadable, cloudProviderReadable, hashDeployment, lastUpdateReadable } from '../utils/cli';
+import {
+  airnodeAddressReadable,
+  cloudProviderReadable,
+  hashDeployment,
+  hashDeploymentVersion,
+  timestampReadable,
+} from '../utils/cli';
 
 export const TF_STATE_FILENAME = 'default.tfstate';
 
@@ -489,13 +495,20 @@ export async function removeAirnode(airnodeAddress: string, stage: string, cloud
   spinner.succeed(`Removed Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
 }
 
+export type DeploymentVersion = {
+  id: string;
+  timestamp: string;
+};
+
 export type Deployment = {
   id: string;
-  cloudProvider: string;
+  cloudProvider: CloudProvider['type'];
+  region: string;
   airnodeAddress: string;
   stage: string;
   airnodeVersion: string;
   lastUpdate: string;
+  versions?: DeploymentVersion[];
 };
 
 export async function listAirnodes(cloudProviders: readonly CloudProvider['type'][]) {
@@ -550,11 +563,12 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
 
           deployments.push({
             id,
-            cloudProvider: cloudProviderReadable(cloudProvider, region),
-            airnodeAddress: airnodeAddressReadable(airnodeAddress),
+            cloudProvider,
+            region,
+            airnodeAddress,
             stage,
             airnodeVersion,
-            lastUpdate: lastUpdateReadable(latestDeployment),
+            lastUpdate: latestDeployment,
           });
         }
       }
@@ -575,15 +589,133 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   });
 
   table.push(
-    ...sortedDeployments.map(({ id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
+    ...sortedDeployments.map(({ id, cloudProvider, region, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
       id,
-      cloudProvider,
-      airnodeAddress,
+      cloudProviderReadable(cloudProvider, region),
+      airnodeAddressReadable(airnodeAddress),
       stage,
       airnodeVersion,
-      lastUpdate,
+      timestampReadable(lastUpdate),
     ])
   );
 
   consoleLog(table.toString());
+}
+
+// TODO:
+// I know that a big chunk of the functionis very similar to the `listAirnodes` function above.
+// Refactor to unite the functionality would be complicated at the moment but I plan to do that
+// once https://github.com/api3dao/airnode/issues/1473 is implemented
+export async function deploymentInfo(deploymentId: string) {
+  const spinner = logger.getSpinner().start(`Fetching info about deployment '${deploymentId}'`);
+  if (logger.inDebugMode()) {
+    spinner.info();
+  }
+
+  // TODO: Same comment as above, will be removed
+  const cloudProviders = ['aws', 'gcp'] as const;
+  let deployment: Deployment | null = null;
+
+  for (const cloudProvider of cloudProviders) {
+    if (deployment) break;
+
+    const goCloudDeploymentInfo = await go(async () => {
+      const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
+      if (!bucketName) {
+        logger.debug(`No deployment available on ${cloudProvider.toUpperCase()}. Skipping.`);
+        return;
+      }
+
+      const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
+      for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
+        if (deployment) break;
+
+        if (addressDirectory.type !== FileSystemType.Directory) {
+          logger.warn(
+            `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+              addressDirectory.bucketKey
+            }'. Skipping.`
+          );
+          continue;
+        }
+
+        for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
+          if (deployment) break;
+
+          if (stageDirectory.type !== FileSystemType.Directory) {
+            logger.warn(
+              `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+                stageDirectory.bucketKey
+              }'. Skipping.`
+            );
+            continue;
+          }
+
+          const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+          const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
+          const config = JSON.parse(
+            await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
+          ) as Config;
+          const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
+          const airnodeVersion = config.nodeSettings.nodeVersion;
+          const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
+
+          if (id !== deploymentId) continue;
+
+          const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
+            id: hashDeploymentVersion(cloudProvider, region, airnodeAddress, stage, airnodeVersion, versionTimestamp),
+            timestamp: versionTimestamp,
+          }));
+          deployment = {
+            id,
+            cloudProvider,
+            region,
+            airnodeAddress,
+            stage,
+            airnodeVersion,
+            lastUpdate: latestDeployment,
+            versions: deploymentVersions,
+          };
+        }
+      }
+    });
+
+    if (!goCloudDeploymentInfo.success) {
+      // TODO: Again, this spinner mess will be fixed once https://github.com/api3dao/airnode/issues/1473 is done
+      spinner.stop();
+      logger.fail(`Failed to fetch deployment info from ${cloudProvider.toUpperCase()}`);
+      spinner.start(`Fetching info about deployment '${deploymentId}'`);
+      if (logger.inDebugMode()) {
+        spinner.info();
+      }
+    }
+  }
+
+  if (!deployment) {
+    const message = `No deployment with id '${deploymentId}' found`;
+    spinner.fail(message);
+    throw new Error(message);
+  }
+
+  const { id, cloudProvider, region, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } =
+    deployment as Deployment;
+  const sortedVersions = sortBy(versions, 'timestamp').reverse();
+  const currentVersionId = sortedVersions.find((version) => version.timestamp === lastUpdate)!.id;
+  const table = new Table({
+    head: ['Version ID', 'Deployment time'],
+    style: {
+      head: ['bold'],
+    },
+  });
+  table.push(...sortedVersions.map(({ id, timestamp }) => [id, timestampReadable(timestamp)]));
+
+  spinner.succeed();
+  consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider, region)}`);
+  consoleLog(`Airnode address: ${airnodeAddress}`);
+  consoleLog(`Stage: ${stage}`);
+  consoleLog(`Airnode version: ${airnodeVersion}`);
+  consoleLog(`Deployment ID: ${id}`);
+  const tableString = table.toString();
+  const tableStringWithCurrent = tableString.replace(new RegExp(`(?<=${currentVersionId}.*?)\n`), ' (current)\n');
+  consoleLog(tableStringWithCurrent);
 }
