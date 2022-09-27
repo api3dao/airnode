@@ -25,6 +25,7 @@ describe('getExistingAirnodeRrpV0', () => {
     const address = getExistingAirnodeRrpV0(name);
     expect(typeof address).toEqual('string');
   });
+
   it('returns the address of the named network', () => {
     const network = 'polygon';
     const address = getExistingAirnodeRrpV0(network);

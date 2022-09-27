@@ -5,18 +5,18 @@ import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
 import references from '@api3/airnode-protocol/deployments/references.json';
 
+export const supportedNetworks = ['sepolia', 'polygon-testnet', 'goerli', 'kovan'] as const;
+
 export interface IntegrationInfo {
   integration: string;
   airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
-  network: 'rinkeby' | 'ropsten' | 'polygon-mumbai' | 'goerli' | 'kovan' | 'localhost';
+  network: typeof supportedNetworks[number] | 'localhost';
   mnemonic: string;
   providerUrl: string;
   gcpProjectId?: string;
 }
-
-export const supportedNetworks = ['rinkeby', 'ropsten', 'polygon-testnet', 'goerli', 'kovan'];
 
 /**
  * @returns true if this platform is MacOS, Windows or WSL
