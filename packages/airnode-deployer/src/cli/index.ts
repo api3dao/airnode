@@ -9,7 +9,7 @@ import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
-import { listAirnodes, removeAirnode } from '../infrastructure';
+import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -48,6 +48,7 @@ async function runCommand(command: () => Promise<void>) {
 const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
   'list --cloud-providers gcp',
+  'info 5bbcd317',
   'remove-with-receipt -r config/receipt.json',
   'remove-with-deployment-details --airnode-address 0x6abEdc0A4d1A79eD62160396456c95C5607369D3 --stage dev --cloud-provider aws --region us-east-1',
 ];
@@ -191,6 +192,28 @@ yargs(hideBin(process.argv))
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await listAirnodes(args.cloudProviders);
+    }
+  )
+  .command(
+    'info <deployment-id>',
+    'Displays info about deployed Airnode',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
+        type: 'string',
+        demandOption: true,
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
+      const goDeploymentInfo = await go(() => deploymentInfo(args.deploymentId as string));
+      if (!goDeploymentInfo.success) {
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
     }
   )
   .example(cliExamples.map((line) => [`$0 ${line}\n`]))

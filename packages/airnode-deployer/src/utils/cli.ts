@@ -29,6 +29,21 @@ export function hashDeployment(
     .substring(0, 8);
 }
 
+export function hashDeploymentVersion(
+  cloudProvider: CloudProvider['type'],
+  region: string,
+  airnodeAddress: string,
+  stage: string,
+  airnodeVersion: string,
+  timestamp: string
+) {
+  return crypto
+    .createHash('sha256')
+    .update([cloudProvider, region, airnodeAddress, stage, airnodeVersion, timestamp].join(''))
+    .digest('hex')
+    .substring(0, 8);
+}
+
 export function cloudProviderReadable(cloudProvider: CloudProvider['type'], region: string) {
   return `${cloudProvider.toUpperCase()} (${region})`;
 }
@@ -37,6 +52,6 @@ export function airnodeAddressReadable(airnodeAddress: string) {
   return `${airnodeAddress.slice(0, 8)}...${airnodeAddress.slice(-6)}`;
 }
 
-export function lastUpdateReadable(deploymentTimestamp: string) {
-  return format(parseInt(deploymentTimestamp), 'yyyy-MM-dd HH:mm:ss zzz');
+export function timestampReadable(timestamp: string) {
+  return format(parseInt(timestamp), 'yyyy-MM-dd HH:mm:ss zzz');
 }

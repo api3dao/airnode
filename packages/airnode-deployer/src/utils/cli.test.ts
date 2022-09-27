@@ -2,9 +2,10 @@ import {
   airnodeAddressReadable,
   cloudProviderReadable,
   hashDeployment,
-  lastUpdateReadable,
+  timestampReadable,
   longArguments,
   printableArguments,
+  hashDeploymentVersion,
 } from './cli';
 
 describe('longArguments', () => {
@@ -30,7 +31,7 @@ describe('printableArguments', () => {
 });
 
 describe('hashDeployment', () => {
-  it('creates a unique hash from depkloyment details', () => {
+  it('creates a unique hash from deployment details', () => {
     const cloudProvider = 'aws';
     const region = 'us-east-1';
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
@@ -38,6 +39,21 @@ describe('hashDeployment', () => {
     const airnodeVersion = '0.9.5';
 
     expect(hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion)).toEqual('521d7174');
+  });
+});
+
+describe('hashDeploymentVersion', () => {
+  it('creates a unique hash from deployment version details', () => {
+    const cloudProvider = 'aws';
+    const region = 'us-east-1';
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
+    const stage = 'dev';
+    const airnodeVersion = '0.9.5';
+    const timestamp = '1664256335137';
+
+    expect(hashDeploymentVersion(cloudProvider, region, airnodeAddress, stage, airnodeVersion, timestamp)).toEqual(
+      'e2d3286d'
+    );
   });
 });
 
@@ -53,10 +69,10 @@ describe('airnodeAddressReadable', () => {
   });
 });
 
-describe('lastUpdateReadable', () => {
+describe('timestampReadable', () => {
   it('returns a human-readable time of deployment', () => {
     // Can't really check for a specific string as the timezone might be different on CI and I don't think
     // it makes much sense mocking it
-    expect(lastUpdateReadable('1663745263102')).toMatch(/2022-09-\d{2} \d{2}:\d{2}:\d{2} .*/);
+    expect(timestampReadable('1663745263102')).toMatch(/2022-09-\d{2} \d{2}:\d{2}:\d{2} .*/);
   });
 });
