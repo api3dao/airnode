@@ -38,7 +38,7 @@ describe('hashDeployment', () => {
     const stage = 'dev';
     const airnodeVersion = '0.9.5';
 
-    expect(hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion)).toEqual('521d7174');
+    expect(hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion)).toEqual('aws521d7174');
   });
 });
 
