@@ -22,11 +22,11 @@ export function hashDeployment(
   stage: string,
   airnodeVersion: string
 ) {
-  return crypto
+  return `${cloudProvider}${crypto
     .createHash('sha256')
     .update([cloudProvider, region, airnodeAddress, stage, airnodeVersion].join(''))
     .digest('hex')
-    .substring(0, 8);
+    .substring(0, 8)}`;
 }
 
 export function hashDeploymentVersion(
