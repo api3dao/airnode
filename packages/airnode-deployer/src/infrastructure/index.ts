@@ -27,6 +27,7 @@ import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
 import {
   airnodeAddressReadable,
+  availableCloudProviders,
   cloudProviderReadable,
   hashDeployment,
   hashDeploymentVersion,
@@ -511,6 +512,79 @@ export type Deployment = {
   versions?: DeploymentVersion[];
 };
 
+// If deploymentId is provided it tries to fetch only that one deployment and returns early when found
+async function fetchDeployments(cloudProvider: CloudProvider['type'], deploymentId?: string) {
+  const deployments: Deployment[] = [];
+
+  const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
+  if (!bucketName) {
+    logger.debug(`No deployments available on ${cloudProvider.toUpperCase()}. Skipping.`);
+    return deployments;
+  }
+
+  const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
+  for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
+    if (addressDirectory.type !== FileSystemType.Directory) {
+      logger.warn(
+        `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+          addressDirectory.bucketKey
+        }'. Skipping.`
+      );
+      continue;
+    }
+
+    for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
+      if (stageDirectory.type !== FileSystemType.Directory) {
+        logger.warn(
+          `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+            stageDirectory.bucketKey
+          }'. Skipping.`
+        );
+        continue;
+      }
+
+      const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+      const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
+      const config = JSON.parse(
+        await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
+      ) as Config;
+      const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
+      const airnodeVersion = config.nodeSettings.nodeVersion;
+      const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
+
+      const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
+        id: hashDeploymentVersion(cloudProvider, region, airnodeAddress, stage, airnodeVersion, versionTimestamp),
+        timestamp: versionTimestamp,
+      }));
+      const deployment = {
+        id,
+        cloudProvider,
+        region,
+        airnodeAddress,
+        stage,
+        airnodeVersion,
+        lastUpdate: latestDeployment,
+        versions: deploymentVersions,
+      };
+
+      // We're looking for just one deployment
+      if (deploymentId) {
+        if (deploymentId === id) {
+          // Return the deployment if found
+          return [deployment];
+        } else {
+          // Keeping list of the deployments empty if we're looking for just one
+          continue;
+        }
+      }
+
+      deployments.push(deployment);
+    }
+  }
+
+  return deployments;
+}
+
 export async function listAirnodes(cloudProviders: readonly CloudProvider['type'][]) {
   const deployments: Deployment[] = [];
 
@@ -524,58 +598,11 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
       spinner.info();
     }
 
-    const goListCloudAirnodes = await go(async () => {
-      const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
-      if (!bucketName) {
-        logger.debug(`No deployment available on ${cloudProvider.toUpperCase()}. Skipping.`);
-        return;
-      }
-
-      const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
-      for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
-        if (addressDirectory.type !== FileSystemType.Directory) {
-          logger.warn(
-            `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
-              addressDirectory.bucketKey
-            }'. Skipping.`
-          );
-          continue;
-        }
-
-        for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
-          if (stageDirectory.type !== FileSystemType.Directory) {
-            logger.warn(
-              `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
-                stageDirectory.bucketKey
-              }'. Skipping.`
-            );
-            continue;
-          }
-
-          const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-          const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
-          const config = JSON.parse(
-            await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
-          ) as Config;
-          const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
-          const airnodeVersion = config.nodeSettings.nodeVersion;
-          const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
-
-          deployments.push({
-            id,
-            cloudProvider,
-            region,
-            airnodeAddress,
-            stage,
-            airnodeVersion,
-            lastUpdate: latestDeployment,
-          });
-        }
-      }
-    });
+    const goListCloudAirnodes = await go(() => fetchDeployments(cloudProvider));
 
     if (goListCloudAirnodes.success) {
       spinner.succeed();
+      deployments.push(...goListCloudAirnodes.data);
     } else {
       spinner.fail(`Failed to list deployments from ${cloudProvider.toUpperCase()}: ${goListCloudAirnodes.error}`);
     }
@@ -602,103 +629,33 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   consoleLog(table.toString());
 }
 
-// TODO:
-// I know that a big chunk of the functionis very similar to the `listAirnodes` function above.
-// Refactor to unite the functionality would be complicated at the moment but I plan to do that
-// once https://github.com/api3dao/airnode/issues/1473 is implemented
 export async function deploymentInfo(deploymentId: string) {
+  const cloudProvider = deploymentId.slice(0, 3) as CloudProvider['type'];
+  if (!availableCloudProviders.includes(cloudProvider)) {
+    throw new Error(`Invalid deployment ID '${deploymentId}'`);
+  }
+
   const spinner = logger.getSpinner().start(`Fetching info about deployment '${deploymentId}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
-  // TODO: Same comment as above, will be removed
-  const cloudProviders = ['aws', 'gcp'] as const;
-  let deployment: Deployment | null = null;
+  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProvider, deploymentId));
 
-  for (const cloudProvider of cloudProviders) {
-    if (deployment) break;
-
-    const goCloudDeploymentInfo = await go(async () => {
-      const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
-      if (!bucketName) {
-        logger.debug(`No deployment available on ${cloudProvider.toUpperCase()}. Skipping.`);
-        return;
-      }
-
-      const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
-      for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
-        if (deployment) break;
-
-        if (addressDirectory.type !== FileSystemType.Directory) {
-          logger.warn(
-            `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
-              addressDirectory.bucketKey
-            }'. Skipping.`
-          );
-          continue;
-        }
-
-        for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
-          if (deployment) break;
-
-          if (stageDirectory.type !== FileSystemType.Directory) {
-            logger.warn(
-              `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
-                stageDirectory.bucketKey
-              }'. Skipping.`
-            );
-            continue;
-          }
-
-          const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-          const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
-          const config = JSON.parse(
-            await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
-          ) as Config;
-          const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
-          const airnodeVersion = config.nodeSettings.nodeVersion;
-          const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
-
-          if (id !== deploymentId) continue;
-
-          const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
-            id: hashDeploymentVersion(cloudProvider, region, airnodeAddress, stage, airnodeVersion, versionTimestamp),
-            timestamp: versionTimestamp,
-          }));
-          deployment = {
-            id,
-            cloudProvider,
-            region,
-            airnodeAddress,
-            stage,
-            airnodeVersion,
-            lastUpdate: latestDeployment,
-            versions: deploymentVersions,
-          };
-        }
-      }
-    });
-
-    if (!goCloudDeploymentInfo.success) {
-      // TODO: Again, this spinner mess will be fixed once https://github.com/api3dao/airnode/issues/1473 is done
-      spinner.stop();
-      logger.fail(`Failed to fetch deployment info from ${cloudProvider.toUpperCase()}`);
-      spinner.start(`Fetching info about deployment '${deploymentId}'`);
-      if (logger.inDebugMode()) {
-        spinner.info();
-      }
-    }
+  if (!goCloudDeploymentInfo.success) {
+    spinner.stop();
+    throw new Error(
+      `Failed to fetch deployment info from ${cloudProvider.toUpperCase()}: ${goCloudDeploymentInfo.error}`
+    );
   }
 
-  if (!deployment) {
-    const message = `No deployment with id '${deploymentId}' found`;
-    spinner.fail(message);
-    throw new Error(message);
+  if (goCloudDeploymentInfo.data.length === 0) {
+    spinner.stop();
+    throw new Error(`No deployment with id '${deploymentId}' found`);
   }
 
-  const { id, cloudProvider, region, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } =
-    deployment as Deployment;
+  const deployment = goCloudDeploymentInfo.data[0];
+  const { id, region, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } = deployment;
   const sortedVersions = sortBy(versions, 'timestamp').reverse();
   const currentVersionId = sortedVersions.find((version) => version.timestamp === lastUpdate)!.id;
   const table = new Table({

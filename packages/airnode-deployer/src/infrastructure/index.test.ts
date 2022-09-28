@@ -1080,36 +1080,20 @@ describe('deploymentInfo', () => {
     // I have to disable table coloring so I can compare the output
     process.env.FORCE_COLOR = '0';
     await expect(infrastructure.deploymentInfo(deploymentId)).rejects.toThrow(
-      new Error(`No deployment with id '${deploymentId}' found`)
+      new Error(`Failed to fetch deployment info from AWS: Error: ${expectedError.message}`)
     );
     process.env.FORCE_COLOR = originalColorVariable;
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
     expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
-    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      1,
-      bucket,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
-    );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      2,
-      bucket,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
-    );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      3,
-      bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
-    );
+    expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
   });
 
   it(`fails if the deployment can't be found`, async () => {
-    const nonexistingDeploymentId = 'xxx2c6ef2b3';
+    const nonexistingDeploymentId = 'aws2c6ef2b3';
 
     const originalColorVariable = process.env.FORCE_COLOR;
     // I have to disable table coloring so I can compare the output
@@ -1120,11 +1104,10 @@ describe('deploymentInfo', () => {
     process.env.FORCE_COLOR = originalColorVariable;
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
+    expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
@@ -1141,21 +1124,25 @@ describe('deploymentInfo', () => {
       bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      1,
-      bucket,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
+  });
+
+  it('fails if called with an invalid deployment ID', async () => {
+    const invalidDeploymentId = 'xxx2c6ef2b3';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(infrastructure.deploymentInfo(invalidDeploymentId)).rejects.toThrow(
+      new Error(`Invalid deployment ID '${invalidDeploymentId}'`)
     );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      2,
-      bucket,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
-    );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
-      3,
-      bucket,
-      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
-    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).not.toHaveBeenCalled();
+    expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
+    expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
+    expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
   });
 });
