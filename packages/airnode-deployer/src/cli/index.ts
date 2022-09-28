@@ -2,12 +2,12 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import uniq from 'lodash/uniq';
 import sortBy from 'lodash/sortBy';
-import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
+import { availableCloudProviders, CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
-import { availableCloudProviders, longArguments } from '../utils/cli';
+import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
 import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
 

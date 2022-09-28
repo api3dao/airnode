@@ -3,7 +3,14 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
-import { AwsCloudProvider, CloudProvider, GcpCloudProvider, Config, evm } from '@api3/airnode-node';
+import {
+  AwsCloudProvider,
+  CloudProvider,
+  GcpCloudProvider,
+  Config,
+  evm,
+  availableCloudProviders,
+} from '@api3/airnode-node';
 import { consoleLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import compact from 'lodash/compact';
@@ -27,7 +34,6 @@ import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
 import {
   airnodeAddressReadable,
-  availableCloudProviders,
   cloudProviderReadable,
   hashDeployment,
   hashDeploymentVersion,

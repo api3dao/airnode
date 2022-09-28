@@ -28,6 +28,7 @@ const gcpReceipt: receipt.Receipt = {
       'xpub6CZqcAR5RtRPYYGbJe7MzFGbJkJ86ub9KtYvTtenPQRgxFXNCmR7woXjV8SdFPWrTBooAqWVLKe19KWBnaktkwUsvSEfH18HyxeNZQRJq8k',
   },
   deployment: {
+    deploymentId: 'awsfc684864',
     cloudProvider: {
       type: 'gcp',
       region: 'us-east1',

@@ -52,6 +52,7 @@ describe('airnodeWalletSchema', () => {
 
 describe('deploymentSchema', () => {
   const deployment: Deployment = {
+    deploymentId: 'awsac0247de',
     cloudProvider: {
       type: 'aws',
       region: 'us-east-1',
@@ -116,6 +117,22 @@ describe('deploymentSchema', () => {
           code: 'invalid_string',
           message: 'Invalid',
           path: ['timestamp'],
+        },
+      ])
+    );
+  });
+
+  it(`doesn't allow deployment ID in a wrong format`, () => {
+    expect(() => deploymentSchema.parse(deployment)).not.toThrow();
+
+    const invalidDeployment = { ...deployment, deploymentId: 'invalid_deployment_id' };
+    expect(() => deploymentSchema.parse(invalidDeployment)).toThrow(
+      new ZodError([
+        {
+          validation: 'regex',
+          code: 'invalid_string',
+          message: 'Invalid',
+          path: ['deploymentId'],
         },
       ])
     );

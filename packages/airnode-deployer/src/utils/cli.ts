@@ -1,10 +1,8 @@
 import * as crypto from 'crypto';
 import { format } from 'date-fns-tz';
-import { CloudProvider, cloudProviderSchema } from '@api3/airnode-node';
+import { CloudProvider } from '@api3/airnode-node';
 import join from 'lodash/join';
 import omitBy from 'lodash/omitBy';
-
-export const availableCloudProviders = Array.from(cloudProviderSchema.options.keys()) as CloudProvider['type'][];
 
 export function longArguments(args: Record<string, any>) {
   return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));

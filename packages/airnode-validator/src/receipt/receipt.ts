@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import * as ethers from 'ethers';
-import { cloudProviderSchema } from '../config';
+import { availableCloudProviders, cloudProviderSchema } from '../config';
 import { SchemaType } from '../types';
 import { version as packageVersion } from '../../package.json';
 
@@ -37,6 +37,10 @@ export const airnodeWalletSchema = z
 
 export const deploymentSchema = z
   .object({
+    // We're not checking whether the deployment ID is actually constructed correctly, we do that on the deployer side
+    // It's that way to avoid either having two version of the same function (`hashDeployment`) or keeping it here in
+    // the validator which doesn't really makes much sense
+    deploymentId: z.string().regex(new RegExp(`(${availableCloudProviders.join('|')})[a-f0-9]{8}`)),
     nodeVersion: z.string().superRefine((version, ctx) => {
       if (version === packageVersion) return;
 
