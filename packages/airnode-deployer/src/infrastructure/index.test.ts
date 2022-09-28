@@ -1043,7 +1043,7 @@ describe('deploymentInfo', () => {
       }
     });
 
-    const deploymentId = '7195b548';
+    const deploymentId = 'aws7195b548';
 
     const originalColorVariable = process.env.FORCE_COLOR;
     // I have to disable table coloring so I can compare the output
@@ -1067,14 +1067,14 @@ describe('deploymentInfo', () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Airnode address: 0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6');
     expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Stage: dev');
     expect(consoleSpy).toHaveBeenNthCalledWith(4, 'Airnode version: 0.8.0');
-    expect(consoleSpy).toHaveBeenNthCalledWith(5, 'Deployment ID: 7195b548');
+    expect(consoleSpy).toHaveBeenNthCalledWith(5, 'Deployment ID: aws7195b548');
   });
 
   it(`fails if there's a problem with the cloud provider`, async () => {
     const expectedError = new Error('example error');
     awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockRejectedValue(expectedError);
 
-    const deploymentId = '7195b548';
+    const deploymentId = 'aws7195b548';
 
     const originalColorVariable = process.env.FORCE_COLOR;
     // I have to disable table coloring so I can compare the output
@@ -1109,7 +1109,7 @@ describe('deploymentInfo', () => {
   });
 
   it(`fails if the deployment can't be found`, async () => {
-    const nonexistingDeploymentId = '2c6ef2b3';
+    const nonexistingDeploymentId = 'xxx2c6ef2b3';
 
     const originalColorVariable = process.env.FORCE_COLOR;
     // I have to disable table coloring so I can compare the output
