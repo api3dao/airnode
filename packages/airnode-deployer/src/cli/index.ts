@@ -7,7 +7,7 @@ import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
-import { longArguments } from '../utils/cli';
+import { availableCloudProviders, longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
 import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
 
@@ -136,7 +136,7 @@ yargs(hideBin(process.argv))
       'cloud-provider': {
         alias: 'c',
         description: 'Cloud provider',
-        choices: ['aws', 'gcp'] as const,
+        choices: availableCloudProviders,
         demandOption: true,
       },
       region: {
@@ -181,8 +181,8 @@ yargs(hideBin(process.argv))
       'cloud-providers': {
         alias: 'c',
         description: 'Cloud providers to list Airnodes from',
-        default: ['aws', 'gcp'] as const,
-        choices: ['aws', 'gcp'] as const,
+        default: availableCloudProviders,
+        choices: availableCloudProviders,
         type: 'array',
         coerce: (option: CloudProvider['type'][]) => sortBy(uniq(option)),
       },
@@ -211,6 +211,7 @@ yargs(hideBin(process.argv))
       // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
       const goDeploymentInfo = await go(() => deploymentInfo(args.deploymentId as string));
       if (!goDeploymentInfo.success) {
+        logger.fail(goDeploymentInfo.error.message);
         // eslint-disable-next-line functional/immutable-data
         process.exitCode = 1;
       }
