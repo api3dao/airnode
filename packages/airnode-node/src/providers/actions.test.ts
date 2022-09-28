@@ -33,7 +33,7 @@ import { GroupedRequests } from '../types';
 import { ChainConfig } from '../config';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
-const chainProviderName3 = 'Infura Ropsten';
+const chainProviderName3 = 'Infura Sepolia';
 const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
 const chains: ChainConfig[] = [
   {
@@ -74,10 +74,10 @@ const chains: ChainConfig[] = [
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
     },
-    id: '3',
+    id: '11155111',
     providers: {
       [chainProviderName3]: {
-        url: 'https://ropsten.infura.io/v3/<key>',
+        url: 'https://sepolia.infura.io/v3/<key>',
       },
     },
     type: 'evm',
@@ -178,7 +178,7 @@ describe('initialize', () => {
               requesterEndpointAuthorizations: {},
             },
             blockHistoryLimit: 300,
-            chainId: '3',
+            chainId: '11155111',
             chainType: 'evm',
             chainOptions: {
               fulfillmentGasLimit: 600000,
@@ -195,13 +195,13 @@ describe('initialize', () => {
             logFormat: 'plain',
             logLevel: 'DEBUG',
             minConfirmations: 0,
-            name: 'Infura Ropsten',
+            name: 'Infura Sepolia',
             cloudProvider: {
               type: 'local',
               gatewayServerPort: 3000,
             },
             stage: 'test',
-            url: 'https://ropsten.infura.io/v3/<key>',
+            url: 'https://sepolia.infura.io/v3/<key>',
             xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
           },
           coordinatorId: 'abcdefg',

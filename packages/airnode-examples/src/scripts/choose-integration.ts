@@ -79,18 +79,15 @@ const questions: PromptObject[] = [
 
       const getExamplePocketNetwork = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
 
-      switch (values.network) {
+      switch (values.network as IntegrationInfo['network']) {
         case 'localhost':
           return 'http://127.0.0.1:8545/';
-        case 'rinkeby':
-        case 'ropsten':
         case 'goerli':
-        case 'kovan':
           return getExamplePocketNetwork(values.network);
-        case 'polygon-mumbai':
+        case 'polygon-testnet':
           return `https://polygon-mumbai.g.alchemy.com/v2/`;
-        default:
-          return '';
+        case 'sepolia':
+          return 'https://sepolia.infura.io/v3/<INFURA_ID>';
       }
     },
   },

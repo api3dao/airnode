@@ -11,9 +11,9 @@
       "contracts": {
         "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
-      "id": "4",
+      "id": "11155111",
       "providers": {
-        "rinkeby": {
+        "sepolia": {
           "url": "${PROVIDER_URL}"
         }
       },
