@@ -30,7 +30,7 @@
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@types/lodash": "^4.14.185",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.0",
     "chai": "^4.3.6",
     "ethereum-waffle": "^3.4.4",
     "hardhat": "2.9.9",
