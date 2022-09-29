@@ -318,7 +318,7 @@ describe('terraformAirnodeApply', () => {
   const commandOutput = 'example command output';
   exec.mockImplementation(() => ({ stdout: commandOutput }));
   const execOptions = {};
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
   const secrets = parseSecretsFile(secretsPath);
@@ -409,7 +409,7 @@ describe('terraformAirnodeApply', () => {
 
 describe('deployAirnode', () => {
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
@@ -646,7 +646,7 @@ describe('terraformAirnodeDestroy', () => {
 
 describe('removeAirnode', () => {
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
@@ -847,7 +847,8 @@ describe('removeAirnode', () => {
 
 describe('listAirnodes', () => {
   const bucket = 'airnode-123456789';
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configAwsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
+  const configGcpPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.gcp.valid.json');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -868,14 +869,14 @@ describe('listAirnodes', () => {
       .mockResolvedValue(directoryStructure);
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+      .mockResolvedValue(fs.readFileSync(configAwsPath).toString());
     gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
     gcpGetBucketDirectoryStructureSpy = jest
       .spyOn(gcp, 'getBucketDirectoryStructure')
       .mockResolvedValue(directoryStructure);
     gcpGetFileFromBucketSpy = jest
       .spyOn(gcp, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+      .mockResolvedValue(fs.readFileSync(configGcpPath).toString());
     consoleSpy = jest.spyOn(console, 'log');
   });
 
@@ -995,7 +996,7 @@ describe('listAirnodes', () => {
 
 describe('deploymentInfo', () => {
   const bucket = 'airnode-123456789';
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',

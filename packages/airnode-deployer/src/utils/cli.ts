@@ -15,23 +15,30 @@ export function printableArguments(args: string[]) {
   );
 }
 
+function cloudProviderHashElements(cloudProvider: CloudProvider) {
+  const hashElements = [cloudProvider.type, cloudProvider.region];
+  if (cloudProvider.type === 'gcp') {
+    hashElements.push(cloudProvider.projectId);
+  }
+
+  return hashElements;
+}
+
 export function hashDeployment(
-  cloudProvider: CloudProvider['type'],
-  region: string,
+  cloudProvider: CloudProvider,
   airnodeAddress: string,
   stage: string,
   airnodeVersion: string
 ) {
-  return `${cloudProvider}${crypto
+  return `${cloudProvider.type}${crypto
     .createHash('sha256')
-    .update([cloudProvider, region, airnodeAddress, stage, airnodeVersion].join(''))
+    .update([...cloudProviderHashElements(cloudProvider), airnodeAddress, stage, airnodeVersion].join(''))
     .digest('hex')
     .substring(0, 8)}`;
 }
 
 export function hashDeploymentVersion(
-  cloudProvider: CloudProvider['type'],
-  region: string,
+  cloudProvider: CloudProvider,
   airnodeAddress: string,
   stage: string,
   airnodeVersion: string,
@@ -39,13 +46,13 @@ export function hashDeploymentVersion(
 ) {
   return crypto
     .createHash('sha256')
-    .update([cloudProvider, region, airnodeAddress, stage, airnodeVersion, timestamp].join(''))
+    .update([...cloudProviderHashElements(cloudProvider), airnodeAddress, stage, airnodeVersion, timestamp].join(''))
     .digest('hex')
     .substring(0, 8);
 }
 
-export function cloudProviderReadable(cloudProvider: CloudProvider['type'], region: string) {
-  return `${cloudProvider.toUpperCase()} (${region})`;
+export function cloudProviderReadable(cloudProvider: CloudProvider) {
+  return `${cloudProvider.type.toUpperCase()} (${cloudProvider.region})`;
 }
 
 export function airnodeAddressReadable(airnodeAddress: string) {

@@ -30,7 +30,7 @@ export function writeReceiptFile(receiptFilename: string, config: Config, timest
       airnodeXpub: deriveAirnodeXpub(mnemonic),
     },
     deployment: {
-      deploymentId: hashDeployment(cloudProvider.type, cloudProvider.region, airnodeAddress, stage, nodeVersion),
+      deploymentId: hashDeployment(cloudProvider, airnodeAddress, stage, nodeVersion),
       cloudProvider,
       stage,
       nodeVersion,

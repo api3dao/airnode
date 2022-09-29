@@ -509,8 +509,7 @@ export type DeploymentVersion = {
 
 export type Deployment = {
   id: string;
-  cloudProvider: CloudProvider['type'];
-  region: string;
+  cloudProvider: CloudProvider;
   airnodeAddress: string;
   stage: string;
   airnodeVersion: string;
@@ -519,20 +518,20 @@ export type Deployment = {
 };
 
 // If deploymentId is provided it tries to fetch only that one deployment and returns early when found
-async function fetchDeployments(cloudProvider: CloudProvider['type'], deploymentId?: string) {
+async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploymentId?: string) {
   const deployments: Deployment[] = [];
 
-  const bucketName = await cloudProviderLib[cloudProvider].getAirnodeBucket();
+  const bucketName = await cloudProviderLib[cloudProviderType].getAirnodeBucket();
   if (!bucketName) {
-    logger.debug(`No deployments available on ${cloudProvider.toUpperCase()}. Skipping.`);
+    logger.debug(`No deployments available on ${cloudProviderType.toUpperCase()}. Skipping.`);
     return deployments;
   }
 
-  const directoryStructure = await cloudProviderLib[cloudProvider].getBucketDirectoryStructure(bucketName);
+  const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucketName);
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
     if (addressDirectory.type !== FileSystemType.Directory) {
       logger.warn(
-        `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+        `Invalid item in bucket '${bucketName}' (${cloudProviderType.toUpperCase()}) with key '${
           addressDirectory.bucketKey
         }'. Skipping.`
       );
@@ -542,7 +541,7 @@ async function fetchDeployments(cloudProvider: CloudProvider['type'], deployment
     for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
       if (stageDirectory.type !== FileSystemType.Directory) {
         logger.warn(
-          `Invalid item in bucket '${bucketName}' (${cloudProvider.toUpperCase()}) with key '${
+          `Invalid item in bucket '${bucketName}' (${cloudProviderType.toUpperCase()}) with key '${
             stageDirectory.bucketKey
           }'. Skipping.`
         );
@@ -552,20 +551,19 @@ async function fetchDeployments(cloudProvider: CloudProvider['type'], deployment
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
       const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
       const config = JSON.parse(
-        await cloudProviderLib[cloudProvider].getFileFromBucket(bucketName, bucketConfigPath)
+        await cloudProviderLib[cloudProviderType].getFileFromBucket(bucketName, bucketConfigPath)
       ) as Config;
-      const region = (config.nodeSettings.cloudProvider as CloudProvider).region;
+      const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
       const airnodeVersion = config.nodeSettings.nodeVersion;
-      const id = hashDeployment(cloudProvider, region, airnodeAddress, stage, airnodeVersion);
+      const id = hashDeployment(cloudProvider, airnodeAddress, stage, airnodeVersion);
 
       const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
-        id: hashDeploymentVersion(cloudProvider, region, airnodeAddress, stage, airnodeVersion, versionTimestamp),
+        id: hashDeploymentVersion(cloudProvider, airnodeAddress, stage, airnodeVersion, versionTimestamp),
         timestamp: versionTimestamp,
       }));
       const deployment = {
         id,
         cloudProvider,
-        region,
         airnodeAddress,
         stage,
         airnodeVersion,
@@ -594,26 +592,35 @@ async function fetchDeployments(cloudProvider: CloudProvider['type'], deployment
 export async function listAirnodes(cloudProviders: readonly CloudProvider['type'][]) {
   const deployments: Deployment[] = [];
 
-  for (const cloudProvider of cloudProviders) {
+  for (const cloudProviderType of cloudProviders) {
     // Using different line of text for each cloud provider so we can easily convey which cloud provider failed
     // and which succeeded
     const spinner = logger
       .getSpinner()
-      .start(`Listing Airnode deployments from cloud provider ${cloudProvider.toUpperCase()}`);
+      .start(`Listing Airnode deployments from cloud provider ${cloudProviderType.toUpperCase()}`);
     if (logger.inDebugMode()) {
       spinner.info();
     }
 
-    const goListCloudAirnodes = await go(() => fetchDeployments(cloudProvider));
+    const goListCloudAirnodes = await go(() => fetchDeployments(cloudProviderType));
 
     if (goListCloudAirnodes.success) {
       spinner.succeed();
       deployments.push(...goListCloudAirnodes.data);
     } else {
-      spinner.fail(`Failed to list deployments from ${cloudProvider.toUpperCase()}: ${goListCloudAirnodes.error}`);
+      spinner.fail(`Failed to list deployments from ${cloudProviderType.toUpperCase()}: ${goListCloudAirnodes.error}`);
     }
   }
-  const sortedDeployments = sortBy(deployments, ['cloudProvider', 'airnodeAddress', 'stage', 'airnodeVersion']);
+  // Yes, lodash's sortBy can apparently do this
+  // It can access a deeper field and it will skip a nonexistent one as well
+  const sortedDeployments = sortBy(deployments, [
+    'cloudProvider.type',
+    'cloudProvider.projectId',
+    'cloudProvider.region',
+    'airnodeAddress',
+    'stage',
+    'airnodeVersion',
+  ]);
   const table = new Table({
     head: ['Deployment ID', 'Cloud provider', 'Airnode address', 'Stage', 'Airnode version', 'Last update'],
     style: {
@@ -622,9 +629,9 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   });
 
   table.push(
-    ...sortedDeployments.map(({ id, cloudProvider, region, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
+    ...sortedDeployments.map(({ id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
       id,
-      cloudProviderReadable(cloudProvider, region),
+      cloudProviderReadable(cloudProvider),
       airnodeAddressReadable(airnodeAddress),
       stage,
       airnodeVersion,
@@ -636,8 +643,8 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
 }
 
 export async function deploymentInfo(deploymentId: string) {
-  const cloudProvider = deploymentId.slice(0, 3) as CloudProvider['type'];
-  if (!availableCloudProviders.includes(cloudProvider)) {
+  const cloudProviderType = deploymentId.slice(0, 3) as CloudProvider['type'];
+  if (!availableCloudProviders.includes(cloudProviderType)) {
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
@@ -646,12 +653,12 @@ export async function deploymentInfo(deploymentId: string) {
     spinner.info();
   }
 
-  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProvider, deploymentId));
+  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
 
   if (!goCloudDeploymentInfo.success) {
     spinner.stop();
     throw new Error(
-      `Failed to fetch deployment info from ${cloudProvider.toUpperCase()}: ${goCloudDeploymentInfo.error}`
+      `Failed to fetch deployment info from ${cloudProviderType.toUpperCase()}: ${goCloudDeploymentInfo.error}`
     );
   }
 
@@ -661,7 +668,7 @@ export async function deploymentInfo(deploymentId: string) {
   }
 
   const deployment = goCloudDeploymentInfo.data[0];
-  const { id, region, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } = deployment;
+  const { id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } = deployment;
   const sortedVersions = sortBy(versions, 'timestamp').reverse();
   const currentVersionId = sortedVersions.find((version) => version.timestamp === lastUpdate)!.id;
   const table = new Table({
@@ -673,7 +680,7 @@ export async function deploymentInfo(deploymentId: string) {
   table.push(...sortedVersions.map(({ id, timestamp }) => [id, timestampReadable(timestamp)]));
 
   spinner.succeed();
-  consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider, region)}`);
+  consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider)}`);
   consoleLog(`Airnode address: ${airnodeAddress}`);
   consoleLog(`Stage: ${stage}`);
   consoleLog(`Airnode version: ${airnodeVersion}`);
