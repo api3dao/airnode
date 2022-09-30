@@ -72,11 +72,7 @@ describe('deployer commands', () => {
   });
 
   it('can remove Airnode', async () => {
-    await removeAirnode('airnodeAddressShort', 'stage', {
-      type: 'aws',
-      region: 'region',
-      disableConcurrencyReservations: false,
-    });
+    await removeAirnode('aws40207f25');
 
     expect(mockRemoveAirnode).toHaveBeenCalledTimes(1);
   });

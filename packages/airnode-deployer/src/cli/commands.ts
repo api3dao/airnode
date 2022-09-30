@@ -74,9 +74,8 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
-  const { cloudProvider, stage } = receipt.deployment;
-  const airnodeAddress = receipt.airnodeWallet.airnodeAddress;
+  const { deploymentId } = receipt.deployment;
 
   // If the function throws, the CLI will fail with a non zero status code
-  await removeAirnode(airnodeAddress, stage, cloudProvider);
+  await removeAirnode(deploymentId);
 }
