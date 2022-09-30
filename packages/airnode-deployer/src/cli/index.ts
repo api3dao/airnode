@@ -118,38 +118,14 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'remove-with-deployment-details',
-    'Removes a deployed Airnode instance using the Airnode short address and cloud provider specifications',
-    {
-      'airnode-address': {
-        alias: 'a',
-        description: 'Airnode Address',
+    'remove <deployment-id>',
+    'Removes a deployed Airnode instance',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
         type: 'string',
         demandOption: true,
-      },
-      stage: {
-        alias: 's',
-        description: 'Stage (environment)',
-        type: 'string',
-        demandOption: true,
-      },
-      'cloud-provider': {
-        alias: 'c',
-        description: 'Cloud provider',
-        choices: availableCloudProviders,
-        demandOption: true,
-      },
-      region: {
-        alias: 'e',
-        description: 'Region',
-        type: 'string',
-        demandOption: true,
-      },
-      'project-id': {
-        alias: 'p',
-        description: 'Project ID (required for GCP only)',
-        type: 'string',
-      },
+      });
     },
     async (args) => {
       drawHeader();
@@ -157,19 +133,9 @@ yargs(hideBin(process.argv))
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
-      if (args['cloud-provider'] === 'gcp') {
-        if (!args['project-id']) {
-          // Throwing strings to prevent yargs from showing error stack trace
-          throw `Missing required argument '--project-id' for removing a GCP deployment`;
-        }
-      }
-
       await runCommand(() =>
-        removeAirnode(args['airnode-address'], args.stage, {
-          type: args['cloud-provider'],
-          region: args.region,
-          projectId: args['project-id'],
-        } as CloudProvider)
+        // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
+        removeAirnode(args.deploymentId as string)
       );
       return;
     }

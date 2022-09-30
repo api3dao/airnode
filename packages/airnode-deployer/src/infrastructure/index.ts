@@ -412,96 +412,6 @@ export async function terraformAirnodeDestroy(
   );
 }
 
-export async function removeAirnode(airnodeAddress: string, stage: string, cloudProvider: CloudProvider) {
-  const { type, region } = cloudProvider;
-  const spinner = logger.getSpinner().start(`Removing Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
-  if (logger.inDebugMode()) {
-    spinner.info();
-  }
-
-  const goRemove = await go(async () => {
-    logger.debug('Fetching Airnode bucket');
-    const bucketName = await cloudProviderLib[type].getAirnodeBucket();
-    if (!bucketName) {
-      throw new Error(`There's no Airnode bucket available`);
-    }
-
-    logger.debug('Fetching Airnode bucket content');
-    let directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
-    let addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress);
-    let stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage);
-    if (!addressDirectory || !stageDirectory) {
-      throw new Error(`There's no Airnode deployment with address '${airnodeAddress}' and stage '${stage}'`);
-    }
-
-    const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-    const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
-    const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
-    logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
-    const config = JSON.parse(await cloudProviderLib[type].getFileFromBucket(bucketName, bucketConfigPath)) as Config;
-
-    const remoteNodeSettings = config.nodeSettings;
-    const remoteCloudProvider = remoteNodeSettings.cloudProvider as CloudProvider;
-    if (remoteNodeSettings.nodeVersion !== nodeVersion) {
-      throw new Error(
-        `Can't remove an Airnode deployment with airnode-deployer of a different version. Deployed version: ${remoteNodeSettings.nodeVersion}, airnode-deployer version: ${nodeVersion}`
-      );
-    }
-    if (remoteCloudProvider.region !== region) {
-      throw new Error(
-        `Can't remove an Airnode deployment from specified region. Airnode region: ${remoteCloudProvider.region}, specified region: ${region}`
-      );
-    }
-
-    logger.debug('Removing Airnode via Terraform recipes');
-    const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
-    const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-    const execOptions = { cwd: airnodeTmpDir };
-    await terraformAirnodeDestroy(
-      execOptions,
-      cloudProvider,
-      airnodeAddressShort,
-      stage,
-      bucketName,
-      bucketLatestDeploymentPath
-    );
-    fs.rmSync(airnodeTmpDir, { recursive: true });
-
-    // Refreshing the bucket content because the source code archives were removed by Terraform
-    logger.debug('Refreshing Airnode bucket content');
-    directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
-    addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
-    stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
-
-    // Delete stage directory and its content
-    logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
-    await cloudProviderLib[type].deleteBucketDirectory(bucketName, stageDirectory);
-    // eslint-disable-next-line functional/immutable-data
-    delete addressDirectory.children[stage];
-
-    // Delete Airnode address directory if empty
-    if (Object.keys(addressDirectory.children).length === 0) {
-      logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
-      await cloudProviderLib[type].deleteBucketDirectory(bucketName, addressDirectory);
-      // eslint-disable-next-line functional/immutable-data
-      delete directoryStructure[airnodeAddress];
-    }
-
-    // Delete the whole bucket if empty
-    if (Object.keys(directoryStructure).length === 0) {
-      logger.debug(`Deleting Airnode bucket '${bucketName}'`);
-      await cloudProviderLib[type].deleteBucket(bucketName);
-    }
-  });
-
-  if (!goRemove.success) {
-    spinner.fail(`Failed to remove Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
-    throw goRemove.error;
-  }
-
-  spinner.succeed(`Removed Airnode ${airnodeAddress} ${stage} from ${type} ${region}`);
-}
-
 export type DeploymentVersion = {
   id: string;
   timestamp: string;
@@ -514,7 +424,9 @@ export type Deployment = {
   stage: string;
   airnodeVersion: string;
   lastUpdate: string;
-  versions?: DeploymentVersion[];
+  versions: DeploymentVersion[];
+  bucketName: string;
+  bucketLatestDeploymentPath: string;
 };
 
 // If deploymentId is provided it tries to fetch only that one deployment and returns early when found
@@ -523,7 +435,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
 
   const bucketName = await cloudProviderLib[cloudProviderType].getAirnodeBucket();
   if (!bucketName) {
-    logger.debug(`No deployments available on ${cloudProviderType.toUpperCase()}. Skipping.`);
+    logger.debug(`No deployments available on ${cloudProviderType.toUpperCase()}`);
     return deployments;
   }
 
@@ -549,7 +461,9 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       }
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-      const bucketConfigPath = `${airnodeAddress}/${stage}/${latestDeployment}/config.json`;
+      const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
+      const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
+      logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const config = JSON.parse(
         await cloudProviderLib[cloudProviderType].getFileFromBucket(bucketName, bucketConfigPath)
       ) as Config;
@@ -569,6 +483,8 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
         airnodeVersion,
         lastUpdate: latestDeployment,
         versions: deploymentVersions,
+        bucketName,
+        bucketLatestDeploymentPath,
       };
 
       // We're looking for just one deployment
@@ -587,6 +503,96 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
   }
 
   return deployments;
+}
+
+export async function removeAirnode(deploymentId: string) {
+  const cloudProviderType = deploymentId.slice(0, 3) as CloudProvider['type'];
+  if (!availableCloudProviders.includes(cloudProviderType)) {
+    throw new Error(`Invalid deployment ID '${deploymentId}'`);
+  }
+
+  const spinner = logger.getSpinner().start(`Removing Airnode '${deploymentId}'`);
+  if (logger.inDebugMode()) {
+    spinner.info();
+  }
+
+  const goRemove = await go(async () => {
+    const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
+    if (!goCloudDeploymentInfo.success) {
+      spinner.stop();
+      throw new Error(
+        `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
+          goCloudDeploymentInfo.error
+        }`
+      );
+    }
+    if (goCloudDeploymentInfo.data.length === 0) {
+      spinner.stop();
+      throw new Error(`No deployment with ID '${deploymentId}' found`);
+    }
+
+    const {
+      cloudProvider,
+      airnodeAddress,
+      stage,
+      airnodeVersion: deployedVersion,
+      bucketName,
+      bucketLatestDeploymentPath,
+    } = goCloudDeploymentInfo.data[0];
+
+    if (deployedVersion !== nodeVersion) {
+      throw new Error(
+        `Can't remove an Airnode deployment with airnode-deployer of a different version. Deployed version: ${deployedVersion}, airnode-deployer version: ${nodeVersion}`
+      );
+    }
+
+    logger.debug('Removing Airnode via Terraform recipes');
+    const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
+    const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+    const execOptions = { cwd: airnodeTmpDir };
+    await terraformAirnodeDestroy(
+      execOptions,
+      cloudProvider,
+      airnodeAddressShort,
+      stage,
+      bucketName,
+      bucketLatestDeploymentPath
+    );
+    fs.rmSync(airnodeTmpDir, { recursive: true });
+
+    // Refreshing the bucket content because the source code archives were removed by Terraform
+    logger.debug('Refreshing Airnode bucket content');
+    const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucketName);
+    const addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
+    const stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
+
+    // Delete stage directory and its content
+    logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
+    await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucketName, stageDirectory);
+    // eslint-disable-next-line functional/immutable-data
+    delete addressDirectory.children[stage];
+
+    // Delete Airnode address directory if empty
+    if (Object.keys(addressDirectory.children).length === 0) {
+      logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
+      await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucketName, addressDirectory);
+      // eslint-disable-next-line functional/immutable-data
+      delete directoryStructure[airnodeAddress];
+    }
+
+    // Delete the whole bucket if empty
+    if (Object.keys(directoryStructure).length === 0) {
+      logger.debug(`Deleting Airnode bucket '${bucketName}'`);
+      await cloudProviderLib[cloudProviderType].deleteBucket(bucketName);
+    }
+  });
+
+  if (!goRemove.success) {
+    spinner.fail(`Failed to remove Airnode '${deploymentId}'`);
+    throw goRemove.error;
+  }
+
+  spinner.succeed(`Airnode '${deploymentId}' removed successfully`);
 }
 
 export async function listAirnodes(cloudProviders: readonly CloudProvider['type'][]) {
@@ -608,7 +614,7 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
       spinner.succeed();
       deployments.push(...goListCloudAirnodes.data);
     } else {
-      spinner.fail(`Failed to list deployments from ${cloudProviderType.toUpperCase()}: ${goListCloudAirnodes.error}`);
+      spinner.fail(`Failed to fetch deployments from ${cloudProviderType.toUpperCase()}: ${goListCloudAirnodes.error}`);
     }
   }
   // Yes, lodash's sortBy can apparently do this
@@ -658,13 +664,15 @@ export async function deploymentInfo(deploymentId: string) {
   if (!goCloudDeploymentInfo.success) {
     spinner.stop();
     throw new Error(
-      `Failed to fetch deployment info from ${cloudProviderType.toUpperCase()}: ${goCloudDeploymentInfo.error}`
+      `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
+        goCloudDeploymentInfo.error
+      }`
     );
   }
 
   if (goCloudDeploymentInfo.data.length === 0) {
     spinner.stop();
-    throw new Error(`No deployment with id '${deploymentId}' found`);
+    throw new Error(`No deployment with ID '${deploymentId}' found`);
   }
 
   const deployment = goCloudDeploymentInfo.data[0];
