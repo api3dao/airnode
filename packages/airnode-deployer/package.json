@@ -29,14 +29,14 @@
     "@api3/airnode-utilities": "^0.8.0",
     "@api3/airnode-validator": "^0.8.0",
     "@api3/promise-utils": "^0.3.0",
-    "@google-cloud/storage": "^6.5.0",
-    "aws-sdk": "^2.1219.0",
+    "@google-cloud/storage": "^6.5.2",
+    "aws-sdk": "^2.1228.0",
     "chalk": "^4.1.2",
-    "dotenv": "^16.0.2",
+    "dotenv": "^16.0.3",
     "ethers": "^5.7.1",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
-    "yargs": "^17.5.1",
+    "yargs": "^17.6.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {
