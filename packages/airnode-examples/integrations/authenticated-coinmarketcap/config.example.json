@@ -3,7 +3,8 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": []
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}

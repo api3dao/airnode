@@ -10,8 +10,9 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
-import { initializeProvider } from './initialize-provider';
+import { initializeProvider, mergeAuthorizationsByRequestId } from './initialize-provider';
 import * as fixtures from '../../../test/fixtures';
+import { AuthorizationByRequestId } from '../../types';
 
 describe('initializeProvider', () => {
   jest.setTimeout(30_000);
@@ -227,5 +228,32 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
     expect(getLogsSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('merges authorizations and cross-chain authorizations', () => {
+    const authorizations: AuthorizationByRequestId = {
+      '0x1': false,
+      '0x2': true,
+      '0x3': true,
+      '0x4': false,
+      '0x5': false,
+      '0x6': true,
+    };
+    const crossChainAuthorizations: AuthorizationByRequestId = {
+      '0x1': true,
+      '0x2': true,
+      '0x3': true,
+      '0x4': false,
+    };
+
+    const merged = mergeAuthorizationsByRequestId([authorizations, crossChainAuthorizations]);
+    expect(merged).toEqual({
+      '0x1': true,
+      '0x2': true,
+      '0x3': true,
+      '0x4': false,
+      '0x5': false,
+      '0x6': true,
+    } as AuthorizationByRequestId);
   });
 });

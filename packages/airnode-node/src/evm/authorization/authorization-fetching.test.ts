@@ -24,6 +24,7 @@ describe('fetch (authorizations)', () => {
           '0x711c93B32c0D28a5d18feD87434cce11C3e5699B',
           '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
         ],
+        crossChainRequesterAuthorizers: [],
       },
       authorizations: {
         requesterEndpointAuthorizations: {},
@@ -41,7 +42,7 @@ describe('fetch (authorizations)', () => {
     expect(res).toEqual({});
   });
 
-  it('returns true for all pending requests if authorizers array is empty', async () => {
+  it('returns true for all pending requests if authorizers arrays are empty', async () => {
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
       return fixtures.requests.buildApiCall({
         id: `${n}`,
@@ -52,7 +53,10 @@ describe('fetch (authorizations)', () => {
     });
     const [logs, res] = await authorization.fetch(apiCalls, {
       ...mutableFetchOptions,
-      authorizers: { requesterEndpointAuthorizers: [] },
+      authorizers: {
+        requesterEndpointAuthorizers: [],
+        crossChainRequesterAuthorizers: [],
+      },
     });
 
     expect(logs).toEqual([]);
@@ -318,7 +322,10 @@ describe('fetch (authorizations)', () => {
 });
 
 describe('fetchAuthorizationStatus', () => {
-  const authorizers = { requesterEndpointAuthorizers: ['0x0000000000000000000000000000000000000000'] };
+  const authorizers = {
+    requesterEndpointAuthorizers: ['0x0000000000000000000000000000000000000000'],
+    crossChainRequesterAuthorizers: [],
+  };
   const airnodeAddress = '0xairnodeAddress';
   let mutableAirnodeRrp: AirnodeRrpV0;
 

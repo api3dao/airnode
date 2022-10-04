@@ -3,7 +3,20 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": []
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": [
+          {
+            "requesterEndpointAuthorizers": [],
+            "chainType": "evm",
+            "chainId": "4",
+            "contracts": {
+              "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+            },
+            "chainProvider": {
+              "url": "http://some.random.url"
+            }
+          }
+        ]
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}

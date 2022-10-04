@@ -15,6 +15,7 @@ export function buildEVMProviderState(
     maxConcurrency: 100,
     authorizers: {
       requesterEndpointAuthorizers: [],
+      crossChainRequesterAuthorizers: [],
     },
     authorizations: {
       requesterEndpointAuthorizations: {},

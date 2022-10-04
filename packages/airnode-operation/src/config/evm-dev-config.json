@@ -4,7 +4,8 @@
     "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "authorizers": {
-        "requesterEndpointAuthorizers": []
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}

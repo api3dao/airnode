@@ -162,8 +162,18 @@ export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
 });
 
+// TODO: add crossChainProvider to secrets.env for testing interpolation
+export const crossChainRequesterAuthorizerSchema = z.object({
+  requesterEndpointAuthorizers: z.array(evmAddressSchema),
+  chainType: chainTypeSchema,
+  chainId: z.string(),
+  contracts: chainContractsSchema,
+  chainProvider: providerSchema,
+});
+
 export const chainAuthorizersSchema = z.object({
   requesterEndpointAuthorizers: z.array(evmAddressSchema),
+  crossChainRequesterAuthorizers: z.array(crossChainRequesterAuthorizerSchema),
 });
 
 export const maxConcurrencySchema = z.number().int().positive();
@@ -476,6 +486,7 @@ export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>
 export type Providers = SchemaType<typeof providersSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
+export type CrossChainAuthorizer = SchemaType<typeof crossChainRequesterAuthorizerSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;

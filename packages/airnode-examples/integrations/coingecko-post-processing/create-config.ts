@@ -13,6 +13,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       maxConcurrency: 100,
       authorizers: {
         requesterEndpointAuthorizers: [],
+        crossChainRequesterAuthorizers: [],
       },
       authorizations: {
         requesterEndpointAuthorizations: {},
