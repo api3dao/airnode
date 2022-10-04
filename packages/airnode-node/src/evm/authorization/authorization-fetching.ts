@@ -8,10 +8,10 @@ import { go } from '@api3/promise-utils';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
-import { ChainAuthorizers, ChainAuthorizations } from '../../config';
+import { RequesterEndpointAuthorizers, ChainAuthorizations } from '../../config';
 
 export interface FetchOptions {
-  readonly authorizers: ChainAuthorizers;
+  readonly requesterEndpointAuthorizers: RequesterEndpointAuthorizers;
   readonly authorizations: ChainAuthorizations;
   readonly airnodeAddress: string;
   readonly airnodeRrpAddress: string;
@@ -20,13 +20,13 @@ export interface FetchOptions {
 
 export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: ChainAuthorizers,
+  requesterEndpointAuthorizers: RequesterEndpointAuthorizers,
   airnodeAddress: string,
   apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = (): Promise<boolean> =>
     airnodeRrp.checkAuthorizationStatus(
-      authorizers.requesterEndpointAuthorizers,
+      requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall.id,
       // TODO: make sure endpointId is not null
@@ -54,7 +54,7 @@ export async function fetchAuthorizationStatus(
 
 async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrpV0,
-  authorizers: ChainAuthorizers,
+  requesterEndpointAuthorizers: RequesterEndpointAuthorizers,
   airnodeAddress: string,
   apiCalls: Request<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
@@ -66,7 +66,7 @@ async function fetchAuthorizationStatuses(
 
   const contractCall = (): Promise<boolean[]> =>
     airnodeRrp.checkAuthorizationStatuses(
-      authorizers.requesterEndpointAuthorizers,
+      requesterEndpointAuthorizers,
       airnodeAddress,
       requestIds,
       // TODO: make sure all endpointIds are non null
@@ -82,7 +82,12 @@ async function fetchAuthorizationStatuses(
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
       async (apiCall) => {
-        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, authorizers, airnodeAddress, apiCall);
+        const [logs, authorized] = await fetchAuthorizationStatus(
+          airnodeRrp,
+          requesterEndpointAuthorizers,
+          airnodeAddress,
+          apiCall
+        );
         const data = { id: apiCall.id, authorized };
         const result: LogsData<{ readonly id: string; readonly authorized: boolean | null }> = [logs, data];
         return result;
@@ -132,7 +137,7 @@ export async function fetch(
   }
 
   // If there are no authorizer contracts then endpoint is public
-  if (isEmpty(fetchOptions.authorizers.requesterEndpointAuthorizers)) {
+  if (isEmpty(fetchOptions.requesterEndpointAuthorizers)) {
     const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
@@ -157,7 +162,12 @@ export async function fetch(
 
   // Fetch all authorization statuses in parallel
   const promises = groupedPairs.map((pairs) =>
-    fetchAuthorizationStatuses(airnodeRrp, fetchOptions.authorizers, fetchOptions.airnodeAddress, pairs)
+    fetchAuthorizationStatuses(
+      airnodeRrp,
+      fetchOptions.requesterEndpointAuthorizers,
+      fetchOptions.airnodeAddress,
+      pairs
+    )
   );
 
   const responses = await Promise.all(promises);

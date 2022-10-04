@@ -162,9 +162,10 @@ export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
 });
 
-// TODO: add crossChainProvider to secrets.env for testing interpolation
+export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
+
 export const crossChainRequesterAuthorizerSchema = z.object({
-  requesterEndpointAuthorizers: z.array(evmAddressSchema),
+  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
   chainType: chainTypeSchema,
   chainId: z.string(),
   contracts: chainContractsSchema,
@@ -172,7 +173,7 @@ export const crossChainRequesterAuthorizerSchema = z.object({
 });
 
 export const chainAuthorizersSchema = z.object({
-  requesterEndpointAuthorizers: z.array(evmAddressSchema),
+  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
   crossChainRequesterAuthorizers: z.array(crossChainRequesterAuthorizerSchema),
 });
 
@@ -487,6 +488,7 @@ export type Providers = SchemaType<typeof providersSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
 export type CrossChainAuthorizer = SchemaType<typeof crossChainRequesterAuthorizerSchema>;
+export type RequesterEndpointAuthorizers = SchemaType<typeof requesterEndpointAuthorizersSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;

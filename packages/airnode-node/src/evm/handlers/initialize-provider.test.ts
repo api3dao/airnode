@@ -13,6 +13,7 @@ import * as adapter from '@api3/airnode-adapter';
 import { initializeProvider, mergeAuthorizationsByRequestId } from './initialize-provider';
 import * as fixtures from '../../../test/fixtures';
 import { AuthorizationByRequestId } from '../../types';
+import * as authorizationFetching from '../authorization/authorization-fetching';
 
 describe('initializeProvider', () => {
   jest.setTimeout(30_000);
@@ -37,9 +38,11 @@ describe('initializeProvider', () => {
 
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, true]);
+    const fetchAuthorizationsSpy = jest.spyOn(authorizationFetching, 'fetch');
 
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
+    expect(fetchAuthorizationsSpy).toHaveBeenCalledTimes(1);
     expect(res?.requests.apiCalls).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -230,7 +233,7 @@ describe('initializeProvider', () => {
     expect(getLogsSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('merges authorizations and cross-chain authorizations', () => {
+  it('merges same-chain and cross-chain authorizations', () => {
     const authorizations: AuthorizationByRequestId = {
       '0x1': false,
       '0x2': true,

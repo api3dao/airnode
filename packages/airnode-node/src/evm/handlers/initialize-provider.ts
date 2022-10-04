@@ -16,7 +16,7 @@ type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readon
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions: authorizations.FetchOptions = {
-    authorizers: currentState.settings.authorizers,
+    requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
     authorizations: currentState.settings.authorizations,
     airnodeAddress: currentState.settings.airnodeAddress,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
@@ -29,7 +29,7 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
 async function fetchCrossChainAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const promises = currentState.settings.authorizers.crossChainRequesterAuthorizers.map(async (authorizer) => {
     const fetchOptions: authorizations.FetchOptions = {
-      authorizers: currentState.settings.authorizers,
+      requesterEndpointAuthorizers: authorizer.requesterEndpointAuthorizers,
       authorizations: currentState.settings.authorizations,
       airnodeAddress: currentState.settings.airnodeAddress,
       airnodeRrpAddress: authorizer.contracts.AirnodeRrp,
