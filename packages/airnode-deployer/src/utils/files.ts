@@ -4,6 +4,7 @@ import { CloudProvider, Config } from '@api3/airnode-node';
 import { parseReceipt, receipt } from '@api3/airnode-validator';
 import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
+import { hashDeployment } from './cli';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 
@@ -20,6 +21,8 @@ export function writeReceiptFile(receiptFilename: string, config: Config, timest
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
+  const { stage, nodeVersion } = config.nodeSettings;
+  const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
   const receipt: receipt.Receipt = {
     airnodeWallet: {
       airnodeAddress,
@@ -27,9 +30,10 @@ export function writeReceiptFile(receiptFilename: string, config: Config, timest
       airnodeXpub: deriveAirnodeXpub(mnemonic),
     },
     deployment: {
-      cloudProvider: config.nodeSettings.cloudProvider as CloudProvider,
-      stage: config.nodeSettings.stage,
-      nodeVersion: config.nodeSettings.nodeVersion,
+      deploymentId: hashDeployment(cloudProvider, airnodeAddress, stage, nodeVersion),
+      cloudProvider,
+      stage,
+      nodeVersion,
       timestamp,
     },
     success,

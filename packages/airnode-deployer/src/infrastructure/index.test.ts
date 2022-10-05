@@ -318,7 +318,7 @@ describe('terraformAirnodeApply', () => {
   const commandOutput = 'example command output';
   exec.mockImplementation(() => ({ stdout: commandOutput }));
   const execOptions = {};
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
   const secrets = parseSecretsFile(secretsPath);
@@ -409,7 +409,7 @@ describe('terraformAirnodeApply', () => {
 
 describe('deployAirnode', () => {
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
@@ -646,17 +646,12 @@ describe('terraformAirnodeDestroy', () => {
 
 describe('removeAirnode', () => {
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
   const config = loadConfig(configPath, secrets);
-  const cloudProvider = {
-    type: 'aws',
-    region: 'us-east-1',
-  } as AwsCloudProvider;
+  const deploymentId = 'aws40207f25';
   const bucket = 'airnode-123456789';
-  const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
-  const stage = 'dev';
 
   let mutableDirectoryStructure: DirectoryStructure;
   let awsGetAirnodeBucketSpy: jest.SpyInstance;
@@ -682,9 +677,9 @@ describe('removeAirnode', () => {
   });
 
   it('removes Airnode', async () => {
-    const happyPathAirnodeAddress = '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6';
+    const happyPathDeploymentId = 'aws7195b548';
 
-    await infrastructure.removeAirnode(happyPathAirnodeAddress, stage, cloudProvider);
+    await infrastructure.removeAirnode(happyPathDeploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
@@ -711,7 +706,7 @@ describe('removeAirnode', () => {
   });
 
   it('deletes the address directory if there are no other deployments with that address', async () => {
-    await infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider);
+    await infrastructure.removeAirnode(deploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
@@ -747,7 +742,7 @@ describe('removeAirnode', () => {
       .spyOn(aws, 'getBucketDirectoryStructure')
       .mockResolvedValue(pick(mutableDirectoryStructure, '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'));
 
-    await infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider);
+    await infrastructure.removeAirnode(deploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
@@ -781,22 +776,29 @@ describe('removeAirnode', () => {
   it(`fails if there's no Airnode bucket available`, async () => {
     awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(null);
 
-    await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
-      new Error(`There's no Airnode bucket available`)
+    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(
+      new Error(`No deployment with ID '${deploymentId}' found`)
     );
   });
 
   it(`fails if there's no such deployment available`, async () => {
-    const nonexistingAirnodeAddress = '0xA30F2D7886f476E36cEAfe7F58004A21f90237f2';
+    const nonexistingDeploymentId = 'aws91f2e695';
 
-    await expect(infrastructure.removeAirnode(nonexistingAirnodeAddress, stage, cloudProvider)).rejects.toThrow(
-      new Error(
-        `There's no Airnode deployment with address '0xA30F2D7886f476E36cEAfe7F58004A21f90237f2' and stage 'dev'`
-      )
+    await expect(infrastructure.removeAirnode(nonexistingDeploymentId)).rejects.toThrow(
+      new Error(`No deployment with ID '${nonexistingDeploymentId}' found`)
+    );
+  });
+
+  it(`fails if invalid deployment ID is provided`, async () => {
+    const invalidDeploymentId = 'indalivd_deployment_id';
+
+    await expect(infrastructure.removeAirnode(invalidDeploymentId)).rejects.toThrow(
+      new Error(`Invalid deployment ID '${invalidDeploymentId}'`)
     );
   });
 
   it(`fails if there's a version mismatch`, async () => {
+    const wrongVersionDeploymentId = 'aws1ed1bb82';
     const wrongVersionConfig = {
       ...config,
       nodeSettings: {
@@ -808,29 +810,9 @@ describe('removeAirnode', () => {
       .spyOn(aws, 'getFileFromBucket')
       .mockResolvedValue(JSON.stringify(wrongVersionConfig));
 
-    await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
+    await expect(infrastructure.removeAirnode(wrongVersionDeploymentId)).rejects.toThrow(
       new Error(
         `Can't remove an Airnode deployment with airnode-deployer of a different version. Deployed version: 0.0.1, airnode-deployer version: ${nodeVersion}`
-      )
-    );
-  });
-
-  it(`fails if there's a region mismatch`, async () => {
-    const wrongRegionConfig = {
-      ...config,
-      nodeSettings: {
-        ...config.nodeSettings,
-        cloudProvider: {
-          ...config.nodeSettings.cloudProvider,
-          region: 'eu-central-1',
-        },
-      },
-    };
-    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockResolvedValue(JSON.stringify(wrongRegionConfig));
-
-    await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
-      new Error(
-        `Can't remove an Airnode deployment from specified region. Airnode region: eu-central-1, specified region: us-east-1`
       )
     );
   });
@@ -839,15 +821,14 @@ describe('removeAirnode', () => {
     const expectedError = new Error('example error');
     exec.mockRejectedValue(expectedError);
 
-    await expect(infrastructure.removeAirnode(airnodeAddress, stage, cloudProvider)).rejects.toThrow(
-      expectedError.toString()
-    );
+    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(expectedError.toString());
   });
 });
 
 describe('listAirnodes', () => {
   const bucket = 'airnode-123456789';
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configAwsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
+  const configGcpPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.gcp.valid.json');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -868,14 +849,14 @@ describe('listAirnodes', () => {
       .mockResolvedValue(directoryStructure);
     awsGetFileFromBucketSpy = jest
       .spyOn(aws, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+      .mockResolvedValue(fs.readFileSync(configAwsPath).toString());
     gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
     gcpGetBucketDirectoryStructureSpy = jest
       .spyOn(gcp, 'getBucketDirectoryStructure')
       .mockResolvedValue(directoryStructure);
     gcpGetFileFromBucketSpy = jest
       .spyOn(gcp, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+      .mockResolvedValue(fs.readFileSync(configGcpPath).toString());
     consoleSpy = jest.spyOn(console, 'log');
   });
 
@@ -995,7 +976,7 @@ describe('listAirnodes', () => {
 
 describe('deploymentInfo', () => {
   const bucket = 'airnode-123456789';
-  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.valid.json');
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -1080,7 +1061,7 @@ describe('deploymentInfo', () => {
     // I have to disable table coloring so I can compare the output
     process.env.FORCE_COLOR = '0';
     await expect(infrastructure.deploymentInfo(deploymentId)).rejects.toThrow(
-      new Error(`Failed to fetch deployment info from AWS: Error: ${expectedError.message}`)
+      new Error(`Failed to fetch info about '${deploymentId}' from AWS: Error: ${expectedError.message}`)
     );
     process.env.FORCE_COLOR = originalColorVariable;
 
@@ -1099,7 +1080,7 @@ describe('deploymentInfo', () => {
     // I have to disable table coloring so I can compare the output
     process.env.FORCE_COLOR = '0';
     await expect(infrastructure.deploymentInfo(nonexistingDeploymentId)).rejects.toThrow(
-      new Error(`No deployment with id '${nonexistingDeploymentId}' found`)
+      new Error(`No deployment with ID '${nonexistingDeploymentId}' found`)
     );
     process.env.FORCE_COLOR = originalColorVariable;
 

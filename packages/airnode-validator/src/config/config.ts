@@ -495,3 +495,5 @@ export type Heartbeat = SchemaType<typeof heartbeatSchema>;
 export type Amount = SchemaType<typeof amountSchema>;
 export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
 export type MaxConcurrency = SchemaType<typeof maxConcurrencySchema>;
+
+export const availableCloudProviders = Array.from(cloudProviderSchema.options.keys()) as CloudProvider['type'][];
