@@ -1,5 +1,11 @@
 # @api3/airnode-validator
 
+## 0.8.1
+
+### Patch Changes
+
+- 99c872c1: Update ois version to latest patch
+
 ## 0.8.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @api3/airnode-examples
 
+## 0.8.1
+
+### Patch Changes
+
+- 9bd6f419: Fix outdated github account
+- 99c872c1: Update ois version to latest patch
+- Updated dependencies [99c872c1]
+  - @api3/airnode-deployer@0.8.1
+  - @api3/airnode-node@0.8.1
+  - @api3/airnode-abi@0.8.1
+  - @api3/airnode-admin@0.8.1
+  - @api3/airnode-protocol@0.8.1
+  - @api3/airnode-utilities@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes

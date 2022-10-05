@@ -1,5 +1,7 @@
 # @api3/airnode-abi
 
+## 0.8.1
+
 ## 0.8.0
 
 ### Minor Changes
