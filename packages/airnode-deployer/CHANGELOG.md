@@ -1,5 +1,31 @@
 # @api3/airnode-deployer
 
+## 0.9.0
+
+### Minor Changes
+
+- 4b3db2be: Store deployments in a common bucket
+- 488a717e: Bump @api3/ois to 1.1.2 with necessary zod version bump
+- 6327dd7d: Bump @api3/ois to 1.2.0 with necessary zod version bump
+- aa773543: Remove references to deprecated ethereum testnets
+
+### Patch Changes
+
+- 3602a450: Fix dependency cycle issue when removing HTTP gateways
+- 29f144b6: Remove unnecessary async/await, enforce it via eslint
+- Updated dependencies [aaa6db11]
+- Updated dependencies [3ddaf16b]
+- Updated dependencies [4b3db2be]
+- Updated dependencies [488a717e]
+- Updated dependencies [6327dd7d]
+- Updated dependencies [aa773543]
+- Updated dependencies [29f144b6]
+  - @api3/airnode-protocol@0.9.0
+  - @api3/airnode-validator@0.9.0
+  - @api3/airnode-node@0.9.0
+  - @api3/airnode-utilities@0.9.0
+  - @api3/airnode-abi@0.9.0
+
 ## 0.8.0
 
 ### Minor Changes

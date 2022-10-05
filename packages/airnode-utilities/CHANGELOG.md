@@ -1,5 +1,15 @@
 # @api3/airnode-utilities
 
+## 0.9.0
+
+### Patch Changes
+
+- 29f144b6: Remove unnecessary async/await, enforce it via eslint
+- Updated dependencies [4b3db2be]
+- Updated dependencies [488a717e]
+- Updated dependencies [6327dd7d]
+  - @api3/airnode-validator@0.9.0
+
 ## 0.8.0
 
 ### Minor Changes
