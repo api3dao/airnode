@@ -1,5 +1,12 @@
 # @api3/airnode-adapter
 
+## 0.9.0
+
+### Minor Changes
+
+- 488a717e: Bump @api3/ois to 1.1.2 with necessary zod version bump
+- 6327dd7d: Bump @api3/ois to 1.2.0 with necessary zod version bump
+
 ## 0.8.0
 
 ### Minor Changes
