@@ -25,6 +25,7 @@ const mockS3 = {
   copyObject: jest.fn(),
   deleteObjects: jest.fn(),
   deleteBucket: jest.fn(),
+  getBucketLocation: jest.fn(),
 };
 
 jest.mock('aws-sdk', () => ({
@@ -40,6 +41,7 @@ jest.mock('../utils/infrastructure', () => ({
 }));
 
 const awsListBucketsSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().listBuckets;
+const awsGetBucketLocationSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().getBucketLocation;
 const awsCreateBucketSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().createBucket;
 const awsPutBucketEncryptionSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().putBucketEncryption;
 const awsPutPublicAccessBlockSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().putPublicAccessBlock;
@@ -57,6 +59,10 @@ const cloudProvider = {
   disableConcurrencyReservations: false,
 };
 const bucketName = 'airnode-aabbccdd0011';
+const bucket = {
+  name: bucketName,
+  region: 'us-east-1',
+};
 const fileContent = 'file content';
 const filePath = '/path/to/config.json';
 const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json';
@@ -64,24 +70,56 @@ const s3ErrorMessage = 'Unexpected S3 error';
 const s3Error = new Error(s3ErrorMessage);
 
 describe('getAirnodeBucket', () => {
-  it('returns a name of Airnode S3 bucket', async () => {
+  it('returns Airnode S3 bucket', async () => {
     awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: bucketName }] })));
+    awsGetBucketLocationSpy.mockImplementation(mockPromise(() => ({ LocationConstraint: 'us-east-1' })));
 
-    const fetchedBucketName = await getAirnodeBucket();
-    expect(fetchedBucketName).toEqual(bucketName);
+    const fetchedBucket = await getAirnodeBucket();
+    expect(fetchedBucket).toEqual(bucket);
   });
 
   it(`ignores incorrect Airnode S3 bucket names`, async () => {
     awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: 'airnode-123456' }] })));
 
-    const fetchedBucketName = await getAirnodeBucket();
-    expect(fetchedBucketName).toBeNull();
+    const fetchedBucket = await getAirnodeBucket();
+    expect(fetchedBucket).toBeNull();
+  });
+
+  it('returns a region `us-east-1` if the location is an empty string', async () => {
+    awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: bucketName }] })));
+    awsGetBucketLocationSpy.mockImplementation(mockPromise(() => ({ LocationConstraint: '' })));
+
+    const fetchedBucket = await getAirnodeBucket();
+    expect(fetchedBucket).toEqual(bucket);
   });
 
   it(`throws an error if can't fetch the list of S3 buckets`, async () => {
     awsListBucketsSpy.mockImplementation(mockPromise(jest.fn().mockRejectedValue(s3Error)));
 
     await expect(getAirnodeBucket()).rejects.toThrow(new Error(`Failed to list S3 buckets: Error: ${s3ErrorMessage}`));
+  });
+
+  it(`throws an error if can't fetch the bucket's location`, async () => {
+    awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: bucketName }] })));
+    awsGetBucketLocationSpy.mockImplementation(mockPromise(jest.fn().mockRejectedValue(s3Error)));
+
+    await expect(getAirnodeBucket()).rejects.toThrow(
+      new Error(`Failed to get location for bucket '${bucketName}': Error: ${s3ErrorMessage}`)
+    );
+  });
+
+  it(`throws an error if the location is not available`, async () => {
+    awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: bucketName }] })));
+    awsGetBucketLocationSpy.mockImplementation(mockPromise(() => ({ LocationConstraint: null })));
+
+    await expect(getAirnodeBucket()).rejects.toThrow(new Error(`Unknown bucket region 'null'`));
+  });
+
+  it(`throws an error if the location is 'EU'`, async () => {
+    awsListBucketsSpy.mockImplementation(mockPromise(() => ({ Buckets: [{ Name: bucketName }] })));
+    awsGetBucketLocationSpy.mockImplementation(mockPromise(() => ({ LocationConstraint: 'EU' })));
+
+    await expect(getAirnodeBucket()).rejects.toThrow(new Error(`Unknown bucket region 'EU'`));
   });
 
   it(`throws an error if there are more then one Airnode S3 buckets`, async () => {
@@ -102,10 +140,34 @@ describe('createAirnodeBucket', () => {
     generateBucketNameSpy.mockImplementation(() => bucketName);
   });
 
-  it('creates S3 Airnode bucket', async () => {
+  it(`creates S3 Airnode bucket with no options for 'us-east-1' region`, async () => {
     await createAirnodeBucket(cloudProvider);
 
     expect(awsCreateBucketSpy).toHaveBeenCalledWith({ Bucket: bucketName });
+    expect(awsPutBucketEncryptionSpy).toHaveBeenCalledWith({
+      Bucket: bucketName,
+      ServerSideEncryptionConfiguration: {
+        Rules: [{ ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' }, BucketKeyEnabled: true }],
+      },
+    });
+    expect(awsPutPublicAccessBlockSpy).toHaveBeenCalledWith({
+      Bucket: bucketName,
+      PublicAccessBlockConfiguration: {
+        BlockPublicAcls: true,
+        BlockPublicPolicy: true,
+        IgnorePublicAcls: true,
+        RestrictPublicBuckets: true,
+      },
+    });
+  });
+
+  it(`creates S3 Airnode bucket with options for other than 'us-east-1' region`, async () => {
+    await createAirnodeBucket({ ...cloudProvider, region: 'europe-central-1' });
+
+    expect(awsCreateBucketSpy).toHaveBeenCalledWith({
+      Bucket: bucketName,
+      CreateBucketConfiguration: { LocationConstraint: 'europe-central-1' },
+    });
     expect(awsPutBucketEncryptionSpy).toHaveBeenCalledWith({
       Bucket: bucketName,
       ServerSideEncryptionConfiguration: {

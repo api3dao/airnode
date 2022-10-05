@@ -11,6 +11,8 @@ import {
 import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList } from '../../test/fixtures';
 import { Directory } from '../utils/infrastructure';
 
+const bucketName = 'airnode-aabbccdd0011';
+
 const mockFile = {
   download: jest.fn(),
   copy: jest.fn(),
@@ -26,6 +28,8 @@ const mockBucket = {
   getFiles: jest.fn(),
   upload: jest.fn(),
   delete: jest.fn(),
+  getMetadata: jest.fn(),
+  name: bucketName,
 };
 
 const mockStorage = {
@@ -47,6 +51,7 @@ const gcsStorageSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage'
 const gcsBucketSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket;
 const gcsFileSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().file;
 const gcsGetBucketsSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().getBuckets;
+const gcsGetMetadataSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().getMetadata;
 const gcsCreateBucketSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().createBucket;
 const gcsSetMetadataSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().setMetadata;
 const gcsSetPolicySpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().iam.setPolicy;
@@ -64,7 +69,10 @@ const cloudProvider = {
   projectId: 'airnode-test-project-1234',
   disableConcurrencyReservations: false,
 };
-const bucketName = 'airnode-aabbccdd0011';
+const bucket = {
+  name: bucketName,
+  region: 'us-east1',
+};
 const fileContent = 'file content';
 const filePath = '/path/to/config.json';
 const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json';
@@ -72,12 +80,14 @@ const gcsErrorMessage = 'Unexpected GCS error';
 const gcsError = new Error(gcsErrorMessage);
 
 describe('getAirnodeBucket', () => {
-  it('returns a name of Airnode GCS bucket', async () => {
-    gcsGetBucketsSpy.mockImplementation(() => [[{ name: bucketName }]]);
+  it('returns Airnode GCS bucket', async () => {
+    gcsGetBucketsSpy.mockImplementation(() => [[mockBucket]]);
+    gcsGetMetadataSpy.mockImplementation(() => [{ location: 'us-east1' }]);
 
     const fetchedBucketName = await getAirnodeBucket();
-    expect(fetchedBucketName).toEqual(bucketName);
+    expect(fetchedBucketName).toEqual(bucket);
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
+    expect(gcsGetMetadataSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`ignores incorrect Airnode GCS bucket names`, async () => {
@@ -95,6 +105,16 @@ describe('getAirnodeBucket', () => {
       new Error(`Failed to list GCS buckets: Error: ${gcsErrorMessage}`)
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it(`throws an error if can't fetch the bucket's metadata`, async () => {
+    gcsGetBucketsSpy.mockImplementation(() => [[mockBucket]]);
+    gcsGetMetadataSpy.mockRejectedValue(gcsError);
+
+    await expect(getAirnodeBucket()).rejects.toThrow(
+      new Error(`Failed to fetch metadata for bucket '${bucketName}': Error: ${gcsErrorMessage}`)
+    );
+    expect(gcsGetMetadataSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if there are more then one Airnode GCS buckets`, async () => {
@@ -119,7 +139,7 @@ describe('createAirnodeBucket', () => {
   it('creates GCS Airnode bucket', async () => {
     await createAirnodeBucket(cloudProvider);
 
-    expect(gcsCreateBucketSpy).toHaveBeenCalledWith(bucketName);
+    expect(gcsCreateBucketSpy).toHaveBeenCalledWith(bucketName, { location: cloudProvider.region });
     expect(gcsSetMetadataSpy).toHaveBeenCalledWith({
       iamConfiguration: { uniformBucketLevelAccess: { enabled: true }, publicAccessPrevention: 'enforced' },
     });
