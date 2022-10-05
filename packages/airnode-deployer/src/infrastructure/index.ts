@@ -30,6 +30,7 @@ import {
   Directory,
   FileSystemType,
   deploymentComparator,
+  Bucket,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
@@ -100,34 +101,38 @@ export function execTerraform(execOptions: CommandOptions, command: string, args
 
 export function awsApplyDestroyArguments(
   cloudProvider: AwsCloudProvider,
-  _bucket: string,
-  _path: string
+  _bucket: Bucket,
+  _bucketDeploymentPath: string
 ): CommandArg[] {
   return [['var', 'aws_region', cloudProvider.region]];
 }
 
-export function gcpApplyDestroyArguments(cloudProvider: GcpCloudProvider, bucket: string, path: string): CommandArg[] {
+export function gcpApplyDestroyArguments(
+  cloudProvider: GcpCloudProvider,
+  bucket: Bucket,
+  bucketDeploymentPath: string
+): CommandArg[] {
   return [
     ['var', 'gcp_region', cloudProvider.region],
     ['var', 'gcp_project', cloudProvider.projectId],
-    ['var', 'airnode_bucket', bucket],
-    ['var', 'deployment_bucket_dir', path],
+    ['var', 'airnode_bucket', bucket.name],
+    ['var', 'deployment_bucket_dir', bucketDeploymentPath],
   ];
 }
 
-export function awsAirnodeInitArguments(cloudProvider: AwsCloudProvider, bucket: string, path: string): CommandArg[] {
+export function awsAirnodeInitArguments(bucket: Bucket, bucketDeploymentPath: string): CommandArg[] {
   return [
-    ['backend-config', 'region', cloudProvider.region],
-    ['backend-config', 'bucket', bucket],
+    ['backend-config', 'region', bucket.region],
+    ['backend-config', 'bucket', bucket.name],
     // This is the filename used by GCP and can't be configured there. Using it here as well to keep it consistent.
-    ['backend-config', 'key', `${path}/${TF_STATE_FILENAME}`],
+    ['backend-config', 'key', `${bucketDeploymentPath}/${TF_STATE_FILENAME}`],
   ];
 }
 
-export function gcpAirnodeInitArguments(_cloudProvider: GcpCloudProvider, bucket: string, path: string): CommandArg[] {
+export function gcpAirnodeInitArguments(bucket: Bucket, bucketDeploymentPath: string): CommandArg[] {
   return [
-    ['backend-config', 'bucket', bucket],
-    ['backend-config', 'prefix', path],
+    ['backend-config', 'bucket', bucket.name],
+    ['backend-config', 'prefix', bucketDeploymentPath],
   ];
 }
 
@@ -161,24 +166,25 @@ export const cloudProviderAirnodeImportOptions = {
 
 export function prepareAirnodeInitArguments(
   cloudProvider: CloudProvider,
-  bucket: string,
-  path: string,
+  bucket: Bucket,
+  bucketDeploymentPath: string,
   commonArguments: CommandArg[]
 ) {
-  return [
-    ...cloudProviderAirnodeInitArguments[cloudProvider.type](cloudProvider as any, bucket, path),
-    ...commonArguments,
-  ];
+  return [...cloudProviderAirnodeInitArguments[cloudProvider.type](bucket, bucketDeploymentPath), ...commonArguments];
 }
 
 export function prepareCloudProviderAirnodeApplyDestoryArguments(
   cloudProvider: CloudProvider,
-  bucket: string,
-  path: string,
+  bucket: Bucket,
+  bucketDeploymentPath: string,
   commonArguments: CommandArg[]
 ) {
   return [
-    ...cloudProviderAirnodeApplyDestoryArguments[cloudProvider.type](cloudProvider as any, bucket, path),
+    ...cloudProviderAirnodeApplyDestoryArguments[cloudProvider.type](
+      cloudProvider as any,
+      bucket,
+      bucketDeploymentPath
+    ),
     ...commonArguments,
   ];
 }
@@ -220,8 +226,8 @@ export function prepareAirnodeApplyDestroyArguments(variables: AirnodeApplyDestr
 export async function terraformAirnodeInit(
   execOptions: child.ExecOptions,
   cloudProvider: CloudProvider,
-  bucket: string,
-  bucketPath: string
+  bucket: Bucket,
+  bucketDeploymentPath: string
 ) {
   const terraformCloudProviderDirectory = path.join(terraformDir, cloudProvider.type);
 
@@ -229,15 +235,15 @@ export async function terraformAirnodeInit(
   await execTerraform(
     execOptions,
     'init',
-    prepareAirnodeInitArguments(cloudProvider, bucket, bucketPath, commonArguments)
+    prepareAirnodeInitArguments(cloudProvider, bucket, bucketDeploymentPath, commonArguments)
   );
 }
 
 export async function terraformAirnodeApply(
   execOptions: child.ExecOptions,
   config: Config,
-  bucket: string,
-  bucketPath: string,
+  bucket: Bucket,
+  bucketDeploymentPath: string,
   configPath: string,
   secretsPath: string
 ) {
@@ -247,7 +253,7 @@ export async function terraformAirnodeApply(
   const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
 
-  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketPath);
+  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
 
   const commonArguments = prepareAirnodeApplyDestroyArguments({
     airnodeAddressShort,
@@ -279,7 +285,7 @@ export async function terraformAirnodeApply(
     await execTerraform(
       { ...execOptions, ignoreError: true },
       'import',
-      prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments),
+      prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketDeploymentPath, commonArguments),
       cloudProviderAirnodeImportOptions[cloudProvider.type](cloudProvider as any)
     );
   }
@@ -289,7 +295,7 @@ export async function terraformAirnodeApply(
   await execTerraform(
     execOptions,
     'apply',
-    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments)
+    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketDeploymentPath, commonArguments)
   );
 }
 
@@ -316,15 +322,15 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 
   const goDeploy = await go(async () => {
     logger.debug('Fetching Airnode bucket');
-    let bucketName = await cloudProviderLib[type].getAirnodeBucket();
-    if (!bucketName) {
+    let bucket = await cloudProviderLib[type].getAirnodeBucket();
+    if (!bucket) {
       logger.debug('No Airnode bucket found, creating');
-      bucketName = await cloudProviderLib[type].createAirnodeBucket(cloudProvider as any);
+      bucket = await cloudProviderLib[type].createAirnodeBucket(cloudProvider as any);
     }
-    logger.debug(`Using Airnode bucket '${bucketName}'`);
+    logger.debug(`Using Airnode bucket '${bucket.name}'`);
 
     logger.debug('Fetching Airnode bucket content');
-    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucketName);
+    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucket.name);
 
     const bucketStagePath = `${airnodeAddress}/${stage}`;
     const bucketDeploymentPath = `${bucketStagePath}/${timestamp}`;
@@ -336,7 +342,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const remoteConfig = JSON.parse(
-        await cloudProviderLib[type].getFileFromBucket(bucketName, bucketConfigPath)
+        await cloudProviderLib[type].getFileFromBucket(bucket.name, bucketConfigPath)
       ) as Config;
 
       const remoteNodeSettings = remoteConfig.nodeSettings;
@@ -356,7 +362,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const latestBucketTerraformStatePath = `${bucketStagePath}/${latestDeployment}/${TF_STATE_FILENAME}`;
       const newBucketTerraformStatePath = `${bucketDeploymentPath}/${TF_STATE_FILENAME}`;
       await cloudProviderLib[type].copyFileInBucket(
-        bucketName,
+        bucket.name,
         latestBucketTerraformStatePath,
         newBucketTerraformStatePath
       );
@@ -364,16 +370,16 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 
     logger.debug(`Storing configuration file for new deployment ${bucketDeploymentPath}`);
     const bucketConfigPath = `${bucketDeploymentPath}/config.json`;
-    await cloudProviderLib[type].storeFileToBucket(bucketName, bucketConfigPath, configPath);
+    await cloudProviderLib[type].storeFileToBucket(bucket.name, bucketConfigPath, configPath);
 
     logger.debug(`Storing secrets file for new deployment ${bucketDeploymentPath}`);
     const bucketSecretsPath = `${bucketDeploymentPath}/secrets.env`;
-    await cloudProviderLib[type].storeFileToBucket(bucketName, bucketSecretsPath, secretsPath);
+    await cloudProviderLib[type].storeFileToBucket(bucket.name, bucketSecretsPath, secretsPath);
 
     logger.debug('Deploying Airnode via Terraform recipes');
     const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
     const execOptions = { cwd: airnodeTmpDir };
-    await terraformAirnodeApply(execOptions, config, bucketName, bucketDeploymentPath, configPath, secretsPath);
+    await terraformAirnodeApply(execOptions, config, bucket, bucketDeploymentPath, configPath, secretsPath);
     const output = await execTerraform(execOptions, 'output', ['json', 'no-color']);
     fs.rmSync(airnodeTmpDir, { recursive: true });
     return output;
@@ -393,10 +399,10 @@ export async function terraformAirnodeDestroy(
   cloudProvider: CloudProvider,
   airnodeAddressShort: string,
   stage: string,
-  bucket: string,
-  bucketPath: string
+  bucket: Bucket,
+  bucketDeploymentPath: string
 ) {
-  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketPath);
+  await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
 
   const commonArguments = prepareAirnodeApplyDestroyArguments({
     airnodeAddressShort,
@@ -409,7 +415,7 @@ export async function terraformAirnodeDestroy(
   await execTerraform(
     execOptions,
     'destroy',
-    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketPath, commonArguments)
+    prepareCloudProviderAirnodeApplyDestoryArguments(cloudProvider, bucket, bucketDeploymentPath, commonArguments)
   );
 }
 
@@ -426,7 +432,7 @@ export type Deployment = {
   airnodeVersion: string;
   lastUpdate: string;
   versions: DeploymentVersion[];
-  bucketName: string;
+  bucket: Bucket;
   bucketLatestDeploymentPath: string;
 };
 
@@ -434,17 +440,17 @@ export type Deployment = {
 async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploymentId?: string) {
   const deployments: Deployment[] = [];
 
-  const bucketName = await cloudProviderLib[cloudProviderType].getAirnodeBucket();
-  if (!bucketName) {
+  const bucket = await cloudProviderLib[cloudProviderType].getAirnodeBucket();
+  if (!bucket) {
     logger.debug(`No deployments available on ${cloudProviderType.toUpperCase()}`);
     return deployments;
   }
 
-  const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucketName);
+  const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
     if (addressDirectory.type !== FileSystemType.Directory) {
       logger.warn(
-        `Invalid item in bucket '${bucketName}' (${cloudProviderType.toUpperCase()}) with key '${
+        `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
           addressDirectory.bucketKey
         }'. Skipping.`
       );
@@ -454,7 +460,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
     for (const [stage, stageDirectory] of Object.entries(addressDirectory.children)) {
       if (stageDirectory.type !== FileSystemType.Directory) {
         logger.warn(
-          `Invalid item in bucket '${bucketName}' (${cloudProviderType.toUpperCase()}) with key '${
+          `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
             stageDirectory.bucketKey
           }'. Skipping.`
         );
@@ -466,7 +472,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const config = JSON.parse(
-        await cloudProviderLib[cloudProviderType].getFileFromBucket(bucketName, bucketConfigPath)
+        await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, bucketConfigPath)
       ) as Config;
       const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
       const airnodeVersion = config.nodeSettings.nodeVersion;
@@ -484,7 +490,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
         airnodeVersion,
         lastUpdate: latestDeployment,
         versions: deploymentVersions,
-        bucketName,
+        bucket,
         bucketLatestDeploymentPath,
       };
 
@@ -537,7 +543,7 @@ export async function removeAirnode(deploymentId: string) {
       airnodeAddress,
       stage,
       airnodeVersion: deployedVersion,
-      bucketName,
+      bucket,
       bucketLatestDeploymentPath,
     } = goCloudDeploymentInfo.data[0];
 
@@ -556,35 +562,35 @@ export async function removeAirnode(deploymentId: string) {
       cloudProvider,
       airnodeAddressShort,
       stage,
-      bucketName,
+      bucket,
       bucketLatestDeploymentPath
     );
     fs.rmSync(airnodeTmpDir, { recursive: true });
 
     // Refreshing the bucket content because the source code archives were removed by Terraform
     logger.debug('Refreshing Airnode bucket content');
-    const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucketName);
+    const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
     const addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
     const stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
 
     // Delete stage directory and its content
     logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
-    await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucketName, stageDirectory);
+    await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket.name, stageDirectory);
     // eslint-disable-next-line functional/immutable-data
     delete addressDirectory.children[stage];
 
     // Delete Airnode address directory if empty
     if (Object.keys(addressDirectory.children).length === 0) {
       logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
-      await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucketName, addressDirectory);
+      await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket.name, addressDirectory);
       // eslint-disable-next-line functional/immutable-data
       delete directoryStructure[airnodeAddress];
     }
 
     // Delete the whole bucket if empty
     if (Object.keys(directoryStructure).length === 0) {
-      logger.debug(`Deleting Airnode bucket '${bucketName}'`);
-      await cloudProviderLib[cloudProviderType].deleteBucket(bucketName);
+      logger.debug(`Deleting Airnode bucket '${bucket.name}'`);
+      await cloudProviderLib[cloudProviderType].deleteBucket(bucket.name);
     }
   });
 

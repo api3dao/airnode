@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import AWS from 'aws-sdk';
 import concat from 'lodash/concat';
 import compact from 'lodash/compact';
+import isNil from 'lodash/isNil';
 import { AwsCloudProvider } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import * as logger from '../utils/logger';
@@ -31,15 +32,48 @@ export const getAirnodeBucket = async () => {
     throw new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(airnodeBuckets)}`);
   }
 
-  return airnodeBuckets?.[0]?.Name ?? null;
+  const bucketName = airnodeBuckets?.[0]?.Name;
+  if (!bucketName) {
+    logger.debug('No Airnode S3 bucket found');
+    return null;
+  }
+
+  const goBucketLocation = await go(() => s3.getBucketLocation({ Bucket: bucketName }).promise());
+  if (!goBucketLocation.success) {
+    throw new Error(`Failed to get location for bucket '${bucketName}': ${goBucketLocation.error}`);
+  }
+
+  let region = goBucketLocation.data.LocationConstraint;
+  // The `EU` option is listed as a possible one in the documentation
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getBucketLocation-property
+  if (isNil(region) || region === 'EU') {
+    throw new Error(`Unknown bucket region '${region}'`);
+  }
+  // The documentation says that for buckets in the `us-east-1` region the value of `LocationConstraint` is null but it is actually an empty string...
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getBucketLocation-property
+  if (region === '') {
+    region = 'us-east-1';
+  }
+
+  return {
+    name: bucketName,
+    region,
+  };
 };
 
-export const createAirnodeBucket = async (_cloudProvider: AwsCloudProvider) => {
+export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
   const s3 = initializeS3Service();
   const bucketName = generateBucketName();
 
-  logger.debug(`Creating S3 bucket '${bucketName}'`);
-  const goCreate = await go(() => s3.createBucket({ Bucket: bucketName }).promise());
+  let createParams: AWS.S3.CreateBucketRequest = { Bucket: bucketName };
+  // If the region is `us-east-1` the configuration must be empty...
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createBucket-property
+  if (cloudProvider.region !== 'us-east-1') {
+    createParams = { ...createParams, CreateBucketConfiguration: { LocationConstraint: cloudProvider.region } };
+  }
+
+  logger.debug(`Creating S3 bucket '${bucketName}' in '${cloudProvider.region}'`);
+  const goCreate = await go(() => s3.createBucket(createParams).promise());
   if (!goCreate.success) {
     throw new Error(`Failed to create an S3 bucket: ${goCreate.error}`);
   }
@@ -82,7 +116,10 @@ export const createAirnodeBucket = async (_cloudProvider: AwsCloudProvider) => {
     );
   }
 
-  return bucketName;
+  return {
+    name: bucketName,
+    region: cloudProvider.region,
+  };
 };
 
 export const getBucketDirectoryStructure = async (bucketName: string) => {
