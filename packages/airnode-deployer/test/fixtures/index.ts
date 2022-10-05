@@ -206,7 +206,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '1.8.0',
     lastUpdate: '1662558071950',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0x13D845DB99F9b822f881cBCB330fEa8bC46e09Ea/dev/1662558071950',
   },
   {
@@ -221,7 +224,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.0.10',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0x8196a4942F445837E8F388679daaf9fF65fe82Bd/dev/1662559204554',
   },
   {
@@ -236,7 +242,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.0.10',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0xE52b9e9d07A04495ACdded0aC8b666e37fe22d53/dev/1662559204554',
   },
   {
@@ -251,7 +260,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.0.5',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0xE52b9e9d07A04495ACdded0aC8b666e37fe22d53/dev/1662559204554',
   },
   {
@@ -266,7 +278,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.0.10',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0xE52b9e9d07A04495ACdded0aC8b666e37fe22d53/dev/1662559204554',
   },
   {
@@ -281,7 +296,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.1.0',
     lastUpdate: '1662557983568',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0xd47303274Bb3dB7BE61fc9cfDEFfaFE3D69274f1/dev/1662557983568',
   },
   {
@@ -297,7 +315,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.1.0',
     lastUpdate: '1662558010204',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0xd47303274Bb3dB7BE61fc9cfDEFfaFE3D69274f1/dev/1662558010204',
   },
   {
@@ -313,7 +334,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.8.12',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0x871BbaFb5e1b1A03Ed3B74620D88ED9c13366462/dev/1662559204554',
   },
   {
@@ -329,7 +353,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '3.8.8',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0x13D845DB99F9b822f881cBCB330fEa8bC46e09Ea/dev/1662559204554',
   },
   {
@@ -345,7 +372,10 @@ export const mockDeployments: Deployment[] = [
     airnodeVersion: '0.10.0',
     lastUpdate: '1662559204554',
     versions: [],
-    bucketName: 'airnode-4fcaf94d160f',
+    bucket: {
+      name: 'airnode-4fcaf94d160f',
+      region: 'us-east-1',
+    },
     bucketLatestDeploymentPath: '0x39BFa8d76928de1e3d17eB477fA04982BD9d4292/dev/1662559204554',
   },
 ];

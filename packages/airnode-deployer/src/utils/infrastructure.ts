@@ -41,6 +41,11 @@ export class MultiMessageError extends Error {
 export const BUCKET_NAME_REGEX = /^airnode-[a-f0-9]{12}$/;
 export const generateBucketName = () => `airnode-${randomBytes(6).toString('hex')}`;
 
+export type Bucket = {
+  name: string;
+  region: string;
+};
+
 export enum FileSystemType {
   Directory = 'Directory',
   File = 'File',

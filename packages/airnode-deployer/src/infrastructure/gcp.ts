@@ -29,15 +29,29 @@ export const getAirnodeBucket = async () => {
     throw new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(airnodeBuckets)}`);
   }
 
-  return airnodeBuckets[0]?.name || null;
+  const bucket = airnodeBuckets[0];
+  if (!bucket) {
+    logger.debug('No Airnode GCS bucket found');
+    return null;
+  }
+
+  const goMetadata = await go(() => bucket.getMetadata());
+  if (!goMetadata.success) {
+    throw new Error(`Failed to fetch metadata for bucket '${bucket.name}': ${goMetadata.error}`);
+  }
+
+  return {
+    name: bucket.name,
+    region: goMetadata.data[0].location as string,
+  };
 };
 
 export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
   const storage = initializeGcsService();
   const bucketName = generateBucketName();
 
-  logger.debug(`Creating GCS bucket '${bucketName}'`);
-  const goCreate = await go(() => storage.createBucket(bucketName));
+  logger.debug(`Creating GCS bucket '${bucketName}' in ${cloudProvider.region}`);
+  const goCreate = await go(() => storage.createBucket(bucketName, { location: cloudProvider.region }));
   if (!goCreate.success) {
     throw new Error(`Failed to create an GCS bucket: ${goCreate.error}`);
   }
@@ -84,7 +98,10 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
     throw new Error(`Failed to setup IAM policy for bucket '${bucketName}': ${goPolicy.error}`);
   }
 
-  return bucketName;
+  return {
+    name: bucketName,
+    region: cloudProvider.region,
+  };
 };
 
 export const getBucketDirectoryStructure = async (bucketName: string) => {
