@@ -29,6 +29,7 @@ import {
   getAddressDirectory,
   Directory,
   FileSystemType,
+  deploymentComparator,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
@@ -617,16 +618,8 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
       spinner.fail(`Failed to fetch deployments from ${cloudProviderType.toUpperCase()}: ${goListCloudAirnodes.error}`);
     }
   }
-  // Yes, lodash's sortBy can apparently do this
-  // It can access a deeper field and it will skip a nonexistent one as well
-  const sortedDeployments = sortBy(deployments, [
-    'cloudProvider.type',
-    'cloudProvider.projectId',
-    'cloudProvider.region',
-    'airnodeAddress',
-    'stage',
-    'airnodeVersion',
-  ]);
+
+  deployments.sort(deploymentComparator);
   const table = new Table({
     head: ['Deployment ID', 'Cloud provider', 'Airnode address', 'Stage', 'Airnode version', 'Last update'],
     style: {
@@ -635,7 +628,7 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   });
 
   table.push(
-    ...sortedDeployments.map(({ id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
+    ...deployments.map(({ id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate }) => [
       id,
       cloudProviderReadable(cloudProvider),
       airnodeAddressReadable(airnodeAddress),
