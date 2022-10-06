@@ -1,13 +1,14 @@
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { logger } from '@api3/airnode-utilities';
 import { runCommand, runCommandInBackground } from '../utils';
+import { readIntegrationInfo } from '../../src';
 
 const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
   const content = JSON.stringify(
     {
-      integration: 'coingecko',
+      integration: 'coingecko-e2e',
       airnodeType: 'local',
       network: 'localhost',
       mnemonic: 'test test test test test test test test test test test junk',
@@ -19,6 +20,18 @@ const chooseIntegration = () => {
   writeFileSync(join(__dirname, '../../integration-info.json'), content);
 };
 
+const writeAuthorizerAddressesToSecrets = (everythingAuthorizer: string, nothingAuthorizer: string) => {
+  const integrationInfo = readIntegrationInfo();
+  const secretsPath = join(__dirname, `../../integrations/`, integrationInfo.integration, `secrets.env`);
+  const rawSecrets = readFileSync(secretsPath).toString();
+  writeFileSync(
+    secretsPath,
+    rawSecrets
+      .replace('EVERYTHING_AUTHORIZER=', `EVERYTHING_AUTHORIZER=${everythingAuthorizer}`)
+      .replace('NOTHING_AUTHORIZER=', `NOTHING_AUTHORIZER=${nothingAuthorizer}`)
+  );
+};
+
 describe('Coingecko integration with containerized Airnode and hardhat', () => {
   it('works', () => {
     chooseIntegration();
@@ -26,6 +39,19 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn deploy-rrp');
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
+
+    // Testing cross-chain authorizers:
+    // Same-chain authorizer (`NothingAuthorizer`) does not authorize request, but
+    // cross-chain authorizer (`EverythingAuthorizer`) does, resulting in a fulfilled request
+    // See config.json for how this works using just one local Hardhat instance
+    const authorizerResponses = runCommand('yarn deploy-authorizers');
+    const everythingAuthorizerText = 'EverythingAuthorizer deployed to address:';
+    const nothingAuthorizerText = 'NothingAuthorizer deployed to address:';
+    expect(authorizerResponses).toContain(everythingAuthorizerText);
+    expect(authorizerResponses).toContain(nothingAuthorizerText);
+    const everythingAuthorizer = authorizerResponses.split(everythingAuthorizerText)[1].split('\n')[0].trim();
+    const nothingAuthorizer = authorizerResponses.split(nothingAuthorizerText)[1].split('\n')[0].trim();
+    writeAuthorizerAddressesToSecrets(everythingAuthorizer, nothingAuthorizer);
 
     runCommandInBackground('yarn run-airnode-locally');
 
