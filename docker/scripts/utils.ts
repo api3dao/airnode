@@ -5,7 +5,7 @@ import { logger } from '@api3/airnode-utilities';
 export const runCommand = (command: string, options?: ExecSyncOptions) => {
   logger.log(`Running command: '${command}'${options ? ` with options ${JSON.stringify(options)}` : ''}`);
   try {
-    return execSync(command, options);
+    return execSync(command, options)?.toString().trim();
   } catch (e) {
     // Thrown Error object contains the entire result from child_process.spawnSync()
     const err = e as any;
@@ -19,6 +19,8 @@ export const runCommand = (command: string, options?: ExecSyncOptions) => {
     );
   }
 };
+
+export const unifyUrlFormat = (url: string) => (url.endsWith('/') ? url.slice(0, -1) : url);
 
 // Taken from https://github.com/sindresorhus/is-docker
 

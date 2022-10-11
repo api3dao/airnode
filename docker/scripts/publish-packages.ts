@@ -5,20 +5,41 @@
 //                                                                                       //
 ///////////////////////////////////////// WARNING /////////////////////////////////////////
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, accessSync, constants } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
 import axios from 'axios';
-import { go } from '@api3/promise-utils';
+import { go, goSync } from '@api3/promise-utils';
 import { logger } from '@api3/airnode-utilities';
-import { runCommand, isDocker } from './utils';
+import { runCommand, isDocker, unifyUrlFormat } from './utils';
+import { getNpmRegistryContainer } from './npm-registry';
 
-const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org';
+const AIRNODE_REPOSITORY = 'https://github.com/api3dao/airnode.git';
 
 if (!isDocker()) {
   throw new Error('This script should be run only in the Docker container');
 }
+
+const fetchProject = () => {
+  const goAccess = goSync(() => accessSync('/airnode', constants.F_OK));
+  if (goAccess.success) {
+    runCommand('git config --global --add safe.directory /airnode');
+    const excludedFiles = runCommand('git -C /airnode ls-files --exclude-standard -oi --directory').split('\n');
+    const excludeOptions = excludedFiles.map((excludedFile) => `--exclude ${excludedFile}`).join(' ');
+    runCommand(`rsync -a ${excludeOptions} --exclude .git /airnode/ /build`);
+  } else {
+    const gitRef = process.env.GIT_REF ?? 'master';
+    runCommand(`git clone ${AIRNODE_REPOSITORY} /build`);
+    runCommand(`git -C /build checkout ${gitRef}`);
+  }
+};
+
+const buildProject = () => {
+  runCommand('git config --global --add safe.directory /build');
+  runCommand('yarn bootstrap', { cwd: '/build' });
+  runCommand('yarn build', { cwd: '/build' });
+};
 
 const authNpmRegistry = async (npmRegistryUrl: string) => {
   const dummyUser = randomBytes(4).toString('hex');
@@ -66,7 +87,7 @@ registry=${npmRegistryUrl}
 // This is annoying especially when we want to publish packages only for testing purposes.
 // By changing the type to `@changesets/cli/changelog` we can circumvent the issue.
 const simplifyChangesetConfig = () => {
-  const changesetConfigPath = join(__dirname, '..', '..', '.changeset', 'config.json');
+  const changesetConfigPath = '/build/.changeset/config.json';
   const oldChangesetConfig = readFileSync(changesetConfigPath, 'utf-8');
   const newChangesetConfig = oldChangesetConfig.replace(
     '"changelog": ["@changesets/changelog-github", { "repo": "api3dao/airnode" }],',
@@ -75,16 +96,25 @@ const simplifyChangesetConfig = () => {
   writeFileSync(changesetConfigPath, newChangesetConfig);
 };
 
-export const publishPackages = async (npmRegistryUrl: string, npmTag: string) => {
-  // Unify the URL format
-  npmRegistryUrl = npmRegistryUrl.endsWith('/') ? npmRegistryUrl.slice(0, -1) : npmRegistryUrl;
-  // Publishing packages to the official NPM registry is not supported yet.
-  if (npmRegistryUrl === DEFAULT_NPM_REGISTRY)
-    throw new Error('Publishing packages to the official NPM registry is not supported yet.');
+export const publishPackages = async (npmRegistry: string, npmTag: string, _snapshot: boolean) => {
+  let npmRegistryUrl = npmRegistry;
 
+  if (npmRegistry === 'local') {
+    const npmRegistryInfo = getNpmRegistryContainer();
+    if (!npmRegistryInfo) {
+      throw new Error(`Can't publish NPM packages: No local NPM registry running`);
+    }
+
+    npmRegistryUrl = npmRegistryInfo.npmRegistryUrl;
+  }
+
+  npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
+
+  fetchProject();
+  buildProject();
   await authNpmRegistry(npmRegistryUrl);
   simplifyChangesetConfig();
   // Ignoring commands' outputs because of the weird text colorization.
-  runCommand(`yarn changeset version --snapshot ${npmTag}`, { stdio: 'ignore' });
-  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { stdio: 'ignore' });
+  runCommand(`yarn changeset version --snapshot ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
+  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
 };
