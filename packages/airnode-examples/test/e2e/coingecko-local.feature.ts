@@ -50,7 +50,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     // Same-chain authorizer (`NothingAuthorizer`) does not authorize request, but
     // cross-chain authorizer (`EverythingAuthorizer`) does, resulting in a fulfilled request
     // See config.json for how this works using just one local Hardhat instance
-    const authorizerResponses = runCommand('yarn deploy-authorizers');
+    const authorizerResponses = runCommand('yarn ts-node ./integrations/coingecko-e2e/deploy-authorizers');
     const everythingAuthorizerText = 'EverythingAuthorizer deployed to address:';
     const nothingAuthorizerText = 'NothingAuthorizer deployed to address:';
     expect(authorizerResponses).toContain(everythingAuthorizerText);

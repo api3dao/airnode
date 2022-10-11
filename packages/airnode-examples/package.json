@@ -15,7 +15,6 @@
     "create-airnode-config": "ts-node src/scripts/create-airnode-config.ts",
     "create-airnode-secrets": "ts-node src/scripts/create-airnode-secrets.ts",
     "create-aws-secrets": "ts-node src/scripts/create-aws-secrets.ts",
-    "deploy-authorizers": "ts-node src/scripts/deploy-authorizers.ts",
     "deploy-airnode": "ts-node src/scripts/deploy-airnode.ts",
     "deploy-requester": "ts-node src/scripts/deploy-requester.ts",
     "deploy-rrp": "ts-node src/scripts/deploy-rrp.ts",

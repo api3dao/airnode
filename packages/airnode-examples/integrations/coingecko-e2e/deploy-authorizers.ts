@@ -1,4 +1,4 @@
-import { deployContract, runAndHandleErrors, cliPrint } from '../';
+import { deployContract, runAndHandleErrors, cliPrint } from '../../src';
 
 const main = async () => {
   const everythingAuthorizer = await deployContract(`contracts/coingecko-e2e/EverythingAuthorizer.sol`, []);
