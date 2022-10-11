@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { go } from '@api3/promise-utils';
+import { format } from 'prettier';
 
 const allIntegrationsFolders = readdirSync(join(__dirname, '../integrations'), { withFileTypes: true })
   .filter((integration) => integration.isDirectory())
@@ -18,15 +19,12 @@ describe('Verifies that all config.example.json files are up to date', () => {
 
       if (!goCreateConfig.success) throw goCreateConfig.error;
 
-      const generatedConfigFile = readFileSync(path)
-        .toString()
-        // fix prettier newline disagreement with generated config for `coingecko-e2e`
-        .replace(/\[\n\s+"0xE2E(\w+)"\n\s+\],/g, '["0xE2E$1"],');
+      const generatedConfigFile = readFileSync(path).toString();
 
       // Revert the changes done to the example file
       writeFileSync(path, currentConfigFile);
 
-      expect(generatedConfigFile).toBe(currentConfigFile);
+      expect(format(generatedConfigFile, { parser: 'json', printWidth: 120 })).toBe(currentConfigFile);
     });
   });
 });
