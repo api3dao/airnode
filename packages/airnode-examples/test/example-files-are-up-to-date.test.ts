@@ -21,7 +21,7 @@ describe('Verifies that all config.example.json files are up to date', () => {
       const generatedConfigFile = readFileSync(path)
         .toString()
         // fix prettier newline disagreement with generated config for `coingecko-e2e`
-        .replace(/\[\n\s+"(\w+)_AUTHORIZER_FILLED_IN_E2E_TEST"\n\s+\],/g, '["$1_AUTHORIZER_FILLED_IN_E2E_TEST"],');
+        .replace(/\[\n\s+"0xE2E(\w+)"\n\s+\],/g, '["0xE2E$1"],');
 
       // Revert the changes done to the example file
       writeFileSync(path, currentConfigFile);

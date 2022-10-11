@@ -27,8 +27,8 @@ const replacePlaceholdersInConfig = (everythingAuthorizer: string, nothingAuthor
   writeFileSync(
     secretsPath,
     rawSecrets
-      .replace('EVERYTHING_AUTHORIZER_FILLED_IN_E2E_TEST', `${everythingAuthorizer}`)
-      .replace('NOTHING_AUTHORIZER_FILLED_IN_E2E_TEST', `${nothingAuthorizer}`)
+      .replace('0xE2E1111111111111111111111111111111111111', `${everythingAuthorizer}`)
+      .replace('0xE2E0000000000000000000000000000000000000', `${nothingAuthorizer}`)
   );
 };
 
