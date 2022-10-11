@@ -20,21 +20,15 @@ const chooseIntegration = () => {
   writeFileSync(join(__dirname, '../../integration-info.json'), content);
 };
 
-const writeAuthorizerAddressesToSecrets = (everythingAuthorizer: string, nothingAuthorizer: string) => {
+const replacePlaceholdersInConfig = (everythingAuthorizer: string, nothingAuthorizer: string) => {
   const integrationInfo = readIntegrationInfo();
-  const secretsPath = join(__dirname, `../../integrations/`, integrationInfo.integration, `secrets.env`);
+  const secretsPath = join(__dirname, `../../integrations/`, integrationInfo.integration, `config.json`);
   const rawSecrets = readFileSync(secretsPath).toString();
   writeFileSync(
     secretsPath,
     rawSecrets
-      .replace(
-        'EVERYTHING_AUTHORIZER=0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3',
-        `EVERYTHING_AUTHORIZER=${everythingAuthorizer}`
-      )
-      .replace(
-        'NOTHING_AUTHORIZER=0x7969c5eD335650692Bc04293B07F5BF2e7A673C0',
-        `NOTHING_AUTHORIZER=${nothingAuthorizer}`
-      )
+      .replace('EVERYTHING_AUTHORIZER_FILLED_IN_E2E_TEST', `${everythingAuthorizer}`)
+      .replace('NOTHING_AUTHORIZER_FILLED_IN_E2E_TEST', `${nothingAuthorizer}`)
   );
 };
 
@@ -57,7 +51,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     expect(authorizerResponses).toContain(nothingAuthorizerText);
     const everythingAuthorizer = authorizerResponses.split(everythingAuthorizerText)[1].split('\n')[0].trim();
     const nothingAuthorizer = authorizerResponses.split(nothingAuthorizerText)[1].split('\n')[0].trim();
-    writeAuthorizerAddressesToSecrets(everythingAuthorizer, nothingAuthorizer);
+    replacePlaceholdersInConfig(everythingAuthorizer, nothingAuthorizer);
 
     runCommandInBackground('yarn run-airnode-locally');
 

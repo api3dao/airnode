@@ -12,10 +12,10 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     {
       maxConcurrency: 100,
       authorizers: {
-        requesterEndpointAuthorizers: ['${NOTHING_AUTHORIZER}'],
+        requesterEndpointAuthorizers: ['NOTHING_AUTHORIZER_FILLED_IN_E2E_TEST'],
         crossChainRequesterAuthorizers: [
           {
-            requesterEndpointAuthorizers: ['${EVERYTHING_AUTHORIZER}'],
+            requesterEndpointAuthorizers: ['EVERYTHING_AUTHORIZER_FILLED_IN_E2E_TEST'],
             chainType: 'evm',
             chainId: await getChainId(generateExampleFile),
             contracts: {
