@@ -14,7 +14,7 @@ import { AuthorizationByRequestId, EVMProviderState, ProviderState } from '../..
 
 type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 
-async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
+async function fetchSameChainAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions: authorizations.FetchOptions = {
     requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
     authorizations: currentState.settings.authorizations,
@@ -142,7 +142,7 @@ export async function initializeProvider(
   // =================================================================
   // NOTE: None of these promises can fail otherwise Promise.all will reject
   const authAndTxCountPromises: readonly ParallelPromise[] = [
-    fetchAuthorizations(state5),
+    fetchSameChainAuthorizations(state5),
     fetchTransactionCounts(state5),
     fetchCrossChainAuthorizations(state5),
   ];
