@@ -110,9 +110,20 @@ export interface ConfigTemplate {
   readonly parameters: InputParameter[];
 }
 
+export interface CrossChainConfig {
+  readonly requesterEndpointAuthorizers: string[];
+  readonly chainType: string;
+  readonly chainId: string;
+  readonly contracts: {
+    readonly AirnodeRrp: string;
+  };
+  readonly chainProvider: {
+    url: string;
+  };
+}
+
 export interface ConfigAirnode {
-  // TODO
-  readonly authorizers: { requesterEndpointAuthorizers: string[]; crossChainRequesterAuthorizers: [] };
+  readonly authorizers: { requesterEndpointAuthorizers: string[]; crossChainRequesterAuthorizers: CrossChainConfig[] };
   readonly authorizations: {
     requesterEndpointAuthorizations: { [endpointId: string]: string[] };
   };
