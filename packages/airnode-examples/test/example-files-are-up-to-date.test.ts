@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { go } from '@api3/promise-utils';
-import { format } from 'prettier';
 
 const allIntegrationsFolders = readdirSync(join(__dirname, '../integrations'), { withFileTypes: true })
   .filter((integration) => integration.isDirectory())
@@ -24,7 +23,7 @@ describe('Verifies that all config.example.json files are up to date', () => {
       // Revert the changes done to the example file
       writeFileSync(path, currentConfigFile);
 
-      expect(format(generatedConfigFile, { parser: 'json', printWidth: 120 })).toBe(currentConfigFile);
+      expect(generatedConfigFile).toBe(currentConfigFile);
     });
   });
 });

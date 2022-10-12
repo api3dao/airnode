@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { Config, LocalOrCloudProvider } from '@api3/airnode-node';
+import { format } from 'prettier';
 import { cliPrint, getDeployedContract, readChainId, readIntegrationInfo } from '../src';
 import { version as packageVersion } from '../package.json';
 
@@ -52,7 +53,8 @@ export const createNodeVersion = () => {
 
 export const generateConfigFile = (dirname: string, config: Config, generateExampleFile: boolean) => {
   const filename = generateExampleFile ? 'config.example.json' : 'config.json';
-  writeFileSync(join(dirname, filename), JSON.stringify(config, null, 2) + '\n');
+  const formattedConfig = format(JSON.stringify(config, null, 2), { parser: 'json', printWidth: 120 });
+  writeFileSync(join(dirname, filename), formattedConfig);
 
   cliPrint.info(`A '${filename}' has been created.`);
 };
