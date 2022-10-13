@@ -3,19 +3,23 @@ import path from 'path';
 import fs from 'fs';
 import pick from 'lodash/pick';
 import cloneDeep from 'lodash/cloneDeep';
-import { AwsCloudProvider, GcpCloudProvider, loadConfig } from '@api3/airnode-node';
+import { AwsCloudProvider, GcpCloudProvider, loadTrustedConfig } from '@api3/airnode-node';
 import * as aws from './aws';
 import * as gcp from './gcp';
-import { version as nodeVersion } from '../../package.json';
 import { getSpinner } from '../utils/logger';
 import { parseSecretsFile } from '../utils';
 import { Directory, DirectoryStructure } from '../utils/infrastructure';
 import { mockBucketDirectoryStructure } from '../../test/fixtures';
 import { deploymentInfo01, listAirnodes01, listAirnodes02, listAirnodes03 } from '../../test/snapshots';
 
+jest.mock('../../package.json', () => ({
+  version: '0.8.0',
+}));
+
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
 
+import { version as nodeVersion } from '../../package.json';
 import * as infrastructure from '.';
 
 const terraformDir = path.resolve(`${__dirname}/../../terraform`);
@@ -333,7 +337,7 @@ describe('terraformAirnodeApply', () => {
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
   const secrets = parseSecretsFile(secretsPath);
-  const config = loadConfig(configPath, secrets);
+  const config = loadTrustedConfig(configPath, secrets);
   const bucket = {
     name: 'airnode-123456789',
     region: 'us-east-1',
@@ -426,7 +430,7 @@ describe('deployAirnode', () => {
   const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
-  const config = loadConfig(configPath, secrets);
+  const config = loadTrustedConfig(configPath, secrets);
   const bucket = {
     name: 'airnode-123456789',
     region: 'europe-central-1',
@@ -672,7 +676,7 @@ describe('removeAirnode', () => {
   const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const secrets = parseSecretsFile(secretsPath);
-  const config = loadConfig(configPath, secrets);
+  const config = loadTrustedConfig(configPath, secrets);
   const deploymentId = 'aws40207f25';
   const bucket = {
     name: 'airnode-123456789',
