@@ -11,9 +11,9 @@
       "contracts": {
         "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
-      "id": "11155111",
+      "id": "4",
       "providers": {
-        "sepolia": {
+        "rinkeby": {
           "url": "${PROVIDER_URL}"
         }
       },
@@ -54,10 +54,11 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.9.0",
+    "nodeVersion": "0.8.0",
     "cloudProvider": {
-      "type": "aws",
-      "region": "us-east-1",
+      "type": "gcp",
+      "region": "us-east1",
+      "projectId": "airnode-test-123456",
       "disableConcurrencyReservations": false
     },
     "stage": "dev"

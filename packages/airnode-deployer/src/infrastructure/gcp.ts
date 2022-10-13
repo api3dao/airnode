@@ -10,13 +10,12 @@ import {
 } from '../utils/infrastructure';
 import * as logger from '../utils/logger';
 
-const initializeGcsService = (cloudProvider: GcpCloudProvider) => new Storage({ projectId: cloudProvider.projectId });
+const initializeGcsService = () => new Storage();
 
-const initializeGcsBucket = (cloudProvider: GcpCloudProvider, bucketName: string) =>
-  initializeGcsService(cloudProvider).bucket(bucketName);
+const initializeGcsBucket = (bucketName: string) => initializeGcsService().bucket(bucketName);
 
-export const getAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
-  const storage = initializeGcsService(cloudProvider);
+export const getAirnodeBucket = async () => {
+  const storage = initializeGcsService();
 
   logger.debug('Listing GCS buckets');
   const goBuckets = await go(() => storage.getBuckets());
@@ -30,15 +29,29 @@ export const getAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
     throw new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(airnodeBuckets)}`);
   }
 
-  return airnodeBuckets[0]?.name || null;
+  const bucket = airnodeBuckets[0];
+  if (!bucket) {
+    logger.debug('No Airnode GCS bucket found');
+    return null;
+  }
+
+  const goMetadata = await go(() => bucket.getMetadata());
+  if (!goMetadata.success) {
+    throw new Error(`Failed to fetch metadata for bucket '${bucket.name}': ${goMetadata.error}`);
+  }
+
+  return {
+    name: bucket.name,
+    region: goMetadata.data[0].location as string,
+  };
 };
 
 export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
-  const storage = initializeGcsService(cloudProvider);
+  const storage = initializeGcsService();
   const bucketName = generateBucketName();
 
-  logger.debug(`Creating GCS bucket '${bucketName}'`);
-  const goCreate = await go(() => storage.createBucket(bucketName));
+  logger.debug(`Creating GCS bucket '${bucketName}' in ${cloudProvider.region}`);
+  const goCreate = await go(() => storage.createBucket(bucketName, { location: cloudProvider.region }));
   if (!goCreate.success) {
     throw new Error(`Failed to create an GCS bucket: ${goCreate.error}`);
   }
@@ -85,11 +98,14 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
     throw new Error(`Failed to setup IAM policy for bucket '${bucketName}': ${goPolicy.error}`);
   }
 
-  return bucketName;
+  return {
+    name: bucketName,
+    region: cloudProvider.region,
+  };
 };
 
-export const getBucketDirectoryStructure = async (cloudProvider: GcpCloudProvider, bucketName: string) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const getBucketDirectoryStructure = async (bucketName: string) => {
+  const bucket = initializeGcsBucket(bucketName);
 
   const goGet = await go(() => bucket.getFiles());
   if (!goGet.success) {
@@ -99,13 +115,8 @@ export const getBucketDirectoryStructure = async (cloudProvider: GcpCloudProvide
   return translatePathsToDirectoryStructure(goGet.data[0].map((file) => file.name));
 };
 
-export const storeFileToBucket = async (
-  cloudProvider: GcpCloudProvider,
-  bucketName: string,
-  bucketFilePath: string,
-  filePath: string
-) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const storeFileToBucket = async (bucketName: string, bucketFilePath: string, filePath: string) => {
+  const bucket = initializeGcsBucket(bucketName);
 
   logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to GCS bucket '${bucketName}'`);
   const goSave = await go(() => bucket.upload(filePath, { destination: bucketFilePath }));
@@ -114,8 +125,8 @@ export const storeFileToBucket = async (
   }
 };
 
-export const getFileFromBucket = async (cloudProvider: GcpCloudProvider, bucketName: string, filePath: string) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const getFileFromBucket = async (bucketName: string, filePath: string) => {
+  const bucket = initializeGcsBucket(bucketName);
   const file = bucket.file(filePath);
 
   logger.debug(`Fetching file '${filePath}' from GCS bucket '${bucketName}'`);
@@ -127,13 +138,8 @@ export const getFileFromBucket = async (cloudProvider: GcpCloudProvider, bucketN
   return goDownload.data[0].toString('utf-8');
 };
 
-export const copyFileInBucket = async (
-  cloudProvider: GcpCloudProvider,
-  bucketName: string,
-  fromFilePath: string,
-  toFilePath: string
-) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const copyFileInBucket = async (bucketName: string, fromFilePath: string, toFilePath: string) => {
+  const bucket = initializeGcsBucket(bucketName);
   const file = bucket.file(fromFilePath);
 
   logger.debug(`Copying file '${fromFilePath}' to file '${toFilePath}' within GCS bucket '${bucketName}'`);
@@ -155,12 +161,8 @@ const gatherBucketKeys = (directory: Directory): string[] => [
   ),
 ];
 
-export const deleteBucketDirectory = async (
-  cloudProvider: GcpCloudProvider,
-  bucketName: string,
-  directory: Directory
-) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const deleteBucketDirectory = async (bucketName: string, directory: Directory) => {
+  const bucket = initializeGcsBucket(bucketName);
 
   const bucketKeys = gatherBucketKeys(directory);
   logger.debug(`Deleting files from GCS bucket '${bucketName}': ${JSON.stringify(bucketKeys)}`);
@@ -174,8 +176,8 @@ export const deleteBucketDirectory = async (
   }
 };
 
-export const deleteBucket = async (cloudProvider: GcpCloudProvider, bucketName: string) => {
-  const bucket = initializeGcsBucket(cloudProvider, bucketName);
+export const deleteBucket = async (bucketName: string) => {
+  const bucket = initializeGcsBucket(bucketName);
 
   logger.debug(`Deleting GCS bucket '${bucketName}'`);
   const goDelete = await go(() => bucket.delete());

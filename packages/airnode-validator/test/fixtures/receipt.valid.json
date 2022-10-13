@@ -5,6 +5,7 @@
     "airnodeXpub": "xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY"
   },
   "deployment": {
+    "deploymentId": "awsac0247de",
     "cloudProvider": {
       "type": "aws",
       "region": "us-east-1",

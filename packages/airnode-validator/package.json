@@ -3,11 +3,9 @@
   "license": "MIT",
   "version": "0.9.0",
   "private": false,
-  "main": "./dist/cjs/src/index.js",
-  "module": "./dist/esm/src/index.js",
-  "browser": "./dist/es6/src/index.js",
+  "main": "./dist/src/index.js",
   "bin": {
-    "airnode-validator": "./dist/cjs/bin/validator.js"
+    "airnode-validator": "./dist/bin/validator.js"
   },
   "files": [
     "dist"

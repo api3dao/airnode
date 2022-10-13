@@ -1,6 +1,8 @@
 import { randomBytes } from 'crypto';
 import isArray from 'lodash/isArray';
+import { compareVersions } from 'compare-versions';
 import * as logger from './logger';
+import { Deployment } from '../infrastructure';
 
 type CommandArg = string | [string, string] | [string, string, string];
 
@@ -38,6 +40,11 @@ export class MultiMessageError extends Error {
 
 export const BUCKET_NAME_REGEX = /^airnode-[a-f0-9]{12}$/;
 export const generateBucketName = () => `airnode-${randomBytes(6).toString('hex')}`;
+
+export type Bucket = {
+  name: string;
+  region: string;
+};
 
 export enum FileSystemType {
   Directory = 'Directory',
@@ -132,4 +139,27 @@ export const getStageDirectory = (directoryStructure: DirectoryStructure, airnod
   }
 
   return stageDirectory;
+};
+
+export const deploymentComparator = (a: Deployment, b: Deployment) => {
+  const typeComparison = a.cloudProvider.type.localeCompare(b.cloudProvider.type);
+  if (typeComparison !== 0) return typeComparison;
+
+  // We will never get to compare two different cloud providers here, that's handled above
+  const projectIdComparison =
+    a.cloudProvider.type === 'gcp' && b.cloudProvider.type === 'gcp'
+      ? a.cloudProvider.projectId.localeCompare(b.cloudProvider.projectId)
+      : 0;
+  if (projectIdComparison !== 0) return projectIdComparison;
+
+  const regionComparison = a.cloudProvider.region.localeCompare(b.cloudProvider.region);
+  if (regionComparison !== 0) return regionComparison;
+
+  const addressComparison = a.airnodeAddress.localeCompare(b.airnodeAddress);
+  if (addressComparison !== 0) return addressComparison;
+
+  const stageComparison = a.stage.localeCompare(b.stage);
+  if (stageComparison !== 0) return stageComparison;
+
+  return compareVersions(a.airnodeVersion, b.airnodeVersion);
 };

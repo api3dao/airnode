@@ -19,8 +19,9 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   // resources from the failed deployment. (The removal is not guaranteed, but it's better compared to asking user to
   // remove the resources manually in the cloud provider dashboard).
 
-  const goDeployAirnode = await go(() => deployAirnode(config, configPath, secretsPath));
-  writeReceiptFile(receiptFile, config, goDeployAirnode.success);
+  const time = new Date();
+  const goDeployAirnode = await go(() => deployAirnode(config, configPath, secretsPath, time.getTime()));
+  writeReceiptFile(receiptFile, config, time.toISOString(), goDeployAirnode.success);
 
   if (!goDeployAirnode.success && !autoRemove) {
     logger.fail(
@@ -73,9 +74,8 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
-  const { cloudProvider, stage } = receipt.deployment;
-  const airnodeAddress = receipt.airnodeWallet.airnodeAddress;
+  const { deploymentId } = receipt.deployment;
 
   // If the function throws, the CLI will fail with a non zero status code
-  await removeAirnode(airnodeAddress, stage, cloudProvider);
+  await removeAirnode(deploymentId);
 }

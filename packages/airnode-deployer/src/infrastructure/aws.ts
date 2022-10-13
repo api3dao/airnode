@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import AWS from 'aws-sdk';
 import concat from 'lodash/concat';
 import compact from 'lodash/compact';
+import isNil from 'lodash/isNil';
 import { AwsCloudProvider } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import * as logger from '../utils/logger';
@@ -13,13 +14,12 @@ import {
   translatePathsToDirectoryStructure,
 } from '../utils/infrastructure';
 
-const initializeS3Service = (cloudProvider: AwsCloudProvider) => {
-  AWS.config.update({ region: cloudProvider.region });
+const initializeS3Service = () => {
   return new AWS.S3();
 };
 
-export const getAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getAirnodeBucket = async () => {
+  const s3 = initializeS3Service();
 
   logger.debug('Listing S3 buckets');
   const goBuckets = await go(() => s3.listBuckets().promise());
@@ -32,15 +32,48 @@ export const getAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
     throw new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(airnodeBuckets)}`);
   }
 
-  return airnodeBuckets?.[0]?.Name ?? null;
+  const bucketName = airnodeBuckets?.[0]?.Name;
+  if (!bucketName) {
+    logger.debug('No Airnode S3 bucket found');
+    return null;
+  }
+
+  const goBucketLocation = await go(() => s3.getBucketLocation({ Bucket: bucketName }).promise());
+  if (!goBucketLocation.success) {
+    throw new Error(`Failed to get location for bucket '${bucketName}': ${goBucketLocation.error}`);
+  }
+
+  let region = goBucketLocation.data.LocationConstraint;
+  // The `EU` option is listed as a possible one in the documentation
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getBucketLocation-property
+  if (isNil(region) || region === 'EU') {
+    throw new Error(`Unknown bucket region '${region}'`);
+  }
+  // The documentation says that for buckets in the `us-east-1` region the value of `LocationConstraint` is null but it is actually an empty string...
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getBucketLocation-property
+  if (region === '') {
+    region = 'us-east-1';
+  }
+
+  return {
+    name: bucketName,
+    region,
+  };
 };
 
 export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
-  const s3 = initializeS3Service(cloudProvider);
+  const s3 = initializeS3Service();
   const bucketName = generateBucketName();
 
-  logger.debug(`Creating S3 bucket '${bucketName}'`);
-  const goCreate = await go(() => s3.createBucket({ Bucket: bucketName }).promise());
+  let createParams: AWS.S3.CreateBucketRequest = { Bucket: bucketName };
+  // If the region is `us-east-1` the configuration must be empty...
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createBucket-property
+  if (cloudProvider.region !== 'us-east-1') {
+    createParams = { ...createParams, CreateBucketConfiguration: { LocationConstraint: cloudProvider.region } };
+  }
+
+  logger.debug(`Creating S3 bucket '${bucketName}' in '${cloudProvider.region}'`);
+  const goCreate = await go(() => s3.createBucket(createParams).promise());
   if (!goCreate.success) {
     throw new Error(`Failed to create an S3 bucket: ${goCreate.error}`);
   }
@@ -83,11 +116,14 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
     );
   }
 
-  return bucketName;
+  return {
+    name: bucketName,
+    region: cloudProvider.region,
+  };
 };
 
-export const getBucketDirectoryStructure = async (cloudProvider: AwsCloudProvider, bucketName: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getBucketDirectoryStructure = async (bucketName: string) => {
+  const s3 = initializeS3Service();
 
   let paths: string[] = [];
   let truncated = true;
@@ -112,13 +148,8 @@ export const getBucketDirectoryStructure = async (cloudProvider: AwsCloudProvide
   return translatePathsToDirectoryStructure(paths);
 };
 
-export const storeFileToBucket = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  bucketFilePath: string,
-  filePath: string
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const storeFileToBucket = async (bucketName: string, bucketFilePath: string, filePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to S3 bucket '${bucketName}'`);
   const goPut = await go(() =>
@@ -131,8 +162,8 @@ export const storeFileToBucket = async (
   }
 };
 
-export const getFileFromBucket = async (cloudProvider: AwsCloudProvider, bucketName: string, filePath: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const getFileFromBucket = async (bucketName: string, filePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Fetching file '${filePath}' from S3 bucket '${bucketName}'`);
   const goGet = await go(() => s3.getObject({ Bucket: bucketName, Key: filePath }).promise());
@@ -146,13 +177,8 @@ export const getFileFromBucket = async (cloudProvider: AwsCloudProvider, bucketN
   return goGet.data.Body.toString('utf-8');
 };
 
-export const copyFileInBucket = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  fromFilePath: string,
-  toFilePath: string
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const copyFileInBucket = async (bucketName: string, fromFilePath: string, toFilePath: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Copying file '${fromFilePath}' to file '${toFilePath}' within S3 bucket '${bucketName}'`);
   const goCopy = await go(() =>
@@ -176,12 +202,8 @@ const gatherBucketKeys = (directory: Directory): string[] => [
   ),
 ];
 
-export const deleteBucketDirectory = async (
-  cloudProvider: AwsCloudProvider,
-  bucketName: string,
-  directory: Directory
-) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const deleteBucketDirectory = async (bucketName: string, directory: Directory) => {
+  const s3 = initializeS3Service();
 
   const bucketKeys = gatherBucketKeys(directory);
   logger.debug(`Deleting files from S3 bucket '${bucketName}': ${JSON.stringify(bucketKeys)}`);
@@ -195,8 +217,8 @@ export const deleteBucketDirectory = async (
   }
 };
 
-export const deleteBucket = async (cloudProvider: AwsCloudProvider, bucketName: string) => {
-  const s3 = initializeS3Service(cloudProvider);
+export const deleteBucket = async (bucketName: string) => {
+  const s3 = initializeS3Service();
 
   logger.debug(`Deleting S3 bucket '${bucketName}'`);
   const goDelete = await go(() => s3.deleteBucket({ Bucket: bucketName }).promise());
