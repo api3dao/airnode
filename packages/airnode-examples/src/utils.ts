@@ -16,6 +16,9 @@ export interface IntegrationInfo {
   mnemonic: string;
   providerUrl: string;
   gcpProjectId?: string;
+  crossChainNetwork?: typeof supportedNetworks[number] | 'localhost';
+  crossChainProviderUrl?: string;
+  crossChainMnemonic?: string;
 }
 
 /**

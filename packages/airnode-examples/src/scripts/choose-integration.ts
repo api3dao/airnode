@@ -9,6 +9,7 @@ import {
   IntegrationInfo,
   promptQuestions,
   runAndHandleErrors,
+  SameOrCrossChain,
   supportedNetworks,
   writeAddressToDeploymentsFile,
 } from '../';
@@ -75,23 +76,70 @@ const questions: PromptObject[] = [
     name: 'providerUrl',
     message: 'Enter a provider URL',
     initial: (_prev, values) => {
-      // Hardhat network runs by default run on http://127.0.0.1:8545/
-
-      const getExamplePocketNetwork = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
-
-      switch (values.network as IntegrationInfo['network']) {
-        case 'localhost':
-          return 'http://127.0.0.1:8545/';
-        case 'goerli':
-          return getExamplePocketNetwork(values.network);
-        case 'polygon-testnet':
-          return `https://polygon-mumbai.g.alchemy.com/v2/`;
-        case 'sepolia':
-          return 'https://sepolia.infura.io/v3/<INFURA_ID>';
-      }
+      return defaultProviderUrl(values.network);
+    },
+  },
+  {
+    // Ask this only for the cross-chain authorizer integration
+    type: (_prev, values) => {
+      return values.integration === 'coingecko-cross-chain-authorizer' ? 'select' : null;
+    },
+    name: 'crossChainNetwork',
+    message: 'Select second (cross-chain) blockchain network',
+    choices: (_prev, values) => {
+      const options = supportedNetworks.map(createCliOption);
+      // Only allow running on localhost if running Airnode locally
+      if (values.airnodeType === 'local') options.push(createCliOption('localhost'));
+      return options;
+    },
+  },
+  {
+    // Ask this only for the cross-chain authorizer integration
+    type: (_prev, values) => {
+      return values.integration === 'coingecko-cross-chain-authorizer' ? 'text' : null;
+    },
+    name: 'crossChainMnemonic',
+    message: [
+      'Since you chose a testnet network, we need an account with testnet funds to connect to the blockchain.',
+      '',
+      'IMPORTANT: DO NOT ENTER A MNEMONIC LINKED WITH MAINNET ACCOUNTS!!!',
+      '',
+      'Enter the testnet mnemonic phrase',
+    ].join('\n'),
+    initial: (_prev, values) =>
+      // The default hardhat mnemonic. See: https://hardhat.org/hardhat-network/reference/#config
+      values.network === 'localhost' ? 'test test test test test test test test test test test junk' : '',
+  },
+  {
+    // Ask this only for the cross-chain authorizer integration
+    type: (_prev, values) => {
+      return values.integration === 'coingecko-cross-chain-authorizer' ? 'text' : null;
+    },
+    name: 'crossChainProviderUrl',
+    message: 'Enter a provider URL for the second (cross-chain) network',
+    initial: (_prev, values) => {
+      return defaultProviderUrl(values.network);
     },
   },
 ];
+
+const defaultProviderUrl = (network: string): string => {
+  const getExamplePocketNetwork = (name: string) => `https://eth-${name}.gateway.pokt.network/v1/lb/<APP_ID>`;
+
+  switch (network as IntegrationInfo['network']) {
+    case 'localhost':
+      // Hardhat network default
+      return 'http://127.0.0.1:8545/';
+    case 'goerli':
+      return getExamplePocketNetwork(network);
+    case 'polygon-testnet':
+      return `https://polygon-mumbai.g.alchemy.com/v2/`;
+    case 'sepolia':
+      return 'https://sepolia.infura.io/v3/<INFURA_ID>';
+    default:
+      return getExamplePocketNetwork(network);
+  }
+};
 
 /**
  * Ask the user for the integration choice and return them as an object.
@@ -134,7 +182,11 @@ const main = async () => {
   // save API3-deployed AirnodeRrpV0 contract address for networks other than localhost
   if (integration.network !== 'localhost') {
     const airnodeAddress = getExistingAirnodeRrpV0(integration.network);
-    writeAddressToDeploymentsFile('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol', airnodeAddress);
+    writeAddressToDeploymentsFile(
+      '@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol',
+      airnodeAddress,
+      SameOrCrossChain.same
+    );
   }
 };
 
