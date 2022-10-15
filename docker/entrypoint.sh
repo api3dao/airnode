@@ -18,4 +18,5 @@ fi
 yarn bootstrap
 yarn build
 
+export NODE_OPTIONS="--unhandled-rejections=throw"
 yarn ts-node docker/scripts/prepare-containers.ts "$@"
