@@ -4,7 +4,20 @@ import { logger } from '@api3/airnode-utilities';
 
 export const runCommand = (command: string, options?: ExecSyncOptions) => {
   logger.log(`Running command: '${command}'${options ? ` with options ${JSON.stringify(options)}` : ''}`);
-  return execSync(command, options);
+  try {
+    return execSync(command, options);
+  } catch (e) {
+    // Thrown Error object contains the entire result from child_process.spawnSync()
+    const err = e as any;
+    throw new Error(
+      [
+        ``,
+        `Command failed with non-zero status code: ${err.status}`,
+        `Stderr: ${err.stderr.toString().trim()}.`,
+        `Stdout: ${err.stdout.toString().trim()}.`,
+      ].join('\n')
+    );
+  }
 };
 
 // Taken from https://github.com/sindresorhus/is-docker

@@ -4,4 +4,4 @@
 '@api3/airnode-node': minor
 ---
 
-Throw on docker build error
+Catch and print docker build errors
