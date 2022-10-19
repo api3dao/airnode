@@ -16,7 +16,12 @@ const main = async () => {
     const rawSecrets = readFileSync(secretsPath).toString();
     writeFileSync(
       secretsPath,
-      rawSecrets.replace('PROVIDER_URL=http://127.0.0.1:8545/', 'PROVIDER_URL=http://host.docker.internal:8545')
+      rawSecrets
+        .replace('PROVIDER_URL=http://127.0.0.1:8545/', 'PROVIDER_URL=http://host.docker.internal:8545')
+        .replace(
+          'CROSS_CHAIN_PROVIDER_URL=http://127.0.0.1:8545/',
+          'CROSS_CHAIN_PROVIDER_URL=http://host.docker.internal:8545'
+        )
     );
   }
 };

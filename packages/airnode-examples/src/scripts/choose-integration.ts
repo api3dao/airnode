@@ -118,7 +118,7 @@ const questions: PromptObject[] = [
     name: 'crossChainProviderUrl',
     message: 'Enter a provider URL for the second (cross-chain) network',
     initial: (_prev, values) => {
-      return defaultProviderUrl(values.network);
+      return defaultProviderUrl(values.crossChainNetwork);
     },
   },
 ];

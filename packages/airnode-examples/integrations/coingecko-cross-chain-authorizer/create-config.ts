@@ -1,4 +1,5 @@
 import { Config } from '@api3/airnode-node';
+import { SameOrCrossChain } from '../../src';
 import {
   createCloudProviderConfiguration,
   createNodeVersion,
@@ -17,12 +18,12 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           {
             requesterEndpointAuthorizers: ['0xE2E1111111111111111111111111111111111111'],
             chainType: 'evm',
-            chainId: await getChainId(generateExampleFile),
+            chainId: await getChainId(generateExampleFile, SameOrCrossChain.cross),
             contracts: {
-              AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile),
+              AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile, SameOrCrossChain.cross),
             },
             chainProvider: {
-              url: '${PROVIDER_URL}',
+              url: '${CROSS_CHAIN_PROVIDER_URL}',
             },
           },
         ],
