@@ -11,6 +11,8 @@ import {
 import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList } from '../../test/fixtures';
 import { Directory } from '../utils/infrastructure';
 
+const bucketName = 'airnode-aabbccdd0011';
+
 const mockFile = {
   download: jest.fn(),
   copy: jest.fn(),
@@ -26,6 +28,8 @@ const mockBucket = {
   getFiles: jest.fn(),
   upload: jest.fn(),
   delete: jest.fn(),
+  getMetadata: jest.fn(),
+  name: bucketName,
 };
 
 const mockStorage = {
@@ -47,6 +51,7 @@ const gcsStorageSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage'
 const gcsBucketSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket;
 const gcsFileSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().file;
 const gcsGetBucketsSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().getBuckets;
+const gcsGetMetadataSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().getMetadata;
 const gcsCreateBucketSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().createBucket;
 const gcsSetMetadataSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().setMetadata;
 const gcsSetPolicySpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().iam.setPolicy;
@@ -64,47 +69,62 @@ const cloudProvider = {
   projectId: 'airnode-test-project-1234',
   disableConcurrencyReservations: false,
 };
-const bucketName = 'airnode-aabbccdd0011';
+const bucket = {
+  name: bucketName,
+  region: 'us-east1',
+};
 const fileContent = 'file content';
 const filePath = '/path/to/config.json';
-const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204/config.json';
+const bucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json';
 const gcsErrorMessage = 'Unexpected GCS error';
 const gcsError = new Error(gcsErrorMessage);
 
 describe('getAirnodeBucket', () => {
-  it('returns a name of Airnode GCS bucket', async () => {
-    gcsGetBucketsSpy.mockImplementation(() => [[{ name: bucketName }]]);
+  it('returns Airnode GCS bucket', async () => {
+    gcsGetBucketsSpy.mockImplementation(() => [[mockBucket]]);
+    gcsGetMetadataSpy.mockImplementation(() => [{ location: 'us-east1' }]);
 
-    const fetchedBucketName = await getAirnodeBucket(cloudProvider);
-    expect(fetchedBucketName).toEqual(bucketName);
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    const fetchedBucketName = await getAirnodeBucket();
+    expect(fetchedBucketName).toEqual(bucket);
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
+    expect(gcsGetMetadataSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`ignores incorrect Airnode GCS bucket names`, async () => {
     gcsGetBucketsSpy.mockImplementation(() => [[{ name: 'airnode-123456' }]]);
 
-    const fetchedBucketName = await getAirnodeBucket(cloudProvider);
+    const fetchedBucketName = await getAirnodeBucket();
     expect(fetchedBucketName).toBeNull();
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if can't fetch the list of GCS buckets`, async () => {
     gcsGetBucketsSpy.mockRejectedValue(gcsError);
 
-    await expect(getAirnodeBucket(cloudProvider)).rejects.toThrow(
+    await expect(getAirnodeBucket()).rejects.toThrow(
       new Error(`Failed to list GCS buckets: Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it(`throws an error if can't fetch the bucket's metadata`, async () => {
+    gcsGetBucketsSpy.mockImplementation(() => [[mockBucket]]);
+    gcsGetMetadataSpy.mockRejectedValue(gcsError);
+
+    await expect(getAirnodeBucket()).rejects.toThrow(
+      new Error(`Failed to fetch metadata for bucket '${bucketName}': Error: ${gcsErrorMessage}`)
+    );
+    expect(gcsGetMetadataSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if there are more then one Airnode GCS buckets`, async () => {
     const listBucketsResponse = [[{ name: bucketName }, { name: 'airnode-eeff99887766' }]];
     gcsGetBucketsSpy.mockImplementation(() => listBucketsResponse);
 
-    await expect(getAirnodeBucket(cloudProvider)).rejects.toThrow(
+    await expect(getAirnodeBucket()).rejects.toThrow(
       new Error(`Multiple Airnode buckets found, stopping. Buckets: ${JSON.stringify(listBucketsResponse[0])}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -119,7 +139,7 @@ describe('createAirnodeBucket', () => {
   it('creates GCS Airnode bucket', async () => {
     await createAirnodeBucket(cloudProvider);
 
-    expect(gcsCreateBucketSpy).toHaveBeenCalledWith(bucketName);
+    expect(gcsCreateBucketSpy).toHaveBeenCalledWith(bucketName, { location: cloudProvider.region });
     expect(gcsSetMetadataSpy).toHaveBeenCalledWith({
       iamConfiguration: { uniformBucketLevelAccess: { enabled: true }, publicAccessPrevention: 'enforced' },
     });
@@ -143,7 +163,7 @@ describe('createAirnodeBucket', () => {
         },
       ],
     });
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if can't create a bucket`, async () => {
@@ -152,7 +172,7 @@ describe('createAirnodeBucket', () => {
     await expect(createAirnodeBucket(cloudProvider)).rejects.toThrow(
       new Error(`Failed to create an GCS bucket: Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if can't set uniform bucket-level access`, async () => {
@@ -161,7 +181,7 @@ describe('createAirnodeBucket', () => {
     await expect(createAirnodeBucket(cloudProvider)).rejects.toThrow(
       new Error(`Failed to setup a uniform bucket-level access for bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 
   it(`throws an error if can't set IAM policy`, async () => {
@@ -170,7 +190,7 @@ describe('createAirnodeBucket', () => {
     await expect(createAirnodeBucket(cloudProvider)).rejects.toThrow(
       new Error(`Failed to setup IAM policy for bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -178,20 +198,20 @@ describe('getBucketDirectoryStructure', () => {
   it('returns bucket directory structure', async () => {
     gcsGetFilesSpy.mockImplementation(() => [mockBucketDirectoryStructureList.map((path) => ({ name: path }))]);
 
-    const directoryStructure = await getBucketDirectoryStructure(cloudProvider, bucketName);
+    const directoryStructure = await getBucketDirectoryStructure(bucketName);
     expect(directoryStructure).toEqual(mockBucketDirectoryStructure);
     expect(gcsGetFilesSpy).toHaveBeenCalled();
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 
   it(`throws an error if can't list bucket content`, async () => {
     gcsGetFilesSpy.mockRejectedValue(gcsError);
 
-    await expect(getBucketDirectoryStructure(cloudProvider, bucketName)).rejects.toThrow(
+    await expect(getBucketDirectoryStructure(bucketName)).rejects.toThrow(
       new Error(`Failed to list content of bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 });
@@ -200,19 +220,19 @@ describe('storeFileToBucket', () => {
   it('stores file in GCS bucket', async () => {
     gcsUploadSpy.mockImplementation(() => {});
 
-    await storeFileToBucket(cloudProvider, bucketName, bucketFilePath, filePath);
+    await storeFileToBucket(bucketName, bucketFilePath, filePath);
     expect(gcsUploadSpy).toHaveBeenCalled();
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 
   it(`throws an error if can't store file in bucket`, async () => {
     gcsUploadSpy.mockRejectedValue(gcsError);
 
-    await expect(storeFileToBucket(cloudProvider, bucketName, bucketFilePath, filePath)).rejects.toThrow(
+    await expect(storeFileToBucket(bucketName, bucketFilePath, filePath)).rejects.toThrow(
       new Error(`Failed to store file '${filePath}' to GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 });
@@ -221,10 +241,10 @@ describe('getFileFromBucket', () => {
   it('fetches file from GCS bucket', async () => {
     gcsDownloadSpy.mockImplementation(() => [fileContent]);
 
-    const fetchedFileContent = await getFileFromBucket(cloudProvider, bucketName, bucketFilePath);
+    const fetchedFileContent = await getFileFromBucket(bucketName, bucketFilePath);
     expect(fetchedFileContent).toEqual(fileContent);
     expect(gcsDownloadSpy).toHaveBeenCalled();
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     expect(gcsFileSpy).toHaveBeenCalledWith(bucketFilePath);
   });
@@ -232,24 +252,24 @@ describe('getFileFromBucket', () => {
   it(`throw an error if can't fetch file from bucket`, async () => {
     gcsDownloadSpy.mockRejectedValue(gcsError);
 
-    await expect(getFileFromBucket(cloudProvider, bucketName, bucketFilePath)).rejects.toThrow(
+    await expect(getFileFromBucket(bucketName, bucketFilePath)).rejects.toThrow(
       new Error(`Failed to fetch file '${bucketFilePath}' from GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     expect(gcsFileSpy).toHaveBeenCalledWith(bucketFilePath);
   });
 });
 
 describe('copyFileInBucket', () => {
-  const toBucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662557994/config.json';
+  const toBucketFilePath = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662557994854/config.json';
 
   it('copies file within a bucket', async () => {
     gcsCopySpy.mockImplementation(() => {});
 
-    await copyFileInBucket(cloudProvider, bucketName, bucketFilePath, toBucketFilePath);
+    await copyFileInBucket(bucketName, bucketFilePath, toBucketFilePath);
     expect(gcsCopySpy).toHaveBeenCalledWith(toBucketFilePath);
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     expect(gcsFileSpy).toHaveBeenCalledWith(bucketFilePath);
   });
@@ -257,12 +277,12 @@ describe('copyFileInBucket', () => {
   it(`throw an error if can't copy file within bucket`, async () => {
     gcsCopySpy.mockRejectedValue(gcsError);
 
-    await expect(copyFileInBucket(cloudProvider, bucketName, bucketFilePath, toBucketFilePath)).rejects.toThrow(
+    await expect(copyFileInBucket(bucketName, bucketFilePath, toBucketFilePath)).rejects.toThrow(
       new Error(
         `Failed to copy file '${bucketFilePath}' to file '${toBucketFilePath}' within GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`
       )
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     expect(gcsFileSpy).toHaveBeenCalledWith(bucketFilePath);
   });
@@ -276,11 +296,10 @@ describe('deleteObjects', () => {
     gcsFileDeleteSpy.mockImplementation(() => {});
 
     await deleteBucketDirectory(
-      cloudProvider,
       bucketName,
       mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     bucketKeys.forEach((bucketKey) => {
       expect(gcsFileSpy).toHaveBeenCalledWith(bucketKey);
@@ -293,14 +312,13 @@ describe('deleteObjects', () => {
 
     await expect(
       deleteBucketDirectory(
-        cloudProvider,
         bucketName,
         mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory
       )
     ).rejects.toThrow(
       new Error(`Failed to delete bucket file '${bucketKeys.reverse()[0]}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
     expect(gcsFileSpy).toHaveBeenCalledWith(bucketFilePath);
   });
@@ -310,19 +328,19 @@ describe('deleteBucket', () => {
   it('deletes an empty GCS bucket', async () => {
     gcsBucketDeleteSpy.mockImplementation(() => {});
 
-    await deleteBucket(cloudProvider, bucketName);
+    await deleteBucket(bucketName);
     expect(gcsBucketDeleteSpy).toHaveBeenCalledWith();
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 
   it(`throw an error if can't delete files from bucket`, async () => {
     gcsBucketDeleteSpy.mockRejectedValue(gcsError);
 
-    await expect(deleteBucket(cloudProvider, bucketName)).rejects.toThrow(
+    await expect(deleteBucket(bucketName)).rejects.toThrow(
       new Error(`Failed to delete GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
-    expect(gcsStorageSpy).toHaveBeenCalledWith({ projectId: cloudProvider.projectId });
+    expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
   });
 });

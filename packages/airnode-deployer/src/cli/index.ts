@@ -1,13 +1,15 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
+import uniq from 'lodash/uniq';
+import sortBy from 'lodash/sortBy';
+import { availableCloudProviders, CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
-import { removeAirnode } from '../infrastructure';
+import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -45,11 +47,12 @@ async function runCommand(command: () => Promise<void>) {
 
 const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
+  'list --cloud-providers gcp',
+  'info 5bbcd317',
   'remove-with-receipt -r config/receipt.json',
   'remove-with-deployment-details --airnode-address 0x6abEdc0A4d1A79eD62160396456c95C5607369D3 --stage dev --cloud-provider aws --region us-east-1',
 ];
 
-drawHeader();
 yargs(hideBin(process.argv))
   .option('debug', {
     description: 'Run in debug mode',
@@ -86,6 +89,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      drawHeader();
+
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
@@ -103,6 +108,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      drawHeader();
+
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
@@ -111,58 +118,69 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'remove-with-deployment-details',
-    'Removes a deployed Airnode instance using the Airnode short address and cloud provider specifications',
+    'remove <deployment-id>',
+    'Removes a deployed Airnode instance',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
+        type: 'string',
+        demandOption: true,
+      });
+    },
+    async (args) => {
+      drawHeader();
+
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      await runCommand(() =>
+        // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
+        removeAirnode(args.deploymentId as string)
+      );
+      return;
+    }
+  )
+  .command(
+    'list',
+    'Lists deployed Airnode instances',
     {
-      'airnode-address': {
-        alias: 'a',
-        description: 'Airnode Address',
-        type: 'string',
-        demandOption: true,
-      },
-      stage: {
-        alias: 's',
-        description: 'Stage (environment)',
-        type: 'string',
-        demandOption: true,
-      },
-      'cloud-provider': {
+      'cloud-providers': {
         alias: 'c',
-        description: 'Cloud provider',
-        choices: ['aws', 'gcp'] as const,
-        demandOption: true,
-      },
-      region: {
-        alias: 'e',
-        description: 'Region',
-        type: 'string',
-        demandOption: true,
-      },
-      'project-id': {
-        alias: 'p',
-        description: 'Project ID (required for GCP only)',
-        type: 'string',
+        description: 'Cloud providers to list Airnodes from',
+        default: availableCloudProviders,
+        choices: availableCloudProviders,
+        type: 'array',
+        coerce: (option: CloudProvider['type'][]) => sortBy(uniq(option)),
       },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
-      if (args['cloud-provider'] === 'gcp') {
-        if (!args['project-id']) {
-          // Throwing strings to prevent yargs from showing error stack trace
-          throw `Missing required argument '--project-id' for removing a GCP deployment`;
-        }
-      }
+      await listAirnodes(args.cloudProviders);
+    }
+  )
+  .command(
+    'info <deployment-id>',
+    'Displays info about deployed Airnode',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
+        type: 'string',
+        demandOption: true,
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
-      await runCommand(() =>
-        removeAirnode(args['airnode-address'], args.stage, {
-          type: args['cloud-provider'],
-          region: args.region,
-          projectId: args['project-id'],
-        } as CloudProvider)
-      );
-      return;
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
+      const goDeploymentInfo = await go(() => deploymentInfo(args.deploymentId as string));
+      if (!goDeploymentInfo.success) {
+        logger.fail(goDeploymentInfo.error.message);
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
     }
   )
   .example(cliExamples.map((line) => [`$0 ${line}\n`]))

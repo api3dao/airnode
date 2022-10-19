@@ -1,5 +1,19 @@
 # @api3/airnode-protocol
 
+## 0.9.0
+
+### Minor Changes
+
+- 3ddaf16b: Deployed the protocol contracts on Sepolia undeterministically
+- aa773543: Remove references to deprecated ethereum testnets
+
+### Patch Changes
+
+- aaa6db11: Update protocol tests fulfill data fixtures
+- 29f144b6: Remove unnecessary async/await, enforce it via eslint
+- Updated dependencies [29f144b6]
+  - @api3/airnode-utilities@0.9.0
+
 ## 0.8.0
 
 ### Minor Changes

@@ -3,18 +3,17 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": [],
-        "crossChainRequesterAuthorizers": []
+        "requesterEndpointAuthorizers": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}
       },
       "contracts": {
-        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
-      "id": "31337",
+      "id": "4",
       "providers": {
-        "exampleProvider": {
+        "rinkeby": {
           "url": "${PROVIDER_URL}"
         }
       },
@@ -22,17 +21,6 @@
       "options": {
         "fulfillmentGasLimit": 500000,
         "gasPriceOracle": [
-          {
-            "gasPriceStrategy": "latestBlockPercentileGasPrice",
-            "percentile": 60,
-            "minTransactionCount": 20,
-            "pastToCompareInBlocks": 20,
-            "maxDeviationMultiplier": 2
-          },
-          {
-            "gasPriceStrategy": "providerRecommendedGasPrice",
-            "recommendedGasPriceMultiplier": 1.2
-          },
           {
             "gasPriceStrategy": "constantGasPrice",
             "gasPrice": {
@@ -45,15 +33,18 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": {
-      "type": "local"
-    },
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
-      "enabled": false
+      "enabled": true,
+      "apiKey": "${HEARTBEAT_API_KEY}",
+      "id": "${HEARTBEAT_ID}",
+      "url": "${HEARTBEAT_URL}"
     },
     "httpGateway": {
-      "enabled": false
+      "enabled": true,
+      "apiKey": "${HTTP_GATEWAY_API_KEY}",
+      "maxConcurrency": 20,
+      "corsOrigins": []
     },
     "httpSignedDataGateway": {
       "enabled": true,
@@ -63,7 +54,13 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.9.0",
+    "nodeVersion": "0.8.0",
+    "cloudProvider": {
+      "type": "gcp",
+      "region": "us-east1",
+      "projectId": "airnode-test-123456",
+      "disableConcurrencyReservations": false
+    },
     "stage": "dev"
   },
   "triggers": {
@@ -75,7 +72,13 @@
         "cacheResponses": false
       }
     ],
-    "http": [],
+    "http": [
+      {
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
+      }
+    ],
     "httpSignedData": [
       {
         "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",

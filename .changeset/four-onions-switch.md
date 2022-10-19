@@ -3,4 +3,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Store deployments in a common bucket
+Allow users to remove the deployment based on the deployment ID

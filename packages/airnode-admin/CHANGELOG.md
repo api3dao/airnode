@@ -1,5 +1,23 @@
 # @api3/airnode-admin
 
+## 0.9.0
+
+### Patch Changes
+
+- aaa6db11: Update protocol tests fulfill data fixtures
+- 29f144b6: Remove unnecessary async/await, enforce it via eslint
+- Updated dependencies [aaa6db11]
+- Updated dependencies [3ddaf16b]
+- Updated dependencies [4b3db2be]
+- Updated dependencies [488a717e]
+- Updated dependencies [6327dd7d]
+- Updated dependencies [aa773543]
+- Updated dependencies [29f144b6]
+  - @api3/airnode-protocol@0.9.0
+  - @api3/airnode-validator@0.9.0
+  - @api3/airnode-utilities@0.9.0
+  - @api3/airnode-abi@0.9.0
+
 ## 0.8.0
 
 ### Minor Changes

@@ -20,7 +20,7 @@ export const createCloudProviderConfiguration = (generateExampleFile: boolean): 
       return {
         type: airnodeType,
         region: 'us-east-1',
-        disableConcurrencyReservations: false,
+        disableConcurrencyReservations: true,
       };
     case 'local':
       return {
@@ -31,7 +31,7 @@ export const createCloudProviderConfiguration = (generateExampleFile: boolean): 
         type: airnodeType,
         region: 'us-east1',
         projectId: integrationInfo.gcpProjectId!,
-        disableConcurrencyReservations: false,
+        disableConcurrencyReservations: true,
       };
     }
   }

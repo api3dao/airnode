@@ -1,3 +1,4 @@
+import shuffle from 'lodash/shuffle';
 import {
   BUCKET_NAME_REGEX,
   formatTerraformArguments,
@@ -6,8 +7,9 @@ import {
   getAddressDirectory,
   getStageDirectory,
   Directory,
+  deploymentComparator,
 } from './infrastructure';
-import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList } from '../../test/fixtures';
+import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList, mockDeployments } from '../../test/fixtures';
 
 describe('formatTerraformArguments', () => {
   it(`prepends string arguments with '-'`, () => {
@@ -115,5 +117,13 @@ describe('getStageDirectory', () => {
         `Invalid directory structure, '0x04f6CAACE10b89d23Ad0ce0B2ceDb6DF8d2Ec043/devEmpty/' should not be empty`
       )
     );
+  });
+});
+
+describe('deploymentComparator', () => {
+  it('sorts the deployment correctly', () => {
+    const deployments = shuffle(mockDeployments);
+
+    expect(deployments.sort(deploymentComparator)).toEqual(mockDeployments);
   });
 });
