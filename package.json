@@ -99,7 +99,7 @@
     "eslint-plugin-jest": "^27.0.4",
     "fast-glob": "^3.2.12",
     "husky": "^8.0.1",
-    "lerna": "^5.5.2",
+    "lerna": "^6.0.1",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-dev.23",
     "solhint": "^3.3.7",
