@@ -4,12 +4,19 @@ import { ethers } from 'ethers';
 import { parse } from 'dotenv';
 import { readIntegrationInfo, removeExtension } from './utils';
 
+export enum SameOrCrossChain {
+  same,
+  cross,
+}
+
 /**
  * @returns The ethers provider connected to the provider URL specified in the "integration-info.json".
  */
-export const getProvider = () => {
+export const getProvider = (chain = SameOrCrossChain.same) => {
   const integrationInfo = readIntegrationInfo();
-  const provider = new ethers.providers.JsonRpcProvider(integrationInfo.providerUrl);
+  const providerUrl =
+    chain === SameOrCrossChain.cross ? integrationInfo.crossChainProviderUrl! : integrationInfo.providerUrl;
+  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
   return provider;
 };
 
@@ -18,10 +25,11 @@ export const getProvider = () => {
  *
  * @returns The connected wallet.
  */
-export const getUserWallet = () => {
+export const getUserWallet = (chain = SameOrCrossChain.same) => {
   const integrationInfo = readIntegrationInfo();
-  const provider = getProvider();
-  return ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);
+  const provider = getProvider(chain);
+  const mnemonic = chain === SameOrCrossChain.cross ? integrationInfo.crossChainMnemonic! : integrationInfo.mnemonic;
+  return ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 };
 
 /**
@@ -57,13 +65,18 @@ const getArtifact = (artifactsFolderPath: string) => {
  * @param artifactsFolderPath
  * @param address
  */
-export const writeAddressToDeploymentsFile = (artifactsFolderPath: string, address: string) => {
+export const writeAddressToDeploymentsFile = (
+  artifactsFolderPath: string,
+  address: string,
+  chain: SameOrCrossChain
+) => {
   // Make sure the deployments folder exist
   const deploymentsPath = join(__dirname, '../deployments');
   if (!existsSync(deploymentsPath)) mkdirSync(deploymentsPath);
 
   // Try to load the existing deployments file for this network - we want to preserve deployments of other contracts
-  const network = readIntegrationInfo().network;
+  const network =
+    chain === SameOrCrossChain.cross ? readIntegrationInfo().crossChainNetwork! : readIntegrationInfo().network;
   const deploymentPath = join(deploymentsPath, network + '.json');
   let deployment: any = {};
   if (existsSync(deploymentPath)) deployment = JSON.parse(readFileSync(deploymentPath).toString());
@@ -82,15 +95,15 @@ export const writeAddressToDeploymentsFile = (artifactsFolderPath: string, addre
  * @param args Arguments for the contract constructor to be deployed
  * @returns The deployed contract
  */
-export const deployContract = async (artifactsFolderPath: string, args: any[] = []) => {
+export const deployContract = async (artifactsFolderPath: string, args: any[] = [], chain = SameOrCrossChain.same) => {
   const artifact = getArtifact(artifactsFolderPath);
 
   // Deploy the contract
-  const contractFactory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, await getUserWallet());
+  const contractFactory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, await getUserWallet(chain));
   const contract = await contractFactory.deploy(...args);
   await contract.deployed();
 
-  writeAddressToDeploymentsFile(artifactsFolderPath, contract.address);
+  writeAddressToDeploymentsFile(artifactsFolderPath, contract.address, chain);
 
   return contract;
 };
@@ -101,7 +114,7 @@ export const deployContract = async (artifactsFolderPath: string, args: any[] = 
  * @param artifactsFolderPath
  * @returns The deployed contract
  */
-export const getDeployedContract = async (artifactsFolderPath: string) => {
+export const getDeployedContract = async (artifactsFolderPath: string, chain = SameOrCrossChain.same) => {
   const artifact = getArtifact(artifactsFolderPath);
 
   const network = readIntegrationInfo().network;
@@ -109,13 +122,13 @@ export const getDeployedContract = async (artifactsFolderPath: string) => {
   const deployment = JSON.parse(readFileSync(deploymentPath).toString());
   const deploymentName = removeExtension(artifactsFolderPath);
 
-  return new ethers.Contract(deployment[deploymentName], artifact.abi, await getUserWallet());
+  return new ethers.Contract(deployment[deploymentName], artifact.abi, await getUserWallet(chain));
 };
 
 /**
  * @returns The chain id of the chosen network
  */
-export const readChainId = async () => {
-  const network = await getProvider().getNetwork();
+export const readChainId = async (chain = SameOrCrossChain.same) => {
+  const network = await getProvider(chain).getNetwork();
   return network.chainId;
 };

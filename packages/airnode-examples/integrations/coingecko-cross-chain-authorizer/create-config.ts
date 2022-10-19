@@ -1,4 +1,5 @@
 import { Config } from '@api3/airnode-node';
+import { SameOrCrossChain } from '../../src';
 import {
   createCloudProviderConfiguration,
   createNodeVersion,
@@ -12,8 +13,20 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     {
       maxConcurrency: 100,
       authorizers: {
-        requesterEndpointAuthorizers: [],
-        crossChainRequesterAuthorizers: [],
+        requesterEndpointAuthorizers: ['0xE2E0000000000000000000000000000000000000'],
+        crossChainRequesterAuthorizers: [
+          {
+            requesterEndpointAuthorizers: ['0xE2E1111111111111111111111111111111111111'],
+            chainType: 'evm',
+            chainId: await getChainId(generateExampleFile, SameOrCrossChain.cross),
+            contracts: {
+              AirnodeRrp: await getAirnodeRrpAddress(generateExampleFile, SameOrCrossChain.cross),
+            },
+            chainProvider: {
+              url: '${CROSS_CHAIN_PROVIDER_URL}',
+            },
+          },
+        ],
       },
       authorizations: {
         requesterEndpointAuthorizations: {},
@@ -73,9 +86,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   triggers: {
     rrp: [
       {
-        endpointId: '0x642598611f0dcbe389079bf555108513e3e8a15991887bb61126b7200f13c666',
-        oisTitle: 'CoinGecko history data request',
-        endpointName: 'coinHistoryData',
+        endpointId: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
         cacheResponses: false,
       },
     ],
@@ -86,7 +99,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   ois: [
     {
       oisFormat: '1.2.0',
-      title: 'CoinGecko history data request',
+      title: 'CoinGecko basic request',
       version: '1.0.0',
       apiSpecifications: {
         servers: [
@@ -95,7 +108,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           },
         ],
         paths: {
-          '/coins/{id}/history': {
+          '/coins/{id}': {
             get: {
               parameters: [
                 {
@@ -104,11 +117,27 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
                 },
                 {
                   in: 'query',
-                  name: 'date',
+                  name: 'localization',
                 },
                 {
                   in: 'query',
-                  name: 'localization',
+                  name: 'tickers',
+                },
+                {
+                  in: 'query',
+                  name: 'market_data',
+                },
+                {
+                  in: 'query',
+                  name: 'community_data',
+                },
+                {
+                  in: 'query',
+                  name: 'developer_data',
+                },
+                {
+                  in: 'query',
+                  name: 'sparkline',
                 },
               ],
             },
@@ -121,16 +150,51 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       },
       endpoints: [
         {
-          name: 'coinHistoryData',
+          name: 'coinMarketData',
           operation: {
             method: 'get',
-            path: '/coins/{id}/history',
+            path: '/coins/{id}',
           },
           fixedOperationParameters: [
             {
               operationParameter: {
                 in: 'query',
                 name: 'localization',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'tickers',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'market_data',
+              },
+              value: 'true',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'community_data',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'developer_data',
+              },
+              value: 'false',
+            },
+            {
+              operationParameter: {
+                in: 'query',
+                name: 'sparkline',
               },
               value: 'false',
             },
@@ -156,30 +220,6 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
                 in: 'path',
                 name: 'id',
               },
-            },
-            {
-              name: 'unixTimestamp',
-              operationParameter: {
-                in: 'query',
-                name: 'date',
-              },
-            },
-          ],
-          preProcessingSpecifications: [
-            {
-              environment: 'Node 14',
-              timeoutMs: 5000,
-              value: `
-                const rawDate = new Date(input.unixTimestamp * 1000);
-                const day = rawDate.getDate().toString().padStart(2, '0');
-                const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
-                const year = rawDate.getFullYear();
-
-                const formattedDate = day + '-' + month + '-' + year;
-                const output = {...input, unixTimestamp: formattedDate};
-
-                console.log(\`[Pre-processing snippet]: Formatted \\\${input.unixTimestamp} to \\\${formattedDate}.\`)
-              `,
             },
           ],
         },

@@ -657,3 +657,45 @@ describe('chainConfigSchema', () => {
     );
   });
 });
+
+describe('authorizers', () => {
+  it('allows cross-chain and same-chain authorizers', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+    const validAuthorizersChainConfig = {
+      ...config.chains[0],
+      authorizers: {
+        requesterEndpointAuthorizers: ['0x1FbDB2315678afecb367f032d93F642f64180aa4'],
+        crossChainRequesterAuthorizers: [
+          {
+            requesterEndpointAuthorizers: ['0x2FbDB2315678afecb367f032d93F642f64180aa5'],
+            chainType: 'evm',
+            chainId: '1',
+            chainProvider: {
+              url: 'http://some.random.url',
+            },
+            contracts: {
+              AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+            },
+          },
+        ],
+      },
+    };
+    expect(() => chainConfigSchema.parse(validAuthorizersChainConfig)).not.toThrow();
+  });
+
+  it('allows cross-chain and same-chain authorizers to be empty', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+    const validAuthorizersChainConfig = {
+      ...config.chains[0],
+      authorizers: {
+        requesterEndpointAuthorizers: [],
+        crossChainRequesterAuthorizers: [],
+      },
+    };
+    expect(() => chainConfigSchema.parse(validAuthorizersChainConfig)).not.toThrow();
+  });
+});

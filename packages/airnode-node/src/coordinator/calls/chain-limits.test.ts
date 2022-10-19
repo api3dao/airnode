@@ -9,6 +9,7 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     maxConcurrency: 100,
     authorizers: {
       requesterEndpointAuthorizers: [],
+      crossChainRequesterAuthorizers: [],
     },
     authorizations: {
       requesterEndpointAuthorizations: {},

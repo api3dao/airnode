@@ -37,7 +37,10 @@ const chainProviderName3 = 'Infura Sepolia';
 const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
 const chains: ChainConfig[] = [
   {
-    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+    authorizers: {
+      requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+      crossChainRequesterAuthorizers: [],
+    },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },
@@ -66,7 +69,7 @@ const chains: ChainConfig[] = [
     },
   },
   {
-    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero], crossChainRequesterAuthorizers: [] },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },
@@ -122,7 +125,10 @@ describe('initialize', () => {
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
             airnodeAddressShort: 'a30ca71',
-            authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+            authorizers: {
+              requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+              crossChainRequesterAuthorizers: [],
+            },
             authorizations: {
               requesterEndpointAuthorizations: {},
             },
@@ -173,7 +179,10 @@ describe('initialize', () => {
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
             airnodeAddressShort: 'a30ca71',
-            authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+            authorizers: {
+              requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+              crossChainRequesterAuthorizers: [],
+            },
             authorizations: {
               requesterEndpointAuthorizations: {},
             },

@@ -7,11 +7,15 @@ const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
   const content = JSON.stringify(
     {
-      integration: 'coingecko',
+      integration: 'coingecko-cross-chain-authorizer',
       airnodeType: 'local',
       network: 'localhost',
       mnemonic: 'test test test test test test test test test test test junk',
       providerUrl: 'http://127.0.0.1:8545/',
+      // cross-chain is the same chain in E2E testing
+      crossChainNetwork: 'localhost',
+      crossChainProviderUrl: 'http://127.0.0.1:8545/',
+      crossChainMnemonic: 'test test test test test test test test test test test junk',
     },
     null,
     2
@@ -26,6 +30,8 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn deploy-rrp');
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
+
+    runCommand('yarn ts-node integrations/coingecko-cross-chain-authorizer/deploy-authorizers-and-update-config');
 
     runCommandInBackground('yarn run-airnode-locally');
 

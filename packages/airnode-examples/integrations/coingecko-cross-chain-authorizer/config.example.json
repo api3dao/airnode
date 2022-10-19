@@ -3,8 +3,20 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": [],
-        "crossChainRequesterAuthorizers": []
+        "requesterEndpointAuthorizers": ["0xE2E0000000000000000000000000000000000000"],
+        "crossChainRequesterAuthorizers": [
+          {
+            "requesterEndpointAuthorizers": ["0xE2E1111111111111111111111111111111111111"],
+            "chainType": "evm",
+            "chainId": "31337",
+            "contracts": {
+              "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+            },
+            "chainProvider": {
+              "url": "${CROSS_CHAIN_PROVIDER_URL}"
+            }
+          }
+        ]
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}
@@ -56,10 +68,7 @@
       "enabled": false
     },
     "httpSignedDataGateway": {
-      "enabled": true,
-      "apiKey": "${HTTP_SIGNED_DATA_GATEWAY_API_KEY}",
-      "maxConcurrency": 20,
-      "corsOrigins": []
+      "enabled": false
     },
     "logFormat": "plain",
     "logLevel": "INFO",
@@ -76,13 +85,7 @@
       }
     ],
     "http": [],
-    "httpSignedData": [
-      {
-        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
-        "oisTitle": "CoinGecko basic request",
-        "endpointName": "coinMarketData"
-      }
-    ]
+    "httpSignedData": []
   },
   "templates": [],
   "ois": [

@@ -15,7 +15,10 @@ describe('create', () => {
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+      authorizers: {
+        requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+        crossChainRequesterAuthorizers: [],
+      },
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -51,7 +54,10 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+        authorizers: {
+          requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+          crossChainRequesterAuthorizers: [],
+        },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },
@@ -105,7 +111,7 @@ describe('create', () => {
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero], crossChainRequesterAuthorizers: [] },
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -143,7 +149,10 @@ describe('create', () => {
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         airnodeAddressShort: 'a30ca71',
-        authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero] },
+        authorizers: {
+          requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+          crossChainRequesterAuthorizers: [],
+        },
         authorizations: {
           requesterEndpointAuthorizations: {},
         },

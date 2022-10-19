@@ -38,6 +38,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         maxConcurrency: 100,
         authorizers: {
           requesterEndpointAuthorizers: [],
+          crossChainRequesterAuthorizers: [],
         },
         authorizations: {
           requesterEndpointAuthorizations: {},

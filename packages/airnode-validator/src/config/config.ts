@@ -162,8 +162,19 @@ export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
 });
 
+export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
+
+export const crossChainRequesterAuthorizerSchema = z.object({
+  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
+  chainType: chainTypeSchema,
+  chainId: z.string(),
+  contracts: chainContractsSchema,
+  chainProvider: providerSchema,
+});
+
 export const chainAuthorizersSchema = z.object({
-  requesterEndpointAuthorizers: z.array(evmAddressSchema),
+  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
+  crossChainRequesterAuthorizers: z.array(crossChainRequesterAuthorizerSchema),
 });
 
 export const maxConcurrencySchema = z.number().int().positive();
@@ -476,6 +487,8 @@ export type LocalOrCloudProvider = SchemaType<typeof localOrCloudProviderSchema>
 export type Providers = SchemaType<typeof providersSchema>;
 export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
+export type CrossChainAuthorizer = SchemaType<typeof crossChainRequesterAuthorizerSchema>;
+export type RequesterEndpointAuthorizers = SchemaType<typeof requesterEndpointAuthorizersSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;

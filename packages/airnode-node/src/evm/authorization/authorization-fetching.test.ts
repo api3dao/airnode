@@ -19,12 +19,10 @@ describe('fetch (authorizations)', () => {
 
   beforeEach(() => {
     mutableFetchOptions = {
-      authorizers: {
-        requesterEndpointAuthorizers: [
-          '0x711c93B32c0D28a5d18feD87434cce11C3e5699B',
-          '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
-        ],
-      },
+      requesterEndpointAuthorizers: [
+        '0x711c93B32c0D28a5d18feD87434cce11C3e5699B',
+        '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
+      ],
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -41,7 +39,7 @@ describe('fetch (authorizations)', () => {
     expect(res).toEqual({});
   });
 
-  it('returns true for all pending requests if authorizers array is empty', async () => {
+  it('returns true for all pending requests if authorizers arrays are empty', async () => {
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
       return fixtures.requests.buildApiCall({
         id: `${n}`,
@@ -52,7 +50,7 @@ describe('fetch (authorizations)', () => {
     });
     const [logs, res] = await authorization.fetch(apiCalls, {
       ...mutableFetchOptions,
-      authorizers: { requesterEndpointAuthorizers: [] },
+      requesterEndpointAuthorizers: [],
     });
 
     expect(logs).toEqual([]);
@@ -257,7 +255,7 @@ describe('fetch (authorizations)', () => {
     });
 
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledWith(
-      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      mutableFetchOptions.requesterEndpointAuthorizers,
       apiCalls[1].airnodeAddress,
       [apiCalls[1].id, apiCalls[2].id],
       [apiCalls[1].endpointId, apiCalls[2].endpointId],
@@ -265,7 +263,7 @@ describe('fetch (authorizations)', () => {
       [apiCalls[1].requesterAddress, apiCalls[2].requesterAddress]
     );
     expect(checkAuthorizationStatusesMock).not.toHaveBeenCalledWith(
-      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      mutableFetchOptions.requesterEndpointAuthorizers,
       apiCalls[0].airnodeAddress,
       [apiCalls[0].id],
       [apiCalls[0].endpointId],
@@ -303,7 +301,7 @@ describe('fetch (authorizations)', () => {
 
     expect(checkAuthorizationStatusesMock).toHaveBeenNthCalledWith(
       1,
-      mutableFetchOptions.authorizers.requesterEndpointAuthorizers,
+      mutableFetchOptions.requesterEndpointAuthorizers,
       apiCalls[0].airnodeAddress,
       [apiCalls[0].id],
       [apiCalls[0].endpointId],
@@ -318,7 +316,7 @@ describe('fetch (authorizations)', () => {
 });
 
 describe('fetchAuthorizationStatus', () => {
-  const authorizers = { requesterEndpointAuthorizers: ['0x0000000000000000000000000000000000000000'] };
+  const requesterEndpointAuthorizers = ['0x0000000000000000000000000000000000000000'];
   const airnodeAddress = '0xairnodeAddress';
   let mutableAirnodeRrp: AirnodeRrpV0;
 
@@ -331,7 +329,7 @@ describe('fetchAuthorizationStatus', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(
       mutableAirnodeRrp,
-      authorizers,
+      requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall
     );
@@ -345,7 +343,7 @@ describe('fetchAuthorizationStatus', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(
       mutableAirnodeRrp,
-      authorizers,
+      requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall
     );
@@ -359,7 +357,7 @@ describe('fetchAuthorizationStatus', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(
       mutableAirnodeRrp,
-      authorizers,
+      requesterEndpointAuthorizers,
       airnodeAddress,
       apiCall
     );

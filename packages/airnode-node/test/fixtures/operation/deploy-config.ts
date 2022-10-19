@@ -8,6 +8,7 @@ export function buildDeployConfig(mnemonic: string, config?: Partial<Config>): C
         mnemonic,
         authorizers: {
           requesterEndpointAuthorizers: [],
+          crossChainRequesterAuthorizers: [],
         },
         authorizations: {
           requesterEndpointAuthorizations: {},

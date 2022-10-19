@@ -36,6 +36,8 @@ reserved parameters. The following list orders integrations alphabetically:
   authenticated cryptocurrency price request.
 - [coingecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
   unauthenticated cryptocurrency price request.
+- [coingecko-cross-chain-authorizer](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
+  demonstration of a cross-chain [authorizer](https://docs.api3.org/airnode/latest/concepts/authorizers.html).
 - [coingecko-post-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-post-processing) -
   demonstration of the [post-processing](https://docs.api3.org/ois/latest/processing.html) feature.
 - [coingecko-pre-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-pre-processing) -
