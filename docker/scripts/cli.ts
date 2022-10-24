@@ -79,9 +79,6 @@ yargs(process.argv.slice(2))
       logger.log(`Running command '${args._[0]}' with arguments ${longArguments(args)}`);
 
       // Temporary check for not yet supported functionality
-      if (args.npmRegistry === 'https://registry.npmjs.org/') {
-        throw new Error('Publishing packages to the official NPM registry is not supported yet');
-      }
       if (!args.snapshot) {
         throw new Error('Only snapshot packages are supported at the moment');
       }

@@ -59,6 +59,7 @@
     "docker:scripts:npm-registry:stop": "yarn docker:scripts:npm-registry stop",
     "docker:scripts:publish-packages": "docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest publish-packages",
     "docker:scripts:publish-packages:local": "yarn docker:scripts:publish-packages --npm-registry local --npm-tag local --snapshot",
+    "docker:scripts:publish-packages:snapshot": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e NPM_TOKEN api3/airnode-packaging:latest publish-packages --snapshot --npm-tag",
     "format:check": "yarn prettier:check && yarn terraform:fmt:check",
     "format:write": "yarn prettier:write && yarn terraform:fmt:write",
     "lint": "yarn run lint:eslint && yarn run lint:solhint && yarn format:check && yarn ts-node scripts/validate-ts-references.ts",

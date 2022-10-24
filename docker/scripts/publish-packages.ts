@@ -41,11 +41,9 @@ const buildProject = () => {
   runCommand('yarn build', { cwd: '/build' });
 };
 
-const authNpmRegistry = async (npmRegistryUrl: string) => {
+const registerUser = async (npmRegistryUrl: string) => {
   const dummyUser = randomBytes(4).toString('hex');
   const dummyPassword = randomBytes(4).toString('hex');
-  const npmrcPath = join(homedir(), '.npmrc');
-  const yarnrcPath = join(homedir(), '.yarnrc');
 
   const goAuthResponse = await go(() =>
     axios.put(
@@ -66,11 +64,15 @@ const authNpmRegistry = async (npmRegistryUrl: string) => {
     throw new Error(`Can't authenticate against NPM registry ${npmRegistryUrl}: ${goAuthResponse.error}`);
   }
 
+  return goAuthResponse.data.data.token;
+};
+
+const authNpmRegistry = (npmRegistryUrl: string, npmAuthToken: string) => {
+  const npmrcPath = join(homedir(), '.npmrc');
+  const yarnrcPath = join(homedir(), '.yarnrc');
   // It looks like the auth token must be present in the NPM configuration (even when using Yarn) but the
   // registry must be also in the Yarn configuration...
-  const newNpmrc = `${npmRegistryUrl.slice(npmRegistryUrl.indexOf(':') + 1)}/:_authToken="${
-    goAuthResponse.data.data.token
-  }"
+  const newNpmrc = `${npmRegistryUrl.slice(npmRegistryUrl.indexOf(':') + 1)}/:_authToken="${npmAuthToken}"
 registry=${npmRegistryUrl}
 `;
   const newYarn = `registry "${npmRegistryUrl}"
@@ -96,7 +98,7 @@ const simplifyChangesetConfig = () => {
   writeFileSync(changesetConfigPath, newChangesetConfig);
 };
 
-export const publishPackages = async (npmRegistry: string, npmTag: string, _snapshot: boolean) => {
+export const publishPackages = async (npmRegistry: string, npmTag: string, snapshot: boolean) => {
   let npmRegistryUrl = npmRegistry;
 
   if (npmRegistry === 'local') {
@@ -112,8 +114,23 @@ export const publishPackages = async (npmRegistry: string, npmTag: string, _snap
 
   fetchProject();
   buildProject();
-  await authNpmRegistry(npmRegistryUrl);
+
+  let npmAuthToken = process.env.NPM_TOKEN;
+  if (npmRegistry === 'local') {
+    npmAuthToken = await registerUser(npmRegistryUrl);
+  }
+
+  if (!npmAuthToken) {
+    throw new Error('Missing NPM authentication token');
+  }
+
+  authNpmRegistry(npmRegistryUrl, npmAuthToken);
   simplifyChangesetConfig();
+
+  // If in snapshot mode, prefix the NPM tag with a word `snapshot` unless we're using a local registry.
+  if (npmRegistry !== 'local' && snapshot) {
+    npmTag = `snapshot-${npmTag}`;
+  }
   // Ignoring commands' outputs because of the weird text colorization.
   runCommand(`yarn changeset version --snapshot ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
   runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
