@@ -26,3 +26,23 @@ export const buildDockerImages = (npmRegistry: string, npmTag: string, dockerTag
     `docker build --no-cache --build-arg npmRegistryUrl=${npmRegistryUrl} --build-arg npmTag=${npmTag} --tag api3/airnode-client${devSuffix}:${dockerTag} --file /app/airnode-client/Dockerfile /app/airnode-client`
   );
 };
+
+const loginDockerHub = () => {
+  const username = process.env.DOCKERHUB_USERNAME;
+  const password = process.env.DOCKERHUB_TOKEN;
+
+  if (!username || !password) {
+    throw new Error('Missing DockerHub credentials');
+  }
+
+  runCommand(`docker login --password-stdin --username ${username}`, { input: password });
+};
+
+export const publishDockerImages = (dockerTag: string, dev: boolean) => {
+  const devSuffix = dev ? '-dev' : '';
+
+  loginDockerHub();
+  runCommand(`docker push api3/airnode-admin${devSuffix}:${dockerTag}`);
+  runCommand(`docker push api3/airnode-deployer${devSuffix}:${dockerTag}`);
+  runCommand(`docker push api3/airnode-client${devSuffix}:${dockerTag}`);
+};

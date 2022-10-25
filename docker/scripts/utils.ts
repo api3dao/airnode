@@ -1,9 +1,13 @@
 import { execSync, ExecSyncOptions } from 'child_process';
 import { statSync, readFileSync } from 'fs';
+import omit from 'lodash/omit';
 import { logger } from '@api3/airnode-utilities';
 
 export const runCommand = (command: string, options?: ExecSyncOptions) => {
-  logger.log(`Running command: '${command}'${options ? ` with options ${JSON.stringify(options)}` : ''}`);
+  // Omitting `input` as it's used for passing the DockerHub password and we don't want to log it
+  logger.log(
+    `Running command: '${command}'${options ? ` with options ${JSON.stringify(omit(options, ['input']))}` : ''}`
+  );
   try {
     return execSync(command, options)?.toString().trim();
   } catch (e) {

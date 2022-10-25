@@ -3,8 +3,8 @@
 This is a Docker container that can:
 
 - Start/stop a local NPM registry Docker container
-- Build and publish NPM packages to both local and official (TODO) NPM registry
-- Build Docker containers from both local and official NPM packages
+- Build and publish NPM packages to both local and official NPM registry
+- Build and publish Docker containers from both local and official NPM packages
 
 The container uses so called Docker-in-Docker method to build packages and Docker container in the clean Dockerized
 environment.
@@ -27,7 +27,7 @@ There are three CLI commands available:
 
 - [`npm-registry`](#npm-registry)
 - [`publish-packages`](#publish-packages)
-- [`build-docker-images`](#build-docker-images)
+- [`docker`](#docker)
 
 **To run all the pieces together and build Docker images, you can use the two convenience Yarn targets:**
 
@@ -92,19 +92,26 @@ Use the `--npm-tag` option to specify the tag for the published packages.
 Use the `--snapshot` option to publish a
 [snapshot package](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)
 
+When publishing to the official NPM registry you have to provide `NPM_TOKEN` environment variable containing NPM
+registry authentication token.
+
 Example:
 
 ```bash
 docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest publish-packages --npm-registry local --npm-tag local --snapshot
 ```
 
-You can use a convenience Yarn target to publish snapshot packages to a local NPM registry:
+You can use two convenience Yarn targets to publish snapshot packages to a local or official NPM registry (snapshots
+only at the moment):
 
 ```bash
 yarn docker:scripts:publish-packages:local
+yarn docker:scripts:publish-packages:snapshot
 ```
 
-### build-docker-images
+### docker
+
+**build**
 
 ```
 Build Docker images
@@ -134,13 +141,48 @@ Use the `--dev` option to build the development images, with the `-dev` suffix i
 Example:
 
 ```bash
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest build-docker-images --npm-registry local --npm-tag local --docker-tag local
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest docker build --npm-registry local --npm-tag local --docker-tag local
 ```
 
 You can use two convenience Yarn targets for building Docker images from the local NPM packages and from the latest
 official ones:
 
 ```bash
-yarn docker:scripts:build-docker-images:local
-yarn docker:scripts:build-docker-images:latest
+yarn docker:scripts:docker:build:local
+yarn docker:scripts:docker:build:latest
+```
+
+**publish**
+
+```
+Publish Docker images
+
+Options:
+      --version     Show version number                                                                        [boolean]
+      --help        Show help                                                                                  [boolean]
+  -g, --docker-tag  Docker tag to build the images under                                    [string] [default: "latest"]
+  -d, --dev         Build Docker dev images (with -dev suffix)                                [boolean] [default: false]
+```
+
+You can publish (push) Airnode Docker images.
+
+Use the `--docker-tag` option to specify the Docker tag of the images that should be pushed.
+
+Use the `--dev` option to push the images, with the `-dev` suffix in their name.
+
+You need to provide two environment variables to authenticate against the DockerHub registry:
+
+- `DOCKERHUB_USERNAME` - DockerHub username
+- `DOCKERHUB_TOKEN` - DockerHub access token
+
+Example:
+
+```bash
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e DOCKERHUB_USERNAME -e DOCKERHUB_TOKEN api3/airnode-packaging:latest docker publish
+```
+
+You can use a convenience Yarn target for publishing the latest Docker images:
+
+```bash
+docker:scripts:docker:publish:latest
 ```
