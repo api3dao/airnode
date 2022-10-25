@@ -2,6 +2,7 @@
 
 This is a Docker container that can:
 
+- Enable/disable GitHub pull-request merging
 - Start/stop a local NPM registry Docker container
 - Build and publish NPM packages to both local and official NPM registry
 - Build and publish Docker containers from both local and official NPM packages
@@ -23,8 +24,9 @@ allow conditional build steps. You can read more about how to enable it in its
 
 ## Usage
 
-There are three CLI commands available:
+There are four CLI commands available:
 
+- [`github`](#github)
 - [`npm-registry`](#npm-registry)
 - [`publish-packages`](#publish-packages)
 - [`docker`](#docker)
@@ -36,6 +38,34 @@ yarn docker:build:local
 yarn docker:build:latest
 ```
 
+### github
+
+```
+Manages GitHub PR merging
+
+Commands:
+  index.js github enable-merge   Enables PR merging
+  index.js github disable-merge  Disables PR merging
+```
+
+You can enable and disable GitHub pull-request merging. Disabling merging is useful during the release process so the
+`master` branch won't move untill the packages are released.
+
+You need to provide `GITHUB_TOKEN` environment variable containing GitHub atuhentication token.
+
+Example:
+
+```bash
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e GITHUB_TOKEN api3/airnode-packaging:latest github enable-merge
+```
+
+You can use two convenience Yarn targets for enabling and disabling PR merging:
+
+```bash
+yarn docker:scripts:github:enable-merge
+yarn docker:scripts:github:disable-merge
+```
+
 ### npm-registry
 
 ```
@@ -43,11 +73,7 @@ Manages the local NPM registry
 
 Commands:
   index.js npm-registry start  Start the local NPM registry
-  index.js npm-registry stop   Stop the local NPM registry
-
-Options:
-  --version  Show version number                                                                               [boolean]
-  --help     Show help                                                                                         [boolean]
+  index.js npm-registry stop   Stop the local NPM registry                                                                                       [boolean]
 ```
 
 You can start and stop a local NPM registry. Can be useful for manual package testing but it's mostly a step needed for
