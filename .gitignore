@@ -28,3 +28,5 @@ package.json_
 
 # Other
 .DS_Store
+
+docker/scripts/dist

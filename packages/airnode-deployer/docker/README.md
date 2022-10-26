@@ -11,7 +11,7 @@ more about the Deployer, please read [its documentation](../README.md).
 In order to build Airnode deployer Docker image run the following command from the root directory:
 
 ```bash
-yarn docker:build
+yarn docker:build:local
 ```
 
 > If building on windows ensure that the `entrypoint.sh` file uses `LF` line endings. Otherwise the image will not be

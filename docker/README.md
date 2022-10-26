@@ -1,16 +1,13 @@
 # api3/airnode-packaging
 
-This is a Docker container for building all the packages in the monorepo, publishing the NPM packages (TODO) and
-building the Docker containers.
+This is a Docker container that can:
 
-## How it works
+- Start/stop a local NPM registry Docker container
+- Build and publish NPM packages to both local and official (TODO) NPM registry
+- Build Docker containers from both local and official NPM packages
 
 The container uses so called Docker-in-Docker method to build packages and Docker container in the clean Dockerized
-environment. The building flow looks like this:
-
-1. The local NPM registry is spun up
-2. Packages are built and published in the local NPM registry
-3. Docker containers are built, installing the packages from the local NPM registry
+environment.
 
 ## Build
 
@@ -26,41 +23,124 @@ allow conditional build steps. You can read more about how to enable it in its
 
 ## Usage
 
-In order for the container to work correctly you need to pass the Docker daemon socket from your system, so the
-containers can be used "within" the containers:
+There are three CLI commands available:
+
+- [`npm-registry`](#npm-registry)
+- [`publish-packages`](#publish-packages)
+- [`build-docker-images`](#build-docker-images)
+
+**To run all the pieces together and build Docker images, you can use the two convenience Yarn targets:**
 
 ```bash
-... -v /var/run/docker.sock:/var/run/docker.sock ...
+yarn docker:build:local
+yarn docker:build:latest
 ```
 
-If you mount your Airnode directory, the content will be used to build the packages & containers (the content is copied,
-there are no changes to your local files):
+### npm-registry
+
+```
+Manages the local NPM registry
+
+Commands:
+  index.js npm-registry start  Start the local NPM registry
+  index.js npm-registry stop   Stop the local NPM registry
+
+Options:
+  --version  Show version number                                                                               [boolean]
+  --help     Show help                                                                                         [boolean]
+```
+
+You can start and stop a local NPM registry. Can be useful for manual package testing but it's mostly a step needed for
+the rest of the functionality.
+
+Example:
 
 ```bash
-... -v $(pwd):/airnode ...
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest npm-registry start
 ```
 
-If there's no mount to `/airnode`, the content will be retrieved from the GitHub repository. By setting the `GIT_REF`
-variable you can specify a Git reference (e.g. branch, commit hash, ...) that should be used:
+You can use two convenience Yarn targets for starting and stopping the container:
 
 ```bash
-... -e GIT_REF=my-dev-branch ...
+yarn docker:scripts:npm-registry:start
+yarn docker:scripts:npm-registry:stop
 ```
 
-There's a simple CLI via which you can change some build attributes:
+### publish-packages
 
-- `--dev` - builds the dev Docker images with the `-dev` suffix used in the CI (default: `false`)
-- `--npm-tag` - string used as the NPM tag (default: `local`)
-- `--docker-tag` - string used as the Docker tag (default: `local`)
+```
+Publish NPM packages
+
+Options:
+      --version       Show version number                                                                      [boolean]
+      --help          Show help                                                                                [boolean]
+  -r, --npm-registry  NPM registry URL to publish to or a keyword `local` to use a local NPM registry
+                                                                       [string] [default: "https://registry.npmjs.org/"]
+  -t, --npm-tag       NPM tag to publish the packages under                                 [string] [default: "latest"]
+  -s, --snapshot      Publish in a snapshot mode
+                      (https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)
+                                                                                              [boolean] [default: false]
+```
+
+You can build and publish NPM packages.
+
+Use the `--npm-registry` option to specify the registry where the packages should be uploaded to. When the keyword
+`local` is used instead of the URL, the local NPM (see [`npm-registry`](#npm-registry)) will be used.
+
+Use the `--npm-tag` option to specify the tag for the published packages.
+
+Use the `--snapshot` option to publish a
+[snapshot package](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)
+
+Example:
 
 ```bash
-... api3/airnode-packaging:latest --dev --npm-tag 9c218e333a4c27103e64b5b13b1fb53abbcd56c5 --docker-tag 9c218e333a4c27103e64b5b13b1fb53abbcd56c5
+docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest publish-packages --npm-registry local --npm-tag local --snapshot
 ```
 
-The whole run command may look something like:
+You can use a convenience Yarn target to publish snapshot packages to a local NPM registry:
 
 ```bash
-docker run -it --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest --dev --npm-tag 9c218e333a4c27103e64b5b13b1fb53abbcd56c5 --docker-tag 9c218e333a4c27103e64b5b13b1fb53abbcd56c5
+yarn docker:scripts:publish-packages:local
 ```
 
-You can also use the `build:docker:images` target to build containers from your Airnode directory tagged as `local`.
+### build-docker-images
+
+```
+Build Docker images
+
+Options:
+      --version       Show version number                                                                      [boolean]
+      --help          Show help                                                                                [boolean]
+  -r, --npm-registry  NPM registry URL to fetch packages from or a keyword `local` to use a local NPM registry
+                                                                       [string] [default: "https://registry.npmjs.org/"]
+  -t, --npm-tag       NPM tag/version of the packages that will be fetched                  [string] [default: "latest"]
+  -g, --docker-tag    Docker tag to build the images under                                  [string] [default: "latest"]
+  -d, --dev           Build Docker dev images (with -dev suffix)                              [boolean] [default: false]
+```
+
+You can build Airnode Docker images.
+
+Use the `--npm-registry` option to specify the registry from which the NPM packages should be installed during the
+building process. When the keyword `local` is used instead of the URL, the local NPM (see
+[`npm-registry`](#npm-registry)) will be used.
+
+Use the `--npm-tag` option to specify the tag of the NPM package that should be installed during the building process.
+
+Use the `--docker-tag` option to specify the Docker tag the resulting images will have.
+
+Use the `--dev` option to build the development images, with the `-dev` suffix in their name.
+
+Example:
+
+```bash
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest build-docker-images --npm-registry local --npm-tag local --docker-tag local
+```
+
+You can use two convenience Yarn targets for building Docker images from the local NPM packages and from the latest
+official ones:
+
+```bash
+yarn docker:scripts:build-docker-images:local
+yarn docker:scripts:build-docker-images:latest
+```

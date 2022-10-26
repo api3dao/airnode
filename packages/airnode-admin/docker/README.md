@@ -11,5 +11,5 @@ more about the admin CLI, please read [its documentation](../README.md).
 In order to build Airnode admin CLI Docker image run the following command from the root directory:
 
 ```bash
-yarn docker:build
+yarn docker:build:local
 ```

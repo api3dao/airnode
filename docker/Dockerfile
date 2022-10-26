@@ -1,6 +1,6 @@
 FROM node:14.19.3-alpine3.15 AS environment
 
-ENV buildDir="/build"
+ENV appDir="/app"
 
 RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && echo "python3 make g++") && \
     yarn global add npm && \
@@ -12,8 +12,12 @@ RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && e
     wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a && \
     wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
 
-COPY ./entrypoint.sh /entrypoint.sh
+COPY docker/scripts/dist/*.js ${appDir}/
+COPY docker/scripts/dist/*.map ${appDir}/
+COPY packages/airnode-admin/docker ${appDir}/airnode-admin
+COPY packages/airnode-deployer/docker ${appDir}/airnode-deployer
+COPY packages/airnode-node/docker ${appDir}/airnode-client
 
-WORKDIR ${buildDir}
+WORKDIR ${appDir}
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["node", "/app/index.js"]
