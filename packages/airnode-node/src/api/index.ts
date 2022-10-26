@@ -1,9 +1,10 @@
 import * as adapter from '@api3/airnode-adapter';
 import { RESERVED_PARAMETERS } from '@api3/ois';
-import { ethers } from 'ethers';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import axios, { AxiosError } from 'axios';
+import { ethers } from 'ethers';
+import compact from 'lodash/compact';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
@@ -211,7 +212,7 @@ export async function performApiCall(
     const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
     // eslint-disable-next-line import/no-named-as-default-member
     const axiosErrorMsg = axios.isAxiosError(goRes.error) ? errorMsgFromAxiosError(goRes.error) : '';
-    const errorMessage = [RequestErrorMessage.ApiCallFailed, axiosErrorMsg].filter(Boolean).join(' ');
+    const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
     return [[log], { success: false, errorMessage: errorMessage }];
   }
 
