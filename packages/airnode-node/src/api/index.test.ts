@@ -1,5 +1,6 @@
 import * as adapter from '@api3/airnode-adapter';
 import { ethers } from 'ethers';
+import { AxiosError } from 'axios';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
@@ -208,16 +209,37 @@ describe('callApi', () => {
 
   it('returns an error if the API call fails to execute', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
-    spy.mockRejectedValueOnce(new Error('Network is down'));
+    const nonAxiosError = new Error('A non-axios error');
+    spy.mockRejectedValueOnce(nonAxiosError);
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
-    expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
-    ]);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: nonAxiosError }]);
     expect(res).toEqual({
       errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
+      success: false,
+    });
+  });
+
+  test.each([
+    { e: new AxiosError('Error!', 'CODE', {}, {}, undefined), msg: 'with no response' },
+    { e: new AxiosError('Error!', 'CODE', {}, undefined, undefined), msg: 'in building the request' },
+    {
+      e: new AxiosError('Error!', 'CODE', {}, {}, { status: 404, data: {}, statusText: '', headers: {}, config: {} }),
+      msg: 'with status code 404',
+    },
+  ])(`returns an error containing "$msg" for the respective axios API call failure`, async ({ e, msg }) => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    const axiosError = e;
+    spy.mockRejectedValueOnce(axiosError);
+
+    const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: axiosError }]);
+    expect(res).toEqual({
+      errorMessage: `${RequestErrorMessage.ApiCallFailed} ${msg}`,
       success: false,
     });
   });
