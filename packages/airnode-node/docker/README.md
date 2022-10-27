@@ -11,7 +11,7 @@ please read [its documentation](../README.md).
 In order to build Airnode Docker image run the following command from the root directory:
 
 ```bash
-yarn docker:build
+yarn docker:build:local
 ```
 
 > If building on windows ensure that the `airnode-crontab` and `entrypoint.sh` files use `LF` line endings. Otherwise
