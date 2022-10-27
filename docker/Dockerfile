@@ -1,6 +1,9 @@
 FROM node:14.19.3-alpine3.15 AS environment
 
-ENV appDir="/app"
+ENV appDir="/app" \
+    # Settings to true to convince changesets that this is run in the CI and it shouldn't check for or require 2FA auth
+    # https://github.com/changesets/changesets/blob/8c0846977597ddaf51aaeb35f1f0f9428bf8ba14/packages/cli/src/commands/publish/publishPackages.ts#L57
+    CI="true"
 
 RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && echo "python3 make g++") && \
     yarn global add npm && \
