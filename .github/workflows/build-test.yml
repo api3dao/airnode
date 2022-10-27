@@ -129,20 +129,14 @@ jobs:
       - name: Publish NPM packages to local NPM registry
         run: yarn docker:scripts:publish-packages --npm-registry local --npm-tag ${{ github.sha }} --snapshot
       - name: Build Docker containers
-        run: yarn docker:scripts:build-docker-images --dev --npm-registry local --npm-tag ${{ github.sha }} --docker-tag ${{ github.sha }}
+        run: yarn docker:scripts:docker:build --dev --npm-registry local --npm-tag ${{ github.sha }} --docker-tag ${{ github.sha }}
       - name: Stop local NPM registry
         run: yarn docker:scripts:npm-registry:stop
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Push airnode-admin to Docker Hub
-        run: docker push api3/airnode-admin-dev:${{ github.sha }}
-      - name: Push airnode-client to Docker Hub
-        run: docker push api3/airnode-client-dev:${{ github.sha }}
-      - name: Push airnode-deployer to Docker Hub
-        run: docker push api3/airnode-deployer-dev:${{ github.sha }}
+      - name: Publish Docker containers
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: yarn docker:scripts:docker:publish --dev --docker-tag ${{ github.sha }}
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest

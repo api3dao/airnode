@@ -3,7 +3,7 @@ import omitBy from 'lodash/omitBy';
 import { logger } from '@api3/airnode-utilities';
 import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
-import { buildDockerImages } from './build-docker-images';
+import { buildDockerImages, publishDockerImages } from './docker';
 import { publishPackages } from './publish-packages';
 
 // Taken from airnode-deployer
@@ -88,42 +88,72 @@ yargs(process.argv.slice(2))
       });
     }
   )
-  .command(
-    'build-docker-images',
-    'Build Docker images',
-    {
-      'npm-registry': {
-        alias: 'r',
-        description: 'NPM registry URL to fetch packages from or a keyword `local` to use a local NPM registry',
-        default: 'https://registry.npmjs.org/',
-        type: 'string',
-      },
-      'npm-tag': {
-        alias: 't',
-        description: 'NPM tag/version of the packages that will be fetched',
-        default: 'latest',
-        type: 'string',
-      },
-      'docker-tag': {
-        alias: 'g',
-        description: 'Docker tag to build the images under',
-        default: 'latest',
-        type: 'string',
-      },
-      dev: {
-        alias: 'd',
-        description: 'Build Docker dev images (with -dev suffix)',
-        default: false,
-        type: 'boolean',
-      },
-    },
-    (args) => {
-      logger.log(`Running command '${args._[0]}' with arguments ${longArguments(args)}`);
-      runCliCommand(() => {
-        buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev);
-      });
-    }
-  )
+  .command('docker', 'Manages Docker images', (yargs) => {
+    yargs
+      .command(
+        'build',
+        'Build Docker images',
+        {
+          'npm-registry': {
+            alias: 'r',
+            description: 'NPM registry URL to fetch packages from or a keyword `local` to use a local NPM registry',
+            default: 'https://registry.npmjs.org/',
+            type: 'string',
+          },
+          'npm-tag': {
+            alias: 't',
+            description: 'NPM tag/version of the packages that will be fetched',
+            default: 'latest',
+            type: 'string',
+          },
+          'docker-tag': {
+            alias: 'g',
+            description: 'Docker tag to build the images under',
+            default: 'latest',
+            type: 'string',
+          },
+          dev: {
+            alias: 'd',
+            description: 'Build Docker dev images (with -dev suffix)',
+            default: false,
+            type: 'boolean',
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          runCliCommand(() => {
+            buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev);
+          });
+        }
+      )
+      .command(
+        'publish',
+        'Publish Docker images',
+        {
+          'docker-tag': {
+            alias: 'g',
+            description: 'Docker tag to build the images under',
+            default: 'latest',
+            type: 'string',
+          },
+          dev: {
+            alias: 'd',
+            description: 'Build Docker dev images (with -dev suffix)',
+            default: false,
+            type: 'boolean',
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          runCliCommand(() => {
+            publishDockerImages(args.dockerTag, args.dev);
+          });
+        }
+      )
+      .help()
+      .demandCommand(1)
+      .strict();
+  })
   .help()
   .demandCommand(1)
   .strict()
