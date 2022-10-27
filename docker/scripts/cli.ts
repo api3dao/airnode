@@ -5,6 +5,7 @@ import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
 import { publishPackages } from './publish-packages';
+import { disableMerge, enableMerge } from './github';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -43,9 +44,7 @@ yargs(process.argv.slice(2))
       })
       .command('stop', 'Stop the local NPM registry', {}, (args) => {
         logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-        runCliCommand(() => {
-          stopNpmRegistry();
-        });
+        runCliCommand(() => stopNpmRegistry());
       })
       .help()
       .demandCommand(1)
@@ -83,9 +82,7 @@ yargs(process.argv.slice(2))
         throw new Error('Only snapshot packages are supported at the moment');
       }
 
-      runCliCommand(() => {
-        publishPackages(args.npmRegistry, args.npmTag, args.snapshot);
-      });
+      runCliCommand(() => publishPackages(args.npmRegistry, args.npmTag, args.snapshot));
     }
   )
   .command('docker', 'Manages Docker images', (yargs) => {
@@ -121,9 +118,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => {
-            buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev);
-          });
+          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev));
         }
       )
       .command(
@@ -145,11 +140,23 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => {
-            publishDockerImages(args.dockerTag, args.dev);
-          });
+          runCliCommand(() => publishDockerImages(args.dockerTag, args.dev));
         }
       )
+      .help()
+      .demandCommand(1)
+      .strict();
+  })
+  .command('github', 'Manages GitHub PR merging', (yargs) => {
+    yargs
+      .command('enable-merge', 'Enables PR merging', {}, (args) => {
+        logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+        runCliCommand(() => enableMerge());
+      })
+      .command('disable-merge', 'Disables PR merging', {}, (args) => {
+        logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+        runCliCommand(() => disableMerge());
+      })
       .help()
       .demandCommand(1)
       .strict();

@@ -251,10 +251,18 @@ jobs:
         # https://github.com/renovatebot/renovate/discussions/13704#discussioncomment-2013280
         if: github.actor != 'renovate[bot]'
         run: yarn changeset:check
+  enable-merge:
+    name: Enable PR merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the ENABLE_MERGE secret
+        env:
+          ENABLE_MERGE: ${{ secrets.ENABLE_MERGE }}
+        run: test $ENABLE_MERGE = true && exit 0 || exit 1
   build-complete:
     name: All tests passed
     runs-on: ubuntu-latest
-    needs: [documentation, docker-build, unit-tests, e2e-tests, e2e-tests-examples, require-changeset]
+    needs: [documentation, docker-build, unit-tests, e2e-tests, e2e-tests-examples, require-changeset, enable-merge]
     steps:
       - run: exit 0
       - name: Slack Notification
