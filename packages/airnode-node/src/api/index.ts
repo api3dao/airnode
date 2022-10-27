@@ -192,7 +192,7 @@ export function errorMsgFromAxiosError(e: AxiosError): string {
   } else if (e.request) {
     return 'with no response';
   } else {
-    return 'in building the request';
+    return 'in building the HTTP request';
   }
 }
 

@@ -224,7 +224,7 @@ describe('callApi', () => {
 
   test.each([
     { e: new AxiosError('Error!', 'CODE', {}, {}, undefined), msg: 'with no response' },
-    { e: new AxiosError('Error!', 'CODE', {}, undefined, undefined), msg: 'in building the request' },
+    { e: new AxiosError('Error!', 'CODE', {}, undefined, undefined), msg: 'in building the HTTP request' },
     {
       e: new AxiosError('Error!', 'CODE', {}, {}, { status: 404, data: {}, statusText: '', headers: {}, config: {} }),
       msg: 'with status code 404',
