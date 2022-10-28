@@ -14,8 +14,7 @@ import { go, goSync } from '@api3/promise-utils';
 import { logger } from '@api3/airnode-utilities';
 import { runCommand, isDocker, unifyUrlFormat } from './utils';
 import { getNpmRegistryContainer } from './npm-registry';
-
-const AIRNODE_REPOSITORY = 'https://github.com/api3dao/airnode.git';
+import * as git from './git';
 
 if (!isDocker()) {
   throw new Error('This script should be run only in the Docker container');
@@ -24,19 +23,19 @@ if (!isDocker()) {
 const fetchProject = () => {
   const goAccess = goSync(() => accessSync('/airnode', constants.F_OK));
   if (goAccess.success) {
-    runCommand('git config --global --add safe.directory /airnode');
-    const excludedFiles = runCommand('git -C /airnode ls-files --exclude-standard -oi --directory').split('\n');
+    git.config('safe.directory', '/airnode');
+    const excludedFiles = git.listFiles('/airnode').split('\n');
     const excludeOptions = excludedFiles.map((excludedFile) => `--exclude ${excludedFile}`).join(' ');
     runCommand(`rsync -a ${excludeOptions} --exclude .git /airnode/ /build`);
   } else {
     const gitRef = process.env.GIT_REF ?? 'master';
-    runCommand(`git clone ${AIRNODE_REPOSITORY} /build`);
-    runCommand(`git -C /build checkout ${gitRef}`);
+    git.clone('/build');
+    git.checkout(gitRef, '/build');
   }
 };
 
 const buildProject = () => {
-  runCommand('git config --global --add safe.directory /build');
+  git.config('safe.directory', '/build');
   runCommand('yarn bootstrap', { cwd: '/build' });
   runCommand('yarn build', { cwd: '/build' });
 };
