@@ -1,7 +1,6 @@
 import { logger } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import bodyParser from 'body-parser';
 import { verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
 import { Config, EnabledGateway, LocalProvider } from '../../config';
 import { processHttpRequest, processHttpSignedDataRequest } from '../../handlers';
@@ -35,7 +34,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   }
 
   const app = express();
-  app.use(bodyParser.json());
+  app.use(express.json());
   const cloudProviderSettings = config.nodeSettings.cloudProvider as LocalProvider;
   const port = cloudProviderSettings.gatewayServerPort ?? DEFAULT_PORT;
 
