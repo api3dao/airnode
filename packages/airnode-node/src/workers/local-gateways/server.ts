@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { logger } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
@@ -41,7 +42,9 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   if (enabledGateways.includes('httpSignedDataGateway')) {
     const httpSignedDataGatewayPath = `${HTTP_SIGNED_DATA_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
-      logger.log(`Received request for http signed data`);
+      // For logging, unlike blockchain requests, gateway requests don't have requestIds
+      const requestId = randomUUID();
+      logger.info(`HTTP signed data gateway request received, assigning it a request ID of: ${requestId}`);
 
       const originVerification = verifyRequestOrigin(
         (config.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
@@ -49,6 +52,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       );
       if (req.method === 'OPTIONS') {
         if (!originVerification.success) {
+          logger.error(`HTTP signed data gateway request ${requestId} origin verification error`);
           res.status(400).send(originVerification.error);
           return;
         }
@@ -61,31 +65,42 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
       // requests work as expected.
       res.set(originVerification.headers);
+      logger.debug(`HTTP signed data gateway request ${requestId} passed origin verification`);
 
       const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
         // specification.
+        logger.error(`HTTP signed data gateway request ${requestId} invalid request body`);
         res.status(400).send({ message: 'Invalid request body' });
         return;
       }
       const { encodedParameters: rawEncodedParameters } = parsedBody.data;
 
       const rawEndpointId = req.params.endpointId;
+      logger.debug(
+        `HTTP signed data gateway request ${requestId} passed request body parsing for endpoint ${rawEndpointId}`
+      );
       const verificationResult = verifyHttpSignedDataRequest(config, rawEncodedParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
+        logger.error(`HTTP signed data gateway request ${requestId} request verification error`);
         res.status(statusCode).send(error);
         return;
       }
       const { encodedParameters, endpointId } = verificationResult;
+      logger.debug(
+        `HTTP signed data gateway request ${requestId} passed request verification for endpoint ${endpointId}`
+      );
 
       const [err, result] = await processHttpSignedDataRequest(config, endpointId, encodedParameters);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
+        logger.error(`HTTP signed data gateway request ${requestId} request processing error`);
         res.status(500).send({ message: err.toString() });
         return;
       }
+      logger.info(`HTTP signed data gateway request ${requestId} processed successfully`);
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
@@ -102,7 +117,9 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
   if (enabledGateways.includes('httpGateway')) {
     const httpGatewayPath = `${HTTP_BASE_PATH}/${DEFAULT_PATH_KEY}/:endpointId`;
     const httpRequestHandler = async function (req: Request, res: Response) {
-      logger.log(`Received request for http data`);
+      // For logging, unlike blockchain requests, gateway requests don't have requestIds
+      const requestId = randomUUID();
+      logger.info(`HTTP gateway request received, assigning it a request ID of: ${requestId}`);
 
       const originVerification = verifyRequestOrigin(
         (config.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
@@ -111,6 +128,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
 
       if (req.method === 'OPTIONS') {
         if (!originVerification.success) {
+          logger.error(`HTTP gateway request ${requestId} origin verification error`);
           res.status(400).send(originVerification.error);
           return;
         }
@@ -123,31 +141,38 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       // flighted, none of the origin headers are applied, but the request goes through. This ensures that non browser
       // requests work as expected.
       res.set(originVerification.headers);
+      logger.debug(`HTTP gateway request ${requestId} passed origin verification`);
 
       const parsedBody = httpRequestBodySchema.safeParse(req.body);
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
         // specification.
+        logger.error(`HTTP gateway request ${requestId} invalid request body`);
         res.status(400).send({ message: 'Invalid request body' });
         return;
       }
       const { parameters: rawParameters } = parsedBody.data;
 
       const rawEndpointId = req.params.endpointId;
+      logger.debug(`HTTP gateway request ${requestId} passed request body parsing for endpoint ${rawEndpointId}`);
       const verificationResult = verifyHttpRequest(config, rawParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
+        logger.error(`HTTP gateway request ${requestId} request verification error`);
         res.status(statusCode).send(error);
         return;
       }
       const { parameters, endpointId } = verificationResult;
+      logger.debug(`HTTP gateway request ${requestId} passed request verification for endpoint ${endpointId}`);
 
       const [err, result] = await processHttpRequest(config, endpointId, parameters);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
+        logger.error(`HTTP gateway request ${requestId} request processing error`);
         res.status(500).send({ message: err.toString() });
         return;
       }
+      logger.info(`HTTP gateway request ${requestId} processed successfully`);
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);

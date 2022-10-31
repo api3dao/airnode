@@ -117,6 +117,9 @@ export async function processHttpRequest(
     level: parsedConfig.nodeSettings.logLevel,
   });
 
+  // Unlike GCP, AWS automatically generates a unique request ID so no need to use one here
+  logger.info(`Received HTTP gateway request`);
+
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
     (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
@@ -125,11 +128,13 @@ export async function processHttpRequest(
   // Respond to preflight requests
   if (event.httpMethod === 'OPTIONS') {
     if (!originVerification.success) {
+      logger.error(`HTTP gateway request origin verification error`);
       return { statusCode: 400, body: JSON.stringify(originVerification.error) };
     }
 
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
+  logger.debug(`HTTP gateway request passed origin verification`);
 
   // The shape of the body is guaranteed by the openAPI spec
   const rawParameters = (JSON.parse(event.body!) as ProcessHttpRequestBody).parameters;
@@ -139,16 +144,20 @@ export async function processHttpRequest(
   const verificationResult = verifyHttpRequest(parsedConfig, rawParameters, rawEndpointId);
   if (!verificationResult.success) {
     const { statusCode, error } = verificationResult;
+    logger.error(`HTTP gateway request verification error`);
     return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { parameters, endpointId } = verificationResult;
+  logger.debug(`HTTP gateway request passed request verification for endpoint ${endpointId}`);
 
   addMetadata({ 'Endpoint-ID': endpointId });
   const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
+    logger.error(`HTTP gateway request processing error`);
     return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
+  logger.info(`HTTP gateway request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
@@ -167,6 +176,8 @@ export async function processHttpSignedDataRequest(
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+  // Unlike GCP, AWS automatically generates a unique request ID so no need to use one here
+  logger.info(`Received HTTP signed data gateway request`);
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
@@ -176,11 +187,13 @@ export async function processHttpSignedDataRequest(
   // Respond to preflight requests
   if (event.httpMethod === 'OPTIONS') {
     if (!originVerification.success) {
+      logger.error(`HTTP signed data gateway request origin verification error`);
       return { statusCode: 400, body: JSON.stringify(originVerification.error) };
     }
 
     return { statusCode: 204, headers: originVerification.headers, body: '' };
   }
+  logger.debug(`HTTP signed data gateway request passed origin verification`);
 
   // The shape of the body is guaranteed by the openAPI spec
   const rawEncodedParameters = (JSON.parse(event.body!) as ProcessHttpSignedDataRequestBody).encodedParameters;
@@ -189,17 +202,21 @@ export async function processHttpSignedDataRequest(
 
   const verificationResult = verifyHttpSignedDataRequest(parsedConfig, rawEncodedParameters, rawEndpointId);
   if (!verificationResult.success) {
+    logger.error(`HTTP signed data gateway request verification error`);
     const { statusCode, error } = verificationResult;
     return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { encodedParameters, endpointId } = verificationResult;
+  logger.debug(`HTTP signed data gateway request passed request verification for endpoint ${endpointId}`);
 
   addMetadata({ 'Endpoint-ID': endpointId });
   const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
+    logger.error(`HTTP signed data gateway request processing error`);
     return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
+  logger.info(`HTTP signed data gateway request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
