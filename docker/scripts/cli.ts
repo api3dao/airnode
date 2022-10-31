@@ -4,8 +4,8 @@ import { logger } from '@api3/airnode-utilities';
 import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
-import { publishPackages } from './publish-packages';
 import { disableMerge, enableMerge } from './github';
+import { publishSnapshot } from './npm';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -50,41 +50,84 @@ yargs(process.argv.slice(2))
       .demandCommand(1)
       .strict();
   })
-  .command(
-    'publish-packages',
-    'Publish NPM packages',
-    {
-      'npm-registry': {
-        alias: 'r',
-        description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
-        default: 'https://registry.npmjs.org/',
-        type: 'string',
-      },
-      'npm-tag': {
-        alias: 't',
-        description: 'NPM tag to publish the packages under',
-        default: 'latest',
-        type: 'string',
-      },
-      snapshot: {
-        alias: 's',
-        description:
-          'Publish in a snapshot mode (https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)',
-        default: false,
-        type: 'boolean',
-      },
-    },
-    (args) => {
-      logger.log(`Running command '${args._[0]}' with arguments ${longArguments(args)}`);
-
-      // Temporary check for not yet supported functionality
-      if (!args.snapshot) {
-        throw new Error('Only snapshot packages are supported at the moment');
-      }
-
-      runCliCommand(() => publishPackages(args.npmRegistry, args.npmTag, args.snapshot));
-    }
-  )
+  .command('npm', 'Manages publishing of NPM packages', (yargs) => {
+    yargs
+      .command(
+        'publish-snapshot',
+        'Publish snapshot NPM packages',
+        {
+          'npm-registry': {
+            alias: 'r',
+            description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
+            default: 'https://registry.npmjs.org/',
+            type: 'string',
+          },
+          'npm-tag': {
+            alias: 't',
+            description: 'NPM tag to publish the packages under',
+            default: 'latest',
+            type: 'string',
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          runCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag));
+        }
+      )
+      .command(
+        'pull-request',
+        'Create a release GitHub pull-request',
+        {
+          'release-version': {
+            alias: 'v',
+            description: 'Release version for which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+          'head-branch': {
+            alias: 'h',
+            description: 'Branch from which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+          'base-branch': {
+            alias: 'b',
+            description: 'Branch against which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          // TODO
+        }
+      )
+      .command(
+        'publish',
+        'Publish NPM package from the release branch',
+        {
+          'npm-registry': {
+            alias: 'r',
+            description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
+            default: 'https://registry.npmjs.org/',
+            type: 'string',
+          },
+          'npm-tags': {
+            alias: 't',
+            description: 'NPM tags to publish the packages under',
+            default: ['latest'],
+            type: 'array',
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          // TODO
+        }
+      )
+      .help()
+      .demandCommand(1)
+      .strict();
+  })
   .command('docker', 'Manages Docker images', (yargs) => {
     yargs
       .command(

@@ -97,7 +97,8 @@ const simplifyChangesetConfig = () => {
   writeFileSync(changesetConfigPath, newChangesetConfig);
 };
 
-export const publishPackages = async (npmRegistry: string, npmTag: string, snapshot: boolean) => {
+export const publishSnapshot = async (npmRegistry: string, npmTag: string) => {
+  npmTag = `snapshot-${npmTag}`;
   let npmRegistryUrl = npmRegistry;
 
   if (npmRegistry === 'local') {
@@ -125,11 +126,6 @@ export const publishPackages = async (npmRegistry: string, npmTag: string, snaps
 
   authNpmRegistry(npmRegistryUrl, npmAuthToken);
   simplifyChangesetConfig();
-
-  // If in snapshot mode, prefix the NPM tag with a word `snapshot` unless we're using a local registry.
-  if (npmRegistry !== 'local' && snapshot) {
-    npmTag = `snapshot-${npmTag}`;
-  }
   // Ignoring commands' outputs because of the weird text colorization.
   runCommand(`yarn changeset version --snapshot ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
   runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { cwd: '/build', stdio: 'ignore' });

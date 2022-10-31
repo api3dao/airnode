@@ -28,7 +28,7 @@ There are four CLI commands available:
 
 - [`github`](#github)
 - [`npm-registry`](#npm-registry)
-- [`publish-packages`](#publish-packages)
+- [`npm`](#npm)
 - [`docker`](#docker)
 
 **To run all the pieces together and build Docker images, you can use the two convenience Yarn targets:**
@@ -92,10 +92,12 @@ yarn docker:scripts:npm-registry:start
 yarn docker:scripts:npm-registry:stop
 ```
 
-### publish-packages
+### npm
+
+**publish-snapshot**
 
 ```
-Publish NPM packages
+Publish snapshot NPM packages
 
 Options:
       --version       Show version number                                                                      [boolean]
@@ -103,20 +105,15 @@ Options:
   -r, --npm-registry  NPM registry URL to publish to or a keyword `local` to use a local NPM registry
                                                                        [string] [default: "https://registry.npmjs.org/"]
   -t, --npm-tag       NPM tag to publish the packages under                                 [string] [default: "latest"]
-  -s, --snapshot      Publish in a snapshot mode
-                      (https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)
-                                                                                              [boolean] [default: false]
 ```
 
-You can build and publish NPM packages.
+You can build and publish
+[**snapshot** NPM packages](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md).
 
 Use the `--npm-registry` option to specify the registry where the packages should be uploaded to. When the keyword
 `local` is used instead of the URL, the local NPM (see [`npm-registry`](#npm-registry)) will be used.
 
 Use the `--npm-tag` option to specify the tag for the published packages.
-
-Use the `--snapshot` option to publish a
-[snapshot package](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)
 
 When publishing to the official NPM registry you have to provide `NPM_TOKEN` environment variable containing NPM
 registry authentication token.
@@ -124,16 +121,89 @@ registry authentication token.
 Example:
 
 ```bash
-docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest publish-packages --npm-registry local --npm-tag local --snapshot
+docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest npm publish-snapshot --npm-registry local --npm-tag local
 ```
 
-You can use two convenience Yarn targets to publish snapshot packages to a local or official NPM registry (snapshots
-only at the moment):
+You can use two convenience Yarn targets to publish snapshot packages to a local or official NPM registry:
 
 ```bash
-yarn docker:scripts:publish-packages:local
-yarn docker:scripts:publish-packages:snapshot
+yarn docker:scripts:npm:publish-snapshot:local
+yarn docker:scripts:npm:publish-snapshot:official
 ```
+
+**pull-request**
+
+```
+Create a release GitHub pull-request
+
+Options:
+      --version          Show version number                                                                   [boolean]
+      --help             Show help                                                                             [boolean]
+  -v, --release-version  Release version for which should be the pull-request opened                 [string] [required]
+  -h, --head-branch      Branch from which should be the pull-request opened                         [string] [required]
+  -b, --base-branch      Branch against which should be the pull-request opened                      [string] [required]
+```
+
+You can open a GitHub pull-request for a given release.
+
+Use the `--release-version` option to specify the version of the release this pull-request should be for.
+
+Use the `--head-branch` option to specify the branch from which should be the pull-request opened.
+
+Use the `--base-branch` option to specify the branch against which should be the pull-request opened .
+
+You have to provide `GITHUB_TOKEN` environment variable containing GitHub authentication token.
+
+Example:
+
+```bash
+docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest npm pull-request --release-version 0.11.0 --head-branch v0.11 --base-branch master
+```
+
+<!-- TODO
+You can use two convenience Yarn targets to publish snapshot packages to a local or official NPM registry:
+
+```bash
+yarn docker:scripts:npm:publish-snapshot:local
+yarn docker:scripts:npm:publish-snapshot:official
+``` -->
+
+**publish**
+
+```
+Publish NPM package from the release branch
+
+Options:
+      --version         Show version number                                                                    [boolean]
+      --help            Show help                                                                              [boolean]
+  -r, --npm-registry    NPM registry URL to publish to or a keyword `local` to use a local NPM registry
+                                                                       [string] [default: "https://registry.npmjs.org/"]
+  -t, --npm-tags        NPM tags to publish the packages under                             [array] [default: ["latest"]]
+```
+
+You can build and publish **official** NPM packages.
+
+Use the `--npm-registry` option to specify the registry where the packages should be uploaded to. When the keyword
+`local` is used instead of the URL, the local NPM (see [`npm-registry`](#npm-registry)) will be used.
+
+Use the `--npm-tags` option to specify the tags for the published packages.
+
+When publishing to the official NPM registry you have to provide `NPM_TOKEN` environment variable containing NPM
+registry authentication token.
+
+Example:
+
+```bash
+docker run --rm -v $(pwd):/airnode -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest npm publish --npm-tags latest,v0.11
+```
+
+<!-- TODO
+You can use two convenience Yarn targets to publish snapshot packages to a local or official NPM registry:
+
+```bash
+yarn docker:scripts:npm:publish-snapshot:local
+yarn docker:scripts:npm:publish-snapshot:official
+``` -->
 
 ### docker
 
