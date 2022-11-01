@@ -5,7 +5,7 @@ import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
 import { disableMerge, enableMerge } from './github';
-import { publishSnapshot } from './npm';
+import { openPullRequest, publishSnapshot } from './npm';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -71,7 +71,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag));
+          runAsyncCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag));
         }
       )
       .command(
@@ -99,7 +99,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          // TODO
+          runAsyncCliCommand(() => openPullRequest(args.releaseVersion, args.headBranch, args.baseBranch));
         }
       )
       .command(
@@ -194,11 +194,11 @@ yargs(process.argv.slice(2))
     yargs
       .command('enable-merge', 'Enables PR merging', {}, (args) => {
         logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-        runCliCommand(() => enableMerge());
+        runAsyncCliCommand(() => enableMerge());
       })
       .command('disable-merge', 'Disables PR merging', {}, (args) => {
         logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-        runCliCommand(() => disableMerge());
+        runAsyncCliCommand(() => disableMerge());
       })
       .help()
       .demandCommand(1)

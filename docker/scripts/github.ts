@@ -2,9 +2,11 @@ import sodium from 'libsodium-wrappers';
 import { Octokit } from '@octokit/core';
 import { go } from '@api3/promise-utils';
 import { logger } from '@api3/airnode-utilities';
+import { runCommand } from './utils';
 
 const OWNER = 'api3dao';
 const REPOSITORY = 'airnode';
+const TEAM = 'airnode';
 
 const initializeOctokit = () => {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -85,4 +87,31 @@ export const createPullRequest = async (head: string, base: string, title: strin
   if (!goPullRequest.success) {
     throw new Error(`Can't create a GitHub pull-request: ${goPullRequest.error}`);
   }
+
+  return goPullRequest.data.data.number as number;
+};
+
+export const requestPullRequestReview = async (pullRequestNumber: number) => {
+  const octokit = initializeOctokit();
+
+  const goRequestReview = await go(() =>
+    octokit.request(`POST /repos/${OWNER}/${REPOSITORY}/pulls/${pullRequestNumber}/requested_reviewers`, {
+      owner: OWNER,
+      repo: REPOSITORY,
+      pull_number: pullRequestNumber,
+      team_reviewers: [TEAM],
+    })
+  );
+  if (!goRequestReview.success) {
+    throw new Error(`Can't request a review for GitHub PR ${pullRequestNumber}: ${goRequestReview.error}`);
+  }
+};
+
+export const authenticate = () => {
+  const githubToken = process.env.GITHUB_TOKEN;
+  if (!githubToken) {
+    throw new Error('Missing GitHub token');
+  }
+
+  runCommand(`git remote set-url origin https://x-access-token:${githubToken}@github.com/${OWNER}/${REPOSITORY}`);
 };

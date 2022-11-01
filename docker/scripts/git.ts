@@ -1,21 +1,41 @@
+import { ExecSyncOptions } from 'child_process';
 import { runCommand } from './utils';
 
 const AIRNODE_REPOSITORY = 'https://github.com/api3dao/airnode.git';
 
-export const config = (section: string, value: string) => runCommand(`git config --global --add ${section} ${value} `);
+export const config = (section: string, value: string) => runCommand(`git config --global --add ${section} '${value}'`);
 
 export const clone = (directory?: string) => runCommand(`git clone ${AIRNODE_REPOSITORY} ${directory ?? ''}`);
 
-export const checkout = (ref: string, directory?: string) =>
-  runCommand(`git ${directory ? `-C ${directory}` : ''} checkout ${ref}`);
+export const checkout = (ref: string, options?: ExecSyncOptions) => runCommand(`git checkout ${ref}`, options);
 
-export const listFiles = (directory?: string) =>
-  runCommand(`git ${directory ? `-C ${directory}` : ''} ls-files --exclude-standard -oi --directory`);
+export const listFiles = (options?: ExecSyncOptions) =>
+  runCommand(`git ls-files --exclude-standard -oi --directory`, options);
 
-export const commit = (message: string) => {
-  runCommand(`git commit -m ${message}`);
+export const add = (options?: ExecSyncOptions) => runCommand('git add .', options);
+
+export const commit = (message: string, options?: ExecSyncOptions) => {
+  runCommand(`git commit --no-verify -m '${message}'`, options);
 };
 
-export const push = (branch: string) => {
-  runCommand(`git push origin ${branch}`);
+export const push = (branch: string, options?: ExecSyncOptions) => {
+  if (branch === 'master') {
+    throw new Error(`No pushing to 'master' branch`);
+  }
+
+  runCommand(`git push origin ${branch}`, options);
+};
+
+export const branchExists = (branch: string, options?: ExecSyncOptions) => {
+  const foundRemoteBranches = runCommand(`git ls-remote --heads origin ${branch}`, options);
+  return !!foundRemoteBranches;
+};
+
+export const createBranch = (branch: string, options?: ExecSyncOptions) => {
+  runCommand(`git checkout -b ${branch}`, options);
+};
+
+export const setIdentity = (name: string, email: string) => {
+  config('user.name', name);
+  config('user.email', email);
 };

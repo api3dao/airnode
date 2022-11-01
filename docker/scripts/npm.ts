@@ -15,6 +15,7 @@ import { logger } from '@api3/airnode-utilities';
 import { runCommand, isDocker, unifyUrlFormat } from './utils';
 import { getNpmRegistryContainer } from './npm-registry';
 import * as git from './git';
+import * as github from './github';
 
 if (!isDocker()) {
   throw new Error('This script should be run only in the Docker container');
@@ -24,21 +25,20 @@ const fetchProject = () => {
   const goAccess = goSync(() => accessSync('/airnode', constants.F_OK));
   if (goAccess.success) {
     git.config('safe.directory', '/airnode');
-    const excludedFiles = git.listFiles('/airnode').split('\n');
+    const excludedFiles = git.listFiles({ cwd: '/airnode' }).split('\n');
     const excludeOptions = excludedFiles.map((excludedFile) => `--exclude ${excludedFile}`).join(' ');
     runCommand(`rsync -a ${excludeOptions} --exclude .git /airnode/ /build`);
   } else {
     const gitRef = process.env.GIT_REF ?? 'master';
     git.clone('/build');
-    git.checkout(gitRef, '/build');
+    git.checkout(gitRef);
   }
+  git.config('safe.directory', '/build');
 };
 
-const buildProject = () => {
-  git.config('safe.directory', '/build');
-  runCommand('yarn bootstrap', { cwd: '/build' });
-  runCommand('yarn build', { cwd: '/build' });
-};
+const installDependencies = () => runCommand('yarn bootstrap');
+
+const buildProject = () => runCommand('yarn build');
 
 const registerUser = async (npmRegistryUrl: string) => {
   const dummyUser = randomBytes(4).toString('hex');
@@ -113,6 +113,7 @@ export const publishSnapshot = async (npmRegistry: string, npmTag: string) => {
   npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
 
   fetchProject();
+  installDependencies();
   buildProject();
 
   let npmAuthToken = process.env.NPM_TOKEN;
@@ -127,6 +128,37 @@ export const publishSnapshot = async (npmRegistry: string, npmTag: string) => {
   authNpmRegistry(npmRegistryUrl, npmAuthToken);
   simplifyChangesetConfig();
   // Ignoring commands' outputs because of the weird text colorization.
-  runCommand(`yarn changeset version --snapshot ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
-  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { cwd: '/build', stdio: 'ignore' });
+  runCommand(`yarn changeset version --snapshot ${npmTag}`, { stdio: 'ignore' });
+  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { stdio: 'ignore' });
+};
+
+const selectBranch = (headBranch: string, baseBranch: string) => {
+  if (git.branchExists(headBranch)) {
+    git.checkout(headBranch);
+  } else {
+    git.checkout(baseBranch);
+    git.createBranch(headBranch);
+  }
+};
+
+const applyReleaseChanges = (releaseVersion: string, branch: string) => {
+  runCommand(`yarn changeset:new-version`, { stdio: 'ignore' });
+  runCommand(`yarn changeset add --empty`, { stdio: 'ignore' });
+  git.add();
+  git.commit(`Release v${releaseVersion}`);
+  git.push(branch);
+};
+
+export const openPullRequest = async (releaseVersion: string, headBranch: string, baseBranch: string) => {
+  fetchProject();
+  installDependencies();
+
+  git.setIdentity('API3 Automation', 'automation@api3.org');
+  github.authenticate();
+  selectBranch(headBranch, baseBranch);
+  applyReleaseChanges(releaseVersion, headBranch);
+
+  const pullRequestTitle = `Release v${releaseVersion}`;
+  const pullRequestNumber = await github.createPullRequest(headBranch, baseBranch, pullRequestTitle, '');
+  github.requestPullRequestReview(pullRequestNumber);
 };
