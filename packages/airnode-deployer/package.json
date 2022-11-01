@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-deployer",
   "license": "MIT",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": false,
   "bin": {
     "airnode-deployer": "./dist/bin/deployer.js"
@@ -23,11 +23,11 @@
     "webpack:dev": "webpack --mode development"
   },
   "dependencies": {
-    "@api3/airnode-abi": "^0.9.0",
-    "@api3/airnode-node": "^0.9.0",
-    "@api3/airnode-protocol": "^0.9.0",
-    "@api3/airnode-utilities": "^0.9.0",
-    "@api3/airnode-validator": "^0.9.0",
+    "@api3/airnode-abi": "^0.9.1",
+    "@api3/airnode-node": "^0.9.1",
+    "@api3/airnode-protocol": "^0.9.1",
+    "@api3/airnode-utilities": "^0.9.1",
+    "@api3/airnode-validator": "^0.9.1",
     "@api3/promise-utils": "^0.3.0",
     "@google-cloud/storage": "^6.5.2",
     "aws-sdk": "^2.1228.0",
