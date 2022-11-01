@@ -1,5 +1,18 @@
 # @api3/airnode-operation
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
+### Patch Changes
+
+- Updated dependencies [[`729e4e37`](https://github.com/api3dao/airnode/commit/729e4e37909efae043b55d3e5ffd6c19656143e2)]:
+  - @api3/airnode-protocol@0.10.0
+  - @api3/airnode-utilities@0.10.0
+  - @api3/airnode-abi@0.10.0
+
 ## 0.9.0
 
 ### Patch Changes

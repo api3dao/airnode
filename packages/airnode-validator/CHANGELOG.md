@@ -1,5 +1,15 @@
 # @api3/airnode-validator
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4) Thanks [@amarthadan](https://github.com/amarthadan)! - Allow users to remove the deployment based on the deployment ID
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove unnecessary validator bundling
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
 ## 0.9.0
 
 ### Minor Changes

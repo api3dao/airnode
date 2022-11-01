@@ -1,5 +1,26 @@
 # @api3/airnode-node
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1499](https://github.com/api3dao/airnode/pull/1499) [`d23503a4`](https://github.com/api3dao/airnode/commit/d23503a41429dfe56a8812dcf04e97606102f1a8) Thanks [@dcroote](https://github.com/dcroote)! - Catch and print docker build errors
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove unnecessary validator bundling
+
+- [#1509](https://github.com/api3dao/airnode/pull/1509) [`5ad00a92`](https://github.com/api3dao/airnode/commit/5ad00a92a941fac05d7e91fd89cca5964423aacc) Thanks [@dcroote](https://github.com/dcroote)! - Provide more detailed on-chain error messages for failed API calls
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
+### Patch Changes
+
+- Updated dependencies [[`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4), [`729e4e37`](https://github.com/api3dao/airnode/commit/729e4e37909efae043b55d3e5ffd6c19656143e2), [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8), [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4)]:
+  - @api3/airnode-validator@0.10.0
+  - @api3/airnode-protocol@0.10.0
+  - @api3/airnode-utilities@0.10.0
+  - @api3/airnode-abi@0.10.0
+  - @api3/airnode-adapter@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @api3/airnode-protocol
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1498](https://github.com/api3dao/airnode/pull/1498) [`729e4e37`](https://github.com/api3dao/airnode/commit/729e4e37909efae043b55d3e5ffd6c19656143e2) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Redeploy Arbitrum and Optimism testnet contracts to use the new Goerli versions
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @api3/airnode-utilities@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes

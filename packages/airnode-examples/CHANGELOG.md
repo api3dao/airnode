@@ -1,5 +1,23 @@
 # @api3/airnode-examples
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`35272207`](https://github.com/api3dao/airnode/commit/352722076eebc3417429974eee758c2871fe0530) Thanks [@amarthadan](https://github.com/amarthadan)! - Disable concurrency in airnode-examples
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
+### Patch Changes
+
+- Updated dependencies [[`36a5c15b`](https://github.com/api3dao/airnode/commit/36a5c15ba08903269c8b595b28f1519ef490f571), [`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4), [`d23503a4`](https://github.com/api3dao/airnode/commit/d23503a41429dfe56a8812dcf04e97606102f1a8), [`729e4e37`](https://github.com/api3dao/airnode/commit/729e4e37909efae043b55d3e5ffd6c19656143e2), [`a4d014da`](https://github.com/api3dao/airnode/commit/a4d014da9f7646984c6e76a80442884584233445), [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8), [`5ad00a92`](https://github.com/api3dao/airnode/commit/5ad00a92a941fac05d7e91fd89cca5964423aacc), [`1a159149`](https://github.com/api3dao/airnode/commit/1a15914918f1fff642fc208a0a5b26d479c557d2), [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4)]:
+  - @api3/airnode-deployer@0.10.0
+  - @api3/airnode-admin@0.10.0
+  - @api3/airnode-node@0.10.0
+  - @api3/airnode-protocol@0.10.0
+  - @api3/airnode-utilities@0.10.0
+  - @api3/airnode-abi@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes
