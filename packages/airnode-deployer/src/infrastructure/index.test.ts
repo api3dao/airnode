@@ -354,7 +354,7 @@ describe('terraformAirnodeApply', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       execOptions
     );
   });
@@ -380,12 +380,12 @@ describe('terraformAirnodeApply', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform import -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" module.startCoordinator.google_app_engine_application.app[0] airnode-test-123456`,
+      `terraform import -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" module.startCoordinator.google_app_engine_application.app[0] airnode-test-123456`,
       { ignoreError: true }
     );
     expect(exec).toHaveBeenNthCalledWith(
       3,
-      `terraform apply -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       execOptions
     );
   });
@@ -487,7 +487,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });
@@ -527,7 +527,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });
@@ -570,7 +570,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_api_key=12345678-0000-0000-0000-000000000000" -var="http_max_concurrency=20" -var="http_signed_data_api_key=87654321-0000-0000-0000-000000000000" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });

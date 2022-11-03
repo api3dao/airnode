@@ -22,7 +22,7 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 }
 
-export const signHeartbeat = async (
+export const signHeartbeat = (
   heartbeatPayload: {
     cloud_provider: string;
     stage: string;
@@ -34,7 +34,7 @@ export const signHeartbeat = async (
 ) => {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
-  return await airnodeWallet.signMessage(
+  return airnodeWallet.signMessage(
     ethers.utils.arrayify(
       ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
     )
