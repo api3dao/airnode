@@ -1,5 +1,11 @@
 # @api3/airnode-protocol
 
+## 0.9.1
+
+### Patch Changes
+
+- @api3/airnode-utilities@0.9.1
+
 ## 0.9.0
 
 ### Minor Changes

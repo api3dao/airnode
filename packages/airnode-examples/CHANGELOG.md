@@ -1,5 +1,17 @@
 # @api3/airnode-examples
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [1826e56e]
+  - @api3/airnode-deployer@0.9.1
+  - @api3/airnode-abi@0.9.1
+  - @api3/airnode-admin@0.9.1
+  - @api3/airnode-node@0.9.1
+  - @api3/airnode-protocol@0.9.1
+  - @api3/airnode-utilities@0.9.1
+
 ## 0.9.0
 
 ### Minor Changes
