@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
+import { API_CALL_TIMEOUT } from '../constants';
 import { callApi, verifyTemplateId } from '.';
 
 describe('callApi', () => {
@@ -50,7 +51,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -95,7 +96,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -133,7 +134,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -184,7 +185,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -203,7 +204,7 @@ describe('callApi', () => {
       expect.objectContaining({
         parameters: { from: 'ETH', amount: '1' },
       }),
-      { timeout: 30_000 }
+      { timeout: API_CALL_TIMEOUT }
     );
   });
 
@@ -365,7 +366,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'BTC', source: 'airnode', amount: '1' },
         }),
-        { timeout: 30_000 }
+        { timeout: API_CALL_TIMEOUT }
       );
     });
 
@@ -409,7 +410,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'ETH', amount: '1' },
         }),
-        { timeout: 30_000 }
+        { timeout: API_CALL_TIMEOUT }
       );
     });
   });

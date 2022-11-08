@@ -31,8 +31,8 @@ describe('unsafe evaluate - async', () => {
         const output = input;
         output.push('start')
 
-        const tickMs = 30
-        const bufferMs = 20
+        const tickMs = 35
+        const bufferMs = 25
         setInterval(() => output.push('ping interval'), tickMs)
         await new Promise((res) => setTimeout(res, tickMs * 4 + bufferMs));
 

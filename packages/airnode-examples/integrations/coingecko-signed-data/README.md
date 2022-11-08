@@ -27,15 +27,13 @@ Feel free to encode a different parameter type to make a different request.
 You can trigger the API call with a POST request. For example, you can use `curl` in the terminal:
 
 ```sh
-curl -X POST -H 'x-api-key: <HTTP_SIGNED_DATA_GATEWAY_API_KEY>' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
+curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' '<HTTP_SIGNED_DATA_GATEWAY_URL>/<ENDPOINT_ID>'
 ```
 
 ### When deployed on cloud
 
 Before making the request, you need to replace the following placeholders:
 
-- `<HTTP_SIGNED_DATA_GATEWAY_API_KEY>` - This is a user defined API key to authenticate against the gateway, which must
-  be between 30 and 120 characters and is stored in `secrets.env`
 - `<HTTP_SIGNED_DATA_GATEWAY_URL>` - You can find this value as part of the terminal output of the `yarn deploy-airnode`
   command
 - `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path. It can
@@ -45,18 +43,19 @@ Before making the request, you need to replace the following placeholders:
 The correct command may look like this:
 
 ```sh
-curl -X POST -H 'x-api-key: 5da75575-e1c0-40ce-b2eb-5b9dcd2a460b' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'https://am6ncplkx4.execute-api.us-east-1.amazonaws.com/v1/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'https://am6ncplkx4.execute-api.us-east-1.amazonaws.com/v1/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
 
 ### When running Airnode locally
 
 When Airnode is run locally, the HTTP signed data gateway endpoint is always
-`http://localhost:<PORT>/http-signed-data/<ENDPOINT_ID>`. For now, `PORT` number is hardcoded to 3000.
+`http://localhost:<PORT>/http-signed-data/01234567-abcd-abcd-abcd-012345678abc/<ENDPOINT_ID>`. For now, `PORT` number is
+hardcoded to 3000.
 
 For example:
 
 ```sh
-curl -X POST -H 'x-api-key: 05701bc4-4eb4-4f60-b4eb-075c80ea98c6' -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
+curl -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/01234567-abcd-abcd-abcd-012345678abc/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4'
 ```
 
 ## Output

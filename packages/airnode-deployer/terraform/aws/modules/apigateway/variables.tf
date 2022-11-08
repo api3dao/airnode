@@ -21,8 +21,3 @@ variable "lambdas" {
   type        = list(string)
   default     = []
 }
-
-variable "api_key" {
-  description = "API key to access the APIGateway"
-  type        = string
-}

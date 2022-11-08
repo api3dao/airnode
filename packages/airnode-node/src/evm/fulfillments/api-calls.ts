@@ -4,7 +4,7 @@ import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
-import { DEFAULT_RETRY_TIMEOUT_MS, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
+import { BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
 import {
   Request,
   LogsErrorData,
@@ -63,7 +63,7 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goRes.success) {
     const errorLog = logger.pend(
       'ERROR',
@@ -96,7 +96,7 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goRes.success) {
     const errorLog = logger.pend(
       'ERROR',
@@ -179,7 +179,7 @@ async function submitFail(
       }
     );
 
-  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goRes = await go(tx, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goRes.success) {
     const errorLog = logger.pend(
       'ERROR',

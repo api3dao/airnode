@@ -51,14 +51,3 @@ resource "aws_api_gateway_usage_plan" "usage_plan" {
     stage  = aws_api_gateway_stage.stage.stage_name
   }
 }
-
-resource "aws_api_gateway_api_key" "api_key" {
-  name  = var.name
-  value = var.api_key
-}
-
-resource "aws_api_gateway_usage_plan_key" "main" {
-  key_id        = aws_api_gateway_api_key.api_key.id
-  key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.usage_plan.id
-}

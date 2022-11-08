@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
-import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE, BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
 import { RequesterEndpointAuthorizers, ChainAuthorizations } from '../../config';
 
@@ -35,7 +35,7 @@ export async function fetchAuthorizationStatus(
       apiCall.requesterAddress
     );
 
-  const goAuthorized = await go(contractCall, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goAuthorized = await go(contractCall, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goAuthorized.success) {
     const log = logger.pend(
       'ERROR',
@@ -75,7 +75,7 @@ async function fetchAuthorizationStatuses(
       requesterAddresses
     );
 
-  const goData = await go(contractCall, { retries: 1, attemptTimeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
+  const goData = await go(contractCall, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goData.success) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', goData.error);
 

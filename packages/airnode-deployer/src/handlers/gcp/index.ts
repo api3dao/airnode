@@ -3,7 +3,6 @@ import { Request, Response } from '@google-cloud/functions-framework/build/src/f
 import {
   handlers,
   providers,
-  config,
   InitializeProviderPayload,
   CallApiPayload,
   ProcessTransactionsPayload,
@@ -12,17 +11,9 @@ import {
   EnabledGateway,
   verifyHttpSignedDataRequest,
   verifyHttpRequest,
-  VerificationResult,
   verifyRequestOrigin,
 } from '@api3/airnode-node';
-import {
-  logger,
-  DEFAULT_RETRY_DELAY_MS,
-  randomHexString,
-  setLogOptions,
-  addMetadata,
-  caching,
-} from '@api3/airnode-utilities';
+import { logger, randomHexString, setLogOptions, addMetadata, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { z } from 'zod';
 
@@ -66,9 +57,7 @@ async function initializeProvider(payload: InitializeProviderPayload, res: Respo
   addMetadata({ 'Chain-ID': chainId, Provider: providerName });
   const stateWithConfig = { ...state, config: parsedConfig };
 
-  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig), {
-    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
-  });
+  const goInitializedState = await go(() => handlers.initializeProvider(stateWithConfig));
   if (!goInitializedState.success) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     logger.log(goInitializedState.error.toString());
@@ -107,9 +96,7 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
   const stateWithConfig = { ...state, config: parsedConfig };
   addMetadata({ 'Chain-ID': chainId, Provider: providerName, 'Sponsor-Address': state.sponsorAddress });
 
-  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig), {
-    delay: { type: 'static', delayMs: DEFAULT_RETRY_DELAY_MS },
-  });
+  const goUpdatedState = await go(() => handlers.processTransactions(stateWithConfig));
   if (!goUpdatedState.success) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, goUpdatedState.error);
@@ -120,20 +107,6 @@ async function processTransactions(payload: ProcessTransactionsPayload, res: Res
 
   const body = { ok: true, data: providers.scrub(goUpdatedState.data) };
   res.status(200).send(body);
-}
-
-// We need to check for an API key manually because GCP HTTP Gateway doesn't support managing API keys via API
-function verifyGcpApiKey(
-  req: Request,
-  apiKeyName: 'HTTP_GATEWAY_API_KEY' | 'HTTP_SIGNED_DATA_GATEWAY_API_KEY'
-): VerificationResult<{}> {
-  const apiKey = req.header('x-api-key');
-  if (!apiKey || apiKey !== config.getEnvValue(apiKeyName)) {
-    // Mimics the behavior of AWS HTTP Gateway
-    return { success: false, statusCode: 403, error: { message: 'Forbidden' } };
-  }
-
-  return { success: true };
 }
 
 // We do not want to enable ".strict()" - we want to allow extra fields in the request body
@@ -164,13 +137,6 @@ export async function processHttpRequest(req: Request, res: Response) {
   }
   // Set headers for the responses
   res.set(originVerification.headers);
-
-  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_GATEWAY_API_KEY');
-  if (!apiKeyVerification.success) {
-    const { statusCode, error } = apiKeyVerification;
-    res.status(statusCode).send(error);
-    return;
-  }
 
   const parsedBody = httpRequestBodySchema.safeParse(req.body);
   if (!parsedBody.success) {
@@ -234,13 +200,6 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
   }
   // Set headers for the responses
   res.set(originVerification.headers);
-
-  const apiKeyVerification = verifyGcpApiKey(req, 'HTTP_SIGNED_DATA_GATEWAY_API_KEY');
-  if (!apiKeyVerification.success) {
-    const { statusCode, error } = apiKeyVerification;
-    res.status(statusCode).send(error);
-    return;
-  }
 
   const parsedBody = httpSignedDataBodySchema.safeParse(req.body);
   if (!parsedBody.success) {

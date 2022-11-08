@@ -1,3 +1,9 @@
+resource "random_uuid" "http_path_key" {
+}
+
+resource "random_uuid" "http_signed_data_path_key" {
+}
+
 resource "google_project_service" "resourcemanager_api" {
   service = "cloudresourcemanager.googleapis.com"
 
@@ -65,8 +71,8 @@ module "startCoordinator" {
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_api_key == null ? null : "https://${module.httpGw[0].api_url}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_api_key == null ? null : "https://${module.httpSignedGw[0].api_url}"
+    HTTP_GATEWAY_URL             = var.http_gateway_enabled == false ? null : "https://${module.httpGw[0].api_url}/${random_uuid.http_path_key.result}"
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_gateway_enabled == false ? null : "https://${module.httpSignedGw[0].api_url}${random_uuid.http_signed_data_path_key.result}"
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -77,7 +83,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   service = "apigateway.googleapis.com"
 
@@ -90,7 +96,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_api_key == null && var.http_signed_data_api_key == null ? 0 : 1
+  count = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   service = "servicecontrol.googleapis.com"
 
@@ -104,7 +110,7 @@ resource "google_project_service" "servicecontrol_api" {
 
 module "httpReq" {
   source = "./modules/function"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_gateway_enabled == false ? 0 : 1
 
   name                  = "${local.name_prefix}-httpReq"
   entry_point           = "httpReq"
@@ -118,9 +124,6 @@ module "httpReq" {
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   max_instances         = var.disable_concurrency_reservation ? null : var.http_max_concurrency
-  environment_variables = {
-    HTTP_GATEWAY_API_KEY = var.http_api_key
-  }
 
   depends_on = [
     google_project_service.management_apis,
@@ -129,7 +132,7 @@ module "httpReq" {
 
 module "httpGw" {
   source = "./modules/apigateway"
-  count  = var.http_api_key == null ? 0 : 1
+  count  = var.http_gateway_enabled == false ? 0 : 1
 
   name          = "${local.name_prefix}-httpGw"
   template_file = "./templates/httpGw.yaml.tpl"
@@ -137,6 +140,7 @@ module "httpGw" {
     project             = var.gcp_project
     region              = var.gcp_region
     cloud_function_name = module.httpReq[0].function_name
+    path_key            = random_uuid.http_path_key.result
   }
   project = var.gcp_project
 
@@ -153,7 +157,7 @@ module "httpGw" {
 
 module "httpSignedReq" {
   source = "./modules/function"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   name                  = "${local.name_prefix}-httpSignedReq"
   entry_point           = "httpSignedReq"
@@ -168,8 +172,7 @@ module "httpSignedReq" {
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   environment_variables = {
-    HTTP_SIGNED_DATA_GATEWAY_API_KEY = var.http_signed_data_api_key
-    AIRNODE_WALLET_PRIVATE_KEY       = var.airnode_wallet_private_key
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
   depends_on = [
@@ -179,7 +182,7 @@ module "httpSignedReq" {
 
 module "httpSignedGw" {
   source = "./modules/apigateway"
-  count  = var.http_signed_data_api_key == null ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
 
   name          = "${local.name_prefix}-httpSignedGw"
   template_file = "./templates/httpSignedGw.yaml.tpl"
@@ -187,6 +190,7 @@ module "httpSignedGw" {
     project             = var.gcp_project
     region              = var.gcp_region
     cloud_function_name = module.httpSignedReq[0].function_name
+    path_key            = random_uuid.http_signed_data_path_key.result
   }
   project = var.gcp_project
 
