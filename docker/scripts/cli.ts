@@ -146,11 +146,11 @@ yargs(process.argv.slice(2))
             default: 'latest',
             type: 'string',
           },
-          'docker-tag': {
+          'docker-tags': {
             alias: 'g',
-            description: 'Docker tag to build the images under',
-            default: 'latest',
-            type: 'string',
+            description: 'Docker tags to build the images under',
+            default: ['latest'],
+            type: 'array',
           },
           dev: {
             alias: 'd',
@@ -161,29 +161,29 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev));
+          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTags, args.dev));
         }
       )
       .command(
         'publish',
         'Publish Docker images',
         {
-          'docker-tag': {
+          'docker-tags': {
             alias: 'g',
-            description: 'Docker tag to build the images under',
-            default: 'latest',
-            type: 'string',
+            description: 'Docker tags to publish',
+            default: ['latest'],
+            type: 'array',
           },
           dev: {
             alias: 'd',
-            description: 'Build Docker dev images (with -dev suffix)',
+            description: 'Publish Docker dev images (with -dev suffix)',
             default: false,
             type: 'boolean',
           },
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => publishDockerImages(args.dockerTag, args.dev));
+          runCliCommand(() => publishDockerImages(args.dockerTags, args.dev));
         }
       )
       .help()
