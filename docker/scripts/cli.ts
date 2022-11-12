@@ -5,7 +5,7 @@ import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
 import { disableMerge, enableMerge } from './github';
-import { openPullRequest, publishSnapshot } from './npm';
+import { openPullRequest, publish, publishSnapshot } from './npm';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -118,10 +118,16 @@ yargs(process.argv.slice(2))
             default: ['latest'],
             type: 'array',
           },
+          'release-branch': {
+            alias: 'b',
+            description: 'Branch, from which are the packages released',
+            type: 'string',
+            demandOption: true,
+          },
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          // TODO
+          runCliCommand(() => publish(args.npmRegistry, args.npmTags, args.releaseBranch));
         }
       )
       .help()

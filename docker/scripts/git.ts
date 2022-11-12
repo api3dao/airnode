@@ -39,3 +39,7 @@ export const setIdentity = (name: string, email: string) => {
   config('user.name', name);
   config('user.email', email);
 };
+
+export const tag = (tag: string, message: string, options?: ExecSyncOptions) => {
+  runCommand(`git tag -a ${tag} -m '${message}'`, options);
+};

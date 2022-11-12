@@ -5,7 +5,7 @@
 //                                                                                       //
 ///////////////////////////////////////// WARNING /////////////////////////////////////////
 
-import { readFileSync, writeFileSync, accessSync, constants } from 'fs';
+import { readFileSync, writeFileSync, accessSync, constants, readdirSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
@@ -161,4 +161,65 @@ export const openPullRequest = async (releaseVersion: string, headBranch: string
   const pullRequestTitle = `Release v${releaseVersion}`;
   const pullRequestNumber = await github.createPullRequest(headBranch, baseBranch, pullRequestTitle, '');
   github.requestPullRequestReview(pullRequestNumber);
+};
+
+export const publish = async (npmRegistry: string, npmTags: string[], releaseBranch: string) => {
+  let npmRegistryUrl = npmRegistry;
+
+  if (npmRegistry === 'local') {
+    const npmRegistryInfo = getNpmRegistryContainer();
+    if (!npmRegistryInfo) {
+      throw new Error(`Can't publish NPM packages: No local NPM registry running`);
+    }
+
+    npmRegistryUrl = npmRegistryInfo.npmRegistryUrl;
+  }
+
+  npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
+
+  fetchProject();
+
+  if (!git.branchExists(releaseBranch)) {
+    throw new Error(`No '${releaseBranch}' branch found`);
+  }
+  git.checkout(releaseBranch);
+
+  installDependencies();
+  buildProject();
+
+  let npmAuthToken = process.env.NPM_TOKEN;
+  if (npmRegistry === 'local') {
+    npmAuthToken = await registerUser(npmRegistryUrl);
+  }
+
+  if (!npmAuthToken) {
+    throw new Error('Missing NPM authentication token');
+  }
+
+  authNpmRegistry(npmRegistryUrl, npmAuthToken);
+
+  const firstNpmTag = npmTags[0];
+  runCommand(`yarn changeset publish --no-git-tag --tag ${firstNpmTag}`, { stdio: 'ignore' });
+
+  let releaseVersion: string;
+  const npmPackages: string[] = readdirSync('packages').map((packageDir) => {
+    const packageJson = JSON.parse(readFileSync(`packages/${packageDir}/package.json`).toString());
+    releaseVersion = packageJson.version;
+
+    return packageJson.name;
+  });
+
+  for (const npmPackage of npmPackages) {
+    for (const additionalNpmTag of npmTags.slice(1)) {
+      // The library making requests in Yarn is outdated and the `yarn tag add` command fails. Using `npm` instead.
+      // https://github.com/yarnpkg/yarn/issues/7823#issuecomment-737248277
+      runCommand(`npm dist-tag add ${npmPackage}@${releaseVersion!} ${additionalNpmTag}`);
+    }
+  }
+
+  git.setIdentity('API3 Automation', 'automation@api3.org');
+  github.authenticate();
+  const tag = `v${releaseVersion!}`;
+  git.tag(tag, `Release ${tag}`);
+  git.push(tag);
 };
