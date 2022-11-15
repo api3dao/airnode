@@ -60,7 +60,7 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        ...heartbeatPayload,
+        payload: JSON.stringify(heartbeatPayload),
         signature,
         timestamp,
       },
@@ -93,7 +93,7 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        ...heartbeatPayload,
+        payload: JSON.stringify(heartbeatPayload),
         signature,
         timestamp,
       },
@@ -181,7 +181,7 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          ...heartbeatPayload,
+          payload: JSON.stringify(heartbeatPayload),
           signature,
           timestamp,
         },
@@ -215,7 +215,7 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          ...heartbeatPayload,
+          payload: JSON.stringify(heartbeatPayload),
           signature,
           timestamp,
         },
@@ -236,14 +236,12 @@ describe('reportHeartbeat', () => {
     it('signs verifiable heartbeat', async () => {
       const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
       const signerAddress = ethers.utils.verifyMessage(
-        ethers.utils.arrayify(
-          ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
-        ),
+        JSON.stringify({ payload: JSON.stringify(heartbeatPayload), timestamp }),
         signature
       );
 
       expect(signature).toEqual(
-        '0x3d63a776155b1ea16eff0a8399fe16ed25e1f207300136918979074e80bd2cab75ee200bb4148e294a0867a42520eeed1a2214f190e3369914b5d2116c2cde141b'
+        '0x6bb2fe4b89e57f63e7bf4942125a026dff7c97626cacdcefb24cae8bfd9ba275744cf0ee9afa68c16380aae1a563c9c0ccf53d4786f7595051794a89dc812d361c'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });

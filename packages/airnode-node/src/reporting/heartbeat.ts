@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { execute } from '@api3/airnode-adapter';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -34,11 +33,7 @@ export const signHeartbeat = (
 ) => {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
-  return airnodeWallet.signMessage(
-    ethers.utils.arrayify(
-      ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
-    )
-  );
+  return airnodeWallet.signMessage(JSON.stringify({ payload: JSON.stringify(heartbeatPayload), timestamp }));
 };
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
@@ -78,7 +73,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
       'airnode-heartbeat-api-key': apiKey,
     },
     data: {
-      ...heartbeatPayload,
+      payload: JSON.stringify(heartbeatPayload),
       signature: goSignHeartbeat.data,
       timestamp,
     },
