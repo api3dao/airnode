@@ -5,12 +5,12 @@
 //                                                                                       //
 ///////////////////////////////////////// WARNING /////////////////////////////////////////
 
-import { readFileSync, writeFileSync, accessSync, constants, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
 import axios from 'axios';
-import { go, goSync } from '@api3/promise-utils';
+import { go } from '@api3/promise-utils';
 import { logger } from '@api3/airnode-utilities';
 import { runCommand, isDocker, unifyUrlFormat } from './utils';
 import { getNpmRegistryContainer } from './npm-registry';
@@ -21,17 +21,15 @@ if (!isDocker()) {
   throw new Error('This script should be run only in the Docker container');
 }
 
-const fetchProject = () => {
-  const goAccess = goSync(() => accessSync('/airnode', constants.F_OK));
-  if (goAccess.success) {
+const fetchProject = (airnodeMounted = false) => {
+  if (airnodeMounted) {
+    logger.log('WARNING: Using local Airnode source code!');
     git.config('safe.directory', '/airnode');
     const excludedFiles = git.listFiles({ cwd: '/airnode' }).split('\n');
     const excludeOptions = excludedFiles.map((excludedFile) => `--exclude ${excludedFile}`).join(' ');
     runCommand(`rsync -a ${excludeOptions} --exclude .git /airnode/ /build`);
   } else {
-    const gitRef = process.env.GIT_REF ?? 'master';
     git.clone('/build');
-    git.checkout(gitRef);
   }
   git.config('safe.directory', '/build');
 };
@@ -97,46 +95,18 @@ const simplifyChangesetConfig = () => {
   writeFileSync(changesetConfigPath, newChangesetConfig);
 };
 
-export const publishSnapshot = async (npmRegistry: string, npmTag: string) => {
-  npmTag = `snapshot-${npmTag}`;
-  let npmRegistryUrl = npmRegistry;
-
-  if (npmRegistry === 'local') {
-    const npmRegistryInfo = getNpmRegistryContainer();
-    if (!npmRegistryInfo) {
-      throw new Error(`Can't publish NPM packages: No local NPM registry running`);
-    }
-
-    npmRegistryUrl = npmRegistryInfo.npmRegistryUrl;
+const selectBranch = (branch: string) => {
+  if (!git.branchExists(branch)) {
+    throw new Error(`No '${branch}' branch found`);
   }
-
-  npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
-
-  fetchProject();
-  installDependencies();
-  buildProject();
-
-  let npmAuthToken = process.env.NPM_TOKEN;
-  if (npmRegistry === 'local') {
-    npmAuthToken = await registerUser(npmRegistryUrl);
-  }
-
-  if (!npmAuthToken) {
-    throw new Error('Missing NPM authentication token');
-  }
-
-  authNpmRegistry(npmRegistryUrl, npmAuthToken);
-  simplifyChangesetConfig();
-  // Ignoring commands' outputs because of the weird text colorization.
-  runCommand(`yarn changeset version --snapshot ${npmTag}`, { stdio: 'ignore' });
-  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { stdio: 'ignore' });
+  git.checkout(branch);
 };
 
-const selectBranch = (headBranch: string, baseBranch: string) => {
+const selectOrCreateBranch = (headBranch: string, baseBranch: string) => {
   if (git.branchExists(headBranch)) {
     git.checkout(headBranch);
   } else {
-    git.checkout(baseBranch);
+    selectBranch(baseBranch);
     git.createBranch(headBranch);
   }
 };
@@ -149,21 +119,7 @@ const applyReleaseChanges = (releaseVersion: string, branch: string) => {
   git.push(branch);
 };
 
-export const openPullRequest = async (releaseVersion: string, headBranch: string, baseBranch: string) => {
-  fetchProject();
-  installDependencies();
-
-  git.setIdentity('API3 Automation', 'automation@api3.org');
-  github.authenticate();
-  selectBranch(headBranch, baseBranch);
-  applyReleaseChanges(releaseVersion, headBranch);
-
-  const pullRequestTitle = `Release v${releaseVersion}`;
-  const pullRequestNumber = await github.createPullRequest(headBranch, baseBranch, pullRequestTitle, '');
-  github.requestPullRequestReview(pullRequestNumber);
-};
-
-export const publish = async (npmRegistry: string, npmTags: string[], releaseBranch: string) => {
+const getNpmRegistryUrl = (npmRegistry: string) => {
   let npmRegistryUrl = npmRegistry;
 
   if (npmRegistry === 'local') {
@@ -175,18 +131,10 @@ export const publish = async (npmRegistry: string, npmTags: string[], releaseBra
     npmRegistryUrl = npmRegistryInfo.npmRegistryUrl;
   }
 
-  npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
+  return unifyUrlFormat(npmRegistryUrl);
+};
 
-  fetchProject();
-
-  if (!git.branchExists(releaseBranch)) {
-    throw new Error(`No '${releaseBranch}' branch found`);
-  }
-  git.checkout(releaseBranch);
-
-  installDependencies();
-  buildProject();
-
+const getNpmAuthToken = async (npmRegistry: string, npmRegistryUrl: string) => {
   let npmAuthToken = process.env.NPM_TOKEN;
   if (npmRegistry === 'local') {
     npmAuthToken = await registerUser(npmRegistryUrl);
@@ -196,7 +144,45 @@ export const publish = async (npmRegistry: string, npmTags: string[], releaseBra
     throw new Error('Missing NPM authentication token');
   }
 
+  return npmAuthToken;
+};
+
+const prePublishSetup = async (npmRegistry: string, releaseBranch?: string) => {
+  const npmRegistryUrl = getNpmRegistryUrl(npmRegistry);
+  fetchProject(!releaseBranch);
+  if (releaseBranch) selectBranch(releaseBranch);
+  installDependencies();
+  buildProject();
+  const npmAuthToken = await getNpmAuthToken(npmRegistry, npmRegistryUrl);
   authNpmRegistry(npmRegistryUrl, npmAuthToken);
+};
+
+export const publishSnapshot = async (npmRegistry: string, npmTag: string, releaseBranch?: string) => {
+  await prePublishSetup(npmRegistry, releaseBranch);
+
+  simplifyChangesetConfig();
+  npmTag = `snapshot-${npmTag}`;
+  // Ignoring commands' outputs because of the weird text colorization.
+  runCommand(`yarn changeset version --snapshot ${npmTag}`, { stdio: 'ignore' });
+  runCommand(`yarn changeset publish --no-git-tag --snapshot --tag ${npmTag}`, { stdio: 'ignore' });
+};
+
+export const openPullRequest = async (releaseVersion: string, headBranch: string, baseBranch: string) => {
+  fetchProject();
+  installDependencies();
+
+  git.setIdentity('API3 Automation', 'automation@api3.org');
+  github.authenticate();
+  selectOrCreateBranch(headBranch, baseBranch);
+  applyReleaseChanges(releaseVersion, headBranch);
+
+  const pullRequestTitle = `Release v${releaseVersion}`;
+  const pullRequestNumber = await github.createPullRequest(headBranch, baseBranch, pullRequestTitle, '');
+  github.requestPullRequestReview(pullRequestNumber);
+};
+
+export const publish = async (npmRegistry: string, npmTags: string[], releaseBranch: string) => {
+  await prePublishSetup(npmRegistry, releaseBranch);
 
   const firstNpmTag = npmTags[0];
   runCommand(`yarn changeset publish --no-git-tag --tag ${firstNpmTag}`, { stdio: 'ignore' });

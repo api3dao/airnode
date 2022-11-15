@@ -1,13 +1,19 @@
 import { ExecSyncOptions } from 'child_process';
-import { runCommand } from './utils';
+import { isDocker, runCommand } from './utils';
 
 const AIRNODE_REPOSITORY = 'https://github.com/api3dao/airnode.git';
+
+if (!isDocker()) {
+  throw new Error('This script should be run only in the Docker container');
+}
 
 export const config = (section: string, value: string) => runCommand(`git config --global --add ${section} '${value}'`);
 
 export const clone = (directory?: string) => runCommand(`git clone ${AIRNODE_REPOSITORY} ${directory ?? ''}`);
 
-export const checkout = (ref: string, options?: ExecSyncOptions) => runCommand(`git checkout ${ref}`, options);
+export const checkout = (ref: string, options?: ExecSyncOptions) => {
+  runCommand(`git checkout ${ref}`, options);
+};
 
 export const listFiles = (options?: ExecSyncOptions) =>
   runCommand(`git ls-files --exclude-standard -oi --directory`, options);

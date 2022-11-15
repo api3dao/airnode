@@ -6,6 +6,7 @@ import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
 import { disableMerge, enableMerge } from './github';
 import { openPullRequest, publish, publishSnapshot } from './npm';
+import { isAirnodeMounted } from './utils';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -68,10 +69,34 @@ yargs(process.argv.slice(2))
             default: 'latest',
             type: 'string',
           },
+          'release-branch': {
+            alias: 'b',
+            description: 'Branch, from which are the packages released',
+            type: 'string',
+          },
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runAsyncCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag));
+
+          const airnodeMounted = isAirnodeMounted();
+          if (!airnodeMounted && !args.releaseBranch) {
+            handleCliCommand({
+              success: false,
+              error: new Error('Either provide the release Git branch or mount the Airnode source code directory'),
+            });
+            return;
+          }
+          if (airnodeMounted && args.releaseBranch) {
+            handleCliCommand({
+              success: false,
+              error: new Error(
+                `Can't provide the release Git branch and mount the Airnode source code directory at the same time`
+              ),
+            });
+            return;
+          }
+
+          runAsyncCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag, args.releaseBranch));
         }
       )
       .command(
