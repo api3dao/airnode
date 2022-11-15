@@ -75,9 +75,6 @@ registry=${npmRegistryUrl}
   const newYarn = `registry "${npmRegistryUrl}"
 `;
 
-  logger.log(`Updated .npmrc: ${newNpmrc}`);
-  logger.log(`Updated .yarnrc: ${newYarn}`);
-
   writeFileSync(npmrcPath, newNpmrc);
   writeFileSync(yarnrcPath, newYarn);
 };

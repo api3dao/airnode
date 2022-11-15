@@ -1,14 +1,28 @@
 import { execSync, ExecSyncOptions } from 'child_process';
 import { statSync, readFileSync, accessSync, constants } from 'fs';
-import omit from 'lodash/omit';
+import has from 'lodash/has';
 import { logger } from '@api3/airnode-utilities';
 import { goSync } from '@api3/promise-utils';
 
+const hideSecrets = (command: string, options?: ExecSyncOptions) => {
+  // There are currently 2 secrets being logged:
+  // * DockerHub auth token - stdin
+  // * GitHub auth token - remote URL
+  // Third secret, the NPM auth token, is stored in a file therefore not logged
+
+  // DockerHub auth token
+  const hiddenOptions = has(options, 'input') ? { ...options, input: '***' } : options;
+
+  // GitHub auth token
+  const hiddenCommand = command.replace(/(https:\/\/x-access-token):(.*?)(@github\.com.*$)/, '$1:***$3');
+
+  return { hiddenCommand, hiddenOptions };
+};
+
 export const runCommand = (command: string, options?: ExecSyncOptions) => {
-  // Omitting `input` as it's used for passing the DockerHub password and we don't want to log it
-  logger.log(
-    `Running command: '${command}'${options ? ` with options ${JSON.stringify(omit(options, ['input']))}` : ''}`
-  );
+  const { hiddenCommand, hiddenOptions } = hideSecrets(command, options);
+
+  logger.log(`Running command: '${hiddenCommand}' with options ${JSON.stringify(hiddenOptions)}`);
   try {
     return execSync(command, options)?.toString().trim();
   } catch (e) {
