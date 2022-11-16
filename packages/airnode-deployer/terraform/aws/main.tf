@@ -27,7 +27,7 @@ module "run" {
 
 module "startCoordinatorNoGws" {
   source = "./modules/function"
-  count  = var.http_api_key == null && var.http_signed_data_api_key == null ? 1 : 0
+  count  = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == false ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -50,7 +50,7 @@ module "startCoordinatorNoGws" {
 
 module "startCoordinatorHttpGw" {
   source = "./modules/function"
-  count  = var.http_api_key != null && var.http_signed_data_api_key == null ? 1 : 0
+  count  = var.http_gateway_enabled == true && var.http_signed_data_gateway_enabled == false ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -74,7 +74,7 @@ module "startCoordinatorHttpGw" {
 
 module "startCoordinatorHttpSignedGw" {
   source = "./modules/function"
-  count  = var.http_api_key == null && var.http_signed_data_api_key != null ? 1 : 0
+  count  = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == true ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -98,7 +98,7 @@ module "startCoordinatorHttpSignedGw" {
 
 module "startCoordinatorBothGws" {
   source = "./modules/function"
-  count  = var.http_api_key != null && var.http_signed_data_api_key != null ? 1 : 0
+  count  = var.http_gateway_enabled == true && var.http_signed_data_gateway_enabled == true ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
