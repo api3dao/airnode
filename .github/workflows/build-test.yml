@@ -127,16 +127,16 @@ jobs:
       - name: Start local NPM registry
         run: yarn docker:scripts:npm-registry:start
       - name: Publish NPM packages to local NPM registry
-        run: yarn docker:scripts:npm:publish-snapshot --npm-registry local --npm-tag ${{ github.sha }}
+        run: yarn docker:scripts:npm:publish-snapshot:mount --npm-registry local --npm-tag ${{ github.sha }}
       - name: Build Docker containers
-        run: yarn docker:scripts:docker:build --dev --npm-registry local --npm-tag snapshot-${{ github.sha }} --docker-tag ${{ github.sha }}
+        run: yarn docker:scripts:docker:build --dev --npm-registry local --npm-tag snapshot-${{ github.sha }} --docker-tags ${{ github.sha }}
       - name: Stop local NPM registry
         run: yarn docker:scripts:npm-registry:stop
       - name: Publish Docker containers
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: yarn docker:scripts:docker:publish --dev --docker-tag ${{ github.sha }}
+        run: yarn docker:scripts:docker:publish --dev --docker-tags ${{ github.sha }}
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest
