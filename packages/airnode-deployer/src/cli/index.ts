@@ -50,7 +50,6 @@ const cliExamples = [
   'list --cloud-providers gcp',
   'info 5bbcd317',
   'remove-with-receipt -r config/receipt.json',
-  'remove-with-deployment-details --airnode-address 0x6abEdc0A4d1A79eD62160396456c95C5607369D3 --stage dev --cloud-provider aws --region us-east-1',
 ];
 
 yargs(hideBin(process.argv))
