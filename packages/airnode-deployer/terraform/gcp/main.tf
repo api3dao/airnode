@@ -71,8 +71,8 @@ module "startCoordinator" {
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_gateway_enabled == false ? null : "https://${module.httpGw[0].api_url}/${random_uuid.http_path_key.result}"
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_gateway_enabled == false ? null : "https://${module.httpSignedGw[0].api_url}${random_uuid.http_signed_data_path_key.result}"
+    HTTP_GATEWAY_URL             = var.http_gateway_enabled ? "https://${module.httpGw[0].api_url}/${random_uuid.http_path_key.result}" : null
+    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_gateway_enabled ? "https://${module.httpSignedGw[0].api_url}${random_uuid.http_signed_data_path_key.result}" : null
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -83,7 +83,7 @@ module "startCoordinator" {
 }
 
 resource "google_project_service" "apigateway_api" {
-  count = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == false ? 0 : 1
+  count = var.http_gateway_enabled || var.http_signed_data_gateway_enabled ? 1 : 0
 
   service = "apigateway.googleapis.com"
 
@@ -96,7 +96,7 @@ resource "google_project_service" "apigateway_api" {
 }
 
 resource "google_project_service" "servicecontrol_api" {
-  count = var.http_gateway_enabled == false && var.http_signed_data_gateway_enabled == false ? 0 : 1
+  count = var.http_gateway_enabled || var.http_signed_data_gateway_enabled ? 1 : 0
 
   service = "servicecontrol.googleapis.com"
 
@@ -110,7 +110,7 @@ resource "google_project_service" "servicecontrol_api" {
 
 module "httpReq" {
   source = "./modules/function"
-  count  = var.http_gateway_enabled == false ? 0 : 1
+  count  = var.http_gateway_enabled ? 1 : 0
 
   name                  = "${local.name_prefix}-httpReq"
   entry_point           = "httpReq"
@@ -132,7 +132,7 @@ module "httpReq" {
 
 module "httpGw" {
   source = "./modules/apigateway"
-  count  = var.http_gateway_enabled == false ? 0 : 1
+  count  = var.http_gateway_enabled ? 1 : 0
 
   name          = "${local.name_prefix}-httpGw"
   template_file = "./templates/httpGw.yaml.tpl"
@@ -157,7 +157,7 @@ module "httpGw" {
 
 module "httpSignedReq" {
   source = "./modules/function"
-  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled ? 1 : 0
 
   name                  = "${local.name_prefix}-httpSignedReq"
   entry_point           = "httpSignedReq"
@@ -182,7 +182,7 @@ module "httpSignedReq" {
 
 module "httpSignedGw" {
   source = "./modules/apigateway"
-  count  = var.http_signed_data_gateway_enabled == false ? 0 : 1
+  count  = var.http_signed_data_gateway_enabled ? 1 : 0
 
   name          = "${local.name_prefix}-httpSignedGw"
   template_file = "./templates/httpSignedGw.yaml.tpl"
