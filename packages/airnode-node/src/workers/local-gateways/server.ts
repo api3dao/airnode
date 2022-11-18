@@ -44,7 +44,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
     const httpSignedDataRequestHandler = async function (req: Request, res: Response) {
       // For logging, unlike blockchain requests, gateway requests don't have requestIds
       const requestId = randomUUID();
-      logger.info(`HTTP signed data gateway request received, assigning it a request ID of: ${requestId}`);
+      logger.debug(`HTTP signed data gateway request received, assigning it a request ID of: ${requestId}`);
 
       const originVerification = verifyRequestOrigin(
         (config.nodeSettings.httpSignedDataGateway as EnabledGateway).corsOrigins,
@@ -100,7 +100,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
         res.status(500).send({ message: err.toString() });
         return;
       }
-      logger.info(`HTTP signed data gateway request ${requestId} processed successfully`);
+      logger.debug(`HTTP signed data gateway request ${requestId} processed successfully`);
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);
@@ -119,7 +119,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
     const httpRequestHandler = async function (req: Request, res: Response) {
       // For logging, unlike blockchain requests, gateway requests don't have requestIds
       const requestId = randomUUID();
-      logger.info(`HTTP gateway request received, assigning it a request ID of: ${requestId}`);
+      logger.debug(`HTTP gateway request received, assigning it a request ID of: ${requestId}`);
 
       const originVerification = verifyRequestOrigin(
         (config.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
@@ -172,7 +172,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
         res.status(500).send({ message: err.toString() });
         return;
       }
-      logger.info(`HTTP gateway request ${requestId} processed successfully`);
+      logger.debug(`HTTP gateway request ${requestId} processed successfully`);
 
       // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
       res.status(200).send(result!.data);

@@ -123,7 +123,7 @@ export async function processHttpRequest(req: Request, res: Response) {
 
   // For logging, unlike blockchain requests, GCP gateway requests don't have requestIds
   const requestId = randomUUID();
-  logger.info(`HTTP gateway request received, assigning it a request ID of: ${requestId}`);
+  logger.debug(`HTTP gateway request received, assigning it a request ID of: ${requestId}`);
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
@@ -177,7 +177,7 @@ export async function processHttpRequest(req: Request, res: Response) {
     res.status(500).send({ message: err.toString() });
     return;
   }
-  logger.info(`HTTP gateway request ${requestId} processed successfully`);
+  logger.debug(`HTTP gateway request ${requestId} processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   res.status(200).send(result!.data);
@@ -198,7 +198,7 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
 
   // For logging, unlike blockchain requests, GCP gateway requests don't have requestIds
   const requestId = randomUUID();
-  logger.info(`HTTP signed data gateway request received, assigning it a request ID of: ${requestId}`);
+  logger.debug(`HTTP signed data gateway request received, assigning it a request ID of: ${requestId}`);
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(

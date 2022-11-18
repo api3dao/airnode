@@ -117,9 +117,6 @@ export async function processHttpRequest(
     level: parsedConfig.nodeSettings.logLevel,
   });
 
-  // Unlike GCP, AWS automatically generates a unique request ID so no need to use one here
-  logger.info(`Received HTTP gateway request`);
-
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
     (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
@@ -157,7 +154,7 @@ export async function processHttpRequest(
     logger.error(`HTTP gateway request processing error`);
     return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
-  logger.info(`HTTP gateway request processed successfully`);
+  logger.debug(`HTTP gateway request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
@@ -176,8 +173,6 @@ export async function processHttpSignedDataRequest(
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
-  // Unlike GCP, AWS automatically generates a unique request ID so no need to use one here
-  logger.info(`Received HTTP signed data gateway request`);
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
@@ -216,7 +211,7 @@ export async function processHttpSignedDataRequest(
     logger.error(`HTTP signed data gateway request processing error`);
     return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
-  logger.info(`HTTP signed data gateway request processed successfully`);
+  logger.debug(`HTTP signed data gateway request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
