@@ -48,8 +48,9 @@ async function runCommand(command: () => Promise<void>) {
 const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
   'list --cloud-providers gcp',
-  'info 5bbcd317',
+  'info aws808e2a22',
   'remove-with-receipt -r config/receipt.json',
+  'remove aws808e2a22',
 ];
 
 yargs(hideBin(process.argv))
