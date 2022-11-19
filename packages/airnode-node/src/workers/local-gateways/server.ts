@@ -48,7 +48,6 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
         meta: { requestId: randomUUID() },
       });
 
-      // For logging, unlike blockchain requests, gateway requests don't have requestIds
       logger.debug(`HTTP signed data gateway request received`);
 
       const originVerification = verifyRequestOrigin(
@@ -124,7 +123,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
         level: config.nodeSettings.logLevel,
         meta: { requestId: randomUUID() },
       });
-      // For logging, unlike blockchain requests, gateway requests don't have requestIds
+
       logger.debug(`HTTP gateway request received`);
 
       const originVerification = verifyRequestOrigin(
