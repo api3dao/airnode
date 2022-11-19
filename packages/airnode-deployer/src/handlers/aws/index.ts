@@ -117,6 +117,8 @@ export async function processHttpRequest(
     level: parsedConfig.nodeSettings.logLevel,
   });
 
+  logger.debug(`HTTP gateway request received`);
+
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(
     (parsedConfig.nodeSettings.httpGateway as EnabledGateway).corsOrigins,
@@ -173,6 +175,8 @@ export async function processHttpSignedDataRequest(
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
   });
+
+  logger.debug(`HTTP signed data gateway request received`);
 
   // Check if the request origin header is allowed in the config
   const originVerification = verifyRequestOrigin(

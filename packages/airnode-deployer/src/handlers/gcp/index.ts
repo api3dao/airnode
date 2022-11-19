@@ -1,5 +1,4 @@
 import * as path from 'path';
-import { randomUUID } from 'crypto';
 import { Request, Response } from '@google-cloud/functions-framework/build/src/functions';
 import {
   handlers,
@@ -119,7 +118,6 @@ export async function processHttpRequest(req: Request, res: Response) {
   setLogOptions({
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
-    meta: { requestId: randomUUID() },
   });
 
   logger.debug(`HTTP gateway request received`);
@@ -193,7 +191,6 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
   setLogOptions({
     format: parsedConfig.nodeSettings.logFormat,
     level: parsedConfig.nodeSettings.logLevel,
-    meta: { requestId: randomUUID() },
   });
 
   logger.debug(`HTTP signed data gateway request received`);
