@@ -145,9 +145,9 @@ export async function processHttpRequest(
     return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { parameters, endpointId } = verificationResult;
-  logger.debug(`HTTP gateway request passed request verification for endpoint ${endpointId}`);
 
   addMetadata({ 'Endpoint-ID': endpointId });
+  logger.debug(`HTTP gateway request passed request verification`);
   const [err, result] = await handlers.processHttpRequest(parsedConfig, endpointId, parameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
@@ -202,9 +202,9 @@ export async function processHttpSignedDataRequest(
     return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
   }
   const { encodedParameters, endpointId } = verificationResult;
-  logger.debug(`HTTP signed data gateway request passed request verification for endpoint ${endpointId}`);
 
   addMetadata({ 'Endpoint-ID': endpointId });
+  logger.debug(`HTTP signed data gateway request passed request verification`);
   const [err, result] = await handlers.processHttpSignedDataRequest(parsedConfig, endpointId, encodedParameters);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { logger, setLogOptions } from '@api3/airnode-utilities';
+import { addMetadata, logger, setLogOptions } from '@api3/airnode-utilities';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import { verifyHttpRequest, verifyHttpSignedDataRequest, verifyRequestOrigin } from './validation';
@@ -83,21 +83,22 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       const { encodedParameters: rawEncodedParameters } = parsedBody.data;
 
       const rawEndpointId = req.params.endpointId;
-      logger.debug(`HTTP signed data gateway request passed request body parsing for endpoint ${rawEndpointId}`);
+      logger.debug(`HTTP signed data gateway request passed request body parsing`);
       const verificationResult = verifyHttpSignedDataRequest(config, rawEncodedParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
-        logger.error(`HTTP signed data gateway request request verification error`);
+        logger.error(`HTTP signed data gateway request verification error`);
         res.status(statusCode).send(error);
         return;
       }
       const { encodedParameters, endpointId } = verificationResult;
-      logger.debug(`HTTP signed data gateway request passed request verification for endpoint ${endpointId}`);
+      addMetadata({ 'Endpoint-ID': endpointId });
+      logger.debug(`HTTP signed data gateway request passed request verification`);
 
       const [err, result] = await processHttpSignedDataRequest(config, endpointId, encodedParameters);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
-        logger.error(`HTTP signed data gateway request request processing error`);
+        logger.error(`HTTP signed data gateway request processing error`);
         res.status(500).send({ message: err.toString() });
         return;
       }
@@ -159,21 +160,22 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       const { parameters: rawParameters } = parsedBody.data;
 
       const rawEndpointId = req.params.endpointId;
-      logger.debug(`HTTP gateway request passed request body parsing for endpoint ${rawEndpointId}`);
+      logger.debug(`HTTP gateway request passed request body parsing`);
       const verificationResult = verifyHttpRequest(config, rawParameters, rawEndpointId);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
-        logger.error(`HTTP gateway request request verification error`);
+        logger.error(`HTTP gateway request verification error`);
         res.status(statusCode).send(error);
         return;
       }
       const { parameters, endpointId } = verificationResult;
-      logger.debug(`HTTP gateway request passed request verification for endpoint ${endpointId}`);
+      addMetadata({ 'Endpoint-ID': endpointId });
+      logger.debug(`HTTP gateway request passed request verification`);
 
       const [err, result] = await processHttpRequest(config, endpointId, parameters);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
-        logger.error(`HTTP gateway request request processing error`);
+        logger.error(`HTTP gateway request processing error`);
         res.status(500).send({ message: err.toString() });
         return;
       }
