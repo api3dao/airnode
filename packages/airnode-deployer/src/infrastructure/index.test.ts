@@ -697,9 +697,16 @@ describe('removeAirnode', () => {
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
       .mockResolvedValue(mutableDirectoryStructure);
-    awsGetFileFromBucketSpy = jest
-      .spyOn(aws, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockImplementation((_bucket, path) => {
+      if (path.includes('config.json')) {
+        return Promise.resolve(fs.readFileSync(configPath).toString());
+      }
+      if (path.includes('secrets.env')) {
+        return Promise.resolve(fs.readFileSync(secretsPath).toString());
+      }
+
+      throw new Error(`Mocking fetching of unsupported file '${path}'`);
+    });
     awsDeleteBucketDirectory = jest.spyOn(aws, 'deleteBucketDirectory').mockResolvedValue();
     awsDeleteBucket = jest.spyOn(aws, 'deleteBucket').mockResolvedValue();
     jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => 'tmpDir');
@@ -715,6 +722,10 @@ describe('removeAirnode', () => {
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket.name,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
@@ -742,6 +753,10 @@ describe('removeAirnode', () => {
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
@@ -778,6 +793,10 @@ describe('removeAirnode', () => {
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
       bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
       1,
@@ -862,6 +881,7 @@ describe('listAirnodes', () => {
   };
   const configAwsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
   const configGcpPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.gcp.valid.json');
+  const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -880,16 +900,30 @@ describe('listAirnodes', () => {
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
       .mockResolvedValue(directoryStructure);
-    awsGetFileFromBucketSpy = jest
-      .spyOn(aws, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configAwsPath).toString());
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockImplementation((_bucket, path) => {
+      if (path.includes('config.json')) {
+        return Promise.resolve(fs.readFileSync(configAwsPath).toString());
+      }
+      if (path.includes('secrets.env')) {
+        return Promise.resolve(fs.readFileSync(secretsPath).toString());
+      }
+
+      throw new Error(`Mocking fetching of unsupported file '${path}'`);
+    });
     gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
     gcpGetBucketDirectoryStructureSpy = jest
       .spyOn(gcp, 'getBucketDirectoryStructure')
       .mockResolvedValue(directoryStructure);
-    gcpGetFileFromBucketSpy = jest
-      .spyOn(gcp, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configGcpPath).toString());
+    gcpGetFileFromBucketSpy = jest.spyOn(gcp, 'getFileFromBucket').mockImplementation((_bucket, path) => {
+      if (path.includes('config.json')) {
+        return Promise.resolve(fs.readFileSync(configGcpPath).toString());
+      }
+      if (path.includes('secrets.env')) {
+        return Promise.resolve(fs.readFileSync(secretsPath).toString());
+      }
+
+      throw new Error(`Mocking fetching of unsupported file '${path}'`);
+    });
     consoleSpy = jest.spyOn(console, 'log');
   });
 
@@ -913,7 +947,7 @@ describe('listAirnodes', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
-    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
       bucket.name,
@@ -922,14 +956,29 @@ describe('listAirnodes', () => {
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
       bucket.name,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
       bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      5,
+      bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
-    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      6,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
       bucket.name,
@@ -938,12 +987,27 @@ describe('listAirnodes', () => {
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
       bucket.name,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
       bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      5,
+      bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      6,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
 
@@ -967,7 +1031,7 @@ describe('listAirnodes', () => {
     expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
-    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
       bucket.name,
@@ -976,12 +1040,27 @@ describe('listAirnodes', () => {
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
       bucket.name,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
       bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      5,
+      bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      6,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
 
@@ -1013,6 +1092,7 @@ describe('deploymentInfo', () => {
     region: 'us-east-1',
   };
   const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
+  const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
   const directoryStructure = pick(mockBucketDirectoryStructure, [
     '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
     '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -1031,9 +1111,16 @@ describe('deploymentInfo', () => {
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')
       .mockResolvedValue(directoryStructure);
-    awsGetFileFromBucketSpy = jest
-      .spyOn(aws, 'getFileFromBucket')
-      .mockResolvedValue(fs.readFileSync(configPath).toString());
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockImplementation((_bucket, path) => {
+      if (path.includes('config.json')) {
+        return Promise.resolve(fs.readFileSync(configPath).toString());
+      }
+      if (path.includes('secrets.env')) {
+        return Promise.resolve(fs.readFileSync(secretsPath).toString());
+      }
+
+      throw new Error(`Mocking fetching of unsupported file '${path}'`);
+    });
     gcpGetAirnodeBucketSpy = jest.spyOn(gcp, 'getAirnodeBucket').mockResolvedValue(bucket);
     gcpGetBucketDirectoryStructureSpy = jest
       .spyOn(gcp, 'getBucketDirectoryStructure')
@@ -1073,11 +1160,16 @@ describe('deploymentInfo', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
     expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
-    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
       bucket.name,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Cloud provider: AWS (us-east-1)');
@@ -1125,7 +1217,7 @@ describe('deploymentInfo', () => {
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
     expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
-    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(3);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
       bucket.name,
@@ -1134,12 +1226,27 @@ describe('deploymentInfo', () => {
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
       bucket.name,
-      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
       bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      5,
+      bucket.name,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      6,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
   });
