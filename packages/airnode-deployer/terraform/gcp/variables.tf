@@ -46,31 +46,37 @@ variable "handler_dir" {
 
 variable "max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode Run Cloud function"
+  type        = number
   default     = 0
 }
 
 variable "disable_concurrency_reservation" {
   description = "Flag to disable any concurrency reservations"
+  type        = bool
   default     = false
 }
 
 variable "http_gateway_enabled" {
   description = "Flag to enable HTTP Gateway"
+  type        = bool
   default     = false
 }
 
 variable "http_max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode HTTP Gateway Cloud Function"
+  type        = number
   default     = 0
 }
 
 variable "http_signed_data_gateway_enabled" {
   description = "Flag to enable Signed Data Gateway"
+  type        = bool
   default     = false
 }
 
 variable "http_signed_data_max_concurrency" {
   description = "Maximum amount of concurrent executions for Airnode Signed Data Gateway Cloud Function"
+  type        = number
   default     = 0
 }
 

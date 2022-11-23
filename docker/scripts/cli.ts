@@ -4,8 +4,9 @@ import { logger } from '@api3/airnode-utilities';
 import { go, GoResult, goSync } from '@api3/promise-utils';
 import { stopNpmRegistry, startNpmRegistry } from './npm-registry';
 import { buildDockerImages, publishDockerImages } from './docker';
-import { publishPackages } from './publish-packages';
 import { disableMerge, enableMerge } from './github';
+import { openPullRequest, publish, publishSnapshot } from './npm';
+import { isAirnodeMounted } from './utils';
 
 // Taken from airnode-deployer
 const longArguments = (args: Record<string, any>) => {
@@ -50,41 +51,114 @@ yargs(process.argv.slice(2))
       .demandCommand(1)
       .strict();
   })
-  .command(
-    'publish-packages',
-    'Publish NPM packages',
-    {
-      'npm-registry': {
-        alias: 'r',
-        description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
-        default: 'https://registry.npmjs.org/',
-        type: 'string',
-      },
-      'npm-tag': {
-        alias: 't',
-        description: 'NPM tag to publish the packages under',
-        default: 'latest',
-        type: 'string',
-      },
-      snapshot: {
-        alias: 's',
-        description:
-          'Publish in a snapshot mode (https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)',
-        default: false,
-        type: 'boolean',
-      },
-    },
-    (args) => {
-      logger.log(`Running command '${args._[0]}' with arguments ${longArguments(args)}`);
+  .command('npm', 'Manages publishing of NPM packages', (yargs) => {
+    yargs
+      .command(
+        'publish-snapshot',
+        'Publish snapshot NPM packages',
+        {
+          'npm-registry': {
+            alias: 'r',
+            description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
+            default: 'https://registry.npmjs.org/',
+            type: 'string',
+          },
+          'npm-tag': {
+            alias: 't',
+            description: 'NPM tag to publish the packages under',
+            default: 'latest',
+            type: 'string',
+          },
+          'release-branch': {
+            alias: 'b',
+            description: 'Branch, from which are the packages released',
+            type: 'string',
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
 
-      // Temporary check for not yet supported functionality
-      if (!args.snapshot) {
-        throw new Error('Only snapshot packages are supported at the moment');
-      }
+          const airnodeMounted = isAirnodeMounted();
+          if (!airnodeMounted && !args.releaseBranch) {
+            handleCliCommand({
+              success: false,
+              error: new Error('Either provide the release Git branch or mount the Airnode source code directory'),
+            });
+            return;
+          }
+          if (airnodeMounted && args.releaseBranch) {
+            handleCliCommand({
+              success: false,
+              error: new Error(
+                `Can't provide the release Git branch and mount the Airnode source code directory at the same time`
+              ),
+            });
+            return;
+          }
 
-      runCliCommand(() => publishPackages(args.npmRegistry, args.npmTag, args.snapshot));
-    }
-  )
+          runAsyncCliCommand(() => publishSnapshot(args.npmRegistry, args.npmTag, args.releaseBranch));
+        }
+      )
+      .command(
+        'pull-request',
+        'Create a release GitHub pull-request',
+        {
+          'release-version': {
+            alias: 'v',
+            description: 'Release version for which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+          'head-branch': {
+            alias: 'h',
+            description: 'Branch from which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+          'base-branch': {
+            alias: 'b',
+            description: 'Branch against which should be the pull-request opened',
+            type: 'string',
+            demandOption: true,
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          runAsyncCliCommand(() => openPullRequest(args.releaseVersion, args.headBranch, args.baseBranch));
+        }
+      )
+      .command(
+        'publish',
+        'Publish NPM package from the release branch',
+        {
+          'npm-registry': {
+            alias: 'r',
+            description: 'NPM registry URL to publish to or a keyword `local` to use a local NPM registry',
+            default: 'https://registry.npmjs.org/',
+            type: 'string',
+          },
+          'npm-tags': {
+            alias: 't',
+            description: 'NPM tags to publish the packages under',
+            default: ['latest'],
+            type: 'array',
+          },
+          'release-branch': {
+            alias: 'b',
+            description: 'Branch, from which are the packages released',
+            type: 'string',
+            demandOption: true,
+          },
+        },
+        (args) => {
+          logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
+          runCliCommand(() => publish(args.npmRegistry, args.npmTags, args.releaseBranch));
+        }
+      )
+      .help()
+      .demandCommand(1)
+      .strict();
+  })
   .command('docker', 'Manages Docker images', (yargs) => {
     yargs
       .command(
@@ -103,11 +177,11 @@ yargs(process.argv.slice(2))
             default: 'latest',
             type: 'string',
           },
-          'docker-tag': {
+          'docker-tags': {
             alias: 'g',
-            description: 'Docker tag to build the images under',
-            default: 'latest',
-            type: 'string',
+            description: 'Docker tags to build the images under',
+            default: ['latest'],
+            type: 'array',
           },
           dev: {
             alias: 'd',
@@ -118,29 +192,29 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTag, args.dev));
+          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTags, args.dev));
         }
       )
       .command(
         'publish',
         'Publish Docker images',
         {
-          'docker-tag': {
+          'docker-tags': {
             alias: 'g',
-            description: 'Docker tag to build the images under',
-            default: 'latest',
-            type: 'string',
+            description: 'Docker tags to publish',
+            default: ['latest'],
+            type: 'array',
           },
           dev: {
             alias: 'd',
-            description: 'Build Docker dev images (with -dev suffix)',
+            description: 'Publish Docker dev images (with -dev suffix)',
             default: false,
             type: 'boolean',
           },
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => publishDockerImages(args.dockerTag, args.dev));
+          runCliCommand(() => publishDockerImages(args.dockerTags, args.dev));
         }
       )
       .help()
@@ -151,11 +225,11 @@ yargs(process.argv.slice(2))
     yargs
       .command('enable-merge', 'Enables PR merging', {}, (args) => {
         logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-        runCliCommand(() => enableMerge());
+        runAsyncCliCommand(() => enableMerge());
       })
       .command('disable-merge', 'Disables PR merging', {}, (args) => {
         logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-        runCliCommand(() => disableMerge());
+        runAsyncCliCommand(() => disableMerge());
       })
       .help()
       .demandCommand(1)
