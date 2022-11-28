@@ -287,7 +287,7 @@ export const processGasPriceOracleStrategies = async (
     if (!goAttemptGasOraclePriceStrategy.success) {
       logs.push(
         logger.pend(
-          'ERROR',
+          'WARN',
           `Strategy (${strategy.gasPriceStrategy}) failed to return a gas price. Error: ${goAttemptGasOraclePriceStrategy.error.message}.`
         )
       );
