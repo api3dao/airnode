@@ -42,8 +42,12 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   const httpGatewayUrl = getHttpGatewayUrl(config);
   const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
 
-  const timestamp = Date.now();
+  const timestamp = Math.round(Date.now() / 1_000);
 
+  /*
+  The heartbeat payload is serialised as JSON and then serialised again in JSON as the value of the payload field.
+  The reason this is done is to avoid any inconsistencies between different JSON serialisation implementations.
+   */
   const heartbeatPayload = JSON.stringify({
     timestamp,
     stage,

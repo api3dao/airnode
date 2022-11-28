@@ -19,10 +19,11 @@ describe('reportHeartbeat', () => {
     HTTP_SIGNED_DATA_GATEWAY_URL: httpSignedDataGatewayUrl,
     AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
   });
-  const timestamp = 1661582890984;
+  const systemTimestamp = 1661582890984;
+  const expectedTimestamp = 1661582891;
 
   beforeEach(() => {
-    jest.spyOn(Date, 'now').mockImplementation(() => timestamp);
+    jest.spyOn(Date, 'now').mockImplementation(() => systemTimestamp);
   });
 
   it('does nothing if the heartbeat is disabled', async () => {
@@ -41,7 +42,7 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = JSON.stringify({
-      timestamp,
+      timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
@@ -74,7 +75,7 @@ describe('reportHeartbeat', () => {
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
     const heartbeatPayload = JSON.stringify({
-      timestamp,
+      timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
@@ -160,7 +161,7 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = JSON.stringify({
-        timestamp,
+        timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         region,
@@ -195,7 +196,7 @@ describe('reportHeartbeat', () => {
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
       const heartbeatPayload = JSON.stringify({
-        timestamp,
+        timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         http_gateway_url: 'http://localhost:8765/http-data',
@@ -227,7 +228,7 @@ describe('reportHeartbeat', () => {
   describe('signHearbeat', () => {
     const airnodeAddress = fixtures.getAirnodeWallet().address;
     const heartbeatPayload = JSON.stringify({
-      timestamp,
+      timestamp: expectedTimestamp,
       stage: 'test',
       cloud_provider: 'local',
       http_gateway_url: httpGatewayUrl,
@@ -239,7 +240,7 @@ describe('reportHeartbeat', () => {
       const signerAddress = ethers.utils.verifyMessage(heartbeatPayload, signature);
 
       expect(signature).toEqual(
-        '0x5b68956fde8b3c529d0e49c6b13c60183834416843c508d02cbaff8770101beb429d953b080e64b4269ea0bf68b91bc7dcb198da75ffe39ead46a0f84afedac21c'
+        '0x941f0ed9f7990f26c9b98434cc3dc094d35607a9087f0e6a71f58659d3383dce6d19c64a85a11714287cbb2cec8e1718e6fe40e4cd81d5658b000b40fa75c0a91c'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });
