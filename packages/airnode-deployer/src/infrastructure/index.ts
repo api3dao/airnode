@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
 import {
   AwsCloudProvider,
   CloudProvider,
@@ -13,6 +14,7 @@ import {
 } from '@api3/airnode-node';
 import { consoleLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
+import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
 import omitBy from 'lodash/omitBy';
@@ -469,13 +471,21 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
       const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
+
       const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const config = JSON.parse(
         await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, bucketConfigPath)
-      ) as Config;
-      const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
-      const airnodeVersion = config.nodeSettings.nodeVersion;
+      );
+      logger.debug(`Fetching secrets file '${bucketConfigPath}'`);
+      const bucketSecretsPath = `${bucketLatestDeploymentPath}/secrets.env`;
+      const secrets = dotenv.parse(
+        await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, bucketSecretsPath)
+      );
+      const interpolatedConfig = unsafeParseConfigWithSecrets(config, secrets);
+
+      const cloudProvider = interpolatedConfig.nodeSettings.cloudProvider as CloudProvider;
+      const airnodeVersion = interpolatedConfig.nodeSettings.nodeVersion;
       const id = hashDeployment(cloudProvider, airnodeAddress, stage, airnodeVersion);
 
       const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({

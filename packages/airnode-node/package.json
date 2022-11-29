@@ -32,7 +32,6 @@
     "@api3/ois": "1.2.0",
     "@api3/promise-utils": "^0.3.0",
     "aws-sdk": "^2.1243.0",
-    "body-parser": "^1.20.1",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "express": "^4.18.2",

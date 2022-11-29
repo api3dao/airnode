@@ -1,9 +1,12 @@
 import { getNpmRegistryContainer } from './npm-registry';
 import { runCommand, unifyUrlFormat } from './utils';
 
-export const buildDockerImages = (npmRegistry: string, npmTag: string, dockerTag: string, dev: boolean) => {
+const IMAGES = ['airnode-admin', 'airnode-deployer', 'airnode-client'];
+
+export const buildDockerImages = (npmRegistry: string, npmTag: string, dockerTags: string[], dev: boolean) => {
   let npmRegistryUrl = npmRegistry;
   const devSuffix = dev ? '-dev' : '';
+  const firstDockerTag = dockerTags[0];
 
   if (npmRegistry === 'local') {
     const npmRegistryInfo = getNpmRegistryContainer();
@@ -16,15 +19,17 @@ export const buildDockerImages = (npmRegistry: string, npmTag: string, dockerTag
 
   npmRegistryUrl = unifyUrlFormat(npmRegistryUrl);
 
-  runCommand(
-    `docker build --no-cache --build-arg npmRegistryUrl=${npmRegistryUrl} --build-arg npmTag=${npmTag} --tag api3/airnode-admin${devSuffix}:${dockerTag} --file /app/airnode-admin/Dockerfile /app/airnode-admin`
-  );
-  runCommand(
-    `docker build --no-cache --build-arg npmRegistryUrl=${npmRegistryUrl} --build-arg npmTag=${npmTag} --tag api3/airnode-deployer${devSuffix}:${dockerTag} --file /app/airnode-deployer/Dockerfile /app/airnode-deployer`
-  );
-  runCommand(
-    `docker build --no-cache --build-arg npmRegistryUrl=${npmRegistryUrl} --build-arg npmTag=${npmTag} --tag api3/airnode-client${devSuffix}:${dockerTag} --file /app/airnode-client/Dockerfile /app/airnode-client`
-  );
+  for (const imageName of IMAGES) {
+    runCommand(
+      `docker build --no-cache --build-arg npmRegistryUrl=${npmRegistryUrl} --build-arg npmTag=${npmTag} --tag api3/${imageName}${devSuffix}:${firstDockerTag} --file /app/${imageName}/Dockerfile /app/${imageName}`
+    );
+
+    for (const additionalTag of dockerTags.slice(1)) {
+      runCommand(
+        `docker tag api3/${imageName}${devSuffix}:${firstDockerTag} api3/${imageName}${devSuffix}:${additionalTag}`
+      );
+    }
+  }
 };
 
 const loginDockerHub = () => {
@@ -38,11 +43,14 @@ const loginDockerHub = () => {
   runCommand(`docker login --password-stdin --username ${username}`, { input: password });
 };
 
-export const publishDockerImages = (dockerTag: string, dev: boolean) => {
+export const publishDockerImages = (dockerTags: string[], dev: boolean) => {
   const devSuffix = dev ? '-dev' : '';
 
   loginDockerHub();
-  runCommand(`docker push api3/airnode-admin${devSuffix}:${dockerTag}`);
-  runCommand(`docker push api3/airnode-deployer${devSuffix}:${dockerTag}`);
-  runCommand(`docker push api3/airnode-client${devSuffix}:${dockerTag}`);
+
+  for (const imageName of IMAGES) {
+    for (const dockerTag of dockerTags) {
+      runCommand(`docker push api3/${imageName}${devSuffix}:${dockerTag}`);
+    }
+  }
 };

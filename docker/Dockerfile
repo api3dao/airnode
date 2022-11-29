@@ -1,6 +1,7 @@
 FROM node:14.19.3-alpine3.15 AS environment
 
 ENV appDir="/app" \
+    buildDir="/build" \
     # Settings to true to convince changesets that this is run in the CI and it shouldn't check for or require 2FA auth
     # https://github.com/changesets/changesets/blob/8c0846977597ddaf51aaeb35f1f0f9428bf8ba14/packages/cli/src/commands/publish/publishPackages.ts#L57
     CI="true"
@@ -21,6 +22,6 @@ COPY packages/airnode-admin/docker ${appDir}/airnode-admin
 COPY packages/airnode-deployer/docker ${appDir}/airnode-deployer
 COPY packages/airnode-node/docker ${appDir}/airnode-client
 
-WORKDIR ${appDir}
+WORKDIR ${buildDir}
 
 ENTRYPOINT ["node", "/app/index.js"]
