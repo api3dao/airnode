@@ -23,7 +23,6 @@ jest.mock('../utils', () => ({
 const gcpReceipt: receipt.Receipt = {
   airnodeWallet: {
     airnodeAddress: '0xF347ADEd76F7AC2013e379078738aBfF75780C2e',
-    airnodeAddressShort: 'f347ade',
     airnodeXpub:
       'xpub6CZqcAR5RtRPYYGbJe7MzFGbJkJ86ub9KtYvTtenPQRgxFXNCmR7woXjV8SdFPWrTBooAqWVLKe19KWBnaktkwUsvSEfH18HyxeNZQRJq8k',
   },

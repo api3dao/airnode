@@ -6,7 +6,7 @@ import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
 import { hashDeployment } from './cli';
 import * as logger from '../utils/logger';
-import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
+import { deriveAirnodeAddress, deriveAirnodeXpub } from '../utils';
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -20,13 +20,11 @@ export function parseSecretsFile(secretsPath: string) {
 export function writeReceiptFile(receiptFilename: string, config: Config, timestamp: string, success: boolean) {
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
-  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
   const { stage, nodeVersion } = config.nodeSettings;
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
   const receipt: receipt.Receipt = {
     airnodeWallet: {
       airnodeAddress,
-      airnodeAddressShort,
       airnodeXpub: deriveAirnodeXpub(mnemonic),
     },
     deployment: {
