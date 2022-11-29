@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { execute } from '@api3/airnode-adapter';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -22,23 +21,10 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
 }
 
-export const signHeartbeat = (
-  heartbeatPayload: {
-    cloud_provider: string;
-    stage: string;
-    region?: string;
-    http_gateway_url?: string;
-    httpSignedDataGatewayUrl?: string;
-  },
-  timestamp: number
-) => {
+export const signHeartbeat = (heartbeatPayload: string) => {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
 
-  return airnodeWallet.signMessage(
-    ethers.utils.arrayify(
-      ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
-    )
-  );
+  return airnodeWallet.signMessage(heartbeatPayload);
 };
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
@@ -56,16 +42,22 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   const httpGatewayUrl = getHttpGatewayUrl(config);
   const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
 
-  const heartbeatPayload = {
+  const timestamp = Math.round(Date.now() / 1_000);
+
+  /*
+  The heartbeat payload is serialised as JSON and then serialised again in JSON as the value of the payload field.
+  The reason this is done is to avoid any inconsistencies between different JSON serialisation implementations.
+   */
+  const heartbeatPayload = JSON.stringify({
+    timestamp,
     stage,
     cloud_provider: cloudProvider.type,
     ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
     ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
     ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
-  };
-  const timestamp = Date.now();
+  });
 
-  const goSignHeartbeat = await go(() => signHeartbeat(heartbeatPayload, timestamp));
+  const goSignHeartbeat = await go(() => signHeartbeat(heartbeatPayload));
   if (!goSignHeartbeat.success) {
     const log = logger.pend('ERROR', 'Failed to sign heartbeat', goSignHeartbeat.error);
     return [log];
@@ -78,9 +70,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
       'airnode-heartbeat-api-key': apiKey,
     },
     data: {
-      ...heartbeatPayload,
+      payload: heartbeatPayload,
       signature: goSignHeartbeat.data,
-      timestamp,
     },
     timeout: 5_000,
   };
