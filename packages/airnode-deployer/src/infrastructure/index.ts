@@ -11,6 +11,8 @@ import {
   Config,
   evm,
   availableCloudProviders,
+  deriveDeploymentId,
+  deriveDeploymentVersionId,
 } from '@api3/airnode-node';
 import { consoleLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -36,13 +38,7 @@ import {
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
-import {
-  airnodeAddressReadable,
-  cloudProviderReadable,
-  hashDeployment,
-  hashDeploymentVersion,
-  timestampReadable,
-} from '../utils/cli';
+import { airnodeAddressReadable, cloudProviderReadable, timestampReadable } from '../utils/cli';
 
 export const TF_STATE_FILENAME = 'default.tfstate';
 
@@ -486,10 +482,10 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
 
       const cloudProvider = interpolatedConfig.nodeSettings.cloudProvider as CloudProvider;
       const airnodeVersion = interpolatedConfig.nodeSettings.nodeVersion;
-      const id = hashDeployment(cloudProvider, airnodeAddress, stage, airnodeVersion);
+      const id = deriveDeploymentId(cloudProvider, airnodeAddress, stage, airnodeVersion);
 
       const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
-        id: hashDeploymentVersion(cloudProvider, airnodeAddress, stage, airnodeVersion, versionTimestamp),
+        id: deriveDeploymentVersionId(cloudProvider, airnodeAddress, stage, airnodeVersion, versionTimestamp),
         timestamp: versionTimestamp,
       }));
       const deployment = {

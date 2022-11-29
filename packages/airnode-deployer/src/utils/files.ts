@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { CloudProvider, Config } from '@api3/airnode-node';
+import { CloudProvider, Config, deriveDeploymentId } from '@api3/airnode-node';
 import { parseReceipt, receipt } from '@api3/airnode-validator';
 import { goSync } from '@api3/promise-utils';
 import { logAndReturnError } from './infrastructure';
-import { hashDeployment } from './cli';
 import * as logger from '../utils/logger';
 import { deriveAirnodeAddress, deriveAirnodeXpub } from '../utils';
 
@@ -28,7 +27,7 @@ export function writeReceiptFile(receiptFilename: string, config: Config, timest
       airnodeXpub: deriveAirnodeXpub(mnemonic),
     },
     deployment: {
-      deploymentId: hashDeployment(cloudProvider, airnodeAddress, stage, nodeVersion),
+      deploymentId: deriveDeploymentId(cloudProvider, airnodeAddress, stage, nodeVersion),
       cloudProvider,
       stage,
       nodeVersion,
