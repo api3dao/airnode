@@ -19,10 +19,11 @@ describe('reportHeartbeat', () => {
     HTTP_SIGNED_DATA_GATEWAY_URL: httpSignedDataGatewayUrl,
     AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
   });
-  const timestamp = 1661582890984;
+  const systemTimestamp = 1661582890984;
+  const expectedTimestamp = 1661582891;
 
   beforeEach(() => {
-    jest.spyOn(Date, 'now').mockImplementation(() => timestamp);
+    jest.spyOn(Date, 'now').mockImplementation(() => systemTimestamp);
   });
 
   it('does nothing if the heartbeat is disabled', async () => {
@@ -40,13 +41,14 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
-    const heartbeatPayload = {
+    const heartbeatPayload = JSON.stringify({
+      timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
-    };
-    const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
+    });
+    const signature = await heartbeat.signHeartbeat(heartbeatPayload);
     const res = await heartbeat.reportHeartbeat(state);
     expect(res).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
@@ -60,9 +62,8 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        ...heartbeatPayload,
+        payload: heartbeatPayload,
         signature,
-        timestamp,
       },
       timeout: 5_000,
     });
@@ -73,13 +74,14 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig();
     const coordinatorId = randomHexString(16);
     const state = coordinatorState.create(config, coordinatorId);
-    const heartbeatPayload = {
+    const heartbeatPayload = JSON.stringify({
+      timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
-    };
-    const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
+    });
+    const signature = await heartbeat.signHeartbeat(heartbeatPayload);
     const logs = await heartbeat.reportHeartbeat(state);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Sending heartbeat...' },
@@ -93,9 +95,8 @@ describe('reportHeartbeat', () => {
         'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
       },
       data: {
-        ...heartbeatPayload,
+        payload: heartbeatPayload,
         signature,
-        timestamp,
       },
       timeout: 5_000,
     });
@@ -159,14 +160,15 @@ describe('reportHeartbeat', () => {
       const region = 'us-east1';
       config.nodeSettings.cloudProvider = { type: 'aws', disableConcurrencyReservations: false, region };
       const state = coordinatorState.create(config, 'coordinatorId');
-      const heartbeatPayload = {
+      const heartbeatPayload = JSON.stringify({
+        timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         region,
         http_gateway_url: httpGatewayUrl,
         http_signed_data_gateway_url: httpSignedDataGatewayUrl,
-      };
-      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
+      });
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload);
       const logs = await heartbeat.reportHeartbeat(state);
 
       expect(logs).toEqual([
@@ -181,9 +183,8 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          ...heartbeatPayload,
+          payload: heartbeatPayload,
           signature,
-          timestamp,
         },
         timeout: 5_000,
       });
@@ -194,13 +195,14 @@ describe('reportHeartbeat', () => {
       const config = cloneDeep(baseConfig);
       config.nodeSettings.cloudProvider = { type: 'local', gatewayServerPort: 8765 };
       const state = coordinatorState.create(config, 'coordinatorId');
-      const heartbeatPayload = {
+      const heartbeatPayload = JSON.stringify({
+        timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         http_gateway_url: 'http://localhost:8765/http-data',
         http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
-      };
-      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
+      });
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload);
       const logs = await heartbeat.reportHeartbeat(state);
 
       expect(logs).toEqual([
@@ -215,9 +217,8 @@ describe('reportHeartbeat', () => {
           'airnode-heartbeat-api-key': '3a7af83f-6450-46d3-9937-5f9773ce2849',
         },
         data: {
-          ...heartbeatPayload,
+          payload: heartbeatPayload,
           signature,
-          timestamp,
         },
         timeout: 5_000,
       });
@@ -226,24 +227,20 @@ describe('reportHeartbeat', () => {
 
   describe('signHearbeat', () => {
     const airnodeAddress = fixtures.getAirnodeWallet().address;
-    const heartbeatPayload = {
+    const heartbeatPayload = JSON.stringify({
+      timestamp: expectedTimestamp,
       stage: 'test',
       cloud_provider: 'local',
       http_gateway_url: httpGatewayUrl,
       http_signed_data_gateway_url: httpSignedDataGatewayUrl,
-    };
+    });
 
     it('signs verifiable heartbeat', async () => {
-      const signature = await heartbeat.signHeartbeat(heartbeatPayload, timestamp);
-      const signerAddress = ethers.utils.verifyMessage(
-        ethers.utils.arrayify(
-          ethers.utils.solidityKeccak256(['uint256', 'string'], [timestamp, JSON.stringify(heartbeatPayload)])
-        ),
-        signature
-      );
+      const signature = await heartbeat.signHeartbeat(heartbeatPayload);
+      const signerAddress = ethers.utils.verifyMessage(heartbeatPayload, signature);
 
       expect(signature).toEqual(
-        '0x3d63a776155b1ea16eff0a8399fe16ed25e1f207300136918979074e80bd2cab75ee200bb4148e294a0867a42520eeed1a2214f190e3369914b5d2116c2cde141b'
+        '0x941f0ed9f7990f26c9b98434cc3dc094d35607a9087f0e6a71f58659d3383dce6d19c64a85a11714287cbb2cec8e1718e6fe40e4cd81d5658b000b40fa75c0a91c'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });
