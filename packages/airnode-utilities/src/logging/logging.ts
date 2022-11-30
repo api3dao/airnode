@@ -117,7 +117,7 @@ export function logFull(level: LogLevel, message: string, options: LogOptions | 
   }
 
   json(level, message, options);
-  if (level === 'ERROR' && (options as ErrorLogOptions).error!.stack!) {
+  if (level === 'ERROR' && (options as ErrorLogOptions).error?.stack) {
     json('ERROR', (options as ErrorLogOptions).error!.stack!, options);
   }
 }
