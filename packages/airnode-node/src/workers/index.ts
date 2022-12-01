@@ -3,7 +3,7 @@ import * as aws from './cloud-platforms/aws';
 import * as gcp from './cloud-platforms/gcp';
 import * as localHandlers from './local-handlers';
 import { WorkerParameters, WorkerResponse } from '../types';
-import { CloudProvider } from '../config';
+import { LocalOrCloudProvider } from '../config';
 
 const DEPLOYMENT_ID_LENGTH = 8;
 
@@ -27,8 +27,11 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
   }
 }
 
-function cloudProviderHashElements(cloudProvider: CloudProvider) {
-  const hashElements = [cloudProvider.type, cloudProvider.region];
+function cloudProviderHashElements(cloudProvider: LocalOrCloudProvider) {
+  const hashElements: string[] = [cloudProvider.type];
+  if (cloudProvider.type !== 'local') {
+    hashElements.push(cloudProvider.region);
+  }
   if (cloudProvider.type === 'gcp') {
     hashElements.push(cloudProvider.projectId);
   }
@@ -37,7 +40,7 @@ function cloudProviderHashElements(cloudProvider: CloudProvider) {
 }
 
 export function deriveDeploymentId(
-  cloudProvider: CloudProvider,
+  cloudProvider: LocalOrCloudProvider,
   airnodeAddress: string,
   stage: string,
   airnodeVersion: string
@@ -50,7 +53,7 @@ export function deriveDeploymentId(
 }
 
 export function deriveDeploymentVersionId(
-  cloudProvider: CloudProvider,
+  cloudProvider: LocalOrCloudProvider,
   airnodeAddress: string,
   stage: string,
   airnodeVersion: string,

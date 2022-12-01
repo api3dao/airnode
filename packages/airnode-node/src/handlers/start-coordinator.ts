@@ -45,8 +45,7 @@ function getWorkerOptions(state: CoordinatorState): WorkerOptions {
 
   return {
     cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeAddressShort: settings.airnodeAddressShort,
-    stage: config.nodeSettings.stage,
+    deploymentId: settings.deploymentId,
   };
 }
 

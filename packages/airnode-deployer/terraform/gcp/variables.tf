@@ -1,12 +1,11 @@
 locals {
   # Be aware when using `name-prefix` for naming resources
-  # as it can be up to 32 characters long:
+  # as it can be up to 19 characters long:
   #
   # infrastructure_name - "airnode" - 7 characters
-  # airnode_address_short - 7 characters
-  # stage - up to 16 characters
-  # dashes between - 2 characters
-  name_prefix = "${var.infrastructure_name}-${var.airnode_address_short}-${var.stage}"
+  # deployment_id - 11 characters
+  # dash between - 1 character
+  name_prefix = "${var.infrastructure_name}-${var.deployment_id}"
 }
 
 variable "gcp_project" {
@@ -18,18 +17,13 @@ variable "gcp_region" {
   default     = "us-east1"
 }
 
-variable "stage" {
-  description = "Infrastructure environment"
-  default     = "testing"
-}
-
 variable "infrastructure_name" {
   description = "Infrastructure name"
   default     = "airnode"
 }
 
-variable "airnode_address_short" {
-  description = "Airnode address (short)"
+variable "deployment_id" {
+  description = "ID of the deployment"
 }
 
 variable "configuration_file" {

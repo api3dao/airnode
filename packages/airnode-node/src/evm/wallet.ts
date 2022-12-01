@@ -47,11 +47,6 @@ export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string 
   return masterHDNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 }
 
-export function getAirnodeAddressShort(airnodeAddress: string): string {
-  // NOTE: AWS doesn't allow uppercase letters in S3 bucket and lambda function names
-  return airnodeAddress.substring(2, 9).toLowerCase();
-}
-
 export function deriveSponsorWallet(
   masterHDNode: ethers.utils.HDNode,
   sponsorAddress: string,

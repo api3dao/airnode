@@ -246,8 +246,7 @@ describe('prepareCloudProviderAirnodeApplyDestoryArguments', () => {
 
 describe('prepareAirnodeApplyDestroyArguments', () => {
   const variables = {
-    airnodeAddressShort: 'd0624e6',
-    stage: 'dev',
+    deploymentId: 'aws7195b548',
     configPath: '/some/path/config.json',
     secretsPath: '/some/path/secrets.env',
     handlerDir: '/some/path/handlers',
@@ -257,8 +256,7 @@ describe('prepareAirnodeApplyDestroyArguments', () => {
 
   it('returns cloud provider agnostic Terraform variables', () => {
     const expectedArguments = [
-      ['var', 'airnode_address_short', variables.airnodeAddressShort],
-      ['var', 'stage', variables.stage],
+      ['var', 'deployment_id', variables.deploymentId],
       ['var', 'configuration_file', variables.configPath],
       ['var', 'secrets_file', variables.secretsPath],
       ['var', 'handler_dir', variables.handlerDir],
@@ -272,14 +270,11 @@ describe('prepareAirnodeApplyDestroyArguments', () => {
 
   it('sets the missing optional arguments correctly', () => {
     const onlyRequiredVariables = pick(variables, [
-      'airnodeAddressShort',
-      'stage',
       'handlerDir',
       'disableConcurrencyReservations',
     ]) as infrastructure.AirnodeApplyDestroyVariables;
     const expectedArguments = [
-      ['var', 'airnode_address_short', onlyRequiredVariables.airnodeAddressShort],
-      ['var', 'stage', onlyRequiredVariables.stage],
+      ['var', 'deployment_id', onlyRequiredVariables.deploymentId],
       ['var', 'configuration_file', 'NULL'],
       ['var', 'secrets_file', 'NULL'],
       ['var', 'handler_dir', onlyRequiredVariables.handlerDir],
@@ -354,7 +349,7 @@ describe('terraformAirnodeApply', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="deployment_id=aws40207f25" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       execOptions
     );
   });
@@ -380,12 +375,12 @@ describe('terraformAirnodeApply', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform import -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" module.startCoordinator.google_app_engine_application.app[0] airnode-test-123456`,
+      `terraform import -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="deployment_id=gcp1fc73e56" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" module.startCoordinator.google_app_engine_application.app[0] airnode-test-123456`,
       { ignoreError: true }
     );
     expect(exec).toHaveBeenNthCalledWith(
       3,
-      `terraform apply -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="gcp_region=us-east1" -var="gcp_project=airnode-test-123456" -var="airnode_bucket=airnode-123456789" -var="deployment_bucket_dir=airnode-address/stage/timestamp" -var="deployment_id=gcp1fc73e56" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       execOptions
     );
   });
@@ -419,7 +414,7 @@ describe('terraformAirnodeApply', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="deployment_id=aws40207f25" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -auto-approve`,
       execOptions
     );
   });
@@ -487,7 +482,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="deployment_id=aws40207f25" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });
@@ -527,7 +522,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="deployment_id=aws40207f25" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });
@@ -570,7 +565,7 @@ describe('deployAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform apply -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
+      `terraform apply -var="aws_region=us-east-1" -var="deployment_id=aws40207f25" -var="configuration_file=${configPath}" -var="secrets_file=${secretsPath}" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=0xd627c727db73ed7067cbc1e15295f7004b83c01d243aa90711d549cda6bd5bca" -input=false -no-color -var="max_concurrency=100" -var="http_gateway_enabled=true" -var="http_max_concurrency=20" -var="http_signed_data_gateway_enabled=true" -var="http_signed_data_max_concurrency=20" -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(exec).toHaveBeenNthCalledWith(3, 'terraform output -json -no-color', { cwd: 'tmpDir' });
@@ -638,8 +633,7 @@ describe('terraformAirnodeDestroy', () => {
     region: 'europe-central-1',
   } as AwsCloudProvider;
   const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
-  const airnodeAddressShort = 'a30ca71';
-  const stage = 'dev';
+  const deploymentId = 'aws7195b548';
   const bucket = {
     name: 'airnode-123456789',
     region: 'us-east-1',
@@ -650,14 +644,7 @@ describe('terraformAirnodeDestroy', () => {
     const commandOutput = 'example command output';
     exec.mockImplementation(() => ({ stdout: commandOutput }));
 
-    await infrastructure.terraformAirnodeDestroy(
-      execOptions,
-      cloudProvider,
-      airnodeAddressShort,
-      stage,
-      bucket,
-      bucketPath
-    );
+    await infrastructure.terraformAirnodeDestroy(execOptions, cloudProvider, deploymentId, bucket, bucketPath);
     expect(exec).toHaveBeenNthCalledWith(
       1,
       `terraform init -backend-config="region=us-east-1" -backend-config="bucket=airnode-123456789" -backend-config="key=airnode-address/stage/timestamp/default.tfstate" -from-module=${terraformDir}/aws`,
@@ -665,7 +652,7 @@ describe('terraformAirnodeDestroy', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform destroy -var="aws_region=europe-central-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
+      `terraform destroy -var="aws_region=europe-central-1" -var="deployment_id=aws7195b548" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       execOptions
     );
   });
@@ -734,7 +721,7 @@ describe('removeAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=d0624e6" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
+      `terraform destroy -var="aws_region=us-east-1" -var="deployment_id=${happyPathDeploymentId}" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);
@@ -765,7 +752,7 @@ describe('removeAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
+      `terraform destroy -var="aws_region=us-east-1" -var="deployment_id=${deploymentId}" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);
@@ -805,7 +792,7 @@ describe('removeAirnode', () => {
     );
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      `terraform destroy -var="aws_region=us-east-1" -var="airnode_address_short=a30ca71" -var="stage=dev" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
+      `terraform destroy -var="aws_region=us-east-1" -var="deployment_id=${deploymentId}" -var="configuration_file=NULL" -var="secrets_file=NULL" -var="handler_dir=${handlerDir}" -var="disable_concurrency_reservation=false" -var="airnode_wallet_private_key=NULL" -input=false -no-color -auto-approve`,
       { cwd: 'tmpDir' }
     );
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);

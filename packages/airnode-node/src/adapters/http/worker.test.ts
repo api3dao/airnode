@@ -31,7 +31,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ aggregatedApiCall, logOptions, functionName: 'callApi' }),
       },
       expect.anything()
@@ -52,7 +52,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ aggregatedApiCall, logOptions, functionName: 'callApi' }),
       },
       expect.anything()
@@ -74,7 +74,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ aggregatedApiCall, logOptions, functionName: 'callApi' }),
       },
       expect.anything()
@@ -95,7 +95,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ aggregatedApiCall, logOptions, functionName: 'callApi' }),
       },
       expect.anything()
