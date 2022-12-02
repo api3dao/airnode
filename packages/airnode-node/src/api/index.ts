@@ -1,5 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
-import { RESERVED_PARAMETERS } from '@api3/ois';
+import { OIS, RESERVED_PARAMETERS, Endpoint } from '@api3/ois';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import axios, { AxiosError } from 'axios';
@@ -20,6 +20,7 @@ import {
   ApiCallPayload,
   RegularApiCallPayload,
   HttpSignedApiCallPayload,
+  SkipApiCallError,
 } from '../types';
 
 export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
@@ -287,11 +288,33 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   if (verificationResult) return verificationResult;
 
   const processedPayload = await preProcessApiSpecifications(payload);
+  const ois = payload.config.ois.find((o: OIS) => o.title === payload.aggregatedApiCall.oisTitle) as OIS;
+  const endpoint = ois.endpoints.find((e: Endpoint) => e.name === payload.aggregatedApiCall.endpointName) as Endpoint;
 
-  const [logs, response] = await performApiCall(processedPayload);
-  if (isPerformApiCallFailure(response)) {
-    return [logs, response];
+  if (!endpoint.operation && endpoint.fixedOperationParameters.length === 0) {
+    if (
+      (!endpoint.preProcessingSpecifications && !endpoint.postProcessingSpecifications) ||
+      (endpoint.preProcessingSpecifications?.length === 0 && endpoint.postProcessingSpecifications?.length === 0)
+    ) {
+      return [
+        [
+          logger.pend(
+            'ERROR',
+            `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`
+          ),
+        ],
+        {
+          success: false,
+          errorMessage: `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`,
+        } as SkipApiCallError,
+      ];
+    }
+    return processSuccessfulApiCall(payload, { data: processedPayload.aggregatedApiCall.parameters });
+  } else {
+    const [logs, response] = await performApiCall(processedPayload);
+    if (isPerformApiCallFailure(response)) {
+      return [logs, response];
+    }
+    return processSuccessfulApiCall(payload, response);
   }
-
-  return processSuccessfulApiCall(payload, response);
 }
