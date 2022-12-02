@@ -545,12 +545,12 @@ describe('callApi', () => {
         {
           level: 'ERROR',
           message:
-            "Failed to skip api call! Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.",
+            "Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.",
         },
       ]);
       expect(res).toEqual({
         success: false,
-        errorMessage: `Failed to skip api call! Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`,
+        errorMessage: `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`,
       });
     });
   });
