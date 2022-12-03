@@ -1,4 +1,5 @@
 import * as adapter from '@api3/airnode-adapter';
+import isEmpty from 'lodash/isEmpty';
 import { OIS, RESERVED_PARAMETERS, Endpoint } from '@api3/ois';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
@@ -20,7 +21,6 @@ import {
   ApiCallPayload,
   RegularApiCallPayload,
   HttpSignedApiCallPayload,
-  SkipApiCallError,
 } from '../types';
 
 export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
@@ -288,33 +288,25 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   if (verificationResult) return verificationResult;
 
   const processedPayload = await preProcessApiSpecifications(payload);
-  const ois = payload.config.ois.find((o: OIS) => o.title === payload.aggregatedApiCall.oisTitle) as OIS;
-  const endpoint = ois.endpoints.find((e: Endpoint) => e.name === payload.aggregatedApiCall.endpointName) as Endpoint;
+  const ois = payload.config.ois.find((o: OIS) => o.title === payload.aggregatedApiCall.oisTitle)!;
+  const endpoint = ois.endpoints.find((e: Endpoint) => e.name === payload.aggregatedApiCall.endpointName)!;
 
-  if (!endpoint.operation && endpoint.fixedOperationParameters.length === 0) {
-    if (
-      (!endpoint.preProcessingSpecifications && !endpoint.postProcessingSpecifications) ||
-      (endpoint.preProcessingSpecifications?.length === 0 && endpoint.postProcessingSpecifications?.length === 0)
-    ) {
-      return [
-        [
-          logger.pend(
-            'ERROR',
-            `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`
-          ),
-        ],
-        {
-          success: false,
-          errorMessage: `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`,
-        } as SkipApiCallError,
-      ];
+  // skip API call if operation is undefined and fixedOperationParameters is empty array
+  if (!endpoint.operation && isEmpty(endpoint.fixedOperationParameters)) {
+    // contents of preProcessingSpecifications or postProcessingSpecifications (or both) will simulate an API when API call is skipped
+    if (isEmpty(endpoint.preProcessingSpecifications) && isEmpty(endpoint.postProcessingSpecifications)) {
+      const message = `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois '${payload.aggregatedApiCall.oisTitle}', endpoint '${payload.aggregatedApiCall.endpointName}'.`;
+      const log = logger.pend('ERROR', message);
+      return [[log], { success: false, errorMessage: message }];
     }
+    // output of preProcessingSpecifications can be used as output directly or
+    // preProcessingSpecifications can be used to manipulate parameters to use in postProcessingSpecifications
     return processSuccessfulApiCall(payload, { data: processedPayload.aggregatedApiCall.parameters });
-  } else {
-    const [logs, response] = await performApiCall(processedPayload);
-    if (isPerformApiCallFailure(response)) {
-      return [logs, response];
-    }
-    return processSuccessfulApiCall(payload, response);
   }
+
+  const [logs, response] = await performApiCall(processedPayload);
+  if (isPerformApiCallFailure(response)) {
+    return [logs, response];
+  }
+  return processSuccessfulApiCall(payload, response);
 }
