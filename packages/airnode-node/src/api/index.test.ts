@@ -414,11 +414,11 @@ describe('callApi', () => {
       );
     });
   });
-  describe('skip api call', () => {
+  describe('skip API call', () => {
     const createEncodedValue = (value: ethers.BigNumber, times = 100_000) =>
       `0x${value.mul(times).toHexString().substring(2).padStart(64, '0')}`;
 
-    it('skip api call with preProcessingSpecifications', async () => {
+    it('skips the API call with preProcessingSpecifications', async () => {
       const config = fixtures.buildConfig();
       const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
@@ -451,7 +451,7 @@ describe('callApi', () => {
       });
     });
 
-    it('skip api call with postProcessingSpecifications', async () => {
+    it('skips the API call with postProcessingSpecifications', async () => {
       const config = fixtures.buildConfig();
       const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
@@ -484,7 +484,7 @@ describe('callApi', () => {
       });
     });
 
-    it('skip api call with both preProcessingSpecifications and postProcessingSpecifications', async () => {
+    it('skips API call with both preProcessingSpecifications and postProcessingSpecifications', async () => {
       const config = fixtures.buildConfig();
       const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
@@ -525,7 +525,7 @@ describe('callApi', () => {
       });
     });
 
-    it('fail when both preProcessingSpecifications and postProcessingSpecifications are empty or undefined', async () => {
+    it('fails when both preProcessingSpecifications and postProcessingSpecifications are empty', async () => {
       const config = fixtures.buildConfig();
       const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
@@ -545,12 +545,41 @@ describe('callApi', () => {
         {
           level: 'ERROR',
           message:
-            "Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.",
+            "Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.",
         },
       ]);
       expect(res).toEqual({
         success: false,
-        errorMessage: `Failed to skip API call. Make sure one, or both 'preProcessingSpecifications', 'postProcessingSpecifications' exists and not empty array.`,
+        errorMessage: `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.`,
+      });
+    });
+
+    it('fails when both preProcessingSpecifications and postProcessingSpecifications are undefined', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].preProcessingSpecifications = undefined;
+      config.ois[0].endpoints[0].postProcessingSpecifications = undefined;
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([
+        {
+          level: 'ERROR',
+          message:
+            "Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.",
+        },
+      ]);
+      expect(res).toEqual({
+        success: false,
+        errorMessage: `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.`,
       });
     });
   });
