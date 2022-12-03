@@ -246,11 +246,6 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
 }
 
-export interface SkipApiCallError {
-  success: false;
-  errorMessage: string;
-}
-
 export type AggregatedApiCall = RegularAggregatedApiCall | HttpSignedDataAggregatedApiCall;
 
 export interface BaseAggregatedApiCall {
