@@ -36,7 +36,8 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
 
       if (data.FunctionError) return reject(data.Payload);
 
-      const goPayload = goSync(() => JSON.parse(data.Payload?.toString() ?? ''));
+      if (!data.Payload) return reject(new Error('Missing payload in lambda response'));
+      const goPayload = goSync(() => JSON.parse(data.Payload!.toString()));
       if (!goPayload.success) return reject(goPayload.error);
 
       const goBody = goSync(() => JSON.parse(goPayload.data.body));
