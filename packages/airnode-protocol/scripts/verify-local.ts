@@ -40,7 +40,7 @@ async function main() {
       );
 
       if (creationData === generatedCreationData) {
-        logger.log(`✅  ${contractName} underministic deployment on ${hre.network.name} matches the local build!`);
+        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
       } else if (creationData === hre.ethers.constants.HashZero + generatedCreationData.slice(2)) {
         logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
       } else if (creationData.slice(0, -106) === generatedCreationData.slice(0, -106)) {
@@ -55,7 +55,7 @@ async function main() {
       } else throw new Error(`✅  ${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
     } else {
       if (creationData === artifact.bytecode) {
-        logger.log(`✅  ${contractName} underministic deployment on ${hre.network.name} matches the local build!`);
+        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
       } else if (creationData === hre.ethers.constants.HashZero + artifact.bytecode.slice(2)) {
         logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
       } else if (creationData.slice(0, -106) === artifact.bytecode.slice(0, -106)) {
