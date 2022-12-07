@@ -9,33 +9,18 @@ import { logger } from '@api3/airnode-utilities';
 import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
-function getCreate2Address(create2DeployerAddress: string, salt: string, bytecode: string): string {
-  return (
-    '0x' +
-    hre.ethers.utils
-      .solidityKeccak256(
-        ['bytes'],
-        [
-          `0xff${create2DeployerAddress.slice(2)}${salt.slice(2)}${hre.ethers.utils
-            .solidityKeccak256(['bytes'], [bytecode])
-            .slice(2)}`,
-        ]
-      )
-      .slice(-40)
-  );
-}
-
 async function main() {
   for (const contractName of contractNames) {
     const deployment = await hre.deployments.get(contractName);
     const artifact = await hre.deployments.getArtifact(contractName);
 
     const creationTx = await hre.ethers.provider.getTransaction(deployment.transactionHash);
-    const deteministicDeploymentAddress = getCreate2Address(
+    const deteministicDeploymentAddress = hre.ethers.utils.getCreate2Address(
       '0x4e59b44847b379578588920ca78fbf26c0b4956c',
       hre.ethers.constants.HashZero,
-      artifact.bytecode
+      hre.ethers.utils.keccak256(artifact.bytecode)
     );
+
     // Verify that the creation tx hash belongs to the address
     assert(creationTx.creates === deployment.address || deteministicDeploymentAddress);
     const creationData = creationTx.data;
@@ -53,16 +38,18 @@ async function main() {
         ['bytes', 'bytes'],
         [artifact.bytecode, encodedConstructorArguments]
       );
-      if (creationData !== generatedCreationData) {
-        if (creationData !== hre.ethers.constants.HashZero + generatedCreationData.slice(2)) {
-          throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
-        }
+      if (
+        creationData !== generatedCreationData ||
+        creationData !== hre.ethers.constants.HashZero + generatedCreationData.slice(2)
+      ) {
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
       }
     } else {
-      if (creationData !== artifact.bytecode) {
-        if (creationData !== hre.ethers.constants.HashZero + artifact.bytecode.slice(2)) {
-          throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
-        }
+      if (
+        creationData !== artifact.bytecode ||
+        creationData !== hre.ethers.constants.HashZero + artifact.bytecode.slice(2)
+      ) {
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
       }
     }
     logger.log(`${contractName} deployment on ${hre.network.name} matches the local build!`);
