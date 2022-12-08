@@ -85,7 +85,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '1.2.0',
+      oisFormat: '1.3.0',
       title: 'Failure Example',
       version: '1.0.0',
       apiSpecifications: {
