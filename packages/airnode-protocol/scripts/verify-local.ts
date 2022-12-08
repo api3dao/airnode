@@ -9,6 +9,28 @@ import { logger } from '@api3/airnode-utilities';
 import { contractNames } from './contract-names';
 const hre = require('hardhat');
 
+const verifyBytecode = (deployedData: string, localData: string, contractName: string) => {
+  if (deployedData === localData) {
+    logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
+    return true;
+  }
+  if (deployedData === hre.ethers.constants.HashZero + localData.slice(2)) {
+    logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
+    return true;
+  }
+  if (deployedData.slice(0, -106) === localData.slice(0, -106)) {
+    logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
+    logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
+    return true;
+  }
+  if (deployedData.slice(0, -106) === hre.ethers.constants.HashZero + localData.slice(2).slice(0, -106)) {
+    logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
+    logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
+    return true;
+  }
+  return false;
+};
+
 async function main() {
   for (const contractName of contractNames) {
     const deployment = await hre.deployments.get(contractName);
@@ -39,35 +61,11 @@ async function main() {
         [artifact.bytecode, encodedConstructorArguments]
       );
 
-      if (creationData === generatedCreationData) {
-        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
-      } else if (creationData === hre.ethers.constants.HashZero + generatedCreationData.slice(2)) {
-        logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
-      } else if (creationData.slice(0, -106) === generatedCreationData.slice(0, -106)) {
-        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
-        logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
-      } else if (
-        creationData.slice(0, -106) ===
-        hre.ethers.constants.HashZero + generatedCreationData.slice(2).slice(0, -106)
-      ) {
-        logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
-        logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
-      } else throw new Error(`✅  ${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
+      if (!verifyBytecode(creationData, generatedCreationData, contractName))
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
     } else {
-      if (creationData === artifact.bytecode) {
-        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
-      } else if (creationData === hre.ethers.constants.HashZero + artifact.bytecode.slice(2)) {
-        logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
-      } else if (creationData.slice(0, -106) === artifact.bytecode.slice(0, -106)) {
-        logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
-        logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
-      } else if (
-        creationData.slice(0, -106) ===
-        hre.ethers.constants.HashZero + artifact.bytecode.slice(2).slice(0, -106)
-      ) {
-        logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
-        logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
-      } else throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
+      if (!verifyBytecode(creationData, artifact.bytecode, contractName))
+        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
     }
   }
 }
