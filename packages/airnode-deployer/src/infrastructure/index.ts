@@ -11,6 +11,8 @@ import {
   Config,
   evm,
   availableCloudProviders,
+  deriveDeploymentId,
+  deriveDeploymentVersionId,
 } from '@api3/airnode-node';
 import { consoleLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -35,14 +37,8 @@ import {
   Bucket,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
-import { deriveAirnodeAddress, shortenAirnodeAddress } from '../utils';
-import {
-  airnodeAddressReadable,
-  cloudProviderReadable,
-  hashDeployment,
-  hashDeploymentVersion,
-  timestampReadable,
-} from '../utils/cli';
+import { deriveAirnodeAddress } from '../utils';
+import { airnodeAddressReadable, cloudProviderReadable, timestampReadable } from '../utils/cli';
 
 export const TF_STATE_FILENAME = 'default.tfstate';
 
@@ -192,8 +188,7 @@ export function prepareCloudProviderAirnodeApplyDestoryArguments(
 }
 
 export type AirnodeApplyDestroyVariables = {
-  airnodeAddressShort: string;
-  stage: string;
+  deploymentId: string;
   configPath?: string;
   secretsPath?: string;
   handlerDir: string;
@@ -202,19 +197,11 @@ export type AirnodeApplyDestroyVariables = {
 };
 
 export function prepareAirnodeApplyDestroyArguments(variables: AirnodeApplyDestroyVariables): CommandArg[] {
-  const {
-    airnodeAddressShort,
-    stage,
-    configPath,
-    secretsPath,
-    handlerDir,
-    disableConcurrencyReservations,
-    airnodeWalletPrivateKey,
-  } = variables;
+  const { deploymentId, configPath, secretsPath, handlerDir, disableConcurrencyReservations, airnodeWalletPrivateKey } =
+    variables;
 
   return [
-    ['var', 'airnode_address_short', airnodeAddressShort],
-    ['var', 'stage', stage],
+    ['var', 'deployment_id', deploymentId],
     ['var', 'configuration_file', configPath ? path.resolve(configPath) : 'NULL'],
     ['var', 'secrets_file', secretsPath ? path.resolve(secretsPath) : 'NULL'],
     ['var', 'handler_dir', handlerDir],
@@ -249,17 +236,22 @@ export async function terraformAirnodeApply(
   configPath: string,
   secretsPath: string
 ) {
-  const { airnodeWalletMnemonic, stage, httpGateway, httpSignedDataGateway } = config.nodeSettings;
+  const {
+    airnodeWalletMnemonic,
+    stage,
+    httpGateway,
+    httpSignedDataGateway,
+    nodeVersion: configNodeVersion,
+  } = config.nodeSettings;
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
-  const airnodeAddressShort = shortenAirnodeAddress(deriveAirnodeAddress(airnodeWalletMnemonic));
+  const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
 
   await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
 
   const commonArguments = prepareAirnodeApplyDestroyArguments({
-    airnodeAddressShort,
-    stage,
+    deploymentId: deriveDeploymentId(cloudProvider, airnodeAddress, stage, configNodeVersion),
     configPath,
     secretsPath,
     handlerDir,
@@ -399,16 +391,14 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 export async function terraformAirnodeDestroy(
   execOptions: child.ExecOptions,
   cloudProvider: CloudProvider,
-  airnodeAddressShort: string,
-  stage: string,
+  deploymentId: string,
   bucket: Bucket,
   bucketDeploymentPath: string
 ) {
   await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
 
   const commonArguments = prepareAirnodeApplyDestroyArguments({
-    airnodeAddressShort,
-    stage,
+    deploymentId,
     handlerDir,
     disableConcurrencyReservations: cloudProvider.disableConcurrencyReservations,
   });
@@ -486,10 +476,10 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
 
       const cloudProvider = interpolatedConfig.nodeSettings.cloudProvider as CloudProvider;
       const airnodeVersion = interpolatedConfig.nodeSettings.nodeVersion;
-      const id = hashDeployment(cloudProvider, airnodeAddress, stage, airnodeVersion);
+      const id = deriveDeploymentId(cloudProvider, airnodeAddress, stage, airnodeVersion);
 
       const deploymentVersions = Object.keys(stageDirectory.children).map((versionTimestamp) => ({
-        id: hashDeploymentVersion(cloudProvider, airnodeAddress, stage, airnodeVersion, versionTimestamp),
+        id: deriveDeploymentVersionId(cloudProvider, airnodeAddress, stage, airnodeVersion, versionTimestamp),
         timestamp: versionTimestamp,
       }));
       const deployment = {
@@ -564,17 +554,9 @@ export async function removeAirnode(deploymentId: string) {
     }
 
     logger.debug('Removing Airnode via Terraform recipes');
-    const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
     const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
     const execOptions = { cwd: airnodeTmpDir };
-    await terraformAirnodeDestroy(
-      execOptions,
-      cloudProvider,
-      airnodeAddressShort,
-      stage,
-      bucket,
-      bucketLatestDeploymentPath
-    );
+    await terraformAirnodeDestroy(execOptions, cloudProvider, deploymentId, bucket, bucketLatestDeploymentPath);
     fs.rmSync(airnodeTmpDir, { recursive: true });
 
     // Refreshing the bucket content because the source code archives were removed by Terraform

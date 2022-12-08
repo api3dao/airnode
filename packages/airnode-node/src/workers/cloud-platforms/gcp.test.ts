@@ -31,7 +31,7 @@ describe('spawn', () => {
       ...workerOpts,
       payload: { functionName: 'initializeProvider', state, logOptions },
     };
-    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
+    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-local02cce763-run';
 
     const res = await gcp.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
@@ -63,7 +63,7 @@ describe('spawn', () => {
       ...workerOpts,
       payload: { functionName: 'initializeProvider', state, logOptions },
     };
-    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-19255a4-test-run';
+    const url = 'https://us-east1-projectId123.cloudfunctions.net/airnode-local02cce763-run';
 
     await expect(gcp.spawn(parameters)).rejects.toThrow(new Error('Something went wrong'));
 

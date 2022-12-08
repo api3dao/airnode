@@ -9,6 +9,7 @@ jest.mock('./local-handlers', () => ({
 }));
 
 import * as fixtures from '../../test/fixtures';
+import { CloudProvider } from '../config';
 import { WorkerParameters } from '../types';
 import * as workers from './index';
 
@@ -45,5 +46,36 @@ describe('spawn', () => {
     expect(res).toEqual({ ok: true, data: { value: 777 } });
     expect(spawnLocalMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalMock).toHaveBeenCalledWith(parameters.payload);
+  });
+});
+
+describe('deriveDeploymentId', () => {
+  it('creates a unique hash from deployment details', () => {
+    const cloudProvider = {
+      type: 'aws',
+      region: 'us-east-1',
+    } as CloudProvider;
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
+    const stage = 'dev';
+    const airnodeVersion = '0.9.5';
+
+    expect(workers.deriveDeploymentId(cloudProvider, airnodeAddress, stage, airnodeVersion)).toEqual('aws521d7174');
+  });
+});
+
+describe('deriveDeploymentVersionId', () => {
+  it('creates a unique hash from deployment version details', () => {
+    const cloudProvider = {
+      type: 'aws',
+      region: 'us-east-1',
+    } as CloudProvider;
+    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
+    const stage = 'dev';
+    const airnodeVersion = '0.9.5';
+    const timestamp = '1664256335137';
+
+    expect(workers.deriveDeploymentVersionId(cloudProvider, airnodeAddress, stage, airnodeVersion, timestamp)).toEqual(
+      'e2d3286d'
+    );
   });
 });

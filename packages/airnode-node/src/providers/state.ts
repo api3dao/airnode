@@ -6,6 +6,7 @@ import { EVMProviderState, ProviderSettings, ProviderState, ProviderStates, EVMP
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { groupRequestsBySponsorAddress } from '../requests/grouping';
 import { ChainConfig, ChainType, Config } from '../config';
+import { deriveDeploymentId } from '../workers';
 
 export function buildEVMState(
   coordinatorId: string,
@@ -17,10 +18,11 @@ export function buildEVMState(
   const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url;
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
+  const { cloudProvider, stage, nodeVersion } = config.nodeSettings;
 
   const providerSettings: ProviderSettings = {
     airnodeAddress,
-    airnodeAddressShort: evm.getAirnodeAddressShort(airnodeAddress),
+    deploymentId: deriveDeploymentId(cloudProvider, airnodeAddress, stage, nodeVersion),
     authorizers: chain.authorizers,
     authorizations: chain.authorizations,
     // The number of blocks to look back for events to process

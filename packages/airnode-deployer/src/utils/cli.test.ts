@@ -2,11 +2,9 @@ import { CloudProvider } from '@api3/airnode-node';
 import {
   airnodeAddressReadable,
   cloudProviderReadable,
-  hashDeployment,
   timestampReadable,
   longArguments,
   printableArguments,
-  hashDeploymentVersion,
 } from './cli';
 
 describe('longArguments', () => {
@@ -28,35 +26,6 @@ describe('printableArguments', () => {
   it(`prepends arguments with '--' and joins with ','`, () => {
     const args = ['arg1', 'arg2', 'arg3'];
     expect(printableArguments(args)).toEqual('--arg1, --arg2, --arg3');
-  });
-});
-
-describe('hashDeployment', () => {
-  it('creates a unique hash from deployment details', () => {
-    const cloudProvider = {
-      type: 'aws',
-      region: 'us-east-1',
-    } as CloudProvider;
-    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
-    const stage = 'dev';
-    const airnodeVersion = '0.9.5';
-
-    expect(hashDeployment(cloudProvider, airnodeAddress, stage, airnodeVersion)).toEqual('aws521d7174');
-  });
-});
-
-describe('hashDeploymentVersion', () => {
-  it('creates a unique hash from deployment version details', () => {
-    const cloudProvider = {
-      type: 'aws',
-      region: 'us-east-1',
-    } as CloudProvider;
-    const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
-    const stage = 'dev';
-    const airnodeVersion = '0.9.5';
-    const timestamp = '1664256335137';
-
-    expect(hashDeploymentVersion(cloudProvider, airnodeAddress, stage, airnodeVersion, timestamp)).toEqual('e2d3286d');
   });
 });
 

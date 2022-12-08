@@ -1,15 +1,17 @@
 import * as wallet from '../evm/wallet';
 import { CoordinatorSettings, CoordinatorState } from '../types';
+import { deriveDeploymentId } from '../workers';
 import { Config } from '../config';
 import { CoordinatorStateWithApiResponses, RegularAggregatedApiCallsWithResponseById } from '..';
 
 export function create(config: Config, coordinatorId: string): CoordinatorState {
   const airnodeAddress = wallet.getAirnodeWalletFromPrivateKey().address;
-  const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
+  const { cloudProvider, stage, nodeVersion } = config.nodeSettings;
+  const deploymentId = deriveDeploymentId(cloudProvider, airnodeAddress, stage, nodeVersion);
 
   const settings: CoordinatorSettings = {
     airnodeAddress,
-    airnodeAddressShort,
+    deploymentId,
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
     stage: config.nodeSettings.stage,
