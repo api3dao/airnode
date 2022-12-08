@@ -18,6 +18,8 @@ const verifyBytecode = (deployedData: string, localData: string, contractName: s
     logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
     return true;
   }
+  // The compiler appends by default the IPFS hash of the metadata file to the end of the bytecode (the last 106 char)
+  // for reference: https://docs.soliditylang.org/en/v0.8.17/metadata.html#encoding-of-the-metadata-hash-in-the-bytecode
   if (deployedData.slice(0, -106) === localData.slice(0, -106)) {
     logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
     logger.log(`⚠️  ${contractName} metadata is different from onchain value`);
@@ -38,7 +40,7 @@ async function main() {
 
     const creationTx = await hre.ethers.provider.getTransaction(deployment.transactionHash);
     const deteministicDeploymentAddress = hre.ethers.utils.getCreate2Address(
-      '0x4e59b44847b379578588920ca78fbf26c0b4956c',
+      '0x4e59b44847b379578588920ca78fbf26c0b4956c', // default create2 factory address in hardhat
       hre.ethers.constants.HashZero,
       hre.ethers.utils.keccak256(artifact.bytecode)
     );
