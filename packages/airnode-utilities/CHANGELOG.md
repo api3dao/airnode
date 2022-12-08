@@ -1,5 +1,12 @@
 # @api3/airnode-utilities
 
+## 0.9.2
+
+### Patch Changes
+
+- 3571c248: Fix logging undefined error property bug
+  - @api3/airnode-validator@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes
