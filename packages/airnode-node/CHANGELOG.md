@@ -1,5 +1,17 @@
 # @api3/airnode-node
 
+## 0.9.2
+
+### Patch Changes
+
+- cf382ad0: Fix failed lambda execution crashing coordinator
+- Updated dependencies [3571c248]
+  - @api3/airnode-utilities@0.9.2
+  - @api3/airnode-abi@0.9.2
+  - @api3/airnode-adapter@0.9.2
+  - @api3/airnode-protocol@0.9.2
+  - @api3/airnode-validator@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes

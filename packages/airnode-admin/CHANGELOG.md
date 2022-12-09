@@ -1,5 +1,15 @@
 # @api3/airnode-admin
 
+## 0.9.2
+
+### Patch Changes
+
+- Updated dependencies [3571c248]
+  - @api3/airnode-utilities@0.9.2
+  - @api3/airnode-abi@0.9.2
+  - @api3/airnode-protocol@0.9.2
+  - @api3/airnode-validator@0.9.2
+
 ## 0.9.1
 
 ### Patch Changes
