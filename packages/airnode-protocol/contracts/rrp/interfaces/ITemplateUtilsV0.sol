@@ -27,5 +27,9 @@ interface ITemplateUtilsV0 {
     function templates(bytes32 templateId)
         external
         view
-        returns (address airnode, bytes32 endpointId, bytes memory parameters);
+        returns (
+            address airnode,
+            bytes32 endpointId,
+            bytes memory parameters
+        );
 }
