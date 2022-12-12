@@ -5,6 +5,8 @@
 **/artifacts/**
 **/buidler.config.js
 
+ITemplateUtilsV0.sol
+
 **/.build/**
 **/.serverless/**
 **/coverage/**
