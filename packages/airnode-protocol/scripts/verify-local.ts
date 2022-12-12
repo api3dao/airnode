@@ -50,7 +50,9 @@ async function main() {
       // Verify that the creation tx hash belongs to the address
       assert(creationTx.creates === deployment.address);
       if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName)) {
-        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
+        throw new Error(
+          `${contractName} undeterministic deployment on ${hre.network.name} DOES NOT match the local build!`
+        );
       }
       logger.log(`✅  ${contractName} undeterministic deployment on ${hre.network.name} matches the local build!`);
     } else {
@@ -63,7 +65,9 @@ async function main() {
       assert(deterministicDeploymentAddress === deployment.address);
       generatedBytecode = hre.ethers.utils.hexConcat([salt, generatedBytecode]);
       if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName)) {
-        throw new Error(`${contractName} deployment on ${hre.network.name} DOES NOT match the local build!`);
+        throw new Error(
+          `${contractName} deterministic deployment on ${hre.network.name} DOES NOT match the local build!`
+        );
       }
       logger.log(`✅  ${contractName} deterministic deployment on ${hre.network.name} matches the local build!`);
     }
