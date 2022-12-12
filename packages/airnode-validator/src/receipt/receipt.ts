@@ -11,11 +11,10 @@ const ISO_DATE_REGEX =
 export const airnodeWalletSchema = z
   .object({
     airnodeAddress: z.string(),
-    airnodeAddressShort: z.string(),
     airnodeXpub: z.string(),
   })
   .strict()
-  .superRefine(({ airnodeAddress, airnodeAddressShort }, ctx) => {
+  .superRefine(({ airnodeAddress }, ctx) => {
     if (!ethers.utils.isAddress(airnodeAddress)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -24,14 +23,6 @@ export const airnodeWalletSchema = z
       });
 
       return;
-    }
-
-    if (airnodeAddress.substring(2, 9).toLowerCase() !== airnodeAddressShort) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Short Airnode address doesn't match Airnode address`,
-        path: ['airnodeAddressShort'],
-      });
     }
   });
 

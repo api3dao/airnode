@@ -164,7 +164,7 @@ export interface RegularAggregatedApiCallsWithResponseById {
 
 export interface CoordinatorSettings {
   readonly airnodeAddress: string;
-  readonly airnodeAddressShort: string;
+  readonly deploymentId: string;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly stage: string;
@@ -319,8 +319,7 @@ export type ApiCallPayload = RegularApiCallPayload | HttpApiCallPayload | HttpSi
 // ===========================================
 export interface WorkerOptions {
   readonly cloudProvider: LocalOrCloudProvider;
-  readonly airnodeAddressShort: string;
-  readonly stage: string;
+  readonly deploymentId: string;
 }
 
 export interface InitializeProviderPayload {

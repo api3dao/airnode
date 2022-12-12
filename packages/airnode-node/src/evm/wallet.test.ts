@@ -21,14 +21,6 @@ describe('getAirnodeWallet', () => {
   });
 });
 
-describe('getAirnodeAddressShort', () => {
-  it('returns a shortened airnodeAddress', () => {
-    const airnodeWallet = wallet.getAirnodeWallet(config);
-    const res = wallet.getAirnodeAddressShort(airnodeWallet.address);
-    expect(res).toEqual('a30ca71');
-  });
-});
-
 describe('deriveSponsorWallet', () => {
   it('returns the wallet for the given sponsor', () => {
     const masterHDNode = wallet.getMasterHDNode(config);
