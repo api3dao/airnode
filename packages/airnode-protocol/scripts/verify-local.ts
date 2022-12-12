@@ -39,14 +39,14 @@ async function main() {
     const artifact = await hre.deployments.getArtifact(contractName);
 
     const creationTx = await hre.ethers.provider.getTransaction(deployment.transactionHash);
-    const deteministicDeploymentAddress = hre.ethers.utils.getCreate2Address(
+    const deterministicDeploymentAddress = hre.ethers.utils.getCreate2Address(
       '0x4e59b44847b379578588920ca78fbf26c0b4956c', // default create2 factory address in hardhat
       hre.ethers.constants.HashZero,
       hre.ethers.utils.keccak256(artifact.bytecode)
     );
 
     // Verify that the creation tx hash belongs to the address
-    assert(creationTx.creates === deployment.address || deteministicDeploymentAddress);
+    assert(creationTx.creates === deployment.address || deterministicDeploymentAddress);
     const creationData = creationTx.data;
 
     // Check if the calldata in the creation tx matches with the local build
