@@ -18,6 +18,7 @@
     "416": "sx-network",
     "420": "optimism-testnet",
     "588": "metis-testnet",
+    "647": "sx-network-testnet",
     "1088": "metis",
     "1284": "moonbeam",
     "1285": "moonriver",
@@ -59,6 +60,7 @@
     "416": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "420": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "588": "0xe40f1a1A546B70003D9ddF66B89C261cA46A0CF0",
+    "647": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "1088": "0xb015ACeEdD478fc497A798Ab45fcED8BdEd08924",
     "1284": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "1285": "0x92E5125adF385d86beDb950793526106143b6Df1",
@@ -100,6 +102,7 @@
     "416": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
     "420": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "588": "0x5997C09be60196b7De9dE73C88dd7776f2875401",
+    "647": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "1088": "0x8262a9DAB3f8a0b1E6317551E214CeA89Bc3f56d",
     "1284": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "1285": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
@@ -141,6 +144,7 @@
     "416": "0xE338f63170c42bA0d2a888f18F6185369779009c",
     "420": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "588": "0x4923968942E8aae4656ae4913874EB7312e0F7c7",
+    "647": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "1088": "0xC02Ea0f403d5f3D45a4F1d0d817e7A2601346c9E",
     "1284": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "1285": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
@@ -235,6 +239,10 @@
     "588": {
       "chainId": 588,
       "name": "metis-testnet"
+    },
+    "647": {
+      "chainId": 647,
+      "name": "sx-network-testnet"
     },
     "1088": {
       "chainId": 1088,
