@@ -28,7 +28,7 @@
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
     "yargs": "^17.6.0",
-    "zod": "^3.19.1"
+    "zod": "^3.20.0"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.13",
