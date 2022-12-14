@@ -6,8 +6,7 @@ export function buildWorkerOptions(options?: Partial<WorkerOptions>): WorkerOpti
       type: 'local',
       gatewayServerPort: 3000,
     },
-    airnodeAddressShort: '19255a4',
-    stage: 'test',
+    deploymentId: 'local02cce763',
     ...options,
   };
 }

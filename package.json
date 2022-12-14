@@ -62,7 +62,7 @@
     "docker:scripts:npm-registry": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest npm-registry",
     "docker:scripts:npm-registry:start": "yarn docker:scripts:npm-registry start",
     "docker:scripts:npm-registry:stop": "yarn docker:scripts:npm-registry stop",
-    "docker:scripts:npm:publish": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e NPM_TOKEN api3/airnode-packaging:latest npm publish",
+    "docker:scripts:npm:publish": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e NPM_TOKEN -e GITHUB_TOKEN api3/airnode-packaging:latest npm publish",
     "docker:scripts:npm:publish-snapshot": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e NPM_TOKEN api3/airnode-packaging:latest npm publish-snapshot",
     "docker:scripts:npm:publish-snapshot:mount": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/airnode api3/airnode-packaging:latest npm publish-snapshot",
     "docker:scripts:npm:publish-snapshot:local": "yarn docker:scripts:npm:publish-snapshot:mount --npm-registry local --npm-tag local",

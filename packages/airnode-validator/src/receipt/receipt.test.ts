@@ -29,7 +29,6 @@ it(`doesn't allow extraneous properties`, () => {
 describe('airnodeWalletSchema', () => {
   const airnodeWallet: AirnodeWallet = {
     airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-    airnodeAddressShort: 'a30ca71',
     airnodeXpub:
       'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
   };

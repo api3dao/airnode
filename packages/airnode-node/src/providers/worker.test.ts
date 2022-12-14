@@ -26,8 +26,7 @@ describe('spawnNewProvider', () => {
         disableConcurrencyReservations: false,
       },
       payload: { state, functionName: 'initializeProvider' },
-      airnodeAddressShort: '19255a4',
-      stage: 'test',
+      deploymentId: 'local02cce763',
     });
   });
 });
@@ -52,8 +51,7 @@ describe('spawnTransactionsProcessor', () => {
         disableConcurrencyReservations: false,
       },
       payload: { state, functionName: 'processTransactions' },
-      airnodeAddressShort: '19255a4',
-      stage: 'test',
+      deploymentId: 'local02cce763',
     });
   });
 });
