@@ -122,33 +122,28 @@ export const gasPriceOracleStrategySchema = z.discriminatedUnion('gasPriceStrate
   constantGasPriceStrategySchema,
 ]);
 
-export const validateGasPriceOracleStrategies: SuperRefinement<GasPriceOracleConfig> = (gasPriceOracle, ctx) => {
-  const constantGasPriceStrategy = gasPriceOracle.find(
-    (gasPriceOracleStrategy) => gasPriceOracleStrategy.gasPriceStrategy === 'constantGasPrice'
-  );
-
-  // Require at least the constantGasPrice strategy to be defined
-  if (!constantGasPriceStrategy) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `Missing required constantGasPrice strategy`,
-      path: ['gasPriceOracle'],
-    });
-  }
-
-  if (gasPriceOracle[gasPriceOracle.length - 1]?.gasPriceStrategy !== 'constantGasPrice') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `ConstantGasPrice strategy must be set as the last strategy in the array.`,
-      path: ['gasPriceOracle'],
-    });
-  }
-};
-
 export const gasPriceOracleSchema = z
   .array(gasPriceOracleStrategySchema)
   .nonempty()
-  .superRefine(validateGasPriceOracleStrategies);
+  .superRefine((strategies, ctx) => {
+    const constantGasPriceStrategy = strategies.find((strategy) => strategy.gasPriceStrategy === 'constantGasPrice');
+
+    if (!constantGasPriceStrategy) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Missing required constantGasPrice strategy`,
+        path: ['gasPriceOracle'],
+      });
+    }
+
+    if (strategies[strategies.length - 1]?.gasPriceStrategy !== 'constantGasPrice') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `ConstantGasPrice strategy must be set as the last strategy in the array.`,
+        path: ['gasPriceOracle'],
+      });
+    }
+  });
 
 export const chainOptionsSchema = z
   .object({
@@ -492,4 +487,4 @@ export type Amount = SchemaType<typeof amountSchema>;
 export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
 export type MaxConcurrency = SchemaType<typeof maxConcurrencySchema>;
 
-export const availableCloudProviders = Array.from(cloudProviderSchema.options.keys()) as CloudProvider['type'][];
+export const availableCloudProviders = Array.from(cloudProviderSchema.optionsMap.keys()) as CloudProvider['type'][];
