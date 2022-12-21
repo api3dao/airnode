@@ -460,7 +460,10 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       }
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-      const latestDepolymentFileNames = Object.keys((stageDirectory.children[latestDeployment] as Directory).children);
+      // S
+      const latestDepolymentFileNames = Object.keys(
+        (stageDirectory.children[latestDeployment] as Directory)?.children || {}
+      );
 
       const requiredFileNames = ['config.json', 'secrets.env', 'default.tfstate'];
       const missingRequiredFiles = requiredFileNames.filter(
