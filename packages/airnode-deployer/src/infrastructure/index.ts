@@ -460,7 +460,6 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       }
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-      // S
       const latestDepolymentFileNames = Object.keys(
         (stageDirectory.children[latestDeployment] as Directory)?.children || {}
       );
@@ -475,6 +474,10 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
             ', '
           )}. Deployer commands may fail and manual removal may be necessary.`
         );
+
+        if (missingRequiredFiles.includes('config.json') || missingRequiredFiles.includes('secrets.env')) {
+          continue;
+        }
       }
 
       const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;
