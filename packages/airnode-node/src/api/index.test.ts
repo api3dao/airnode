@@ -414,6 +414,175 @@ describe('callApi', () => {
       );
     });
   });
+  describe('skip API call', () => {
+    const createEncodedValue = (value: ethers.BigNumber, times = 100_000) =>
+      `0x${value.mul(times).toHexString().substring(2).padStart(64, '0')}`;
+
+    it('skips the API call with preProcessingSpecifications', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const preProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = { result: (parseInt(input.parameter1) * 2).toString() }',
+          timeoutMs: 5000,
+        },
+      ];
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].preProcessingSpecifications = preProcessingSpecifications;
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(25 * 2)),
+          signature:
+            '0x148d65210b201c3ddd6f8e08cfc29032e9f3c781919eeb80b950dbb984ebbbee289105ea8b591ace166d04b65e334801ea0177bb431775db2b4268d55fa4e2a81c',
+        },
+      });
+    });
+
+    it('skips the API call with postProcessingSpecifications', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const postProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = { result: (parseInt(input.parameter1) * 2).toString() }',
+          timeoutMs: 5000,
+        },
+      ];
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].postProcessingSpecifications = postProcessingSpecifications;
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(25 * 2)),
+          signature:
+            '0x148d65210b201c3ddd6f8e08cfc29032e9f3c781919eeb80b950dbb984ebbbee289105ea8b591ace166d04b65e334801ea0177bb431775db2b4268d55fa4e2a81c',
+        },
+      });
+    });
+
+    it('skips API call with both preProcessingSpecifications and postProcessingSpecifications', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+      const preProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = {...input, addThis: "5" }',
+          timeoutMs: 5000,
+        },
+      ];
+      const postProcessingSpecifications = [
+        {
+          environment: 'Node 14' as const,
+          value: 'const output = { result: (parseInt(input.parameter1) * 2 + parseInt(input.addThis)).toString() }',
+          timeoutMs: 5000,
+        },
+      ];
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].preProcessingSpecifications = preProcessingSpecifications;
+      config.ois[0].endpoints[0].postProcessingSpecifications = postProcessingSpecifications;
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([]);
+      expect(res).toEqual({
+        success: true,
+        data: {
+          encodedValue: createEncodedValue(ethers.BigNumber.from(25 * 2 + 5)),
+          signature:
+            '0x9796e8ba07c517a43b2ca1416b9c975541345c5b7bf73613738ed84216c4573d1656cbc385acb9111b7077fba65418b59cfe3f59ee81109523664bbc25efcfd71b',
+        },
+      });
+    });
+
+    it('fails when both preProcessingSpecifications and postProcessingSpecifications are empty', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].preProcessingSpecifications = [];
+      config.ois[0].endpoints[0].postProcessingSpecifications = [];
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([
+        {
+          level: 'ERROR',
+          message:
+            "Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.",
+        },
+      ]);
+      expect(res).toEqual({
+        success: false,
+        errorMessage: `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.`,
+      });
+    });
+
+    it('fails when both preProcessingSpecifications and postProcessingSpecifications are undefined', async () => {
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'result', parameter1: '25' };
+      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
+      config.ois[0].endpoints[0].operation = undefined;
+      config.ois[0].endpoints[0].fixedOperationParameters = [];
+      config.ois[0].endpoints[0].preProcessingSpecifications = undefined;
+      config.ois[0].endpoints[0].postProcessingSpecifications = undefined;
+
+      const [logs, res] = await callApi({
+        type: 'regular',
+        config,
+        aggregatedApiCall,
+      });
+
+      expect(logs).toEqual([
+        {
+          level: 'ERROR',
+          message:
+            "Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.",
+        },
+      ]);
+      expect(res).toEqual({
+        success: false,
+        errorMessage: `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois 'Currency Converter API', endpoint 'convertToUSD'.`,
+      });
+    });
+  });
 });
 
 describe('verifyTemplateId', () => {

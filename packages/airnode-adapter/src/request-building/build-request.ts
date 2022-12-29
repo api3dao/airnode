@@ -10,7 +10,7 @@ function cacheRequestOptions(options: BuildRequestOptions): CachedBuildRequestOp
     throw new Error(`Endpoint: '${options.endpointName}' not found in the OIS.`);
   }
 
-  const { method, path } = endpoint.operation;
+  const { method, path } = endpoint.operation!;
   const operation = ois.apiSpecifications.paths[path][method]!;
   return { ...options, endpoint, operation };
 }
@@ -25,12 +25,12 @@ export function buildRequest(options: BuildRequestOptions): Request {
   // Different base URLs are not supported at the operation level
   const baseUrl = ois.apiSpecifications.servers[0].url;
   const parameters = buildParameters(cachedOptions);
-  const path = parsePathWithParameters(endpoint.operation.path, parameters.paths);
+  const path = parsePathWithParameters(endpoint.operation!.path, parameters.paths);
 
   return {
     baseUrl,
     path,
-    method: endpoint.operation.method,
+    method: endpoint.operation!.method,
     headers: parameters.headers,
     data: parameters.query,
   };

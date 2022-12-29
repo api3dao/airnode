@@ -85,7 +85,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '1.2.0',
+      oisFormat: '1.4.0',
       title: 'OpenWeather Multiple Encoded Values',
       version: '1.0.0',
       apiSpecifications: {

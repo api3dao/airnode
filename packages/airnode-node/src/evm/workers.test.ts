@@ -11,7 +11,7 @@ import * as fixtures from '../../test/fixtures';
 
 const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as ReadonlyArray<keyof typeof worker>;
 
-const serverlessFunctionName = 'airnode-19255a4-test-run';
+const serverlessFunctionName = 'airnode-local02cce763-run';
 const functionNames = {
   spawnNewProvider: 'initializeProvider',
   spawnProviderRequestProcessor: 'processTransactions',
@@ -27,7 +27,7 @@ workers.forEach((workerType) => {
 
     it('handles remote AWS calls', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((params, callback) =>
+      invokeMock.mockImplementationOnce((_params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
       );
       const workerOpts = fixtures.buildWorkerOptions({
@@ -48,7 +48,7 @@ workers.forEach((workerType) => {
 
     it('returns an error if the worker rejects', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
+      invokeMock.mockImplementationOnce((_params, callback) => callback(new Error('Something went wrong'), null));
       const workerOpts = fixtures.buildWorkerOptions({
         cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
       });
@@ -74,7 +74,7 @@ workers.forEach((workerType) => {
     it('returns an error if the response has an error log', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
       const errorLog = logger.pend('ERROR', 'Something went wrong');
-      invokeMock.mockImplementationOnce((params, callback) =>
+      invokeMock.mockImplementationOnce((_params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
       );
       const workerOpts = fixtures.buildWorkerOptions({
@@ -95,7 +95,7 @@ workers.forEach((workerType) => {
 
     it('returns an error if the response is not ok', async () => {
       const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((params, callback) =>
+      invokeMock.mockImplementationOnce((_params, callback) =>
         callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
       );
       const workerOpts = fixtures.buildWorkerOptions({

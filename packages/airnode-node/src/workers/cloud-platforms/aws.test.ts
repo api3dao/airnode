@@ -16,7 +16,7 @@ describe('spawn', () => {
   it('derives the function name, invokes and returns the response', async () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
-    invoke.mockImplementationOnce((params, callback) =>
+    invoke.mockImplementationOnce((_params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ value: 7777 }) }) })
     );
     const state = fixtures.buildEVMProviderState();
@@ -33,7 +33,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ functionName: 'initializeProvider', state, logOptions }),
       },
       expect.any(Function)
@@ -43,7 +43,7 @@ describe('spawn', () => {
   it('throws an error if the lambda returns an error', async () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
-    invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
+    invoke.mockImplementationOnce((_params, callback) => callback(new Error('Something went wrong'), null));
     const state = fixtures.buildEVMProviderState();
     const workerOpts = fixtures.buildWorkerOptions({
       cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
@@ -57,7 +57,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-19255a4-test-run',
+        FunctionName: 'airnode-local02cce763-run',
         Payload: JSON.stringify({ functionName: 'initializeProvider', state, logOptions }),
       },
       expect.any(Function)

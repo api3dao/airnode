@@ -29,7 +29,7 @@
     "@api3/airnode-protocol": "^0.9.0",
     "@api3/airnode-utilities": "^0.9.0",
     "@api3/airnode-validator": "^0.9.0",
-    "@api3/ois": "1.2.0",
+    "@api3/ois": "1.4.0",
     "@api3/promise-utils": "^0.3.0",
     "aws-sdk": "^2.1243.0",
     "dotenv": "^16.0.3",
@@ -38,7 +38,7 @@
     "google-auth-library": "^8.6.0",
     "lodash": "^4.17.21",
     "yargs": "^17.6.0",
-    "zod": "^3.19.1"
+    "zod": "^3.20.0"
   },
   "devDependencies": {
     "@api3/airnode-operation": "^0.9.0",

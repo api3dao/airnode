@@ -1,4 +1,3 @@
-import * as crypto from 'crypto';
 import { format } from 'date-fns-tz';
 import { CloudProvider } from '@api3/airnode-node';
 import join from 'lodash/join';
@@ -13,42 +12,6 @@ export function printableArguments(args: string[]) {
     args.map((arg) => `--${arg}`),
     ', '
   );
-}
-
-function cloudProviderHashElements(cloudProvider: CloudProvider) {
-  const hashElements = [cloudProvider.type, cloudProvider.region];
-  if (cloudProvider.type === 'gcp') {
-    hashElements.push(cloudProvider.projectId);
-  }
-
-  return hashElements;
-}
-
-export function hashDeployment(
-  cloudProvider: CloudProvider,
-  airnodeAddress: string,
-  stage: string,
-  airnodeVersion: string
-) {
-  return `${cloudProvider.type}${crypto
-    .createHash('sha256')
-    .update([...cloudProviderHashElements(cloudProvider), airnodeAddress, stage, airnodeVersion].join(''))
-    .digest('hex')
-    .substring(0, 8)}`;
-}
-
-export function hashDeploymentVersion(
-  cloudProvider: CloudProvider,
-  airnodeAddress: string,
-  stage: string,
-  airnodeVersion: string,
-  timestamp: string
-) {
-  return crypto
-    .createHash('sha256')
-    .update([...cloudProviderHashElements(cloudProvider), airnodeAddress, stage, airnodeVersion, timestamp].join(''))
-    .digest('hex')
-    .substring(0, 8);
 }
 
 export function cloudProviderReadable(cloudProvider: CloudProvider) {

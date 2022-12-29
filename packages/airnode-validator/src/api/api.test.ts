@@ -74,6 +74,7 @@ describe('parseConfigWithSecrets', () => {
         minimum: 1,
         type: 'string',
         inclusive: true,
+        exact: false,
         message: 'Secret cannot be empty',
         path: ['AIRNODE_WALLET_MNEMONIC'],
       },
