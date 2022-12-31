@@ -21,7 +21,7 @@
   "dependencies": {
     "@api3/ois": "1.4.0",
     "@api3/promise-utils": "^0.3.0",
-    "axios": "^1.1.3",
+    "axios": "^1.2.2",
     "bignumber.js": "^9.1.0",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21"
