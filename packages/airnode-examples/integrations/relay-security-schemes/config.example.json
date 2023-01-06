@@ -59,7 +59,7 @@
       "enabled": false
     },
     "logFormat": "plain",
-    "logLevel": "INFO",
+    "logLevel": "DEBUG",
     "nodeVersion": "0.9.0",
     "stage": "dev"
   },

@@ -68,7 +68,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       corsOrigins: [],
     },
     logFormat: 'plain',
-    logLevel: 'INFO',
+    logLevel: 'DEBUG',
     nodeVersion: createNodeVersion(),
     stage: 'dev',
   },
