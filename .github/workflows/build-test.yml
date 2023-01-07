@@ -32,18 +32,6 @@ jobs:
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
           config-file: .github/workflows/mlc_config.json
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Documentation'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
   pre-build:
     name: Prepare build environment
     runs-on: ubuntu-latest
@@ -88,18 +76,6 @@ jobs:
         run: yarn run build
       - name: Lint code
         run: yarn run lint
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Build'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
       - uses: actions/cache@v3
         id: cache-build
         with:
@@ -153,18 +129,6 @@ jobs:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
       - run: yarn run test
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Unit tests'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
   e2e-tests:
     name: E2E tests
     runs-on: ubuntu-latest
@@ -188,18 +152,6 @@ jobs:
       - run: yarn run test:e2e-${{ matrix.package }}
         env:
           COMMIT: ${{ github.sha }}
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - E2E tests'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
   e2e-tests-examples:
     name: E2E Tests - examples
     runs-on: ubuntu-latest
@@ -220,18 +172,6 @@ jobs:
       - run: yarn run test:e2e-examples
         env:
           COMMIT: ${{ github.sha }}
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - E2E tests'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
   require-changeset:
     name: Require a changeset
     runs-on: ubuntu-latest
@@ -265,16 +205,3 @@ jobs:
     needs: [documentation, docker-build, unit-tests, e2e-tests, e2e-tests-examples, require-changeset, enable-merge]
     steps:
       - run: exit 0
-      - name: Slack Notification
-        uses: lazy-actions/slatify@master
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # env.SLACK_WEBHOOK_URL != null is a workaround dependabot not having access to secrets
-        if: ${{ always() && env.SLACK_WEBHOOK_URL != null }}
-        with:
-          channel: '#technical-notifications'
-          commit: true
-          job_name: 'Airnode - Continuous Build'
-          token: ${{ secrets.ACCESS_TOKEN }}
-          type: ${{ job.status }}
-          url: ${{ secrets.SLACK_WEBHOOK_URL }}
