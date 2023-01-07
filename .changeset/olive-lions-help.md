@@ -1,5 +1,5 @@
 ---
-'@api3/airnode-examples': patch
+'@api3/airnode-examples': minor
 ---
 
-Default to DEBUG log level in airnode-examples
+Use --debug for airnode-deployer commands and default to DEBUG log level in airnode-examples
