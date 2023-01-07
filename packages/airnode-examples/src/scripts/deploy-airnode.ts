@@ -20,7 +20,7 @@ const main = async () => {
     `docker run -it --rm`,
     isWindows() ? '' : `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     `-v ${integrationPath}:/app/config`,
-    `${imageName} deploy`,
+    `${imageName} deploy --debug`,
   ]
     .filter(Boolean)
     .join(' ');
