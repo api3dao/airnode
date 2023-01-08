@@ -9,7 +9,7 @@ import { deploy, removeWithReceipt } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
-import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
+import { deploymentInfo, fetchFiles, listAirnodes, removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -49,6 +49,7 @@ const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
   'list --cloud-providers gcp',
   'info aws808e2a22',
+  'fetch-files aws808e2a22',
   'remove-with-receipt -r config/receipt.json',
   'remove aws808e2a22',
 ];
@@ -124,7 +125,6 @@ yargs(hideBin(process.argv))
       yargs.positional('deployment-id', {
         description: `ID of the deployment (from 'list' command)`,
         type: 'string',
-        demandOption: true,
       });
     },
     async (args) => {
@@ -167,7 +167,6 @@ yargs(hideBin(process.argv))
       yargs.positional('deployment-id', {
         description: `ID of the deployment (from 'list' command)`,
         type: 'string',
-        demandOption: true,
       });
     },
     async (args) => {
@@ -178,6 +177,40 @@ yargs(hideBin(process.argv))
       const goDeploymentInfo = await go(() => deploymentInfo(args.deploymentId as string));
       if (!goDeploymentInfo.success) {
         logger.fail(goDeploymentInfo.error.message);
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'fetch-files <deployment-id> [version-id]',
+    'Fetch deployment files for the deployed Airnode',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
+        type: 'string',
+      });
+      yargs.positional('version-id', {
+        description: `ID of the deployment version (from 'info' command)`,
+        type: 'string',
+      });
+      yargs.option('output-dir', {
+        alias: 'o',
+        description: 'Where to store fetched files',
+        default: 'config/',
+        type: 'string',
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely
+      const goFetchFiles = await go(() =>
+        fetchFiles(args.deploymentId as string, args.outputDir as string, args.versionId as string | undefined)
+      );
+      if (!goFetchFiles.success) {
+        logger.fail(goFetchFiles.error.message);
         // eslint-disable-next-line functional/immutable-data
         process.exitCode = 1;
       }
