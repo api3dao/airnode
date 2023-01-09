@@ -35,6 +35,7 @@ import {
   FileSystemType,
   deploymentComparator,
   Bucket,
+  checkBucketMissingFiles,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress } from '../utils';
@@ -332,6 +333,16 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
     const stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage);
     if (stageDirectory) {
       logger.debug(`Deployment '${bucketStagePath}' already exists`);
+
+      const bucketMissingFiles = checkBucketMissingFiles(directoryStructure, bucket, type);
+      if (bucketMissingFiles[airnodeAddress] && bucketMissingFiles[airnodeAddress][stage]) {
+        throw new Error(
+          `Can't update an Airnode with missing files: ${bucketMissingFiles[airnodeAddress][stage].join(
+            ', '
+          )}. Deployer commands may fail and manual removal may be necessary.`
+        );
+      }
+
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
       const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
@@ -439,6 +450,8 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
   }
 
   const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
+  const bucketMissingFiles = checkBucketMissingFiles(directoryStructure, bucket, cloudProviderType);
+
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
     if (addressDirectory.type !== FileSystemType.Directory) {
       logger.warn(
@@ -460,24 +473,9 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       }
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
-      const latestDepolymentFileNames = Object.keys(
-        (stageDirectory.children[latestDeployment] as Directory)?.children || {}
-      );
 
-      const requiredFileNames = ['config.json', 'secrets.env', 'default.tfstate'];
-      const missingRequiredFiles = requiredFileNames.filter(
-        (requiredFileName) => !latestDepolymentFileNames.includes(requiredFileName)
-      );
-      if (missingRequiredFiles.length) {
-        logger.warn(
-          `Airnode '${airnodeAddress}' with stage '${stage}' is missing files: ${missingRequiredFiles.join(
-            ', '
-          )}. Deployer commands may fail and manual removal may be necessary.`
-        );
-
-        if (missingRequiredFiles.includes('config.json') || missingRequiredFiles.includes('secrets.env')) {
-          continue;
-        }
+      if (bucketMissingFiles[airnodeAddress] && bucketMissingFiles[airnodeAddress][stage].length) {
+        continue;
       }
 
       const bucketLatestDeploymentPath = `${airnodeAddress}/${stage}/${latestDeployment}`;

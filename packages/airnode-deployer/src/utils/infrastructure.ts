@@ -1,10 +1,15 @@
 import { randomBytes } from 'crypto';
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import difference from 'lodash/difference';
 import { compareVersions } from 'compare-versions';
+import { CloudProvider } from '@api3/airnode-node';
 import * as logger from './logger';
-import { Deployment } from '../infrastructure';
+import { Deployment, TF_STATE_FILENAME } from '../infrastructure';
 
 type CommandArg = string | [string, string] | [string, string, string];
+
+const requiredFileNames = ['config.json', 'secrets.env', TF_STATE_FILENAME];
 
 export function formatTerraformArguments(args: CommandArg[]) {
   return args
@@ -163,3 +168,53 @@ export const deploymentComparator = (a: Deployment, b: Deployment) => {
 
   return compareVersions(a.airnodeVersion, b.airnodeVersion);
 };
+
+export const checkBucketMissingFiles = (
+  directoryStructure: DirectoryStructure,
+  bucket: {
+    name: string;
+    region: string;
+  },
+  cloudProviderType: CloudProvider['type']
+): Record<string, Record<string, string[]>> =>
+  Object.entries(directoryStructure).reduce((acc, [airnodeAddress, addressDirectory]) => {
+    if (addressDirectory.type !== FileSystemType.Directory) {
+      logger.warn(
+        `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
+          addressDirectory.bucketKey
+        }'. Skipping.`
+      );
+      return acc;
+    }
+
+    const checkedAddressDirectory = Object.entries(addressDirectory.children).reduce((acc, [stage, stageDirectory]) => {
+      if (stageDirectory.type !== FileSystemType.Directory) {
+        logger.warn(
+          `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
+            stageDirectory.bucketKey
+          }'. Skipping.`
+        );
+        return acc;
+      }
+
+      const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+      const latestDepolymentFileNames = Object.keys(
+        (stageDirectory.children[latestDeployment] as Directory)?.children || {}
+      );
+
+      const missingRequiredFiles = difference(requiredFileNames, latestDepolymentFileNames);
+      if (isEmpty(missingRequiredFiles)) {
+        return { ...acc, [airnodeAddress]: { [stage]: [] } };
+      }
+
+      logger.warn(
+        `Airnode '${airnodeAddress}' with stage '${stage}' is missing files: ${missingRequiredFiles.join(
+          ', '
+        )}. Deployer commands may fail and manual removal may be necessary.`
+      );
+
+      return { ...acc, [stage]: missingRequiredFiles };
+    }, {});
+
+    return { ...acc, [airnodeAddress]: checkedAddressDirectory };
+  }, {});
