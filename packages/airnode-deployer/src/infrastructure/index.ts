@@ -335,7 +335,11 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       logger.debug(`Deployment '${bucketStagePath}' already exists`);
 
       const bucketMissingFiles = checkBucketMissingFiles(directoryStructure, bucket, type);
-      if (bucketMissingFiles[airnodeAddress] && bucketMissingFiles[airnodeAddress][stage]) {
+      if (
+        bucketMissingFiles[airnodeAddress] &&
+        bucketMissingFiles[airnodeAddress][stage] &&
+        bucketMissingFiles[airnodeAddress][stage].length !== 0
+      ) {
         throw new Error(
           `Can't update an Airnode with missing files: ${bucketMissingFiles[airnodeAddress][stage].join(
             ', '
@@ -474,7 +478,11 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
 
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
 
-      if (bucketMissingFiles[airnodeAddress] && bucketMissingFiles[airnodeAddress][stage].length) {
+      if (
+        bucketMissingFiles[airnodeAddress] &&
+        bucketMissingFiles[airnodeAddress][stage] &&
+        bucketMissingFiles[airnodeAddress][stage].length !== 0
+      ) {
         continue;
       }
 

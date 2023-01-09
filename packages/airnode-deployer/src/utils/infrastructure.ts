@@ -216,5 +216,5 @@ export const checkBucketMissingFiles = (
       return { ...acc, [stage]: missingRequiredFiles };
     }, {});
 
-    return { ...acc, [airnodeAddress]: checkedAddressDirectory };
+    return { ...acc, ...checkedAddressDirectory };
   }, {});
