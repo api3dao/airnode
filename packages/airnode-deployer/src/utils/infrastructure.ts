@@ -213,7 +213,7 @@ export const checkBucketMissingFiles = (
         )}. Deployer commands may fail and manual removal may be necessary.`
       );
 
-      return { ...acc, [stage]: missingRequiredFiles };
+      return { ...acc, [airnodeAddress]: { [stage]: missingRequiredFiles } };
     }, {});
 
     return { ...acc, ...checkedAddressDirectory };
