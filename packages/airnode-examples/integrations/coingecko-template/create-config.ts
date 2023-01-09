@@ -67,7 +67,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       enabled: false,
     },
     logFormat: 'plain',
-    logLevel: 'INFO',
+    logLevel: 'DEBUG',
     nodeVersion: createNodeVersion(),
     stage: 'dev',
   },
