@@ -5,11 +5,11 @@ import difference from 'lodash/difference';
 import { compareVersions } from 'compare-versions';
 import { CloudProvider } from '@api3/airnode-node';
 import * as logger from './logger';
-import { Deployment, TF_STATE_FILENAME } from '../infrastructure';
+import { Deployment } from '../infrastructure';
 
 type CommandArg = string | [string, string] | [string, string, string];
 
-const requiredFileNames = ['config.json', 'secrets.env', TF_STATE_FILENAME];
+const requiredFileNames = ['config.json', 'secrets.env', 'default.tfstate'];
 
 export function formatTerraformArguments(args: CommandArg[]) {
   return args
