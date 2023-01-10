@@ -36,7 +36,7 @@ import {
   FileSystemType,
   deploymentComparator,
   Bucket,
-  checkBucketMissingFiles,
+  getMissingBucketFiles,
 } from '../utils/infrastructure';
 import { version as nodeVersion } from '../../package.json';
 import { deriveAirnodeAddress } from '../utils';
@@ -335,7 +335,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
     if (stageDirectory) {
       logger.debug(`Deployment '${bucketStagePath}' already exists`);
 
-      const bucketMissingFiles = checkBucketMissingFiles(directoryStructure);
+      const bucketMissingFiles = getMissingBucketFiles(directoryStructure);
       if (
         bucketMissingFiles[airnodeAddress] &&
         bucketMissingFiles[airnodeAddress][stage] &&
@@ -351,11 +351,18 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
       const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
-      const remoteConfig = JSON.parse(
-        await cloudProviderLib[type].getFileFromBucket(bucket.name, bucketConfigPath)
-      ) as Config;
+      const goGetRemoteConfigFileFromBucket = await go(() =>
+        cloudProviderLib[type].getFileFromBucket(bucket!.name, bucketConfigPath)
+      );
+      if (!goGetRemoteConfigFileFromBucket.success) {
+        throw new Error(`Failed to fetch configuration file. Error: ${goGetRemoteConfigFileFromBucket.error.message}`);
+      }
+      const goRemoteConfig = goSync(() => JSON.parse(goGetRemoteConfigFileFromBucket.data));
+      if (!goRemoteConfig.success) {
+        throw new Error(`Failed to parse configuration file. Error: ${goRemoteConfig.error.message}`);
+      }
 
-      const remoteNodeSettings = remoteConfig.nodeSettings;
+      const remoteNodeSettings = goRemoteConfig.data.nodeSettings;
       const remoteCloudProvider = remoteNodeSettings.cloudProvider as CloudProvider;
       if (remoteNodeSettings.nodeVersion !== nodeVersion) {
         throw new Error(
@@ -455,7 +462,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
   }
 
   const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
-  const bucketMissingFiles = checkBucketMissingFiles(directoryStructure);
+  const bucketMissingFiles = getMissingBucketFiles(directoryStructure);
 
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
     if (addressDirectory.type !== FileSystemType.Directory) {
@@ -498,7 +505,11 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
         logger.warn(`Failed to fetch configuration file. Error: ${goGetConfigFileFromBucket.error.message} Skipping.`);
         continue;
       }
-      const config = JSON.parse(goGetConfigFileFromBucket.data);
+      const goConfig = goSync(() => JSON.parse(goGetConfigFileFromBucket.data));
+      if (!goConfig.success) {
+        logger.warn(`Failed to parse configuration file. Error: ${goConfig.error.message} Skipping.`);
+        continue;
+      }
 
       logger.debug(`Fetching secrets file '${bucketConfigPath}'`);
       const bucketSecretsPath = `${bucketLatestDeploymentPath}/secrets.env`;
@@ -510,7 +521,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
         continue;
       }
       const secrets = dotenv.parse(goGetSecretsFileFromBucket.data);
-      const interpolatedConfig = unsafeParseConfigWithSecrets(config, secrets);
+      const interpolatedConfig = unsafeParseConfigWithSecrets(goConfig.data, secrets);
 
       const cloudProvider = interpolatedConfig.nodeSettings.cloudProvider as CloudProvider;
       const airnodeVersion = interpolatedConfig.nodeSettings.nodeVersion;

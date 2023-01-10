@@ -8,7 +8,7 @@ import { Deployment } from '../infrastructure';
 
 type CommandArg = string | [string, string] | [string, string, string];
 
-const requiredFileNames = ['config.json', 'secrets.env', 'default.tfstate'];
+const DEPLOYMENT_REQUIRED_FILE_NAMES = ['config.json', 'secrets.env', 'default.tfstate'];
 
 export function formatTerraformArguments(args: CommandArg[]) {
   return args
@@ -168,7 +168,7 @@ export const deploymentComparator = (a: Deployment, b: Deployment) => {
   return compareVersions(a.airnodeVersion, b.airnodeVersion);
 };
 
-export const checkBucketMissingFiles = (
+export const getMissingBucketFiles = (
   directoryStructure: DirectoryStructure
 ): Record<string, Record<string, string[]>> =>
   Object.entries(directoryStructure).reduce((acc, [airnodeAddress, addressDirectory]) => {
@@ -186,7 +186,7 @@ export const checkBucketMissingFiles = (
         (stageDirectory.children[latestDeployment] as Directory)?.children || {}
       );
 
-      const missingRequiredFiles = difference(requiredFileNames, latestDepolymentFileNames);
+      const missingRequiredFiles = difference(DEPLOYMENT_REQUIRED_FILE_NAMES, latestDepolymentFileNames);
       if (isEmpty(missingRequiredFiles)) {
         return { ...acc, [airnodeAddress]: { [stage]: [] } };
       }
