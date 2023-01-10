@@ -4,6 +4,7 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import AdmZip from 'adm-zip';
 import {
   AwsCloudProvider,
   CloudProvider,
@@ -15,7 +16,7 @@ import {
   deriveDeploymentVersionId,
 } from '@api3/airnode-node';
 import { consoleLog } from '@api3/airnode-utilities';
-import { go } from '@api3/promise-utils';
+import { go, goSync } from '@api3/promise-utils';
 import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import compact from 'lodash/compact';
 import isEmpty from 'lodash/isEmpty';
@@ -724,4 +725,76 @@ export async function deploymentInfo(deploymentId: string) {
   const tableString = table.toString();
   const tableStringWithCurrent = tableString.replace(new RegExp(`(?<=${currentVersionId}.*?)\n`), ' (current)\n');
   consoleLog(tableStringWithCurrent);
+}
+
+export async function fetchFiles(deploymentId: string, outputDir: string, versionId?: string) {
+  const cloudProviderType = deploymentId.slice(0, 3) as CloudProvider['type'];
+  if (!availableCloudProviders.includes(cloudProviderType)) {
+    throw new Error(`Invalid deployment ID '${deploymentId}'`);
+  }
+
+  const spinner = logger
+    .getSpinner()
+    .start(`Fetching files for deployment '${deploymentId}'${versionId ? ` and version '${versionId}'` : ''}'`);
+  if (logger.inDebugMode()) {
+    spinner.info();
+  }
+
+  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
+
+  if (!goCloudDeploymentInfo.success) {
+    spinner.stop();
+    throw new Error(
+      `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
+        goCloudDeploymentInfo.error
+      }`
+    );
+  }
+
+  if (goCloudDeploymentInfo.data.length === 0) {
+    spinner.stop();
+    throw new Error(`No deployment with ID '${deploymentId}' found`);
+  }
+
+  const cloudDeploymentInfo = goCloudDeploymentInfo.data[0];
+  let requestedVersion: DeploymentVersion | undefined;
+
+  if (versionId) {
+    requestedVersion = cloudDeploymentInfo.versions.find((version) => version.id === versionId);
+    if (!requestedVersion) {
+      spinner.stop();
+      throw new Error(`No deployment with ID '${deploymentId}' and version '${versionId}' found`);
+    }
+  }
+
+  const version = requestedVersion ?? sortBy(cloudDeploymentInfo.versions, 'timestamp').reverse()[0];
+  const { airnodeAddress, stage, bucket } = cloudDeploymentInfo;
+
+  const deploymentPathPrefix = `${airnodeAddress}/${stage}/${version.timestamp}`;
+  const configFileBucketPath = `${deploymentPathPrefix}/config.json`;
+  const secretsFileBucketPath = `${deploymentPathPrefix}/secrets.env`;
+
+  const configContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, configFileBucketPath);
+  const secretsContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(
+    bucket.name,
+    secretsFileBucketPath
+  );
+
+  const goOutputWritable = goSync(() => fs.accessSync(outputDir, fs.constants.W_OK));
+  if (!goOutputWritable.success) {
+    spinner.stop();
+    throw new Error(`Can't write into an output directory '${outputDir}': ${goOutputWritable.error}`);
+  }
+
+  const zip = new AdmZip();
+  zip.addFile('config.json', Buffer.from(configContent, 'utf8'));
+  zip.addFile('secrets.env', Buffer.from(secretsContent, 'utf8'));
+  const outputFile = path.join(outputDir, `${deploymentId}-${version.id}.zip`);
+  const goWriteZip = await go(() => zip.writeZipPromise(outputFile));
+  if (!goWriteZip.success) {
+    spinner.stop();
+    throw new Error(`Can't create a zip file '${outputFile}': ${goWriteZip.error}`);
+  }
+
+  spinner.succeed(`Files successfully downloaded as '${outputFile}'`);
 }
