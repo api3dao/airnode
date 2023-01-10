@@ -3,7 +3,6 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import difference from 'lodash/difference';
 import { compareVersions } from 'compare-versions';
-import { CloudProvider } from '@api3/airnode-node';
 import * as logger from './logger';
 import { Deployment } from '../infrastructure';
 
@@ -170,30 +169,15 @@ export const deploymentComparator = (a: Deployment, b: Deployment) => {
 };
 
 export const checkBucketMissingFiles = (
-  directoryStructure: DirectoryStructure,
-  bucket: {
-    name: string;
-    region: string;
-  },
-  cloudProviderType: CloudProvider['type']
+  directoryStructure: DirectoryStructure
 ): Record<string, Record<string, string[]>> =>
   Object.entries(directoryStructure).reduce((acc, [airnodeAddress, addressDirectory]) => {
     if (addressDirectory.type !== FileSystemType.Directory) {
-      logger.warn(
-        `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
-          addressDirectory.bucketKey
-        }'. Skipping.`
-      );
       return acc;
     }
 
     const checkedAddressDirectory = Object.entries(addressDirectory.children).reduce((acc, [stage, stageDirectory]) => {
       if (stageDirectory.type !== FileSystemType.Directory) {
-        logger.warn(
-          `Invalid item in bucket '${bucket.name}' (${cloudProviderType.toUpperCase()}) with key '${
-            stageDirectory.bucketKey
-          }'. Skipping.`
-        );
         return acc;
       }
 

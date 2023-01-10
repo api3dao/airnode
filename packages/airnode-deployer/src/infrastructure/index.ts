@@ -334,7 +334,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
     if (stageDirectory) {
       logger.debug(`Deployment '${bucketStagePath}' already exists`);
 
-      const bucketMissingFiles = checkBucketMissingFiles(directoryStructure, bucket, type);
+      const bucketMissingFiles = checkBucketMissingFiles(directoryStructure);
       if (
         bucketMissingFiles[airnodeAddress] &&
         bucketMissingFiles[airnodeAddress][stage] &&
@@ -454,7 +454,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
   }
 
   const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
-  const bucketMissingFiles = checkBucketMissingFiles(directoryStructure, bucket, cloudProviderType);
+  const bucketMissingFiles = checkBucketMissingFiles(directoryStructure);
 
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
     if (addressDirectory.type !== FileSystemType.Directory) {
