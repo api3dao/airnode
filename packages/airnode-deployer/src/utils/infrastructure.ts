@@ -1,10 +1,14 @@
 import { randomBytes } from 'crypto';
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import difference from 'lodash/difference';
 import { compareVersions } from 'compare-versions';
 import * as logger from './logger';
 import { Deployment } from '../infrastructure';
 
 type CommandArg = string | [string, string] | [string, string, string];
+
+const DEPLOYMENT_REQUIRED_FILE_NAMES = ['config.json', 'secrets.env', 'default.tfstate'];
 
 export function formatTerraformArguments(args: CommandArg[]) {
   return args
@@ -163,3 +167,38 @@ export const deploymentComparator = (a: Deployment, b: Deployment) => {
 
   return compareVersions(a.airnodeVersion, b.airnodeVersion);
 };
+
+export const getMissingBucketFiles = (
+  directoryStructure: DirectoryStructure
+): Record<string, Record<string, string[]>> =>
+  Object.entries(directoryStructure).reduce((acc, [airnodeAddress, addressDirectory]) => {
+    if (addressDirectory.type !== FileSystemType.Directory) {
+      return acc;
+    }
+
+    const checkedAddressDirectory = Object.entries(addressDirectory.children).reduce((acc, [stage, stageDirectory]) => {
+      if (stageDirectory.type !== FileSystemType.Directory) {
+        return acc;
+      }
+
+      const latestDeployment = Object.keys(stageDirectory.children).sort().reverse()[0];
+      const latestDepolymentFileNames = Object.keys(
+        (stageDirectory.children[latestDeployment] as Directory)?.children || {}
+      );
+
+      const missingRequiredFiles = difference(DEPLOYMENT_REQUIRED_FILE_NAMES, latestDepolymentFileNames);
+      if (isEmpty(missingRequiredFiles)) {
+        return { ...acc, [airnodeAddress]: { [stage]: [] } };
+      }
+
+      logger.warn(
+        `Airnode '${airnodeAddress}' with stage '${stage}' is missing files: ${missingRequiredFiles.join(
+          ', '
+        )}. Deployer commands may fail and manual removal may be necessary.`
+      );
+
+      return { ...acc, [airnodeAddress]: { [stage]: missingRequiredFiles } };
+    }, {});
+
+    return { ...acc, ...checkedAddressDirectory };
+  }, {});
