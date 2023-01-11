@@ -19,7 +19,8 @@ mockEthers({
   },
 });
 
-import { ethers } from 'ethers';
+import { GasTarget } from '@api3/airnode-utilities';
+import { BigNumber, ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, ProviderState, EVMProviderSponsorState } from '../../types';
@@ -180,4 +181,89 @@ describe('processTransactions', () => {
       );
     }
   );
+
+  it('overrides gas price with a request specifying _gasPrice reserved parameter', async () => {
+    // _gasPrice is included in reservedParameters via buildOIS()
+    const config = createConfig();
+    const { gasTarget, blockWithTransactionsSpy } = createAndMockGasTarget('eip1559');
+
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    const balance = ethers.utils.parseEther('1000');
+    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(balance));
+
+    estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    fulfillWithdrawalMock.mockResolvedValueOnce({
+      hash: '0xcbb3f9dc6a24e8b6f5427dcf960b1da01c3df0636cb25a292f8dcaad78755c8d',
+    });
+    staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+    fulfillMock.mockResolvedValueOnce({
+      hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
+    });
+
+    // Requester specifies desired gas price via the _gasPrice parameter
+    const requestedGasPrice = '1000000000'; // 1 gwei in wei
+    const apiCall = {
+      ...fixtures.requests.buildSuccessfulApiCall({
+        sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+        gasPriceOverride: requestedGasPrice,
+      }),
+      parameters: { from: 'ETH', _gasPrice: requestedGasPrice },
+    };
+
+    const transactionCountsBySponsorAddress = {
+      '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 79,
+      '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 212,
+    };
+
+    const requests: GroupedRequests = {
+      apiCalls: [apiCall],
+      withdrawals: [],
+    };
+
+    const initialState = fixtures.buildEVMProviderSponsorState({
+      requests,
+      transactionCountsBySponsorAddress,
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+    });
+
+    const state = {
+      ...initialState,
+      config,
+      settings: {
+        ...initialState.settings,
+        chainOptions: {
+          ...initialState.settings.chainOptions,
+          fulfillmentGasLimit: 500_000,
+        },
+      },
+    } as ProviderState<EVMProviderSponsorState>;
+
+    const res = await processTransactions(state);
+
+    expect(blockWithTransactionsSpy).toHaveBeenCalled();
+    expect(res.requests.apiCalls[0]).toEqual({
+      ...apiCall,
+      nonce: 79,
+      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
+    });
+
+    // expect gasTarget to have been overwritten with the requested gas price
+    const expectedGasTarget: GasTarget = {
+      type: 0,
+      gasLimit: gasTarget.gasLimit,
+      gasPrice: BigNumber.from(requestedGasPrice),
+    };
+
+    // API call was submitted
+    expect(fulfillMock).toHaveBeenCalledTimes(1);
+    expect(fulfillMock).toHaveBeenCalledWith(
+      apiCall.id,
+      apiCall.airnodeAddress,
+      apiCall.fulfillAddress,
+      apiCall.fulfillFunctionId,
+      '0x000000000000000000000000000000000000000000000000000000000001252b',
+      '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
+      { ...expectedGasTarget, nonce: 79 }
+    );
+  });
 });

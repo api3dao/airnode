@@ -229,6 +229,7 @@ export type ApiCallResponse = RegularApiCallResponse | HttpGatewayApiCallRespons
 export interface RegularApiCallSuccessResponse {
   success: true;
   data: { encodedValue: string; signature: string };
+  gasPriceOverride?: string;
 }
 
 export interface HttpGatewayApiCallSuccessResponse {
@@ -244,6 +245,7 @@ export interface HttpSignedDataApiCallSuccessResponse {
 export interface ApiCallErrorResponse {
   success: false;
   errorMessage: string;
+  gasPriceOverride?: string;
 }
 
 export type AggregatedApiCall = RegularAggregatedApiCall | HttpSignedDataAggregatedApiCall;

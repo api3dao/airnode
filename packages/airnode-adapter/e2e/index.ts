@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { goSync, go, assertGoError } from '@api3/promise-utils';
-import { extractAndEncodeResponse, ReservedParameters } from '../src';
+import { extractAndEncodeResponse, ResponseReservedParameters } from '../src';
 import type { Contract } from 'ethers';
 
 // Chai is able to assert that "expect(BigNumber).to.equal(string)" but fails to assert
@@ -71,7 +71,7 @@ const apiResponse = {
   },
 } as const;
 
-function extractAndEncode(reservedParams: ReservedParameters) {
+function extractAndEncode(reservedParams: ResponseReservedParameters) {
   const encoded = extractAndEncodeResponse(apiResponse, reservedParams);
   if (Array.isArray(encoded)) expect.fail();
 
