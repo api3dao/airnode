@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { randomBytes } from 'crypto';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -31,9 +32,19 @@ export function formatTerraformArguments(args: CommandArg[]) {
  */
 export const isCloudFunction = () => process.env.LAMBDA_TASK_ROOT || process.env.FUNCTION_TARGET;
 
-export const logAndReturnError = (message: string): Error => {
+export const logAndReturnError = (message: string) => {
   logger.fail(message);
   return new Error(message);
+};
+
+export const writeAndReturnError = (error: Error, message?: string) => {
+  fs.appendFileSync('config/deployer-error.log', `${new Date(Date.now()).toISOString()}: ${error.message}\n`);
+
+  if (message) {
+    return new Error(message);
+  }
+
+  return error;
 };
 
 export class MultiMessageError extends Error {

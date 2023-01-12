@@ -29,6 +29,7 @@ import * as gcp from './gcp';
 import * as logger from '../utils/logger';
 import {
   logAndReturnError,
+  writeAndReturnError,
   formatTerraformArguments,
   getStageDirectory,
   getAddressDirectory,
@@ -93,10 +94,24 @@ export async function runCommand(command: string, options: CommandOptions) {
 
 export type CommandArg = string | [string, string] | [string, string, string];
 
-export function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
+export async function execTerraform(
+  execOptions: CommandOptions,
+  command: string,
+  args: CommandArg[],
+  options?: string[]
+) {
   const formattedArgs = formatTerraformArguments(args);
   const fullCommand = compact(['terraform', command, formattedArgs.join(' '), options?.join(' ')]).join(' ');
-  return runCommand(fullCommand, execOptions);
+
+  const goRunCommand = await go(() => runCommand(fullCommand, execOptions));
+  if (!goRunCommand.success) {
+    throw writeAndReturnError(
+      goRunCommand.error,
+      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
+    );
+  }
+
+  return goRunCommand.data;
 }
 
 export function awsApplyDestroyArguments(

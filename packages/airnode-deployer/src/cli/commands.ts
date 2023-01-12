@@ -1,6 +1,5 @@
 import { loadConfig } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
-import { bold } from 'chalk';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import { writeReceiptFile, parseReceiptFile, parseSecretsFile } from '../utils';
 import * as logger from '../utils/logger';
@@ -25,11 +24,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
   if (!goDeployAirnode.success && !autoRemove) {
     logger.fail(
-      bold(
-        `Airnode deployment failed due to unexpected errors.\n` +
-          `  It is possible that some resources have been deployed on cloud provider.\n` +
-          `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
-      )
+      `Airnode deployment failed due to unexpected errors.\n` +
+        `  It is possible that some resources have been deployed on cloud provider.\n` +
+        `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`,
+      { bold: true }
     );
 
     throw goDeployAirnode.error;
@@ -37,24 +35,22 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
   if (!goDeployAirnode.success) {
     logger.fail(
-      bold(
-        `Airnode deployment failed due to unexpected errors.\n` +
-          `  It is possible that some resources have been deployed on cloud provider.\n` +
-          `  Attempting to remove them...\n`
-      )
+      `Airnode deployment failed due to unexpected errors.\n` +
+        `  It is possible that some resources have been deployed on cloud provider.\n` +
+        `  Attempting to remove them...\n`,
+      { bold: true }
     );
 
     // Try to remove deployed resources
     const goRemoveAirnode = await go(() => removeWithReceipt(receiptFile));
     if (!goRemoveAirnode.success) {
       logger.fail(
-        bold(
-          `Airnode removal failed due to unexpected errors.\n` +
-            `  It is possible that some resources have been deployed on cloud provider.\n` +
-            `  Please check the resources on the cloud provider dashboard and\n` +
-            `  use the "remove" command from the deployer CLI to remove them.\n` +
-            `  If the automatic removal via CLI fails, remove the resources manually.`
-        )
+        `Airnode removal failed due to unexpected errors.\n` +
+          `  It is possible that some resources have been deployed on cloud provider.\n` +
+          `  Please check the resources on the cloud provider dashboard and\n` +
+          `  use the "remove" command from the deployer CLI to remove them.\n` +
+          `  If the automatic removal via CLI fails, remove the resources manually.`,
+        { bold: true }
       );
 
       throw new MultiMessageError([

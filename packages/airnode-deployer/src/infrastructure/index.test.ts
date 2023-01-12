@@ -810,11 +810,9 @@ describe('deployAirnode', () => {
   });
 
   it(`throws an error if something in the deploy process wasn't successful`, async () => {
-    const expectedError = new Error('example error');
-    exec.mockRejectedValue(expectedError);
-
+    exec.mockRejectedValue('example error');
     await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
-      expectedError.toString()
+      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
     );
   });
 });
@@ -1131,10 +1129,10 @@ describe('removeAirnode', () => {
   });
 
   it('fails if the Terraform command fails', async () => {
-    const expectedError = new Error('example error');
-    exec.mockRejectedValue(expectedError);
-
-    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(expectedError.toString());
+    exec.mockRejectedValue('example error');
+    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(
+      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
+    );
   });
 });
 

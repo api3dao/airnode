@@ -1,4 +1,10 @@
+import fs from 'fs';
 import * as ora from 'ora';
+import { bold } from 'chalk';
+
+interface LoggerOptions {
+  bold: boolean;
+}
 
 let debugModeFlag = false;
 const dummySpinner: ora.Ora = {
@@ -27,15 +33,22 @@ function oraInstance(text?: string) {
   return debugModeFlag ? ora.default({ text, prefixText: () => new Date().toISOString() }) : ora.default(text);
 }
 
+export function writeLog(text: string) {
+  fs.appendFileSync('config/deployer-log.log', `${new Date(Date.now()).toISOString()}: ${text}\n`);
+}
+
 export function succeed(text: string) {
+  writeLog(text);
   oraInstance().succeed(text);
 }
 
-export function fail(text: string) {
-  oraInstance().fail(text);
+export function fail(text: string, options: LoggerOptions = { bold: false }) {
+  writeLog(text);
+  oraInstance().fail(options.bold ? bold(text) : text);
 }
 
 export function warn(text: string) {
+  writeLog(text);
   const currentOra = getSpinner();
   if (currentOra.isSpinning) {
     currentOra.clear();
@@ -45,6 +58,7 @@ export function warn(text: string) {
 }
 
 export function info(text: string) {
+  writeLog(text);
   const currentOra = getSpinner();
   if (currentOra.isSpinning) {
     currentOra.clear();
@@ -54,10 +68,12 @@ export function info(text: string) {
 }
 
 export function debug(text: string) {
+  writeLog(text);
   if (debugModeFlag) info(text);
 }
 
 export function debugSpinner(text: string) {
+  writeLog(text);
   return debugModeFlag ? getSpinner().info(text) : dummySpinner;
 }
 
