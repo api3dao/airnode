@@ -30,7 +30,9 @@ describe('callApi', () => {
         signature:
           '0xe92f5ee40ddb5aa42cab65fcdc025008b2bc026af80a7c93a9aac4e474f8a88f4f2bd861b9cf9a2b050bf0fd13e9714c4575cebbea658d7501e98c0963a5a38b1c',
       },
-      gasPriceOverride: requestedGasPrice,
+      reservedParameterOverrides: {
+        gasPrice: requestedGasPrice,
+      },
     });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(

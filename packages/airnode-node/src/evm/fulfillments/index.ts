@@ -30,17 +30,17 @@ function getTransactionOptions<T>(
 ) {
   let gasTarget = state.gasTarget!;
 
-  // Overwrite gasTarget with a legacy type if gasPriceOverride has been set
+  // Overwrite gasTarget with a legacy type if an override for gas price has been set
   // via the presence of a _gasPrice reserved parameter
   if (type === RequestType.ApiCall) {
-    // Cast request based on confirmed type to access gasPriceOverride property
+    // Cast request based on confirmed type to access property
     const apiCall = request as any as Request<ApiCallWithResponse>;
 
-    if (apiCall.gasPriceOverride) {
+    if (apiCall.reservedParameterOverrides && apiCall.reservedParameterOverrides.gasPrice) {
       gasTarget = {
         type: 0 as LegacyTypeLiteral,
         gasLimit: state.gasTarget!.gasLimit,
-        gasPrice: BigNumber.from(apiCall.gasPriceOverride), // wei
+        gasPrice: BigNumber.from(apiCall.reservedParameterOverrides.gasPrice), // wei
       };
     }
   }

@@ -205,7 +205,9 @@ describe('processTransactions', () => {
     const apiCall = {
       ...fixtures.requests.buildSuccessfulApiCall({
         sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
-        gasPriceOverride: requestedGasPrice,
+        reservedParameterOverrides: {
+          gasPrice: requestedGasPrice,
+        },
       }),
       parameters: { from: 'ETH', _gasPrice: requestedGasPrice },
     };

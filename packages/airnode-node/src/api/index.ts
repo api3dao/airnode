@@ -263,7 +263,9 @@ export async function processSuccessfulApiCall(
         {
           success: true,
           data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data },
-          gasPriceOverride: _gasPrice,
+          reservedParameterOverrides: {
+            gasPrice: _gasPrice,
+          },
         },
       ];
     }
