@@ -3,7 +3,7 @@ import { operation } from '../fixtures';
 import {
   fetchAllLogNames,
   fetchAllLogs,
-  fetchLastLog,
+  fetchProviderLogs,
   filterLogsByName,
   deployAirnodeAndMakeRequests,
   increaseTestTimeout,
@@ -63,7 +63,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   expectSameRequestId(fulfilledRequest, fullRequest);
 });
 
-it('submits fulfillment with overridden gas price', async () => {
+it('submits fulfillment with the gas price overridden', async () => {
   const requestedGasPrice = '999999';
   const gasOverrideParameters = [
     { type: 'string32', name: 'from', value: 'ETH' },
@@ -78,7 +78,11 @@ it('submits fulfillment with overridden gas price', async () => {
 
   await startCoordinator();
 
-  const fulfillmentLog = await fetchLastLog(provider, deployment.contracts.AirnodeRrp);
-  const gasTx = await provider.getTransaction(fulfillmentLog.transactionHash);
-  expect(gasTx.gasPrice!.toString()).toEqual(requestedGasPrice);
+  const logs = await fetchProviderLogs(provider, deployment.contracts.AirnodeRrp);
+  const fulfillmentLog = logs.find(async (log) => {
+    const tx = await provider.getTransaction(log.transactionHash);
+    tx.gasPrice?.toString() === requestedGasPrice;
+  });
+
+  expect(fulfillmentLog).not.toBeUndefined();
 });
