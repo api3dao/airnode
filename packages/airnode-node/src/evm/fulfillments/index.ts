@@ -37,12 +37,13 @@ function getTransactionOptions<T>(
     const apiCall = request as any as Request<ApiCallWithResponse>;
 
     if (apiCall.reservedParameterOverrides && apiCall.reservedParameterOverrides.gasPrice) {
+      const gasPrice = apiCall.reservedParameterOverrides.gasPrice;
       gasTarget = {
         type: 0 as LegacyTypeLiteral,
         gasLimit: state.gasTarget!.gasLimit,
-        gasPrice: BigNumber.from(apiCall.reservedParameterOverrides.gasPrice), // wei
+        gasPrice: BigNumber.from(gasPrice),
       };
-      logger.info(`Gas price overridden with reserved parameter for Request ID:${apiCall.id}`);
+      logger.info(`Gas price overridden with reserved parameter value ${gasPrice} wei for Request ID:${apiCall.id}`);
     }
   }
 

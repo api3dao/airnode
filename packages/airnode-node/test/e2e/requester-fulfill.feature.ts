@@ -64,7 +64,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 });
 
 it('submits fulfillment with the gas price overridden', async () => {
-  const requestedGasPrice = '999999';
+  const requestedGasPrice = '99999999999'; // wei
   const gasOverrideParameters = [
     { type: 'string32', name: 'from', value: 'ETH' },
     { type: 'string32', name: 'to', value: 'USD' },
