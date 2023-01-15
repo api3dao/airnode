@@ -58,6 +58,7 @@ describe('getReservedParameters', () => {
         { name: '_type', fixed: 'int256' },
         { name: '_path', default: 'prices.0.latest' },
         { name: '_times', default: '1000000' },
+        { name: '_gasPrice' },
       ],
     };
   });
@@ -67,6 +68,6 @@ describe('getReservedParameters', () => {
       _type: 'bytes32',
       _path: 'updated.path',
     });
-    expect(res).toEqual({ _type: 'int256', _path: 'updated.path', _times: '1000000' });
+    expect(res).toEqual({ _type: 'int256', _path: 'updated.path', _times: '1000000', _gasPrice: undefined });
   });
 });

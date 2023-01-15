@@ -8,7 +8,7 @@ import {
   unescape,
 } from './extraction';
 import { MAX_ENCODED_RESPONSE_SIZE } from '../constants';
-import { ReservedParameters } from '../types';
+import { ResponseReservedParameters } from '../types';
 import { exceedsMaximumEncodedResponseSize } from '.';
 
 describe('getRawValue', () => {
@@ -80,7 +80,7 @@ describe('extract and encode single value', () => {
 
   it('extracts and encodes the value from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
+    const parameters: ResponseReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: data,
@@ -91,7 +91,7 @@ describe('extract and encode single value', () => {
 
   it('accepts "" (empty string) for _times parameter', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '' };
+    const parameters: ResponseReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: data,
@@ -102,7 +102,7 @@ describe('extract and encode single value', () => {
 
   it('empty string in path returns the whole API response', () => {
     const data = 123456;
-    const parameters: ReservedParameters = { _path: '', _type: 'int256' };
+    const parameters: ResponseReservedParameters = { _path: '', _type: 'int256' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: 123456,
@@ -115,7 +115,7 @@ describe('extract and encode single value', () => {
 describe('extract and encode multiple values', () => {
   it('works for basic request', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ReservedParameters = { _path: 'a.b.1.d,a.b.0.c', _type: 'int256,bool', _times: '100,' };
+    const parameters: ResponseReservedParameters = { _path: 'a.b.1.d,a.b.0.c', _type: 'int256,bool', _times: '100,' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: data,
@@ -127,7 +127,7 @@ describe('extract and encode multiple values', () => {
 
   it('works for more complex request', () => {
     const data = [12.3, 45.6];
-    const parameters: ReservedParameters = { _path: ',0', _type: 'int256[],int256', _times: '100,1000' };
+    const parameters: ResponseReservedParameters = { _path: ',0', _type: 'int256[],int256', _times: '100,1000' };
     const res = extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       rawValue: data,

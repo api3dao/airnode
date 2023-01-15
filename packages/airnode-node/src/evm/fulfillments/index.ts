@@ -1,4 +1,5 @@
-import { logger } from '@api3/airnode-utilities';
+import { LegacyTypeLiteral, logger } from '@api3/airnode-utilities';
+import { BigNumber } from 'ethers';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
 import * as wallet from '../wallet';
@@ -22,9 +23,32 @@ interface OrderedRequest<T> {
   makeRequest: () => Promise<Request<T> | Error>;
 }
 
-function getTransactionOptions(state: ProviderState<EVMProviderSponsorState>) {
+function getTransactionOptions<T>(
+  state: ProviderState<EVMProviderSponsorState>,
+  request: Request<T>,
+  type: RequestType
+) {
+  let gasTarget = state.gasTarget!;
+
+  // Overwrite gasTarget with a legacy type if an override for gas price has been set
+  // via the presence of a _gasPrice reserved parameter
+  if (type === RequestType.ApiCall) {
+    // Cast request based on confirmed type to access property
+    const apiCall = request as any as Request<ApiCallWithResponse>;
+
+    if (apiCall.reservedParameterOverrides && apiCall.reservedParameterOverrides.gasPrice) {
+      const gasPrice = apiCall.reservedParameterOverrides.gasPrice;
+      gasTarget = {
+        type: 0 as LegacyTypeLiteral,
+        gasLimit: state.gasTarget!.gasLimit,
+        gasPrice: BigNumber.from(gasPrice),
+      };
+      logger.info(`Gas price overridden with reserved parameter value ${gasPrice} wei for Request ID:${apiCall.id}`);
+    }
+  }
+
   return {
-    gasTarget: state.gasTarget!,
+    gasTarget: gasTarget,
     masterHDNode: state.masterHDNode,
     provider: state.provider,
     withdrawalRemainder: state.settings.chainOptions.withdrawalRemainder,
@@ -40,7 +64,11 @@ function prepareRequestSubmissions<T>(
 ): OrderedRequest<T>[] {
   return requests.map((request) => {
     const makeRequest = async () => {
-      const [logs, err, submittedRequest] = await submitFunction(contract, request, getTransactionOptions(state));
+      const [logs, err, submittedRequest] = await submitFunction(
+        contract,
+        request,
+        getTransactionOptions(state, request, type)
+      );
       logger.logPending(logs);
 
       if (err) return err;

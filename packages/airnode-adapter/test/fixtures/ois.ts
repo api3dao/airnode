@@ -77,6 +77,7 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
             name: '_times',
             default: '100000',
           },
+          { name: '_gasPrice' },
         ],
         parameters: [
           {

@@ -73,6 +73,9 @@
         {
           "name": "_times",
           "default": "1000000"
+        },
+        {
+          "name": "_gasPrice"
         }
       ],
       "parameters": [

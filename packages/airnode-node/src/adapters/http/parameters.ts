@@ -28,6 +28,7 @@ export function getReservedParameters(endpoint: Endpoint, requestParameters: Api
   const _path = getReservedParameterValue('_path', endpoint, requestParameters);
   const _times = getReservedParameterValue('_times', endpoint, requestParameters);
   const _type = getReservedParameterValue('_type', endpoint, requestParameters);
+  const _gasPrice = getReservedParameterValue('_gasPrice', endpoint, requestParameters);
 
-  return { _type, _path, _times };
+  return { _type, _path, _times, _gasPrice };
 }
