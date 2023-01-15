@@ -42,6 +42,7 @@ function getTransactionOptions<T>(
         gasLimit: state.gasTarget!.gasLimit,
         gasPrice: BigNumber.from(apiCall.reservedParameterOverrides.gasPrice), // wei
       };
+      logger.info(`Gas price overridden with reserved parameter for Request ID:${apiCall.id}`);
     }
   }
 

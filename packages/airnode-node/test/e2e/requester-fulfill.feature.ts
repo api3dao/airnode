@@ -3,6 +3,7 @@ import { operation } from '../fixtures';
 import {
   fetchAllLogNames,
   fetchAllLogs,
+  fetchLastLog,
   filterLogsByName,
   deployAirnodeAndMakeRequests,
   increaseTestTimeout,
@@ -60,4 +61,24 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   const fulfilledRequest = filterLogsByName(postInvokeLogs, 'FulfilledRequest')[0];
   const fullRequest = filterLogsByName(postInvokeLogs, 'MadeFullRequest')[0];
   expectSameRequestId(fulfilledRequest, fullRequest);
+});
+
+it('submits fulfillment with overridden gas price', async () => {
+  const requestedGasPrice = '999999';
+  const gasOverrideParameters = [
+    { type: 'string32', name: 'from', value: 'ETH' },
+    { type: 'string32', name: 'to', value: 'USD' },
+    { type: 'string32', name: '_type', value: 'int256' },
+    { type: 'string32', name: '_path', value: 'result' },
+    { type: 'string32', name: '_times', value: '100000' },
+    { type: 'string32', name: '_gasPrice', value: requestedGasPrice },
+  ];
+  const requests = [operation.buildFullRequest({ parameters: gasOverrideParameters })];
+  const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
+
+  await startCoordinator();
+
+  const fulfillmentLog = await fetchLastLog(provider, deployment.contracts.AirnodeRrp);
+  const gasTx = await provider.getTransaction(fulfillmentLog.transactionHash);
+  expect(gasTx.gasPrice!.toString()).toEqual(requestedGasPrice);
 });

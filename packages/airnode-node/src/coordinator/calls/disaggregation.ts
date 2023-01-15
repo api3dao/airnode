@@ -38,7 +38,15 @@ function updateApiCallResponses(
 
       return {
         ...acc,
-        requests: [...acc.requests, { ...apiCall, data: aggregatedApiCall.data, success: true }],
+        requests: [
+          ...acc.requests,
+          {
+            ...apiCall,
+            data: aggregatedApiCall.data,
+            success: true,
+            reservedParameterOverrides: aggregatedApiCall.reservedParameterOverrides,
+          },
+        ],
       };
     },
     { logs: [], requests: [] } as UpdatedRequests<ApiCallWithResponse>
