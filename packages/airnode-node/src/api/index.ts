@@ -226,7 +226,7 @@ export async function processSuccessfulApiCall(
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  const reservedParameters = getReservedParameters(endpoint, parameters);
+  const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
   if (!goPostProcessApiSpecifications.success) {
@@ -235,10 +235,11 @@ export async function processSuccessfulApiCall(
   }
 
   const goExtractAndEncodeResponse = goSync(() =>
-    adapter.extractAndEncodeResponse(
-      goPostProcessApiSpecifications.data,
-      reservedParameters as adapter.ReservedParameters
-    )
+    adapter.extractAndEncodeResponse(goPostProcessApiSpecifications.data, {
+      _type,
+      _path,
+      _times,
+    } as adapter.ResponseReservedParameters)
   );
   if (!goExtractAndEncodeResponse.success) {
     const log = logger.pend('ERROR', goExtractAndEncodeResponse.error.message);
@@ -259,7 +260,11 @@ export async function processSuccessfulApiCall(
 
       return [
         [],
-        { success: true, data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data } },
+        {
+          success: true,
+          data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data },
+          reservedParameterOverrides: _gasPrice ? { gasPrice: _gasPrice } : undefined,
+        },
       ];
     }
     case 'http-signed-data-gateway': {
