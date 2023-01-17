@@ -18,13 +18,9 @@ jest.mock('../../package.json', () => ({
   version: '0.8.0',
 }));
 
-jest.mock('../utils/logger', () => ({
-  ...jest.requireActual('../utils/logger'),
-  writeLog: jest.fn(),
-}));
-
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
 
 import { version as nodeVersion } from '../../package.json';
 import * as infrastructure from '.';
@@ -817,7 +813,7 @@ describe('deployAirnode', () => {
   it(`throws an error if something in the deploy process wasn't successful`, async () => {
     exec.mockRejectedValue('example error');
     await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
-      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
+      'Terraform error occurred. See deployer log files for more details.'
     );
   });
 });
@@ -1136,7 +1132,7 @@ describe('removeAirnode', () => {
   it('fails if the Terraform command fails', async () => {
     exec.mockRejectedValue('example error');
     await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(
-      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
+      'Terraform error occurred. See deployer log files for more details.'
     );
   });
 });
