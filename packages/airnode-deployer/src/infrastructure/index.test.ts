@@ -18,6 +18,11 @@ jest.mock('../../package.json', () => ({
   version: '0.8.0',
 }));
 
+jest.mock('../utils/logger', () => ({
+  ...jest.requireActual('../utils/logger'),
+  writeLog: jest.fn(),
+}));
+
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
 
