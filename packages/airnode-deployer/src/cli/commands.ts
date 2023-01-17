@@ -64,8 +64,14 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   }
 
   const output = goDeployAirnode.data;
-  if (output.httpGatewayUrl) logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
-  if (output.httpSignedDataGatewayUrl) logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
+  if (output.httpGatewayUrl) {
+    logger.setSecret(output.httpGatewayUrl);
+    logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
+  }
+  if (output.httpSignedDataGatewayUrl) {
+    logger.setSecret(output.httpSignedDataGatewayUrl);
+    logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
+  }
 }
 
 export async function removeWithReceipt(receiptFilename: string) {

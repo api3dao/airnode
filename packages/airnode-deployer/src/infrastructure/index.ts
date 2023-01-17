@@ -29,7 +29,6 @@ import * as gcp from './gcp';
 import * as logger from '../utils/logger';
 import {
   logAndReturnError,
-  writeAndReturnError,
   formatTerraformArguments,
   getStageDirectory,
   getAddressDirectory,
@@ -105,10 +104,7 @@ export async function execTerraform(
 
   const goRunCommand = await go(() => runCommand(fullCommand, execOptions));
   if (!goRunCommand.success) {
-    throw writeAndReturnError(
-      goRunCommand.error,
-      'Terraform error occurred. See deployer-log.log and deployer-error.log files for more details.'
-    );
+    throw new Error('Terraform error occurred. See deployer log files for more details.');
   }
 
   return goRunCommand.data;
@@ -263,6 +259,7 @@ export async function terraformAirnodeApply(
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
+  logger.setSecret(airnodeWalletPrivateKey);
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
 
   await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);

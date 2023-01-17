@@ -46,7 +46,7 @@ async function runCommand(command: () => Promise<void>) {
 }
 
 const cliExamples = [
-  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
+  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json -l config/logs',
   'list --cloud-providers gcp',
   'info aws808e2a22',
   'fetch-files aws808e2a22',
@@ -82,6 +82,12 @@ yargs(hideBin(process.argv))
         default: 'config/receipt.json',
         type: 'string',
       },
+      logs: {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
       'auto-remove': {
         description: 'Enable automatic removal of deployed resources for failed deployments',
@@ -93,6 +99,7 @@ yargs(hideBin(process.argv))
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
     }
@@ -107,11 +114,18 @@ yargs(hideBin(process.argv))
         default: 'config/receipt.json',
         type: 'string',
       },
+      logs: {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      },
     },
     async (args) => {
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await runCommand(() => removeWithReceipt(args.receipt));
@@ -126,11 +140,18 @@ yargs(hideBin(process.argv))
         description: `ID of the deployment (from 'list' command)`,
         type: 'string',
       });
+      yargs.option('logs', {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      });
     },
     async (args) => {
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await runCommand(() =>
@@ -152,9 +173,16 @@ yargs(hideBin(process.argv))
         type: 'array',
         coerce: (option: CloudProvider['type'][]) => sortBy(uniq(option)),
       },
+      logs: {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await listAirnodes(args.cloudProviders);
@@ -168,9 +196,16 @@ yargs(hideBin(process.argv))
         description: `ID of the deployment (from 'list' command)`,
         type: 'string',
       });
+      yargs.option('logs', {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      });
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
@@ -200,9 +235,16 @@ yargs(hideBin(process.argv))
         default: 'config/',
         type: 'string',
       });
+      yargs.option('logs', {
+        alias: 'l',
+        description: 'Output path for log files',
+        default: 'config/logs',
+        type: 'string',
+      });
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely
