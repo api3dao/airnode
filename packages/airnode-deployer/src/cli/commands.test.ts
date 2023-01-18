@@ -1,24 +1,33 @@
-import { join } from 'path';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { mockReadFileSync } from '../../test/mock-utils';
-import { readFileSync } from 'fs';
 import { receipt } from '@api3/airnode-validator';
-import { deploy, removeWithReceipt } from './commands';
+import { Ora } from 'ora';
+import { deploy, removeWithReceipt, rollback } from './commands';
 import { version as packageVersion } from '../../package.json';
 import * as logger from '../utils/logger';
 import { removeAirnode } from '../infrastructure';
 
-const readExampleConfig = () => JSON.parse(readFileSync(join(__dirname, '../../config/config.example.json'), 'utf-8'));
+const readExampleConfig = () =>
+  JSON.parse(fs.readFileSync(path.join(__dirname, '../../config/config.example.json'), 'utf-8'));
 
 jest.mock('../infrastructure', () => ({
   ...jest.requireActual('../infrastructure'),
   deployAirnode: jest.fn(),
   removeAirnode: jest.fn(),
+  saveDeploymentFiles: jest.fn(),
 }));
 
 jest.mock('../utils', () => ({
   ...jest.requireActual('../utils'),
   writeReceiptFile: jest.fn(),
 }));
+
+const mockSpinner = {
+  stop: jest.fn(),
+  succeed: jest.fn(),
+};
 
 const gcpReceipt: receipt.Receipt = {
   airnodeWallet: {
@@ -44,24 +53,38 @@ const gcpReceipt: receipt.Receipt = {
 describe('deployer commands', () => {
   let mockDeployAirnode: jest.SpyInstance;
   let mockRemoveAirnode: jest.SpyInstance;
+  let mockSaveDeploymentFiles: jest.SpyInstance;
   let mockWriteReceiptFile: jest.SpyInstance;
   let loggerFailSpy: jest.SpyInstance;
   let loggerSucceedSpy: jest.SpyInstance;
+  let tempConfigDir: string;
 
   beforeEach(() => {
     mockDeployAirnode = jest.requireMock('../infrastructure').deployAirnode;
     mockRemoveAirnode = jest.requireMock('../infrastructure').removeAirnode;
+    mockSaveDeploymentFiles = jest.requireMock('../infrastructure').saveDeploymentFiles;
     mockWriteReceiptFile = jest.requireMock('../utils').writeReceiptFile;
     loggerFailSpy = jest.spyOn(logger, 'fail').mockImplementation(() => {});
     loggerSucceedSpy = jest.spyOn(logger, 'succeed').mockImplementation(() => {});
+    jest.spyOn(logger, 'getSpinner').mockImplementation(() => ({ start: () => mockSpinner } as unknown as Ora));
+    jest.spyOn(logger, 'inDebugMode').mockImplementation(() => false);
+    tempConfigDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode-rollback-test'));
+    fs.copyFileSync(path.join(__dirname, '../../config/config.example.json'), path.join(tempConfigDir, 'config.json'));
+    fs.copyFileSync(path.join(__dirname, '../../config/secrets.example.env'), path.join(tempConfigDir, 'secrets.env'));
+    jest.spyOn(fs, 'mkdtempSync').mockImplementation(() => tempConfigDir);
+    jest.spyOn(fs, 'rmSync').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempConfigDir, { recursive: true });
   });
 
   it('can deploy Airnode', async () => {
     mockDeployAirnode.mockReturnValueOnce({});
 
     await deploy(
-      join(__dirname, '../../config/config.example.json'),
-      join(__dirname, '../../config/secrets.example.env'),
+      path.join(__dirname, '../../config/config.example.json'),
+      path.join(__dirname, '../../config/secrets.example.env'),
       'mocked receipt filename',
       true
     );
@@ -92,8 +115,8 @@ describe('deployer commands', () => {
 
     await expect(() =>
       deploy(
-        join(__dirname, '../../config/config.example.json'),
-        join(__dirname, '../../config/secrets.example.env'),
+        path.join(__dirname, '../../config/config.example.json'),
+        path.join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
         true
       )
@@ -113,8 +136,8 @@ describe('deployer commands', () => {
 
     await expect(() =>
       deploy(
-        join(__dirname, '../../config/config.example.json'),
-        join(__dirname, '../../config/secrets.example.env'),
+        path.join(__dirname, '../../config/config.example.json'),
+        path.join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
         false
       )
@@ -135,8 +158,8 @@ describe('deployer commands', () => {
 
     await expect(() =>
       deploy(
-        join(__dirname, '../../config/config.example.json'),
-        join(__dirname, '../../config/secrets.example.env'),
+        path.join(__dirname, '../../config/config.example.json'),
+        path.join(__dirname, '../../config/secrets.example.env'),
         'mockedReceiptFile',
         true
       )
@@ -148,6 +171,18 @@ describe('deployer commands', () => {
     expect(loggerFailSpy).toHaveBeenCalledTimes(2);
   });
 
+  it('rollbacks the Airnode deployment', async () => {
+    const deploymentId = 'aws7195b548';
+    const deploymentVersion = '1f8210a2';
+    mockDeployAirnode.mockReturnValueOnce({});
+
+    await rollback(deploymentId, deploymentVersion, 'mocked receipt filename', true);
+
+    expect(mockSaveDeploymentFiles).toHaveBeenCalledTimes(1);
+    expect(mockDeployAirnode).toHaveBeenCalledTimes(1);
+    expect(mockWriteReceiptFile).toHaveBeenCalledTimes(1);
+  });
+
   describe('fail with invalid node version', () => {
     it('when using deploy', async () => {
       const config = readExampleConfig();
@@ -156,8 +191,8 @@ describe('deployer commands', () => {
 
       const throwingFn = () =>
         deploy(
-          join(__dirname, '../../config/config.example.json'),
-          join(__dirname, '../../config/secrets.example.env'),
+          path.join(__dirname, '../../config/config.example.json'),
+          path.join(__dirname, '../../config/secrets.example.env'),
           'mocked receipt filename',
           true
         );
@@ -174,7 +209,7 @@ describe('deployer commands', () => {
     });
 
     it('when using removeWithReceipt', async () => {
-      const throwingFn = () => removeWithReceipt(join(__dirname, '../../test/fixtures/invalid-receipt.json'));
+      const throwingFn = () => removeWithReceipt(path.join(__dirname, '../../test/fixtures/invalid-receipt.json'));
 
       const issues = [
         {
