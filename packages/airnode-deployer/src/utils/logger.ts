@@ -7,7 +7,7 @@ export interface LoggerOptions {
   bold?: boolean;
 }
 
-let logsDirectory = 'config/logs';
+let logsDirectory = 'config/logs/';
 let logFileTimestamp: string;
 const secrets: string[] = [];
 

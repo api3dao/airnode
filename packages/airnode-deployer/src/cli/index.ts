@@ -46,7 +46,7 @@ async function runCommand(command: () => Promise<void>) {
 }
 
 const cliExamples = [
-  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json -l config/logs',
+  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json -l config/logs/',
   'list --cloud-providers gcp',
   'info aws808e2a22',
   'fetch-files aws808e2a22',
@@ -85,7 +85,7 @@ yargs(hideBin(process.argv))
       logs: {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
@@ -117,7 +117,7 @@ yargs(hideBin(process.argv))
       logs: {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       },
     },
@@ -143,7 +143,7 @@ yargs(hideBin(process.argv))
       yargs.option('logs', {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       });
     },
@@ -176,7 +176,7 @@ yargs(hideBin(process.argv))
       logs: {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       },
     },
@@ -199,7 +199,7 @@ yargs(hideBin(process.argv))
       yargs.option('logs', {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       });
     },
@@ -238,7 +238,7 @@ yargs(hideBin(process.argv))
       yargs.option('logs', {
         alias: 'l',
         description: 'Output path for log files',
-        default: 'config/logs',
+        default: 'config/logs/',
         type: 'string',
       });
     },
