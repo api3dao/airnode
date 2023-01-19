@@ -6,6 +6,8 @@ import { format } from 'date-fns-tz';
 import { goSync } from '@api3/promise-utils';
 import { consoleLog as utilsConsoleLog } from '@api3/airnode-utilities';
 
+export const ANSI_REGEX = new RegExp(/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/g);
+
 export type OraMethod = 'start' | 'succeed' | 'fail' | 'info' | 'stop' | 'warn';
 export interface LoggerOptions {
   bold?: boolean;
@@ -51,7 +53,9 @@ function oraInstance(text?: string) {
 export function writeLog(text: string, options?: LoggerOptions) {
   if (!logsDirectory) throw new Error('Missing log file directory.');
 
-  const sanitizedLogs = options?.secrets ? replaceSecrets(text, secrets) : text;
+  const safeText = options?.secrets ? replaceSecrets(text, secrets) : text;
+  // Strip ANSI characters to write tables to log files correctly and add new line
+  const sanitizedLogs = ANSI_REGEX.test(safeText) ? '\n' + safeText.replace(ANSI_REGEX, '') : safeText;
   fs.appendFileSync(
     path.join(logsDirectory, `deployer-${logFileTimestamp}.log`),
     `${new Date().toISOString()}: ${sanitizedLogs}\n`
