@@ -30,7 +30,7 @@ function drawHeader() {
 async function runCommand(command: () => Promise<void>) {
   const goCommand = await go(command);
   if (!goCommand.success) {
-    loggerUtils.log('\n\n\nError details:');
+    logger.consoleLog('\n\n\nError details:');
 
     // Logging an error here likely results in excessive logging since the errors are usually logged at the place where they
     // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
@@ -60,6 +60,12 @@ yargs(hideBin(process.argv))
     default: false,
     type: 'boolean',
   })
+  .option('logs', {
+    alias: 'l',
+    description: 'Output path for log files',
+    default: 'config/logs/',
+    type: 'string',
+  })
   .command(
     'deploy',
     'Executes Airnode deployments specified in the config file',
@@ -82,12 +88,6 @@ yargs(hideBin(process.argv))
         default: 'config/receipt.json',
         type: 'string',
       },
-      logs: {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
-        type: 'string',
-      },
       // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
       'auto-remove': {
         description: 'Enable automatic removal of deployed resources for failed deployments',
@@ -99,7 +99,7 @@ yargs(hideBin(process.argv))
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
-      logger.setLogsDirectory(args.logs);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
     }
@@ -114,18 +114,12 @@ yargs(hideBin(process.argv))
         default: 'config/receipt.json',
         type: 'string',
       },
-      logs: {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
-        type: 'string',
-      },
     },
     async (args) => {
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
-      logger.setLogsDirectory(args.logs);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await runCommand(() => removeWithReceipt(args.receipt));
@@ -138,12 +132,6 @@ yargs(hideBin(process.argv))
     (yargs) => {
       yargs.positional('deployment-id', {
         description: `ID of the deployment (from 'list' command)`,
-        type: 'string',
-      });
-      yargs.option('logs', {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
         type: 'string',
       });
     },
@@ -173,16 +161,10 @@ yargs(hideBin(process.argv))
         type: 'array',
         coerce: (option: CloudProvider['type'][]) => sortBy(uniq(option)),
       },
-      logs: {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
-        type: 'string',
-      },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
-      logger.setLogsDirectory(args.logs);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await listAirnodes(args.cloudProviders);
@@ -194,12 +176,6 @@ yargs(hideBin(process.argv))
     (yargs) => {
       yargs.positional('deployment-id', {
         description: `ID of the deployment (from 'list' command)`,
-        type: 'string',
-      });
-      yargs.option('logs', {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
         type: 'string',
       });
     },
@@ -233,12 +209,6 @@ yargs(hideBin(process.argv))
         alias: 'o',
         description: 'Where to store fetched files',
         default: 'config/',
-        type: 'string',
-      });
-      yargs.option('logs', {
-        alias: 'l',
-        description: 'Output path for log files',
-        default: 'config/logs/',
         type: 'string',
       });
     },

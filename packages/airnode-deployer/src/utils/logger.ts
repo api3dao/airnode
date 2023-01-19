@@ -1,13 +1,18 @@
 import fs from 'fs';
+import path from 'path';
 import * as ora from 'ora';
 import { bold } from 'chalk';
 import { format } from 'date-fns-tz';
+import { goSync } from '@api3/promise-utils';
+import { consoleLog as utilsConsoleLog } from '@api3/airnode-utilities';
 
+export type OraMethod = 'start' | 'succeed' | 'fail' | 'info' | 'stop' | 'warn';
 export interface LoggerOptions {
   bold?: boolean;
+  secrets?: boolean;
 }
 
-let logsDirectory = 'config/logs/';
+let logsDirectory: string;
 let logFileTimestamp: string;
 const secrets: string[] = [];
 
@@ -34,28 +39,37 @@ export function getSpinner() {
   return spinner;
 }
 
+export function useSpinner(method: OraMethod, text?: string, options?: LoggerOptions) {
+  if (text) writeLog(text, options);
+  getSpinner()[method](text);
+}
+
 function oraInstance(text?: string) {
   return debugModeFlag ? ora.default({ text, prefixText: () => new Date().toISOString() }) : ora.default(text);
 }
 
-export function writeLog(text: string) {
-  const timestamp = format(Date.now(), 'yyyy-MM-dd HH:mm:ss');
-  const sanitizedLogs = replaceSecrets(text, secrets);
-  fs.appendFileSync(`${logsDirectory}/deployer-${logFileTimestamp}.log`, `${timestamp}: ${sanitizedLogs}\n`);
+export function writeLog(text: string, options?: LoggerOptions) {
+  if (!logsDirectory) throw new Error('Missing log file directory.');
+
+  const sanitizedLogs = options?.secrets ? replaceSecrets(text, secrets) : text;
+  fs.appendFileSync(
+    path.join(logsDirectory, `deployer-${logFileTimestamp}.log`),
+    `${new Date().toISOString()}: ${sanitizedLogs}\n`
+  );
 }
 
-export function succeed(text: string) {
-  writeLog(text);
+export function succeed(text: string, options?: LoggerOptions) {
+  writeLog(text, options);
   oraInstance().succeed(text);
 }
 
 export function fail(text: string, options?: LoggerOptions) {
-  writeLog(text);
+  writeLog(text, options);
   oraInstance().fail(options?.bold ? bold(text) : text);
 }
 
-export function warn(text: string) {
-  writeLog(text);
+export function warn(text: string, options?: LoggerOptions) {
+  writeLog(text, options);
   const currentOra = getSpinner();
   if (currentOra.isSpinning) {
     currentOra.clear();
@@ -64,8 +78,8 @@ export function warn(text: string) {
   oraInstance().warn(text);
 }
 
-export function info(text: string) {
-  writeLog(text);
+export function info(text: string, options?: LoggerOptions) {
+  writeLog(text, options);
   const currentOra = getSpinner();
   if (currentOra.isSpinning) {
     currentOra.clear();
@@ -74,17 +88,36 @@ export function info(text: string) {
   oraInstance().info(text);
 }
 
-export function debug(text: string) {
-  if (debugModeFlag) info(text);
+export function debug(text: string, options?: LoggerOptions) {
+  if (debugModeFlag) {
+    info(text);
+  } else {
+    writeLog(text, options);
+  }
 }
 
-export function debugSpinner(text: string) {
-  writeLog(text);
+export function getDebugSpinner(text: string, options?: LoggerOptions) {
+  writeLog(text, options);
   return debugModeFlag ? getSpinner().info(text) : dummySpinner;
+}
+
+export function useDebugSpinner(method: OraMethod | null, text?: string, options?: LoggerOptions) {
+  if (debugModeFlag) {
+    useSpinner(method || 'info', text, options);
+    return;
+  }
+
+  if (text) writeLog(text, options);
+  if (method) dummySpinner[method](text);
 }
 
 export function debugMode(mode: boolean) {
   debugModeFlag = mode;
+}
+
+export function consoleLog(text: string, options?: LoggerOptions) {
+  writeLog(text, options);
+  utilsConsoleLog(text);
 }
 
 export function inDebugMode() {
@@ -97,14 +130,19 @@ export function setSecret(secret: string) {
 
 export function replaceSecrets(input: string, secrets: string[]) {
   let output = input;
-  secrets.forEach((secret) => (output = output.replace(secret, '*'.repeat(secret.length))));
+  secrets.forEach((secret) => (output = output.replace(secret, '***')));
 
   return output;
 }
 
 export function setLogsDirectory(path: string) {
-  logsDirectory = path.endsWith('/') ? path.slice(0, -1) : path;
-  if (!fs.existsSync(logsDirectory)) fs.mkdirSync(logsDirectory, { recursive: true });
+  logsDirectory = path;
+
+  const goOutputWritable = goSync(() => fs.accessSync(logsDirectory, fs.constants.W_OK));
+  if (!goOutputWritable.success) {
+    const goMkdir = goSync(() => fs.mkdirSync(logsDirectory, { recursive: true }));
+    if (!goMkdir.success) throw new Error(`Failed to create logs output directory. Error: ${goMkdir.error}.`);
+  }
 
   logFileTimestamp = format(Date.now(), 'yyyy-MM-dd_HH:mm:ss');
 }
