@@ -1,13 +1,14 @@
+import fs from 'fs';
 import { join } from 'path';
 import { mockReadFileSync } from '../../test/mock-utils';
-import { readFileSync } from 'fs';
 import { receipt } from '@api3/airnode-validator';
 import { deploy, removeWithReceipt } from './commands';
 import { version as packageVersion } from '../../package.json';
 import * as logger from '../utils/logger';
 import { removeAirnode } from '../infrastructure';
 
-const readExampleConfig = () => JSON.parse(readFileSync(join(__dirname, '../../config/config.example.json'), 'utf-8'));
+const readExampleConfig = () =>
+  JSON.parse(fs.readFileSync(join(__dirname, '../../config/config.example.json'), 'utf-8'));
 
 jest.mock('../infrastructure', () => ({
   ...jest.requireActual('../infrastructure'),
@@ -19,6 +20,10 @@ jest.mock('../utils', () => ({
   ...jest.requireActual('../utils'),
   writeReceiptFile: jest.fn(),
 }));
+
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
+jest.spyOn(fs, 'mkdirSync').mockImplementation();
+logger.setLogsDirectory('/config/logs/');
 
 const gcpReceipt: receipt.Receipt = {
   airnodeWallet: {
