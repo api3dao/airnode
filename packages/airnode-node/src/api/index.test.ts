@@ -14,7 +14,14 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const requestedGasPrice = '100000000';
-    const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _gasPrice: requestedGasPrice };
+    const requestedMinConfirmations = '9';
+    const parameters = {
+      _type: 'int256',
+      _path: 'price',
+      from: 'ETH',
+      _gasPrice: requestedGasPrice,
+      _minConfirmations: requestedMinConfirmations,
+    };
 
     const [logs, res] = await callApi({
       type: 'regular',
@@ -32,6 +39,7 @@ describe('callApi', () => {
       },
       reservedParameterOverrides: {
         gasPrice: requestedGasPrice,
+        minConfirmations: requestedMinConfirmations,
       },
     });
     expect(spy).toHaveBeenCalledTimes(1);

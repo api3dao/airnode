@@ -33,6 +33,11 @@ export function buildEVMState(
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
+    // If the _minConfirmations reserved parameter is set for one or more endpoints,
+    // a request may override minConfirmations, but we don't know if it will or the value
+    // until we actually fetch the requests, perform API calls, and extract reserved
+    // parameter overrides in processSuccessfulApiCall
+    mayOverrideMinConfirmations: checkForMinConfirmationsReservedParam(config),
     name: chainProviderName,
     cloudProvider: config.nodeSettings.cloudProvider,
     stage: config.nodeSettings.stage,
@@ -56,6 +61,14 @@ export function buildEVMState(
     },
     transactionCountsBySponsorAddress: {},
   };
+}
+
+// Checks all OIS endpoints for the presence of a _minConfirmations reserved parameter
+// which means that a requester may use a parameter to override the value.
+export function checkForMinConfirmationsReservedParam(config: Config): boolean {
+  return config.ois.some((ois) =>
+    ois.endpoints.some((endpoint) => endpoint.reservedParameters.some((param) => param.name === '_minConfirmations'))
+  );
 }
 
 export function update<T>(state: ProviderState<T>, newState: Partial<ProviderState<T>>): ProviderState<T> {

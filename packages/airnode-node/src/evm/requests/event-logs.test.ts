@@ -54,6 +54,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       minConfirmations: 1,
+      mayOverrideMinConfirmations: false,
       provider: new ethers.providers.JsonRpcProvider(),
       chainId: '31137',
     };
@@ -109,6 +110,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 30,
       currentBlock: 10716084,
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
       provider: new ethers.providers.JsonRpcProvider(),
       chainId: '31137',
     };
@@ -139,6 +141,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
       provider: new ethers.providers.JsonRpcProvider(),
       chainId: '31137',
     };
@@ -154,6 +157,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
       minConfirmations: 10,
+      mayOverrideMinConfirmations: false,
       provider: new ethers.providers.JsonRpcProvider(),
       chainId: '31137',
     };
@@ -177,6 +181,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 30,
       currentBlock: 10716084,
       minConfirmations: 99999999,
+      mayOverrideMinConfirmations: false,
       provider: new ethers.providers.JsonRpcProvider(),
       chainId: '31137',
     };

@@ -226,7 +226,7 @@ export async function processSuccessfulApiCall(
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
+  const { _type, _path, _times, _gasPrice, _minConfirmations } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
   if (!goPostProcessApiSpecifications.success) {
@@ -263,7 +263,9 @@ export async function processSuccessfulApiCall(
         {
           success: true,
           data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data },
-          reservedParameterOverrides: _gasPrice ? { gasPrice: _gasPrice } : undefined,
+          reservedParameterOverrides:
+            // TODO is this exactly what we want? i.e. undefined behavior
+            _gasPrice || _minConfirmations ? { gasPrice: _gasPrice, minConfirmations: _minConfirmations } : undefined,
         },
       ];
     }

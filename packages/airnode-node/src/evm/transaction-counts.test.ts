@@ -25,6 +25,7 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -41,6 +42,7 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
       minConfirmations: 2,
+      mayOverrideMinConfirmations: false,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -61,6 +63,7 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -84,6 +87,7 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
@@ -104,6 +108,7 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
       minConfirmations: 0,
+      mayOverrideMinConfirmations: false,
     };
     const addresses = ['0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181', '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);

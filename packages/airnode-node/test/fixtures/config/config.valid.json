@@ -189,6 +189,9 @@
             },
             {
               "name": "_gasPrice"
+            },
+            {
+              "name": "_minConfirmations"
             }
           ],
           "parameters": [

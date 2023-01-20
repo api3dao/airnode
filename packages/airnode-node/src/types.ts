@@ -140,6 +140,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly chainType: ChainType;
   readonly chainOptions: ChainOptions;
   readonly minConfirmations: number;
+  readonly mayOverrideMinConfirmations: boolean;
   readonly name: string;
   readonly url: string;
   readonly xpub: string;
@@ -231,6 +232,7 @@ export interface RegularApiCallSuccessResponse {
   data: { encodedValue: string; signature: string };
   reservedParameterOverrides?: {
     gasPrice?: string;
+    minConfirmations?: string;
   };
 }
 
@@ -249,6 +251,7 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
   reservedParameterOverrides?: {
     gasPrice?: string;
+    minConfirmations?: string;
   };
 }
 

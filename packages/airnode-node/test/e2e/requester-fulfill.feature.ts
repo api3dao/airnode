@@ -84,5 +84,5 @@ it('submits fulfillment with the gas price overridden', async () => {
     tx.gasPrice?.toString() === requestedGasPrice;
   });
 
-  expect(fulfillmentLog).not.toBeUndefined();
+  expect(fulfillmentLog).toBeDefined();
 });

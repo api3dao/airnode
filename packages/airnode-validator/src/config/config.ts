@@ -194,7 +194,9 @@ export const chainConfigSchema = z
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
     contracts: chainContractsSchema,
     id: z.string(),
-    minConfirmations: z.number().int().optional(), // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node
+    // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node but may be overridden
+    // by a requester if the _minConfirmations reserved parameter is configured
+    minConfirmations: z.number().int().optional(),
     type: chainTypeSchema,
     options: chainOptionsSchema,
     providers: providersSchema,
