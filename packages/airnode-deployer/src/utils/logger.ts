@@ -8,10 +8,57 @@ import { consoleLog as utilsConsoleLog } from '@api3/airnode-utilities';
 
 export const ANSI_REGEX = new RegExp(/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/g);
 
-export type OraMethod = 'start' | 'succeed' | 'fail' | 'info' | 'stop' | 'warn';
 export interface LoggerOptions {
   bold?: boolean;
   secrets?: boolean;
+}
+
+class Spinner {
+  private oraInstance;
+
+  constructor() {
+    this.oraInstance = oraInstance();
+  }
+
+  isSpinning() {
+    return this.oraInstance.isSpinning;
+  }
+
+  clear() {
+    this.oraInstance.clear();
+  }
+  frame() {
+    this.oraInstance.frame();
+  }
+
+  private getOraInstance() {
+    return this.oraInstance;
+  }
+
+  start(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().start(text);
+  }
+  succeed(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().succeed(text);
+  }
+  fail(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().fail(text);
+  }
+  info(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().info(text);
+  }
+  warn(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().warn(text);
+  }
+  stop(text?: string, options?: LoggerOptions) {
+    if (text) writeLog(text, options);
+    this.getOraInstance().stop();
+  }
 }
 
 let logsDirectory: string;
@@ -32,18 +79,13 @@ const dummySpinner: ora.Ora = {
   clear: () => dummySpinner,
   render: () => dummySpinner,
 };
-let spinner: ora.Ora;
+let spinner: Spinner;
 
 export function getSpinner() {
   if (spinner) return spinner;
 
-  spinner = oraInstance();
+  spinner = new Spinner();
   return spinner;
-}
-
-export function useSpinner(method: OraMethod, text?: string, options?: LoggerOptions) {
-  if (text) writeLog(text, options);
-  getSpinner()[method](text);
 }
 
 function oraInstance(text?: string) {
@@ -75,7 +117,7 @@ export function fail(text: string, options?: LoggerOptions) {
 export function warn(text: string, options?: LoggerOptions) {
   writeLog(text, options);
   const currentOra = getSpinner();
-  if (currentOra.isSpinning) {
+  if (currentOra.isSpinning()) {
     currentOra.clear();
     currentOra.frame();
   }
@@ -85,7 +127,7 @@ export function warn(text: string, options?: LoggerOptions) {
 export function info(text: string, options?: LoggerOptions) {
   writeLog(text, options);
   const currentOra = getSpinner();
-  if (currentOra.isSpinning) {
+  if (currentOra.isSpinning()) {
     currentOra.clear();
     currentOra.frame();
   }
@@ -100,19 +142,16 @@ export function debug(text: string, options?: LoggerOptions) {
   }
 }
 
-export function getDebugSpinner(text: string, options?: LoggerOptions) {
+export function debugSpinner(text: string, options?: LoggerOptions) {
   writeLog(text, options);
-  return debugModeFlag ? getSpinner().info(text) : dummySpinner;
-}
 
-export function useDebugSpinner(method: OraMethod | null, text?: string, options?: LoggerOptions) {
   if (debugModeFlag) {
-    useSpinner(method || 'info', text, options);
-    return;
+    const spinner = getSpinner();
+    spinner.info(text);
+    return spinner;
   }
 
-  if (text) writeLog(text, options);
-  if (method) dummySpinner[method](text);
+  return dummySpinner;
 }
 
 export function debugMode(mode: boolean) {
