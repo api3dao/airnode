@@ -27,6 +27,7 @@ export class Spinner {
   clear() {
     this.oraInstance.clear();
   }
+
   frame() {
     this.oraInstance.frame();
   }
@@ -39,22 +40,27 @@ export class Spinner {
     if (text) writeLog(text, options);
     this.getOraInstance().start(text);
   }
+
   succeed(text?: string, options?: LoggerOptions) {
     if (text) writeLog(text, options);
     this.getOraInstance().succeed(text);
   }
+
   fail(text?: string, options?: LoggerOptions) {
     if (text) writeLog(text, options);
     this.getOraInstance().fail(text);
   }
+
   info(text?: string, options?: LoggerOptions) {
     if (text) writeLog(text, options);
     this.getOraInstance().info(text);
   }
+
   warn(text?: string, options?: LoggerOptions) {
     if (text) writeLog(text, options);
     this.getOraInstance().warn(text);
   }
+
   stop(text?: string, options?: LoggerOptions) {
     if (text) writeLog(text, options);
     this.getOraInstance().stop();
