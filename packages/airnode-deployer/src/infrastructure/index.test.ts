@@ -1819,3 +1819,239 @@ describe('fetchFiles', () => {
     );
   });
 });
+
+describe('saveDeploymentFiles', () => {
+  const bucket = {
+    name: 'airnode-123456789',
+    region: 'us-east-1',
+  };
+  const configPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'config.aws.valid.json');
+  const secretsPath = path.join(__dirname, '..', '..', 'test', 'fixtures', 'secrets.valid.env');
+  const directoryStructure = pick(mockBucketDirectoryStructure, [
+    '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6',
+    '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+  ]);
+
+  let tempOutputDirectory: string;
+  let tempConfigPath: string;
+  let tempSecretsPath: string;
+  let awsGetAirnodeBucketSpy: jest.SpyInstance;
+  let awsGetBucketDirectoryStructureSpy: jest.SpyInstance;
+  let awsGetFileFromBucketSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    tempOutputDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode-deployer-saveDeploymentFiles-test'));
+    tempConfigPath = path.join(tempOutputDirectory, 'config.json');
+    tempSecretsPath = path.join(tempOutputDirectory, 'secrets.env');
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
+    awsGetBucketDirectoryStructureSpy = jest
+      .spyOn(aws, 'getBucketDirectoryStructure')
+      .mockResolvedValue(directoryStructure);
+    awsGetFileFromBucketSpy = jest.spyOn(aws, 'getFileFromBucket').mockImplementation((_bucket, path) => {
+      if (path.includes('config.json')) {
+        return Promise.resolve(fs.readFileSync(configPath).toString());
+      }
+      if (path.includes('secrets.env')) {
+        return Promise.resolve(fs.readFileSync(secretsPath).toString());
+      }
+
+      throw new Error(`Mocking fetching of unsupported file '${path}'`);
+    });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempOutputDirectory, { recursive: true });
+  });
+
+  it('saves deployment files', async () => {
+    const deploymentId = 'aws7195b548';
+    const deploymentVersion = '1f8210a2';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await infrastructure.saveDeploymentFiles(deploymentId, deploymentVersion, tempConfigPath, tempSecretsPath);
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(4);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/secrets.env'
+    );
+
+    const configContent = fs.readFileSync(configPath);
+    const savedConfigContent = fs.readFileSync(tempConfigPath);
+    expect(savedConfigContent).toEqual(configContent);
+    const secretsContent = fs.readFileSync(secretsPath);
+    const savedSecretsContent = fs.readFileSync(tempSecretsPath);
+    expect(savedSecretsContent).toEqual(secretsContent);
+  });
+
+  it('fails if called with an invalid deployment ID', async () => {
+    const invalidDeploymentId = 'xxx2c6ef2b3';
+    const deploymentVersion = '1f8210a2';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(
+      infrastructure.saveDeploymentFiles(invalidDeploymentId, deploymentVersion, tempConfigPath, tempSecretsPath)
+    ).rejects.toThrow(new Error(`Invalid deployment ID '${invalidDeploymentId}'`));
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).not.toHaveBeenCalled();
+    expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
+  });
+
+  it(`fails if the deployment can't be found`, async () => {
+    const nonExistingDeploymentId = 'aws2c6ef2b3';
+    const deploymentVersion = '1f8210a2';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(
+      infrastructure.saveDeploymentFiles(nonExistingDeploymentId, deploymentVersion, tempConfigPath, tempSecretsPath)
+    ).rejects.toThrow(new Error(`No deployment with ID '${nonExistingDeploymentId}' found`));
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      3,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      4,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      5,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      6,
+      bucket.name,
+      '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
+    );
+  });
+
+  it(`fails if deployment version can't be found`, async () => {
+    const deploymentId = 'aws7195b548';
+    const nonExistingDeploymentVersion = '11223344';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(
+      infrastructure.saveDeploymentFiles(deploymentId, nonExistingDeploymentVersion, tempConfigPath, tempSecretsPath)
+    ).rejects.toThrow(
+      new Error(`No deployment with ID '${deploymentId}' and version '${nonExistingDeploymentVersion}' found`)
+    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
+    );
+  });
+
+  it(`fails if there's a problem with the cloud provider`, async () => {
+    const expectedError = new Error('example error');
+    awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockRejectedValue(expectedError);
+
+    const deploymentId = 'aws7195b548';
+    const deploymentVersion = '1f8210a2';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(
+      infrastructure.saveDeploymentFiles(deploymentId, deploymentVersion, tempConfigPath, tempSecretsPath)
+    ).rejects.toThrow(
+      new Error(`Failed to fetch info about '${deploymentId}' from AWS: Error: ${expectedError.message}`)
+    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
+    expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
+  });
+
+  it(`fails if we try to rollback to the current version`, async () => {
+    const deploymentId = 'aws7195b548';
+    const deploymentVersion = '3580a278';
+
+    const originalColorVariable = process.env.FORCE_COLOR;
+    // I have to disable table coloring so I can compare the output
+    process.env.FORCE_COLOR = '0';
+    await expect(
+      infrastructure.saveDeploymentFiles(deploymentId, deploymentVersion, tempConfigPath, tempSecretsPath)
+    ).rejects.toThrow(
+      new Error(
+        `Already on version '${deploymentVersion}' of deployment '${deploymentId}', can't rollback to the current version`
+      )
+    );
+    process.env.FORCE_COLOR = originalColorVariable;
+
+    expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      1,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
+    );
+    expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
+      2,
+      bucket.name,
+      '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
+    );
+  });
+});
