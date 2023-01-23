@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
-import { API_CALL_TIMEOUT } from '../constants';
+import { API_CALL_TIMEOUT, BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
 import { callApi, verifyTemplateId } from '.';
 
 describe('callApi', () => {
@@ -65,6 +65,28 @@ describe('callApi', () => {
       },
       { timeout: API_CALL_TIMEOUT }
     );
+  });
+
+  it('drops requests that specify _minConfirmations greater than BLOCK_COUNT_HISTORY_LIMIT', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const requestedMinConfirmations = (BLOCK_COUNT_HISTORY_LIMIT + 1).toString();
+    const parameters = {
+      _type: 'int256',
+      _path: 'price',
+      from: 'ETH',
+      _minConfirmations: requestedMinConfirmations,
+    };
+
+    const [logs, res] = await callApi({
+      type: 'regular',
+      config: fixtures.buildConfig(),
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
+    });
+
+    const msg = `Parameter \"_minConfirmations\" value ${requestedMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
+    expect(logs).toEqual([{ level: 'ERROR', message: msg }]);
+    expect(res).toEqual({ success: false, errorMessage: msg });
   });
 
   it('calls the adapter with the given parameters even if config.chains cannot be found', async () => {

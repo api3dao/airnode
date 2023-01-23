@@ -9,7 +9,7 @@ import compact from 'lodash/compact';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
-import { API_CALL_TIMEOUT } from '../constants';
+import { API_CALL_TIMEOUT, BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
@@ -258,13 +258,27 @@ export async function processSuccessfulApiCall(
         return [[log], { success: false, errorMessage: goSignWithRequestId.error.message }];
       }
 
+      if (_minConfirmations) {
+        const numMinConfirmations = Number(_minConfirmations);
+
+        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations)) {
+          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as an integer`;
+          const log = logger.pend('ERROR', msg);
+          return [[log], { success: false, errorMessage: msg }];
+        }
+        if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
+          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
+          const log = logger.pend('ERROR', msg);
+          return [[log], { success: false, errorMessage: msg }];
+        }
+      }
+
       return [
         [],
         {
           success: true,
           data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data },
           reservedParameterOverrides:
-            // TODO is this exactly what we want? i.e. undefined behavior
             _gasPrice || _minConfirmations ? { gasPrice: _gasPrice, minConfirmations: _minConfirmations } : undefined,
         },
       ];
