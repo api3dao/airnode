@@ -13,7 +13,7 @@ export interface LoggerOptions {
   secrets?: boolean;
 }
 
-class Spinner {
+export class Spinner {
   private oraInstance;
 
   constructor() {

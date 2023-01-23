@@ -5,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import { availableCloudProviders, CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { deploy, removeWithReceipt } from './commands';
+import { deploy, removeWithReceipt, rollback } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
@@ -27,7 +27,7 @@ function drawHeader() {
   );
 }
 
-async function runCommand(command: () => Promise<void>) {
+async function runCommand(command: () => Promise<any>) {
   const goCommand = await go(command);
   if (!goCommand.success) {
     logger.consoleLog('\n\n\nError details:');
@@ -50,6 +50,7 @@ const cliExamples = [
   'list --cloud-providers gcp',
   'info aws808e2a22',
   'fetch-files aws808e2a22',
+  'rollback aws808e2a22 5bbcd317',
   'remove-with-receipt -r config/receipt.json',
   'remove aws808e2a22',
 ];
@@ -223,6 +224,51 @@ yargs(hideBin(process.argv))
       );
       if (!goFetchFiles.success) {
         logger.fail(goFetchFiles.error.message);
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'rollback <deployment-id> <version-id>',
+    'Deploy one of the previous Airnode deployment versions',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment (from 'list' command)`,
+        type: 'string',
+      });
+      yargs.positional('version-id', {
+        description: `ID of the deployment version (from 'info' command)`,
+        type: 'string',
+      });
+      yargs.option('receipt', {
+        alias: 'r',
+        description: 'Output path for receipt file',
+        default: 'config/receipt.json',
+        type: 'string',
+      });
+      // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
+      yargs.option('auto-remove', {
+        description: 'Enable automatic removal of deployed resources for failed deployments',
+        default: true,
+        type: 'boolean',
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely
+      const goRollback = await go(() =>
+        rollback(
+          args.deploymentId as string,
+          args.versionId as string,
+          args.receipt as string,
+          args.autoRemove as boolean
+        )
+      );
+      if (!goRollback.success) {
+        logger.fail(goRollback.error.message);
         // eslint-disable-next-line functional/immutable-data
         process.exitCode = 1;
       }
