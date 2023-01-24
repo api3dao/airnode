@@ -2,7 +2,7 @@ import { OIS } from '@api3/ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
-    oisFormat: '1.3.0',
+    oisFormat: '1.4.0',
     version: '1.2.3',
     title: 'Currency Converter API',
     apiSpecifications: {
@@ -67,6 +67,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             name: '_times',
             default: '100000',
           },
+          { name: '_gasPrice' },
         ],
         parameters: [
           {

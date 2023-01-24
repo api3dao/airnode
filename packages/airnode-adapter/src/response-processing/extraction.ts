@@ -11,7 +11,12 @@ import {
   MULTIPLE_PARAMETERS_DELIMETER,
   PATH_DELIMETER,
 } from '../constants';
-import { ReservedParameters, ValueType, ExtractedAndEncodedResponse, ReservedParametersDelimeter } from '../types';
+import {
+  ResponseReservedParameters,
+  ValueType,
+  ExtractedAndEncodedResponse,
+  ReservedParametersDelimeter,
+} from '../types';
 
 export function unescape(value: string, delimeter: ReservedParametersDelimeter) {
   const escapedEscapeCharacter = ESCAPE_CHARACTER.repeat(2);
@@ -65,8 +70,8 @@ export function extractValue(data: unknown, path?: string) {
   return rawValue;
 }
 
-export function splitReservedParameters(parameters: ReservedParameters): ReservedParameters[] {
-  const splitByDelimeter = (name: keyof ReservedParameters) => {
+export function splitReservedParameters(parameters: ResponseReservedParameters): ResponseReservedParameters[] {
+  const splitByDelimeter = (name: keyof ResponseReservedParameters) => {
     return {
       name,
       splitResult: parameters[name] ? escapeAwareSplit(parameters[name]!, MULTIPLE_PARAMETERS_DELIMETER) : undefined,
@@ -88,18 +93,18 @@ export function splitReservedParameters(parameters: ReservedParameters): Reserve
     }
   });
 
-  const reservedParameters: ReservedParameters[] = range(typesLength).map((i) =>
+  const reservedParameters: ResponseReservedParameters[] = range(typesLength).map((i) =>
     splitParams.reduce((acc, param) => {
       if (!param.splitResult) return acc;
 
       return { ...acc, [param.name]: param.splitResult[i] };
-    }, {} as any as ReservedParameters)
+    }, {} as any as ResponseReservedParameters)
   );
 
   return reservedParameters;
 }
 
-function extractSingleResponse(data: unknown, parameters: ReservedParameters) {
+function extractSingleResponse(data: unknown, parameters: ResponseReservedParameters) {
   const parsedArrayType = parseArrayType(parameters._type);
   const type = parsedArrayType?.baseType ?? parameters._type;
 
@@ -133,7 +138,10 @@ export function exceedsMaximumEncodedResponseSize(encodedValue: string) {
   return encodedBytesLength > MAX_ENCODED_RESPONSE_SIZE;
 }
 
-export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters): ExtractedAndEncodedResponse {
+export function extractAndEncodeResponse(
+  data: unknown,
+  parameters: ResponseReservedParameters
+): ExtractedAndEncodedResponse {
   const reservedParameters = splitReservedParameters(parameters);
   if (reservedParameters.length > 1) {
     const extractedValues = reservedParameters.map((params) => extractSingleResponse(data, params));

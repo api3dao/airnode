@@ -5,11 +5,11 @@ import sortBy from 'lodash/sortBy';
 import { availableCloudProviders, CloudProvider, version as getNodeVersion } from '@api3/airnode-node';
 import { logger as loggerUtils } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { deploy, removeWithReceipt } from './commands';
+import { deploy, removeWithReceipt, rollback } from './commands';
 import * as logger from '../utils/logger';
 import { longArguments } from '../utils/cli';
 import { MultiMessageError } from '../utils/infrastructure';
-import { deploymentInfo, listAirnodes, removeAirnode } from '../infrastructure';
+import { deploymentInfo, fetchFiles, listAirnodes, removeAirnode } from '../infrastructure';
 
 function drawHeader() {
   loggerUtils.log(
@@ -27,7 +27,7 @@ function drawHeader() {
   );
 }
 
-async function runCommand(command: () => Promise<void>) {
+async function runCommand(command: () => Promise<any>) {
   const goCommand = await go(command);
   if (!goCommand.success) {
     loggerUtils.log('\n\n\nError details:');
@@ -49,6 +49,8 @@ const cliExamples = [
   'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
   'list --cloud-providers gcp',
   'info aws808e2a22',
+  'fetch-files aws808e2a22',
+  'rollback aws808e2a22 5bbcd317',
   'remove-with-receipt -r config/receipt.json',
   'remove aws808e2a22',
 ];
@@ -122,9 +124,8 @@ yargs(hideBin(process.argv))
     'Removes a deployed Airnode instance',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to remove (from 'list' command)`,
         type: 'string',
-        demandOption: true,
       });
     },
     async (args) => {
@@ -165,9 +166,8 @@ yargs(hideBin(process.argv))
     'Displays info about deployed Airnode',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to show info for (from 'list' command)`,
         type: 'string',
-        demandOption: true,
       });
     },
     async (args) => {
@@ -178,6 +178,85 @@ yargs(hideBin(process.argv))
       const goDeploymentInfo = await go(() => deploymentInfo(args.deploymentId as string));
       if (!goDeploymentInfo.success) {
         logger.fail(goDeploymentInfo.error.message);
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'fetch-files <deployment-id> [version-id]',
+    'Fetch deployment files for the deployed Airnode',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment to fetch files for (from 'list' command)`,
+        type: 'string',
+      });
+      yargs.positional('version-id', {
+        description: `ID of the deployment version to fetch files for (from 'info' command)`,
+        type: 'string',
+      });
+      yargs.option('output-dir', {
+        alias: 'o',
+        description: 'Where to store fetched files',
+        default: 'config/',
+        type: 'string',
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely
+      const goFetchFiles = await go(() =>
+        fetchFiles(args.deploymentId as string, args.outputDir as string, args.versionId as string | undefined)
+      );
+      if (!goFetchFiles.success) {
+        logger.fail(goFetchFiles.error.message);
+        // eslint-disable-next-line functional/immutable-data
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'rollback <deployment-id> <version-id>',
+    'Deploy one of the previous Airnode deployment versions',
+    (yargs) => {
+      yargs.positional('deployment-id', {
+        description: `ID of the deployment to rollback (from 'list' command)`,
+        type: 'string',
+      });
+      yargs.positional('version-id', {
+        description: `ID of the deployment version to rollback to (from 'info' command)`,
+        type: 'string',
+      });
+      yargs.option('receipt', {
+        alias: 'r',
+        description: 'Output path for receipt file',
+        default: 'config/receipt.json',
+        type: 'string',
+      });
+      // Flag arguments without value are not supported. See: https://github.com/yargs/yargs/issues/1532
+      yargs.option('auto-remove', {
+        description: 'Enable automatic removal of deployed resources for failed deployments',
+        default: true,
+        type: 'boolean',
+      });
+    },
+    async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
+
+      // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely
+      const goRollback = await go(() =>
+        rollback(
+          args.deploymentId as string,
+          args.versionId as string,
+          args.receipt as string,
+          args.autoRemove as boolean
+        )
+      );
+      if (!goRollback.success) {
+        logger.fail(goRollback.error.message);
         // eslint-disable-next-line functional/immutable-data
         process.exitCode = 1;
       }

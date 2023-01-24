@@ -16,6 +16,7 @@ coverage/
 coverage.json
 gas_report
 gcp.json
+.eslintcache
 
 # Alternative package.json files for publishing
 # Will be removed in the future

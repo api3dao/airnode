@@ -12,22 +12,14 @@ export function getReservedParameterValue(
     return undefined;
   }
 
-  if (reservedParameter.fixed) {
-    return reservedParameter.fixed;
-  }
-
-  const requestParameter = requestParameters[name];
-  if (!requestParameter) {
-    return reservedParameter.default;
-  }
-
-  return requestParameter;
+  return reservedParameter.fixed || requestParameters[name] || reservedParameter.default;
 }
 
 export function getReservedParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
   const _path = getReservedParameterValue('_path', endpoint, requestParameters);
   const _times = getReservedParameterValue('_times', endpoint, requestParameters);
   const _type = getReservedParameterValue('_type', endpoint, requestParameters);
+  const _gasPrice = getReservedParameterValue('_gasPrice', endpoint, requestParameters);
 
-  return { _type, _path, _times };
+  return { _type, _path, _times, _gasPrice };
 }

@@ -36,15 +36,25 @@ export function fail(text: string) {
 }
 
 export function warn(text: string) {
+  const currentOra = getSpinner();
+  if (currentOra.isSpinning) {
+    currentOra.clear();
+    currentOra.frame();
+  }
   oraInstance().warn(text);
 }
 
 export function info(text: string) {
+  const currentOra = getSpinner();
+  if (currentOra.isSpinning) {
+    currentOra.clear();
+    currentOra.frame();
+  }
   oraInstance().info(text);
 }
 
 export function debug(text: string) {
-  if (debugModeFlag) oraInstance().info(text);
+  if (debugModeFlag) info(text);
 }
 
 export function debugSpinner(text: string) {

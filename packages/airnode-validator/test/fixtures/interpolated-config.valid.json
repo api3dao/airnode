@@ -83,7 +83,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.3.0",
+      "oisFormat": "1.4.0",
       "title": "CoinGecko basic request",
       "version": "1.0.0",
       "apiSpecifications": {
@@ -196,6 +196,9 @@
             {
               "name": "_times",
               "fixed": "1000000"
+            },
+            {
+              "name": "_gasPrice"
             }
           ],
           "preProcessingSpecifications": [],

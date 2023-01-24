@@ -66,7 +66,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       enabled: false,
     },
     logFormat: 'plain',
-    logLevel: 'INFO',
+    logLevel: 'DEBUG',
     nodeVersion: createNodeVersion(),
     stage: 'dev',
   },
@@ -85,7 +85,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '1.3.0',
+      oisFormat: '1.4.0',
       title: 'CoinGecko history data request',
       version: '1.0.0',
       apiSpecifications: {

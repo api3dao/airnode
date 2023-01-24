@@ -61,7 +61,7 @@
       "corsOrigins": []
     },
     "logFormat": "plain",
-    "logLevel": "INFO",
+    "logLevel": "DEBUG",
     "nodeVersion": "0.9.0",
     "stage": "dev"
   },
@@ -86,7 +86,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.3.0",
+      "oisFormat": "1.4.0",
       "title": "CoinGecko basic request",
       "version": "1.0.0",
       "apiSpecifications": {

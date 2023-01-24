@@ -63,7 +63,7 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
 export const createAndMockGasTarget = (txType: 'legacy' | 'eip1559'): GasTargetMock => {
   const gasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
   const blockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
-  // Ethers does not export BlockWithTransactions so using a custom type definiton to include the transactions array
+  // Ethers does not export BlockWithTransactions so using a custom type definition to include the transactions array
   const blockWithTransactionsSpy = jest.spyOn(
     ethers.providers.StaticJsonRpcProvider.prototype,
     'getBlockWithTransactions'
