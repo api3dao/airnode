@@ -124,7 +124,7 @@ yargs(hideBin(process.argv))
     'Removes a deployed Airnode instance',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to remove (from 'list' command)`,
         type: 'string',
       });
     },
@@ -166,7 +166,7 @@ yargs(hideBin(process.argv))
     'Displays info about deployed Airnode',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to show info for (from 'list' command)`,
         type: 'string',
       });
     },
@@ -188,11 +188,11 @@ yargs(hideBin(process.argv))
     'Fetch deployment files for the deployed Airnode',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to fetch files for (from 'list' command)`,
         type: 'string',
       });
       yargs.positional('version-id', {
-        description: `ID of the deployment version (from 'info' command)`,
+        description: `ID of the deployment version to fetch files for (from 'info' command)`,
         type: 'string',
       });
       yargs.option('output-dir', {
@@ -222,11 +222,11 @@ yargs(hideBin(process.argv))
     'Deploy one of the previous Airnode deployment versions',
     (yargs) => {
       yargs.positional('deployment-id', {
-        description: `ID of the deployment (from 'list' command)`,
+        description: `ID of the deployment to rollback (from 'list' command)`,
         type: 'string',
       });
       yargs.positional('version-id', {
-        description: `ID of the deployment version (from 'info' command)`,
+        description: `ID of the deployment version to rollback to (from 'info' command)`,
         type: 'string',
       });
       yargs.option('receipt', {
