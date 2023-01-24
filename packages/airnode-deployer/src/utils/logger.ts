@@ -20,20 +20,20 @@ export class Spinner {
     this.oraInstance = oraInstance();
   }
 
+  private getOraInstance() {
+    return this.oraInstance;
+  }
+
   isSpinning() {
-    return this.oraInstance.isSpinning;
+    return this.getOraInstance().isSpinning;
   }
 
   clear() {
-    this.oraInstance.clear();
+    this.getOraInstance().clear();
   }
 
   frame() {
-    this.oraInstance.frame();
-  }
-
-  private getOraInstance() {
-    return this.oraInstance;
+    this.getOraInstance().frame();
   }
 
   start(text?: string, options?: LoggerOptions) {
