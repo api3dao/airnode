@@ -21,6 +21,7 @@ import {
   ApiCallPayload,
   RegularApiCallPayload,
   HttpSignedApiCallPayload,
+  RegularAggregatedApiCall,
 } from '../types';
 
 export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
@@ -269,6 +270,22 @@ export async function processSuccessfulApiCall(
         if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
           const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
           const log = logger.pend('ERROR', msg);
+          return [[log], { success: false, errorMessage: msg }];
+        }
+
+        // filter requests based on _minConfirmations requested relative to number of block confirmations
+        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < numMinConfirmations) {
+          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${numMinConfirmations} block confirmations`;
+          const log = logger.pend('INFO', msg);
+          return [[log], { success: false, errorMessage: msg }];
+        }
+      } else {
+        // filter requests based on chains[n].minConfirmations relative to number of block confirmations
+        const { chainId } = aggregatedApiCall as RegularAggregatedApiCall;
+        const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
+        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < configMinConfirmations) {
+          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${configMinConfirmations} block confirmations`;
+          const log = logger.pend('INFO', msg);
           return [[log], { success: false, errorMessage: msg }];
         }
       }

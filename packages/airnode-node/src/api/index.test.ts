@@ -89,6 +89,51 @@ describe('callApi', () => {
     expect(res).toEqual({ success: false, errorMessage: msg });
   });
 
+  it('drops requests that have fewer than _minConfirmations request parameter value', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const requestedMinConfirmations = (BLOCK_COUNT_HISTORY_LIMIT - 1).toString();
+    const parameters = {
+      _type: 'int256',
+      _path: 'price',
+      from: 'ETH',
+      _minConfirmations: requestedMinConfirmations,
+    };
+
+    const [logs, res] = await callApi({
+      type: 'regular',
+      config: fixtures.buildConfig(),
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
+    });
+
+    const msg = `Dropping Request ID:0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374 as it hasn't had ${requestedMinConfirmations} block confirmations`;
+    expect(logs).toEqual([{ level: 'INFO', message: msg }]);
+    expect(res).toEqual({ success: false, errorMessage: msg });
+  });
+
+  it('drops requests without a _minConfirmations request parameter that have fewer than chains[n].minConfirmations', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = {
+      _type: 'int256',
+      _path: 'price',
+      from: 'ETH',
+    };
+
+    const minConfirmations = 1000;
+    const config = fixtures.buildConfig();
+    config.chains[0].minConfirmations = minConfirmations;
+    const [logs, res] = await callApi({
+      type: 'regular',
+      config: config,
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
+    });
+
+    const msg = `Dropping Request ID:0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374 as it hasn't had ${minConfirmations} block confirmations`;
+    expect(logs).toEqual([{ level: 'INFO', message: msg }]);
+    expect(res).toEqual({ success: false, errorMessage: msg });
+  });
+
   it('calls the adapter with the given parameters even if config.chains cannot be found', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
