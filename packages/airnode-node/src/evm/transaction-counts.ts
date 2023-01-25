@@ -27,6 +27,7 @@ async function getWalletTransactionCount(
   const operation = () =>
     options.provider.getTransactionCount(
       address,
+      // Fetch up to currentBlock to handle possibility of _minConfirmations parameter in request
       options.currentBlock - (options.mayOverrideMinConfirmations ? 0 : options.minConfirmations)
     );
   const goCount = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });

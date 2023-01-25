@@ -40,6 +40,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   // toBlock should always be >= fromBlock
   const toBlock = Math.max(
     fromBlock,
+    // Fetch up to currentBlock to handle possibility of _minConfirmations parameter in request
     options.currentBlock - (options.mayOverrideMinConfirmations ? 0 : options.minConfirmations)
   );
 
