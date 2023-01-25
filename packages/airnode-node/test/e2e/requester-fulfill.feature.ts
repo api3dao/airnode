@@ -1,4 +1,5 @@
-import { startCoordinator } from '../../src/workers/local-handlers';
+import { BLOCK_COUNT_HISTORY_LIMIT } from '../../src';
+import { startCoordinator, loadConfig } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
 import {
   fetchAllLogNames,
@@ -85,4 +86,43 @@ it('submits fulfillment with the gas price overridden', async () => {
   });
 
   expect(fulfillmentLog).toBeDefined();
+});
+
+it('submits fulfillment only if minConfirmations is overridden by request parameter', async () => {
+  const baseParameters = [
+    { type: 'string32', name: 'from', value: 'ETH' },
+    { type: 'string32', name: 'to', value: 'USD' },
+    { type: 'string32', name: '_type', value: 'int256' },
+    { type: 'string32', name: '_path', value: 'result' },
+    { type: 'string32', name: '_times', value: '100000' },
+  ];
+  const overrideParameters = baseParameters.concat([{ type: 'string32', name: '_minConfirmations', value: '0' }]);
+  const requests = [
+    operation.buildTemplateRequest({ parameters: baseParameters }), // should fail
+    operation.buildFullRequest({ parameters: overrideParameters }), // should succeed
+  ];
+  const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
+
+  const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];
+  const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(preInvokelogNames).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
+
+  // set chains[n].minConfirmations such that the request will only be fulfilled if the
+  // value is overridden by _minConfirmations in the request
+  const config = loadConfig();
+  config.chains[0].minConfirmations = BLOCK_COUNT_HISTORY_LIMIT - 1;
+
+  await startCoordinator(config);
+
+  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
+  const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
+  expect(postInvokeLogs.map(({ name }) => name)).toEqual(expect.arrayContaining(postInvokeExpectedLogs));
+
+  const failedRequest = filterLogsByName(postInvokeLogs, 'FailedRequest')[0];
+  const templateRequest = filterLogsByName(postInvokeLogs, 'MadeTemplateRequest')[0];
+  expectSameRequestId(templateRequest, failedRequest);
+
+  const fulfilledRequest = filterLogsByName(postInvokeLogs, 'FulfilledRequest')[0];
+  const fullRequest = filterLogsByName(postInvokeLogs, 'MadeFullRequest')[0];
+  expectSameRequestId(fulfilledRequest, fullRequest);
 });

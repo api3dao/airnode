@@ -2,20 +2,20 @@ import * as path from 'path';
 import { ethers } from 'ethers';
 import { addMetadata, logger, randomHexString, setLogOptions } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
-import { loadTrustedConfig, setEnvValue } from '../config';
+import { loadTrustedConfig, setEnvValue, Config } from '../config';
 import * as handlers from '../handlers';
 import * as state from '../providers/state';
 import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
 
-function loadConfig() {
+export function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
 export function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {
   return setEnvValue('AIRNODE_WALLET_PRIVATE_KEY', ethers.Wallet.fromMnemonic(airnodeWalletMnemonic).privateKey);
 }
 
-export async function startCoordinator(): Promise<WorkerResponse> {
-  const config = loadConfig();
+export async function startCoordinator(customConfig?: Config): Promise<WorkerResponse> {
+  const config = customConfig ? customConfig : loadConfig();
   const coordinatorId = randomHexString(16);
   setLogOptions({
     format: config.nodeSettings.logFormat,
