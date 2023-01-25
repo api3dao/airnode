@@ -279,7 +279,7 @@ export async function processSuccessfulApiCall(
           const log = logger.pend('INFO', msg);
           return [[log], { success: false, errorMessage: msg }];
         }
-      } else {
+      } else if (!isEmpty(config.chains)) {
         // filter requests based on chains[n].minConfirmations relative to number of block confirmations
         const { chainId } = aggregatedApiCall as RegularAggregatedApiCall;
         const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);

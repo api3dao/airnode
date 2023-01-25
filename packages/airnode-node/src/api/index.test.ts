@@ -14,7 +14,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const requestedGasPrice = '100000000';
-    const requestedMinConfirmations = '9';
+    const requestedMinConfirmations = '0';
     const parameters = {
       _type: 'int256',
       _path: 'price',
