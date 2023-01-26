@@ -31,7 +31,7 @@ export function formatTerraformArguments(args: CommandArg[]) {
  */
 export const isCloudFunction = () => process.env.LAMBDA_TASK_ROOT || process.env.FUNCTION_TARGET;
 
-export const logAndReturnError = (message: string): Error => {
+export const logAndReturnError = (message: string) => {
   logger.fail(message);
   return new Error(message);
 };

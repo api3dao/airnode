@@ -1,8 +1,10 @@
-import { loadConfig } from '@api3/airnode-node';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { loadConfig, deriveDeploymentVersionId } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
-import { bold } from 'chalk';
-import { deployAirnode, removeAirnode } from '../infrastructure';
-import { writeReceiptFile, parseReceiptFile, parseSecretsFile } from '../utils';
+import { deployAirnode, removeAirnode, saveDeploymentFiles } from '../infrastructure';
+import { writeReceiptFile, parseReceiptFile, parseSecretsFile, deriveAirnodeAddress } from '../utils';
 import * as logger from '../utils/logger';
 import { logAndReturnError, MultiMessageError } from '../utils/infrastructure';
 
@@ -25,11 +27,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
   if (!goDeployAirnode.success && !autoRemove) {
     logger.fail(
-      bold(
-        `Airnode deployment failed due to unexpected errors.\n` +
-          `  It is possible that some resources have been deployed on cloud provider.\n` +
-          `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`
-      )
+      `Airnode deployment failed due to unexpected errors.\n` +
+        `  It is possible that some resources have been deployed on cloud provider.\n` +
+        `  Please use the "remove" command from the deployer CLI to ensure all cloud resources are removed.`,
+      { bold: true }
     );
 
     throw goDeployAirnode.error;
@@ -37,24 +38,22 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
 
   if (!goDeployAirnode.success) {
     logger.fail(
-      bold(
-        `Airnode deployment failed due to unexpected errors.\n` +
-          `  It is possible that some resources have been deployed on cloud provider.\n` +
-          `  Attempting to remove them...\n`
-      )
+      `Airnode deployment failed due to unexpected errors.\n` +
+        `  It is possible that some resources have been deployed on cloud provider.\n` +
+        `  Attempting to remove them...\n`,
+      { bold: true }
     );
 
     // Try to remove deployed resources
     const goRemoveAirnode = await go(() => removeWithReceipt(receiptFile));
     if (!goRemoveAirnode.success) {
       logger.fail(
-        bold(
-          `Airnode removal failed due to unexpected errors.\n` +
-            `  It is possible that some resources have been deployed on cloud provider.\n` +
-            `  Please check the resources on the cloud provider dashboard and\n` +
-            `  use the "remove" command from the deployer CLI to remove them.\n` +
-            `  If the automatic removal via CLI fails, remove the resources manually.`
-        )
+        `Airnode removal failed due to unexpected errors.\n` +
+          `  It is possible that some resources have been deployed on cloud provider.\n` +
+          `  Please check the resources on the cloud provider dashboard and\n` +
+          `  use the "remove" command from the deployer CLI to remove them.\n` +
+          `  If the automatic removal via CLI fails, remove the resources manually.`,
+        { bold: true }
       );
 
       throw new MultiMessageError([
@@ -68,8 +67,16 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
   }
 
   const output = goDeployAirnode.data;
-  if (output.httpGatewayUrl) logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`);
-  if (output.httpSignedDataGatewayUrl) logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`);
+  if (output.httpGatewayUrl) {
+    logger.setSecret(output.httpGatewayUrl);
+    logger.info(`HTTP gateway URL: ${output.httpGatewayUrl}`, { secrets: true });
+  }
+  if (output.httpSignedDataGatewayUrl) {
+    logger.setSecret(output.httpSignedDataGatewayUrl);
+    logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`, { secrets: true });
+  }
+
+  return { creationTime: time };
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
@@ -78,4 +85,39 @@ export async function removeWithReceipt(receiptFilename: string) {
 
   // If the function throws, the CLI will fail with a non zero status code
   await removeAirnode(deploymentId);
+}
+
+export async function rollback(deploymentId: string, versionId: string, receiptFile: string, autoRemove: boolean) {
+  const spinner = logger.getSpinner();
+  spinner.start(`Rollback of deployment '${deploymentId}' to version '${versionId}'`);
+  if (logger.inDebugMode()) {
+    spinner.info();
+  }
+
+  const configDirTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+  const configPathTmp = path.join(configDirTmp, 'config.json');
+  const secretsPathTmp = path.join(configDirTmp, 'secrets.env');
+
+  try {
+    await saveDeploymentFiles(deploymentId, versionId, configPathTmp, secretsPathTmp);
+    const { creationTime } = await deploy(configPathTmp, secretsPathTmp, receiptFile, autoRemove);
+
+    const secrets = parseSecretsFile(secretsPathTmp);
+    const config = loadConfig(configPathTmp, secrets);
+    const { airnodeWalletMnemonic, cloudProvider, stage, nodeVersion } = config.nodeSettings;
+    const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
+    const newVersionId = deriveDeploymentVersionId(
+      cloudProvider,
+      airnodeAddress,
+      stage,
+      nodeVersion,
+      `${creationTime.getTime()}`
+    );
+
+    spinner.succeed(
+      `Rollback of deployment '${deploymentId}' successful, new version '${newVersionId}' with configuration from version '${versionId}' created`
+    );
+  } finally {
+    fs.rmSync(configDirTmp, { recursive: true });
+  }
 }

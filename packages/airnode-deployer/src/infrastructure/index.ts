@@ -15,7 +15,6 @@ import {
   deriveDeploymentId,
   deriveDeploymentVersionId,
 } from '@api3/airnode-node';
-import { consoleLog } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import compact from 'lodash/compact';
@@ -93,10 +92,21 @@ export async function runCommand(command: string, options: CommandOptions) {
 
 export type CommandArg = string | [string, string] | [string, string, string];
 
-export function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
+export async function execTerraform(
+  execOptions: CommandOptions,
+  command: string,
+  args: CommandArg[],
+  options?: string[]
+) {
   const formattedArgs = formatTerraformArguments(args);
   const fullCommand = compact(['terraform', command, formattedArgs.join(' '), options?.join(' ')]).join(' ');
-  return runCommand(fullCommand, execOptions);
+
+  const goRunCommand = await go(() => runCommand(fullCommand, execOptions));
+  if (!goRunCommand.success) {
+    throw new Error('Terraform error occurred. See deployer log files for more details.');
+  }
+
+  return goRunCommand.data;
 }
 
 export function awsApplyDestroyArguments(
@@ -248,6 +258,7 @@ export async function terraformAirnodeApply(
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
+  logger.setSecret(airnodeWalletPrivateKey);
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
 
   await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
@@ -311,7 +322,8 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const { type, region } = cloudProvider as CloudProvider;
 
-  const spinner = logger.getSpinner().start(`Deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -561,31 +573,74 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
   return deployments;
 }
 
+async function fetchDeployment(cloudProviderType: CloudProvider['type'], deploymentId: string, versionId?: string) {
+  // We need to call `fetchDeployments` even if we want just one deployment due to the way the deployment ID is build
+  // For that reason we keep the `deploymentId` paramater in `fetchDeployments` that allows to return early if the deployment is found
+  const goDeployemnts = await go(() => fetchDeployments(cloudProviderType, deploymentId));
+
+  if (!goDeployemnts.success) {
+    throw new Error(
+      `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${goDeployemnts.error}`
+    );
+  }
+
+  if (goDeployemnts.data.length === 0) {
+    throw new Error(`No deployment with ID '${deploymentId}' found`);
+  }
+
+  const deployment = goDeployemnts.data[0];
+  let requestedVersion: DeploymentVersion | undefined;
+
+  if (versionId) {
+    requestedVersion = deployment.versions.find((version) => version.id === versionId);
+    if (!requestedVersion) {
+      throw new Error(`No deployment with ID '${deploymentId}' and version '${versionId}' found`);
+    }
+  }
+
+  const version = requestedVersion ?? sortBy(deployment.versions, 'timestamp').reverse()[0];
+  return { deployment, version };
+}
+
+async function downloadDeploymentFiles(
+  cloudProviderType: CloudProvider['type'],
+  deployment: Deployment,
+  version: DeploymentVersion
+) {
+  const { airnodeAddress, stage, bucket } = deployment;
+
+  const deploymentPathPrefix = `${airnodeAddress}/${stage}/${version.timestamp}`;
+  const configFileBucketPath = `${deploymentPathPrefix}/config.json`;
+  const secretsFileBucketPath = `${deploymentPathPrefix}/secrets.env`;
+
+  const configContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, configFileBucketPath);
+  const secretsContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(
+    bucket.name,
+    secretsFileBucketPath
+  );
+
+  return { configContent, secretsContent };
+}
+
 export async function removeAirnode(deploymentId: string) {
   const cloudProviderType = deploymentId.slice(0, 3) as CloudProvider['type'];
   if (!availableCloudProviders.includes(cloudProviderType)) {
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger.getSpinner().start(`Removing Airnode '${deploymentId}'`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Removing Airnode '${deploymentId}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
   const goRemove = await go(async () => {
-    const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
-    if (!goCloudDeploymentInfo.success) {
+    const goFetchDeployment = await go(() => fetchDeployment(cloudProviderType, deploymentId));
+    if (!goFetchDeployment.success) {
       spinner.stop();
-      throw new Error(
-        `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
-          goCloudDeploymentInfo.error
-        }`
-      );
+      throw goFetchDeployment.error;
     }
-    if (goCloudDeploymentInfo.data.length === 0) {
-      spinner.stop();
-      throw new Error(`No deployment with ID '${deploymentId}' found`);
-    }
+    const { deployment } = goFetchDeployment.data;
 
     const {
       cloudProvider,
@@ -594,7 +649,7 @@ export async function removeAirnode(deploymentId: string) {
       airnodeVersion: deployedVersion,
       bucket,
       bucketLatestDeploymentPath,
-    } = goCloudDeploymentInfo.data[0];
+    } = deployment;
 
     if (deployedVersion !== nodeVersion) {
       throw new Error(
@@ -649,9 +704,8 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   for (const cloudProviderType of cloudProviders) {
     // Using different line of text for each cloud provider so we can easily convey which cloud provider failed
     // and which succeeded
-    const spinner = logger
-      .getSpinner()
-      .start(`Listing Airnode deployments from cloud provider ${cloudProviderType.toUpperCase()}`);
+    const spinner = logger.getSpinner();
+    spinner.start(`Listing Airnode deployments from cloud provider ${cloudProviderType.toUpperCase()}`);
     if (logger.inDebugMode()) {
       spinner.info();
     }
@@ -685,7 +739,7 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
     ])
   );
 
-  consoleLog(table.toString());
+  logger.consoleLog(table.toString());
 }
 
 export async function deploymentInfo(deploymentId: string) {
@@ -694,28 +748,19 @@ export async function deploymentInfo(deploymentId: string) {
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger.getSpinner().start(`Fetching info about deployment '${deploymentId}'`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Fetching info about deployment '${deploymentId}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
-  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
-
-  if (!goCloudDeploymentInfo.success) {
+  const goFetchDeployment = await go(() => fetchDeployment(cloudProviderType, deploymentId));
+  if (!goFetchDeployment.success) {
     spinner.stop();
-    throw new Error(
-      `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
-        goCloudDeploymentInfo.error
-      }`
-    );
+    throw goFetchDeployment.error;
   }
+  const { deployment } = goFetchDeployment.data;
 
-  if (goCloudDeploymentInfo.data.length === 0) {
-    spinner.stop();
-    throw new Error(`No deployment with ID '${deploymentId}' found`);
-  }
-
-  const deployment = goCloudDeploymentInfo.data[0];
   const { id, cloudProvider, airnodeAddress, stage, airnodeVersion, lastUpdate, versions } = deployment;
   const sortedVersions = sortBy(versions, 'timestamp').reverse();
   const currentVersionId = sortedVersions.find((version) => version.timestamp === lastUpdate)!.id;
@@ -728,14 +773,14 @@ export async function deploymentInfo(deploymentId: string) {
   table.push(...sortedVersions.map(({ id, timestamp }) => [id, timestampReadable(timestamp)]));
 
   spinner.succeed();
-  consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider)}`);
-  consoleLog(`Airnode address: ${airnodeAddress}`);
-  consoleLog(`Stage: ${stage}`);
-  consoleLog(`Airnode version: ${airnodeVersion}`);
-  consoleLog(`Deployment ID: ${id}`);
+  logger.consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider)}`);
+  logger.consoleLog(`Airnode address: ${airnodeAddress}`);
+  logger.consoleLog(`Stage: ${stage}`);
+  logger.consoleLog(`Airnode version: ${airnodeVersion}`);
+  logger.consoleLog(`Deployment ID: ${id}`);
   const tableString = table.toString();
   const tableStringWithCurrent = tableString.replace(new RegExp(`(?<=${currentVersionId}.*?)\n`), ' (current)\n');
-  consoleLog(tableStringWithCurrent);
+  logger.consoleLog(tableStringWithCurrent);
 }
 
 export async function fetchFiles(deploymentId: string, outputDir: string, versionId?: string) {
@@ -744,52 +789,26 @@ export async function fetchFiles(deploymentId: string, outputDir: string, versio
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger
-    .getSpinner()
-    .start(`Fetching files for deployment '${deploymentId}'${versionId ? ` and version '${versionId}'` : ''}'`);
+  const spinner = logger.getSpinner();
+
+  spinner.start(`Fetching files for deployment '${deploymentId}'${versionId ? ` and version '${versionId}'` : ''}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
-  const goCloudDeploymentInfo = await go(() => fetchDeployments(cloudProviderType, deploymentId));
-
-  if (!goCloudDeploymentInfo.success) {
+  const goFetchDeployment = await go(() => fetchDeployment(cloudProviderType, deploymentId, versionId));
+  if (!goFetchDeployment.success) {
     spinner.stop();
-    throw new Error(
-      `Failed to fetch info about '${deploymentId}' from ${cloudProviderType.toUpperCase()}: ${
-        goCloudDeploymentInfo.error
-      }`
-    );
+    throw goFetchDeployment.error;
   }
+  const { deployment, version } = goFetchDeployment.data;
 
-  if (goCloudDeploymentInfo.data.length === 0) {
+  const goDownloadDeploymentFiles = await go(() => downloadDeploymentFiles(cloudProviderType, deployment, version));
+  if (!goDownloadDeploymentFiles.success) {
     spinner.stop();
-    throw new Error(`No deployment with ID '${deploymentId}' found`);
+    throw goDownloadDeploymentFiles.error;
   }
-
-  const cloudDeploymentInfo = goCloudDeploymentInfo.data[0];
-  let requestedVersion: DeploymentVersion | undefined;
-
-  if (versionId) {
-    requestedVersion = cloudDeploymentInfo.versions.find((version) => version.id === versionId);
-    if (!requestedVersion) {
-      spinner.stop();
-      throw new Error(`No deployment with ID '${deploymentId}' and version '${versionId}' found`);
-    }
-  }
-
-  const version = requestedVersion ?? sortBy(cloudDeploymentInfo.versions, 'timestamp').reverse()[0];
-  const { airnodeAddress, stage, bucket } = cloudDeploymentInfo;
-
-  const deploymentPathPrefix = `${airnodeAddress}/${stage}/${version.timestamp}`;
-  const configFileBucketPath = `${deploymentPathPrefix}/config.json`;
-  const secretsFileBucketPath = `${deploymentPathPrefix}/secrets.env`;
-
-  const configContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, configFileBucketPath);
-  const secretsContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(
-    bucket.name,
-    secretsFileBucketPath
-  );
+  const { configContent, secretsContent } = goDownloadDeploymentFiles.data;
 
   const goOutputWritable = goSync(() => fs.accessSync(outputDir, fs.constants.W_OK));
   if (!goOutputWritable.success) {
@@ -808,4 +827,44 @@ export async function fetchFiles(deploymentId: string, outputDir: string, versio
   }
 
   spinner.succeed(`Files successfully downloaded as '${outputFile}'`);
+}
+
+export async function saveDeploymentFiles(
+  deploymentId: string,
+  versionId: string,
+  configPath: string,
+  secretsPath: string
+) {
+  const cloudProviderType = deploymentId.slice(0, 3) as CloudProvider['type'];
+  if (!availableCloudProviders.includes(cloudProviderType)) {
+    throw new Error(`Invalid deployment ID '${deploymentId}'`);
+  }
+
+  const spinner = logger.getSpinner();
+
+  const goFetchDeployment = await go(() => fetchDeployment(cloudProviderType, deploymentId, versionId));
+  if (!goFetchDeployment.success) {
+    spinner.stop();
+    throw goFetchDeployment.error;
+  }
+  const { deployment, version } = goFetchDeployment.data;
+  const sortedVersions = sortBy(deployment.versions, 'timestamp').reverse();
+  const currentVersionId = sortedVersions.find((version) => version.timestamp === deployment.lastUpdate)!.id;
+
+  if (deployment.id === deploymentId && currentVersionId === versionId) {
+    spinner.stop();
+    throw new Error(
+      `Already on version '${versionId}' of deployment '${deploymentId}', can't rollback to the current version`
+    );
+  }
+
+  const goDownloadDeploymentFiles = await go(() => downloadDeploymentFiles(cloudProviderType, deployment, version));
+  if (!goDownloadDeploymentFiles.success) {
+    spinner.stop();
+    throw goDownloadDeploymentFiles.error;
+  }
+  const { configContent, secretsContent } = goDownloadDeploymentFiles.data;
+
+  fs.writeFileSync(configPath, configContent);
+  fs.writeFileSync(secretsPath, secretsContent);
 }

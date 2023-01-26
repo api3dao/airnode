@@ -1,3 +1,4 @@
+import compact from 'lodash/compact';
 import { BLOCK_COUNT_HISTORY_LIMIT } from '../../src';
 import { startCoordinator, loadConfig } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
@@ -66,7 +67,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 
 it('submits fulfillment with the gas price overridden', async () => {
   const requestedGasPrice = '99999999999'; // wei
-  const gasOverrideParameters = [
+  const overrideParameters = [
     { type: 'string32', name: 'from', value: 'ETH' },
     { type: 'string32', name: 'to', value: 'USD' },
     { type: 'string32', name: '_type', value: 'int256' },
@@ -74,18 +75,27 @@ it('submits fulfillment with the gas price overridden', async () => {
     { type: 'string32', name: '_times', value: '100000' },
     { type: 'string32', name: '_gasPrice', value: requestedGasPrice },
   ];
-  const requests = [operation.buildFullRequest({ parameters: gasOverrideParameters })];
+  const requests = [operation.buildFullRequest({ parameters: overrideParameters })];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
   await startCoordinator();
 
   const logs = await fetchProviderLogs(provider, deployment.contracts.AirnodeRrp);
-  const fulfillmentLog = logs.find(async (log) => {
-    const tx = await provider.getTransaction(log.transactionHash);
-    tx.gasPrice?.toString() === requestedGasPrice;
-  });
 
-  expect(fulfillmentLog).toBeDefined();
+  const filteredTxs = compact(
+    await Promise.all(
+      logs.map(async (log) => {
+        const tx = await provider.getTransaction(log.transactionHash);
+        if (tx.gasPrice && tx.gasPrice.toString() === requestedGasPrice) {
+          return tx;
+        }
+        return null;
+      })
+    )
+  );
+
+  expect(filteredTxs.length).toEqual(1);
+  expect(filteredTxs[0]!.gasPrice!.toString()).toEqual(requestedGasPrice);
 });
 
 it('submits fulfillment only if minConfirmations is overridden by request parameter', async () => {

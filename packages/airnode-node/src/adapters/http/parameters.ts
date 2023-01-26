@@ -12,16 +12,7 @@ export function getReservedParameterValue(
     return undefined;
   }
 
-  if (reservedParameter.fixed) {
-    return reservedParameter.fixed;
-  }
-
-  const requestParameter = requestParameters[name];
-  if (!requestParameter) {
-    return reservedParameter.default;
-  }
-
-  return requestParameter;
+  return reservedParameter.fixed || requestParameters[name] || reservedParameter.default;
 }
 
 export function getReservedParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
