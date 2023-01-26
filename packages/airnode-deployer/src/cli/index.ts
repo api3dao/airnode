@@ -30,7 +30,7 @@ function drawHeader() {
 async function runCommand(command: () => Promise<any>) {
   const goCommand = await go(command);
   if (!goCommand.success) {
-    loggerUtils.log('\n\n\nError details:');
+    logger.consoleLog('\n\n\nError details:');
 
     // Logging an error here likely results in excessive logging since the errors are usually logged at the place where they
     // happen. However if we do not log the error here we risk having unhandled silent errors. The risk is not worth it.
@@ -46,7 +46,7 @@ async function runCommand(command: () => Promise<any>) {
 }
 
 const cliExamples = [
-  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json',
+  'deploy -c config/config.json -s config/secrets.env -r config/receipt.json -l config/logs/',
   'list --cloud-providers gcp',
   'info aws808e2a22',
   'fetch-files aws808e2a22',
@@ -60,6 +60,12 @@ yargs(hideBin(process.argv))
     description: 'Run in debug mode',
     default: false,
     type: 'boolean',
+  })
+  .option('logs', {
+    alias: 'l',
+    description: 'Output path for log files',
+    default: 'config/logs/',
+    type: 'string',
   })
   .command(
     'deploy',
@@ -94,6 +100,7 @@ yargs(hideBin(process.argv))
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args['auto-remove']));
     }
@@ -113,6 +120,7 @@ yargs(hideBin(process.argv))
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await runCommand(() => removeWithReceipt(args.receipt));
@@ -132,6 +140,7 @@ yargs(hideBin(process.argv))
       drawHeader();
 
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await runCommand(() =>
@@ -156,6 +165,7 @@ yargs(hideBin(process.argv))
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       await listAirnodes(args.cloudProviders);
@@ -172,6 +182,7 @@ yargs(hideBin(process.argv))
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the type explicitely
@@ -204,6 +215,7 @@ yargs(hideBin(process.argv))
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
+      logger.setLogsDirectory(args.logs as string);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
 
       // Looks like due to the bug in yargs (https://github.com/yargs/yargs/issues/1649) we need to specify the types explicitely

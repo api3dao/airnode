@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {
   copyFileInBucket,
   createAirnodeBucket,
@@ -10,6 +11,7 @@ import {
 } from './gcp';
 import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList } from '../../test/fixtures';
 import { Directory } from '../utils/infrastructure';
+import { setLogsDirectory } from '../utils/logger';
 
 const bucketName = 'airnode-aabbccdd0011';
 
@@ -62,6 +64,10 @@ const gcsDownloadSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage
 const gcsCopySpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().file().copy;
 const gcsFileDeleteSpy: jest.SpyInstance = jest.requireMock('@google-cloud/storage').Storage().bucket().file().delete;
 const generateBucketNameSpy: jest.SpyInstance = jest.requireMock('../utils/infrastructure').generateBucketName;
+
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
+jest.spyOn(fs, 'mkdirSync').mockImplementation();
+setLogsDirectory('/config/logs/');
 
 const cloudProvider = {
   type: 'gcp' as const,

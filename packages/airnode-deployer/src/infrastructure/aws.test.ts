@@ -11,6 +11,7 @@ import {
 } from './aws';
 import { mockBucketDirectoryStructure, mockBucketDirectoryStructureList } from '../../test/fixtures';
 import { Directory } from '../utils/infrastructure';
+import { setLogsDirectory } from '../utils/logger';
 
 const mockPromise = (fn: Function) => () => ({ promise: fn });
 
@@ -52,6 +53,10 @@ const awsCopyObjectSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().copy
 const awsDeleteObjectsSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().deleteObjects;
 const awsDeleteBucketSpy: jest.SpyInstance = jest.requireMock('aws-sdk').S3().deleteBucket;
 const generateBucketNameSpy: jest.SpyInstance = jest.requireMock('../utils/infrastructure').generateBucketName;
+
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
+jest.spyOn(fs, 'mkdirSync').mockImplementation();
+setLogsDirectory('/config/logs/');
 
 const cloudProvider = {
   type: 'aws' as const,

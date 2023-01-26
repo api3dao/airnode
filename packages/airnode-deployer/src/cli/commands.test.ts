@@ -3,7 +3,6 @@ import os from 'os';
 import path from 'path';
 import { mockReadFileSync } from '../../test/mock-utils';
 import { receipt } from '@api3/airnode-validator';
-import { Ora } from 'ora';
 import { deploy, removeWithReceipt, rollback } from './commands';
 import { version as packageVersion } from '../../package.json';
 import * as logger from '../utils/logger';
@@ -24,6 +23,9 @@ jest.mock('../utils', () => ({
   writeReceiptFile: jest.fn(),
 }));
 
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
+jest.spyOn(fs, 'mkdirSync').mockImplementation();
+logger.setLogsDirectory('/config/logs/');
 const mockSpinner = {
   stop: jest.fn(),
   succeed: jest.fn(),
@@ -66,7 +68,11 @@ describe('deployer commands', () => {
     mockWriteReceiptFile = jest.requireMock('../utils').writeReceiptFile;
     loggerFailSpy = jest.spyOn(logger, 'fail').mockImplementation(() => {});
     loggerSucceedSpy = jest.spyOn(logger, 'succeed').mockImplementation(() => {});
-    jest.spyOn(logger, 'getSpinner').mockImplementation(() => ({ start: () => mockSpinner } as unknown as Ora));
+    jest
+      .spyOn(logger, 'getSpinner')
+      .mockImplementation(
+        () => ({ start: () => mockSpinner, succeed: () => mockSpinner } as unknown as logger.Spinner)
+      );
     jest.spyOn(logger, 'inDebugMode').mockImplementation(() => false);
     tempConfigDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode-rollback-test'));
     fs.copyFileSync(path.join(__dirname, '../../config/config.example.json'), path.join(tempConfigDir, 'config.json'));

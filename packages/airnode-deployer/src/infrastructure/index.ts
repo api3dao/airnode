@@ -15,7 +15,6 @@ import {
   deriveDeploymentId,
   deriveDeploymentVersionId,
 } from '@api3/airnode-node';
-import { consoleLog } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import { unsafeParseConfigWithSecrets } from '@api3/airnode-validator';
 import compact from 'lodash/compact';
@@ -93,10 +92,21 @@ export async function runCommand(command: string, options: CommandOptions) {
 
 export type CommandArg = string | [string, string] | [string, string, string];
 
-export function execTerraform(execOptions: CommandOptions, command: string, args: CommandArg[], options?: string[]) {
+export async function execTerraform(
+  execOptions: CommandOptions,
+  command: string,
+  args: CommandArg[],
+  options?: string[]
+) {
   const formattedArgs = formatTerraformArguments(args);
   const fullCommand = compact(['terraform', command, formattedArgs.join(' '), options?.join(' ')]).join(' ');
-  return runCommand(fullCommand, execOptions);
+
+  const goRunCommand = await go(() => runCommand(fullCommand, execOptions));
+  if (!goRunCommand.success) {
+    throw new Error('Terraform error occurred. See deployer log files for more details.');
+  }
+
+  return goRunCommand.data;
 }
 
 export function awsApplyDestroyArguments(
@@ -248,6 +258,7 @@ export async function terraformAirnodeApply(
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const airnodeWalletPrivateKey = evm.getAirnodeWallet(config).privateKey;
+  logger.setSecret(airnodeWalletPrivateKey);
   const maxConcurrency = config.chains.reduce((concurrency: number, chain) => concurrency + chain.maxConcurrency, 0);
 
   await terraformAirnodeInit(execOptions, cloudProvider, bucket, bucketDeploymentPath);
@@ -311,7 +322,8 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
   const airnodeAddress = deriveAirnodeAddress(airnodeWalletMnemonic);
   const { type, region } = cloudProvider as CloudProvider;
 
-  const spinner = logger.getSpinner().start(`Deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Deploying Airnode ${airnodeAddress} ${stage} to ${type} ${region}`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -616,7 +628,8 @@ export async function removeAirnode(deploymentId: string) {
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger.getSpinner().start(`Removing Airnode '${deploymentId}'`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Removing Airnode '${deploymentId}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -691,9 +704,8 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
   for (const cloudProviderType of cloudProviders) {
     // Using different line of text for each cloud provider so we can easily convey which cloud provider failed
     // and which succeeded
-    const spinner = logger
-      .getSpinner()
-      .start(`Listing Airnode deployments from cloud provider ${cloudProviderType.toUpperCase()}`);
+    const spinner = logger.getSpinner();
+    spinner.start(`Listing Airnode deployments from cloud provider ${cloudProviderType.toUpperCase()}`);
     if (logger.inDebugMode()) {
       spinner.info();
     }
@@ -727,7 +739,7 @@ export async function listAirnodes(cloudProviders: readonly CloudProvider['type'
     ])
   );
 
-  consoleLog(table.toString());
+  logger.consoleLog(table.toString());
 }
 
 export async function deploymentInfo(deploymentId: string) {
@@ -736,7 +748,8 @@ export async function deploymentInfo(deploymentId: string) {
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger.getSpinner().start(`Fetching info about deployment '${deploymentId}'`);
+  const spinner = logger.getSpinner();
+  spinner.start(`Fetching info about deployment '${deploymentId}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -760,14 +773,14 @@ export async function deploymentInfo(deploymentId: string) {
   table.push(...sortedVersions.map(({ id, timestamp }) => [id, timestampReadable(timestamp)]));
 
   spinner.succeed();
-  consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider)}`);
-  consoleLog(`Airnode address: ${airnodeAddress}`);
-  consoleLog(`Stage: ${stage}`);
-  consoleLog(`Airnode version: ${airnodeVersion}`);
-  consoleLog(`Deployment ID: ${id}`);
+  logger.consoleLog(`Cloud provider: ${cloudProviderReadable(cloudProvider)}`);
+  logger.consoleLog(`Airnode address: ${airnodeAddress}`);
+  logger.consoleLog(`Stage: ${stage}`);
+  logger.consoleLog(`Airnode version: ${airnodeVersion}`);
+  logger.consoleLog(`Deployment ID: ${id}`);
   const tableString = table.toString();
   const tableStringWithCurrent = tableString.replace(new RegExp(`(?<=${currentVersionId}.*?)\n`), ' (current)\n');
-  consoleLog(tableStringWithCurrent);
+  logger.consoleLog(tableStringWithCurrent);
 }
 
 export async function fetchFiles(deploymentId: string, outputDir: string, versionId?: string) {
@@ -776,9 +789,9 @@ export async function fetchFiles(deploymentId: string, outputDir: string, versio
     throw new Error(`Invalid deployment ID '${deploymentId}'`);
   }
 
-  const spinner = logger
-    .getSpinner()
-    .start(`Fetching files for deployment '${deploymentId}'${versionId ? ` and version '${versionId}'` : ''}'`);
+  const spinner = logger.getSpinner();
+
+  spinner.start(`Fetching files for deployment '${deploymentId}'${versionId ? ` and version '${versionId}'` : ''}'`);
   if (logger.inDebugMode()) {
     spinner.info();
   }
