@@ -15,8 +15,11 @@ import {
   WorkerOptions,
   RegularApiCallSuccessResponse,
   RegularAggregatedApiCallWithResponse,
+  RegularAggregatedApiCallsById,
 } from '../types';
 import { Config } from '../config';
+import { getReservedParameterValue } from '../adapters/http/parameters';
+import { BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
 
 export async function startCoordinator(config: Config, coordinatorId: string) {
   const startedAt = new Date();
@@ -79,6 +82,53 @@ function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
   const { providerStates } = state;
 
   return providerStates.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
+}
+
+export function filterByMinConfirmations(state: CoordinatorState) {
+  const { config, aggregatedApiCallsById } = state;
+  const filteredApiCalls = Object.entries(aggregatedApiCallsById).reduce(
+    (acc: RegularAggregatedApiCallsById, [id, aggregatedApiCall]) => {
+      const { endpointName, metadata, oisTitle, parameters } = aggregatedApiCall;
+      const ois = config.ois.find((o) => o.title === oisTitle)!;
+      const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
+      const _minConfirmations = getReservedParameterValue('_minConfirmations', endpoint, parameters);
+      // _minConfirmations request parameter overrides chains[n].minConfirmations
+      if (_minConfirmations) {
+        const numMinConfirmations = Number(_minConfirmations);
+
+        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations)) {
+          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as an integer`;
+          logger.error(msg);
+          return acc;
+        }
+        if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
+          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
+          logger.error(msg);
+          return acc;
+        }
+
+        // filter requests based on _minConfirmations requested relative to number of block confirmations
+        if (metadata.currentBlock - metadata.blockNumber < numMinConfirmations) {
+          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${numMinConfirmations} block confirmations`;
+          logger.info(msg);
+          return acc;
+        }
+      } else {
+        // filter requests based on chains[n].minConfirmations relative to number of block confirmations
+        const { chainId } = aggregatedApiCall;
+        const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
+        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < configMinConfirmations) {
+          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${configMinConfirmations} block confirmations`;
+          logger.info(msg);
+          return acc;
+        }
+      }
+      return { ...acc, [id]: aggregatedApiCall };
+    },
+    {}
+  );
+
+  return coordinatorState.update(state, { aggregatedApiCallsById: filteredApiCalls });
 }
 
 function aggregateApiCalls(state: CoordinatorState) {
@@ -208,17 +258,22 @@ async function coordinator(config: Config, coordinatorId: string): Promise<Coord
   state = aggregateApiCalls(state);
 
   // =================================================================
-  // STEP 6: Execute API calls and save the responses
+  // STEP 6: Drop requests that haven't had (_)minConfirmations
+  // =================================================================
+  state = filterByMinConfirmations(state);
+
+  // =================================================================
+  // STEP 7: Execute API calls and save the responses
   // =================================================================
   let stateWithResponses = await executeApiCalls(state);
 
   // =================================================================
-  // STEP 7: Map API responses back to each provider's API requests
+  // STEP 8: Map API responses back to each provider's API requests
   // =================================================================
   stateWithResponses = disaggregateApiCalls(stateWithResponses);
 
   // ======================================================================
-  // STEP 8: Initiate transactions for each provider, sponsor pair
+  // STEP 9: Initiate transactions for each provider, sponsor pair
   // ======================================================================
   stateWithResponses = await initiateTransactions(stateWithResponses);
 

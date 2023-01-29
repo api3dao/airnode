@@ -113,9 +113,15 @@ it('submits fulfillment only if minConfirmations is overridden by request parame
   ];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
-  const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];
+  const preInvokeExpectedLogs = [
+    'SetSponsorshipStatus',
+    'SetSponsorshipStatus',
+    'CreatedTemplate',
+    'MadeTemplateRequest',
+    'MadeFullRequest',
+  ];
   const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
-  expect(preInvokelogNames).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
+  expect(preInvokelogNames).toEqual(preInvokeExpectedLogs);
 
   // set chains[n].minConfirmations such that the request will only be fulfilled if the
   // value is overridden by _minConfirmations in the request
@@ -124,13 +130,10 @@ it('submits fulfillment only if minConfirmations is overridden by request parame
 
   await startCoordinator(config);
 
-  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
+  // Only the FullRequest is fulfilled
+  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(postInvokeLogs.map(({ name }) => name)).toEqual(expect.arrayContaining(postInvokeExpectedLogs));
-
-  const failedRequest = filterLogsByName(postInvokeLogs, 'FailedRequest')[0];
-  const templateRequest = filterLogsByName(postInvokeLogs, 'MadeTemplateRequest')[0];
-  expectSameRequestId(templateRequest, failedRequest);
+  expect(postInvokeLogs.map(({ name }) => name)).toEqual(postInvokeExpectedLogs);
 
   const fulfilledRequest = filterLogsByName(postInvokeLogs, 'FulfilledRequest')[0];
   const fullRequest = filterLogsByName(postInvokeLogs, 'MadeFullRequest')[0];

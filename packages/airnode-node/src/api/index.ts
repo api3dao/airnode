@@ -9,7 +9,7 @@ import compact from 'lodash/compact';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
-import { API_CALL_TIMEOUT, BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
+import { API_CALL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
@@ -21,7 +21,6 @@ import {
   ApiCallPayload,
   RegularApiCallPayload,
   HttpSignedApiCallPayload,
-  RegularAggregatedApiCall,
 } from '../types';
 
 export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptions {
@@ -227,7 +226,8 @@ export async function processSuccessfulApiCall(
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  const { _type, _path, _times, _gasPrice, _minConfirmations } = getReservedParameters(endpoint, parameters);
+  // _minConfirmations is handled prior to the API call
+  const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
   if (!goPostProcessApiSpecifications.success) {
@@ -259,44 +259,12 @@ export async function processSuccessfulApiCall(
         return [[log], { success: false, errorMessage: goSignWithRequestId.error.message }];
       }
 
-      if (_minConfirmations) {
-        const numMinConfirmations = Number(_minConfirmations);
-
-        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations)) {
-          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as an integer`;
-          const log = logger.pend('ERROR', msg);
-          return [[log], { success: false, errorMessage: msg }];
-        }
-        if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
-          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
-          const log = logger.pend('ERROR', msg);
-          return [[log], { success: false, errorMessage: msg }];
-        }
-
-        // filter requests based on _minConfirmations requested relative to number of block confirmations
-        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < numMinConfirmations) {
-          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${numMinConfirmations} block confirmations`;
-          const log = logger.pend('INFO', msg);
-          return [[log], { success: false, errorMessage: msg }];
-        }
-      } else if (!isEmpty(config.chains)) {
-        // filter requests based on chains[n].minConfirmations relative to number of block confirmations
-        const { chainId } = aggregatedApiCall as RegularAggregatedApiCall;
-        const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
-        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < configMinConfirmations) {
-          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${configMinConfirmations} block confirmations`;
-          const log = logger.pend('INFO', msg);
-          return [[log], { success: false, errorMessage: msg }];
-        }
-      }
-
       return [
         [],
         {
           success: true,
           data: { encodedValue: response.encodedValue, signature: goSignWithRequestId.data },
-          reservedParameterOverrides:
-            _gasPrice || _minConfirmations ? { gasPrice: _gasPrice, minConfirmations: _minConfirmations } : undefined,
+          reservedParameterOverrides: _gasPrice ? { gasPrice: _gasPrice } : undefined,
         },
       ];
     }
