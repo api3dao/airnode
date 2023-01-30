@@ -96,20 +96,20 @@ export function filterByMinConfirmations(state: CoordinatorState) {
       if (_minConfirmations) {
         const numMinConfirmations = Number(_minConfirmations);
 
-        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations)) {
-          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as an integer`;
+        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations) || numMinConfirmations < 0) {
+          const msg = `Request ID:${aggregatedApiCall.id} was dropped as parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as a positive integer`;
           logger.error(msg);
           return acc;
         }
         if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
-          const msg = `Parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT value ${BLOCK_COUNT_HISTORY_LIMIT}`;
+          const msg = `Request ID:${aggregatedApiCall.id} was dropped as parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT`;
           logger.error(msg);
           return acc;
         }
 
         // filter requests based on _minConfirmations requested relative to number of block confirmations
         if (metadata.currentBlock - metadata.blockNumber < numMinConfirmations) {
-          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${numMinConfirmations} block confirmations`;
+          const msg = `Request ID:${aggregatedApiCall.id} was dropped as it hasn't had ${numMinConfirmations} block confirmations`;
           logger.info(msg);
           return acc;
         }
@@ -118,7 +118,7 @@ export function filterByMinConfirmations(state: CoordinatorState) {
         const { chainId } = aggregatedApiCall;
         const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
         if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < configMinConfirmations) {
-          const msg = `Dropping Request ID:${aggregatedApiCall.id} as it hasn't had ${configMinConfirmations} block confirmations`;
+          const msg = `Request ID:${aggregatedApiCall.id} was dropped as it hasn't had ${configMinConfirmations} block confirmations`;
           logger.info(msg);
           return acc;
         }
