@@ -1,6 +1,8 @@
+import compact from 'lodash/compact';
 import flatMap from 'lodash/flatMap';
-import keyBy from 'lodash/keyBy';
+import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
+import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import { logger, formatDateTime, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -16,6 +18,7 @@ import {
   RegularApiCallSuccessResponse,
   RegularAggregatedApiCallWithResponse,
   RegularAggregatedApiCallsById,
+  RegularAggregatedApiCall,
 } from '../types';
 import { Config } from '../config';
 import { getReservedParameterValue } from '../adapters/http/parameters';
@@ -84,51 +87,57 @@ function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
   return providerStates.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
 }
 
+function getMinConfirmationsReservedParameter(aggregatedApiCall: RegularAggregatedApiCall, config: Config) {
+  const { endpointName, oisTitle, parameters } = aggregatedApiCall;
+  const ois = config.ois.find((o) => o.title === oisTitle)!;
+  const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
+  const _minConfirmations = getReservedParameterValue('_minConfirmations', endpoint, parameters);
+  const numMinConfirmations = Number(_minConfirmations);
+
+  return !isNaN(numMinConfirmations) &&
+    Number.isInteger(numMinConfirmations) &&
+    numMinConfirmations >= 0 &&
+    numMinConfirmations <= BLOCK_COUNT_HISTORY_LIMIT
+    ? numMinConfirmations
+    : undefined;
+}
+
+function getMinConfirmationsFromChainConfig(aggregatedApiCall: RegularAggregatedApiCall, config: Config) {
+  const { chainId } = aggregatedApiCall;
+  const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
+  return configMinConfirmations;
+}
+
 export function filterByMinConfirmations(state: CoordinatorState) {
   const { config, aggregatedApiCallsById } = state;
-  const filteredApiCalls = Object.entries(aggregatedApiCallsById).reduce(
-    (acc: RegularAggregatedApiCallsById, [id, aggregatedApiCall]) => {
-      const { endpointName, metadata, oisTitle, parameters } = aggregatedApiCall;
-      const ois = config.ois.find((o) => o.title === oisTitle)!;
-      const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-      const _minConfirmations = getReservedParameterValue('_minConfirmations', endpoint, parameters);
-      // _minConfirmations request parameter overrides chains[n].minConfirmations
-      if (_minConfirmations) {
-        const numMinConfirmations = Number(_minConfirmations);
 
-        if (isNaN(numMinConfirmations) || !Number.isInteger(numMinConfirmations) || numMinConfirmations < 0) {
-          const msg = `Request ID:${aggregatedApiCall.id} was dropped as parameter "_minConfirmations" value ${numMinConfirmations} could not be parsed as a positive integer`;
-          logger.error(msg);
-          return acc;
-        }
-        if (numMinConfirmations > BLOCK_COUNT_HISTORY_LIMIT) {
-          const msg = `Request ID:${aggregatedApiCall.id} was dropped as parameter "_minConfirmations" value ${numMinConfirmations} cannot be greater than BLOCK_COUNT_HISTORY_LIMIT`;
-          logger.error(msg);
-          return acc;
-        }
+  const groupedApiCalls = groupBy(aggregatedApiCallsById, 'sponsorAddress');
 
-        // filter requests based on _minConfirmations requested relative to number of block confirmations
-        if (metadata.currentBlock - metadata.blockNumber < numMinConfirmations) {
-          const msg = `Request ID:${aggregatedApiCall.id} was dropped as it hasn't had ${numMinConfirmations} block confirmations`;
-          logger.info(msg);
-          return acc;
-        }
-      } else {
-        // filter requests based on chains[n].minConfirmations relative to number of block confirmations
-        const { chainId } = aggregatedApiCall;
-        const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
-        if (aggregatedApiCall.metadata.currentBlock - aggregatedApiCall.metadata.blockNumber < configMinConfirmations) {
-          const msg = `Request ID:${aggregatedApiCall.id} was dropped as it hasn't had ${configMinConfirmations} block confirmations`;
-          logger.info(msg);
-          return acc;
-        }
-      }
-      return { ...acc, [id]: aggregatedApiCall };
-    },
-    {}
-  );
+  const filteredApiCallsBySponsor = Object.entries(groupedApiCalls).map(([_sponsor, apiCalls]) => {
+    const reservedMinConfirmations: number[] = compact(
+      apiCalls.map((apiCall) => getMinConfirmationsReservedParameter(apiCall, config))
+    );
+    // if any request has _minConfirmations as a parameter, use the maximum value in the queue for all,
+    // otherwise, if _minConfirmations parameter is not present in any request, use chains[n].minConfirmations for all
+    const maxValue = !isEmpty(reservedMinConfirmations)
+      ? Math.max(...reservedMinConfirmations)
+      : getMinConfirmationsFromChainConfig(apiCalls[0], config);
 
-  return coordinatorState.update(state, { aggregatedApiCallsById: filteredApiCalls });
+    // drop API calls that have insufficient confirmations
+    return apiCalls.reduce((acc: RegularAggregatedApiCallsById, apiCall) => {
+      const { blockNumber, currentBlock } = apiCall.metadata;
+      return currentBlock - blockNumber >= maxValue ? { ...acc, [apiCall.id]: apiCall } : acc;
+    }, {});
+  });
+
+  const filteredAggregatedApiCallsById = Object.assign(
+    {},
+    ...filteredApiCallsBySponsor
+  ) as RegularAggregatedApiCallsById;
+
+  return coordinatorState.update(state, {
+    aggregatedApiCallsById: filteredAggregatedApiCallsById,
+  });
 }
 
 function aggregateApiCalls(state: CoordinatorState) {
