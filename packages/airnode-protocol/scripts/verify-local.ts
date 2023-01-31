@@ -37,7 +37,11 @@ async function main() {
     .filter((item) => item.isDirectory())
     .map((item) => item.name);
 
-  if (networkNames.includes(hre.network.name)) networkNames = [hre.network.name];
+  if (networkNames.includes(hre.network.name)) {
+    networkNames = [hre.network.name];
+  } else if (hre.network.name !== 'hardhat') {
+    throw new Error(`❗ ${hre.network.name} is not a supported network!`);
+  }
 
   const deployments: any = {};
 
