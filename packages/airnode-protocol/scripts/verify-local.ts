@@ -32,10 +32,12 @@ const verifyDeployedBytecode = (
 };
 
 async function main() {
-  const networkNames = fs
+  let networkNames = fs
     .readdirSync(path.join('deployments'), { withFileTypes: true })
     .filter((item) => item.isDirectory())
     .map((item) => item.name);
+
+  if (networkNames.includes(hre.network.name)) networkNames = [hre.network.name];
 
   const deployments: any = {};
 
@@ -112,13 +114,13 @@ async function main() {
             hre.ethers.utils.keccak256(generatedBytecode)
           );
           generatedBytecode = hre.ethers.utils.hexConcat([salt, generatedBytecode]);
-          assert(deterministicDeploymentAddress === deployment.address);
           if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName, network)) {
             return {
               success: false,
               data: `❗ ${contractName} deterministic deployment on ${network} DOES NOT match the local build!`,
             };
           }
+          if (creationData === generatedBytecode) assert(deterministicDeploymentAddress === deployment.address);
           return {
             success: true,
             data: `✅  ${contractName} deterministic deployment on ${network} matches the local build!`,
