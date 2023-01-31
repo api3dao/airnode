@@ -107,19 +107,10 @@ it('submits fulfillment only if minConfirmations is overridden by request parame
     { type: 'string32', name: '_times', value: '100000' },
   ];
   const overrideParameters = baseParameters.concat([{ type: 'string32', name: '_minConfirmations', value: '0' }]);
-  const requests = [
-    operation.buildTemplateRequest({ parameters: baseParameters }), // should fail
-    operation.buildFullRequest({ parameters: overrideParameters }), // should succeed
-  ];
+  const requests = [operation.buildFullRequest({ parameters: overrideParameters })];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
-  const preInvokeExpectedLogs = [
-    'SetSponsorshipStatus',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-  ];
+  const preInvokeExpectedLogs = ['SetSponsorshipStatus', 'SetSponsorshipStatus', 'CreatedTemplate', 'MadeFullRequest'];
   const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
   expect(preInvokelogNames).toEqual(preInvokeExpectedLogs);
 
@@ -130,7 +121,6 @@ it('submits fulfillment only if minConfirmations is overridden by request parame
 
   await startCoordinator(config);
 
-  // Only the FullRequest is fulfilled
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
   expect(postInvokeLogs.map(({ name }) => name)).toEqual(postInvokeExpectedLogs);

@@ -1,4 +1,3 @@
-import compact from 'lodash/compact';
 import flatMap from 'lodash/flatMap';
 import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
@@ -114,9 +113,10 @@ export function filterByMinConfirmations(state: CoordinatorState) {
   const groupedApiCalls = groupBy(aggregatedApiCallsById, 'sponsorAddress');
 
   const filteredApiCallsBySponsor = Object.entries(groupedApiCalls).map(([_sponsor, apiCalls]) => {
-    const reservedMinConfirmations: number[] = compact(
-      apiCalls.map((apiCall) => getMinConfirmationsReservedParameter(apiCall, config))
-    );
+    const reservedMinConfirmations = apiCalls
+      .map((apiCall) => getMinConfirmationsReservedParameter(apiCall, config))
+      .filter((val) => val !== undefined) as number[];
+
     // if any request has _minConfirmations as a parameter, use the maximum value in the queue for all,
     // otherwise, if _minConfirmations parameter is not present in any request, use chains[n].minConfirmations for all
     const maxValue = !isEmpty(reservedMinConfirmations)
