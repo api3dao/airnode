@@ -85,7 +85,7 @@ async function main() {
         });
         if (!goFetchCreationTx.success || !goFetchCreationTx.data) {
           return {
-            status: false,
+            success: false,
             data: `❗ Could not fetch creation tx for ${contractName} on ${network}!`,
           };
         }
