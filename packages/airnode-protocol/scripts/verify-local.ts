@@ -37,6 +37,8 @@ async function main() {
     .filter((item) => item.isDirectory())
     .map((item) => item.name);
 
+  // If the network is supported, only verify the network passed as the argument
+  // otherwise, verify all supported networks
   if (networkNames.includes(hre.network.name)) {
     networkNames = [hre.network.name];
   } else if (hre.network.name !== 'hardhat') {
@@ -100,12 +102,12 @@ async function main() {
           // creationTx.creates is defined if the deployment is undeterministic
           // Verify that the creation tx hash belongs to the address
           assert(creationTx.creates === deployment.address);
-          if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName, network)) {
+          if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName, network))
             return {
               success: false,
               data: `❗ ${contractName} undeterministic deployment on ${network} DOES NOT match the local build!`,
             };
-          }
+
           return {
             success: true,
             data: `✅  ${contractName} undeterministic deployment on ${network} matches the local build!`,
@@ -118,12 +120,12 @@ async function main() {
             hre.ethers.utils.keccak256(generatedBytecode)
           );
           generatedBytecode = hre.ethers.utils.hexConcat([salt, generatedBytecode]);
-          if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName, network)) {
+          if (!verifyDeployedBytecode(creationData, generatedBytecode, contractName, network))
             return {
               success: false,
               data: `❗ ${contractName} deterministic deployment on ${network} DOES NOT match the local build!`,
             };
-          }
+
           if (creationData === generatedBytecode) assert(deterministicDeploymentAddress === deployment.address);
           return {
             success: true,
