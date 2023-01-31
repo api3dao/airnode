@@ -1,4 +1,4 @@
-name: Verify Contract Deployments
+name: Verify Protocol Deployments
 
 on:
   push:
@@ -77,17 +77,9 @@ jobs:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
       - run: yarn run test:protocol:verify-local
-  enable-merge:
-    name: Enable PR merge
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check the ENABLE_MERGE secret
-        env:
-          ENABLE_MERGE: ${{ secrets.ENABLE_MERGE }}
-        run: test $ENABLE_MERGE = true && exit 0 || exit 1
   build-complete:
     name: All tests passed
     runs-on: ubuntu-latest
-    needs: [verify-deployments, enable-merge]
+    needs: [verify-deployments]
     steps:
       - run: exit 0
