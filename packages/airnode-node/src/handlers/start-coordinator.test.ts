@@ -27,9 +27,11 @@ import { ethers } from 'ethers';
 import * as adapter from '@api3/airnode-adapter';
 import * as validator from '@api3/airnode-validator';
 import { randomHexString, caching } from '@api3/airnode-utilities';
-import { startCoordinator } from './start-coordinator';
+import { getMinConfirmationsReservedParameter, startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 import * as calls from '../coordinator/calls';
+import { buildAggregatedRegularApiCall, buildConfig } from '../../test/fixtures';
+import { BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
 
 describe('startCoordinator', () => {
   jest.setTimeout(30_000);
@@ -213,5 +215,32 @@ describe('startCoordinator', () => {
     expect(txCountSpy).not.toHaveBeenCalled();
     expect(balanceSpy).not.toHaveBeenCalled();
     expect(contract.fulfill).not.toHaveBeenCalled();
+  });
+});
+
+describe('getMinConfirmationsReservedParameter', () => {
+  const config = buildConfig();
+
+  it('returns _minConfirmations reserved parameter as a number', () => {
+    const aggregatedRegularApiCall = buildAggregatedRegularApiCall();
+    aggregatedRegularApiCall.parameters = { ...aggregatedRegularApiCall.parameters, _minConfirmations: '0' };
+    expect(getMinConfirmationsReservedParameter(aggregatedRegularApiCall, config)).toEqual(0);
+  });
+
+  it('returns undefined for a missing or invalid _minConfirmations reserved parameter', () => {
+    const aggregatedRegularApiCall = buildAggregatedRegularApiCall();
+    expect(getMinConfirmationsReservedParameter(aggregatedRegularApiCall, config)).toBe(undefined);
+
+    aggregatedRegularApiCall.parameters = { ...aggregatedRegularApiCall.parameters, _minConfirmations: '-1' };
+    expect(getMinConfirmationsReservedParameter(aggregatedRegularApiCall, config)).toBe(undefined);
+
+    aggregatedRegularApiCall.parameters = { ...aggregatedRegularApiCall.parameters, _minConfirmations: '34.2' };
+    expect(getMinConfirmationsReservedParameter(aggregatedRegularApiCall, config)).toBe(undefined);
+
+    aggregatedRegularApiCall.parameters = {
+      ...aggregatedRegularApiCall.parameters,
+      _minConfirmations: (BLOCK_COUNT_HISTORY_LIMIT + 1).toString(),
+    };
+    expect(getMinConfirmationsReservedParameter(aggregatedRegularApiCall, config)).toBe(undefined);
   });
 });

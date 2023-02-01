@@ -232,7 +232,6 @@ export interface RegularApiCallSuccessResponse {
   data: { encodedValue: string; signature: string };
   reservedParameterOverrides?: {
     gasPrice?: string;
-    minConfirmations?: string;
   };
 }
 
@@ -251,7 +250,6 @@ export interface ApiCallErrorResponse {
   errorMessage: string;
   reservedParameterOverrides?: {
     gasPrice?: string;
-    minConfirmations?: string;
   };
 }
 

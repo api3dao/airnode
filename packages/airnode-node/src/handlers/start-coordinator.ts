@@ -86,7 +86,7 @@ function hasCoordinatorNoActionableRequests(state: CoordinatorState) {
   return providerStates.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
 }
 
-function getMinConfirmationsReservedParameter(aggregatedApiCall: RegularAggregatedApiCall, config: Config) {
+export function getMinConfirmationsReservedParameter(aggregatedApiCall: RegularAggregatedApiCall, config: Config) {
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
@@ -101,12 +101,6 @@ function getMinConfirmationsReservedParameter(aggregatedApiCall: RegularAggregat
     : undefined;
 }
 
-function getMinConfirmationsFromChainConfig(aggregatedApiCall: RegularAggregatedApiCall, config: Config) {
-  const { chainId } = aggregatedApiCall;
-  const configMinConfirmations = Number(config.chains.find((c) => c.id === chainId)!.minConfirmations);
-  return configMinConfirmations;
-}
-
 export function filterByMinConfirmations(state: CoordinatorState) {
   const { config, aggregatedApiCallsById } = state;
 
@@ -118,15 +112,24 @@ export function filterByMinConfirmations(state: CoordinatorState) {
       .filter((val) => val !== undefined) as number[];
 
     // if any request has _minConfirmations as a parameter, use the maximum value in the queue for all,
-    // otherwise, if _minConfirmations parameter is not present in any request, use chains[n].minConfirmations for all
+    // otherwise, if _minConfirmations parameter is not present in any request, use minConfirmations
+    // from a request's metadata (which originates from chains[n].minConfirmations) for all
     const maxValue = !isEmpty(reservedMinConfirmations)
       ? Math.max(...reservedMinConfirmations)
-      : getMinConfirmationsFromChainConfig(apiCalls[0], config);
+      : apiCalls[0].metadata.minConfirmations;
 
     // drop API calls that have insufficient confirmations
     return apiCalls.reduce((acc: RegularAggregatedApiCallsById, apiCall) => {
       const { blockNumber, currentBlock } = apiCall.metadata;
-      return currentBlock - blockNumber >= maxValue ? { ...acc, [apiCall.id]: apiCall } : acc;
+      const numConfirmations = currentBlock - blockNumber;
+      if (numConfirmations >= maxValue) {
+        return { ...acc, [apiCall.id]: apiCall };
+      } else {
+        logger.debug(
+          `Request ID:${apiCall.id} was dropped as there have been only ${numConfirmations} confirmations of ${maxValue} required`
+        );
+        return acc;
+      }
     }, {});
   });
 
