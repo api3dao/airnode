@@ -35,8 +35,7 @@ export function buildEVMState(
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     // If the _minConfirmations reserved parameter is set for one or more endpoints,
     // a request may override minConfirmations, but we don't know if it will or the value
-    // until we actually fetch the requests, perform API calls, and extract reserved
-    // parameter overrides in processSuccessfulApiCall
+    // until we fetch the requests and extract the _minConfirmations reserved parameter
     mayOverrideMinConfirmations: checkForMinConfirmationsReservedParam(config),
     name: chainProviderName,
     cloudProvider: config.nodeSettings.cloudProvider,

@@ -106,27 +106,36 @@ export function filterByMinConfirmations(state: CoordinatorState) {
 
   const groupedApiCalls = groupBy(aggregatedApiCallsById, 'sponsorAddress');
 
-  const filteredApiCallsBySponsor = Object.entries(groupedApiCalls).map(([_sponsor, apiCalls]) => {
+  const filteredApiCallsBySponsor = Object.values(groupedApiCalls).map((apiCalls) => {
     const reservedMinConfirmations = apiCalls
       .map((apiCall) => getMinConfirmationsReservedParameter(apiCall, config))
+      // Cannot use lodash compact as 0 (considered falsey) is a valid value
       .filter((val) => val !== undefined) as number[];
 
-    // if any request has _minConfirmations as a parameter, use the maximum value in the queue for all,
+    // If any request has _minConfirmations as a parameter, use the maximum value in the queue for all,
     // otherwise, if _minConfirmations parameter is not present in any request, use minConfirmations
     // from a request's metadata (which originates from chains[n].minConfirmations) for all
     const maxValue = !isEmpty(reservedMinConfirmations)
       ? Math.max(...reservedMinConfirmations)
       : apiCalls[0].metadata.minConfirmations;
 
+    // If a request is skipped, skip all after, which also protects against processing requests out of order
+    let previousRequestSkipped = false;
+
     // drop API calls that have insufficient confirmations
     return apiCalls.reduce((acc: RegularAggregatedApiCallsById, apiCall) => {
+      if (previousRequestSkipped) {
+        logger.debug(`Request ID:${apiCall.id} was skipped because one of the previous requests was skipped`);
+        return acc;
+      }
       const { blockNumber, currentBlock } = apiCall.metadata;
       const numConfirmations = currentBlock - blockNumber;
       if (numConfirmations >= maxValue) {
         return { ...acc, [apiCall.id]: apiCall };
       } else {
+        previousRequestSkipped = true;
         logger.debug(
-          `Request ID:${apiCall.id} was dropped as there have been only ${numConfirmations} confirmations of ${maxValue} required`
+          `Request ID:${apiCall.id} was skipped as there have been only ${numConfirmations} confirmations of ${maxValue} required`
         );
         return acc;
       }

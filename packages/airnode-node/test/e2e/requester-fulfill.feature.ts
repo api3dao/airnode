@@ -1,6 +1,6 @@
 import compact from 'lodash/compact';
 import { BLOCK_COUNT_HISTORY_LIMIT } from '../../src';
-import { startCoordinator, loadConfig } from '../../src/workers/local-handlers';
+import * as local from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
 import {
   fetchAllLogNames,
@@ -25,7 +25,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   const preInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
   expect(preInvokeLogs).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
 
-  await startCoordinator();
+  await local.startCoordinator();
 
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
@@ -50,7 +50,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
   expect(preInvokelogNames).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
 
-  await startCoordinator();
+  await local.startCoordinator();
 
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
@@ -78,7 +78,7 @@ it('submits fulfillment with the gas price overridden', async () => {
   const requests = [operation.buildFullRequest({ parameters: overrideParameters })];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
-  await startCoordinator();
+  await local.startCoordinator();
 
   const logs = await fetchProviderLogs(provider, deployment.contracts.AirnodeRrp);
 
@@ -99,14 +99,14 @@ it('submits fulfillment with the gas price overridden', async () => {
 });
 
 it('submits fulfillment only if minConfirmations is overridden by request parameter', async () => {
-  const baseParameters = [
+  const overrideParameters = [
     { type: 'string32', name: 'from', value: 'ETH' },
     { type: 'string32', name: 'to', value: 'USD' },
     { type: 'string32', name: '_type', value: 'int256' },
     { type: 'string32', name: '_path', value: 'result' },
     { type: 'string32', name: '_times', value: '100000' },
+    { type: 'string32', name: '_minConfirmations', value: '0' },
   ];
-  const overrideParameters = baseParameters.concat([{ type: 'string32', name: '_minConfirmations', value: '0' }]);
   const requests = [operation.buildFullRequest({ parameters: overrideParameters })];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
@@ -114,12 +114,14 @@ it('submits fulfillment only if minConfirmations is overridden by request parame
   const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
   expect(preInvokelogNames).toEqual(preInvokeExpectedLogs);
 
-  // set chains[n].minConfirmations such that the request will only be fulfilled if the
+  // Set chains[n].minConfirmations such that the request will only be fulfilled if the
   // value is overridden by _minConfirmations in the request
-  const config = loadConfig();
+  const config = local.loadConfig();
   config.chains[0].minConfirmations = BLOCK_COUNT_HISTORY_LIMIT - 1;
 
-  await startCoordinator(config);
+  jest.spyOn(local, 'loadConfig').mockReturnValueOnce(config);
+
+  await local.startCoordinator();
 
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
