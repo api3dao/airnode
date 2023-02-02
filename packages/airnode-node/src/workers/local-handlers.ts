@@ -7,7 +7,7 @@ import * as handlers from '../handlers';
 import * as state from '../providers/state';
 import { WorkerResponse, InitializeProviderPayload, CallApiPayload, ProcessTransactionsPayload } from '../types';
 
-function loadConfig() {
+export function loadConfig() {
   return loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
 export function setAirnodePrivateKeyToEnv(airnodeWalletMnemonic: string) {

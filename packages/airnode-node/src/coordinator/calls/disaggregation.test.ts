@@ -84,9 +84,7 @@ describe('disaggregate - Requests', () => {
     const stateWithResponses = coordinatorState.addResponses(state, { aggregatedApiCallsById, providerStates });
 
     const [logs, res] = disaggregation.disaggregate(stateWithResponses);
-    expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unable to find matching aggregated API calls for Request:ethCall' },
-    ]);
+    expect(logs).toEqual([]);
     expect(res[0].requests.apiCalls.length).toEqual(0);
     expect((res[1].requests.apiCalls[0] as any as RegularApiCallSuccessResponse).data.encodedValue).toEqual('0x123');
     expect(res[1].requests.apiCalls[0].errorMessage).toEqual(undefined);

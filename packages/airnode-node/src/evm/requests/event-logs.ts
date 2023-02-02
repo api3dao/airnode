@@ -16,6 +16,7 @@ export interface FetchOptions {
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
   readonly minConfirmations: number;
+  readonly mayOverrideMinConfirmations: boolean;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly chainId: string;
 }
@@ -37,7 +38,11 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
   // toBlock should always be >= fromBlock
-  const toBlock = Math.max(fromBlock, options.currentBlock - options.minConfirmations);
+  const toBlock = Math.max(
+    fromBlock,
+    // Fetch up to currentBlock to handle possibility of _minConfirmations parameter in request
+    options.currentBlock - (options.mayOverrideMinConfirmations ? 0 : options.minConfirmations)
+  );
 
   const filter: ethers.providers.Filter = {
     fromBlock,

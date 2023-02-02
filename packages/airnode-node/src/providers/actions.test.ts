@@ -150,6 +150,7 @@ describe('initialize', () => {
             logFormat: 'plain',
             logLevel: 'DEBUG',
             minConfirmations: 0,
+            mayOverrideMinConfirmations: true,
             name: 'Pocket Ethereum Mainnet',
             cloudProvider: {
               type: 'local',
@@ -204,6 +205,7 @@ describe('initialize', () => {
             logFormat: 'plain',
             logLevel: 'DEBUG',
             minConfirmations: 0,
+            mayOverrideMinConfirmations: true,
             name: 'Infura Sepolia',
             cloudProvider: {
               type: 'local',

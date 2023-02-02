@@ -1,5 +1,4 @@
 import flatMap from 'lodash/flatMap';
-import { logger } from '@api3/airnode-utilities';
 import {
   RegularAggregatedApiCallsWithResponseById,
   ApiCall,
@@ -19,10 +18,9 @@ function updateApiCallResponses(
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall): UpdatedRequests<ApiCallWithResponse> => {
       const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
-      // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
+      // An AggregatedApiCall may be dropped if there hasn't been minConfirmations block confirmations.
       if (!aggregatedApiCall) {
-        const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
-        return { ...acc, logs: [...acc.logs, log] };
+        return acc;
       }
 
       // Add the error to the ApiCall
