@@ -24,3 +24,6 @@ coverage/
 .terraform*
 terraform.tfstate*
 *.tfvars
+
+# Logs
+/logs

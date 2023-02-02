@@ -8,7 +8,7 @@ import AdmZip from 'adm-zip';
 import { AwsCloudProvider, GcpCloudProvider, loadTrustedConfig } from '@api3/airnode-node';
 import * as aws from './aws';
 import * as gcp from './gcp';
-import { getSpinner } from '../utils/logger';
+import { getSpinner, setLogsDirectory } from '../utils/logger';
 import { parseSecretsFile } from '../utils';
 import { Directory, DirectoryStructure } from '../utils/infrastructure';
 import { mockBucketDirectoryStructure } from '../../test/fixtures';
@@ -20,6 +20,9 @@ jest.mock('../../package.json', () => ({
 
 const exec = jest.fn();
 jest.spyOn(util, 'promisify').mockImplementation(() => exec);
+jest.spyOn(fs, 'appendFileSync').mockImplementation(() => jest.fn());
+jest.spyOn(fs, 'mkdirSync').mockImplementation();
+setLogsDirectory('/config/logs/');
 
 import { version as nodeVersion } from '../../package.json';
 import * as infrastructure from '.';
@@ -810,11 +813,9 @@ describe('deployAirnode', () => {
   });
 
   it(`throws an error if something in the deploy process wasn't successful`, async () => {
-    const expectedError = new Error('example error');
-    exec.mockRejectedValue(expectedError);
-
+    exec.mockRejectedValue('example error');
     await expect(infrastructure.deployAirnode(config, configPath, secretsPath, Date.now())).rejects.toThrow(
-      expectedError.toString()
+      'Terraform error occurred. See deployer log files for more details.'
     );
   });
 });
@@ -1131,10 +1132,10 @@ describe('removeAirnode', () => {
   });
 
   it('fails if the Terraform command fails', async () => {
-    const expectedError = new Error('example error');
-    exec.mockRejectedValue(expectedError);
-
-    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(expectedError.toString());
+    exec.mockRejectedValue('example error');
+    await expect(infrastructure.removeAirnode(deploymentId)).rejects.toThrow(
+      'Terraform error occurred. See deployer log files for more details.'
+    );
   });
 });
 
