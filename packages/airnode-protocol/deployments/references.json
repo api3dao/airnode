@@ -14,21 +14,32 @@
     "100": "gnosis",
     "137": "polygon",
     "250": "fantom",
+    "288": "boba-ethereum",
+    "416": "sx-network",
     "420": "optimism-testnet",
     "588": "metis-testnet",
+    "647": "sx-network-testnet",
     "1088": "metis",
     "1284": "moonbeam",
     "1285": "moonriver",
     "1287": "moonbeam-testnet",
+    "1294": "boba-moonbeam",
     "2001": "milkomeda",
     "4002": "fantom-testnet",
     "42161": "arbitrum",
+    "42170": "arbitrum-nova",
     "43113": "avalanche-testnet",
     "43114": "avalanche",
+    "43288": "boba-avalanche",
+    "56288": "boba-bnb",
+    "71401": "godwoken-testnet",
+    "71402": "godwoken",
     "80001": "polygon-testnet",
     "200101": "milkomeda-testnet",
     "421613": "arbitrum-testnet",
-    "11155111": "sepolia"
+    "11155111": "sepolia",
+    "1313161554": "aurora",
+    "1313161555": "aurora-testnet"
   },
   "AccessControlRegistry": {
     "1": "0x92E5125adF385d86beDb950793526106143b6Df1",
@@ -45,21 +56,32 @@
     "100": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "137": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "250": "0x92E5125adF385d86beDb950793526106143b6Df1",
+    "288": "0x7D15b4676c7FFfdcb69E838518B2182223aE46d3",
+    "416": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "420": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "588": "0xe40f1a1A546B70003D9ddF66B89C261cA46A0CF0",
+    "647": "0xD223DfDCb888CA1539bb3459a83c543A1608F038",
     "1088": "0xb015ACeEdD478fc497A798Ab45fcED8BdEd08924",
     "1284": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "1285": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "1287": "0x92E5125adF385d86beDb950793526106143b6Df1",
+    "1294": "0x8E7D155C6E124a5C2c8DE2AFFCd8702e3660E482",
     "2001": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "4002": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "42161": "0x5aB00E30453EEAd35025A761ED65d51d74574C24",
+    "42170": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "43113": "0x5997C09be60196b7De9dE73C88dd7776f2875401",
     "43114": "0xb015ACeEdD478fc497A798Ab45fcED8BdEd08924",
+    "43288": "0x92E5125adF385d86beDb950793526106143b6Df1",
+    "56288": "0xD223DfDCb888CA1539bb3459a83c543A1608F038",
+    "71401": "0x92E5125adF385d86beDb950793526106143b6Df1",
+    "71402": "0x8E7D155C6E124a5C2c8DE2AFFCd8702e3660E482",
     "80001": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "200101": "0x92E5125adF385d86beDb950793526106143b6Df1",
     "421613": "0x92E5125adF385d86beDb950793526106143b6Df1",
-    "11155111": "0xF6d2675468989387e96127546e0CBC9A384fa418"
+    "11155111": "0xF6d2675468989387e96127546e0CBC9A384fa418",
+    "1313161554": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
+    "1313161555": "0x92E5125adF385d86beDb950793526106143b6Df1"
   },
   "RequesterAuthorizerWithAirnode": {
     "1": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
@@ -76,21 +98,32 @@
     "100": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "137": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "250": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
+    "288": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
+    "416": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
     "420": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "588": "0x5997C09be60196b7De9dE73C88dd7776f2875401",
+    "647": "0x4A0b644219d07fEa25B701AAf89b963576b468dC",
     "1088": "0x8262a9DAB3f8a0b1E6317551E214CeA89Bc3f56d",
     "1284": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "1285": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "1287": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
+    "1294": "0x7D15b4676c7FFfdcb69E838518B2182223aE46d3",
     "2001": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "4002": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "42161": "0x944609FF0729435F87Ef429EC155d7539A83B9C8",
+    "42170": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "43113": "0x4923968942E8aae4656ae4913874EB7312e0F7c7",
     "43114": "0x8262a9DAB3f8a0b1E6317551E214CeA89Bc3f56d",
+    "43288": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
+    "56288": "0x4A0b644219d07fEa25B701AAf89b963576b468dC",
+    "71401": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
+    "71402": "0x7D15b4676c7FFfdcb69E838518B2182223aE46d3",
     "80001": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "200101": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
     "421613": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
-    "11155111": "0x55D72F0eb10e85D390B20DA57aa3122312647c0d"
+    "11155111": "0x55D72F0eb10e85D390B20DA57aa3122312647c0d",
+    "1313161554": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
+    "1313161555": "0xf18c105D0375E80980e4EED829a4A68A539E6178"
   },
   "AirnodeRrpV0": {
     "1": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
@@ -107,21 +140,32 @@
     "100": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "137": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "250": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
+    "288": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
+    "416": "0xE338f63170c42bA0d2a888f18F6185369779009c",
     "420": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "588": "0x4923968942E8aae4656ae4913874EB7312e0F7c7",
+    "647": "0x20C9e9610d4e719a39F82893b3f42e2730F42778",
     "1088": "0xC02Ea0f403d5f3D45a4F1d0d817e7A2601346c9E",
     "1284": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "1285": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "1287": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
+    "1294": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "2001": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "4002": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "42161": "0xb015ACeEdD478fc497A798Ab45fcED8BdEd08924",
+    "42170": "0xd864A45334C7a632cA9149993682354D7f967F28",
     "43113": "0x7f5AF7a37a33898544717AAa6c35c111dCe95b28",
     "43114": "0xC02Ea0f403d5f3D45a4F1d0d817e7A2601346c9E",
+    "43288": "0xd864A45334C7a632cA9149993682354D7f967F28",
+    "56288": "0x20C9e9610d4e719a39F82893b3f42e2730F42778",
+    "71401": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
+    "71402": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "80001": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "200101": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
     "421613": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
-    "11155111": "0x2ab9f26E18B64848cd349582ca3B55c2d06f507d"
+    "11155111": "0x2ab9f26E18B64848cd349582ca3B55c2d06f507d",
+    "1313161554": "0xE338f63170c42bA0d2a888f18F6185369779009c",
+    "1313161555": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd"
   },
   "networks": {
     "1": {
@@ -180,6 +224,14 @@
       "chainId": 250,
       "name": "fantom"
     },
+    "288": {
+      "chainId": 288,
+      "name": "boba-ethereum"
+    },
+    "416": {
+      "chainId": 416,
+      "name": "sx-network"
+    },
     "420": {
       "chainId": 420,
       "name": "optimism-testnet"
@@ -187,6 +239,10 @@
     "588": {
       "chainId": 588,
       "name": "metis-testnet"
+    },
+    "647": {
+      "chainId": 647,
+      "name": "sx-network-testnet"
     },
     "1088": {
       "chainId": 1088,
@@ -204,6 +260,10 @@
       "chainId": 1287,
       "name": "moonbeam-testnet"
     },
+    "1294": {
+      "chainId": 1294,
+      "name": "boba-moonbeam"
+    },
     "2001": {
       "chainId": 2001,
       "name": "milkomeda"
@@ -216,6 +276,10 @@
       "chainId": 42161,
       "name": "arbitrum"
     },
+    "42170": {
+      "chainId": 42170,
+      "name": "arbitrum-nova"
+    },
     "43113": {
       "chainId": 43113,
       "name": "avalanche-testnet"
@@ -223,6 +287,22 @@
     "43114": {
       "chainId": 43114,
       "name": "avalanche"
+    },
+    "43288": {
+      "chainId": 43288,
+      "name": "boba-avalanche"
+    },
+    "56288": {
+      "chainId": 56288,
+      "name": "boba-bnb"
+    },
+    "71401": {
+      "chainId": 71401,
+      "name": "godwoken-testnet"
+    },
+    "71402": {
+      "chainId": 71402,
+      "name": "godwoken"
     },
     "80001": {
       "chainId": 80001,
@@ -239,6 +319,14 @@
     "11155111": {
       "chainId": 11155111,
       "name": "sepolia"
+    },
+    "1313161554": {
+      "chainId": 1313161554,
+      "name": "aurora"
+    },
+    "1313161555": {
+      "chainId": 1313161555,
+      "name": "aurora-testnet"
     }
   }
 }

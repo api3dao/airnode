@@ -60,7 +60,7 @@ async function main() {
       const deterministicDeploymentAddress = hre.ethers.utils.getCreate2Address(
         '0x4e59b44847b379578588920ca78fbf26c0b4956c', // default create2 factory address in hardhat
         salt,
-        hre.ethers.utils.keccak256(artifact.bytecode)
+        hre.ethers.utils.keccak256(generatedBytecode)
       );
       assert(deterministicDeploymentAddress === deployment.address);
       generatedBytecode = hre.ethers.utils.hexConcat([salt, generatedBytecode]);
