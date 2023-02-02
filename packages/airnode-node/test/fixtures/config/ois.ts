@@ -68,6 +68,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             default: '100000',
           },
           { name: '_gasPrice' },
+          { name: '_minConfirmations' },
         ],
         parameters: [
           {

@@ -15,6 +15,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
     minConfirmations: state.settings.minConfirmations,
+    mayOverrideMinConfirmations: state.settings.mayOverrideMinConfirmations,
     provider: state.provider,
     chainId,
   };

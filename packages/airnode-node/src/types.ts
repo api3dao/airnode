@@ -140,6 +140,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly chainType: ChainType;
   readonly chainOptions: ChainOptions;
   readonly minConfirmations: number;
+  readonly mayOverrideMinConfirmations: boolean;
   readonly name: string;
   readonly url: string;
   readonly xpub: string;

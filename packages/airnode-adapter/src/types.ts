@@ -62,7 +62,8 @@ export type BaseResponseType = typeof baseResponseTypes[number];
 // Use might pass a complex type (e.g. int256[3][]) which we cannot type
 export type ResponseType = string;
 
-// Reserved parameters specific for response processing i.e. excludes _gasPrice
+// Reserved parameters specific for response processing
+// i.e. excludes _gasPrice and _minConfirmations
 export interface ResponseReservedParameters {
   _path?: string;
   _times?: string;

@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
+import { BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { EVMProviderState, ProviderState } from '../types';
 import { ChainConfig } from '../config';
 
@@ -79,6 +80,7 @@ describe('create', () => {
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 0,
+        mayOverrideMinConfirmations: true,
         name: 'Ganache test',
         cloudProvider: {
           type: 'local',
@@ -174,6 +176,7 @@ describe('create', () => {
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 3,
+        mayOverrideMinConfirmations: true,
         name: 'Ganache test',
         cloudProvider: {
           type: 'local',
@@ -338,4 +341,20 @@ describe('splitStatesBySponsorAddress', () => {
       providerSponsorState5,
     ]);
   });
+});
+
+it('checks for the presence of a _minConfirmations reserved parameter', () => {
+  const newState = fixtures.buildEVMProviderState();
+
+  // buildEVMProviderState() doesn't set minConfirmations in chainConfig
+  expect(newState.settings.minConfirmations).toEqual(BLOCK_MIN_CONFIRMATIONS);
+
+  // _minConfirmations reserved parameter is set in buildOIS()
+  expect(newState.settings.mayOverrideMinConfirmations).toBe(true);
+
+  // Remove _minConfirmations reserved parameter
+  newState.config!.ois[0].endpoints[0].reservedParameters =
+    newState.config!.ois[0].endpoints[0].reservedParameters.filter((param) => param.name !== '_minConfirmations');
+
+  expect(state.checkForMinConfirmationsReservedParam(newState.config!)).toBe(false);
 });

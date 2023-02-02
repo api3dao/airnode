@@ -53,6 +53,7 @@ async function fetchTransactionCounts(currentState: ProviderState<EVMProviderSta
     masterHDNode: currentState.masterHDNode,
     provider: currentState.provider,
     minConfirmations: currentState.settings.minConfirmations,
+    mayOverrideMinConfirmations: currentState.settings.mayOverrideMinConfirmations,
   };
   // This should not throw
   const [logs, res] = await transactionCounts.fetchBySponsor(sponsors, fetchOptions);

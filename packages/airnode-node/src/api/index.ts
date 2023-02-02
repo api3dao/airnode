@@ -226,6 +226,7 @@ export async function processSuccessfulApiCall(
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
+  // _minConfirmations is handled prior to the API call
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
