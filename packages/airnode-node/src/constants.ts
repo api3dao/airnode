@@ -5,7 +5,7 @@ export const API_CALL_TOTAL_TIMEOUT = 30_000;
 export const API_CALL_TIMEOUT = 30_000;
 
 // The number of past blocks to lookup when fetching Airnode RRP events.
-export const BLOCK_COUNT_HISTORY_LIMIT = 300;
+export const BLOCK_COUNT_HISTORY_LIMIT = 900;
 
 // The minimum number of block confirmations required.
 export const BLOCK_MIN_CONFIRMATIONS = 0;
@@ -31,7 +31,7 @@ export const WORKER_PROCESS_TRANSACTIONS_TIMEOUT = 10_000;
 export const WORKER_CALL_API_TIMEOUT = 30_000;
 
 // The maximum number of requests for a single sponsor wallet in a single Airnode run cycle
-export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
+export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 800;
 
 // The maximum character length of an error message sent on-chain
 export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
