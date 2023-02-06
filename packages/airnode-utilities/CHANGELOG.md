@@ -1,5 +1,22 @@
 # @api3/airnode-utilities
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Refactor constants to avoid unexpected side effects
+
+- [#1609](https://github.com/api3dao/airnode/pull/1609) [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_gasPrice reserved parameter
+
+### Patch Changes
+
+- [#1549](https://github.com/api3dao/airnode/pull/1549) [`1005f807`](https://github.com/api3dao/airnode/commit/1005f807c98ed419b1355906d88ce12c0c457926) Thanks [@dcroote](https://github.com/dcroote)! - Change oracle gas strategy fallback log level to WARN
+
+- [#1564](https://github.com/api3dao/airnode/pull/1564) [`06d5d112`](https://github.com/api3dao/airnode/commit/06d5d1126a1e82bff1d8cc7297560dc2eb0b4ca0) Thanks [@dcroote](https://github.com/dcroote)! - Fix logging undefined error property bug
+
+- Updated dependencies [[`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8), [`8844aa92`](https://github.com/api3dao/airnode/commit/8844aa92a587c17dde56f9188ca7a72b38ccf000), [`dafe9724`](https://github.com/api3dao/airnode/commit/dafe972428ba11c8a365aa2d7dd6e95bf9c370d4), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`82273813`](https://github.com/api3dao/airnode/commit/82273813137f66e03b50f37b3a40f11f84691dd5), [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a), [`d56dfa6d`](https://github.com/api3dao/airnode/commit/d56dfa6d13ec3c58a8c40c5c1e47fc2ab9f66b9c), [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4)]:
+  - @api3/airnode-validator@0.10.0
+
 ## 0.9.0
 
 ### Patch Changes

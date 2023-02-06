@@ -3,10 +3,14 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": ["0xE2E0000000000000000000000000000000000000"],
+        "requesterEndpointAuthorizers": [
+          "0xE2E0000000000000000000000000000000000000"
+        ],
         "crossChainRequesterAuthorizers": [
           {
-            "requesterEndpointAuthorizers": ["0xE2E1111111111111111111111111111111111111"],
+            "requesterEndpointAuthorizers": [
+              "0xE2E1111111111111111111111111111111111111"
+            ],
             "chainType": "evm",
             "chainId": "31337",
             "contracts": {
@@ -72,7 +76,7 @@
     },
     "logFormat": "plain",
     "logLevel": "DEBUG",
-    "nodeVersion": "0.9.0",
+    "nodeVersion": "0.10.0",
     "stage": "dev"
   },
   "triggers": {
