@@ -172,7 +172,7 @@ describe('startCoordinator', () => {
     await startCoordinator(config, coordinatorId);
 
     // cached requests should not trigger an API call
-    expect(callApisSpy).toHaveBeenCalledWith([], expect.objectContaining({ deploymentId: 'locale78fb65c' }));
+    expect(callApisSpy).toHaveBeenCalledWith([], expect.objectContaining({ deploymentId: 'localdd59d6d0' }));
 
     expect(blockWithTransactionsSpy).toHaveBeenCalled();
     // API call was submitted

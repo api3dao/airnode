@@ -62,7 +62,7 @@
     },
     "logFormat": "plain",
     "logLevel": "DEBUG",
-    "nodeVersion": "0.9.0",
+    "nodeVersion": "0.10.0",
     "stage": "dev"
   },
   "triggers": {

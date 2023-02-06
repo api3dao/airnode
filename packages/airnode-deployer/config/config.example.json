@@ -52,7 +52,7 @@
     },
     "logFormat": "plain",
     "logLevel": "INFO",
-    "nodeVersion": "0.9.0",
+    "nodeVersion": "0.10.0",
     "cloudProvider": {
       "type": "aws",
       "region": "us-east-1",
