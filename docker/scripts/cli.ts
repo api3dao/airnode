@@ -32,6 +32,9 @@ const runCliCommand = (command: () => void) => {
 };
 
 yargs(process.argv.slice(2))
+  .parserConfiguration({
+    'parse-numbers': false,
+  })
   .command('npm-registry', 'Manages the local NPM registry', (yargs) => {
     yargs
       .command('start', 'Start the local NPM registry', {}, (args) => {
