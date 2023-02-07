@@ -1,5 +1,23 @@
 # @api3/airnode-adapter
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1597](https://github.com/api3dao/airnode/pull/1597) [`8844aa92`](https://github.com/api3dao/airnode/commit/8844aa92a587c17dde56f9188ca7a72b38ccf000) Thanks [@dcroote](https://github.com/dcroote)! - Bump @api3/ois to 1.4.0 with necessary zod version bump to 3.20
+
+- [#1615](https://github.com/api3dao/airnode/pull/1615) [`dafe9724`](https://github.com/api3dao/airnode/commit/dafe972428ba11c8a365aa2d7dd6e95bf9c370d4) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_minConfirmations reserved parameter to allow minConfirmations to be specified by a requester
+
+- [#1609](https://github.com/api3dao/airnode/pull/1609) [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_gasPrice reserved parameter
+
+- [#1586](https://github.com/api3dao/airnode/pull/1586) [`d56dfa6d`](https://github.com/api3dao/airnode/commit/d56dfa6d13ec3c58a8c40c5c1e47fc2ab9f66b9c) Thanks [@metobom](https://github.com/metobom)! - Added API call skip feature.
+
+### Patch Changes
+
+- [#1591](https://github.com/api3dao/airnode/pull/1591) [`94b072b3`](https://github.com/api3dao/airnode/commit/94b072b39fa784977fa29f1cb2bb373db5984d7f) Thanks [@dcroote](https://github.com/dcroote)! - Unpin axios after v1.2.1 patch release
+
+- [#1553](https://github.com/api3dao/airnode/pull/1553) [`f3de2677`](https://github.com/api3dao/airnode/commit/f3de2677528f8e58684d44dcbc1a2782af62660a) Thanks [@Siegrift](https://github.com/Siegrift)! - Pin axios version for e2e tests to pass
+
 ## 0.9.0
 
 ### Minor Changes

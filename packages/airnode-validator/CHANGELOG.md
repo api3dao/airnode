@@ -1,5 +1,33 @@
 # @api3/airnode-validator
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4) Thanks [@amarthadan](https://github.com/amarthadan)! - Allow users to remove the deployment based on the deployment ID
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Remove heartbeatId from config and heartbeat payload
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove unnecessary validator bundling
+
+- [#1597](https://github.com/api3dao/airnode/pull/1597) [`8844aa92`](https://github.com/api3dao/airnode/commit/8844aa92a587c17dde56f9188ca7a72b38ccf000) Thanks [@dcroote](https://github.com/dcroote)! - Bump @api3/ois to 1.4.0 with necessary zod version bump to 3.20
+
+- [#1615](https://github.com/api3dao/airnode/pull/1615) [`dafe9724`](https://github.com/api3dao/airnode/commit/dafe972428ba11c8a365aa2d7dd6e95bf9c370d4) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_minConfirmations reserved parameter to allow minConfirmations to be specified by a requester
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Add heartbeat payload signing
+
+- [#1577](https://github.com/api3dao/airnode/pull/1577) [`82273813`](https://github.com/api3dao/airnode/commit/82273813137f66e03b50f37b3a40f11f84691dd5) Thanks [@amarthadan](https://github.com/amarthadan)! - Replace Airnode's short address with deployment ID
+
+- [#1609](https://github.com/api3dao/airnode/pull/1609) [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_gasPrice reserved parameter
+
+- [#1586](https://github.com/api3dao/airnode/pull/1586) [`d56dfa6d`](https://github.com/api3dao/airnode/commit/d56dfa6d13ec3c58a8c40c5c1e47fc2ab9f66b9c) Thanks [@metobom](https://github.com/metobom)! - Added API call skip feature.
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
+### Patch Changes
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Add cloud_provider, stage, region to heartbeat payload
+
 ## 0.9.0
 
 ### Minor Changes

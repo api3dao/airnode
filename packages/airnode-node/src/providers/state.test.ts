@@ -54,7 +54,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: 'locale78fb65c',
+        deploymentId: 'localdd59d6d0',
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
@@ -150,7 +150,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: 'locale78fb65c',
+        deploymentId: 'localdd59d6d0',
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],

@@ -1,5 +1,54 @@
 # @api3/airnode-node
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1499](https://github.com/api3dao/airnode/pull/1499) [`d23503a4`](https://github.com/api3dao/airnode/commit/d23503a41429dfe56a8812dcf04e97606102f1a8) Thanks [@dcroote](https://github.com/dcroote)! - Catch and print docker build errors
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Refactor constants to avoid unexpected side effects
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Remove heartbeatId from config and heartbeat payload
+
+- [#1497](https://github.com/api3dao/airnode/pull/1497) [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8) Thanks [@amarthadan](https://github.com/amarthadan)! - Remove unnecessary validator bundling
+
+- [#1537](https://github.com/api3dao/airnode/pull/1537) [`403a1207`](https://github.com/api3dao/airnode/commit/403a12070cc869d6a1e2b1b440045631f2e469ab) Thanks [@aquarat](https://github.com/aquarat)! - Simplify heartbeat scheme
+
+- [#1509](https://github.com/api3dao/airnode/pull/1509) [`5ad00a92`](https://github.com/api3dao/airnode/commit/5ad00a92a941fac05d7e91fd89cca5964423aacc) Thanks [@dcroote](https://github.com/dcroote)! - Provide more detailed on-chain error messages for failed API calls
+
+- [#1526](https://github.com/api3dao/airnode/pull/1526) [`ee3e4cd2`](https://github.com/api3dao/airnode/commit/ee3e4cd264a38cb23a2629a483640159698569f8) Thanks [@dcroote](https://github.com/dcroote)! - Expand gateway request logging
+
+- [#1597](https://github.com/api3dao/airnode/pull/1597) [`8844aa92`](https://github.com/api3dao/airnode/commit/8844aa92a587c17dde56f9188ca7a72b38ccf000) Thanks [@dcroote](https://github.com/dcroote)! - Bump @api3/ois to 1.4.0 with necessary zod version bump to 3.20
+
+- [#1615](https://github.com/api3dao/airnode/pull/1615) [`dafe9724`](https://github.com/api3dao/airnode/commit/dafe972428ba11c8a365aa2d7dd6e95bf9c370d4) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_minConfirmations reserved parameter to allow minConfirmations to be specified by a requester
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Add heartbeat payload signing
+
+- [#1577](https://github.com/api3dao/airnode/pull/1577) [`82273813`](https://github.com/api3dao/airnode/commit/82273813137f66e03b50f37b3a40f11f84691dd5) Thanks [@amarthadan](https://github.com/amarthadan)! - Replace Airnode's short address with deployment ID
+
+- [#1609](https://github.com/api3dao/airnode/pull/1609) [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a) Thanks [@dcroote](https://github.com/dcroote)! - Add new \_gasPrice reserved parameter
+
+- [#1586](https://github.com/api3dao/airnode/pull/1586) [`d56dfa6d`](https://github.com/api3dao/airnode/commit/d56dfa6d13ec3c58a8c40c5c1e47fc2ab9f66b9c) Thanks [@metobom](https://github.com/metobom)! - Added API call skip feature.
+
+- [#1488](https://github.com/api3dao/airnode/pull/1488) [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4) Thanks [@dcroote](https://github.com/dcroote)! - Enable cross-chain authorizers
+
+### Patch Changes
+
+- [#1582](https://github.com/api3dao/airnode/pull/1582) [`34f94258`](https://github.com/api3dao/airnode/commit/34f94258e48f8f1dfe7e7e836539effceb4dd576) Thanks [@Siegrift](https://github.com/Siegrift)! - Fix failed lambda execution crashing coordinator
+
+- [#1616](https://github.com/api3dao/airnode/pull/1616) [`1aec79f8`](https://github.com/api3dao/airnode/commit/1aec79f87504f08d62f250dd72a6ed59ab5836d2) Thanks [@dcroote](https://github.com/dcroote)! - Fix \_gasPrice reserved parameter e2e test
+
+- [#1522](https://github.com/api3dao/airnode/pull/1522) [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e) Thanks [@Siegrift](https://github.com/Siegrift)! - Add cloud_provider, stage, region to heartbeat payload
+
+- [#1553](https://github.com/api3dao/airnode/pull/1553) [`f3de2677`](https://github.com/api3dao/airnode/commit/f3de2677528f8e58684d44dcbc1a2782af62660a) Thanks [@Siegrift](https://github.com/Siegrift)! - Pin axios version for e2e tests to pass
+
+- Updated dependencies [[`94b072b3`](https://github.com/api3dao/airnode/commit/94b072b39fa784977fa29f1cb2bb373db5984d7f), [`1005f807`](https://github.com/api3dao/airnode/commit/1005f807c98ed419b1355906d88ce12c0c457926), [`90a59073`](https://github.com/api3dao/airnode/commit/90a59073fdb96e496b54ff1225e80ed2cfd60bf4), [`729e4e37`](https://github.com/api3dao/airnode/commit/729e4e37909efae043b55d3e5ffd6c19656143e2), [`3b80c8b8`](https://github.com/api3dao/airnode/commit/3b80c8b8f13a86e8a67b398b5160a0cba76deec5), [`524b47de`](https://github.com/api3dao/airnode/commit/524b47de7fd2d505b6bf357ae5b9e8b5f8ca699e), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`c5feadb2`](https://github.com/api3dao/airnode/commit/c5feadb20f2ff03ac625fc1348728de6605392b8), [`d48e7725`](https://github.com/api3dao/airnode/commit/d48e772518882aae5e87816541bc94767dfdd1f7), [`8844aa92`](https://github.com/api3dao/airnode/commit/8844aa92a587c17dde56f9188ca7a72b38ccf000), [`06d5d112`](https://github.com/api3dao/airnode/commit/06d5d1126a1e82bff1d8cc7297560dc2eb0b4ca0), [`dafe9724`](https://github.com/api3dao/airnode/commit/dafe972428ba11c8a365aa2d7dd6e95bf9c370d4), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`55dd3c68`](https://github.com/api3dao/airnode/commit/55dd3c68bd075f998dae1148ee246298d536347e), [`82273813`](https://github.com/api3dao/airnode/commit/82273813137f66e03b50f37b3a40f11f84691dd5), [`620aa0eb`](https://github.com/api3dao/airnode/commit/620aa0eb851a95311c963f760e5545a42eec633a), [`f3de2677`](https://github.com/api3dao/airnode/commit/f3de2677528f8e58684d44dcbc1a2782af62660a), [`d56dfa6d`](https://github.com/api3dao/airnode/commit/d56dfa6d13ec3c58a8c40c5c1e47fc2ab9f66b9c), [`4b284365`](https://github.com/api3dao/airnode/commit/4b2843650f6858328c12f552574e3a76b44175f4)]:
+  - @api3/airnode-adapter@0.10.0
+  - @api3/airnode-utilities@0.10.0
+  - @api3/airnode-validator@0.10.0
+  - @api3/airnode-protocol@0.10.0
+  - @api3/airnode-abi@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes
