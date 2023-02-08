@@ -1,7 +1,6 @@
 name: Verify Protocol Deployments
 
 on:
-  push:
   pull_request:
     branches:
       - master
