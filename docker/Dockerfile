@@ -1,4 +1,4 @@
-FROM node:14.19.3-alpine3.15 AS environment
+FROM node:18.14.0-alpine3.17 AS environment
 
 ENV appDir="/app" \
     buildDir="/build" \
