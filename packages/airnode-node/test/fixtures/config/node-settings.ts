@@ -14,6 +14,9 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     httpSignedDataGateway: {
       enabled: false,
     },
+    oevGateway: {
+      enabled: false,
+    },
     heartbeat: {
       enabled: true,
       apiKey: '3a7af83f-6450-46d3-9937-5f9773ce2849',

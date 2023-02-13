@@ -41,6 +41,9 @@
     "httpSignedDataGateway": {
       "enabled": false
     },
+    "oevGateway": {
+      "enabled": false
+    },
     "heartbeat": {
       "enabled": false
     },
