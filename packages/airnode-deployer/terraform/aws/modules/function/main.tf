@@ -43,7 +43,7 @@ resource "aws_lambda_function" "lambda" {
   function_name                  = var.name
   handler                        = var.handler
   memory_size                    = var.memory_size
-  runtime                        = "nodejs14.x"
+  runtime                        = "nodejs18.x"
   role                           = aws_iam_role.lambda_role.arn
   timeout                        = var.timeout
   reserved_concurrent_executions = var.reserved_concurrent_executions
