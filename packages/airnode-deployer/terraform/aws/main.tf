@@ -8,6 +8,9 @@ resource "random_uuid" "http_path_key" {
 resource "random_uuid" "http_signed_data_path_key" {
 }
 
+resource "random_uuid" "oev_path_key" {
+}
+
 module "run" {
   source = "./modules/function"
 
@@ -25,9 +28,12 @@ module "run" {
   }
 }
 
+# We need to list all the possible gateway combinations due to some obscure Terraform bug.
+# More info can be find in the issue https://github.com/api3dao/airnode/issues/1450
+# and PR with a fix https://github.com/api3dao/airnode/pull/1456
 module "startCoordinatorNoGws" {
   source = "./modules/function"
-  count  = !var.http_gateway_enabled && !var.http_signed_data_gateway_enabled ? 1 : 0
+  count  = !var.http_gateway_enabled && !var.http_signed_data_gateway_enabled && !var.oev_gateway_enabled ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -50,7 +56,7 @@ module "startCoordinatorNoGws" {
 
 module "startCoordinatorHttpGw" {
   source = "./modules/function"
-  count  = var.http_gateway_enabled && !var.http_signed_data_gateway_enabled ? 1 : 0
+  count  = var.http_gateway_enabled && !var.http_signed_data_gateway_enabled && !var.oev_gateway_enabled ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -74,7 +80,7 @@ module "startCoordinatorHttpGw" {
 
 module "startCoordinatorHttpSignedGw" {
   source = "./modules/function"
-  count  = !var.http_gateway_enabled && var.http_signed_data_gateway_enabled ? 1 : 0
+  count  = !var.http_gateway_enabled && var.http_signed_data_gateway_enabled && !var.oev_gateway_enabled ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -96,9 +102,33 @@ module "startCoordinatorHttpSignedGw" {
   depends_on = [module.run]
 }
 
-module "startCoordinatorBothGws" {
+module "startCoordinatorOevGw" {
   source = "./modules/function"
-  count  = var.http_gateway_enabled && var.http_signed_data_gateway_enabled ? 1 : 0
+  count  = !var.http_gateway_enabled && !var.http_signed_data_gateway_enabled && var.oev_gateway_enabled ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    OEV_GATEWAY_URL            = module.oevGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorHttpGwAndHttpSignedGw" {
+  source = "./modules/function"
+  count  = var.http_gateway_enabled && var.http_signed_data_gateway_enabled && !var.oev_gateway_enabled ? 1 : 0
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "index.startCoordinator"
@@ -111,6 +141,82 @@ module "startCoordinatorBothGws" {
   environment_variables = {
     HTTP_GATEWAY_URL             = module.httpGw[0].api_url
     HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorHttpGwAndOevGw" {
+  source = "./modules/function"
+  count  = var.http_gateway_enabled && !var.http_signed_data_gateway_enabled && var.oev_gateway_enabled ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_GATEWAY_URL           = module.httpGw[0].api_url
+    OEV_GATEWAY_URL            = module.oevGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorHttpSignedGwAndOevGw" {
+  source = "./modules/function"
+  count  = !var.http_gateway_enabled && var.http_signed_data_gateway_enabled && var.oev_gateway_enabled ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    OEV_GATEWAY_URL              = module.oevGw[0].api_url
+    AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
+  }
+
+  invoke_targets                 = [module.run.lambda_arn]
+  schedule_interval              = 1
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : 1
+
+  depends_on = [module.run]
+}
+
+module "startCoordinatorAllGws" {
+  source = "./modules/function"
+  count  = var.http_gateway_enabled && var.http_signed_data_gateway_enabled && var.oev_gateway_enabled ? 1 : 0
+
+  name               = "${local.name_prefix}-startCoordinator"
+  handler            = "index.startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  environment_variables = {
+    HTTP_GATEWAY_URL             = module.httpGw[0].api_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    OEV_GATEWAY_URL              = module.oevGw[0].api_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -184,5 +290,40 @@ module "httpSignedGw" {
   }
   lambdas = [
     module.httpSignedReq[0].lambda_arn
+  ]
+}
+
+module "signOevReq" {
+  source = "./modules/function"
+  count  = var.oev_gateway_enabled == false ? 0 : 1
+
+  name                           = "${local.name_prefix}-signOevReq"
+  handler                        = "index.signOevReq"
+  source_dir                     = var.handler_dir
+  memory_size                    = 256
+  timeout                        = 30
+  configuration_file             = var.configuration_file
+  secrets_file                   = var.secrets_file
+  reserved_concurrent_executions = var.disable_concurrency_reservation ? null : var.oev_max_concurrency
+
+  environment_variables = {
+    AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
+  }
+}
+
+module "oevGw" {
+  source = "./modules/apigateway"
+  count  = var.oev_gateway_enabled == false ? 0 : 1
+
+  name          = "${local.name_prefix}-oevGw"
+  stage         = "v1"
+  template_file = "./templates/oevGw.yaml.tpl"
+  template_variables = {
+    proxy_lambda = module.signOevReq[0].lambda_arn
+    region       = var.aws_region
+    path_key     = random_uuid.oev_path_key.result
+  }
+  lambdas = [
+    module.signOevReq[0].lambda_arn
   ]
 }
