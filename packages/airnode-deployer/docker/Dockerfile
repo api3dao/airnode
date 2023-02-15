@@ -1,4 +1,4 @@
-FROM node:14.19.3-alpine3.15
+FROM node:18.14.0-alpine3.17
 
 ARG npmRegistryUrl=https://registry.npmjs.org/
 ARG npmTag=latest
@@ -9,7 +9,7 @@ ENV name="airnode-deployer" \
 ENV packageName="@api3/${name}"
 
 LABEL application=${name} \
-      description="Airnode Deployer CLI"
+    description="Airnode Deployer CLI"
 
 COPY ./entrypoint.sh /entrypoint.sh
 

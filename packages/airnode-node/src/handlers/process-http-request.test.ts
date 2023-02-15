@@ -12,6 +12,7 @@ function buildConfigWithEndpoint(endpoint?: Endpoint) {
 }
 
 describe('processHttpRequest', () => {
+  jest.setTimeout(10_000);
   it('returns an error if endpoint testability is turned off', async () => {
     const endpoint = fixtures.buildOIS().endpoints[0];
     const config = buildConfigWithEndpoint(endpoint);

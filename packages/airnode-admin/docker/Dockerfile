@@ -1,4 +1,4 @@
-FROM node:14.19.3-alpine3.15
+FROM node:18.14.0-alpine3.17
 
 ARG npmRegistryUrl=https://registry.npmjs.org/
 ARG npmTag=latest
@@ -8,9 +8,9 @@ ENV name="airnode-admin" \
 ENV packageName="@api3/${name}"
 
 LABEL application=${name} \
-      description="Airnode Admin CLI"
+    description="Airnode Admin CLI"
 
-    # Install airnode-admin
+# Install airnode-admin
 RUN npm set registry ${npmRegistryUrl} && \
     yarn global add ${packageName}@${npmTag} && \
     ln -s /usr/local/share/.config/yarn/global/node_modules/${packageName}/dist ${appDir} && \

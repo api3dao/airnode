@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
         // related accounts. Make sure they have more than enough ETH to
         // do this (1m ETH each).
         accountsBalance: '1000000000000000000000000',
-        count: 1000,
+        count: 100,
       },
     },
     localhost: {

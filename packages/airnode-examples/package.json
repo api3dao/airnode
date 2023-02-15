@@ -50,7 +50,7 @@
     "chalk": "^4.1.2",
     "dotenv": "^16.0.3",
     "ethereum-waffle": "^3.4.4",
-    "hardhat": "2.9.9",
+    "hardhat": "2.10.2",
     "jest": "^29.2.2",
     "prompts": "^2.4.2",
     "ts-jest": "^29.0.3",

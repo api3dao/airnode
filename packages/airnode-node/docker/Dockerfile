@@ -1,4 +1,4 @@
-FROM node:14.19.3-alpine3.15
+FROM node:18.14.0-alpine3.17
 
 ARG npmRegistryUrl=https://registry.npmjs.org/
 ARG npmTag=latest
@@ -9,12 +9,12 @@ ENV name="airnode-client" \
 ENV cronjob="/etc/cron.d/${name}"
 
 LABEL application=${name} \
-      description="Airnode Client"
+    description="Airnode Client"
 
 COPY airnode-crontab ${cronjob}
 COPY entrypoint.sh /entrypoint.sh
 
-    # Install Tini to correctly pass signals
+# Install Tini to correctly pass signals
 RUN apk add --update --no-cache tini dos2unix && \
     # Install airnode-node
     npm set registry ${npmRegistryUrl} && \
