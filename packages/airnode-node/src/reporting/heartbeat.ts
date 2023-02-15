@@ -3,7 +3,12 @@ import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { Config, getEnvValue } from '../config';
 import { CoordinatorState } from '../types';
-import { getGatewaysUrl, HTTP_BASE_PATH, HTTP_SIGNED_DATA_BASE_PATH } from '../workers/local-gateways/server';
+import {
+  getGatewaysUrl,
+  HTTP_BASE_PATH,
+  HTTP_SIGNED_DATA_BASE_PATH,
+  OEV_BASE_PATH,
+} from '../workers/local-gateways/server';
 import { getAirnodeWalletFromPrivateKey } from '../evm';
 
 export function getHttpGatewayUrl(config: Config) {
@@ -19,6 +24,13 @@ export function getHttpSignedDataGatewayUrl(config: Config) {
     return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, HTTP_SIGNED_DATA_BASE_PATH);
   }
   return getEnvValue('HTTP_SIGNED_DATA_GATEWAY_URL');
+}
+
+export function getOevGatewayUrl(config: Config) {
+  if (config.nodeSettings.cloudProvider.type === 'local') {
+    return getGatewaysUrl(config.nodeSettings.cloudProvider.gatewayServerPort, OEV_BASE_PATH);
+  }
+  return getEnvValue('OEV_GATEWAY_URL');
 }
 
 export const signHeartbeat = (heartbeatPayload: string) => {
@@ -41,6 +53,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
   const { apiKey, url } = heartbeat;
   const httpGatewayUrl = getHttpGatewayUrl(config);
   const httpSignedDataGatewayUrl = getHttpSignedDataGatewayUrl(config);
+  const oevGatewayUrl = getOevGatewayUrl(config);
 
   const timestamp = Math.round(Date.now() / 1_000);
 
@@ -55,6 +68,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
     ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
     ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
+    ...(oevGatewayUrl ? { oev_gateway_url: oevGatewayUrl } : {}),
   });
 
   const goSignHeartbeat = await go(() => signHeartbeat(heartbeatPayload));

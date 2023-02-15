@@ -14,9 +14,11 @@ import { Config } from '../config';
 describe('reportHeartbeat', () => {
   const httpGatewayUrl = 'https://some.http.gateway.url/v1/';
   const httpSignedDataGatewayUrl = 'https://some.http.signed.data.gateway.url/v1/';
+  const oevGatewayUrl = 'https://some.oev.gateway.url/v1/';
   fixtures.setEnvVariables({
     HTTP_GATEWAY_URL: httpGatewayUrl,
     HTTP_SIGNED_DATA_GATEWAY_URL: httpSignedDataGatewayUrl,
+    OEV_GATEWAY_URL: oevGatewayUrl,
     AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey(),
   });
   const systemTimestamp = 1661582890984;
@@ -47,6 +49,7 @@ describe('reportHeartbeat', () => {
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+      oev_gateway_url: 'http://localhost:3000/sign-oev',
     });
     const signature = await heartbeat.signHeartbeat(heartbeatPayload);
     const res = await heartbeat.reportHeartbeat(state);
@@ -80,6 +83,7 @@ describe('reportHeartbeat', () => {
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
+      oev_gateway_url: 'http://localhost:3000/sign-oev',
     });
     const signature = await heartbeat.signHeartbeat(heartbeatPayload);
     const logs = await heartbeat.reportHeartbeat(state);
@@ -138,6 +142,24 @@ describe('reportHeartbeat', () => {
     });
   });
 
+  describe('getOevGatewayUrl', () => {
+    it('returns correct local gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'local', gatewayServerPort: 8765 } },
+      } as unknown as Config;
+
+      expect(heartbeat.getOevGatewayUrl(mockedConfig)).toEqual('http://localhost:8765/sign-oev');
+    });
+
+    it('returns correct serverless gateway URL', () => {
+      const mockedConfig = {
+        nodeSettings: { cloudProvider: { type: 'aws', region: 'us-east1', disableConcurrencyReservations: false } },
+      } as unknown as Config;
+
+      expect(heartbeat.getOevGatewayUrl(mockedConfig)).toEqual(oevGatewayUrl);
+    });
+  });
+
   describe('gateway URLs in heartbeat', () => {
     const baseConfig = fixtures.buildConfig();
     baseConfig.nodeSettings = {
@@ -148,6 +170,11 @@ describe('reportHeartbeat', () => {
         maxConcurrency: 20,
       },
       httpGateway: {
+        corsOrigins: [],
+        enabled: true,
+        maxConcurrency: 20,
+      },
+      oevGateway: {
         corsOrigins: [],
         enabled: true,
         maxConcurrency: 20,
@@ -167,6 +194,7 @@ describe('reportHeartbeat', () => {
         region,
         http_gateway_url: httpGatewayUrl,
         http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+        oev_gateway_url: oevGatewayUrl,
       });
       const signature = await heartbeat.signHeartbeat(heartbeatPayload);
       const logs = await heartbeat.reportHeartbeat(state);
@@ -201,6 +229,7 @@ describe('reportHeartbeat', () => {
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
         http_gateway_url: 'http://localhost:8765/http-data',
         http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
+        oev_gateway_url: 'http://localhost:8765/sign-oev',
       });
       const signature = await heartbeat.signHeartbeat(heartbeatPayload);
       const logs = await heartbeat.reportHeartbeat(state);
@@ -233,6 +262,7 @@ describe('reportHeartbeat', () => {
       cloud_provider: 'local',
       http_gateway_url: httpGatewayUrl,
       http_signed_data_gateway_url: httpSignedDataGatewayUrl,
+      oev_gateway_url: oevGatewayUrl,
     });
 
     it('signs verifiable heartbeat', async () => {
@@ -240,7 +270,7 @@ describe('reportHeartbeat', () => {
       const signerAddress = ethers.utils.verifyMessage(heartbeatPayload, signature);
 
       expect(signature).toEqual(
-        '0x941f0ed9f7990f26c9b98434cc3dc094d35607a9087f0e6a71f58659d3383dce6d19c64a85a11714287cbb2cec8e1718e6fe40e4cd81d5658b000b40fa75c0a91c'
+        '0x3b705a37aa27173a0fbb2d270d5d827fc6493168515eae05cd9fb60e89399a272726f7f01b261a8e01e9cffa7506369db5c409e6d34f425fde1810046d8376d21c'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });
