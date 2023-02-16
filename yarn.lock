@@ -10,13 +10,13 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@api3/ois@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-1.4.0.tgz#128e56d8ff5f03b6219aaaa9e5022d1e9ab6dc57"
-  integrity sha512-oPzHipFgGXaTgYCQeU9nx0vaucFZPO1oymMs25v/qfcl+M+i6/xwgmej3o7CFt/dF0q2yNLiZW31Tro7g4AMcA==
+"@api3/ois@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.0.0.tgz#c700d2dfb568ac131e7c8f0581db7a212d35dcb1"
+  integrity sha512-G+hfxhO54JuMU/n1WWNbHxd4pNzO3f+8ZQc0zkmBl/QUEUK9dX43kZ4O+doOrlSyMUqAV0lJQKzVKe5H2pLdLA==
   dependencies:
     lodash "^4.17.21"
-    zod "^3.20.0"
+    zod "^3.20.6"
 
 "@api3/promise-utils@^0.3.0":
   version "0.3.0"
@@ -17119,7 +17119,7 @@ zksync-web3@^0.8.1:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.8.1.tgz#db289d8f6caf61f4d5ddc471fa3448d93208dc14"
   integrity sha512-1A4aHPQ3MyuGjpv5X/8pVEN+MdZqMjfVmiweQSRjOlklXYu65wT9BGEOtCmMs5d3gIvLp4ssfTeuR5OCKOD2kw==
 
-zod@^3.20.0:
-  version "3.20.2"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.20.2.tgz#068606642c8f51b3333981f91c0a8ab37dfc2807"
-  integrity sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==
+zod@^3.20.6:
+  version "3.20.6"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.20.6.tgz#2f2f08ff81291d47d99e86140fedb4e0db08361a"
+  integrity sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==

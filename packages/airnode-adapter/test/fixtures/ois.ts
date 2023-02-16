@@ -2,7 +2,7 @@ import { OIS } from '@api3/ois';
 
 export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
-    oisFormat: '1.4.0',
+    oisFormat: '2.0.0',
     version: '1.2.3',
     title: 'Currency Converter API',
     apiSpecifications: {
