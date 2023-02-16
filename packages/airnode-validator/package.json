@@ -21,14 +21,14 @@
     "test:e2e:update-snapshot": "yarn test:e2e --updateSnapshot"
   },
   "dependencies": {
-    "@api3/ois": "1.4.0",
+    "@api3/ois": "2.0.0",
     "@api3/promise-utils": "^0.3.0",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
     "yargs": "^17.6.2",
-    "zod": "^3.20.0"
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.13",

@@ -85,7 +85,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '1.4.0',
+      oisFormat: '2.0.0',
       title: 'CoinGecko history data request',
       version: '1.0.0',
       apiSpecifications: {
@@ -167,7 +167,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           ],
           preProcessingSpecifications: [
             {
-              environment: 'Node 14',
+              environment: 'Node',
               timeoutMs: 5000,
               value: `
                 const rawDate = new Date(input.unixTimestamp * 1000);

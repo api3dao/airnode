@@ -346,12 +346,12 @@ describe('callApi', () => {
       const config = fixtures.buildConfig();
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, from: "BTC"};',
           timeoutMs: 5_000,
         },
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, source: "airnode"};',
           timeoutMs: 5_000,
         },
@@ -390,12 +390,12 @@ describe('callApi', () => {
       const config = fixtures.buildConfig();
       const postProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = parseInt(input.price)*1000;',
           timeoutMs: 5_000,
         },
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = parseInt(input)*2;',
           timeoutMs: 5_000,
         },
@@ -436,7 +436,7 @@ describe('callApi', () => {
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = { result: (parseInt(input.parameter1) * 2).toString() }',
           timeoutMs: 5000,
         },
@@ -469,7 +469,7 @@ describe('callApi', () => {
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
       const postProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = { result: (parseInt(input.parameter1) * 2).toString() }',
           timeoutMs: 5000,
         },
@@ -502,14 +502,14 @@ describe('callApi', () => {
       const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, addThis: "5" }',
           timeoutMs: 5000,
         },
       ];
       const postProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = { result: (parseInt(input.parameter1) * 2 + parseInt(input.addThis)).toString() }',
           timeoutMs: 5000,
         },
