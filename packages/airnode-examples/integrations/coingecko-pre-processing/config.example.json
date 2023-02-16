@@ -160,7 +160,7 @@
           ],
           "preProcessingSpecifications": [
             {
-              "environment": "Node 14",
+              "environment": "Node",
               "timeoutMs": 5000,
               "value": "\n                const rawDate = new Date(input.unixTimestamp * 1000);\n                const day = rawDate.getDate().toString().padStart(2, '0');\n                const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0\n                const year = rawDate.getFullYear();\n\n                const formattedDate = day + '-' + month + '-' + year;\n                const output = {...input, unixTimestamp: formattedDate};\n\n                console.log(`[Pre-processing snippet]: Formatted \\${input.unixTimestamp} to \\${formattedDate}.`)\n              "
             }

@@ -200,7 +200,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           ],
           postProcessingSpecifications: [
             {
-              environment: 'Node 14',
+              environment: 'Node',
               timeoutMs: 5000,
               value: `
                 // Log out every coin data

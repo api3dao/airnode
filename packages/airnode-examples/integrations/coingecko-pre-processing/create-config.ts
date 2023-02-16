@@ -167,7 +167,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
           ],
           preProcessingSpecifications: [
             {
-              environment: 'Node 14',
+              environment: 'Node',
               timeoutMs: 5000,
               value: `
                 const rawDate = new Date(input.unixTimestamp * 1000);

@@ -8,12 +8,12 @@ describe('processing', () => {
       const config = fixtures.buildConfig();
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, from: "ETH"};',
           timeoutMs: 5_000,
         },
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, newProp: "airnode"};',
           timeoutMs: 5_000,
         },
@@ -37,12 +37,12 @@ describe('processing', () => {
       const config = fixtures.buildConfig();
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'something invalid; const output = {...input, from: `ETH`};',
           timeoutMs: 5_000,
         },
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, newProp: "airnode"};',
           timeoutMs: 5_000,
         },
@@ -61,7 +61,7 @@ describe('processing', () => {
       const config = fixtures.buildConfig();
       const preProcessingSpecifications = [
         {
-          environment: 'Node 14' as const,
+          environment: 'Node' as const,
           value: 'const output = {...input, object: {a: 123, b: false}};',
           timeoutMs: 5_000,
         },
@@ -93,12 +93,12 @@ describe('post-processing', () => {
     const config = fixtures.buildConfig();
     const postProcessingSpecifications = [
       {
-        environment: 'Node 14' as const,
+        environment: 'Node' as const,
         value: 'const output = parseInt(input.price)*2;',
         timeoutMs: 5_000,
       },
       {
-        environment: 'Node 14' as const,
+        environment: 'Node' as const,
         value: 'const output = parseInt(input)*2;',
         timeoutMs: 5_000,
       },
@@ -114,12 +114,12 @@ describe('post-processing', () => {
     const config = fixtures.buildConfig();
     const postProcessingSpecifications = [
       {
-        environment: 'Node 14' as const,
+        environment: 'Node' as const,
         value: 'const output = parseInt(input.price)*1000;',
         timeoutMs: 5_000,
       },
       {
-        environment: 'Node 14' as const,
+        environment: 'Node' as const,
         value: 'Something Unexpected; const output = parseInt(input)*2;',
         timeoutMs: 5_000,
       },
