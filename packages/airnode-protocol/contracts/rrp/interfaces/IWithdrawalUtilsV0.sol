@@ -25,8 +25,7 @@ interface IWithdrawalUtilsV0 {
         address sponsor
     ) external payable;
 
-    function sponsorToWithdrawalRequestCount(address sponsor)
-        external
-        view
-        returns (uint256 withdrawalRequestCount);
+    function sponsorToWithdrawalRequestCount(
+        address sponsor
+    ) external view returns (uint256 withdrawalRequestCount);
 }
