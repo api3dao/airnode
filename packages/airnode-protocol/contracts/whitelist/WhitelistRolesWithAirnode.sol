@@ -28,12 +28,9 @@ contract WhitelistRolesWithAirnode is
     /// @notice Derives the admin role for the Airnode
     /// @param airnode Airnode address
     /// @return adminRole Admin role
-    function deriveAdminRole(address airnode)
-        external
-        view
-        override
-        returns (bytes32 adminRole)
-    {
+    function deriveAdminRole(
+        address airnode
+    ) external view override returns (bytes32 adminRole) {
         adminRole = _deriveAdminRole(airnode);
     }
 
@@ -41,12 +38,9 @@ contract WhitelistRolesWithAirnode is
     /// @param airnode Airnode address
     /// @return whitelistExpirationExtenderRole Whitelist expiration extender
     /// role
-    function deriveWhitelistExpirationExtenderRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 whitelistExpirationExtenderRole)
-    {
+    function deriveWhitelistExpirationExtenderRole(
+        address airnode
+    ) public view override returns (bytes32 whitelistExpirationExtenderRole) {
         whitelistExpirationExtenderRole = _deriveRole(
             _deriveAdminRole(airnode),
             WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
@@ -56,12 +50,9 @@ contract WhitelistRolesWithAirnode is
     /// @notice Derives the whitelist expiration setter role for the Airnode
     /// @param airnode Airnode address
     /// @return whitelistExpirationSetterRole Whitelist expiration setter role
-    function deriveWhitelistExpirationSetterRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 whitelistExpirationSetterRole)
-    {
+    function deriveWhitelistExpirationSetterRole(
+        address airnode
+    ) public view override returns (bytes32 whitelistExpirationSetterRole) {
         whitelistExpirationSetterRole = _deriveRole(
             _deriveAdminRole(airnode),
             WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
@@ -71,12 +62,9 @@ contract WhitelistRolesWithAirnode is
     /// @notice Derives the indefinite whitelister role for the Airnode
     /// @param airnode Airnode address
     /// @return indefiniteWhitelisterRole Indefinite whitelister role
-    function deriveIndefiniteWhitelisterRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 indefiniteWhitelisterRole)
-    {
+    function deriveIndefiniteWhitelisterRole(
+        address airnode
+    ) public view override returns (bytes32 indefiniteWhitelisterRole) {
         indefiniteWhitelisterRole = _deriveRole(
             _deriveAdminRole(airnode),
             INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH

@@ -23,10 +23,10 @@ contract MockCallForwarderTarget {
         output2 = true;
     }
 
-    function nonpayableTargetFunction(string calldata input1, uint256 input2)
-        external
-        returns (bytes memory output1, bool output2)
-    {
+    function nonpayableTargetFunction(
+        string calldata input1,
+        uint256 input2
+    ) external returns (bytes memory output1, bool output2) {
         require(
             keccak256(abi.encodePacked(input1)) ==
                 keccak256(abi.encodePacked("input1")),

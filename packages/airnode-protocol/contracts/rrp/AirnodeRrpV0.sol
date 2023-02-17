@@ -41,10 +41,10 @@ contract AirnodeRrpV0 is
     /// all Airnodes
     /// @param requester Requester address
     /// @param sponsorshipStatus Sponsorship status
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external
-        override
-    {
+    function setSponsorshipStatus(
+        address requester,
+        bool sponsorshipStatus
+    ) external override {
         // Initialize the requester request count for consistent request gas
         // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
@@ -305,12 +305,9 @@ contract AirnodeRrpV0 is
     /// @return isAwaitingFulfillment If the request is awaiting fulfillment
     /// (i.e., `true` if `fulfill()` or `fail()` is not called back yet,
     /// `false` otherwise)
-    function requestIsAwaitingFulfillment(bytes32 requestId)
-        external
-        view
-        override
-        returns (bool isAwaitingFulfillment)
-    {
+    function requestIsAwaitingFulfillment(
+        bytes32 requestId
+    ) external view override returns (bool isAwaitingFulfillment) {
         isAwaitingFulfillment =
             requestIdToFulfillmentParameters[requestId] != bytes32(0);
     }

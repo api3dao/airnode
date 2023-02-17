@@ -10,11 +10,9 @@ contract RoleDeriver {
     /// @notice Derives the root role of the manager
     /// @param manager Manager address
     /// @return rootRole Root role
-    function _deriveRootRole(address manager)
-        internal
-        pure
-        returns (bytes32 rootRole)
-    {
+    function _deriveRootRole(
+        address manager
+    ) internal pure returns (bytes32 rootRole) {
         rootRole = keccak256(abi.encodePacked(manager));
     }
 
@@ -24,11 +22,10 @@ contract RoleDeriver {
     /// @param adminRole Admin role
     /// @param description Human-readable description of the role
     /// @return role Role
-    function _deriveRole(bytes32 adminRole, string memory description)
-        internal
-        pure
-        returns (bytes32 role)
-    {
+    function _deriveRole(
+        bytes32 adminRole,
+        string memory description
+    ) internal pure returns (bytes32 role) {
         role = _deriveRole(adminRole, keccak256(abi.encodePacked(description)));
     }
 
@@ -39,11 +36,10 @@ contract RoleDeriver {
     /// @param descriptionHash Hash of the human-readable description of the
     /// role
     /// @return role Role
-    function _deriveRole(bytes32 adminRole, bytes32 descriptionHash)
-        internal
-        pure
-        returns (bytes32 role)
-    {
+    function _deriveRole(
+        bytes32 adminRole,
+        bytes32 descriptionHash
+    ) internal pure returns (bytes32 role) {
         role = keccak256(abi.encodePacked(adminRole, descriptionHash));
     }
 }

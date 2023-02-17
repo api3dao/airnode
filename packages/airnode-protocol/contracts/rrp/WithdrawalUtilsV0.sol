@@ -24,10 +24,10 @@ contract WithdrawalUtilsV0 is IWithdrawalUtilsV0 {
     /// @param airnode Airnode address
     /// @param sponsorWallet Sponsor wallet that the withdrawal is requested
     /// from
-    function requestWithdrawal(address airnode, address sponsorWallet)
-        external
-        override
-    {
+    function requestWithdrawal(
+        address airnode,
+        address sponsorWallet
+    ) external override {
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 block.chainid,

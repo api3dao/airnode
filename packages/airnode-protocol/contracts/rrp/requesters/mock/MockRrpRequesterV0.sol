@@ -80,10 +80,10 @@ contract MockRrpRequesterV0 is RrpRequesterV0 {
     /// AirnodeRrp.sol for testing
     /// @param requestId Request ID
     /// @param data Data returned by the Airnode
-    function fulfill(bytes32 requestId, bytes calldata data)
-        external
-        onlyAirnodeRrp
-    {
+    function fulfill(
+        bytes32 requestId,
+        bytes calldata data
+    ) external onlyAirnodeRrp {
         require(
             expectingRequestWithIdToBeFulfilled[requestId],
             "No such request made"
@@ -133,9 +133,10 @@ contract MockRrpRequesterV0 is RrpRequesterV0 {
     /// @param airnode Airnode address
     /// @param sponsorWallet Sponsor wallet that the withdrawal is requested
     /// from
-    function requestWithdrawal(address airnode, address sponsorWallet)
-        external
-    {
+    function requestWithdrawal(
+        address airnode,
+        address sponsorWallet
+    ) external {
         airnodeRrp.requestWithdrawal(airnode, sponsorWallet);
     }
 }

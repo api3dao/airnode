@@ -60,10 +60,10 @@ contract RrpBeaconServerV0 is
     /// status of an account
     /// @param updateRequester Update requester address
     /// @param status Update permission status of the update requester
-    function setUpdatePermissionStatus(address updateRequester, bool status)
-        external
-        override
-    {
+    function setUpdatePermissionStatus(
+        address updateRequester,
+        bool status
+    ) external override {
         require(updateRequester != address(0), "Update requester zero");
         sponsorToUpdateRequesterToPermissionStatus[msg.sender][
             updateRequester
@@ -127,11 +127,10 @@ contract RrpBeaconServerV0 is
     /// @param requestId ID of the request being fulfilled
     /// @param data Fulfillment data (a single `int256` and an additional
     /// timestamp of type `uint256` encoded as `bytes`)
-    function fulfill(bytes32 requestId, bytes calldata data)
-        external
-        override
-        onlyAirnodeRrp
-    {
+    function fulfill(
+        bytes32 requestId,
+        bytes calldata data
+    ) external override onlyAirnodeRrp {
         bytes32 beaconId = requestIdToBeaconId[requestId];
         require(beaconId != bytes32(0), "No such request made");
         delete requestIdToBeaconId[requestId];
@@ -180,12 +179,9 @@ contract RrpBeaconServerV0 is
     /// @param beaconId ID of the beacon that will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
-    function readBeacon(bytes32 beaconId)
-        external
-        view
-        override
-        returns (int224 value, uint32 timestamp)
-    {
+    function readBeacon(
+        bytes32 beaconId
+    ) external view override returns (int224 value, uint32 timestamp) {
         require(
             readerCanReadBeacon(beaconId, msg.sender),
             "Caller not whitelisted"
@@ -198,12 +194,10 @@ contract RrpBeaconServerV0 is
     /// @param beaconId Beacon ID
     /// @param reader Reader address
     /// @return isWhitelisted If the reader is whitelisted
-    function readerCanReadBeacon(bytes32 beaconId, address reader)
-        public
-        view
-        override
-        returns (bool)
-    {
+    function readerCanReadBeacon(
+        bytes32 beaconId,
+        address reader
+    ) public view override returns (bool) {
         return userIsWhitelisted(beaconId, reader) || reader == address(0);
     }
 
@@ -215,7 +209,10 @@ contract RrpBeaconServerV0 is
     /// reader will expire
     /// @return indefiniteWhitelistCount Number of times `reader` was
     /// whitelisted indefinitely for `templateId`
-    function beaconIdToReaderToWhitelistStatus(bytes32 beaconId, address reader)
+    function beaconIdToReaderToWhitelistStatus(
+        bytes32 beaconId,
+        address reader
+    )
         external
         view
         override
@@ -253,12 +250,10 @@ contract RrpBeaconServerV0 is
     /// @param parameters Parameters provided by the requester in addition to
     /// the parameters in the template
     /// @return beaconId Beacon ID
-    function deriveBeaconId(bytes32 templateId, bytes calldata parameters)
-        public
-        pure
-        override
-        returns (bytes32 beaconId)
-    {
+    function deriveBeaconId(
+        bytes32 templateId,
+        bytes calldata parameters
+    ) public pure override returns (bytes32 beaconId) {
         beaconId = keccak256(abi.encodePacked(templateId, parameters));
     }
 }

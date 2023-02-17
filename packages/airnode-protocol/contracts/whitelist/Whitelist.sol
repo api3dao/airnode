@@ -136,11 +136,10 @@ contract Whitelist {
     /// @param serviceId Service ID
     /// @param user User address
     /// @return isWhitelisted If the user is whitelisted
-    function userIsWhitelisted(bytes32 serviceId, address user)
-        internal
-        view
-        returns (bool isWhitelisted)
-    {
+    function userIsWhitelisted(
+        bytes32 serviceId,
+        address user
+    ) internal view returns (bool isWhitelisted) {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
                 serviceId

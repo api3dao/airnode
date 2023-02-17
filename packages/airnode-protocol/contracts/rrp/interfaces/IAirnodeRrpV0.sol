@@ -56,8 +56,10 @@ interface IAirnodeRrpV0 is
         string errorMessage
     );
 
-    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
-        external;
+    function setSponsorshipStatus(
+        address requester,
+        bool sponsorshipStatus
+    ) external;
 
     function makeTemplateRequest(
         bytes32 templateId,
@@ -100,13 +102,11 @@ interface IAirnodeRrpV0 is
         address requester
     ) external view returns (bool sponsorshipStatus);
 
-    function requesterToRequestCountPlusOne(address requester)
-        external
-        view
-        returns (uint256 requestCountPlusOne);
+    function requesterToRequestCountPlusOne(
+        address requester
+    ) external view returns (uint256 requestCountPlusOne);
 
-    function requestIsAwaitingFulfillment(bytes32 requestId)
-        external
-        view
-        returns (bool isAwaitingFulfillment);
+    function requestIsAwaitingFulfillment(
+        bytes32 requestId
+    ) external view returns (bool isAwaitingFulfillment);
 }
