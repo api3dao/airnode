@@ -1,6 +1,6 @@
 import * as adapter from '@api3/airnode-adapter';
 import { ethers } from 'ethers';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosHeaders } from 'axios';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
@@ -235,11 +235,21 @@ describe('callApi', () => {
     });
   });
 
+  const internalAxiosRequestConfig = { headers: new AxiosHeaders() };
   test.each([
-    { e: new AxiosError('Error!', 'CODE', {}, {}, undefined), msg: 'with no response' },
-    { e: new AxiosError('Error!', 'CODE', {}, undefined, undefined), msg: 'in building the HTTP request' },
+    { e: new AxiosError('Error!', 'CODE', internalAxiosRequestConfig, {}, undefined), msg: 'with no response' },
     {
-      e: new AxiosError('Error!', 'CODE', {}, {}, { status: 404, data: {}, statusText: '', headers: {}, config: {} }),
+      e: new AxiosError('Error!', 'CODE', internalAxiosRequestConfig, undefined, undefined),
+      msg: 'in building the HTTP request',
+    },
+    {
+      e: new AxiosError(
+        'Error!',
+        'CODE',
+        internalAxiosRequestConfig,
+        {},
+        { status: 404, data: {}, statusText: '', headers: {}, config: internalAxiosRequestConfig }
+      ),
       msg: 'with status code 404',
     },
   ])(`returns an error containing "$msg" for the respective axios API call failure`, async ({ e, msg }) => {
