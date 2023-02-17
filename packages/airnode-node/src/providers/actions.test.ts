@@ -31,6 +31,7 @@ import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
 import { GroupedRequests } from '../types';
 import { ChainConfig } from '../config';
+import { DEPLOYMENT_ID_LENGTH } from '../constants';
 
 const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Sepolia';
@@ -124,7 +125,7 @@ describe('initialize', () => {
           },
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-            deploymentId: 'localdd59d6d0',
+            deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
             authorizers: {
               requesterEndpointAuthorizers: [ethers.constants.AddressZero],
               crossChainRequesterAuthorizers: [],
@@ -179,7 +180,7 @@ describe('initialize', () => {
           },
           settings: {
             airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-            deploymentId: 'localdd59d6d0',
+            deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
             authorizers: {
               requesterEndpointAuthorizers: [ethers.constants.AddressZero],
               crossChainRequesterAuthorizers: [],

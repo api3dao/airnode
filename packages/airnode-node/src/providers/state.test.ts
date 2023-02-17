@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { BLOCK_MIN_CONFIRMATIONS } from '../constants';
+import { BLOCK_MIN_CONFIRMATIONS, DEPLOYMENT_ID_LENGTH } from '../constants';
 import { EVMProviderState, ProviderState } from '../types';
 import { ChainConfig } from '../config';
 
@@ -54,7 +54,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: 'localdd59d6d0',
+        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
@@ -150,7 +150,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: 'localdd59d6d0',
+        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],

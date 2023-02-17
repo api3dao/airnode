@@ -4,8 +4,7 @@ import * as gcp from './cloud-platforms/gcp';
 import * as localHandlers from './local-handlers';
 import { WorkerParameters, WorkerResponse } from '../types';
 import { LocalOrCloudProvider } from '../config';
-
-const DEPLOYMENT_ID_LENGTH = 8;
+import { DEPLOYMENT_ID_LENGTH } from '../constants';
 
 export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
   switch (params.cloudProvider.type) {

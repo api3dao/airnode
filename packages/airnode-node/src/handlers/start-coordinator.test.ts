@@ -31,7 +31,7 @@ import { getMinConfirmationsReservedParameter, startCoordinator } from './start-
 import * as fixtures from '../../test/fixtures';
 import * as calls from '../coordinator/calls';
 import { buildAggregatedRegularApiCall, buildConfig } from '../../test/fixtures';
-import { BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
+import { BLOCK_COUNT_HISTORY_LIMIT, DEPLOYMENT_ID_LENGTH } from '../constants';
 
 describe('startCoordinator', () => {
   jest.setTimeout(30_000);
@@ -172,7 +172,12 @@ describe('startCoordinator', () => {
     await startCoordinator(config, coordinatorId);
 
     // cached requests should not trigger an API call
-    expect(callApisSpy).toHaveBeenCalledWith([], expect.objectContaining({ deploymentId: 'localdd59d6d0' }));
+    expect(callApisSpy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
+      })
+    );
 
     expect(blockWithTransactionsSpy).toHaveBeenCalled();
     // API call was submitted
