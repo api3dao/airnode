@@ -35,6 +35,3 @@ export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
 
 // The maximum amount of time in milliseconds that pre and post processing is allowed to execute
 export const PROCESSING_TIMEOUT = 10_000;
-
-// The length of the hashed portion of a deployment ID
-export const DEPLOYMENT_ID_LENGTH = 8;

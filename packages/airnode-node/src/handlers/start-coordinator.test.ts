@@ -31,7 +31,10 @@ import { getMinConfirmationsReservedParameter, startCoordinator } from './start-
 import * as fixtures from '../../test/fixtures';
 import * as calls from '../coordinator/calls';
 import { buildAggregatedRegularApiCall, buildConfig } from '../../test/fixtures';
-import { BLOCK_COUNT_HISTORY_LIMIT, DEPLOYMENT_ID_LENGTH } from '../constants';
+import { BLOCK_COUNT_HISTORY_LIMIT } from '../constants';
+import { DEPLOYMENT_ID_LENGTH } from '../workers';
+
+const deploymentIdRegex = RegExp(`local[0-9a-f]{${DEPLOYMENT_ID_LENGTH}}`);
 
 describe('startCoordinator', () => {
   jest.setTimeout(30_000);
@@ -175,7 +178,7 @@ describe('startCoordinator', () => {
     expect(callApisSpy).toHaveBeenCalledWith(
       [],
       expect.objectContaining({
-        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
+        deploymentId: expect.stringMatching(deploymentIdRegex),
       })
     );
 

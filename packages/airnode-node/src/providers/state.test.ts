@@ -1,9 +1,12 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { BLOCK_MIN_CONFIRMATIONS, DEPLOYMENT_ID_LENGTH } from '../constants';
+import { BLOCK_MIN_CONFIRMATIONS } from '../constants';
 import { EVMProviderState, ProviderState } from '../types';
 import { ChainConfig } from '../config';
+import { DEPLOYMENT_ID_LENGTH } from '../workers';
+
+const deploymentIdRegex = RegExp(`local[0-9a-f]{${DEPLOYMENT_ID_LENGTH}}`);
 
 describe('create', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
@@ -54,7 +57,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
+        deploymentId: expect.stringMatching(deploymentIdRegex),
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
@@ -150,7 +153,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        deploymentId: expect.stringMatching(new RegExp(`local[0-9a-z]{${DEPLOYMENT_ID_LENGTH}}`)),
+        deploymentId: expect.stringMatching(deploymentIdRegex),
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
