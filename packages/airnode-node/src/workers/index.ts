@@ -5,7 +5,7 @@ import * as localHandlers from './local-handlers';
 import { WorkerParameters, WorkerResponse } from '../types';
 import { LocalOrCloudProvider } from '../config';
 
-const DEPLOYMENT_ID_LENGTH = 8;
+export const DEPLOYMENT_ID_LENGTH = 8;
 
 export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
   switch (params.cloudProvider.type) {
