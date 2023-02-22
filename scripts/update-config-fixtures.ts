@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import fg from 'fast-glob';
+import { format } from 'prettier';
 import { version as packageVersion } from '../packages/airnode-node/package.json';
 
 const configPatterns = ['./packages/**/*config.example.json', './packages/**/*config.valid.json'];
@@ -13,7 +14,7 @@ configPatterns.forEach((pattern) => {
 
     // eslint-disable-next-line no-console
     console.log(`Updating "${f}" to version ${packageVersion}`);
-    writeFileSync(f, JSON.stringify(config, null, 2) + '\n');
+    writeFileSync(f, format(JSON.stringify(config, null, 2), { parser: 'json', printWidth: 120 }));
   });
 });
 
