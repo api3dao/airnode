@@ -23,8 +23,8 @@ variable "timeout" {
 
 variable "invoke_targets" {
   description = "Names of other cloud functions that can be invoked from the cloud function"
-  type        = list(string)
-  default     = []
+  type        = map(string)
+  default     = {}
 }
 
 variable "schedule_interval" {

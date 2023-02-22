@@ -59,18 +59,20 @@ module "run" {
 module "startCoordinator" {
   source = "./modules/function"
 
-  name                  = "${local.name_prefix}-startCoordinator"
-  entry_point           = "startCoordinator"
-  source_dir            = var.handler_dir
-  memory_size           = 512
-  timeout               = 65
-  configuration_file    = var.configuration_file
-  secrets_file          = var.secrets_file
-  region                = var.gcp_region
-  project               = var.gcp_project
-  schedule_interval     = 1
-  max_instances         = var.disable_concurrency_reservation ? null : 1
-  invoke_targets        = [module.run.function_name]
+  name               = "${local.name_prefix}-startCoordinator"
+  entry_point        = "startCoordinator"
+  source_dir         = var.handler_dir
+  memory_size        = 512
+  timeout            = 65
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+  region             = var.gcp_region
+  project            = var.gcp_project
+  schedule_interval  = 1
+  max_instances      = var.disable_concurrency_reservation ? null : 1
+  invoke_targets = {
+    run = module.run.function_name
+  }
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   environment_variables = {
@@ -148,9 +150,9 @@ module "httpGw" {
   }
   project = var.gcp_project
 
-  invoke_targets = [
-    module.httpReq[0].function_name
-  ]
+  invoke_targets = {
+    httpReq = module.httpReq[0].function_name
+  }
 
   depends_on = [
     google_project_service.apigateway_api,
@@ -198,9 +200,9 @@ module "httpSignedGw" {
   }
   project = var.gcp_project
 
-  invoke_targets = [
-    module.httpSignedReq[0].function_name
-  ]
+  invoke_targets = {
+    httpSignedReq = module.httpSignedReq[0].function_name
+  }
 
   depends_on = [
     google_project_service.apigateway_api,

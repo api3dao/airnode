@@ -14,8 +14,8 @@ variable "template_variables" {
 
 variable "invoke_targets" {
   description = "Names of cloud functions that can be invoked from the APIGateway"
-  type        = list(string)
-  default     = []
+  type        = map(string)
+  default     = {}
 }
 
 variable "project" {

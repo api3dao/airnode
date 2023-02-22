@@ -39,9 +39,9 @@ resource "google_project_iam_member" "function_logging_writer_role" {
 }
 
 resource "google_cloudfunctions_function_iam_member" "invoker" {
-  for_each = toset(var.invoke_targets)
+  for_each = var.invoke_targets
 
-  cloud_function = each.key
+  cloud_function = each.value
   role           = "roles/cloudfunctions.invoker"
   member         = "serviceAccount:${google_service_account.function_service_account.email}"
   project        = var.project
