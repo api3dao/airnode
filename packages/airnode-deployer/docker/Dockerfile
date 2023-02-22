@@ -4,7 +4,7 @@ ARG npmRegistryUrl=https://registry.npmjs.org/
 ARG npmTag=latest
 
 ENV name="airnode-deployer" \
-    baseTerraformURL="https://releases.hashicorp.com/terraform/1.2.3/terraform_1.2.3_linux_" \
+    baseTerraformURL="https://releases.hashicorp.com/terraform/1.3.9/terraform_1.3.9_linux_" \
     appDir="/app"
 ENV packageName="@api3/${name}"
 
