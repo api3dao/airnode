@@ -47,6 +47,6 @@
   "dependencies": {
     "@api3/airnode-utilities": "^0.10.0",
     "@openzeppelin/contracts": "4.4.2",
-    "ethers": "^5.7.2"
+    "ethers": "^6.0.8"
   }
 }
