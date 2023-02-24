@@ -50,7 +50,7 @@
     "docker:build:latest": "yarn docker:build:packaging && yarn docker:build:images:latest",
     "docker:build:local": "yarn docker:build:packaging && yarn docker:build:images:local",
     "docker:build:packaging": "yarn docker:scripts:build && docker build --tag api3/airnode-packaging:latest --file docker/Dockerfile .",
-    "docker:scripts:build": "ncc build docker/scripts/cli.ts -o docker/scripts/dist --no-cache --minify --source-map --transpile-only",
+    "docker:scripts:build": "ncc build docker/scripts/cli.ts -o docker/scripts/dist --no-cache --source-map --transpile-only",
     "docker:scripts:docker:build": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock api3/airnode-packaging:latest docker build",
     "docker:scripts:docker:build:latest": "yarn docker:scripts:docker:build",
     "docker:scripts:docker:build:local": "yarn docker:scripts:docker:build --npm-registry local --npm-tag snapshot-local --docker-tags local",

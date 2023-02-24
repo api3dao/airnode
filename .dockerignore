@@ -2,7 +2,7 @@
 .github/
 **/node_modules/**
 **/dist/**
-!docker/scripts/dist
+!docker/scripts/dist/**
 **/build/**
 **/coverage/**
 
