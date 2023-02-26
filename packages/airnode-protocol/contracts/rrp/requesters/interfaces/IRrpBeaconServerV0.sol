@@ -27,10 +27,8 @@ interface IRrpBeaconServerV0 is IWhitelistWithManager {
         uint32 timestamp
     );
 
-    function setUpdatePermissionStatus(
-        address updateRequester,
-        bool status
-    ) external;
+    function setUpdatePermissionStatus(address updateRequester, bool status)
+        external;
 
     function requestBeaconUpdate(
         bytes32 beaconId,
@@ -41,19 +39,17 @@ interface IRrpBeaconServerV0 is IWhitelistWithManager {
 
     function fulfill(bytes32 requestId, bytes calldata data) external;
 
-    function readBeacon(
-        bytes32 beaconId
-    ) external view returns (int224 value, uint32 timestamp);
+    function readBeacon(bytes32 beaconId)
+        external
+        view
+        returns (int224 value, uint32 timestamp);
 
-    function readerCanReadBeacon(
-        bytes32 beaconId,
-        address reader
-    ) external view returns (bool);
+    function readerCanReadBeacon(bytes32 beaconId, address reader)
+        external
+        view
+        returns (bool);
 
-    function beaconIdToReaderToWhitelistStatus(
-        bytes32 beaconId,
-        address reader
-    )
+    function beaconIdToReaderToWhitelistStatus(bytes32 beaconId, address reader)
         external
         view
         returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount);
@@ -69,8 +65,8 @@ interface IRrpBeaconServerV0 is IWhitelistWithManager {
         address updateRequester
     ) external view returns (bool permissionStatus);
 
-    function deriveBeaconId(
-        bytes32 templateId,
-        bytes calldata parameters
-    ) external pure returns (bytes32 beaconId);
+    function deriveBeaconId(bytes32 templateId, bytes calldata parameters)
+        external
+        pure
+        returns (bytes32 beaconId);
 }

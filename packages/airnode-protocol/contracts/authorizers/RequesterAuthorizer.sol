@@ -222,10 +222,11 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @return serviceId Service ID
-    function deriveServiceId(
-        address airnode,
-        bytes32 endpointId
-    ) private pure returns (bytes32 serviceId) {
+    function deriveServiceId(address airnode, bytes32 endpointId)
+        private
+        pure
+        returns (bytes32 serviceId)
+    {
         serviceId = keccak256(abi.encodePacked(airnode, endpointId));
     }
 }

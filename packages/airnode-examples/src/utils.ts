@@ -12,11 +12,11 @@ export interface IntegrationInfo {
   airnodeType: 'aws' | 'local' | 'gcp';
   accessKeyId: string;
   secretKey: string;
-  network: (typeof supportedNetworks)[number] | 'localhost';
+  network: typeof supportedNetworks[number] | 'localhost';
   mnemonic: string;
   providerUrl: string;
   gcpProjectId?: string;
-  crossChainNetwork?: (typeof supportedNetworks)[number] | 'localhost';
+  crossChainNetwork?: typeof supportedNetworks[number] | 'localhost';
   crossChainProviderUrl?: string;
   crossChainMnemonic?: string;
 }

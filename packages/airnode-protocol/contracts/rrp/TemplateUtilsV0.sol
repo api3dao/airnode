@@ -52,9 +52,7 @@ contract TemplateUtilsV0 is ITemplateUtilsV0 {
     /// @return airnodes Array of Airnode addresses
     /// @return endpointIds Array of endpoint IDs
     /// @return parameters Array of request parameters
-    function getTemplates(
-        bytes32[] calldata templateIds
-    )
+    function getTemplates(bytes32[] calldata templateIds)
         external
         view
         override

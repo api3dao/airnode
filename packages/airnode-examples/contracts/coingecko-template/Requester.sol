@@ -27,10 +27,10 @@ contract Requester is RrpRequesterV0 {
         incomingFulfillments[requestId] = true;
     }
 
-    function fulfill(
-        bytes32 requestId,
-        bytes calldata data
-    ) external onlyAirnodeRrp {
+    function fulfill(bytes32 requestId, bytes calldata data)
+        external
+        onlyAirnodeRrp
+    {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];
         int256 decodedData = abi.decode(data, (int256));

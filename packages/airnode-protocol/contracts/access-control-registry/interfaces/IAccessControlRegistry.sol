@@ -20,12 +20,13 @@ interface IAccessControlRegistry is IAccessControl {
         string calldata description
     ) external returns (bytes32 role);
 
-    function deriveRootRole(
-        address manager
-    ) external pure returns (bytes32 rootRole);
+    function deriveRootRole(address manager)
+        external
+        pure
+        returns (bytes32 rootRole);
 
-    function deriveRole(
-        bytes32 adminRole,
-        string calldata description
-    ) external pure returns (bytes32 role);
+    function deriveRole(bytes32 adminRole, string calldata description)
+        external
+        pure
+        returns (bytes32 role);
 }
