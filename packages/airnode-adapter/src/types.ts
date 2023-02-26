@@ -58,7 +58,7 @@ export interface Config {
 
 export type ValueType = string | BigNumber | boolean | Array<ValueType>;
 
-export type BaseResponseType = typeof baseResponseTypes[number];
+export type BaseResponseType = (typeof baseResponseTypes)[number];
 // Use might pass a complex type (e.g. int256[3][]) which we cannot type
 export type ResponseType = string;
 
