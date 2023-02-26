@@ -35,3 +35,7 @@ config.json
 
 # Third party modules
 **/.terraform/**
+
+# !!! Temporary until the proper formatting is sorted out !!!
+# https://github.com/api3dao/airnode/issues/1660
+packages/airnode-protocol/contracts
