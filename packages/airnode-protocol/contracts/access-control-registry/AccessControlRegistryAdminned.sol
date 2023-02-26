@@ -43,9 +43,11 @@ contract AccessControlRegistryAdminned is
     /// @notice Derives the admin role for the specific manager address
     /// @param manager Manager address
     /// @return adminRole Admin role
-    function _deriveAdminRole(
-        address manager
-    ) internal view returns (bytes32 adminRole) {
+    function _deriveAdminRole(address manager)
+        internal
+        view
+        returns (bytes32 adminRole)
+    {
         adminRole = _deriveRole(
             _deriveRootRole(manager),
             adminRoleDescriptionHash

@@ -57,9 +57,11 @@ contract WhitelistRolesWithManager is
     /// @param account Account address
     /// @return If the account has the whitelist extender role or is the
     /// manager
-    function hasWhitelistExpirationExtenderRoleOrIsManager(
-        address account
-    ) internal view returns (bool) {
+    function hasWhitelistExpirationExtenderRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
@@ -73,9 +75,11 @@ contract WhitelistRolesWithManager is
     /// @param account Account address
     /// @return If the account has the whitelist setter role or is the
     /// manager
-    function hasWhitelistExpirationSetterRoleOrIsManager(
-        address account
-    ) internal view returns (bool) {
+    function hasWhitelistExpirationSetterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
@@ -89,9 +93,11 @@ contract WhitelistRolesWithManager is
     /// @param account Account address
     /// @return If the account has the indefinite whitelister role or is the
     /// manager
-    function hasIndefiniteWhitelisterRoleOrIsManager(
-        address account
-    ) internal view returns (bool) {
+    function hasIndefiniteWhitelisterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
         return
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(

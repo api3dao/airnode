@@ -43,10 +43,10 @@ contract AccessControlRegistry is
     /// `AccessControl.renounceRole` will revert if either of them is zero.
     /// @param role Role to be renounced
     /// @param account Account to renounce the role
-    function renounceRole(
-        bytes32 role,
-        address account
-    ) public override(AccessControl, IAccessControl) {
+    function renounceRole(bytes32 role, address account)
+        public
+        override(AccessControl, IAccessControl)
+    {
         require(
             role != deriveRootRole(account),
             "role is root role of account"
@@ -92,9 +92,12 @@ contract AccessControlRegistry is
     /// @notice Derives the root role of the manager
     /// @param manager Manager address
     /// @return rootRole Root role
-    function deriveRootRole(
-        address manager
-    ) public pure override returns (bytes32 rootRole) {
+    function deriveRootRole(address manager)
+        public
+        pure
+        override
+        returns (bytes32 rootRole)
+    {
         rootRole = _deriveRootRole(manager);
     }
 
@@ -104,10 +107,12 @@ contract AccessControlRegistry is
     /// @param adminRole Admin role
     /// @param description Human-readable description of the role
     /// @return role Role
-    function deriveRole(
-        bytes32 adminRole,
-        string calldata description
-    ) public pure override returns (bytes32 role) {
+    function deriveRole(bytes32 adminRole, string calldata description)
+        public
+        pure
+        override
+        returns (bytes32 role)
+    {
         role = _deriveRole(adminRole, description);
     }
 }
