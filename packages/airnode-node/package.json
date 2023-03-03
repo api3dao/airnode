@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
+    "clean": "rimraf -g *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "tsc --build tsconfig.json",
     "dev:invoke": "ts-node src/cli/validate-config.ts && ts-node src/cli/invoke.ts",
     "dev:http-data-invoke": "ts-node src/cli/http-data-invoke.ts",

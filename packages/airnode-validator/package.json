@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
+    "clean": "rimraf -g *.tsbuildinfo ./dist ./build *.tgz",
     "cli": "ts-node bin/validator.ts",
     "compile": "yarn tsc --build tsconfig.json",
     "pack": "yarn pack",
