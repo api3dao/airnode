@@ -13,6 +13,8 @@ import {
   verifyHttpRequest,
   verifyHttpSignedDataRequest,
   verifyRequestOrigin,
+  ProcessSignOevDataRequestBody,
+  verifySignOevDataRequest,
 } from '@api3/airnode-node';
 
 caching.init();
@@ -216,6 +218,55 @@ export async function processHttpSignedDataRequest(
     return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
   }
   logger.debug(`HTTP signed data gateway request processed successfully`);
+
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };
+}
+
+export async function processSignOevDataRequest(
+  event: AWSLambda.APIGatewayProxyEvent
+): Promise<AWSLambda.APIGatewayProxyResult> {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
+
+  logger.debug(`Sign OEV data request received`);
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    (parsedConfig.nodeSettings.oevGateway as EnabledGateway).corsOrigins,
+    event.headers.origin
+  );
+  // Respond to preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    if (!originVerification.success) {
+      logger.error(`Sign OEV data request origin verification error`);
+      return { statusCode: 400, body: JSON.stringify(originVerification.error) };
+    }
+
+    return { statusCode: 204, headers: originVerification.headers, body: '' };
+  }
+  logger.debug(`Sign OEV data request passed origin verification`);
+
+  // The shape of the body is guaranteed by the openAPI spec
+  const rawSignOevDataRequestBody = JSON.parse(event.body!) as ProcessSignOevDataRequestBody;
+
+  const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody.signedData);
+  if (!verificationResult.success) {
+    logger.error(`Sign OEV data request verification error`);
+    const { statusCode, error } = verificationResult;
+    return { statusCode, headers: originVerification.headers, body: JSON.stringify(error) };
+  }
+  logger.debug(`Sign OEV data request passed request verification`);
+
+  const [err, result] = await handlers.signOevData(rawSignOevDataRequestBody, verificationResult.validUpdateValues);
+  if (err) {
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    logger.error(`Sign OEV data request processing error`);
+    return { statusCode: 500, headers: originVerification.headers, body: JSON.stringify({ message: err.toString() }) };
+  }
+  logger.debug(`Sign OEV data request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   return { statusCode: 200, headers: originVerification.headers, body: JSON.stringify(result!.data) };

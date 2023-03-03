@@ -29,3 +29,9 @@ export async function httpSignedReq(...args: unknown[]) {
   const handler = await cloudHandler();
   return handler.processHttpSignedDataRequest(...args);
 }
+
+// We shorten function name to allow for shorter cloud resource names
+export async function signOevReq(...args: unknown[]) {
+  const handler = await cloudHandler();
+  return handler.processSignOevDataRequest(...args);
+}
