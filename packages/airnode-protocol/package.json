@@ -39,7 +39,7 @@
     "hardhat-deploy": "^0.11.19",
     "hardhat-gas-reporter": "^1.0.9",
     "replace-in-file": "^6.3.5",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.2.0",
     "solidity-coverage": "^0.8.2",
     "typechain": "^8.1.0",
     "typescript": "^4.8.4"
