@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
+    "clean": "rimraf -g *.tsbuildinfo ./dist ./build *.tgz",
     "choose-integration": "ts-node src/scripts/choose-integration.ts",
     "compile": "hardhat compile && tsc --build tsconfig.json",
     "create-airnode-config": "ts-node src/scripts/create-airnode-config.ts",

@@ -10,13 +10,13 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf *.tsbuildinfo ./dist ./build *.tgz",
+    "clean": "rimraf -g *.tsbuildinfo ./dist ./build *.tgz",
     "compile": "tsc --build tsconfig.json",
     "compile:watch": "tsc --build tsconfig.json -w",
     "dev:api": "ts-node src/server.ts",
     "dev:api:background": "yarn run dev:clean && pm2 start ecosystem.config.js --only web-api",
     "dev:background": "yarn run dev:clean && pm2 start ecosystem.config.js",
-    "dev:clean": "rimraf -rf ./logs",
+    "dev:clean": "rimraf ./logs",
     "dev:delete": "pm2 delete all",
     "dev:eth-deploy": "ts-node src/scripts/evm-dev-deploy.ts",
     "dev:eth-node": "hardhat node",
@@ -41,7 +41,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@types/express": "^4.17.14",
     "@types/morgan": "^1.9.3",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.2.0",
     "typescript": "^4.8.4"
   }
 }
