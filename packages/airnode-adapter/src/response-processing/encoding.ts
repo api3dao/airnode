@@ -4,7 +4,7 @@ import { artificialTypes } from '../constants';
 import { ResponseType, ValueType } from '../types';
 
 type ArtificialTypeMapping = {
-  readonly [key in typeof artificialTypes[number]]: string;
+  readonly [key in (typeof artificialTypes)[number]]: string;
 };
 
 const artificialTypeToSolidityType: ArtificialTypeMapping = {

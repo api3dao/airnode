@@ -26,7 +26,7 @@ module.exports = {
         loader: 'esbuild-loader',
         options: {
           loader: 'ts',
-          target: 'es2015',
+          target: 'es2021',
         },
         exclude: /node_modules/,
       },
@@ -36,7 +36,7 @@ module.exports = {
   optimization: {
     minimizer: [
       new ESBuildMinifyPlugin({
-        target: 'es2015', // Syntax to compile to (see options below for possible values)
+        target: 'es2021', // Syntax to compile to (see options below for possible values)
       }),
     ],
   },
