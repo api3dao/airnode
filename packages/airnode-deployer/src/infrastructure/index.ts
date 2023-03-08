@@ -50,11 +50,15 @@ type TerraformAirnodeOutput = {
   http_signed_data_gateway_url?: {
     value: string;
   };
+  oev_gateway_url?: {
+    value: string;
+  };
 };
 
 export type DeployAirnodeOutput = {
   httpGatewayUrl?: string;
   httpSignedDataGatewayUrl?: string;
+  oevGatewayUrl?: string;
 };
 
 const exec = util.promisify(child.exec);
@@ -253,6 +257,7 @@ export async function terraformAirnodeApply(
     stage,
     httpGateway,
     httpSignedDataGateway,
+    oevGateway,
     nodeVersion: configNodeVersion,
   } = config.nodeSettings;
   const cloudProvider = config.nodeSettings.cloudProvider as CloudProvider;
@@ -273,17 +278,24 @@ export async function terraformAirnodeApply(
   });
   commonArguments.push(['var', 'max_concurrency', `${maxConcurrency}`]);
 
-  if (httpGateway?.enabled) {
+  if (httpGateway.enabled) {
     commonArguments.push(['var', 'http_gateway_enabled', 'true']);
     if (httpGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_max_concurrency', `${httpGateway.maxConcurrency}`]);
     }
   }
 
-  if (httpSignedDataGateway?.enabled) {
+  if (httpSignedDataGateway.enabled) {
     commonArguments.push(['var', 'http_signed_data_gateway_enabled', 'true']);
     if (httpSignedDataGateway.maxConcurrency) {
       commonArguments.push(['var', 'http_signed_data_max_concurrency', `${httpSignedDataGateway.maxConcurrency}`]);
+    }
+  }
+
+  if (oevGateway.enabled) {
+    commonArguments.push(['var', 'oev_gateway_enabled', 'true']);
+    if (oevGateway.maxConcurrency) {
+      commonArguments.push(['var', 'oev_max_concurrency', `${oevGateway.maxConcurrency}`]);
     }
   }
 
@@ -312,6 +324,7 @@ export function transformTerraformOutput(terraformOutput: string): DeployAirnode
     {
       httpGatewayUrl: parsedOutput.http_gateway_url?.value,
       httpSignedDataGatewayUrl: parsedOutput.http_signed_data_gateway_url?.value,
+      oevGatewayUrl: parsedOutput.oev_gateway_url?.value,
     },
     isNil
   );

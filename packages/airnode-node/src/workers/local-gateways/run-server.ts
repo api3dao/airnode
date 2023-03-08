@@ -17,7 +17,7 @@ setLogOptions({
 setAirnodePrivateKeyToEnv(config.nodeSettings.airnodeWalletMnemonic);
 
 // Determine which gateways are enabled
-const gatewayNames = ['httpGateway', 'httpSignedDataGateway'] as const;
+const gatewayNames = ['httpGateway', 'httpSignedDataGateway', 'oevGateway'] as const;
 const enabledGateways = gatewayNames.filter((gatewayName) => config.nodeSettings[gatewayName].enabled);
 const disabledGateways = gatewayNames.filter((gatewayName) => !config.nodeSettings[gatewayName].enabled);
 disabledGateways.forEach((gatewayName) => {

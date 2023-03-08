@@ -245,6 +245,11 @@ export interface HttpSignedDataApiCallSuccessResponse {
   data: { timestamp: string; encodedValue: string; signature: string };
 }
 
+export interface SignOevDataResponse {
+  success: true;
+  data: { timestamp: string; encodedValue: string; signature: string }[];
+}
+
 export interface ApiCallErrorResponse {
   success: false;
   errorMessage: string;

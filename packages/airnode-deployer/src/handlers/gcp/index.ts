@@ -12,6 +12,8 @@ import {
   verifyHttpSignedDataRequest,
   verifyHttpRequest,
   verifyRequestOrigin,
+  signOevDataBodySchema,
+  verifySignOevDataRequest,
 } from '@api3/airnode-node';
 import { logger, randomHexString, setLogOptions, addMetadata, caching } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -252,6 +254,66 @@ export async function processHttpSignedDataRequest(req: Request, res: Response) 
     return;
   }
   logger.debug(`HTTP signed data gateway request processed successfully`);
+
+  // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
+  res.status(200).send(result!.data);
+}
+
+export async function processSignOevDataRequest(req: Request, res: Response) {
+  setLogOptions({
+    format: parsedConfig.nodeSettings.logFormat,
+    level: parsedConfig.nodeSettings.logLevel,
+  });
+
+  logger.debug(`Sign OEV data request received`);
+
+  // Check if the request origin header is allowed in the config
+  const originVerification = verifyRequestOrigin(
+    (parsedConfig.nodeSettings.oevGateway as EnabledGateway).corsOrigins,
+    req.headers.origin
+  );
+  // Respond to preflight requests
+  if (req.method === 'OPTIONS') {
+    if (!originVerification.success) {
+      logger.error(`Sign OEV data request origin verification error`);
+      res.status(400).send(originVerification.error);
+      return;
+    }
+
+    res.set(originVerification.headers).status(204).send('');
+    return;
+  }
+  // Set headers for the responses
+  res.set(originVerification.headers);
+  logger.debug(`Sign OEV data request passed origin verification`);
+
+  const parsedBody = signOevDataBodySchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    // This error and status code is returned by AWS gateway when the request does not match the openAPI
+    // specification. We want the same error to be returned by the GCP gateway.
+    logger.error(`Sign OEV data request invalid request body`);
+    res.status(400).send({ message: 'Invalid request body' });
+    return;
+  }
+  const rawSignOevDataRequestBody = parsedBody.data;
+  logger.debug(`HTTP signed data gateway request passed request body parsing`);
+
+  const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody.signedData);
+  if (!verificationResult.success) {
+    logger.error(`Sign OEV data request verification error`);
+    const { statusCode, error } = verificationResult;
+    res.status(statusCode).send(error);
+    return;
+  }
+  logger.debug(`Sign OEV data request passed request verification`);
+
+  const [err, result] = await handlers.signOevData(rawSignOevDataRequestBody, verificationResult.validUpdateValues);
+  if (err) {
+    // Returning 500 because failure here means something went wrong internally with a valid request
+    logger.error(`Sign OEV data request processing error`);
+    res.status(500).send({ message: err.toString() });
+  }
+  logger.debug(`Sign OEV data request processed successfully`);
 
   // We do not want the user to see {"success": true, "data": <actual_data>}, but the actual data itself
   res.status(200).send(result!.data);

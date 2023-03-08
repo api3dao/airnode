@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  title: Airnode API Gateway
+  title: Airnode OEV Gateway
   version: "1.0"
 
 x-amazon-apigateway-request-validators:
@@ -17,46 +17,116 @@ components:
     EndpointRequest:
       type: object
       required:
-        - parameters
+        - chainId
+        - dapiServerAddress
+        - oevProxyAddress
+        - updateId
+        - bidderAddress
+        - bidAmount
+        - signedData
       properties:
-        parameters:
-          type: object
+        chainId:
+          type: integer
+          format: int32
+          minimum: 1
+        dapiServerAddress:
+          type: string
+        oevProxyAddress:
+          type: string
+        updateId:
+          type: string
+        bidderAddress:
+          type: string
+        bidAmount:
+          type: string
+        signedData:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: object
+            required:
+              - airnodeAddress
+              - endpointId
+              - encodedParameters
+            properties:
+              airnodeAddress:
+                type: string
+              endpointId:
+                type: string
+              encodedParameters:
+                type: string
+              timestamp:
+                type: string
+              encodedValue:
+                type: string
+              signature:
+                type: string
+
     EndpointResponse:
-      type: object
-      required:
-        - response
-      properties:
-        response: {}
+      type: array
+      minItems: 1
+      uniqueItems: true
+      items:
+        type: object
+        required:
+          - timestamp
+          - encodedValue
+          - signature
+        properties:
+          timestamp:
+            type: string
+          encodedValue:
+            type: string
+          signature:
+            type: string
 
   examples:
-    EndpointIdParameterExample:
-      summary: Endpoint ID
-      value: 0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353
-
     EndpointRequestExample:
       summary: Endpoint request example
-      value: { "parameters": { "from": "EUR", "amount": 5 } }
+      value: |
+        {
+          "chainId": 1,
+          "dapiServerAddress": "0x...",
+          "oevProxyAddress": "0x...",
+          "updateId": "0x...",
+          "bidderAddress": "0x...",
+          "bidAmount": "0x...",
+          "signedData": [
+            {
+              "airnodeAddress": "0x...",
+              "endpointId": "0x...",
+              "encodedParameters": "0x...",
+              "timestamp": "16...",
+              "encodedValue": "0x...",
+              "signature": "0x..."
+            },
+            {
+              "airnodeAddress": "0x...",
+              "endpointId": "0x...",
+              "encodedParameters": "0x..."
+            }
+          ]
+        }
     EndpointResponseExample:
       summary: Endpoint response example
-      value: { "rawValue": { "usd": "6421.4" }, "encodedValue": "0x0000...e180", "values": [ "64214000000" ] }
-
-  parameters:
-    endpointId:
-      name: endpointId
-      in: path
-      description: Endpoint ID
-      required: true
-      schema:
-        type: string
-      examples:
-        example:
-          $ref: "#/components/examples/EndpointIdParameterExample"
+      value: |
+        [
+          {
+            "timestamp": "16...",
+            "encodedValue": "0x...",
+            "signature": "0x...
+          },
+          {
+            "timestamp": "16...",
+            "encodedValue": "0x...",
+            "signature": "0x...
+          }
+        ]
 
 paths:
-  /${path_key}/{endpointId}:
+  /${path_key}:
     post:
-      parameters:
-        - $ref: "#/components/parameters/endpointId"
       requestBody:
         content:
           application/json:
@@ -82,9 +152,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndpointResponse"
-              examples:
-                example:
-                  $ref: "#/components/examples/EndpointResponseExample"
       x-amazon-apigateway-integration:
         type: aws_proxy
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${proxy_lambda}/invocations
@@ -95,8 +162,6 @@ paths:
           default:
             statusCode: 200
     options:
-      parameters:
-        - $ref: "#/components/parameters/endpointId"
       responses:
         "204":
           description: CORS preflight response

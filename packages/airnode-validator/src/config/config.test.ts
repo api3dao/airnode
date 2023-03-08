@@ -175,6 +175,9 @@ describe('nodeSettingsSchema', () => {
     httpSignedDataGateway: {
       enabled: false,
     },
+    oevGateway: {
+      enabled: false,
+    },
     logFormat: 'plain',
     logLevel: 'INFO',
     nodeVersion: packageVersion,

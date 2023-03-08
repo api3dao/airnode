@@ -396,6 +396,8 @@ describe('terraformAirnodeApply', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         `-auto-approve`,
       ].join(' '),
       execOptions
@@ -449,6 +451,8 @@ describe('terraformAirnodeApply', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         `module.startCoordinator.google_app_engine_application.app[0] airnode-test-123456`,
       ].join(' '),
       { ignoreError: true }
@@ -475,6 +479,8 @@ describe('terraformAirnodeApply', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         '-auto-approve',
       ].join(' '),
       execOptions
@@ -490,6 +496,9 @@ describe('terraformAirnodeApply', () => {
           enabled: false as const,
         },
         httpSignedDataGateway: {
+          enabled: false as const,
+        },
+        oevGateway: {
           enabled: false as const,
         },
       },
@@ -627,6 +636,8 @@ describe('deployAirnode', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         `-auto-approve`,
       ].join(' '),
       { cwd: 'tmpDir' }
@@ -692,6 +703,8 @@ describe('deployAirnode', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         `-auto-approve`,
       ].join(' '),
       { cwd: 'tmpDir' }
@@ -760,6 +773,8 @@ describe('deployAirnode', () => {
         `-var="http_max_concurrency=20"`,
         `-var="http_signed_data_gateway_enabled=true"`,
         `-var="http_signed_data_max_concurrency=20"`,
+        `-var="oev_gateway_enabled=true"`,
+        `-var="oev_max_concurrency=20"`,
         `-auto-approve`,
       ].join(' '),
       { cwd: 'tmpDir' }

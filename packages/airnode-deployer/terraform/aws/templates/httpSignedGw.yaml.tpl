@@ -30,12 +30,15 @@ components:
 
   examples:
     EndpointIdParameterExample:
-      summary: Endpoint name
+      summary: Endpoint ID
       value: 0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353
 
     EndpointRequestExample:
       summary: Endpoint request example
-      value: { "encodedParameters": "0x31737300000000000000000000...0000000000000000000000" }
+      value: { "encodedParameters": "0x3173...0000" }
+    EndpointResponseExample:
+      summary: Endpoint response example
+      value: { "timestamp": "1648226003", "encodedValue": "0x0000...14c0", "signature": "0xa74e4...f61b" }
 
   parameters:
     endpointId:

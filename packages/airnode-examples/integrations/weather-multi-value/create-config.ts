@@ -65,6 +65,9 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
     httpSignedDataGateway: {
       enabled: false,
     },
+    oevGateway: {
+      enabled: false,
+    },
     logFormat: 'plain',
     logLevel: 'DEBUG',
     nodeVersion: createNodeVersion(),

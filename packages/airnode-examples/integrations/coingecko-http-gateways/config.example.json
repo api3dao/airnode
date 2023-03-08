@@ -62,6 +62,9 @@
       "maxConcurrency": 20,
       "corsOrigins": []
     },
+    "oevGateway": {
+      "enabled": false
+    },
     "logFormat": "plain",
     "logLevel": "DEBUG",
     "nodeVersion": "0.10.0",

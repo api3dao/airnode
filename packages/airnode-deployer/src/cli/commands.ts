@@ -75,6 +75,10 @@ export async function deploy(configPath: string, secretsPath: string, receiptFil
     logger.setSecret(output.httpSignedDataGatewayUrl);
     logger.info(`HTTP signed data gateway URL: ${output.httpSignedDataGatewayUrl}`, { secrets: true });
   }
+  if (output.oevGatewayUrl) {
+    logger.setSecret(output.oevGatewayUrl);
+    logger.info(`OEV gateway URL: ${output.oevGatewayUrl}`, { secrets: true });
+  }
 
   return { creationTime: time };
 }
