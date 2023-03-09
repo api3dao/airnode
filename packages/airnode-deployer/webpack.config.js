@@ -1,6 +1,6 @@
 const path = require('path');
 const IgnoreDynamicRequire = require('webpack-ignore-dynamic-require');
-const { ESBuildMinifyPlugin } = require('esbuild-loader');
+const { EsbuildPlugin } = require('esbuild-loader');
 
 module.exports = {
   devtool: 'source-map',
@@ -25,7 +25,6 @@ module.exports = {
         test: /\.(js|jsx|ts|tsx)?$/,
         loader: 'esbuild-loader',
         options: {
-          loader: 'ts',
           target: 'es2021',
         },
         exclude: /node_modules/,
@@ -35,7 +34,7 @@ module.exports = {
   plugins: [new IgnoreDynamicRequire()],
   optimization: {
     minimizer: [
-      new ESBuildMinifyPlugin({
+      new EsbuildPlugin({
         target: 'es2021', // Syntax to compile to (see options below for possible values)
       }),
     ],
