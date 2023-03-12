@@ -10,6 +10,8 @@ const createChainConfig = (overrides: Partial<ChainConfig>): ChainConfig => {
     authorizers: {
       requesterEndpointAuthorizers: [],
       crossChainRequesterAuthorizers: [],
+      requesterAuthorizersWithErc721: [],
+      crossChainRequesterAuthorizersWithErc721: [],
     },
     authorizations: {
       requesterEndpointAuthorizations: {},

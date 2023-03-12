@@ -5,7 +5,9 @@
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "authorizers": {
         "requesterEndpointAuthorizers": [],
-        "crossChainRequesterAuthorizers": []
+        "crossChainRequesterAuthorizers": [],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}

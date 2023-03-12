@@ -5,17 +5,29 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
+import { RequesterAuthorizerWithErc721, RequesterAuthorizerWithErc721Factory } from '@api3/airnode-protocol';
 import { ApiCall, AuthorizationByRequestId, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT } from '../../constants';
 import { AirnodeRrpV0, AirnodeRrpV0Factory } from '../contracts';
-import { RequesterEndpointAuthorizers, ChainAuthorizations } from '../../config';
+import { Erc721s, ChainAuthorizations, RequesterEndpointAuthorizers } from '../../config';
 
 export interface FetchOptions {
-  readonly requesterEndpointAuthorizers: RequesterEndpointAuthorizers;
-  readonly authorizations: ChainAuthorizations;
   readonly airnodeAddress: string;
-  readonly airnodeRrpAddress: string;
+  readonly authorizations: ChainAuthorizations;
   readonly provider: ethers.providers.JsonRpcProvider;
+}
+
+export interface AirnodeRrpFetchOptions extends FetchOptions {
+  readonly type: 'airnodeRrp';
+  readonly airnodeRrpAddress: string;
+  readonly requesterEndpointAuthorizers: RequesterEndpointAuthorizers;
+}
+
+export interface Erc721FetchOptions extends FetchOptions {
+  readonly type: 'erc721';
+  readonly chainId: string;
+  readonly erc721s: Erc721s;
+  readonly RequesterAuthorizerWithErc721Address: string;
 }
 
 export async function fetchAuthorizationStatus(
@@ -39,16 +51,22 @@ export async function fetchAuthorizationStatus(
   if (!goAuthorized.success) {
     const log = logger.pend(
       'ERROR',
-      `Failed to fetch authorization details for Request:${apiCall.id}`,
+      `Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
       goAuthorized.error
     );
     return [[log], null];
   }
   if (isNil(goAuthorized.data)) {
-    const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`);
+    const log = logger.pend(
+      'ERROR',
+      `Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`
+    );
     return [[log], null];
   }
-  const successLog = logger.pend('INFO', `Fetched authorization status for Request:${apiCall.id}`);
+  const successLog = logger.pend(
+    'INFO',
+    `Fetched requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`
+  );
   return [[successLog], goAuthorized.data];
 }
 
@@ -77,7 +95,12 @@ async function fetchAuthorizationStatuses(
 
   const goData = await go(contractCall, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
   if (!goData.success) {
-    const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', goData.error);
+    const groupLog = logger.pend(
+      'WARN',
+      'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses.' +
+        'Falling back to fetching authorizations individually.',
+      goData.error
+    );
 
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
@@ -111,6 +134,63 @@ async function fetchAuthorizationStatuses(
   return [[], authorizationsById];
 }
 
+export function decodeMulticall(
+  requesterAuthorizerWithErc721: RequesterAuthorizerWithErc721,
+  data: string[]
+): boolean[] {
+  return data.map((d) => requesterAuthorizerWithErc721.interface.decodeFunctionResult('isAuthorized', d)[0]);
+}
+
+/**
+ * Returns authorization statuses by id in their requested order from the decoded multicall boolean array
+ */
+export function applyErc721Authorizations(
+  apiCalls: Request<ApiCall>[],
+  erc721s: Erc721s,
+  authorizations: boolean[]
+): AuthorizationByRequestId {
+  return apiCalls.reduce((acc, apiCall, index) => {
+    // Erc721s as an array requires slicing the authorizations array to get each api call's authorizations
+    const resultIndex = index * erc721s.length;
+    // The requester is authorized if authorized by any Erc721
+    const authorized = authorizations.slice(resultIndex, resultIndex + erc721s.length).some((r) => r);
+    return { ...acc, [apiCall.id]: authorized };
+  }, {});
+}
+
+async function fetchErc721AuthorizationStatuses(
+  requesterAuthorizerWithErc721: RequesterAuthorizerWithErc721,
+  airnodeAddress: string,
+  erc721s: Erc721s,
+  chainId: string,
+  apiCalls: Request<ApiCall>[]
+): Promise<LogsData<AuthorizationByRequestId | null>> {
+  // Batch isAuthorized calls using multicall.
+  const calldata = apiCalls.flatMap((apiCall) => {
+    return erc721s.map((erc721) => {
+      return requesterAuthorizerWithErc721.interface.encodeFunctionData('isAuthorized', [
+        airnodeAddress,
+        chainId,
+        apiCall.requesterAddress,
+        erc721,
+      ]);
+    });
+  });
+  const contractCall = () => requesterAuthorizerWithErc721.callStatic.multicall(calldata);
+  const goData = await go(contractCall, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
+
+  if (!goData.success) {
+    const groupLog = logger.pend('ERROR', 'Failed to fetch Erc721 batch authorizations', goData.error);
+
+    return [[groupLog], null];
+  }
+
+  const decodedMulticall = decodeMulticall(requesterAuthorizerWithErc721, goData.data);
+  const authorizationsById = applyErc721Authorizations(apiCalls, erc721s, decodedMulticall);
+
+  return [[], authorizationsById];
+}
+
 export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOptions: FetchOptions) => {
   return apiCalls.reduce((acc: AuthorizationByRequestId, apiCall) => {
     // Check if an authorization is found in config for the apiCall endpointId
@@ -129,15 +209,17 @@ export const checkConfigAuthorizations = (apiCalls: Request<ApiCall>[], fetchOpt
 
 export async function fetch(
   apiCalls: Request<ApiCall>[],
-  fetchOptions: FetchOptions
+  fetchOptions: AirnodeRrpFetchOptions | Erc721FetchOptions
 ): Promise<LogsData<AuthorizationByRequestId>> {
   // If there are no pending API calls then there is no need to make an ETH call
   if (isEmpty(apiCalls)) {
     return [[], {}];
   }
 
-  // If there are no authorizer contracts then endpoint is public
-  if (isEmpty(fetchOptions.requesterEndpointAuthorizers)) {
+  // If there are no authorizer or ERC721 contracts then endpoint is public
+  const contracts =
+    fetchOptions.type === 'airnodeRrp' ? fetchOptions.requesterEndpointAuthorizers : fetchOptions.erc721s;
+  if (isEmpty(contracts)) {
     const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
       [pendingApiCall.id]: true,
     }));
@@ -158,17 +240,34 @@ export async function fetch(
   const groupedPairs = chunk(apiCallsToFetchAuthorizationStatus, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
-  const airnodeRrp = AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
-
-  // Fetch all authorization statuses in parallel
-  const promises = groupedPairs.map((pairs) =>
-    fetchAuthorizationStatuses(
-      airnodeRrp,
-      fetchOptions.requesterEndpointAuthorizers,
-      fetchOptions.airnodeAddress,
-      pairs
-    )
-  );
+  let promises: Promise<LogsData<AuthorizationByRequestId | null>>[];
+  switch (fetchOptions.type) {
+    case 'airnodeRrp':
+      // Fetch all authorization statuses in parallel
+      promises = groupedPairs.map((pairs) =>
+        fetchAuthorizationStatuses(
+          AirnodeRrpV0Factory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider),
+          fetchOptions.requesterEndpointAuthorizers,
+          fetchOptions.airnodeAddress,
+          pairs
+        )
+      );
+      break;
+    case 'erc721':
+      promises = groupedPairs.map((pairs) =>
+        fetchErc721AuthorizationStatuses(
+          RequesterAuthorizerWithErc721Factory.connect(
+            fetchOptions.RequesterAuthorizerWithErc721Address,
+            fetchOptions.provider
+          ),
+          fetchOptions.airnodeAddress,
+          fetchOptions.erc721s,
+          fetchOptions.chainId,
+          pairs
+        )
+      );
+      break;
+  }
 
   const responses = await Promise.all(promises);
   const responseLogs = flatMap(responses, (r) => r[0]);

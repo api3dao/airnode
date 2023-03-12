@@ -17,6 +17,7 @@ import {
   AccessControlRegistry__factory as AccessControlRegistryFactory,
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerV0Factory,
+  RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
 } from './contracts';
 import references from '../deployments/references.json';
 
@@ -49,6 +50,7 @@ export {
   AirnodeRrpV0Factory,
   AccessControlRegistryFactory,
   RrpBeaconServerV0Factory,
+  RequesterAuthorizerWithErc721Factory,
   mocks,
   authorizers,
   networks,
@@ -60,6 +62,7 @@ export type {
   MockRrpRequesterV0,
   AccessControlRegistry,
   RequesterAuthorizerWithAirnode,
+  RequesterAuthorizerWithErc721,
   RrpBeaconServerV0,
 } from './contracts';
 

@@ -18,6 +18,8 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     authorizers: {
       requesterEndpointAuthorizers: [],
       crossChainRequesterAuthorizers: [],
+      requesterAuthorizersWithErc721: [],
+      crossChainRequesterAuthorizersWithErc721: [],
     },
     authorizations: {
       requesterEndpointAuthorizations: {},

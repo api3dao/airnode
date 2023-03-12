@@ -43,6 +43,8 @@ const chains: ChainConfig[] = [
     authorizers: {
       requesterEndpointAuthorizers: [ethers.constants.AddressZero],
       crossChainRequesterAuthorizers: [],
+      requesterAuthorizersWithErc721: [],
+      crossChainRequesterAuthorizersWithErc721: [],
     },
     authorizations: {
       requesterEndpointAuthorizations: {},
@@ -72,7 +74,12 @@ const chains: ChainConfig[] = [
     },
   },
   {
-    authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero], crossChainRequesterAuthorizers: [] },
+    authorizers: {
+      requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+      crossChainRequesterAuthorizers: [],
+      requesterAuthorizersWithErc721: [],
+      crossChainRequesterAuthorizersWithErc721: [],
+    },
     authorizations: {
       requesterEndpointAuthorizations: {},
     },
@@ -131,6 +138,8 @@ describe('initialize', () => {
             authorizers: {
               requesterEndpointAuthorizers: [ethers.constants.AddressZero],
               crossChainRequesterAuthorizers: [],
+              requesterAuthorizersWithErc721: [],
+              crossChainRequesterAuthorizersWithErc721: [],
             },
             authorizations: {
               requesterEndpointAuthorizations: {},
@@ -186,6 +195,8 @@ describe('initialize', () => {
             authorizers: {
               requesterEndpointAuthorizers: [ethers.constants.AddressZero],
               crossChainRequesterAuthorizers: [],
+              requesterAuthorizersWithErc721: [],
+              crossChainRequesterAuthorizersWithErc721: [],
             },
             authorizations: {
               requesterEndpointAuthorizations: {},

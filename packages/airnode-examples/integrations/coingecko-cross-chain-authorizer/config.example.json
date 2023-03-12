@@ -16,7 +16,9 @@
               "url": "${CROSS_CHAIN_PROVIDER_URL}"
             }
           }
-        ]
+        ],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}

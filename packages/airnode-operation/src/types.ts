@@ -122,8 +122,30 @@ export interface CrossChainConfig {
   };
 }
 
+export interface Erc721CrossChainConfig {
+  readonly erc721s: string[];
+  readonly chainType: string;
+  readonly chainId: string;
+  readonly contracts: {
+    readonly RequesterAuthorizerWithErc721: string;
+  };
+  readonly chainProvider: {
+    url: string;
+  };
+}
+
+export interface Erc721Config {
+  readonly erc721s: string[];
+  readonly RequesterAuthorizerWithErc721: string;
+}
+
 export interface ConfigAirnode {
-  readonly authorizers: { requesterEndpointAuthorizers: string[]; crossChainRequesterAuthorizers: CrossChainConfig[] };
+  readonly authorizers: {
+    requesterEndpointAuthorizers: string[];
+    crossChainRequesterAuthorizers: CrossChainConfig[];
+    requesterAuthorizersWithErc721: Erc721Config[];
+    crossChainRequesterAuthorizersWithErc721: Erc721CrossChainConfig[];
+  };
   readonly authorizations: {
     requesterEndpointAuthorizations: { [endpointId: string]: string[] };
   };

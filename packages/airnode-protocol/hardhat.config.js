@@ -22,11 +22,26 @@ module.exports = {
     tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
   },
   solidity: {
-    version: '0.8.9',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 1000,
+    compilers: [
+      {
+        version: '0.8.9',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
+    ],
+    overrides: {
+      'contracts/dev/RequesterAuthorizerWithErc721.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
     },
   },
