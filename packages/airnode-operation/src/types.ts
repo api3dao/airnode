@@ -9,6 +9,8 @@ export interface DeployState {
   readonly airnodesByName: { readonly [name: string]: Airnode };
   readonly authorizersByName: { readonly [name: string]: string };
   readonly requestersByName: { readonly [name: string]: ethers.Contract };
+  readonly erc721sByName: { readonly [name: string]: ethers.Contract };
+  readonly authorizers: { readonly [name: string]: ethers.Contract };
   readonly config: Config;
   readonly contracts: {
     readonly AirnodeRrp?: AirnodeRrpV0;
@@ -91,6 +93,8 @@ export interface Deployment {
     readonly AirnodeRrp: string;
   };
   readonly sponsors: DeployedSponsor[];
+  readonly erc721s: { readonly [name: string]: string };
+  readonly authorizers: { readonly [name: string]: string };
 }
 
 // ===========================================

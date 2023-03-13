@@ -1,4 +1,10 @@
-import { AccessControlRegistryFactory, AirnodeRrpV0Factory, authorizers, mocks } from '@api3/airnode-protocol';
+import {
+  AccessControlRegistryFactory,
+  AirnodeRrpV0Factory,
+  authorizers,
+  mocks,
+  erc721Mocks,
+} from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
@@ -11,6 +17,7 @@ export async function deployAirnodeRrp(state: State): Promise<State> {
 
 export async function deployRequesters(state: State): Promise<State> {
   const requestersByName: { [name: string]: ethers.Contract } = {};
+  // TODO: This uses generic mocks exported from Airnode protocol and assumes all of them are requesters
   for (const [mockName, MockArtifact] of Object.entries(mocks)) {
     const MockRequester = new MockArtifact(state.deployer);
     const mockRequester = await MockRequester.deploy(state.contracts.AirnodeRrp!.address);
@@ -39,4 +46,15 @@ export async function deployAuthorizers(state: State): Promise<State> {
     authorizersByName[authorizerName] = authorizer.address;
   }
   return { ...state, authorizersByName };
+}
+
+export async function deployErc721s(state: State): Promise<State> {
+  const erc721sByName: { [name: string]: ethers.Contract } = {};
+  for (const [mockName, MockArtifact] of Object.entries(erc721Mocks)) {
+    const MockErc721 = new MockArtifact(state.deployer);
+    const mockErc721 = await MockErc721.deploy();
+    await mockErc721.deployed();
+    erc721sByName[mockName] = mockErc721 as unknown as ethers.Contract;
+  }
+  return { ...state, erc721sByName };
 }

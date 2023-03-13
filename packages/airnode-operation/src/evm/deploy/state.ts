@@ -25,6 +25,8 @@ export function buildDeployState(config: Config): State {
     provider,
     sponsorsById: {},
     templatesByName: {},
+    erc721sByName: {},
+    authorizers: {},
   };
 }
 
@@ -69,6 +71,12 @@ export function buildSaveableDeployment(state: State): Deployment {
     return { ...acc, [name]: requester.address };
   }, {});
 
+  const erc721Names = Object.keys(state.erc721sByName);
+  const erc721s: { [name: string]: string } = erc721Names.reduce((acc: any, name: string) => {
+    const erc721 = state.erc721sByName[name];
+    return { ...acc, [name]: erc721.address };
+  }, {});
+
   const sponsors: DeployedSponsor[] = state.config.sponsors.reduce((acc: any, configRequester: ConfigSponsor) => {
     const sponsor = state.sponsorsById[configRequester.id];
     const data = {
@@ -90,5 +98,7 @@ export function buildSaveableDeployment(state: State): Deployment {
     contracts,
     requesters,
     sponsors,
+    erc721s,
+    authorizers: state.authorizersByName,
   };
 }
