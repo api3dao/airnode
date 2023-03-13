@@ -18,6 +18,8 @@ import {
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerV0Factory,
   RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
+  MockRequesterAuthorizerWithErc721__factory as MockRequesterAuthorizerWithErc721Factory,
+  MockErc721__factory as MockErc721Factory,
 } from './contracts';
 import references from '../deployments/references.json';
 
@@ -36,11 +38,19 @@ const PROTOCOL_IDS = {
   AIRKEEPER: '12345',
 };
 
+// TODO: This and the mock exports below should be defined in airnode-operations instead and not exported from here
+const erc721Mocks = {
+  MockErc721Factory,
+};
+
 const mocks = {
   MockRrpRequesterFactory,
 };
+// TODO: This is also used by airnode-admin, but it uses the RequesterAuthorizerWithAirnodeFactory and we might flatten
+// the exports to simplify things (it shouldn't mix real and mock contracts though).
 const authorizers = {
   RequesterAuthorizerWithAirnodeFactory,
+  MockRequesterAuthorizerWithErc721Factory,
 };
 
 export {
@@ -55,6 +65,7 @@ export {
   authorizers,
   networks,
   PROTOCOL_IDS,
+  erc721Mocks,
 };
 
 export type {

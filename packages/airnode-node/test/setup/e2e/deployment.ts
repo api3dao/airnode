@@ -1,31 +1,33 @@
 import * as operation from '@api3/airnode-operation';
 
+// TODO: Why we have a similar function in evm-dev-deploy.ts?
 export async function deployAirnodeRrp(config: operation.Config): Promise<operation.Deployment> {
-  const state1 = operation.buildDeployState(config);
+  let state = operation.buildDeployState(config);
 
   // Deploy contracts
-  const state2 = await operation.deployAirnodeRrp(state1);
-  const state3 = await operation.deployRequesters(state2);
-  const state4 = await operation.deployAccessControlRegistry(state3);
-  const state5 = await operation.deployAuthorizers(state4);
+  state = await operation.deployAirnodeRrp(state);
+  state = await operation.deployRequesters(state);
+  state = await operation.deployAccessControlRegistry(state);
+  state = await operation.deployAuthorizers(state);
+  state = await operation.deployErc721s(state);
 
   // Assign wallets
-  const state6 = await operation.assignAirnodeAccounts(state5);
-  const state7 = await operation.assignRequesterAccounts(state6);
-  const state8 = await operation.assignSponsorWallets(state7);
+  state = await operation.assignAirnodeAccounts(state);
+  state = await operation.assignRequesterAccounts(state);
+  state = await operation.assignSponsorWallets(state);
 
   // Fund wallets
-  const state9 = await operation.fundAirnodeAccounts(state8);
-  const state10 = await operation.fundSponsorAccounts(state9);
-  const state11 = await operation.fundSponsorWallets(state10);
+  state = await operation.fundAirnodeAccounts(state);
+  state = await operation.fundSponsorAccounts(state);
+  state = await operation.fundSponsorWallets(state);
 
   // Sponsor requester contracts
-  const state12 = await operation.sponsorRequesters(state11);
+  state = await operation.sponsorRequesters(state);
 
   // Create templates
-  const state13 = await operation.createTemplates(state12);
+  state = await operation.createTemplates(state);
 
-  const deployment = operation.buildSaveableDeployment(state13);
+  const deployment = operation.buildSaveableDeployment(state);
 
   return deployment;
 }

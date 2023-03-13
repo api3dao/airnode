@@ -43,6 +43,33 @@ module.exports = {
           },
         },
       },
+      'contracts/authorizers/mock/MockRequesterAuthorizerWithErc721.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      'contracts/authorizers/mock/MockErc721.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      '@api3dao/nft-authorizer/contracts/RequesterAuthorizerWithErc721.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
     },
   },
 };
