@@ -42,7 +42,8 @@ describe('initializeProvider', () => {
 
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
-    expect(fetchAuthorizationsSpy).toHaveBeenCalledTimes(1);
+    // Empty authorizer arrays short-circuits authorization fetching
+    expect(fetchAuthorizationsSpy).toHaveBeenCalledTimes(0);
     expect(res?.requests.apiCalls).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',

@@ -8,14 +8,16 @@ it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', a
   const requests = [operation.buildFullRequest()];
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename, requests);
 
-  // Configure authorizers so that only the requesterAuthorizersWithErc721 can authorize
-  // An empty requesterEndpointAuthorizers array means that no authorizers are required hence the 0x0...
   const erc721Address = deployment.erc721s.MockErc721Factory;
   const requesterAuthorizersWithErc721Address = deployment.authorizers.MockRequesterAuthorizerWithErc721Factory;
+
+  // TODO - deposit NFT in order to authorize the request - see isAuthorized of RequesterAuthorizerWithErc721.sol
+
   const config = local.loadConfig();
   config.chains[0].authorizers.requesterEndpointAuthorizers = [];
   config.chains[0].authorizers.crossChainRequesterAuthorizers = [];
   config.chains[0].authorizers.crossChainRequesterAuthorizersWithErc721 = [];
+  // Since requesterAuthorizersWithErc721 is not empty, only it can authorize
   config.chains[0].authorizers.requesterAuthorizersWithErc721 = [
     {
       erc721s: [erc721Address],

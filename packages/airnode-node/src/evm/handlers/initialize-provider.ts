@@ -1,4 +1,5 @@
 import flatMap from 'lodash/flatMap';
+import isEmpty from 'lodash/isEmpty';
 import mergeWith from 'lodash/mergeWith';
 import { logger, PendingLog } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
@@ -15,16 +16,20 @@ import { AuthorizationByRequestId, EVMProviderState, LogsData, ProviderState } f
 type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 
 async function fetchSameChainAuthorizations(currentState: ProviderState<EVMProviderState>) {
-  const fetchOptions: authorizations.AirnodeRrpFetchOptions = {
-    type: 'airnodeRrp',
-    requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
-    authorizations: currentState.settings.authorizations,
-    airnodeAddress: currentState.settings.airnodeAddress,
-    airnodeRrpAddress: currentState.contracts.AirnodeRrp,
-    provider: currentState.provider,
-  };
-  const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
-  return { id: 'authorizations', data: res, logs };
+  if (isEmpty(currentState.settings.authorizers.requesterEndpointAuthorizers)) {
+    return { id: 'authorizations', data: {}, logs: [] };
+  } else {
+    const fetchOptions: authorizations.AirnodeRrpFetchOptions = {
+      type: 'airnodeRrp',
+      requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
+      authorizations: currentState.settings.authorizations,
+      airnodeAddress: currentState.settings.airnodeAddress,
+      airnodeRrpAddress: currentState.contracts.AirnodeRrp,
+      provider: currentState.provider,
+    };
+    const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
+    return { id: 'authorizations', data: res, logs };
+  }
 }
 
 async function fetchSameChainErc721Authorizations(currentState: ProviderState<EVMProviderState>) {
@@ -189,44 +194,58 @@ export async function initializeProvider(
   // STEP 6: Fetch authorizations and transaction counts
   // =================================================================
   // NOTE: None of these promises can fail otherwise Promise.all will reject
-  const authAndTxCountPromises: readonly ParallelPromise[] = [
-    fetchSameChainAuthorizations(state5),
-    fetchSameChainErc721Authorizations(state5),
-    fetchTransactionCounts(state5),
-    fetchCrossChainAuthorizations(state5, 'crossChainAuthorizations'),
-    fetchCrossChainAuthorizations(state5, 'erc721CrossChainAuthorizations'),
-  ];
+
+  // If all authorizers arrays are empty then all requests are authorized
+  const allAuthorizersEmpty = Object.values(state5.settings.authorizers).every((arr) => isEmpty(arr));
+
+  const authAndTxCountPromises: readonly ParallelPromise[] = allAuthorizersEmpty
+    ? [fetchTransactionCounts(state5)]
+    : [
+        fetchTransactionCounts(state5),
+        fetchSameChainAuthorizations(state5),
+        fetchSameChainErc721Authorizations(state5),
+        fetchCrossChainAuthorizations(state5, 'crossChainAuthorizations'),
+        fetchCrossChainAuthorizations(state5, 'erc721CrossChainAuthorizations'),
+      ];
   const authAndTxResults = await Promise.all(authAndTxCountPromises);
 
   // These promises can resolve in any order, so we need to find each one by it's key
   const txCountRes = authAndTxResults.find((r) => r.id === 'transaction-counts')!;
   logger.logPending(txCountRes.logs);
-
-  const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
-  logger.logPending(authRes.logs);
-
-  const crossAuthRes = authAndTxResults.find((r) => r.id === 'crossChainAuthorizations')!;
-  logger.logPending(crossAuthRes.logs);
-
-  const erc721AuthRes = authAndTxResults.find((r) => r.id === 'erc721Authorizations')!;
-  logger.logPending(erc721AuthRes.logs);
-
-  const erc721CrossAuthRes = authAndTxResults.find((r) => r.id === 'erc721CrossChainAuthorizations')!;
-  logger.logPending(erc721CrossAuthRes.logs);
-
   const transactionCountsBySponsorAddress = txCountRes.data!;
 
-  // Merge authorization statuses
-  const authorizationsByRequestId: AuthorizationByRequestId = authRes.data!;
-  const crossAuthorizationsByRequestId: AuthorizationByRequestId[] = crossAuthRes.data!;
-  const erc721AuthorizationsByRequestId: AuthorizationByRequestId[] = erc721AuthRes.data!;
-  const erc721crossAuthorizationsByRequestId: AuthorizationByRequestId[] = erc721CrossAuthRes.data!;
-  const mergedAuthorizationsByRequestId = mergeAuthorizationsByRequestId([
-    authorizationsByRequestId,
-    ...crossAuthorizationsByRequestId,
-    ...erc721AuthorizationsByRequestId,
-    ...erc721crossAuthorizationsByRequestId,
-  ]);
+  let mergedAuthorizationsByRequestId: AuthorizationByRequestId;
+  if (allAuthorizersEmpty) {
+    const authorizationByRequestIds = state5.requests.apiCalls.map((pendingApiCall) => ({
+      [pendingApiCall.id]: true,
+    }));
+    mergedAuthorizationsByRequestId = Object.assign({}, ...authorizationByRequestIds);
+  } else {
+    const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
+    logger.logPending(authRes.logs);
+
+    const crossAuthRes = authAndTxResults.find((r) => r.id === 'crossChainAuthorizations')!;
+    logger.logPending(crossAuthRes.logs);
+
+    const erc721AuthRes = authAndTxResults.find((r) => r.id === 'erc721Authorizations')!;
+    logger.logPending(erc721AuthRes.logs);
+
+    const erc721CrossAuthRes = authAndTxResults.find((r) => r.id === 'erc721CrossChainAuthorizations')!;
+    logger.logPending(erc721CrossAuthRes.logs);
+
+    // Merge authorization statuses
+    const authorizationsByRequestId: AuthorizationByRequestId = authRes.data!;
+    const crossAuthorizationsByRequestId: AuthorizationByRequestId[] = crossAuthRes.data!;
+    const erc721AuthorizationsByRequestId: AuthorizationByRequestId[] = erc721AuthRes.data!;
+    const erc721crossAuthorizationsByRequestId: AuthorizationByRequestId[] = erc721CrossAuthRes.data!;
+    mergedAuthorizationsByRequestId = mergeAuthorizationsByRequestId([
+      authorizationsByRequestId,
+      ...crossAuthorizationsByRequestId,
+      ...erc721AuthorizationsByRequestId,
+      ...erc721crossAuthorizationsByRequestId,
+    ]);
+  }
+
   const state6 = state.update(state5, { transactionCountsBySponsorAddress });
 
   // =================================================================

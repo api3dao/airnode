@@ -216,16 +216,6 @@ export async function fetch(
     return [[], {}];
   }
 
-  // If there are no authorizer or ERC721 contracts then endpoint is public
-  const contracts =
-    fetchOptions.type === 'airnodeRrp' ? fetchOptions.requesterEndpointAuthorizers : fetchOptions.erc721s;
-  if (isEmpty(contracts)) {
-    const authorizationByRequestIds = apiCalls.map((pendingApiCall) => ({
-      [pendingApiCall.id]: true,
-    }));
-    return [[], Object.assign({}, ...authorizationByRequestIds) as AuthorizationByRequestId];
-  }
-
   // Skip fetching authorization statuses if found in config for a specific authorization type
   // and requester address
   const configAuthorizationsByRequestId = checkConfigAuthorizations(apiCalls, fetchOptions);

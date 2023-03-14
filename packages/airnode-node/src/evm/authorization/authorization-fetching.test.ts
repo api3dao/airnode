@@ -41,26 +41,6 @@ describe('fetch (authorizations)', () => {
     expect(res).toEqual({});
   });
 
-  it('returns true for all pending requests if authorizers arrays are empty', async () => {
-    const apiCalls = Array.from(Array(19).keys()).map((n) => {
-      return fixtures.requests.buildApiCall({
-        id: `${n}`,
-        endpointId: `endpointId-${n}`,
-        requesterAddress: `requesterAddress-${n}`,
-        sponsorAddress: 'sponsorAddress',
-      });
-    });
-    const [logs, res] = await authorization.fetch(apiCalls, {
-      ...mutableFetchOptions,
-      requesterEndpointAuthorizers: [],
-    });
-
-    expect(logs).toEqual([]);
-    expect(Object.keys(res).length).toEqual(19);
-    expect(res['0']).toEqual(true);
-    expect(res['18']).toEqual(true);
-  });
-
   it('calls the contract with groups of 10', async () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(10).fill(true));
     checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(9).fill(true));

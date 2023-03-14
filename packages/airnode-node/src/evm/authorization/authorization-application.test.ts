@@ -33,7 +33,12 @@ describe('mergeAuthorizations', () => {
     const apiCall = fixtures.requests.buildApiCall({ id: '0xapiCallId' });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
-    expect(logs).toEqual([]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: 'Requester:requesterAddress is authorized to access Endpoint ID:endpointId for Request ID:0xapiCallId',
+      },
+    ]);
     expect(res).toEqual([apiCall]);
   });
 
