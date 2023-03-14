@@ -35,5 +35,5 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
   mockReadFileSync('config.json', JSON.stringify(config));
   jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
 
-  return { deployment, provider: buildProvider(), config, mnemonic };
+  return { deployment, provider: buildProvider(), config, mnemonic, deployerIndex };
 };

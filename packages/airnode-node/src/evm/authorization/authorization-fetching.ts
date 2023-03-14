@@ -184,7 +184,6 @@ async function fetchErc721AuthorizationStatuses(
 
     return [[groupLog], null];
   }
-
   const decodedMulticall = decodeMulticall(requesterAuthorizerWithErc721, goData.data);
   const authorizationsById = applyErc721Authorizations(apiCalls, erc721s, decodedMulticall);
 
