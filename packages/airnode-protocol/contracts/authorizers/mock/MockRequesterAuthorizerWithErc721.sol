@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "@api3dao/nft-authorizer/contracts/RequesterAuthorizerWithErc721.sol";
+import "../../dev/RequesterAuthorizerWithErc721.sol";
 
 contract MockRequesterAuthorizerWithErc721 is RequesterAuthorizerWithErc721 {
     constructor(

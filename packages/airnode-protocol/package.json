@@ -46,7 +46,6 @@
   },
   "dependencies": {
     "@api3/airnode-utilities": "^0.10.0",
-    "@api3dao/nft-authorizer": "api3dao/nft-authorizer#f4bba58837f6d9d3b28254f3c2764cbe6e3bb88f",
     "@openzeppelin/contracts": "4.4.2",
     "ethers": "^5.7.2"
   }
