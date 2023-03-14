@@ -184,6 +184,7 @@ async function fetchErc721AuthorizationStatuses(
 
     return [[groupLog], null];
   }
+  // TODO: It would be nice to log whether the requester is authorized or not
 
   const decodedMulticall = decodeMulticall(requesterAuthorizerWithErc721, goData.data);
   const authorizationsById = applyErc721Authorizations(apiCalls, erc721s, decodedMulticall);
