@@ -250,9 +250,9 @@ module "oevGw" {
   }
   project = var.gcp_project
 
-  invoke_targets = [
-    module.signOevReq[0].function_name
-  ]
+  invoke_targets = {
+    signOevReq = module.signOevReq[0].function_name
+  }
 
   depends_on = [
     google_project_service.apigateway_api,
