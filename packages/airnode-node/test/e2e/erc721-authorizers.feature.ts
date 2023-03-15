@@ -47,7 +47,7 @@ it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', a
 
   await local.startCoordinator();
 
-  // FulfilledRequest is absent if the request was not authorized
+  // FulfilledRequest being present indicates success
   const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
   expect(postInvokeLogs).toEqual(postInvokeExpectedLogs);

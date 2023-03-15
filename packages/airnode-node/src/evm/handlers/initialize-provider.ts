@@ -207,6 +207,7 @@ export async function initializeProvider(
         fetchCrossChainAuthorizations(state5, 'crossChainAuthorizations'),
         fetchCrossChainAuthorizations(state5, 'erc721CrossChainAuthorizations'),
       ];
+
   const authAndTxResults = await Promise.all(authAndTxCountPromises);
 
   // These promises can resolve in any order, so we need to find each one by it's key
@@ -216,10 +217,9 @@ export async function initializeProvider(
 
   let mergedAuthorizationsByRequestId: AuthorizationByRequestId;
   if (allAuthorizersEmpty) {
-    const authorizationByRequestIds = state5.requests.apiCalls.map((pendingApiCall) => ({
-      [pendingApiCall.id]: true,
-    }));
-    mergedAuthorizationsByRequestId = Object.assign({}, ...authorizationByRequestIds);
+    mergedAuthorizationsByRequestId = Object.fromEntries(
+      state5.requests.apiCalls.map((pendingApiCall) => [pendingApiCall.id, true])
+    );
   } else {
     const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
     logger.logPending(authRes.logs);
