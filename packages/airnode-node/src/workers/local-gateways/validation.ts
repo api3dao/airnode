@@ -148,18 +148,13 @@ export const signOevDataBodySchema = z.object({
 
 export type ProcessSignOevDataRequestBody = z.infer<typeof signOevDataBodySchema>;
 
-export function dropInvalidBeacons(beacons: Beacon[]) {
+export function validateAndDecodeBeacons(beacons: Beacon[]) {
   const currentTime = new Date();
+  const validDecodedBeacons: BeaconDecoded[] = [];
 
-  return beacons.reduce((result, beacon) => {
-    const goBeaconValidation = goSync(() => {
+  const goBeaconValidation = goSync(() => {
+    for (const beacon of beacons) {
       const { airnodeAddress, endpointId, encodedParameters, encodedValue, timestamp, signature } = beacon;
-
-      // We don't have data for this beacon
-      if (!encodedValue || !timestamp || !signature) {
-        throw new Error('Missing beacon data');
-      }
-
       // The timestamp is older than the last 2 minutes
       if (isBefore(toDate(Number(timestamp)), addMinutes(currentTime, -TIMESTAMP_DEVIATION))) {
         throw new Error('Beacon timestamp too old');
@@ -167,7 +162,7 @@ export function dropInvalidBeacons(beacons: Beacon[]) {
 
       // To check parameters validity, exception is caught by the goSync
       decode(encodedParameters);
-      const decodedValue = ethers.BigNumber.from(ethers.utils.defaultAbiCoder.decode(['int256'], encodedValue)[0]);
+      const decodedValue = ethers.BigNumber.from(ethers.utils.defaultAbiCoder.decode(['int256'], encodedValue!)[0]);
 
       const template: ApiCallTemplateWithoutId = {
         airnodeAddress,
@@ -181,7 +176,7 @@ export function dropInvalidBeacons(beacons: Beacon[]) {
           ethers.utils.solidityPack(['bytes32', 'uint256', 'bytes'], [templateId, timestamp, encodedValue])
         )
       );
-      const addressFromSignature = ethers.utils.verifyMessage(message, signature);
+      const addressFromSignature = ethers.utils.verifyMessage(message, signature!);
 
       // Signature doesn't match
       if (airnodeAddress !== addressFromSignature) {
@@ -192,87 +187,70 @@ export function dropInvalidBeacons(beacons: Beacon[]) {
         throw new Error('Beacon value not within range');
       }
 
-      return decodedValue;
-    });
-    if (!goBeaconValidation.success) {
-      logger.log(`Invalid beacon data: ${goBeaconValidation.error}`);
-      return result;
+      validDecodedBeacons.push({ ...(beacon as Required<Beacon>), decodedValue });
     }
-
-    const decodedValue = goBeaconValidation.data;
-    return [...result, { ...(beacon as Required<Beacon>), decodedValue }];
-  }, [] as BeaconDecoded[]);
-}
-
-function compareDecodedValue(a: BeaconDecoded, b: BeaconDecoded) {
-  if (a.decodedValue.lt(b.decodedValue)) return -1;
-  if (a.decodedValue.gt(b.decodedValue)) return 1;
-  return 0;
-}
-
-export function chooseMaximalConsistentSet(beacons: BeaconDecoded[]) {
-  // It's either just one beacon data feed or we've eleminated rest of the beacons in the previous step
-  if (beacons.length <= 1) return beacons;
-
-  const sortedBeacons = [...beacons].sort(compareDecodedValue);
-  let maxConsistent: BeaconDecoded[] = [];
-
-  for (let start = 0; start < sortedBeacons.length; start++) {
-    for (let end = start + 1; end < sortedBeacons.length; end++) {
-      const tmpConsistent = sortedBeacons.slice(start, end + 1);
-      const avg = tmpConsistent
-        .reduce((sum, beacon) => sum.add(beacon.decodedValue), ethers.BigNumber.from(0))
-        .div(ethers.BigNumber.from(tmpConsistent.length));
-      const maxDeviation = avg.mul(ONE_PERCENT).div(HUNDRED_PERCENT);
-      // Since the values are sorted, it's sufficient to check only the boundary values. If those pass all the values in between must pass as well.
-      if (
-        avg.sub(tmpConsistent.at(0)!.decodedValue).abs().lte(maxDeviation) &&
-        avg.sub(tmpConsistent.at(-1)!.decodedValue).abs().lte(maxDeviation)
-      ) {
-        if (tmpConsistent.length > maxConsistent.length) {
-          maxConsistent = tmpConsistent;
-        }
-      }
-    }
+  });
+  if (!goBeaconValidation.success) {
+    logger.log(`Invalid beacon data: ${goBeaconValidation.error}`);
+    return null;
   }
 
-  return maxConsistent;
+  return validDecodedBeacons;
+}
+
+export function allBeaconsConsistent(beacons: BeaconDecoded[]) {
+  const avg = beacons
+    .reduce((sum, beacon) => sum.add(beacon.decodedValue), ethers.BigNumber.from(0))
+    .div(ethers.BigNumber.from(beacons.length));
+  const maxDeviation = avg.mul(ONE_PERCENT).div(HUNDRED_PERCENT);
+
+  return beacons.every((beacon) => avg.sub(beacon.decodedValue).abs().lte(maxDeviation));
 }
 
 export function verifySignOevDataRequest(
   beacons: Beacon[]
 ): VerificationResult<{ validUpdateValues: ethers.BigNumber[] }> {
   const majority = Math.floor(beacons.length / 2) + 1;
+  const beaconsWithData = beacons.filter((beacon) => beacon.encodedValue && beacon.timestamp && beacon.signature);
+
+  // We must have at least a majority of beacons with data
+  if (beaconsWithData.length < majority) {
+    return {
+      success: false,
+      statusCode: 400,
+      error: { message: 'Not enough beacons with data to proceed' },
+    };
+  }
+
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
-
-  if (!beacons.find((beacon) => beacon.airnodeAddress === airnodeAddress)) {
+  if (!beacons.some((beacon) => beacon.airnodeAddress === airnodeAddress)) {
     return {
       success: false,
       statusCode: 400,
-      error: { message: 'Missing signed beacon data from the Airnode requested for signing' },
+      error: { message: 'Missing beacon data from the Airnode requested for signing' },
     };
   }
 
-  const validBeacons = dropInvalidBeacons(beacons);
-  if (validBeacons.length < majority) {
+  const validDecodedBeacons = validateAndDecodeBeacons(beaconsWithData);
+  if (!validDecodedBeacons) {
     return {
       success: false,
       statusCode: 400,
-      error: { message: 'Not enough valid signed beacon data to proceed' },
+      error: { message: 'Not enough beacons with valid data to proceed' },
     };
   }
 
-  const consistentBeacons = chooseMaximalConsistentSet(validBeacons);
-  if (consistentBeacons.length < majority) {
+  const beaconsConsistent = allBeaconsConsistent(validDecodedBeacons);
+  if (!beaconsConsistent) {
     return {
       success: false,
       statusCode: 400,
-      error: { message: 'Not enough signed beacon data within the deviation threshold to proceed' },
+      error: { message: 'Not enough valid beacon data within the deviation threshold to proceed' },
     };
   }
 
-  return { success: true, validUpdateValues: map(consistentBeacons, 'decodedValue') };
+  return { success: true, validUpdateValues: map(validDecodedBeacons, 'decodedValue') };
 }
 
 export const checkRequestOrigin = (allowedOrigins: string[], origin?: string) =>
