@@ -204,7 +204,7 @@ describe('getBucketDirectoryStructure', () => {
   it('returns bucket directory structure', async () => {
     gcsGetFilesSpy.mockImplementation(() => [mockBucketDirectoryStructureList.map((path) => ({ name: path }))]);
 
-    const directoryStructure = await getBucketDirectoryStructure(bucketName);
+    const directoryStructure = await getBucketDirectoryStructure(bucket);
     expect(directoryStructure).toEqual(mockBucketDirectoryStructure);
     expect(gcsGetFilesSpy).toHaveBeenCalled();
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -214,7 +214,7 @@ describe('getBucketDirectoryStructure', () => {
   it(`throws an error if can't list bucket content`, async () => {
     gcsGetFilesSpy.mockRejectedValue(gcsError);
 
-    await expect(getBucketDirectoryStructure(bucketName)).rejects.toThrow(
+    await expect(getBucketDirectoryStructure(bucket)).rejects.toThrow(
       new Error(`Failed to list content of bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -226,7 +226,7 @@ describe('storeFileToBucket', () => {
   it('stores file in GCS bucket', async () => {
     gcsUploadSpy.mockImplementation(() => {});
 
-    await storeFileToBucket(bucketName, bucketFilePath, filePath);
+    await storeFileToBucket(bucket, bucketFilePath, filePath);
     expect(gcsUploadSpy).toHaveBeenCalled();
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
@@ -235,7 +235,7 @@ describe('storeFileToBucket', () => {
   it(`throws an error if can't store file in bucket`, async () => {
     gcsUploadSpy.mockRejectedValue(gcsError);
 
-    await expect(storeFileToBucket(bucketName, bucketFilePath, filePath)).rejects.toThrow(
+    await expect(storeFileToBucket(bucket, bucketFilePath, filePath)).rejects.toThrow(
       new Error(`Failed to store file '${filePath}' to GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -247,7 +247,7 @@ describe('getFileFromBucket', () => {
   it('fetches file from GCS bucket', async () => {
     gcsDownloadSpy.mockImplementation(() => [fileContent]);
 
-    const fetchedFileContent = await getFileFromBucket(bucketName, bucketFilePath);
+    const fetchedFileContent = await getFileFromBucket(bucket, bucketFilePath);
     expect(fetchedFileContent).toEqual(fileContent);
     expect(gcsDownloadSpy).toHaveBeenCalled();
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -258,7 +258,7 @@ describe('getFileFromBucket', () => {
   it(`throw an error if can't fetch file from bucket`, async () => {
     gcsDownloadSpy.mockRejectedValue(gcsError);
 
-    await expect(getFileFromBucket(bucketName, bucketFilePath)).rejects.toThrow(
+    await expect(getFileFromBucket(bucket, bucketFilePath)).rejects.toThrow(
       new Error(`Failed to fetch file '${bucketFilePath}' from GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -273,7 +273,7 @@ describe('copyFileInBucket', () => {
   it('copies file within a bucket', async () => {
     gcsCopySpy.mockImplementation(() => {});
 
-    await copyFileInBucket(bucketName, bucketFilePath, toBucketFilePath);
+    await copyFileInBucket(bucket, bucketFilePath, toBucketFilePath);
     expect(gcsCopySpy).toHaveBeenCalledWith(toBucketFilePath);
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
@@ -283,7 +283,7 @@ describe('copyFileInBucket', () => {
   it(`throw an error if can't copy file within bucket`, async () => {
     gcsCopySpy.mockRejectedValue(gcsError);
 
-    await expect(copyFileInBucket(bucketName, bucketFilePath, toBucketFilePath)).rejects.toThrow(
+    await expect(copyFileInBucket(bucket, bucketFilePath, toBucketFilePath)).rejects.toThrow(
       new Error(
         `Failed to copy file '${bucketFilePath}' to file '${toBucketFilePath}' within GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`
       )
@@ -302,7 +302,7 @@ describe('deleteObjects', () => {
     gcsFileDeleteSpy.mockImplementation(() => {});
 
     await deleteBucketDirectory(
-      bucketName,
+      bucket,
       mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
@@ -318,7 +318,7 @@ describe('deleteObjects', () => {
 
     await expect(
       deleteBucketDirectory(
-        bucketName,
+        bucket,
         mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory
       )
     ).rejects.toThrow(
@@ -334,7 +334,7 @@ describe('deleteBucket', () => {
   it('deletes an empty GCS bucket', async () => {
     gcsBucketDeleteSpy.mockImplementation(() => {});
 
-    await deleteBucket(bucketName);
+    await deleteBucket(bucket);
     expect(gcsBucketDeleteSpy).toHaveBeenCalledWith();
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);
     expect(gcsBucketSpy).toHaveBeenCalledWith(bucketName);
@@ -343,7 +343,7 @@ describe('deleteBucket', () => {
   it(`throw an error if can't delete files from bucket`, async () => {
     gcsBucketDeleteSpy.mockRejectedValue(gcsError);
 
-    await expect(deleteBucket(bucketName)).rejects.toThrow(
+    await expect(deleteBucket(bucket)).rejects.toThrow(
       new Error(`Failed to delete GCS bucket '${bucketName}': Error: ${gcsErrorMessage}`)
     );
     expect(gcsStorageSpy).toHaveBeenCalledTimes(1);

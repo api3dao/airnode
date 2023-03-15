@@ -1,13 +1,12 @@
-const invokeMock = jest.fn();
-jest.mock('aws-sdk', () => ({
-  Lambda: jest.fn().mockImplementation(() => ({
-    invoke: invokeMock,
-  })),
-}));
-
+import { mockClient } from 'aws-sdk-client-mock';
+import 'aws-sdk-client-mock-jest';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { logger } from '@api3/airnode-utilities';
 import * as worker from './workers';
 import * as fixtures from '../../test/fixtures';
+import { encodeUtf8 } from '../workers/cloud-platforms/aws';
+
+const mockLambdaClient = mockClient(LambdaClient);
 
 const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as ReadonlyArray<keyof typeof worker>;
 
@@ -24,31 +23,33 @@ const providerErrorForWorker = {
 workers.forEach((workerType) => {
   describe(`${workerType} worker`, () => {
     fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
+    const state = fixtures.buildEVMProviderSponsorState();
+    const mockInvokeCommandInput = {
+      FunctionName: serverlessFunctionName,
+      Payload: encodeUtf8(JSON.stringify({ state, functionName: functionNames[workerType] })),
+    };
+
+    beforeEach(() => {
+      mockLambdaClient.reset();
+    });
 
     it('handles remote AWS calls', async () => {
-      const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((_params, callback) =>
-        callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
-      );
+      mockLambdaClient.on(InvokeCommand, mockInvokeCommandInput).resolves({
+        Payload: encodeUtf8(JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) })),
+      });
+
       const workerOpts = fixtures.buildWorkerOptions({
         cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
       });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([]);
       expect(res).toEqual(state);
-      expect(invokeMock).toHaveBeenCalledTimes(1);
-      expect(invokeMock).toHaveBeenCalledWith(
-        {
-          FunctionName: serverlessFunctionName,
-          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
-        },
-        expect.anything()
-      );
+      expect(mockLambdaClient).toHaveReceivedCommandWith(InvokeCommand, mockInvokeCommandInput);
     });
 
     it('returns an error if the worker rejects', async () => {
-      const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((_params, callback) => callback(new Error('Something went wrong'), null));
+      mockLambdaClient.on(InvokeCommand, mockInvokeCommandInput).rejects(new Error('Something went wrong'));
+
       const workerOpts = fixtures.buildWorkerOptions({
         cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
       });
@@ -61,57 +62,36 @@ workers.forEach((workerType) => {
         },
       ]);
       expect(res).toEqual(null);
-      expect(invokeMock).toHaveBeenCalledTimes(1);
-      expect(invokeMock).toHaveBeenCalledWith(
-        {
-          FunctionName: serverlessFunctionName,
-          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
-        },
-        expect.anything()
-      );
+      expect(mockLambdaClient).toHaveReceivedCommandWith(InvokeCommand, mockInvokeCommandInput);
     });
 
     it('returns an error if the response has an error log', async () => {
-      const state = fixtures.buildEVMProviderSponsorState();
       const errorLog = logger.pend('ERROR', 'Something went wrong');
-      invokeMock.mockImplementationOnce((_params, callback) =>
-        callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
-      );
+      mockLambdaClient.on(InvokeCommand, mockInvokeCommandInput).resolves({
+        Payload: encodeUtf8(JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) })),
+      });
+
       const workerOpts = fixtures.buildWorkerOptions({
         cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
       });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([errorLog]);
       expect(res).toEqual(null);
-      expect(invokeMock).toHaveBeenCalledTimes(1);
-      expect(invokeMock).toHaveBeenCalledWith(
-        {
-          FunctionName: serverlessFunctionName,
-          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
-        },
-        expect.anything()
-      );
+      expect(mockLambdaClient).toHaveReceivedCommandWith(InvokeCommand, mockInvokeCommandInput);
     });
 
     it('returns an error if the response is not ok', async () => {
-      const state = fixtures.buildEVMProviderSponsorState();
-      invokeMock.mockImplementationOnce((_params, callback) =>
-        callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
-      );
+      mockLambdaClient
+        .on(InvokeCommand, mockInvokeCommandInput)
+        .resolves({ Payload: encodeUtf8(JSON.stringify({ body: JSON.stringify({ ok: false }) })) });
+
       const workerOpts = fixtures.buildWorkerOptions({
         cloudProvider: { type: 'aws', region: 'us-east-1', disableConcurrencyReservations: false },
       });
       const [logs, res] = await worker[workerType](state, workerOpts);
       expect(logs).toEqual([{ level: 'ERROR', message: providerErrorForWorker[workerType] }]);
       expect(res).toEqual(null);
-      expect(invokeMock).toHaveBeenCalledTimes(1);
-      expect(invokeMock).toHaveBeenCalledWith(
-        {
-          FunctionName: serverlessFunctionName,
-          Payload: JSON.stringify({ state, functionName: functionNames[workerType] }),
-        },
-        expect.anything()
-      );
+      expect(mockLambdaClient).toHaveReceivedCommandWith(InvokeCommand, mockInvokeCommandInput);
     });
   });
 });

@@ -351,7 +351,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
     logger.debug(`Using Airnode bucket '${bucket.name}'`);
 
     logger.debug('Fetching Airnode bucket content');
-    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucket.name);
+    const directoryStructure = await cloudProviderLib[type].getBucketDirectoryStructure(bucket);
 
     const bucketStagePath = `${airnodeAddress}/${stage}`;
     const bucketDeploymentPath = `${bucketStagePath}/${timestamp}`;
@@ -377,7 +377,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const bucketConfigPath = `${bucketStagePath}/${latestDeployment}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const goGetRemoteConfigFileFromBucket = await go(() =>
-        cloudProviderLib[type].getFileFromBucket(bucket!.name, bucketConfigPath)
+        cloudProviderLib[type].getFileFromBucket(bucket!, bucketConfigPath)
       );
       if (!goGetRemoteConfigFileFromBucket.success) {
         throw new Error(`Failed to fetch configuration file. Error: ${goGetRemoteConfigFileFromBucket.error.message}`);
@@ -404,7 +404,7 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
       const latestBucketTerraformStatePath = `${bucketStagePath}/${latestDeployment}/${TF_STATE_FILENAME}`;
       const newBucketTerraformStatePath = `${bucketDeploymentPath}/${TF_STATE_FILENAME}`;
       await cloudProviderLib[type].copyFileInBucket(
-        bucket.name,
+        bucket,
         latestBucketTerraformStatePath,
         newBucketTerraformStatePath
       );
@@ -412,11 +412,11 @@ export const deployAirnode = async (config: Config, configPath: string, secretsP
 
     logger.debug(`Storing configuration file for new deployment ${bucketDeploymentPath}`);
     const bucketConfigPath = `${bucketDeploymentPath}/config.json`;
-    await cloudProviderLib[type].storeFileToBucket(bucket.name, bucketConfigPath, configPath);
+    await cloudProviderLib[type].storeFileToBucket(bucket, bucketConfigPath, configPath);
 
     logger.debug(`Storing secrets file for new deployment ${bucketDeploymentPath}`);
     const bucketSecretsPath = `${bucketDeploymentPath}/secrets.env`;
-    await cloudProviderLib[type].storeFileToBucket(bucket.name, bucketSecretsPath, secretsPath);
+    await cloudProviderLib[type].storeFileToBucket(bucket, bucketSecretsPath, secretsPath);
 
     logger.debug('Deploying Airnode via Terraform recipes');
     const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
@@ -486,7 +486,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
     return deployments;
   }
 
-  const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
+  const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket);
   const bucketMissingFiles = getMissingBucketFiles(directoryStructure);
 
   for (const [airnodeAddress, addressDirectory] of Object.entries(directoryStructure)) {
@@ -524,7 +524,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       const bucketConfigPath = `${bucketLatestDeploymentPath}/config.json`;
       logger.debug(`Fetching configuration file '${bucketConfigPath}'`);
       const goGetConfigFileFromBucket = await go(() =>
-        cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, bucketConfigPath)
+        cloudProviderLib[cloudProviderType].getFileFromBucket(bucket, bucketConfigPath)
       );
       if (!goGetConfigFileFromBucket.success) {
         logger.warn(`Failed to fetch configuration file. Error: ${goGetConfigFileFromBucket.error.message} Skipping.`);
@@ -539,7 +539,7 @@ async function fetchDeployments(cloudProviderType: CloudProvider['type'], deploy
       logger.debug(`Fetching secrets file '${bucketConfigPath}'`);
       const bucketSecretsPath = `${bucketLatestDeploymentPath}/secrets.env`;
       const goGetSecretsFileFromBucket = await go(() =>
-        cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, bucketSecretsPath)
+        cloudProviderLib[cloudProviderType].getFileFromBucket(bucket, bucketSecretsPath)
       );
       if (!goGetSecretsFileFromBucket.success) {
         logger.warn(`Failed to fetch secrets file. Error: ${goGetSecretsFileFromBucket.error.message} Skipping.`);
@@ -626,11 +626,8 @@ async function downloadDeploymentFiles(
   const configFileBucketPath = `${deploymentPathPrefix}/config.json`;
   const secretsFileBucketPath = `${deploymentPathPrefix}/secrets.env`;
 
-  const configContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket.name, configFileBucketPath);
-  const secretsContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(
-    bucket.name,
-    secretsFileBucketPath
-  );
+  const configContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket, configFileBucketPath);
+  const secretsContent = await cloudProviderLib[cloudProviderType].getFileFromBucket(bucket, secretsFileBucketPath);
 
   return { configContent, secretsContent };
 }
@@ -678,20 +675,20 @@ export async function removeAirnode(deploymentId: string) {
 
     // Refreshing the bucket content because the source code archives were removed by Terraform
     logger.debug('Refreshing Airnode bucket content');
-    const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket.name);
+    const directoryStructure = await cloudProviderLib[cloudProviderType].getBucketDirectoryStructure(bucket);
     const addressDirectory = getAddressDirectory(directoryStructure, airnodeAddress) as Directory;
     const stageDirectory = getStageDirectory(directoryStructure, airnodeAddress, stage) as Directory;
 
     // Delete stage directory and its content
     logger.debug(`Deleting deployment directory '${stageDirectory.bucketKey}' and its content`);
-    await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket.name, stageDirectory);
+    await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket, stageDirectory);
     // eslint-disable-next-line functional/immutable-data
     delete addressDirectory.children[stage];
 
     // Delete Airnode address directory if empty
     if (Object.keys(addressDirectory.children).length === 0) {
       logger.debug(`Deleting Airnode address directory '${addressDirectory.bucketKey}'`);
-      await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket.name, addressDirectory);
+      await cloudProviderLib[cloudProviderType].deleteBucketDirectory(bucket, addressDirectory);
       // eslint-disable-next-line functional/immutable-data
       delete directoryStructure[airnodeAddress];
     }
@@ -699,7 +696,7 @@ export async function removeAirnode(deploymentId: string) {
     // Delete the whole bucket if empty
     if (Object.keys(directoryStructure).length === 0) {
       logger.debug(`Deleting Airnode bucket '${bucket.name}'`);
-      await cloudProviderLib[cloudProviderType].deleteBucket(bucket.name);
+      await cloudProviderLib[cloudProviderType].deleteBucket(bucket);
     }
   });
 

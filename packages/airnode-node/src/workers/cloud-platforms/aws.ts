@@ -1,49 +1,53 @@
 import { logger } from '@api3/airnode-utilities';
-import { goSync } from '@api3/promise-utils';
-import AWS from 'aws-sdk';
+import { go } from '@api3/promise-utils';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { WorkerParameters, WorkerResponse } from '../../types';
 
-export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
-  // lambda.invoke is synchronous so we need to wrap this in a promise
-  return new Promise((spawnResolve, spawnReject) => {
-    // Uses the current region by default
-    const lambda = new AWS.Lambda();
+export function encodeUtf8(input: string): Uint8Array {
+  return new TextEncoder().encode(input);
+}
 
-    // AWS doesn't allow uppercase letters in lambda function names
-    const resolvedName = `airnode-${params.deploymentId}-run`;
+export function decodeUtf8(input: Uint8Array): string {
+  return new TextDecoder('utf-8').decode(input);
+}
 
-    const options = {
-      FunctionName: resolvedName,
-      Payload: JSON.stringify(params.payload),
-    };
+export async function spawn(params: WorkerParameters): Promise<WorkerResponse> {
+  // Uses the current region by default
+  const awsLambdaClient = new LambdaClient({});
+  const resolvedName = `airnode-${params.deploymentId}-run`;
 
-    const resolve: typeof spawnResolve = (value) => {
-      logger.debug(`Successful Lambda response: ${value}`);
-      spawnResolve(value);
-    };
+  const options = {
+    FunctionName: resolvedName,
+    Payload: encodeUtf8(JSON.stringify(params.payload)),
+  };
 
-    const reject: typeof spawnReject = (error) => {
-      logger.debug(`Lambda invocation or execution failed. Response: ${error}`);
-      spawnReject(error);
-    };
+  // The Lambda invocation callback populates the error (first argument) only when the invocation fails (e.g. status
+  // code is 400) or the request is not parsed properly by the SDK and can't be invoked. For errors and timeouts that
+  // happen inside the invoked lambda have "data.FunctionError" and "data.Payload.errorMessage" populated instead.
+  // See: https://stackoverflow.com/q/42672023 and https://stackoverflow.com/q/48644093
+  const invokeCommand = new InvokeCommand(options);
+  const goInvoke = await go(() => awsLambdaClient.send(invokeCommand));
+  if (!goInvoke.success) {
+    logger.debug(`Lambda invocation or execution failed. ${goInvoke.error}}`);
+    throw goInvoke.error;
+  }
+  const invokeOutput = goInvoke.data;
 
-    // The Lambda invocation callback populates the error (first argument) only when the invocation fails (e.g. status
-    // code is 400) or the request is not parsed properly by the SDK and can't be invoked. For errors and timeouts that
-    // happen inside the invoked lambda have "data.FunctionError" and "data.Payload.errorMessage" populated instead.
-    // See: https://stackoverflow.com/q/42672023 and https://stackoverflow.com/q/48644093
-    lambda.invoke(options, (err, data) => {
-      if (err) return reject(err);
+  if (invokeOutput.FunctionError) {
+    logger.debug(`Lambda invocation or execution failed. Response: ${invokeOutput.Payload}`);
+    throw invokeOutput.Payload;
+  }
 
-      if (data.FunctionError) return reject(data.Payload);
+  if (!invokeOutput.Payload) {
+    const error = new Error('Missing payload in lambda response');
+    logger.debug(`Lambda invocation or execution failed. ${error}`);
+    throw error;
+  }
 
-      if (!data.Payload) return reject(new Error('Missing payload in lambda response'));
-      const goPayload = goSync(() => JSON.parse(data.Payload!.toString()));
-      if (!goPayload.success) return reject(goPayload.error);
+  const payloadString = decodeUtf8(invokeOutput.Payload);
+  const payload = JSON.parse(payloadString);
+  const body = JSON.parse(payload.body);
 
-      const goBody = goSync(() => JSON.parse(goPayload.data.body));
-      if (!goBody.success) return reject(goBody.error);
-
-      resolve(goBody.data as WorkerResponse);
-    });
-  });
+  logger.debug(`Successful Lambda response: ${JSON.stringify(body)}`);
+  return body as WorkerResponse;
 }

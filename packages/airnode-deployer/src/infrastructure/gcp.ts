@@ -2,6 +2,7 @@ import { GcpCloudProvider } from '@api3/airnode-node';
 import { go } from '@api3/promise-utils';
 import { Storage } from '@google-cloud/storage';
 import {
+  Bucket,
   BUCKET_NAME_REGEX,
   Directory,
   FileSystemType,
@@ -104,10 +105,11 @@ export const createAirnodeBucket = async (cloudProvider: GcpCloudProvider) => {
   };
 };
 
-export const getBucketDirectoryStructure = async (bucketName: string) => {
-  const bucket = initializeGcsBucket(bucketName);
+export const getBucketDirectoryStructure = async (bucket: Bucket) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
 
-  const goGet = await go(() => bucket.getFiles());
+  const goGet = await go(() => gcsBucket.getFiles());
   if (!goGet.success) {
     throw new Error(`Failed to list content of bucket '${bucketName}': ${goGet.error}`);
   }
@@ -115,19 +117,21 @@ export const getBucketDirectoryStructure = async (bucketName: string) => {
   return translatePathsToDirectoryStructure(goGet.data[0].map((file) => file.name));
 };
 
-export const storeFileToBucket = async (bucketName: string, bucketFilePath: string, filePath: string) => {
-  const bucket = initializeGcsBucket(bucketName);
+export const storeFileToBucket = async (bucket: Bucket, bucketFilePath: string, filePath: string) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
 
   logger.debug(`Storing file '${filePath}' as '${bucketFilePath}' to GCS bucket '${bucketName}'`);
-  const goSave = await go(() => bucket.upload(filePath, { destination: bucketFilePath }));
+  const goSave = await go(() => gcsBucket.upload(filePath, { destination: bucketFilePath }));
   if (!goSave.success) {
     throw new Error(`Failed to store file '${filePath}' to GCS bucket '${bucketName}': ${goSave.error}`);
   }
 };
 
-export const getFileFromBucket = async (bucketName: string, filePath: string) => {
-  const bucket = initializeGcsBucket(bucketName);
-  const file = bucket.file(filePath);
+export const getFileFromBucket = async (bucket: Bucket, filePath: string) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
+  const file = gcsBucket.file(filePath);
 
   logger.debug(`Fetching file '${filePath}' from GCS bucket '${bucketName}'`);
   const goDownload = await go(() => file.download());
@@ -138,9 +142,10 @@ export const getFileFromBucket = async (bucketName: string, filePath: string) =>
   return goDownload.data[0].toString('utf-8');
 };
 
-export const copyFileInBucket = async (bucketName: string, fromFilePath: string, toFilePath: string) => {
-  const bucket = initializeGcsBucket(bucketName);
-  const file = bucket.file(fromFilePath);
+export const copyFileInBucket = async (bucket: Bucket, fromFilePath: string, toFilePath: string) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
+  const file = gcsBucket.file(fromFilePath);
 
   logger.debug(`Copying file '${fromFilePath}' to file '${toFilePath}' within GCS bucket '${bucketName}'`);
   const goCopy = await go(() => file.copy(toFilePath));
@@ -161,26 +166,28 @@ const gatherBucketKeys = (directory: Directory): string[] => [
   ),
 ];
 
-export const deleteBucketDirectory = async (bucketName: string, directory: Directory) => {
-  const bucket = initializeGcsBucket(bucketName);
+export const deleteBucketDirectory = async (bucket: Bucket, directory: Directory) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
 
   const bucketKeys = gatherBucketKeys(directory);
   logger.debug(`Deleting files from GCS bucket '${bucketName}': ${JSON.stringify(bucketKeys)}`);
   for (const bucketKey of bucketKeys.reverse()) {
     // I could use Bucket.deleteFiles() instead but you can't list the files to be deleted and it makes multiple API calls anyway
-    logger.debug(`Deleting file '${bucketKey}' from GCS bucket '${bucketName}'`);
-    const goDelete = await go(() => bucket.file(bucketKey).delete());
+    logger.debug(`Deleting file '${gcsBucket}' from GCS bucket '${bucketName}'`);
+    const goDelete = await go(() => gcsBucket.file(bucketKey).delete());
     if (!goDelete.success) {
       throw new Error(`Failed to delete bucket file '${bucketKey}': ${goDelete.error}`);
     }
   }
 };
 
-export const deleteBucket = async (bucketName: string) => {
-  const bucket = initializeGcsBucket(bucketName);
+export const deleteBucket = async (bucket: Bucket) => {
+  const { name: bucketName } = bucket;
+  const gcsBucket = initializeGcsBucket(bucketName);
 
   logger.debug(`Deleting GCS bucket '${bucketName}'`);
-  const goDelete = await go(() => bucket.delete());
+  const goDelete = await go(() => gcsBucket.delete());
   if (!goDelete.success) {
     throw new Error(`Failed to delete GCS bucket '${bucketName}': ${goDelete.error}`);
   }
