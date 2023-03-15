@@ -28,8 +28,6 @@ it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', a
   const erc721Address = deployment.erc721s.MockErc721Factory;
   const requesterAuthorizersWithErc721Address = deployment.authorizers.MockRequesterAuthorizerWithErc721Factory;
 
-  // TODO - deposit NFT in order to authorize the request - see isAuthorized of RequesterAuthorizerWithErc721.sol
-
   const config = local.loadConfig();
   config.chains[0].authorizers.requesterEndpointAuthorizers = [];
   config.chains[0].authorizers.crossChainRequesterAuthorizers = [];
