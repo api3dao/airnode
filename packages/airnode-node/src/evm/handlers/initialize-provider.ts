@@ -18,18 +18,17 @@ type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readon
 async function fetchSameChainAuthorizations(currentState: ProviderState<EVMProviderState>) {
   if (isEmpty(currentState.settings.authorizers.requesterEndpointAuthorizers)) {
     return { id: 'authorizations', data: {}, logs: [] };
-  } else {
-    const fetchOptions: authorizations.AirnodeRrpFetchOptions = {
-      type: 'airnodeRrp',
-      requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
-      authorizations: currentState.settings.authorizations,
-      airnodeAddress: currentState.settings.airnodeAddress,
-      airnodeRrpAddress: currentState.contracts.AirnodeRrp,
-      provider: currentState.provider,
-    };
-    const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
-    return { id: 'authorizations', data: res, logs };
   }
+  const fetchOptions: authorizations.AirnodeRrpFetchOptions = {
+    type: 'airnodeRrp',
+    requesterEndpointAuthorizers: currentState.settings.authorizers.requesterEndpointAuthorizers,
+    authorizations: currentState.settings.authorizations,
+    airnodeAddress: currentState.settings.airnodeAddress,
+    airnodeRrpAddress: currentState.contracts.AirnodeRrp,
+    provider: currentState.provider,
+  };
+  const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
+  return { id: 'authorizations', data: res, logs };
 }
 
 async function fetchSameChainErc721Authorizations(currentState: ProviderState<EVMProviderState>) {
