@@ -10,11 +10,12 @@ export async function deployAirnodeRrp(config: operation.Config): Promise<operat
   state = await operation.deployAccessControlRegistry(state);
   state = await operation.deployAuthorizers(state);
   state = await operation.deployErc721s(state);
+  state = await operation.deployRequesterAuthorizerWithErc721(state);
 
   // Assign wallets
-  state = await operation.assignAirnodeAccounts(state);
-  state = await operation.assignRequesterAccounts(state);
-  state = await operation.assignSponsorWallets(state);
+  state = operation.assignAirnodeAccounts(state);
+  state = operation.assignRequesterAccounts(state);
+  state = operation.assignSponsorWallets(state);
 
   // Fund wallets
   state = await operation.fundAirnodeAccounts(state);

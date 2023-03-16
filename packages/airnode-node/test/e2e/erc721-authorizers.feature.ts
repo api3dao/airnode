@@ -9,6 +9,7 @@ increaseTestTimeout();
 it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', async () => {
   const requests = [operation.buildFullRequest()];
   const { provider, deployment, deployerIndex, mnemonic } = await deployAirnodeAndMakeRequests(__filename, requests);
+  const requesterAuthorizerWithErc721Address = deployment.contracts.RequesterAuthorizerWithErc721;
 
   // Send the NFT to the requester
   const deployer = provider.getSigner(deployerIndex);
@@ -18,15 +19,9 @@ it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', a
   );
   await erc721Mocks.MockErc721Factory.connect(deployment.erc721s.MockErc721Factory, deployer)[
     'safeTransferFrom(address,address,uint256,bytes)'
-  ](
-    await deployer.getAddress(),
-    deployment.authorizers.MockRequesterAuthorizerWithErc721Factory,
-    0,
-    onERC721ReceivedArguments
-  );
+  ](await deployer.getAddress(), requesterAuthorizerWithErc721Address, 0, onERC721ReceivedArguments);
 
   const erc721Address = deployment.erc721s.MockErc721Factory;
-  const requesterAuthorizersWithErc721Address = deployment.authorizers.MockRequesterAuthorizerWithErc721Factory;
 
   const config = local.loadConfig();
   config.chains[0].authorizers.requesterEndpointAuthorizers = [];
@@ -36,7 +31,7 @@ it('deploys a requesterAuthorizerWithErc721 contract and authorizes requests', a
   config.chains[0].authorizers.requesterAuthorizersWithErc721 = [
     {
       erc721s: [erc721Address],
-      RequesterAuthorizerWithErc721: requesterAuthorizersWithErc721Address,
+      RequesterAuthorizerWithErc721: requesterAuthorizerWithErc721Address,
     },
   ];
   jest.spyOn(local, 'loadConfig').mockReturnValueOnce(config);

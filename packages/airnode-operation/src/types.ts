@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { InputParameter } from '@api3/airnode-abi';
-import { AirnodeRrpV0, AccessControlRegistry } from '@api3/airnode-protocol';
+import { AirnodeRrpV0, AccessControlRegistry, RequesterAuthorizerWithErc721 } from '@api3/airnode-protocol';
 
 // ===========================================
 // General
@@ -15,6 +15,7 @@ export interface DeployState {
   readonly contracts: {
     readonly AirnodeRrp?: AirnodeRrpV0;
     readonly AccessControlRegistry?: AccessControlRegistry;
+    readonly RequesterAuthorizerWithErc721?: RequesterAuthorizerWithErc721;
   };
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -91,6 +92,7 @@ export interface Deployment {
   readonly requesters: { readonly [name: string]: string };
   readonly contracts: {
     readonly AirnodeRrp: string;
+    readonly RequesterAuthorizerWithErc721: string;
   };
   readonly sponsors: DeployedSponsor[];
   readonly erc721s: { readonly [name: string]: string };

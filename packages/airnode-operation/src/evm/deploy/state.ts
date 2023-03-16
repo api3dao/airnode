@@ -63,6 +63,7 @@ function buildSaveableAirnode(state: State, airnodeName: string): DeployedAirnod
 export function buildSaveableDeployment(state: State): Deployment {
   const contracts = {
     AirnodeRrp: state.contracts.AirnodeRrp!.address,
+    RequesterAuthorizerWithErc721: state.contracts.RequesterAuthorizerWithErc721!.address,
   };
 
   const requesterNames = Object.keys(state.requestersByName);

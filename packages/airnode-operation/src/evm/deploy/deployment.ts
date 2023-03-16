@@ -4,6 +4,7 @@ import {
   authorizers,
   mocks,
   erc721Mocks,
+  RequesterAuthorizerWithErc721Factory,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
@@ -57,4 +58,14 @@ export async function deployErc721s(state: State): Promise<State> {
     erc721sByName[mockName] = mockErc721 as unknown as ethers.Contract;
   }
   return { ...state, erc721sByName };
+}
+
+export async function deployRequesterAuthorizerWithErc721(state: State): Promise<State> {
+  const RequesterAuthorizerWithErc721 = new RequesterAuthorizerWithErc721Factory(state.deployer);
+  const requesterAuthorizerWithErc721 = await RequesterAuthorizerWithErc721.deploy(
+    state.contracts.AccessControlRegistry!.address,
+    'RequesterAuthorizerWithErc721 admin'
+  );
+  await requesterAuthorizerWithErc721.deployed();
+  return { ...state, contracts: { ...state.contracts, RequesterAuthorizerWithErc721: requesterAuthorizerWithErc721 } };
 }

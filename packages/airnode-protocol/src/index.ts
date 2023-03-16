@@ -18,7 +18,6 @@ import {
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerV0Factory,
   RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
-  MockRequesterAuthorizerWithErc721__factory as MockRequesterAuthorizerWithErc721Factory,
   MockErc721__factory as MockErc721Factory,
 } from './contracts';
 import references from '../deployments/references.json';
@@ -46,11 +45,9 @@ const erc721Mocks = {
 const mocks = {
   MockRrpRequesterFactory,
 };
-// TODO: This is also used by airnode-admin, but it uses the RequesterAuthorizerWithAirnodeFactory and we might flatten
-// the exports to simplify things (it shouldn't mix real and mock contracts though).
+
 const authorizers = {
   RequesterAuthorizerWithAirnodeFactory,
-  MockRequesterAuthorizerWithErc721Factory,
 };
 
 export {
