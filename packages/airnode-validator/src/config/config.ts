@@ -153,12 +153,10 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-// Authorizations
 export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
 });
 
-// Authorizers: requesterEndpointAuthorizers
 export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
 
 export const crossChainRequesterAuthorizerSchema = z.object({
@@ -169,7 +167,6 @@ export const crossChainRequesterAuthorizerSchema = z.object({
   chainProvider: providerSchema,
 });
 
-// Authorizers: requesterAuthorizersWithErc721
 export const erc721sSchema = z.array(evmAddressSchema);
 
 export const requesterAuthorizerWithErc721Schema = z.object({
