@@ -216,6 +216,7 @@ export async function initializeProvider(
 
   let mergedAuthorizationsByRequestId: AuthorizationByRequestId;
   if (allAuthorizersEmpty) {
+    logger.info('Authorizing all requests because all authorizer arrays are empty');
     mergedAuthorizationsByRequestId = Object.fromEntries(
       state5.requests.apiCalls.map((pendingApiCall) => [pendingApiCall.id, true])
     );
