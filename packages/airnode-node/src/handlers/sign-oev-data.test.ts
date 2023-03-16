@@ -131,8 +131,6 @@ describe('signOevData', () => {
     '0x81b1512a67848c0d46ce6957f7b377dc43e9444a57f602353e5c9ab41a24c68d3a2c5a261f7d59e0bca0e72bdc7353bb20e2c4f801452ddd95c43c4f9c7e56581b',
     '0xc01e7da0e6e2a7057f5c95aefc327d34d85faf812876340b48b052a611d32ec61cae4fc1443d364bc4ee819eae00ff032dd904aaa8e169c52144b9c81a9c3fba1b',
   ];
-  const encodedOevUpdateValue = '0x0000000000000000000000000000000000000000000000000000000000000096';
-  const oevUpdateTimestamp = '1677747314';
 
   it('signs the OEV data for one beacon', async () => {
     // median: 0x0000000000000000000000000000000000000000000000000000000000000064
@@ -153,8 +151,6 @@ describe('signOevData', () => {
       {
         signature:
           '0xa8339565d47b5a80ae35702df0a4656809dfc0152c9bbd22a8a94ce6501690e077ad3b5d1fa7f9198eff3db0b74b8196c30c0f931677e2a09ba5e2c96621b08b1b',
-        encodedValue: requestBody.signedData[0].encodedValue,
-        timestamp: requestBody.signedData[0].timestamp,
       },
     ]);
   });
@@ -168,13 +164,9 @@ describe('signOevData', () => {
     expect(res!.data).toEqual([
       {
         signature: signatures[0],
-        encodedValue: encodedOevUpdateValue,
-        timestamp: oevUpdateTimestamp,
       },
       {
         signature: signatures[1],
-        encodedValue: encodedOevUpdateValue,
-        timestamp: oevUpdateTimestamp,
       },
     ]);
   });

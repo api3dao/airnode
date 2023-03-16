@@ -88,8 +88,6 @@ export async function signOevData(
       success: true,
       data: signatures.map((signature) => ({
         signature,
-        timestamp: timestamp.toString(),
-        encodedValue: encodedUpdateValue,
       })),
     },
   ];
