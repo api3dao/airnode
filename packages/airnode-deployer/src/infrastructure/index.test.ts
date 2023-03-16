@@ -590,18 +590,18 @@ describe('deployAirnode', () => {
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(awsCopyFileInBucketSpy).not.toHaveBeenCalled();
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
     );
@@ -657,18 +657,18 @@ describe('deployAirnode', () => {
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
     expect(awsCreateAirnodeBucket).toHaveBeenCalledWith(config.nodeSettings.cloudProvider);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(newBucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(newBucket);
     expect(awsGetFileFromBucketSpy).not.toHaveBeenCalled();
     expect(awsCopyFileInBucketSpy).not.toHaveBeenCalled();
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      newBucket.name,
+      newBucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      newBucket.name,
+      newBucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
     );
@@ -720,25 +720,25 @@ describe('deployAirnode', () => {
     const terraformOutput = await infrastructure.deployAirnode(config, configPath, secretsPath, Date.now());
     expect(terraformOutput).toEqual(expectedOutput);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsCopyFileInBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/default.tfstate',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/default.tfstate'
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/config.json',
       configPath
     );
     expect(awsStoreFileToBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662730904/secrets.env',
       secretsPath
     );
@@ -938,13 +938,13 @@ describe('removeAirnode', () => {
 
     await infrastructure.removeAirnode(happyPathDeploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
@@ -977,9 +977,9 @@ describe('removeAirnode', () => {
       ].join(' '),
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       (mockBucketDirectoryStructure['0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6'] as Directory).children['dev']
     );
     expect(awsDeleteBucketDirectory).toHaveBeenCalledTimes(1);
@@ -989,13 +989,13 @@ describe('removeAirnode', () => {
   it('deletes the address directory if there are no other deployments with that address', async () => {
     await infrastructure.removeAirnode(deploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
@@ -1028,13 +1028,13 @@ describe('removeAirnode', () => {
       ].join(' '),
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       (mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory).children['dev']
     );
-    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket.name, {
+    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket, {
       ...mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'],
       children: {},
     });
@@ -1049,13 +1049,13 @@ describe('removeAirnode', () => {
 
     await infrastructure.removeAirnode(deploymentId);
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledWith();
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(1, bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledWith(
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(exec).toHaveBeenNthCalledWith(
@@ -1088,18 +1088,18 @@ describe('removeAirnode', () => {
       ].join(' '),
       { cwd: 'tmpDir' }
     );
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenNthCalledWith(2, bucket);
     expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       (mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'] as Directory).children['dev']
     );
-    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket.name, {
+    expect(awsDeleteBucketDirectory).toHaveBeenNthCalledWith(2, bucket, {
       ...mockBucketDirectoryStructure['0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace'],
       children: {},
     });
     expect(awsDeleteBucketDirectory).toHaveBeenCalledTimes(2);
-    expect(awsDeleteBucket).toHaveBeenCalledWith(bucket.name);
+    expect(awsDeleteBucket).toHaveBeenCalledWith(bucket);
   });
 
   it(`fails if there's no Airnode bucket available`, async () => {
@@ -1224,69 +1224,69 @@ describe('listAirnodes', () => {
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
@@ -1310,36 +1310,36 @@ describe('listAirnodes', () => {
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(gcpGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(gcpGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(gcpGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
@@ -1438,17 +1438,17 @@ describe('deploymentInfo', () => {
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
@@ -1495,37 +1495,37 @@ describe('deploymentInfo', () => {
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(gcpGetAirnodeBucketSpy).not.toHaveBeenCalled();
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(gcpGetBucketDirectoryStructureSpy).not.toHaveBeenCalled();
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
     expect(gcpGetFileFromBucketSpy).not.toHaveBeenCalled();
@@ -1602,26 +1602,26 @@ describe('fetchFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(4);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
 
@@ -1650,26 +1650,26 @@ describe('fetchFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(4);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/secrets.env'
     );
 
@@ -1733,36 +1733,36 @@ describe('fetchFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
@@ -1783,16 +1783,16 @@ describe('fetchFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
   });
@@ -1811,26 +1811,26 @@ describe('fetchFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(4);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
   });
@@ -1891,26 +1891,26 @@ describe('saveDeploymentFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(4);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662557983568/secrets.env'
     );
 
@@ -1953,36 +1953,36 @@ describe('saveDeploymentFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(6);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       3,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       4,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/prod/1662558071950/secrets.env'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       5,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       6,
-      bucket.name,
+      bucket,
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace/dev/1662559204554/secrets.env'
     );
   });
@@ -2003,16 +2003,16 @@ describe('saveDeploymentFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
   });
@@ -2057,16 +2057,16 @@ describe('saveDeploymentFiles', () => {
 
     expect(awsGetAirnodeBucketSpy).toHaveBeenCalledTimes(1);
     expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledTimes(1);
-    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket.name);
+    expect(awsGetBucketDirectoryStructureSpy).toHaveBeenCalledWith(bucket);
     expect(awsGetFileFromBucketSpy).toHaveBeenCalledTimes(2);
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       1,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/config.json'
     );
     expect(awsGetFileFromBucketSpy).toHaveBeenNthCalledWith(
       2,
-      bucket.name,
+      bucket,
       '0xd0624E6C2C8A1DaEdE9Fa7E9C409167ed5F256c6/dev/1662558010204/secrets.env'
     );
   });
