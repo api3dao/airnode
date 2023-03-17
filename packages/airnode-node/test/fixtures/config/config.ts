@@ -39,6 +39,8 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         authorizers: {
           requesterEndpointAuthorizers: [],
           crossChainRequesterAuthorizers: [],
+          requesterAuthorizersWithErc721: [],
+          crossChainRequesterAuthorizersWithErc721: [],
         },
         authorizations: {
           requesterEndpointAuthorizations: {},

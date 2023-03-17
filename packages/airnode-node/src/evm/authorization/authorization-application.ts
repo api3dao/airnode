@@ -30,7 +30,11 @@ function applyAuthorization(
       }
 
       if (authorized) {
-        return { ...acc, requests: [...acc.requests, apiCall] };
+        const log = logger.pend(
+          'DEBUG',
+          `Requester:${apiCall.requesterAddress} is authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
+        );
+        return { ...acc, logs: [...acc.logs, log], requests: [...acc.requests, apiCall] };
       }
 
       // If the request is unauthorized, update drop the request

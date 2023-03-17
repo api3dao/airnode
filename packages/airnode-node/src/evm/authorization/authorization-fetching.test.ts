@@ -9,16 +9,18 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
+import { RequesterAuthorizerWithErc721Factory } from '@api3/airnode-protocol';
 import * as authorization from './authorization-fetching';
 import * as fixtures from '../../../test/fixtures';
 import { AirnodeRrpV0 } from '../contracts';
 import { ApiCall, Request } from '../../../src/types';
 
 describe('fetch (authorizations)', () => {
-  let mutableFetchOptions: authorization.FetchOptions;
+  let mutableFetchOptions: authorization.AirnodeRrpFetchOptions;
 
   beforeEach(() => {
     mutableFetchOptions = {
+      type: 'airnodeRrp',
       requesterEndpointAuthorizers: [
         '0x711c93B32c0D28a5d18feD87434cce11C3e5699B',
         '0x9E0e23766b0ed0C492804872c5164E9187fB56f5',
@@ -37,26 +39,6 @@ describe('fetch (authorizations)', () => {
     const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
-  });
-
-  it('returns true for all pending requests if authorizers arrays are empty', async () => {
-    const apiCalls = Array.from(Array(19).keys()).map((n) => {
-      return fixtures.requests.buildApiCall({
-        id: `${n}`,
-        endpointId: `endpointId-${n}`,
-        requesterAddress: `requesterAddress-${n}`,
-        sponsorAddress: 'sponsorAddress',
-      });
-    });
-    const [logs, res] = await authorization.fetch(apiCalls, {
-      ...mutableFetchOptions,
-      requesterEndpointAuthorizers: [],
-    });
-
-    expect(logs).toEqual([]);
-    expect(Object.keys(res).length).toEqual(19);
-    expect(res['0']).toEqual(true);
-    expect(res['18']).toEqual(true);
   });
 
   it('calls the contract with groups of 10', async () => {
@@ -135,8 +117,17 @@ describe('fetch (authorizations)', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
-      { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
+      {
+        level: 'WARN',
+        message:
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
+          'Falling back to fetching authorizations individually.',
+        error: new Error('Server says no'),
+      },
+      {
+        level: 'INFO',
+        message: `Fetched requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
+      },
     ]);
     expect(res).toEqual({ [apiCall.id]: true });
   });
@@ -151,8 +142,17 @@ describe('fetch (authorizations)', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
-      { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
+      {
+        level: 'WARN',
+        message:
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
+          'Falling back to fetching authorizations individually.',
+        error: new Error('Server says no'),
+      },
+      {
+        level: 'INFO',
+        message: `Fetched requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
+      },
     ]);
     expect(res).toEqual({ [apiCall.id]: false });
   });
@@ -167,10 +167,16 @@ describe('fetch (authorizations)', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
+      {
+        level: 'WARN',
+        message:
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
+          'Falling back to fetching authorizations individually.',
+        error: new Error('Server says no'),
+      },
       {
         level: 'ERROR',
-        message: `Failed to fetch authorization details for Request:${apiCall.id}`,
+        message: `Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
         error: new Error('Server still says no'),
       },
     ]);
@@ -333,7 +339,12 @@ describe('fetchAuthorizationStatus', () => {
       airnodeAddress,
       apiCall
     );
-    expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
+    expect(logs).toEqual([
+      {
+        level: 'INFO',
+        message: `Fetched requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
+      },
+    ]);
     expect(res).toEqual(true);
   });
 
@@ -347,7 +358,12 @@ describe('fetchAuthorizationStatus', () => {
       airnodeAddress,
       apiCall
     );
-    expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
+    expect(logs).toEqual([
+      {
+        level: 'INFO',
+        message: `Fetched requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
+      },
+    ]);
     expect(res).toEqual(false);
   });
 
@@ -364,10 +380,45 @@ describe('fetchAuthorizationStatus', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Failed to fetch authorization details for Request:${apiCall.id}`,
+        message: `Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatus for Request:${apiCall.id}`,
         error: new Error('Server still says no'),
       },
     ]);
     expect(res).toEqual(null);
+  });
+});
+
+describe('decodeMulticall', () => {
+  it('decodes the results of a multicall', () => {
+    const requesterAuthorizerWithErc721 = RequesterAuthorizerWithErc721Factory.connect(
+      '0x0',
+      new ethers.providers.JsonRpcProvider()
+    );
+    const data = [
+      ethers.utils.defaultAbiCoder.encode(['bool'], [true]),
+      ethers.utils.defaultAbiCoder.encode(['bool'], [false]),
+    ];
+    expect(authorization.decodeMulticall(requesterAuthorizerWithErc721, data)).toEqual([true, false]);
+  });
+});
+
+describe('applyErc721Authorizations', () => {
+  it('returns authorization statuses in the same order that they were requested', () => {
+    const apiCalls: Request<ApiCall>[] = [
+      fixtures.requests.buildApiCall({ id: '0x1' }),
+      fixtures.requests.buildApiCall({ id: '0x2' }),
+      fixtures.requests.buildApiCall({ id: '0x3' }),
+      fixtures.requests.buildApiCall({ id: '0x4' }),
+    ];
+    const erc721s = ['0x1', '0x2'];
+    const results = [true, true, true, false, false, true, false, false];
+    // The requester is authorized if authorized by any Erc721
+    const expected = {
+      '0x1': true,
+      '0x2': true,
+      '0x3': true,
+      '0x4': false,
+    };
+    expect(authorization.applyErc721Authorizations(apiCalls, erc721s, results)).toEqual(expected);
   });
 });

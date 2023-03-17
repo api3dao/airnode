@@ -54,7 +54,7 @@ export const logFormatSchema = z.union([z.literal('json'), z.literal('plain')]);
 
 export const chainTypeSchema = z.literal('evm');
 
-export const chainContractsSchema = z
+export const airnodeRrpContractSchema = z
   .object({
     AirnodeRrp: evmAddressSchema,
   })
@@ -160,16 +160,41 @@ export const chainAuthorizationsSchema = z.object({
 export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
 
 export const crossChainRequesterAuthorizerSchema = z.object({
-  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
+  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema.nonempty(),
   chainType: chainTypeSchema,
   chainId: z.string(),
-  contracts: chainContractsSchema,
+  contracts: airnodeRrpContractSchema,
+  chainProvider: providerSchema,
+});
+
+export const erc721sSchema = z.array(evmAddressSchema);
+
+export const requesterAuthorizerWithErc721Schema = z.object({
+  erc721s: erc721sSchema.nonempty(),
+  RequesterAuthorizerWithErc721: evmAddressSchema,
+});
+
+export const requesterAuthorizersWithErc721Schema = z.array(requesterAuthorizerWithErc721Schema);
+
+export const requesterAuthorizerWithErc721ContractSchema = z
+  .object({
+    RequesterAuthorizerWithErc721: evmAddressSchema,
+  })
+  .strict();
+
+export const crossChainRequesterAuthorizersWithErc721Schema = z.object({
+  erc721s: erc721sSchema.nonempty(),
+  chainType: chainTypeSchema,
+  chainId: z.string(),
+  contracts: requesterAuthorizerWithErc721ContractSchema,
   chainProvider: providerSchema,
 });
 
 export const chainAuthorizersSchema = z.object({
   requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
   crossChainRequesterAuthorizers: z.array(crossChainRequesterAuthorizerSchema),
+  requesterAuthorizersWithErc721: requesterAuthorizersWithErc721Schema,
+  crossChainRequesterAuthorizersWithErc721: z.array(crossChainRequesterAuthorizersWithErc721Schema),
 });
 
 export const maxConcurrencySchema = z.number().int().positive();
@@ -192,7 +217,7 @@ export const chainConfigSchema = z
     authorizers: chainAuthorizersSchema,
     authorizations: chainAuthorizationsSchema,
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
-    contracts: chainContractsSchema,
+    contracts: airnodeRrpContractSchema,
     id: z.string(),
     // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node but may be overridden
     // by a requester if the _minConfirmations reserved parameter is configured
@@ -470,6 +495,7 @@ export type Gateway = SchemaType<typeof gatewaySchema>;
 export type ChainAuthorizers = SchemaType<typeof chainAuthorizersSchema>;
 export type CrossChainAuthorizer = SchemaType<typeof crossChainRequesterAuthorizerSchema>;
 export type RequesterEndpointAuthorizers = SchemaType<typeof requesterEndpointAuthorizersSchema>;
+export type Erc721s = SchemaType<typeof erc721sSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;

@@ -42,7 +42,8 @@ describe('initializeProvider', () => {
 
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
-    expect(fetchAuthorizationsSpy).toHaveBeenCalledTimes(1);
+    // Empty authorizer arrays short-circuits authorization fetching
+    expect(fetchAuthorizationsSpy).toHaveBeenCalledTimes(0);
     expect(res?.requests.apiCalls).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
@@ -241,6 +242,9 @@ describe('initializeProvider', () => {
       '0x4': false,
       '0x5': false,
       '0x6': true,
+      '0x7': false,
+      '0x8': false,
+      '0x9': false,
     };
     const crossChainAuthorizations: AuthorizationByRequestId = {
       '0x1': true,
@@ -248,8 +252,35 @@ describe('initializeProvider', () => {
       '0x3': false,
       '0x4': false,
     };
+    const erc721authorizations: AuthorizationByRequestId = {
+      '0x1': false,
+      '0x2': false,
+      '0x3': false,
+      '0x4': false,
+      '0x5': false,
+      '0x6': false,
+      '0x7': true,
+      '0x8': false,
+      '0x9': false,
+    };
+    const erc721CrossChainAuthorizations: AuthorizationByRequestId = {
+      '0x1': false,
+      '0x2': false,
+      '0x3': false,
+      '0x4': false,
+      '0x5': false,
+      '0x6': false,
+      '0x7': false,
+      '0x8': true,
+      '0x9': false,
+    };
 
-    const merged = mergeAuthorizationsByRequestId([authorizations, crossChainAuthorizations]);
+    const merged = mergeAuthorizationsByRequestId([
+      authorizations,
+      crossChainAuthorizations,
+      erc721authorizations,
+      erc721CrossChainAuthorizations,
+    ]);
     expect(merged).toEqual({
       '0x1': true,
       '0x2': true,
@@ -257,6 +288,9 @@ describe('initializeProvider', () => {
       '0x4': false,
       '0x5': false,
       '0x6': true,
+      '0x7': true,
+      '0x8': true,
+      '0x9': false,
     } as AuthorizationByRequestId);
   });
 });

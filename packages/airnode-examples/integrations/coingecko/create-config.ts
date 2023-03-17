@@ -14,6 +14,8 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       authorizers: {
         requesterEndpointAuthorizers: [],
         crossChainRequesterAuthorizers: [],
+        requesterAuthorizersWithErc721: [],
+        crossChainRequesterAuthorizersWithErc721: [],
       },
       authorizations: {
         requesterEndpointAuthorizations: {},

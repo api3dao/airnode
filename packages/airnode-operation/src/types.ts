@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { InputParameter } from '@api3/airnode-abi';
-import { AirnodeRrpV0, AccessControlRegistry } from '@api3/airnode-protocol';
+import { AirnodeRrpV0, AccessControlRegistry, RequesterAuthorizerWithErc721 } from '@api3/airnode-protocol';
 
 // ===========================================
 // General
@@ -9,10 +9,13 @@ export interface DeployState {
   readonly airnodesByName: { readonly [name: string]: Airnode };
   readonly authorizersByName: { readonly [name: string]: string };
   readonly requestersByName: { readonly [name: string]: ethers.Contract };
+  readonly erc721sByName: { readonly [name: string]: ethers.Contract };
+  readonly authorizers: { readonly [name: string]: ethers.Contract };
   readonly config: Config;
   readonly contracts: {
     readonly AirnodeRrp?: AirnodeRrpV0;
     readonly AccessControlRegistry?: AccessControlRegistry;
+    readonly RequesterAuthorizerWithErc721?: RequesterAuthorizerWithErc721;
   };
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -89,8 +92,11 @@ export interface Deployment {
   readonly requesters: { readonly [name: string]: string };
   readonly contracts: {
     readonly AirnodeRrp: string;
+    readonly RequesterAuthorizerWithErc721: string;
   };
   readonly sponsors: DeployedSponsor[];
+  readonly erc721s: { readonly [name: string]: string };
+  readonly authorizers: { readonly [name: string]: string };
 }
 
 // ===========================================
@@ -122,8 +128,30 @@ export interface CrossChainConfig {
   };
 }
 
+export interface Erc721CrossChainConfig {
+  readonly erc721s: string[];
+  readonly chainType: string;
+  readonly chainId: string;
+  readonly contracts: {
+    readonly RequesterAuthorizerWithErc721: string;
+  };
+  readonly chainProvider: {
+    url: string;
+  };
+}
+
+export interface Erc721Config {
+  readonly erc721s: string[];
+  readonly RequesterAuthorizerWithErc721: string;
+}
+
 export interface ConfigAirnode {
-  readonly authorizers: { requesterEndpointAuthorizers: string[]; crossChainRequesterAuthorizers: CrossChainConfig[] };
+  readonly authorizers: {
+    requesterEndpointAuthorizers: string[];
+    crossChainRequesterAuthorizers: CrossChainConfig[];
+    requesterAuthorizersWithErc721: Erc721Config[];
+    crossChainRequesterAuthorizersWithErc721: Erc721CrossChainConfig[];
+  };
   readonly authorizations: {
     requesterEndpointAuthorizations: { [endpointId: string]: string[] };
   };

@@ -623,7 +623,7 @@ describe('chainConfigSchema', () => {
 });
 
 describe('authorizers', () => {
-  it('allows cross-chain and same-chain authorizers', () => {
+  it('allows simultaneous authorizers', () => {
     const config = JSON.parse(
       readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
     );
@@ -644,12 +644,31 @@ describe('authorizers', () => {
             },
           },
         ],
+        requesterAuthorizersWithErc721: [
+          {
+            erc721s: ['0x00bDB2315678afecb367f032d93F642f64180a00'],
+            RequesterAuthorizerWithErc721: '0x999DB2315678afecb367f032d93F642f64180aa9',
+          },
+        ],
+        crossChainRequesterAuthorizersWithErc721: [
+          {
+            erc721s: ['0x4abDB2315678afecb367f032d93F642f64180aa7'],
+            chainType: 'evm',
+            chainId: '1',
+            chainProvider: {
+              url: 'http://some.random.url',
+            },
+            contracts: {
+              RequesterAuthorizerWithErc721: '0x3FbDB2315678afecb367f032d93F642f64180aa6',
+            },
+          },
+        ],
       },
     };
     expect(() => chainConfigSchema.parse(validAuthorizersChainConfig)).not.toThrow();
   });
 
-  it('allows cross-chain and same-chain authorizers to be empty', () => {
+  it('allows authorizers to be empty', () => {
     const config = JSON.parse(
       readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
     );
@@ -658,6 +677,8 @@ describe('authorizers', () => {
       authorizers: {
         requesterEndpointAuthorizers: [],
         crossChainRequesterAuthorizers: [],
+        requesterAuthorizersWithErc721: [],
+        crossChainRequesterAuthorizersWithErc721: [],
       },
     };
     expect(() => chainConfigSchema.parse(validAuthorizersChainConfig)).not.toThrow();

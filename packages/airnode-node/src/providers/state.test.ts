@@ -22,6 +22,8 @@ describe('create', () => {
       authorizers: {
         requesterEndpointAuthorizers: [ethers.constants.AddressZero],
         crossChainRequesterAuthorizers: [],
+        requesterAuthorizersWithErc721: [],
+        crossChainRequesterAuthorizersWithErc721: [],
       },
       authorizations: {
         requesterEndpointAuthorizations: {},
@@ -61,6 +63,8 @@ describe('create', () => {
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
+          requesterAuthorizersWithErc721: [],
+          crossChainRequesterAuthorizersWithErc721: [],
         },
         authorizations: {
           requesterEndpointAuthorizations: {},
@@ -116,7 +120,12 @@ describe('create', () => {
     const airnodeAddress = '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace';
     const chainConfig: ChainConfig = {
       maxConcurrency: 100,
-      authorizers: { requesterEndpointAuthorizers: [ethers.constants.AddressZero], crossChainRequesterAuthorizers: [] },
+      authorizers: {
+        requesterEndpointAuthorizers: [ethers.constants.AddressZero],
+        crossChainRequesterAuthorizers: [],
+        requesterAuthorizersWithErc721: [],
+        crossChainRequesterAuthorizersWithErc721: [],
+      },
       authorizations: {
         requesterEndpointAuthorizations: {},
       },
@@ -157,6 +166,8 @@ describe('create', () => {
         authorizers: {
           requesterEndpointAuthorizers: [ethers.constants.AddressZero],
           crossChainRequesterAuthorizers: [],
+          requesterAuthorizersWithErc721: [],
+          crossChainRequesterAuthorizersWithErc721: [],
         },
         authorizations: {
           requesterEndpointAuthorizations: {},
