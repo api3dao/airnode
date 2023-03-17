@@ -148,10 +148,7 @@ describe('signOevData', () => {
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
     expect(res!.data).toEqual([
-      {
-        signature:
-          '0xa8339565d47b5a80ae35702df0a4656809dfc0152c9bbd22a8a94ce6501690e077ad3b5d1fa7f9198eff3db0b74b8196c30c0f931677e2a09ba5e2c96621b08b1b',
-      },
+      '0xa8339565d47b5a80ae35702df0a4656809dfc0152c9bbd22a8a94ce6501690e077ad3b5d1fa7f9198eff3db0b74b8196c30c0f931677e2a09ba5e2c96621b08b1b',
     ]);
   });
 
@@ -161,13 +158,6 @@ describe('signOevData', () => {
 
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
-    expect(res!.data).toEqual([
-      {
-        signature: signatures[0],
-      },
-      {
-        signature: signatures[1],
-      },
-    ]);
+    expect(res!.data).toEqual(signatures);
   });
 });

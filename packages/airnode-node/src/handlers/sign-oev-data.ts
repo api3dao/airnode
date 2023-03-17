@@ -86,9 +86,7 @@ export async function signOevData(
     null,
     {
       success: true,
-      data: signatures.map((signature) => ({
-        signature,
-      })),
+      data: signatures,
     },
   ];
 }

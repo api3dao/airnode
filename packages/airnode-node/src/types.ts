@@ -247,7 +247,7 @@ export interface HttpSignedDataApiCallSuccessResponse {
 
 export interface SignOevDataResponse {
   success: true;
-  data: { signature: string }[];
+  data: string[];
 }
 
 export interface ApiCallErrorResponse {
