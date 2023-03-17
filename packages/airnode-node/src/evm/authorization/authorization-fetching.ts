@@ -97,7 +97,7 @@ async function fetchAuthorizationStatuses(
   if (!goData.success) {
     const groupLog = logger.pend(
       'WARN',
-      'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses.' +
+      'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
         'Falling back to fetching authorizations individually.',
       goData.error
     );
@@ -228,7 +228,6 @@ export async function fetch(
   // Request groups of 10 at a time
   const groupedPairs = chunk(apiCallsToFetchAuthorizationStatus, CONVENIENCE_BATCH_SIZE);
 
-  // Create an instance of the contract that we can re-use
   let promises: Promise<LogsData<AuthorizationByRequestId | null>>[];
   switch (fetchOptions.type) {
     case 'airnodeRrp':

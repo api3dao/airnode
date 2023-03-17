@@ -120,7 +120,7 @@ describe('fetch (authorizations)', () => {
       {
         level: 'WARN',
         message:
-          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses.' +
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
           'Falling back to fetching authorizations individually.',
         error: new Error('Server says no'),
       },
@@ -145,7 +145,7 @@ describe('fetch (authorizations)', () => {
       {
         level: 'WARN',
         message:
-          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses.' +
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
           'Falling back to fetching authorizations individually.',
         error: new Error('Server says no'),
       },
@@ -170,7 +170,7 @@ describe('fetch (authorizations)', () => {
       {
         level: 'WARN',
         message:
-          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses.' +
+          'Failed to fetch requesterEndpointAuthorizers authorization using checkAuthorizationStatuses. ' +
           'Falling back to fetching authorizations individually.',
         error: new Error('Server says no'),
       },
