@@ -247,7 +247,7 @@ export interface HttpSignedDataApiCallSuccessResponse {
 
 export interface SignOevDataResponse {
   success: true;
-  data: string[];
+  data: string[]; // Signatures for the beacons of this Airnode in order they were provided
 }
 
 export interface ApiCallErrorResponse {
