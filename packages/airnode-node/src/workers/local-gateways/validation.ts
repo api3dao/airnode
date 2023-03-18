@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
 import { z } from 'zod';
-import { addMinutes, isBefore, toDate } from 'date-fns';
+import { subMinutes, isBefore, toDate } from 'date-fns';
 import { ethers } from 'ethers';
 import { decode } from '@api3/airnode-abi';
 import { logger } from '@api3/airnode-utilities';
@@ -156,7 +156,7 @@ export function validateAndDecodeBeacons(beacons: Beacon[]) {
     for (const beacon of beacons) {
       const { airnodeAddress, endpointId, encodedParameters, encodedValue, timestamp, signature } = beacon;
       // The timestamp is older than the last 2 minutes
-      if (isBefore(toDate(Number(timestamp)), addMinutes(currentTime, -TIMESTAMP_DEVIATION))) {
+      if (isBefore(toDate(Number(timestamp) * 1000), subMinutes(currentTime, TIMESTAMP_DEVIATION))) {
         throw new Error('Beacon timestamp too old');
       }
 
