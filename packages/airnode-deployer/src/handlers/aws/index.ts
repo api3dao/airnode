@@ -252,7 +252,7 @@ export async function processSignOevDataRequest(
   // The shape of the body is guaranteed by the openAPI spec
   const rawSignOevDataRequestBody = JSON.parse(event.body!) as ProcessSignOevDataRequestBody;
 
-  const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody.signedData);
+  const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody);
   if (!verificationResult.success) {
     logger.error(`Sign OEV data request verification error`);
     const { statusCode, error } = verificationResult;
@@ -261,9 +261,8 @@ export async function processSignOevDataRequest(
   logger.debug(`Sign OEV data request passed request verification`);
 
   const [err, result] = await handlers.signOevData(
-    rawSignOevDataRequestBody,
-    verificationResult.validUpdateValues,
-    verificationResult.validUpdateTimestamps
+    rawSignOevDataRequestBody.signedData,
+    verificationResult.oevUpdateHash
   );
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request

@@ -71,7 +71,8 @@ export const logger = {
       logFull('ERROR', message, { ...options, error });
       return;
     }
-    consoleLog(message, error);
+    if (error) consoleLog(message, error);
+    else consoleLog(message);
   },
   logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
     pendingLogs.forEach((pendingLog) => {
