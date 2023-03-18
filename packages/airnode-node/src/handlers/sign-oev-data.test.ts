@@ -8,7 +8,7 @@ describe('signOevData', () => {
     AIRNODE_WALLET_PRIVATE_KEY: '0xac3c08943f8be529b66660c4b12d488814c129b53a343082c99e6626e42d6d8c',
   });
 
-  const signedData = [
+  const beacons = [
     {
       // beaconId: 0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b
       // templateId: 0x64a8f8e70cd1bd4e4621bde25053bf4e22633241effa9f768bf18ff6400dc702
@@ -49,7 +49,7 @@ describe('signOevData', () => {
   ];
 
   it('signs the OEV data for one beacon', async () => {
-    const oneBeaconSignedData = [signedData[0]];
+    const oneBeaconSignedData = [beacons[0]];
     const signedOevData = await signOevData(
       oneBeaconSignedData,
       '0xf6675230e0269c8308f219e520f91a3a665e0b48b408047445e218369642d5af'
@@ -65,7 +65,7 @@ describe('signOevData', () => {
 
   it('signs the OEV data for beacon set', async () => {
     const signedOevData = await signOevData(
-      signedData,
+      beacons,
       '0xcd5bb3b413773277e8b03a10c3213fb752ad9d7c4d286ce8826b73905ba0672c'
     );
     const [err, res] = signedOevData;

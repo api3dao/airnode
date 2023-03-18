@@ -23,7 +23,7 @@ components:
         - updateId
         - bidderAddress
         - bidAmount
-        - signedData
+        - beacons
       properties:
         chainId:
           type: integer
@@ -39,7 +39,7 @@ components:
           type: string
         bidAmount:
           type: string
-        signedData:
+        beacons:
           type: array
           minItems: 1
           uniqueItems: true
@@ -56,12 +56,19 @@ components:
                 type: string
               encodedParameters:
                 type: string
-              timestamp:
-                type: string
-              encodedValue:
-                type: string
-              signature:
-                type: string
+              signedData:
+                type: object
+                required:
+                  - timestamp
+                  - encodedValue
+                  - signature
+                properties:
+                  timestamp:
+                    type: string
+                  encodedValue:
+                    type: string
+                  signature:
+                    type: string
 
     EndpointResponse:
       type: array
@@ -92,7 +99,7 @@ components:
           "updateId": "0x...",
           "bidderAddress": "0x...",
           "bidAmount": "0x...",
-          "signedData": [
+          "beacons": [
             {
               "airnodeAddress": "0x...",
               "endpointId": "0x...",

@@ -260,10 +260,7 @@ export async function processSignOevDataRequest(
   }
   logger.debug(`Sign OEV data request passed request verification`);
 
-  const [err, result] = await handlers.signOevData(
-    rawSignOevDataRequestBody.signedData,
-    verificationResult.oevUpdateHash
-  );
+  const [err, result] = await handlers.signOevData(rawSignOevDataRequestBody.beacons, verificationResult.oevUpdateHash);
   if (err) {
     // Returning 500 because failure here means something went wrong internally with a valid request
     logger.error(`Sign OEV data request processing error`);

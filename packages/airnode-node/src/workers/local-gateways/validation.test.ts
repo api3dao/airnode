@@ -84,7 +84,7 @@ const validRequestBody: ProcessSignOevDataRequestBody = {
   updateId: '0x3039656530346630306130383438646138323665616363636538343664303000',
   bidderAddress: '0xb5c062D4d799b85B4e29c274F9570Fd8216AED68',
   bidAmount: '0x0000000000000000000000000000000000000000000000000000000a571a14c0',
-  signedData: validBeacons,
+  beacons: validBeacons,
 };
 
 describe('verifyHttpRequest', () => {
@@ -349,7 +349,7 @@ describe('verifySignOevDataRequest', () => {
   });
 
   it('verifies beacon data for single beacon', () => {
-    expect(verifySignOevDataRequest({ ...validRequestBody, signedData: [validRequestBody.signedData[0]] })).toEqual({
+    expect(verifySignOevDataRequest({ ...validRequestBody, beacons: [validRequestBody.beacons[0]] })).toEqual({
       success: true,
       oevUpdateHash: '0x7902fa7f7a466b46c0ddededa556076e6ddc8dd5bdb3bc7ccbf3065519180eef',
     });
@@ -357,7 +357,7 @@ describe('verifySignOevDataRequest', () => {
 
   it('fails if majority of beacons are missing data', () => {
     expect(
-      verifySignOevDataRequest({ signedData: [validBeacons[0], missingDataBeacon] } as ProcessSignOevDataRequestBody)
+      verifySignOevDataRequest({ beacons: [validBeacons[0], missingDataBeacon] } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
       statusCode: 400,
@@ -366,7 +366,7 @@ describe('verifySignOevDataRequest', () => {
   });
 
   it('fails if there is no beacon related to the processing Airnode', () => {
-    expect(verifySignOevDataRequest({ signedData: [validBeacons[2]] } as ProcessSignOevDataRequestBody)).toEqual({
+    expect(verifySignOevDataRequest({ beacons: [validBeacons[2]] } as ProcessSignOevDataRequestBody)).toEqual({
       success: false,
       statusCode: 400,
       error: { message: 'Missing beacon data from the Airnode requested for signing' },
@@ -375,7 +375,7 @@ describe('verifySignOevDataRequest', () => {
 
   it('fails if there are beacons with old timestamp', () => {
     expect(
-      verifySignOevDataRequest({ signedData: [...validBeacons, oldTimestampBeacon] } as ProcessSignOevDataRequestBody)
+      verifySignOevDataRequest({ beacons: [...validBeacons, oldTimestampBeacon] } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
       statusCode: 400,
@@ -386,7 +386,7 @@ describe('verifySignOevDataRequest', () => {
   it('fails if there are beacons with invalid encoded parameters', () => {
     expect(
       verifySignOevDataRequest({
-        signedData: [...validBeacons, invalidEncodedParametersBeacon],
+        beacons: [...validBeacons, invalidEncodedParametersBeacon],
       } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
@@ -398,7 +398,7 @@ describe('verifySignOevDataRequest', () => {
   it('fails if there are beacons with invalid encoded value', () => {
     expect(
       verifySignOevDataRequest({
-        signedData: [...validBeacons, invalidEncodedValueBeacon],
+        beacons: [...validBeacons, invalidEncodedValueBeacon],
       } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
@@ -410,7 +410,7 @@ describe('verifySignOevDataRequest', () => {
   it('fails if there are beacons with invalid signature', () => {
     expect(
       verifySignOevDataRequest({
-        signedData: [...validBeacons, signatureMismatchBeacon],
+        beacons: [...validBeacons, signatureMismatchBeacon],
       } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
@@ -421,7 +421,7 @@ describe('verifySignOevDataRequest', () => {
 
   it('fails if there are beacons with a value out of deviation threshold', () => {
     expect(
-      verifySignOevDataRequest({ signedData: [...validBeacons, outOfThresholdBeacon] } as ProcessSignOevDataRequestBody)
+      verifySignOevDataRequest({ beacons: [...validBeacons, outOfThresholdBeacon] } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
       statusCode: 400,

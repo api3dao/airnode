@@ -146,7 +146,7 @@ export const signOevDataBodySchema = z.object({
   updateId: z.string(),
   bidderAddress: z.string(),
   bidAmount: z.string(),
-  signedData: z.array(beaconSchema),
+  beacons: z.array(beaconSchema),
 });
 
 export type ProcessSignOevDataRequestBody = z.infer<typeof signOevDataBodySchema>;
@@ -238,9 +238,9 @@ export const calculateUpdateTimestamp = (timestamps: string[]) => {
 export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestBody): VerificationResult<{
   oevUpdateHash: string;
 }> {
-  const { chainId, dapiServerAddress, oevProxyAddress, updateId, bidderAddress, bidAmount, signedData } = requestBody;
-  const majority = Math.floor(signedData.length / 2) + 1;
-  const beaconsWithData = signedData.filter((beacon) => beacon.signedData) as Required<Beacon>[];
+  const { chainId, dapiServerAddress, oevProxyAddress, updateId, bidderAddress, bidAmount, beacons } = requestBody;
+  const majority = Math.floor(beacons.length / 2) + 1;
+  const beaconsWithData = beacons.filter((beacon) => beacon.signedData) as Required<Beacon>[];
 
   // We must have at least a majority of beacons with data
   if (beaconsWithData.length < majority) {
@@ -253,7 +253,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
 
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
-  if (!signedData.some((beacon) => beacon.airnodeAddress === airnodeAddress)) {
+  if (!beacons.some((beacon) => beacon.airnodeAddress === airnodeAddress)) {
     return {
       success: false,
       statusCode: 400,
@@ -278,7 +278,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
     };
   }
 
-  const beaconsWithTemplateId = signedData.map((beacon) => {
+  const beaconsWithTemplateId = beacons.map((beacon) => {
     const templateId = getExpectedTemplateIdV1({
       airnodeAddress: beacon.airnodeAddress,
       endpointId: beacon.endpointId,
@@ -290,7 +290,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
   const beaconIds = beaconsWithTemplateId.map((beacon) => deriveBeaconId(beacon.airnodeAddress, beacon.templateId));
   // We are computing both update value and data feed ID in Airnode to prevent spoofing the signature.
   const dataFeedId = beaconIds.length === 1 ? beaconIds[0] : deriveBeaconSetId(beaconIds);
-  const timestamp = calculateUpdateTimestamp(map(validDecodedBeacons, 'signedData.timestamp'));
+  const timestamp = calculateUpdateTimestamp(validDecodedBeacons.map((beacon) => beacon.signedData.timestamp));
   const updateValue = calculateMedian(map(validDecodedBeacons, 'decodedValue'));
 
   const goDeriveOevUpdateHash = goSync(() => {
