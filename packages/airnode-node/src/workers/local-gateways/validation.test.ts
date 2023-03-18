@@ -14,6 +14,8 @@ import {
   verifySignOevDataRequest,
   validateAndDecodeBeacons,
   allBeaconsConsistent,
+  BeaconDecoded,
+  Beacon,
 } from './validation';
 import * as fixtures from '../../../test/fixtures';
 
@@ -31,10 +33,12 @@ const validDecodedBeacons = [
     endpointId: '0xa473a7ca2d5211e6e5766cc6a27c6e90a4f0270f13565e303c56a629815ed60a',
     encodedParameters:
       '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000657468657265756d000000000000000000000000000000000000000000000000',
-    timestamp: '1677747253',
-    encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e8', // 1000
-    signature:
-      '0x38250a8ef33f76d0994339a9c55af51c46c99d6610e48871d025d8d7931cd13e17399eda87efa0f16bdc0fc1df52772bbb9e00f1ac995a0cc1b65bcefeb795721b',
+    signedData: {
+      timestamp: '1677747253',
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e8', // 1000
+      signature:
+        '0x38250a8ef33f76d0994339a9c55af51c46c99d6610e48871d025d8d7931cd13e17399eda87efa0f16bdc0fc1df52772bbb9e00f1ac995a0cc1b65bcefeb795721b',
+    },
     decodedValue: ethers.BigNumber.from(1000),
   },
   {
@@ -44,10 +48,12 @@ const validDecodedBeacons = [
     endpointId: '0x6c0d51132b51cfca233be8f652189a62d1d9e3d7e0fed3dd2f131ebbf01d31d5',
     encodedParameters:
       '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000',
-    timestamp: '1677747310',
-    encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e9', // 1001
-    signature:
-      '0x1e8255929c001dfe2465d171c9757b49ceca00b70c964bf467e8fc57e573f7d538ffbb36c7ce88c9696c5363af4df76386e880ab13e5cf847ac73a45f645c92b1c',
+    signedData: {
+      timestamp: '1677747310',
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e9', // 1001
+      signature:
+        '0x1e8255929c001dfe2465d171c9757b49ceca00b70c964bf467e8fc57e573f7d538ffbb36c7ce88c9696c5363af4df76386e880ab13e5cf847ac73a45f645c92b1c',
+    },
     decodedValue: ethers.BigNumber.from(1001),
   },
   {
@@ -57,14 +63,16 @@ const validDecodedBeacons = [
     endpointId: '0x0441ead8bafbca489e41d994bdde04d233b88423d93bd789651f2dd60d11f752',
     encodedParameters:
       '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000646f6765636f696e000000000000000000000000000000000000000000000000',
-    timestamp: '1677747379',
-    encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003ea', // 1002
-    signature:
-      '0xdfc5f246c23815bf14f2eeb85f7871d2ed2832f7031848cf1ae33d32f7769c891492a07f2942824dbc2fc3ecaad057807e01111d6d1b8fe90618ead9f70177641b',
+    signedData: {
+      timestamp: '1677747379',
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003ea', // 1002
+      signature:
+        '0xdfc5f246c23815bf14f2eeb85f7871d2ed2832f7031848cf1ae33d32f7769c891492a07f2942824dbc2fc3ecaad057807e01111d6d1b8fe90618ead9f70177641b',
+    },
     decodedValue: ethers.BigNumber.from(1002),
   },
-];
-const validBeacons = validDecodedBeacons.map((decodedBeacon) => omit(decodedBeacon, 'decodedValue'));
+] satisfies Required<BeaconDecoded>[];
+const validBeacons = validDecodedBeacons.map<Required<Beacon>>((decodedBeacon) => omit(decodedBeacon, 'decodedValue'));
 
 describe('verifyHttpRequest', () => {
   it('returns error when the endpoint ID is not found', () => {
@@ -175,8 +183,11 @@ describe('validateAndDecodeBeacons', () => {
   });
 
   it('returns null if some beacons have old timestamp', () => {
-    const outdatedBeacons = [
-      { ...validBeacons[0], timestamp: `${subMinutes(currentTimestamp, 2).getTime() - 1}` },
+    const outdatedBeacons: Required<Beacon>[] = [
+      {
+        ...validBeacons[0],
+        signedData: { ...validBeacons[0].signedData, timestamp: `${subMinutes(currentTimestamp, 2).getTime() - 1}` },
+      },
       ...validBeacons.slice(1),
     ];
 
@@ -184,7 +195,7 @@ describe('validateAndDecodeBeacons', () => {
   });
 
   it('returns null if some beacons have invalid encoded parameters', () => {
-    const outdatedBeacons = [
+    const outdatedBeacons: Required<Beacon>[] = [
       { ...validBeacons[0], encodedParameters: 'invalid encoded parameters' },
       ...validBeacons.slice(1),
     ];
@@ -193,11 +204,14 @@ describe('validateAndDecodeBeacons', () => {
   });
 
   it('returns null if some beacons have invalid signature', () => {
-    const outdatedBeacons = [
+    const outdatedBeacons: Required<Beacon>[] = [
       {
         ...validBeacons[0],
-        signature:
-          '0x9122514d1cb4598435ea21afb7790d9daf5850b87673872b7ddf9e8df7a6afb3106a9f93557429b2b8bca4c9c57e103b93ab0de11f7bec8feeca1968189bffffff',
+        signedData: {
+          ...validBeacons[0].signedData,
+          signature:
+            '0x9122514d1cb4598435ea21afb7790d9daf5850b87673872b7ddf9e8df7a6afb3106a9f93557429b2b8bca4c9c57e103b93ab0de11f7bec8feeca1968189bffffff',
+        },
       },
       ...validBeacons.slice(1),
     ];
@@ -206,14 +220,23 @@ describe('validateAndDecodeBeacons', () => {
   });
 
   it('returns null if some beacons have invalid encoded value', () => {
-    const outdatedBeacons = [{ ...validBeacons[0], encodedValue: 'invalid encoded value' }, ...validBeacons.slice(1)];
+    const outdatedBeacons: Required<Beacon>[] = [
+      { ...validBeacons[0], signedData: { ...validBeacons[0].signedData, encodedValue: 'invalid encoded value' } },
+      ...validBeacons.slice(1),
+    ];
 
     expect(validateAndDecodeBeacons(outdatedBeacons)).toBeNull();
   });
 
   it('returns null if some beacons have value out of range', () => {
-    const outdatedBeacons = [
-      { ...validBeacons[0], encodedValue: '0xffffffff00000000000000000000000000000000000000000000000000000000' },
+    const outdatedBeacons: Required<Beacon>[] = [
+      {
+        ...validBeacons[0],
+        signedData: {
+          ...validBeacons[0].signedData,
+          encodedValue: '0xffffffff00000000000000000000000000000000000000000000000000000000',
+        },
+      },
       ...validBeacons.slice(1),
     ];
 
@@ -267,20 +290,32 @@ describe('verifySignOevDataRequest', () => {
   fixtures.setEnvVariables({
     AIRNODE_WALLET_PRIVATE_KEY: '0xac3c08943f8be529b66660c4b12d488814c129b53a343082c99e6626e42d6d8c',
   });
-  const missingDataBeacon = omit(validBeacons[0], 'encodedValue');
-  const oldTimestampBeacon = { ...validBeacons[0], timestamp: '1677740000' };
-  const invalidEncodedParametersBeacon = { ...validBeacons[0], encodedParameters: 'invalid' };
-  const invalidEncodedValueBeacon = { ...validBeacons[0], encodedValue: 'invalid' };
-  const signatureMismatchBeacon = {
+  const missingDataBeacon: Beacon = omit(validBeacons[0], 'signedData');
+  const oldTimestampBeacon: Beacon = {
     ...validBeacons[0],
-    signature:
-      '0xdfc5f246c23815bf14f2eeb85f7871d2ed2832f7031848cf1ae33d32f7769c891492a07f2942824dbc2fc3ecaad057807e01111d6d1b8fe90618ead9f70177641b',
+    signedData: { ...validBeacons[0].signedData, timestamp: '1677740000' },
   };
-  const outOfThresholdBeacon = {
+  const invalidEncodedParametersBeacon: Beacon = { ...validBeacons[0], encodedParameters: 'invalid' };
+  const invalidEncodedValueBeacon: Beacon = {
     ...validBeacons[0],
-    encodedValue: '0x00000000000000000000000000000000000000000000000000000000000007d0', // 2000
-    signature:
-      '0xc60d89ab00348cced9e1daa050694ac01ba50b3608dcf6ee556d625bf56fdd54697e76358742c0845f1dcf1930e1f612235291572c7445cabccaf167e2ee95511c',
+    signedData: { ...validBeacons[0].signedData, encodedValue: 'invalid' },
+  };
+  const signatureMismatchBeacon: Beacon = {
+    ...validBeacons[0],
+    signedData: {
+      ...validBeacons[0].signedData,
+      signature:
+        '0xdfc5f246c23815bf14f2eeb85f7871d2ed2832f7031848cf1ae33d32f7769c891492a07f2942824dbc2fc3ecaad057807e01111d6d1b8fe90618ead9f70177641b',
+    },
+  };
+  const outOfThresholdBeacon: Beacon = {
+    ...validBeacons[0],
+    signedData: {
+      ...validBeacons[0].signedData,
+      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000007d0', // 2000
+      signature:
+        '0xc60d89ab00348cced9e1daa050694ac01ba50b3608dcf6ee556d625bf56fdd54697e76358742c0845f1dcf1930e1f612235291572c7445cabccaf167e2ee95511c',
+    },
   };
 
   const expectedDecodedValues = [1000, 1001, 1002].map(ethers.BigNumber.from);
@@ -356,7 +391,7 @@ describe('verifySignOevDataRequest', () => {
     expect(verifySignOevDataRequest([...validBeacons, outOfThresholdBeacon])).toEqual({
       success: false,
       statusCode: 400,
-      error: { message: 'Not enough valid beacon data within the deviation threshold to proceed' },
+      error: { message: 'Inconsistent beacon data' },
     });
   });
 

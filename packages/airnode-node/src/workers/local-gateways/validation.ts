@@ -123,16 +123,19 @@ const beaconSchema = z.object({
   airnodeAddress: z.string(),
   endpointId: z.string(),
   encodedParameters: z.string(),
-  // Fields encodedValue, timestamp and signature are optional as they might be missing if we have no data for some of the beacons.
-  // This is fine as we would ignore those but we still need to know how many beacons are in the beacon set and Airnode
-  // addresses to derive the data feed ID.
-  encodedValue: z.string().optional(),
-  timestamp: z.string().optional(),
-  signature: z.string().optional(),
+  // Signed data might for some of the beacons (as long as the majority has the data). We still need to know all of the
+  // beacons to derive the data feed ID.
+  signedData: z
+    .object({
+      encodedValue: z.string(),
+      timestamp: z.string(),
+      signature: z.string(),
+    })
+    .optional(),
 });
 
-type Beacon = z.infer<typeof beaconSchema>;
-interface BeaconDecoded extends Required<Beacon> {
+export type Beacon = z.infer<typeof beaconSchema>;
+export interface BeaconDecoded extends Required<Beacon> {
   decodedValue: ethers.BigNumber;
 }
 
@@ -148,13 +151,15 @@ export const signOevDataBodySchema = z.object({
 
 export type ProcessSignOevDataRequestBody = z.infer<typeof signOevDataBodySchema>;
 
-export function validateAndDecodeBeacons(beacons: Beacon[]) {
+export function validateAndDecodeBeacons(beacons: Required<Beacon>[]) {
   const currentTime = new Date();
   const validDecodedBeacons: BeaconDecoded[] = [];
 
   const goBeaconValidation = goSync(() => {
     for (const beacon of beacons) {
-      const { airnodeAddress, endpointId, encodedParameters, encodedValue, timestamp, signature } = beacon;
+      const { airnodeAddress, endpointId, encodedParameters, signedData } = beacon;
+      const { encodedValue, timestamp, signature } = signedData;
+
       // The timestamp is older than the last 2 minutes
       if (isBefore(toDate(Number(timestamp) * 1000), subMinutes(currentTime, TIMESTAMP_DEVIATION))) {
         throw new Error('Beacon timestamp too old');
@@ -187,7 +192,7 @@ export function validateAndDecodeBeacons(beacons: Beacon[]) {
         throw new Error('Beacon value not within range');
       }
 
-      validDecodedBeacons.push({ ...(beacon as Required<Beacon>), decodedValue });
+      validDecodedBeacons.push({ ...beacon, decodedValue });
     }
   });
   if (!goBeaconValidation.success) {
@@ -211,7 +216,7 @@ export function verifySignOevDataRequest(
   beacons: Beacon[]
 ): VerificationResult<{ validUpdateValues: ethers.BigNumber[]; validUpdateTimestamps: string[] }> {
   const majority = Math.floor(beacons.length / 2) + 1;
-  const beaconsWithData = beacons.filter((beacon) => beacon.encodedValue && beacon.timestamp && beacon.signature);
+  const beaconsWithData = beacons.filter((beacon) => beacon.signedData) as Required<Beacon>[];
 
   // We must have at least a majority of beacons with data
   if (beaconsWithData.length < majority) {
@@ -246,7 +251,7 @@ export function verifySignOevDataRequest(
     return {
       success: false,
       statusCode: 400,
-      error: { message: 'Not enough valid beacon data within the deviation threshold to proceed' },
+      error: { message: 'Inconsistent beacon data' },
     };
   }
 
