@@ -240,7 +240,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       const rawSignOevDataRequestBody = parsedBody.data;
       logger.debug(`OEV gateway request passed request body parsing`);
 
-      const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody.signedData);
+      const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
         logger.error(`OEV gateway request verification error`);
@@ -249,11 +249,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       }
       logger.debug(`OEV gateway request passed request verification`);
 
-      const [err, result] = await signOevData(
-        rawSignOevDataRequestBody,
-        verificationResult.validUpdateValues,
-        verificationResult.validUpdateTimestamps
-      );
+      const [err, result] = await signOevData(rawSignOevDataRequestBody.signedData, verificationResult.oevUpdateHash);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
         logger.error(`OEV gateway request processing error`);
