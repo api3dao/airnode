@@ -1,4 +1,4 @@
-# Coingecko-signed-data example integration
+# Coingecko HTTP gateways example integration
 
 This example contains the same API integration as `../coingecko`.
 

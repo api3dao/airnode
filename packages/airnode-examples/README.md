@@ -38,13 +38,13 @@ reserved parameters. The following list orders integrations alphabetically:
   unauthenticated cryptocurrency price request.
 - [coingecko-cross-chain-authorizer](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
   demonstration of a cross-chain [authorizer](https://docs.api3.org/airnode/latest/concepts/authorizers.html).
+- [coingecko-http-gateways](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-http-gateways) -
+  demonstration of the
+  [HTTP gateway and HTTP signed data gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
 - [coingecko-post-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-post-processing) -
   demonstration of the [post-processing](https://docs.api3.org/ois/latest/processing.html) feature.
 - [coingecko-pre-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-pre-processing) -
   demonstration of the [pre-processing](https://docs.api3.org/ois/latest/processing.html) feature.
-- [coingecko-http-gateways](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-http-gateways) -
-  demonstration of the
-  [HTTP gateway and HTTP signed data gateway](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
 - [coingecko-template](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-template) -
   demonstration of [template](https://docs.api3.org/airnode/latest/grp-developers/using-templates.html) requests.
 - [failing-example](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/failing-example) -
