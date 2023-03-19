@@ -123,8 +123,8 @@ const beaconSchema = z.object({
   airnodeAddress: z.string(),
   endpointId: z.string(),
   encodedParameters: z.string(),
-  // Signed data might for some of the beacons (as long as the majority has the data). We still need to know all of the
-  // beacons to derive the data feed ID.
+  // Signed data might be missing for some of the beacons (as long as the majority has the data). We still need to know
+  // all of the beacons to derive the data feed ID.
   signedData: z
     .object({
       encodedValue: z.string(),

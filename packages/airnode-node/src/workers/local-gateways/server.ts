@@ -233,6 +233,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
         // specification.
+        // TODO: It is not very nice to debug this (the message doesn't tell much).
         logger.error(`OEV gateway request invalid request body`);
         res.status(400).send({ message: 'Invalid request body' });
         return;

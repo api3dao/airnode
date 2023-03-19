@@ -7,13 +7,13 @@ import { Beacon } from '../workers/local-gateways';
 import { getExpectedTemplateIdV1 } from '../evm/templates';
 
 export async function signOevData(
-  signedData: Beacon[],
+  beacons: Beacon[],
   oevUpdateHash: string
 ): Promise<[Error, null] | [null, SignOevDataResponse]> {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
 
-  const beaconsWithTemplateId = signedData.map((beacon) => {
+  const beaconsWithTemplateId = beacons.map((beacon) => {
     const templateId = getExpectedTemplateIdV1({
       airnodeAddress: beacon.airnodeAddress,
       endpointId: beacon.endpointId,
@@ -27,7 +27,9 @@ export async function signOevData(
     Promise.all(
       beaconsToSign.map((beacon) =>
         airnodeWallet.signMessage(
-          ethers.utils.solidityKeccak256(['bytes32', 'bytes32'], [oevUpdateHash, beacon.templateId])
+          ethers.utils.arrayify(
+            ethers.utils.solidityKeccak256(['bytes32', 'bytes32'], [oevUpdateHash, beacon.templateId])
+          )
         )
       )
     )

@@ -59,7 +59,7 @@ describe('signOevData', () => {
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
     expect(res!.data).toEqual([
-      '0xa8339565d47b5a80ae35702df0a4656809dfc0152c9bbd22a8a94ce6501690e077ad3b5d1fa7f9198eff3db0b74b8196c30c0f931677e2a09ba5e2c96621b08b1b',
+      '0xe88e4110be68b36b8416b87135c894951724b3cc140fd0a2fe7d0d51cc73dcff2bc6cd8bcf69adb39b3b01304e266ad1b81291e8214466af0c418e1b702168ba1b',
     ]);
   });
 
@@ -73,8 +73,8 @@ describe('signOevData', () => {
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
     expect(res!.data).toEqual([
-      '0x81b1512a67848c0d46ce6957f7b377dc43e9444a57f602353e5c9ab41a24c68d3a2c5a261f7d59e0bca0e72bdc7353bb20e2c4f801452ddd95c43c4f9c7e56581b',
-      '0xc01e7da0e6e2a7057f5c95aefc327d34d85faf812876340b48b052a611d32ec61cae4fc1443d364bc4ee819eae00ff032dd904aaa8e169c52144b9c81a9c3fba1b',
+      '0xf990802abc67a45b901bc30084c472b43937e0d2d67e76b352d8841ac80fe0c54d2e95252a4921a61daf3783f24b3d7e7e7479a2cae7e22ae4aea314fda5d8f91b',
+      '0xd6264e508ec92085a96c15b27d11e1e228b8afd06b57c039efe836df92f247a9660862c030eb38c9549a69dacb7ed2daf5c1140a2af92f0cffbd1419a04286061c',
     ]);
   });
 });
