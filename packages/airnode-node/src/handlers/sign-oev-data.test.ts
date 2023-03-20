@@ -1,5 +1,12 @@
+import map from 'lodash/map';
 import { BigNumber } from 'ethers';
-import { calculateMedian, deriveBeaconId, deriveBeaconSetId, signOevData } from './sign-oev-data';
+import {
+  calculateMedian,
+  calculateUpdateTimestamp,
+  deriveBeaconId,
+  deriveBeaconSetId,
+  signOevData,
+} from './sign-oev-data';
 import * as fixtures from '../../test/fixtures';
 
 describe('deriveBeaconId', () => {
@@ -47,6 +54,18 @@ describe('calculateMedian', () => {
       const arr = [24, 11, 10, 30].map(BigNumber.from);
       expect(calculateMedian(arr)).toEqual(BigNumber.from(17));
     });
+  });
+});
+
+describe('calculateUpdateTimestamp', () => {
+  it('calculates beacon set timestamp', () => {
+    const beaconSetBeaconTimestamps = ['1555711223', '1556229645', '1555020018', '1556402497'];
+    expect(calculateUpdateTimestamp(beaconSetBeaconTimestamps)).toEqual(1555840845);
+  });
+
+  it('calculates beacon set timestamp from just one timestamp', () => {
+    const beaconSetBeaconTimestamps = ['1555711223'];
+    expect(calculateUpdateTimestamp(beaconSetBeaconTimestamps)).toEqual(1555711223);
   });
 });
 
@@ -105,54 +124,40 @@ describe('signOevData', () => {
     ],
   };
   // median: 0x0000000000000000000000000000000000000000000000000000000000000096
-  const validUpdateValues = [BigNumber.from(100), BigNumber.from(150), BigNumber.from(200)];
-  const timestamp = 1677753822;
-  // oevUpdateHash: 0xf29974946b92c9a49b09c6d290b2073de9d932665a567c13e13f1e3ea716df55
+  const validUpdateValues = [100, 150, 200].map(BigNumber.from);
+  const validUpdateTimestamps = map(requestBody.signedData, 'timestamp');
+  // oevUpdateHash: 0xcd5bb3b413773277e8b03a10c3213fb752ad9d7c4d286ce8826b73905ba0672c
   const signatures = [
-    '0x2a20562ff1c0fa985eea09e33e1902140acf8f17c2c4bbbcaf98ad4ba2417c4a18d0bc293750bc195e45b0d33a8b71628abbdcc7296a550aaeb8c7c2cc29fbb11b',
-    '0xcd29b94e503107fed316363e27a94eb55829c09b9d89f6594de8b24b05e2e44e4a365f1f8890acb36a003d00c091aef6c2288f72e0ebb96ec7ee307828fb64e81b',
+    '0x81b1512a67848c0d46ce6957f7b377dc43e9444a57f602353e5c9ab41a24c68d3a2c5a261f7d59e0bca0e72bdc7353bb20e2c4f801452ddd95c43c4f9c7e56581b',
+    '0xc01e7da0e6e2a7057f5c95aefc327d34d85faf812876340b48b052a611d32ec61cae4fc1443d364bc4ee819eae00ff032dd904aaa8e169c52144b9c81a9c3fba1b',
   ];
-
-  let dateNowSpy: jest.SpyInstance;
-
-  beforeAll(() => {
-    dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => timestamp * 1000);
-  });
-
-  afterAll(() => {
-    dateNowSpy.mockRestore();
-  });
 
   it('signs the OEV data for one beacon', async () => {
     // median: 0x0000000000000000000000000000000000000000000000000000000000000064
-    // oevUpdateHash: 0xc3789fe6050b1b9a77e15920048a1eaa4a84b80f3d09804f4a5ad7ed5d7e27af
+    // oevUpdateHash: 0xf6675230e0269c8308f219e520f91a3a665e0b48b408047445e218369642d5af
     const oneBeaconSignedData = [requestBody.signedData[0]];
     const oneBeaconUpdateValues = [validUpdateValues[0]];
-    const signedOevData = await signOevData({ ...requestBody, signedData: oneBeaconSignedData }, oneBeaconUpdateValues);
+    const oneBeaconUpdateTimestamps = [requestBody.signedData[0].timestamp];
+    const signedOevData = await signOevData(
+      { ...requestBody, signedData: oneBeaconSignedData },
+      oneBeaconUpdateValues,
+      oneBeaconUpdateTimestamps
+    );
     const [err, res] = signedOevData;
-    const [signedData] = res!.data;
 
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
-    expect(signedData.encodedValue).toEqual('0x0000000000000000000000000000000000000000000000000000000000000064');
-    expect(signedData.signature).toEqual(
-      '0x31a5fa78a05e619f304e8949f65e084c9d368b282d3d7e270178749bb072c7e92e52c722bc604120cd3a2d81071318bc6da17376b23721d088d75737072a3e3b1c'
-    );
-    expect(signedData.timestamp).toEqual(`${timestamp}`);
+    expect(res!.data).toEqual([
+      '0xa8339565d47b5a80ae35702df0a4656809dfc0152c9bbd22a8a94ce6501690e077ad3b5d1fa7f9198eff3db0b74b8196c30c0f931677e2a09ba5e2c96621b08b1b',
+    ]);
   });
 
   it('signs the OEV data for beacon set', async () => {
-    const signedOevData = await signOevData(requestBody, validUpdateValues);
+    const signedOevData = await signOevData(requestBody, validUpdateValues, validUpdateTimestamps);
     const [err, res] = signedOevData;
-    const [signedData1, signedData2] = res!.data;
 
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
-    expect(signedData1.encodedValue).toEqual('0x0000000000000000000000000000000000000000000000000000000000000096');
-    expect(signedData1.signature).toEqual(signatures[0]);
-    expect(signedData1.timestamp).toEqual(`${timestamp}`);
-    expect(signedData2.encodedValue).toEqual('0x0000000000000000000000000000000000000000000000000000000000000096');
-    expect(signedData2.signature).toEqual(signatures[1]);
-    expect(signedData2.timestamp).toEqual(`${timestamp}`);
+    expect(res!.data).toEqual(signatures);
   });
 });
