@@ -65,9 +65,7 @@
       "corsOrigins": []
     },
     "oevGateway": {
-      "enabled": true,
-      "maxConcurrency": 20,
-      "corsOrigins": []
+      "enabled": false
     },
     "logFormat": "plain",
     "logLevel": "DEBUG",

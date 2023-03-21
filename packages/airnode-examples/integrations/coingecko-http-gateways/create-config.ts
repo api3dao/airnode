@@ -72,9 +72,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       corsOrigins: [],
     },
     oevGateway: {
-      enabled: true,
-      maxConcurrency: 20,
-      corsOrigins: [],
+      enabled: false,
     },
     logFormat: 'plain',
     logLevel: 'DEBUG',
