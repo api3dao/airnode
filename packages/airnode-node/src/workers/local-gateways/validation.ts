@@ -293,6 +293,9 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
   const timestamp = calculateUpdateTimestamp(validDecodedBeacons.map((beacon) => beacon.signedData.timestamp));
   const updateValue = calculateMedian(map(validDecodedBeacons, 'decodedValue'));
 
+  // Derive the update hash during validation, because there can be an error during the encoding. We want to respond
+  // with status 400 in that case. The processing implementation can assume the request is valid and error should be
+  // treated as internal server error (status 500).
   const goDeriveOevUpdateHash = goSync(() => {
     const encodedUpdateValue = ethers.utils.defaultAbiCoder.encode(['int256'], [updateValue]);
     logger.debug(
