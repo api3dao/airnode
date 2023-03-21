@@ -40,10 +40,8 @@ components:
         bidAmount:
           type: string
         beacons:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
+          type: object
+          additionalProperties:
             type: object
             required:
               - airnodeAddress
@@ -71,22 +69,9 @@ components:
                     type: string
 
     EndpointResponse:
-      type: array
-      minItems: 1
-      uniqueItems: true
-      items:
-        type: object
-        required:
-          - timestamp
-          - encodedValue
-          - signature
-        properties:
-          timestamp:
-            type: string
-          encodedValue:
-            type: string
-          signature:
-            type: string
+      type: object
+      additionalProperties:
+        type: string
 
   examples:
     EndpointRequestExample:
@@ -98,9 +83,9 @@ components:
           "oevProxyAddress": "0x...",
           "updateId": "0x...",
           "bidderAddress": "0x...",
-          "bidAmount": "0x...",
-          "beacons": [
-            {
+          "bidAmount": "123...",
+          "beacons": {
+            "beaconId1": {
               "airnodeAddress": "0x...",
               "endpointId": "0x...",
               "encodedParameters": "0x...",
@@ -108,28 +93,20 @@ components:
               "encodedValue": "0x...",
               "signature": "0x..."
             },
-            {
+            "beaconId2": {
               "airnodeAddress": "0x...",
               "endpointId": "0x...",
               "encodedParameters": "0x..."
             }
-          ]
+          }
         }
     EndpointResponseExample:
       summary: Endpoint response example
       value: |
-        [
-          {
-            "timestamp": "16...",
-            "encodedValue": "0x...",
-            "signature": "0x...
-          },
-          {
-            "timestamp": "16...",
-            "encodedValue": "0x...",
-            "signature": "0x...
-          }
-        ]
+        {
+          "beaconId1": "0x...",
+          "beaconId2": "0x...",
+        }
 
 paths:
   /${path_key}:

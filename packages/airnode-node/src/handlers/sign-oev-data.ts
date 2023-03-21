@@ -3,47 +3,42 @@ import { go } from '@api3/promise-utils';
 import { SignOevDataResponse } from '../types';
 import { getAirnodeWalletFromPrivateKey } from '../evm/wallet';
 // TODO: define in a better place
-import { Beacon } from '../workers/local-gateways';
-import { getExpectedTemplateIdV1 } from '../evm/templates';
+import { BeaconWithIds } from '../workers/local-gateways';
 
 export async function signOevData(
-  beacons: Beacon[],
+  beacons: BeaconWithIds[],
   oevUpdateHash: string
 ): Promise<[Error, null] | [null, SignOevDataResponse]> {
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
 
-  const beaconsWithTemplateId = beacons.map((beacon) => {
-    const templateId = getExpectedTemplateIdV1({
-      airnodeAddress: beacon.airnodeAddress,
-      endpointId: beacon.endpointId,
-      encodedParameters: beacon.encodedParameters,
-    });
-
-    return { ...beacon, templateId };
-  });
-  const beaconsToSign = beaconsWithTemplateId.filter((beacon) => beacon.airnodeAddress === airnodeAddress);
-  const goSignatures = await go(() =>
+  const beaconsToSign = beacons.filter((beacon) => beacon.airnodeAddress === airnodeAddress);
+  const goSignedBeacons = await go(() =>
     Promise.all(
-      beaconsToSign.map((beacon) =>
-        airnodeWallet.signMessage(
-          ethers.utils.arrayify(
-            ethers.utils.solidityKeccak256(['bytes32', 'bytes32'], [oevUpdateHash, beacon.templateId])
-          )
-        )
-      )
+      beaconsToSign.map(async (beacon) => {
+        return {
+          beaconId: beacon.beaconId,
+          signature: await airnodeWallet.signMessage(
+            ethers.utils.arrayify(
+              ethers.utils.solidityKeccak256(['bytes32', 'bytes32'], [oevUpdateHash, beacon.templateId])
+            )
+          ),
+        };
+      })
     )
   );
-  if (!goSignatures.success) {
-    return [new Error(`Can't sign the data: ${goSignatures.error}`), null];
+  if (!goSignedBeacons.success) {
+    return [new Error(`Can't sign the data: ${goSignedBeacons.error}`), null];
   }
-  const signatures = goSignatures.data;
+  const signedBeacons = goSignedBeacons.data;
 
   return [
     null,
     {
       success: true,
-      data: signatures,
+      data: signedBeacons.reduce((acc, { beaconId, signature }) => {
+        return { ...acc, [beaconId]: signature };
+      }, {} as SignOevDataResponse['data']),
     },
   ];
 }

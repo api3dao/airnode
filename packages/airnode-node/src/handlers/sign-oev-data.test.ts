@@ -1,8 +1,6 @@
 import { signOevData } from './sign-oev-data';
 import * as fixtures from '../../test/fixtures';
 
-// The commented values below (e.g. beaconId, templateId, ...) are there so we have easier time
-// changing the tests in the future as the values in the tests must be derived correctly in order to pass
 describe('signOevData', () => {
   fixtures.setEnvVariables({
     AIRNODE_WALLET_PRIVATE_KEY: '0xac3c08943f8be529b66660c4b12d488814c129b53a343082c99e6626e42d6d8c',
@@ -10,8 +8,8 @@ describe('signOevData', () => {
 
   const beacons = [
     {
-      // beaconId: 0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b
-      // templateId: 0x64a8f8e70cd1bd4e4621bde25053bf4e22633241effa9f768bf18ff6400dc702
+      beaconId: '0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b',
+      templateId: '0x64a8f8e70cd1bd4e4621bde25053bf4e22633241effa9f768bf18ff6400dc702',
       airnodeAddress: '0x9A2Df85E73851e27044504d72563696E5cE86B95',
       endpointId: '0xa473a7ca2d5211e6e5766cc6a27c6e90a4f0270f13565e303c56a629815ed60a',
       encodedParameters:
@@ -22,8 +20,8 @@ describe('signOevData', () => {
         '0x9122514d1cb4598435ea21afb7790d9daf5850b87673872b7ddf9e8df7a6afb3106a9f93557429b2b8bca4c9c57e103b93ab0de11f7bec8feeca1968189bbd8f1b',
     },
     {
-      // beaconId: 0xd6965b1162b263e4dac3084ff0589614a464ac3e4ca012cb90ebb73094f7204e
-      // templateId: 0x306c24b3373f82f267e678464c3bbca29ca5657d0cc6fa4e92981ff91e7c97f3
+      beaconId: '0xd6965b1162b263e4dac3084ff0589614a464ac3e4ca012cb90ebb73094f7204e',
+      templateId: '0x306c24b3373f82f267e678464c3bbca29ca5657d0cc6fa4e92981ff91e7c97f3',
       airnodeAddress: '0x9A2Df85E73851e27044504d72563696E5cE86B95',
       endpointId: '0x6c0d51132b51cfca233be8f652189a62d1d9e3d7e0fed3dd2f131ebbf01d31d5',
       encodedParameters:
@@ -34,8 +32,8 @@ describe('signOevData', () => {
         '0x64c19621c8c9a8c2ad722f9f6edd15d524302a0d502a549519de8df1b612410f73cdc0a668df63bc2447923cfc89c1c5101679423f6895b15c034eb35657d70f1b',
     },
     {
-      // beaconId: 0xac1054d456689fa9d63e70d6a39b2f3896f494a544865969f1de6d3a61bf10ed
-      // templateId: 0xf13fcbc7e9b814d6f42ca68793c4c5843950d7d77f4c54105669468efc7bb8a0
+      beaconId: '0xac1054d456689fa9d63e70d6a39b2f3896f494a544865969f1de6d3a61bf10ed',
+      templateId: '0xf13fcbc7e9b814d6f42ca68793c4c5843950d7d77f4c54105669468efc7bb8a0',
       airnodeAddress: '0xc89216a9adFA290354eB5365C3d5de6B6A24296a',
       endpointId: '0x0441ead8bafbca489e41d994bdde04d233b88423d93bd789651f2dd60d11f752',
       encodedParameters:
@@ -58,9 +56,10 @@ describe('signOevData', () => {
 
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
-    expect(res!.data).toEqual([
-      '0xe88e4110be68b36b8416b87135c894951724b3cc140fd0a2fe7d0d51cc73dcff2bc6cd8bcf69adb39b3b01304e266ad1b81291e8214466af0c418e1b702168ba1b',
-    ]);
+    expect(res!.data).toEqual({
+      '0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b':
+        '0xe88e4110be68b36b8416b87135c894951724b3cc140fd0a2fe7d0d51cc73dcff2bc6cd8bcf69adb39b3b01304e266ad1b81291e8214466af0c418e1b702168ba1b',
+    });
   });
 
   it('signs the OEV data for beacon set', async () => {
@@ -72,9 +71,11 @@ describe('signOevData', () => {
 
     expect(err).toBeNull();
     expect(res!.success).toBeTruthy();
-    expect(res!.data).toEqual([
-      '0xf990802abc67a45b901bc30084c472b43937e0d2d67e76b352d8841ac80fe0c54d2e95252a4921a61daf3783f24b3d7e7e7479a2cae7e22ae4aea314fda5d8f91b',
-      '0xd6264e508ec92085a96c15b27d11e1e228b8afd06b57c039efe836df92f247a9660862c030eb38c9549a69dacb7ed2daf5c1140a2af92f0cffbd1419a04286061c',
-    ]);
+    expect(res!.data).toEqual({
+      '0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b':
+        '0xf990802abc67a45b901bc30084c472b43937e0d2d67e76b352d8841ac80fe0c54d2e95252a4921a61daf3783f24b3d7e7e7479a2cae7e22ae4aea314fda5d8f91b',
+      '0xd6965b1162b263e4dac3084ff0589614a464ac3e4ca012cb90ebb73094f7204e':
+        '0xd6264e508ec92085a96c15b27d11e1e228b8afd06b57c039efe836df92f247a9660862c030eb38c9549a69dacb7ed2daf5c1140a2af92f0cffbd1419a04286061c',
+    });
   });
 });
