@@ -79,7 +79,7 @@ async function fetchCrossChainAuthorizations(
           type: 'erc721',
           airnodeAddress: currentState.settings.airnodeAddress,
           authorizations: currentState.settings.authorizations,
-          chainId: authorizer.chainId,
+          chainId: currentState.settings.chainId,
           erc721s: authorizer.erc721s,
           provider: buildEVMProvider(authorizer.chainProvider.url, authorizer.chainId),
           RequesterAuthorizerWithErc721Address: authorizer.contracts.RequesterAuthorizerWithErc721,
