@@ -203,7 +203,11 @@ export async function performApiCall(
   const options = buildOptions(payload);
   const timeout = API_CALL_TIMEOUT;
   // We also pass the timeout to adapter to gracefully abort the request after the timeout
-  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout }), {
+  // timeout passed to adapter will cause axios socket to hang until the timeout is reached
+  // even if the attemptTimeoutMs is reached and the 2nd attempt is made
+  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout: (timeout * 2) / 3 }), {
+    retries: 1,
+    attemptTimeoutMs: [timeout / 3, (timeout * 2) / 3],
     totalTimeoutMs: timeout,
   });
   if (!goRes.success) {
