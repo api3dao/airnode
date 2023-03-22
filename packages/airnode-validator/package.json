@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@api3/ois": "2.0.0",
-    "@api3/promise-utils": "^0.3.0",
+    "@api3/promise-utils": "^0.4.0",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",

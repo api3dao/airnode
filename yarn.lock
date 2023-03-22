@@ -18,10 +18,10 @@
     lodash "^4.17.21"
     zod "^3.20.6"
 
-"@api3/promise-utils@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@api3/promise-utils/-/promise-utils-0.3.0.tgz#e7ebf92bfd8c1d39983321fc5445070c51fce176"
-  integrity sha512-fH3CzEcsCQjoX6BZ5M+3yRIXZ2zz4/nFdzKUB4wvn3KjvvzvroHFZrzhbKa4mB9E4AS0xnou1AXhlrnN5Fcy+A==
+"@api3/promise-utils@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@api3/promise-utils/-/promise-utils-0.4.0.tgz#d1dcd77d74377b4fdb3071d2cc76d98c9151309c"
+  integrity sha512-+8fcNjjQeQAuuSXFwu8PMZcYzjwjDiGYcMUfAQ0lpREb1zHonwWZ2N0B9h/g1cvWzg9YhElbeb/SyhCrNm+b/A==
 
 "@aws-crypto/crc32@3.0.0":
   version "3.0.0"
