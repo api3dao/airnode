@@ -23,14 +23,19 @@ export function calculateMedian(arr: ethers.BigNumber[]) {
   return arr.length % 2 !== 0 ? nums[mid] : nums[mid - 1].add(nums[mid]).div(2);
 }
 
+export const calculateUpdateTimestamp = (timestamps: string[]) => {
+  const accumulatedTimestamp = timestamps.reduce((total, next) => total + parseInt(next, 10), 0);
+  return Math.floor(accumulatedTimestamp / timestamps.length);
+};
+
 export async function signOevData(
   requestBody: ProcessSignOevDataRequestBody,
-  validUpdateValues: ethers.BigNumber[]
+  validUpdateValues: ethers.BigNumber[],
+  validUpdateTimestamps: string[]
 ): Promise<[Error, null] | [null, SignOevDataResponse]> {
   const { chainId, dapiServerAddress, oevProxyAddress, updateId, bidderAddress, bidAmount, signedData } = requestBody;
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
-  const timestamp = Math.floor(Date.now() / 1000).toString();
 
   const beaconsWithTemplateId = signedData.map((beacon) => {
     const templateId = getExpectedTemplateIdV1({
@@ -44,6 +49,7 @@ export async function signOevData(
   const beaconIds = beaconsWithTemplateId.map((beacon) => deriveBeaconId(beacon.airnodeAddress, beacon.templateId));
   // We are computing both update value and data feed ID in Airnode otherwise it would be possible to spoof the signature.
   const dataFeedId = beaconIds.length === 1 ? beaconIds[0] : deriveBeaconSetId(beaconIds);
+  const timestamp = calculateUpdateTimestamp(validUpdateTimestamps);
   const updateValue = calculateMedian(validUpdateValues);
   const encodedUpdateValue = ethers.utils.defaultAbiCoder.encode(['int256'], [updateValue]);
   const oevUpdateHash = ethers.utils.solidityKeccak256(
@@ -80,7 +86,7 @@ export async function signOevData(
     null,
     {
       success: true,
-      data: signatures.map((signature) => ({ signature, timestamp, encodedValue: encodedUpdateValue })),
+      data: signatures,
     },
   ];
 }

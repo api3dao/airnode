@@ -209,7 +209,7 @@ export function allBeaconsConsistent(beacons: BeaconDecoded[]) {
 
 export function verifySignOevDataRequest(
   beacons: Beacon[]
-): VerificationResult<{ validUpdateValues: ethers.BigNumber[] }> {
+): VerificationResult<{ validUpdateValues: ethers.BigNumber[]; validUpdateTimestamps: string[] }> {
   const majority = Math.floor(beacons.length / 2) + 1;
   const beaconsWithData = beacons.filter((beacon) => beacon.encodedValue && beacon.timestamp && beacon.signature);
 
@@ -250,7 +250,11 @@ export function verifySignOevDataRequest(
     };
   }
 
-  return { success: true, validUpdateValues: map(validDecodedBeacons, 'decodedValue') };
+  return {
+    success: true,
+    validUpdateValues: map(validDecodedBeacons, 'decodedValue'),
+    validUpdateTimestamps: map(validDecodedBeacons, 'timestamp'),
+  };
 }
 
 export const checkRequestOrigin = (allowedOrigins: string[], origin?: string) =>

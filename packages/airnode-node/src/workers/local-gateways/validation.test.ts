@@ -3,6 +3,7 @@ import { join } from 'path';
 import { subMinutes } from 'date-fns';
 import { ethers } from 'ethers';
 import omit from 'lodash/omit';
+import map from 'lodash/map';
 import { Config } from '@api3/airnode-node';
 import {
   verifyHttpRequest,
@@ -282,7 +283,8 @@ describe('verifySignOevDataRequest', () => {
       '0xc60d89ab00348cced9e1daa050694ac01ba50b3608dcf6ee556d625bf56fdd54697e76358742c0845f1dcf1930e1f612235291572c7445cabccaf167e2ee95511c',
   };
 
-  const expectedDecodedValues = [ethers.BigNumber.from(1000), ethers.BigNumber.from(1001), ethers.BigNumber.from(1002)];
+  const expectedDecodedValues = [1000, 1001, 1002].map(ethers.BigNumber.from);
+  const expectedTimestamps = map(validBeacons, 'timestamp');
 
   const currentTimestamp = 1677790659;
   beforeAll(() => {
@@ -295,7 +297,11 @@ describe('verifySignOevDataRequest', () => {
   });
 
   it('verifies beacon data for the request', () => {
-    expect(verifySignOevDataRequest(validBeacons)).toEqual({ success: true, validUpdateValues: expectedDecodedValues });
+    expect(verifySignOevDataRequest(validBeacons)).toEqual({
+      success: true,
+      validUpdateValues: expectedDecodedValues,
+      validUpdateTimestamps: expectedTimestamps,
+    });
   });
 
   it('fails if majority of beacons are missing data', () => {
@@ -358,6 +364,7 @@ describe('verifySignOevDataRequest', () => {
     expect(verifySignOevDataRequest([validBeacons[0]])).toEqual({
       success: true,
       validUpdateValues: [expectedDecodedValues[0]],
+      validUpdateTimestamps: [expectedTimestamps[0]],
     });
   });
 });
