@@ -63,7 +63,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: API_CALL_TIMEOUT / 3 }
     );
   });
 
@@ -108,7 +108,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: API_CALL_TIMEOUT / 3 }
     );
   });
 
@@ -146,7 +146,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: API_CALL_TIMEOUT / 3 }
     );
   });
 
@@ -197,7 +197,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: API_CALL_TIMEOUT / 3 }
     );
   });
 
@@ -216,7 +216,7 @@ describe('callApi', () => {
       expect.objectContaining({
         parameters: { from: 'ETH', amount: '1' },
       }),
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: API_CALL_TIMEOUT / 3 }
     );
   });
 
@@ -224,7 +224,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     const nonAxiosError = new Error('A non-axios error');
     spy.mockRejectedValueOnce(nonAxiosError);
-
+    spy.mockRejectedValueOnce(nonAxiosError);
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
@@ -255,6 +255,7 @@ describe('callApi', () => {
   ])(`returns an error containing "$msg" for the respective axios API call failure`, async ({ e, msg }) => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     const axiosError = e;
+    spy.mockRejectedValueOnce(axiosError);
     spy.mockRejectedValueOnce(axiosError);
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
@@ -388,7 +389,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'BTC', source: 'airnode', amount: '1' },
         }),
-        { timeout: API_CALL_TIMEOUT }
+        { timeout: API_CALL_TIMEOUT / 3 }
       );
     });
 
@@ -432,7 +433,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'ETH', amount: '1' },
         }),
-        { timeout: API_CALL_TIMEOUT }
+        { timeout: API_CALL_TIMEOUT / 3 }
       );
     });
   });

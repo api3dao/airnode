@@ -205,18 +205,22 @@ export async function performApiCall(
   // We also pass the timeout to adapter to gracefully abort the request after the timeout
   // timeout passed to adapter will cause axios socket to hang until the timeout is reached
   // even if the attemptTimeoutMs is reached and the 2nd attempt is made
-  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout: (timeout * 2) / 3 }), {
-    retries: 1,
-    attemptTimeoutMs: [timeout / 3, (timeout * 2) / 3],
-    totalTimeoutMs: timeout,
+  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout: timeout / 3 }), {
+    totalTimeoutMs: timeout / 3,
   });
   if (!goRes.success) {
-    const { aggregatedApiCall } = payload;
-    const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
-    // eslint-disable-next-line import/no-named-as-default-member
-    const axiosErrorMsg = axios.isAxiosError(goRes.error) ? errorMsgFromAxiosError(goRes.error) : '';
-    const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
-    return [[log], { success: false, errorMessage: errorMessage }];
+    const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout: (timeout * 2) / 3 }), {
+      totalTimeoutMs: (timeout * 2) / 3,
+    });
+    if (!goRes.success) {
+      const { aggregatedApiCall } = payload;
+      const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
+      // eslint-disable-next-line import/no-named-as-default-member
+      const axiosErrorMsg = axios.isAxiosError(goRes.error) ? errorMsgFromAxiosError(goRes.error) : '';
+      const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
+      return [[log], { success: false, errorMessage: errorMessage }];
+    }
+    return [[], { ...goRes.data }];
   }
 
   return [[], { ...goRes.data }];
