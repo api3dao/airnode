@@ -233,6 +233,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       if (!parsedBody.success) {
         // This error and status code is returned by AWS gateway when the request does not match the openAPI
         // specification.
+        // TODO: It is not very nice to debug this (the message doesn't tell much).
         logger.error(`OEV gateway request invalid request body`);
         res.status(400).send({ message: 'Invalid request body' });
         return;
@@ -240,7 +241,7 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
       const rawSignOevDataRequestBody = parsedBody.data;
       logger.debug(`OEV gateway request passed request body parsing`);
 
-      const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody.signedData);
+      const verificationResult = verifySignOevDataRequest(rawSignOevDataRequestBody);
       if (!verificationResult.success) {
         const { statusCode, error } = verificationResult;
         logger.error(`OEV gateway request verification error`);
@@ -248,12 +249,9 @@ export function startGatewayServer(config: Config, enabledGateways: GatewayName[
         return;
       }
       logger.debug(`OEV gateway request passed request verification`);
+      const { oevUpdateHash, beacons } = verificationResult;
 
-      const [err, result] = await signOevData(
-        rawSignOevDataRequestBody,
-        verificationResult.validUpdateValues,
-        verificationResult.validUpdateTimestamps
-      );
+      const [err, result] = await signOevData(beacons, oevUpdateHash);
       if (err) {
         // Returning 500 because failure here means something went wrong internally with a valid request
         logger.error(`OEV gateway request processing error`);
