@@ -40,7 +40,7 @@ export const signHeartbeat = (heartbeatPayload: string) => {
 };
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
-  const { config } = state;
+  const { config, settings } = state;
   const {
     nodeSettings: { heartbeat, cloudProvider, stage },
   } = config;
@@ -65,6 +65,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     timestamp,
     stage,
     cloud_provider: cloudProvider.type,
+    deployment_id: settings.deploymentId,
     ...(cloudProvider.type !== 'local' ? { region: cloudProvider.region } : {}),
     ...(httpGatewayUrl ? { http_gateway_url: httpGatewayUrl } : {}),
     ...(httpSignedDataGatewayUrl ? { http_signed_data_gateway_url: httpSignedDataGatewayUrl } : {}),
