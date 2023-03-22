@@ -247,7 +247,7 @@ export interface HttpSignedDataApiCallSuccessResponse {
 
 export interface SignOevDataResponse {
   success: true;
-  data: string[];
+  data: { [beaconId: string]: string }; // The value is the signature for the respective beacon.
 }
 
 export interface ApiCallErrorResponse {

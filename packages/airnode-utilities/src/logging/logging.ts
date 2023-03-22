@@ -71,7 +71,8 @@ export const logger = {
       logFull('ERROR', message, { ...options, error });
       return;
     }
-    consoleLog(message);
+    if (error) consoleLog(message, error);
+    else consoleLog(message);
   },
   logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
     pendingLogs.forEach((pendingLog) => {
@@ -152,8 +153,8 @@ export function json(level: LogLevel, message: string, options: LogOptions) {
   consoleLog(JSON.stringify(logObject));
 }
 
-export function consoleLog(message: string) {
+export function consoleLog(...args: any[]) {
   if (process.env.SILENCE_LOGGER) return;
   // eslint-disable-next-line no-console
-  console.log(message);
+  console.log(...args);
 }
