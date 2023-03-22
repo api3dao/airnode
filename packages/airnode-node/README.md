@@ -64,7 +64,7 @@ src/
 │   └── verification/    # Request verification
 ├── handlers/            # "Pipeline" type modules that generally serve as entry points
 ├── providers/           # Provider workers and state
-├── reporting/           # Heartbeat implemenetation
+├── reporting/           # Heartbeat implementation
 ├── requests/            # Generic modules applicable to different blockchains
 ├── utils/               # General utility functions
 └── workers/             # Utility function that allow for "forking"

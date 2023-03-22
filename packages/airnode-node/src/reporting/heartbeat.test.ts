@@ -47,6 +47,7 @@ describe('reportHeartbeat', () => {
       timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
+      deployment_id: state.settings.deploymentId,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       oev_gateway_url: 'http://localhost:3000/sign-oev',
@@ -81,6 +82,7 @@ describe('reportHeartbeat', () => {
       timestamp: expectedTimestamp,
       stage: state.config.nodeSettings.stage,
       cloud_provider: state.config.nodeSettings.cloudProvider.type,
+      deployment_id: state.settings.deploymentId,
       http_gateway_url: 'http://localhost:3000/http-data',
       http_signed_data_gateway_url: 'http://localhost:3000/http-signed-data',
       oev_gateway_url: 'http://localhost:3000/sign-oev',
@@ -191,6 +193,7 @@ describe('reportHeartbeat', () => {
         timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
+        deployment_id: state.settings.deploymentId,
         region,
         http_gateway_url: httpGatewayUrl,
         http_signed_data_gateway_url: httpSignedDataGatewayUrl,
@@ -227,6 +230,7 @@ describe('reportHeartbeat', () => {
         timestamp: expectedTimestamp,
         stage: state.config.nodeSettings.stage,
         cloud_provider: state.config.nodeSettings.cloudProvider.type,
+        deployment_id: state.settings.deploymentId,
         http_gateway_url: 'http://localhost:8765/http-data',
         http_signed_data_gateway_url: 'http://localhost:8765/http-signed-data',
         oev_gateway_url: 'http://localhost:8765/sign-oev',
@@ -254,12 +258,13 @@ describe('reportHeartbeat', () => {
     });
   });
 
-  describe('signHearbeat', () => {
+  describe('signHeartbeat', () => {
     const airnodeAddress = fixtures.getAirnodeWallet().address;
     const heartbeatPayload = JSON.stringify({
       timestamp: expectedTimestamp,
       stage: 'test',
       cloud_provider: 'local',
+      deployment_id: 'local02cce763',
       http_gateway_url: httpGatewayUrl,
       http_signed_data_gateway_url: httpSignedDataGatewayUrl,
       oev_gateway_url: oevGatewayUrl,
@@ -270,7 +275,7 @@ describe('reportHeartbeat', () => {
       const signerAddress = ethers.utils.verifyMessage(heartbeatPayload, signature);
 
       expect(signature).toEqual(
-        '0x3b705a37aa27173a0fbb2d270d5d827fc6493168515eae05cd9fb60e89399a272726f7f01b261a8e01e9cffa7506369db5c409e6d34f425fde1810046d8376d21c'
+        '0x7c0415f3e5d120306c0a810626289abec1aad5fcf99fd68e0dbe9f8625811a1220f99205ead02ed6836af6184699745a9e73fbb920186cfd91bb7935df230eec1c'
       );
       expect(signerAddress).toEqual(airnodeAddress);
     });
