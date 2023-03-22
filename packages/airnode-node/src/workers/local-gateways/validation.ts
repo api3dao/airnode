@@ -323,7 +323,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
   const beaconIds = beacons.map((beacon) => beacon.beaconId);
   // We are computing both update value and data feed ID in Airnode to prevent spoofing the signature.
   const dataFeedId = beaconIds.length === 1 ? beaconIds[0] : deriveBeaconSetId(beaconIds);
-  const timestamp = calculateUpdateTimestamp(decodedBeacons.map((beacon) => beacon.signedData.timestamp));
+  const timestamp = calculateUpdateTimestamp(map(decodedBeacons, 'signedData.timestamp'));
   const updateValue = calculateMedian(map(decodedBeacons, 'decodedValue'));
 
   // Derive the update hash during validation, because there can be an error during the encoding. We want to respond
