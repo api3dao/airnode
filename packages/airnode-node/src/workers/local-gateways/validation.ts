@@ -123,16 +123,24 @@ const beaconSchema = z.object({
   airnodeAddress: z.string(),
   endpointId: z.string(),
   encodedParameters: z.string(),
-  // Fields encodedValue, timestamp and signature are optional as they might be missing if we have no data for some of the beacons.
-  // This is fine as we would ignore those but we still need to know how many beacons are in the beacon set and Airnode
-  // addresses to derive the data feed ID.
-  encodedValue: z.string().optional(),
-  timestamp: z.string().optional(),
-  signature: z.string().optional(),
+  // Signed data might be missing for some of the beacons (as long as the majority has the data). We still need to know
+  // all of the beacons to derive the data feed ID.
+  signedData: z
+    .object({
+      encodedValue: z.string(),
+      timestamp: z.string(),
+      signature: z.string(),
+    })
+    .optional(),
 });
 
-type Beacon = z.infer<typeof beaconSchema>;
-interface BeaconDecoded extends Required<Beacon> {
+export type Beacon = z.infer<typeof beaconSchema>;
+
+export interface BeaconWithIds extends Beacon {
+  beaconId: string;
+  templateId: string;
+}
+export interface BeaconDecoded extends Required<BeaconWithIds> {
   decodedValue: ethers.BigNumber;
 }
 
@@ -143,33 +151,24 @@ export const signOevDataBodySchema = z.object({
   updateId: z.string(),
   bidderAddress: z.string(),
   bidAmount: z.string(),
-  signedData: z.array(beaconSchema),
+  beacons: z.record(beaconSchema), // The key is the beacon ID
 });
 
 export type ProcessSignOevDataRequestBody = z.infer<typeof signOevDataBodySchema>;
 
-export function validateAndDecodeBeacons(beacons: Beacon[]) {
+export function decodeBeaconsWithData(beacons: Required<BeaconWithIds>[]) {
   const currentTime = new Date();
   const validDecodedBeacons: BeaconDecoded[] = [];
 
   const goBeaconValidation = goSync(() => {
     for (const beacon of beacons) {
-      const { airnodeAddress, endpointId, encodedParameters, encodedValue, timestamp, signature } = beacon;
+      const { airnodeAddress, templateId, signedData } = beacon;
+      const { encodedValue, timestamp, signature } = signedData;
+
       // The timestamp is older than the last 2 minutes
       if (isBefore(toDate(Number(timestamp) * 1000), subMinutes(currentTime, TIMESTAMP_DEVIATION))) {
         throw new Error('Beacon timestamp too old');
       }
-
-      // To check parameters validity, exception is caught by the goSync
-      decode(encodedParameters);
-      const decodedValue = ethers.BigNumber.from(ethers.utils.defaultAbiCoder.decode(['int256'], encodedValue!)[0]);
-
-      const template: ApiCallTemplateWithoutId = {
-        airnodeAddress,
-        endpointId,
-        encodedParameters,
-      };
-      const templateId = getExpectedTemplateIdV1(template);
 
       const message = ethers.utils.arrayify(
         ethers.utils.keccak256(
@@ -177,17 +176,17 @@ export function validateAndDecodeBeacons(beacons: Beacon[]) {
         )
       );
       const addressFromSignature = ethers.utils.verifyMessage(message, signature!);
-
       // Signature doesn't match
       if (airnodeAddress !== addressFromSignature) {
         throw new Error('Invalid beacon signature');
       }
 
+      const decodedValue = ethers.BigNumber.from(ethers.utils.defaultAbiCoder.decode(['int256'], encodedValue!)[0]);
       if (decodedValue.gt(INT224_MAX) || decodedValue.lt(INT224_MIN)) {
         throw new Error('Beacon value not within range');
       }
 
-      validDecodedBeacons.push({ ...(beacon as Required<Beacon>), decodedValue });
+      validDecodedBeacons.push({ ...beacon, decodedValue });
     }
   });
   if (!goBeaconValidation.success) {
@@ -207,11 +206,83 @@ export function allBeaconsConsistent(beacons: BeaconDecoded[]) {
   return beacons.every((beacon) => avg.sub(beacon.decodedValue).abs().lte(maxDeviation));
 }
 
-export function verifySignOevDataRequest(
-  beacons: Beacon[]
-): VerificationResult<{ validUpdateValues: ethers.BigNumber[]; validUpdateTimestamps: string[] }> {
+export function deriveBeaconId(airnodeAddress: string, templateId: string) {
+  return ethers.utils.solidityKeccak256(['address', 'bytes32'], [airnodeAddress, templateId]);
+}
+
+export function deriveBeaconSetId(beaconIds: string[]) {
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['bytes32[]'], [beaconIds]));
+}
+
+export function calculateMedian(arr: ethers.BigNumber[]) {
+  const mid = Math.floor(arr.length / 2);
+  const nums = [...arr].sort((a, b) => {
+    if (a.lt(b)) return -1;
+    else if (a.gt(b)) return 1;
+    else return 0;
+  });
+  return arr.length % 2 !== 0 ? nums[mid] : nums[mid - 1].add(nums[mid]).div(2);
+}
+
+export const calculateUpdateTimestamp = (timestamps: string[]) => {
+  const accumulatedTimestamp = timestamps.reduce((total, next) => total + parseInt(next, 10), 0);
+  return Math.floor(accumulatedTimestamp / timestamps.length);
+};
+
+export const validateBeacons = (beaconsRecord: Record<string, Beacon>): BeaconWithIds[] | null => {
+  const goValidateBeacons = goSync(() => {
+    const beacons: BeaconWithIds[] = [];
+    for (const [beaconId, beacon] of Object.entries(beaconsRecord)) {
+      const { airnodeAddress, encodedParameters, endpointId } = beacon;
+
+      // To check parameters validity, exception is caught by the goSync
+      decode(encodedParameters);
+
+      const template: ApiCallTemplateWithoutId = {
+        airnodeAddress,
+        endpointId,
+        encodedParameters,
+      };
+      const templateId = getExpectedTemplateIdV1(template); // This can fail, but it's OK because we are wrapping the validation in goSync
+      if (beaconId !== deriveBeaconId(airnodeAddress, templateId)) {
+        throw new Error('The provided beacon ID does not match the derived beacon ID');
+      }
+
+      beacons.push({ ...beacon, templateId, beaconId });
+    }
+
+    return beacons;
+  });
+
+  if (!goValidateBeacons.success) return null;
+  return goValidateBeacons.data;
+};
+
+export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestBody): VerificationResult<{
+  oevUpdateHash: string;
+  beacons: BeaconDecoded[];
+}> {
+  const {
+    chainId,
+    dapiServerAddress,
+    oevProxyAddress,
+    updateId,
+    bidderAddress,
+    bidAmount,
+    beacons: beaconsRecord,
+  } = requestBody;
+
+  const beacons = validateBeacons(beaconsRecord);
+  if (!beacons) {
+    return {
+      success: false,
+      statusCode: 400,
+      error: { message: 'Some of the beacons are invalid' },
+    };
+  }
+
   const majority = Math.floor(beacons.length / 2) + 1;
-  const beaconsWithData = beacons.filter((beacon) => beacon.encodedValue && beacon.timestamp && beacon.signature);
+  const beaconsWithData = beacons.filter((beacon) => beacon.signedData) as Required<BeaconWithIds>[];
 
   // We must have at least a majority of beacons with data
   if (beaconsWithData.length < majority) {
@@ -232,8 +303,8 @@ export function verifySignOevDataRequest(
     };
   }
 
-  const validDecodedBeacons = validateAndDecodeBeacons(beaconsWithData);
-  if (!validDecodedBeacons) {
+  const decodedBeacons = decodeBeaconsWithData(beaconsWithData);
+  if (!decodedBeacons) {
     return {
       success: false,
       statusCode: 400,
@@ -241,19 +312,66 @@ export function verifySignOevDataRequest(
     };
   }
 
-  const beaconsConsistent = allBeaconsConsistent(validDecodedBeacons);
-  if (!beaconsConsistent) {
+  if (!allBeaconsConsistent(decodedBeacons)) {
     return {
       success: false,
       statusCode: 400,
-      error: { message: 'Not enough valid beacon data within the deviation threshold to proceed' },
+      error: { message: 'Inconsistent beacon data' },
+    };
+  }
+
+  const beaconIds = beacons.map((beacon) => beacon.beaconId);
+  // We are computing both update value and data feed ID in Airnode to prevent spoofing the signature.
+  const dataFeedId = beaconIds.length === 1 ? beaconIds[0] : deriveBeaconSetId(beaconIds);
+  const timestamp = calculateUpdateTimestamp(map(decodedBeacons, 'signedData.timestamp'));
+  const updateValue = calculateMedian(map(decodedBeacons, 'decodedValue'));
+
+  // Derive the update hash during validation, because there can be an error during the encoding. We want to respond
+  // with status 400 in that case. The processing implementation can assume the request is valid and error should be
+  // treated as internal server error (status 500).
+  const goDeriveOevUpdateHash = goSync(() => {
+    const encodedUpdateValue = ethers.utils.defaultAbiCoder.encode(['int256'], [updateValue]);
+    logger.debug(
+      `Deriving update hash. Params: ${JSON.stringify([
+        chainId,
+        dapiServerAddress,
+        oevProxyAddress,
+        dataFeedId,
+        updateId,
+        timestamp,
+        encodedUpdateValue,
+        bidderAddress,
+        bidAmount,
+      ])}`
+    );
+    return ethers.utils.solidityKeccak256(
+      ['uint256', 'address', 'address', 'bytes32', 'bytes32', 'uint256', 'bytes', 'address', 'uint256'],
+      [
+        chainId,
+        dapiServerAddress,
+        oevProxyAddress,
+        dataFeedId,
+        updateId,
+        timestamp,
+        encodedUpdateValue,
+        bidderAddress,
+        bidAmount,
+      ]
+    );
+  });
+  if (!goDeriveOevUpdateHash.success) {
+    logger.error('Error deriving OEV update hash', goDeriveOevUpdateHash.error);
+    return {
+      success: false,
+      statusCode: 400,
+      error: { message: 'Error deriving OEV update hash' },
     };
   }
 
   return {
     success: true,
-    validUpdateValues: map(validDecodedBeacons, 'decodedValue'),
-    validUpdateTimestamps: map(validDecodedBeacons, 'timestamp'),
+    oevUpdateHash: goDeriveOevUpdateHash.data,
+    beacons: decodedBeacons,
   };
 }
 
