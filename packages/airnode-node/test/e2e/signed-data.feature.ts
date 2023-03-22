@@ -35,6 +35,6 @@ it('makes a call for signed API data', async () => {
   // Verify that all internal parameters have been removed from the parameters forwarded to the API
   expect(adapter.buildAndExecuteRequest).toHaveBeenCalledWith(
     expect.objectContaining({ parameters: { from: 'ETH', amount: '1' } }),
-    { timeout: 30000 }
+    { timeout: 10000 }
   );
 });
