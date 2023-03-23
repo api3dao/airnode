@@ -45,6 +45,7 @@ export enum RequestErrorMessage {
   ApiCallFailed = 'API call failed',
   ReservedParametersInvalid = 'Reserved parameters are invalid',
   FulfillTransactionFailed = 'Fulfill transaction failed',
+  GasEstimationFailed = 'Gas estimation failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
