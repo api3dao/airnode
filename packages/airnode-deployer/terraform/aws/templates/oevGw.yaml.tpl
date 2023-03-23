@@ -40,8 +40,10 @@ components:
         bidAmount:
           type: string
         beacons:
-          type: object
-          additionalProperties:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
             type: object
             required:
               - airnodeAddress
@@ -69,9 +71,10 @@ components:
                     type: string
 
     EndpointResponse:
-      type: object
-      additionalProperties:
-        type: string
+      type: array
+      minItems: 1
+      items:
+        type: integer
 
   examples:
     EndpointRequestExample:
@@ -84,29 +87,31 @@ components:
           "updateId": "0x...",
           "bidderAddress": "0x...",
           "bidAmount": "123...",
-          "beacons": {
-            "beaconId1": {
+          "beacons": [
+            {
               "airnodeAddress": "0x...",
               "endpointId": "0x...",
               "encodedParameters": "0x...",
-              "timestamp": "16...",
-              "encodedValue": "0x...",
-              "signature": "0x..."
+              "signedData": {
+                "timestamp": "16...",
+                "encodedValue": "0x...",
+                "signature": "0x..."
+              }
             },
-            "beaconId2": {
+            {
               "airnodeAddress": "0x...",
               "endpointId": "0x...",
               "encodedParameters": "0x..."
             }
-          }
+          ]
         }
     EndpointResponseExample:
       summary: Endpoint response example
       value: |
-        {
-          "beaconId1": "0x...",
-          "beaconId2": "0x...",
-        }
+        [
+          "0x...",
+          "0x...",
+        ]
 
 paths:
   /${path_key}:

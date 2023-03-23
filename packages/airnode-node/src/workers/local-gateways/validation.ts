@@ -151,7 +151,8 @@ export const signOevDataBodySchema = z.object({
   updateId: z.string(),
   bidderAddress: z.string(),
   bidAmount: z.string(),
-  beacons: z.record(beaconSchema), // The key is the beacon ID
+  // The order of beacons is important as it determines the beacon set ID.
+  beacons: z.array(beaconSchema),
 });
 
 export type ProcessSignOevDataRequestBody = z.infer<typeof signOevDataBodySchema>;
@@ -229,10 +230,10 @@ export const calculateUpdateTimestamp = (timestamps: string[]) => {
   return Math.floor(accumulatedTimestamp / timestamps.length);
 };
 
-export const validateBeacons = (beaconsRecord: Record<string, Beacon>): BeaconWithIds[] | null => {
+export const validateBeacons = (beacons: Beacon[]): BeaconWithIds[] | null => {
   const goValidateBeacons = goSync(() => {
-    const beacons: BeaconWithIds[] = [];
-    for (const [beaconId, beacon] of Object.entries(beaconsRecord)) {
+    const beaconsWithIds: BeaconWithIds[] = [];
+    for (const beacon of beacons) {
       const { airnodeAddress, encodedParameters, endpointId } = beacon;
 
       // To check parameters validity, exception is caught by the goSync
@@ -243,15 +244,14 @@ export const validateBeacons = (beaconsRecord: Record<string, Beacon>): BeaconWi
         endpointId,
         encodedParameters,
       };
-      const templateId = getExpectedTemplateIdV1(template); // This can fail, but it's OK because we are wrapping the validation in goSync
-      if (beaconId !== deriveBeaconId(airnodeAddress, templateId)) {
-        throw new Error('The provided beacon ID does not match the derived beacon ID');
-      }
+      // Both template ID and beacon ID can fail, but it's OK because we are wrapping the validation in goSync
+      const templateId = getExpectedTemplateIdV1(template);
+      const beaconId = deriveBeaconId(airnodeAddress, templateId);
 
-      beacons.push({ ...beacon, templateId, beaconId });
+      beaconsWithIds.push({ ...beacon, templateId, beaconId });
     }
 
-    return beacons;
+    return beaconsWithIds;
   });
 
   if (!goValidateBeacons.success) return null;
@@ -262,18 +262,10 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
   oevUpdateHash: string;
   beacons: BeaconDecoded[];
 }> {
-  const {
-    chainId,
-    dapiServerAddress,
-    oevProxyAddress,
-    updateId,
-    bidderAddress,
-    bidAmount,
-    beacons: beaconsRecord,
-  } = requestBody;
+  const { chainId, dapiServerAddress, oevProxyAddress, updateId, bidderAddress, bidAmount, beacons } = requestBody;
 
-  const beacons = validateBeacons(beaconsRecord);
-  if (!beacons) {
+  const beaconsWithIds = validateBeacons(beacons);
+  if (!beaconsWithIds) {
     return {
       success: false,
       statusCode: 400,
@@ -281,8 +273,8 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
     };
   }
 
-  const majority = Math.floor(beacons.length / 2) + 1;
-  const beaconsWithData = beacons.filter((beacon) => beacon.signedData) as Required<BeaconWithIds>[];
+  const majority = Math.floor(beaconsWithIds.length / 2) + 1;
+  const beaconsWithData = beaconsWithIds.filter((beacon) => beacon.signedData) as Required<BeaconWithIds>[];
 
   // We must have at least a majority of beacons with data
   if (beaconsWithData.length < majority) {
@@ -295,7 +287,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
 
   const airnodeWallet = getAirnodeWalletFromPrivateKey();
   const airnodeAddress = airnodeWallet.address;
-  if (!beacons.some((beacon) => beacon.airnodeAddress === airnodeAddress)) {
+  if (!beaconsWithIds.some((beacon) => beacon.airnodeAddress === airnodeAddress)) {
     return {
       success: false,
       statusCode: 400,
@@ -320,7 +312,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
     };
   }
 
-  const beaconIds = beacons.map((beacon) => beacon.beaconId);
+  const beaconIds = beaconsWithIds.map((beacon) => beacon.beaconId);
   // We are computing both update value and data feed ID in Airnode to prevent spoofing the signature.
   const dataFeedId = beaconIds.length === 1 ? beaconIds[0] : deriveBeaconSetId(beaconIds);
   const timestamp = calculateUpdateTimestamp(map(decodedBeacons, 'signedData.timestamp'));
