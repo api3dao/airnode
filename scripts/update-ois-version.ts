@@ -1,13 +1,25 @@
 import { readFileSync, writeFileSync } from 'fs';
 import fg from 'fast-glob';
+import compact from 'lodash/compact';
+import uniq from 'lodash/uniq';
 import { format } from 'prettier';
 
-if (process.argv.length < 3) {
-  // eslint-disable-next-line no-console
-  console.log('\nUsage: yarn update-ois <version>\n');
-  process.exit(1);
+// Confirm all package.json files use the same version of @api3/ois before bumping the version
+const packageJson = fg.sync('./packages/**/package.json', { ignore: ['**/node_modules', '**/dist', '**/build'] });
+const versions = uniq(
+  compact(
+    packageJson.map((f) => {
+      return JSON.parse(readFileSync(f, 'utf-8')).dependencies['@api3/ois'];
+    })
+  )
+);
+if (versions.length > 1) {
+  throw new Error(`Multiple versions of @api3/ois found in packages: ${versions.join(', ')}`);
 }
-const packageVersion = process.argv[2];
+if (versions.length === 0) {
+  throw new Error(`No version of @api3/ois found in packages`);
+}
+const packageVersion = versions[0];
 
 const oisJsonPatterns = ['./packages/**/*config*.json', './packages/**/ois.json'];
 oisJsonPatterns.forEach((pattern) => {
@@ -33,23 +45,5 @@ oisTsPatterns.forEach((pattern) => {
     // eslint-disable-next-line no-console
     console.log(`Updating "${f}" to oisFormat version ${packageVersion}`);
     writeFileSync(f, ois);
-  });
-});
-
-const packageJsonPatterns = ['./packages/**/package.json'];
-packageJsonPatterns.forEach((pattern) => {
-  const packageJson = fg.sync(pattern, { ignore: ['**/node_modules', '**/dist', '**/build'] });
-  packageJson.forEach((f) => {
-    const packageJson = JSON.parse(readFileSync(f, 'utf-8'));
-
-    if (!packageJson.dependencies['@api3/ois']) {
-      return;
-    }
-    // eslint-disable-next-line functional/immutable-data
-    packageJson.dependencies['@api3/ois'] = packageVersion;
-
-    // eslint-disable-next-line no-console
-    console.log(`Updating "${f}" to version ${packageVersion}`);
-    writeFileSync(f, JSON.stringify(packageJson, null, 2) + '\n');
   });
 });
