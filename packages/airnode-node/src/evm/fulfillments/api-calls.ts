@@ -145,11 +145,6 @@ export async function testAndSubmitFulfill(
   request: Request<ApiCallWithResponse>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
-  const errorMessage = requests.getErrorMessage(request);
-  if (errorMessage) {
-    return submitFail(airnodeRrp, request, errorMessage, options);
-  }
-
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
@@ -188,11 +183,6 @@ export async function estimateGasAndSubmitFulfill(
   request: Request<ApiCallWithResponse>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
-  const errorMessage = requests.getErrorMessage(request);
-  if (errorMessage) {
-    return submitFail(airnodeRrp, request, errorMessage, options);
-  }
-
   // Should not throw
   const [estimateGasLogs, estimateGasErr, estimateGasData] = await estimateGasToFulfill(airnodeRrp, request);
 
@@ -200,7 +190,7 @@ export async function estimateGasAndSubmitFulfill(
     // Make static test call to get revert string
     const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
-    if (testErr || (testData && !testData.callSuccess)) {
+    if (testErr || !testData || !testData.callSuccess) {
       const updatedRequest: Request<ApiCallWithResponse> = {
         ...request,
         errorMessage: testErr
@@ -292,6 +282,11 @@ export const submitApiCall: SubmitRequest<ApiCallWithResponse> = (airnodeRrp, re
       `API call for Request:${request.id} cannot be submitted as it does not have a nonce`
     );
     return Promise.resolve([[log], null, null]);
+  }
+
+  const errorMessage = requests.getErrorMessage(request);
+  if (errorMessage) {
+    return submitFail(airnodeRrp, request, errorMessage, options);
   }
 
   // Should not throw
