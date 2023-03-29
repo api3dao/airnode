@@ -1,5 +1,9 @@
 // The maximum time a single API call has before it is timed out
-export const API_CALL_TIMEOUT = 30_000;
+export const FIRST_API_CALL_TIMEOUT = 10_000;
+
+// The maximum time a single API call has before it is timed out
+// This is used for the second API call in the case of a retry
+export const SECOND_API_CALL_TIMEOUT = 20_000;
 
 // The number of past blocks to lookup when fetching Airnode RRP events.
 export const BLOCK_COUNT_HISTORY_LIMIT = 300;
