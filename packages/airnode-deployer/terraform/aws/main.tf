@@ -67,7 +67,7 @@ module "startCoordinatorHttpGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL           = module.httpGw[0].api_url
+    HTTP_GATEWAY_URL           = local.http_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
@@ -91,7 +91,7 @@ module "startCoordinatorHttpSignedGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -115,7 +115,7 @@ module "startCoordinatorOevGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    OEV_GATEWAY_URL            = module.oevGw[0].api_url
+    OEV_GATEWAY_URL            = local.oev_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
@@ -139,8 +139,8 @@ module "startCoordinatorHttpGwAndHttpSignedGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = module.httpGw[0].api_url
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    HTTP_GATEWAY_URL             = local.http_gateway_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -164,8 +164,8 @@ module "startCoordinatorHttpGwAndOevGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL           = module.httpGw[0].api_url
-    OEV_GATEWAY_URL            = module.oevGw[0].api_url
+    HTTP_GATEWAY_URL           = local.http_gateway_url
+    OEV_GATEWAY_URL            = local.oev_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
@@ -189,8 +189,8 @@ module "startCoordinatorHttpSignedGwAndOevGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
-    OEV_GATEWAY_URL              = module.oevGw[0].api_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
+    OEV_GATEWAY_URL              = local.oev_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -214,9 +214,9 @@ module "startCoordinatorAllGws" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = module.httpGw[0].api_url
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
-    OEV_GATEWAY_URL              = module.oevGw[0].api_url
+    HTTP_GATEWAY_URL             = local.http_gateway_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
+    OEV_GATEWAY_URL              = local.oev_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
