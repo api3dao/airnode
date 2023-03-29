@@ -14,7 +14,7 @@ locals {
   # Trim whitespaces from the line
   secrets_lines_trimmed = [for line in local.secrets_lines : trimspace(line)]
   # Discard commented lines (starting with '#')
-  secrets_lines_uncommented = [for line in local.secrets_lines_trimmed : line if !startswith(line, "#")]
+  secrets_lines_uncommented = [for line in local.secrets_lines_trimmed : line if can(regex("^[^#].*$", line))]
   # Discard lines not matching the pattern and split them. We're looking for line that has non-whitespace characters before '=' and anything after
   secrets_lines_matched = [for line in local.secrets_lines_uncommented : regex("^([^[:space:]]+?)=(.*)$", line) if can(regex("^([^[:space:]]+?)=(.*)$", line))]
   # Convert the list to a map, remove quotation marks around the values. When duplicate keys are encountered the last found value is used.
