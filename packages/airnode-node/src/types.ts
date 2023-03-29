@@ -248,7 +248,7 @@ export interface HttpSignedDataApiCallSuccessResponse {
 
 export interface SignOevDataResponse {
   success: true;
-  data: { [beaconId: string]: string }; // The value is the signature for the respective beacon.
+  data: string[]; // Signatures for the beacons of this Airnode in order they were provided
 }
 
 export interface ApiCallErrorResponse {

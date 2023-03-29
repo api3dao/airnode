@@ -54,7 +54,7 @@ resource "aws_lambda_function" "lambda" {
   environment {
     variables = merge(
       var.environment_variables,
-      fileexists(var.secrets_file) ? { for tuple in regexall("(.*?)=(.*)", file(var.secrets_file)) : tuple[0] => trim(tuple[1], "\"'") } : {},
+      local.secrets,
       { AIRNODE_CLOUD_PROVIDER = "aws" }
     )
   }
