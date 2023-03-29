@@ -2,7 +2,15 @@
   "chains": [
     {
       "maxConcurrency": 100,
-      "authorizers": [],
+      "authorizers": {
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": [],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
+      },
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
       "contracts": {
         "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
@@ -41,6 +49,9 @@
     "httpSignedDataGateway": {
       "enabled": false
     },
+    "oevGateway": {
+      "enabled": false
+    },
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.10.0",
@@ -73,7 +84,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "1.0.0",
+      "oisFormat": "2.0.0",
       "title": "CoinGecko basic request",
       "version": "1.0.0",
       "apiSpecifications": {
