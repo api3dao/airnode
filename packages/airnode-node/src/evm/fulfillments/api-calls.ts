@@ -216,8 +216,8 @@ export async function estimateGasAndSubmitFulfill(
       return [[...estimateGasLogs, ...testLogs, ...submitLogs], submitErr, submittedRequest];
     }
 
-    // If static test call is succesful even though gas estimation failure,
-    // it'll be related RPC issue, so submit specific reason to chain
+    // If static test call is successful even though gas estimation failure,
+    // it'll be caused by an RPC issue, so submit specific reason to chain
     const updatedRequest: Request<ApiCallWithResponse> = {
       ...request,
       errorMessage: estimateGasErr
@@ -234,7 +234,7 @@ export async function estimateGasAndSubmitFulfill(
   }
 
   // If gas estimation is success, submit fulfillment without making static test call
-  const gasLimitNoticeLog = logger.pend('INFO', `Gas limit is set to ${estimateGasData} for Request:${request.id}...`);
+  const gasLimitNoticeLog = logger.pend('INFO', `Gas limit is set to ${estimateGasData} for Request:${request.id}.`);
   const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, {
     ...options,
     gasTarget: { ...options.gasTarget, gasLimit: estimateGasData },
