@@ -359,6 +359,26 @@ describe('triggers references', () => {
       ])
     );
   });
+
+  it(`fails if the endpointId does not match the hash of the oisTitle and endpointName`, () => {
+    const invalidConfig = {
+      ...config,
+      triggers: {
+        ...config.triggers,
+        rrp: [{ ...config.triggers.rrp[0], endpointId: 'nonMatchingEndpointId' }],
+      },
+    };
+
+    expect(() => configSchema.parse(invalidConfig)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message: `The endpointId does not match the hash of the oisTitle and endpointName`,
+          path: ['triggers', 'rrp', 0, 'endpointId'],
+        },
+      ])
+    );
+  });
 });
 
 describe('apiKey schemas', () => {

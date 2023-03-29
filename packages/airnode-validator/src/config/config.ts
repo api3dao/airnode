@@ -426,6 +426,20 @@ const validateTriggersReferences: SuperRefinement<{
           message: `No matching endpoint for trigger with endpoint name "${endpointName}"`,
           path: ['triggers', triggerSection, index, 'endpointName'],
         });
+
+        return;
+      }
+
+      // Check that the hash of the oisTitle and endpointName matches the trigger's endpointId
+      const derivedEndpointId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(['string', 'string'], [oisTitle, endpointName])
+      );
+      if (derivedEndpointId !== trigger.endpointId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `The endpointId does not match the hash of the oisTitle and endpointName`,
+          path: ['triggers', triggerSection, index, 'endpointId'],
+        });
       }
     });
   });
