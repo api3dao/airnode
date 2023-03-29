@@ -613,7 +613,7 @@ describe('submitApiCall', () => {
               level: 'DEBUG',
               message: `Attempting to estimate gas for API call fulfillment for Request:${apiCall.id}...`,
             },
-            { level: 'INFO', message: `Gas limit is set to ${73804} for Request:${apiCall.id}...` },
+            { level: 'INFO', message: `Gas limit is set to ${73804} for Request:${apiCall.id}.` },
             { level: 'INFO', message: `Submitting API call fulfillment for Request:${apiCall.id}...` },
           ]);
           expect(err).toEqual(null);
@@ -672,7 +672,7 @@ describe('submitApiCall', () => {
               level: 'DEBUG',
               message: `Attempting to estimate gas for API call fulfillment for Request:${apiCall.id}...`,
             },
-            { level: 'INFO', message: `Gas limit is set to ${73804} for Request:${apiCall.id}...` },
+            { level: 'INFO', message: `Gas limit is set to ${73804} for Request:${apiCall.id}.` },
             { level: 'INFO', message: `Submitting API call fulfillment for Request:${apiCall.id}...` },
             {
               error: new Error('Server did not respond'),
