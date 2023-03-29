@@ -6,6 +6,9 @@ locals {
   # deployment_id - 11 characters
   # dash between - 1 character
   name_prefix = "${var.infrastructure_name}-${var.deployment_id}"
+
+  http_gateway_url             = var.http_gateway_enabled == false ? null : "https://${module.httpGw[0].api_url}/${random_uuid.http_path_key.result}"
+  http_signed_data_gateway_url = var.http_signed_data_gateway_enabled == false ? null : "https://${module.httpSignedGw[0].api_url}/${random_uuid.http_signed_data_path_key.result}"
 }
 
 variable "gcp_project" {

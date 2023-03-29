@@ -71,8 +71,8 @@ module "startCoordinator" {
   airnode_bucket        = var.airnode_bucket
   deployment_bucket_dir = var.deployment_bucket_dir
   environment_variables = {
-    HTTP_GATEWAY_URL             = var.http_gateway_enabled ? "https://${module.httpGw[0].api_url}/${random_uuid.http_path_key.result}" : null
-    HTTP_SIGNED_DATA_GATEWAY_URL = var.http_signed_data_gateway_enabled ? "https://${module.httpSignedGw[0].api_url}${random_uuid.http_signed_data_path_key.result}" : null
+    HTTP_GATEWAY_URL             = local.http_gateway_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 

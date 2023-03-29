@@ -61,7 +61,7 @@ module "startCoordinatorHttpGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL           = module.httpGw[0].api_url
+    HTTP_GATEWAY_URL           = local.http_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY = var.airnode_wallet_private_key
   }
 
@@ -85,7 +85,7 @@ module "startCoordinatorHttpSignedGw" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
@@ -109,8 +109,8 @@ module "startCoordinatorBothGws" {
   secrets_file       = var.secrets_file
 
   environment_variables = {
-    HTTP_GATEWAY_URL             = module.httpGw[0].api_url
-    HTTP_SIGNED_DATA_GATEWAY_URL = module.httpSignedGw[0].api_url
+    HTTP_GATEWAY_URL             = local.http_gateway_url
+    HTTP_SIGNED_DATA_GATEWAY_URL = local.http_signed_data_gateway_url
     AIRNODE_WALLET_PRIVATE_KEY   = var.airnode_wallet_private_key
   }
 
