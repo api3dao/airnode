@@ -201,27 +201,25 @@ export async function performApiCall(
   payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
-  const firstTimeout = FIRST_API_CALL_TIMEOUT;
-  const secondTimeout = SECOND_API_CALL_TIMEOUT;
   // We also pass the timeout to adapter to gracefully abort the request after the timeout.
   // timeout passed to adapter will cause axios socket to hang until the timeout is reached
   // even if the totalTimeoutMs is reached and the 2nd attempt is made
-  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout: firstTimeout }), {
-    totalTimeoutMs: firstTimeout,
+  const goAttempt1 = await go(() => adapter.buildAndExecuteRequest(options, { timeout: FIRST_API_CALL_TIMEOUT }), {
+    totalTimeoutMs: FIRST_API_CALL_TIMEOUT,
   });
-  if (goRes.success) {
-    return [[], { ...goRes.data }];
+  if (goAttempt1.success) {
+    return [[], { ...goAttempt1.data }];
   }
-  const goRes2 = await go(() => adapter.buildAndExecuteRequest(options, { timeout: secondTimeout }), {
-    totalTimeoutMs: secondTimeout,
+  const goAttempt2 = await go(() => adapter.buildAndExecuteRequest(options, { timeout: SECOND_API_CALL_TIMEOUT }), {
+    totalTimeoutMs: SECOND_API_CALL_TIMEOUT,
   });
-  if (goRes2.success) {
-    return [[], { ...goRes2.data }];
+  if (goAttempt2.success) {
+    return [[], { ...goAttempt2.data }];
   }
   const { aggregatedApiCall } = payload;
-  const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes2.error);
+  const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goAttempt2.error);
   // eslint-disable-next-line import/no-named-as-default-member
-  const axiosErrorMsg = axios.isAxiosError(goRes2.error) ? errorMsgFromAxiosError(goRes2.error) : '';
+  const axiosErrorMsg = axios.isAxiosError(goAttempt2.error) ? errorMsgFromAxiosError(goAttempt2.error) : '';
   const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
   return [[log], { success: false, errorMessage: errorMessage }];
 }
