@@ -4,12 +4,13 @@ const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
+const estimateFulfillMock = jest.fn();
 mockEthers({
   airnodeRrpMocks: {
     callStatic: {
       fulfill: staticFulfillMock,
     },
-    estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
+    estimateGas: { fulfill: estimateFulfillMock, fulfillWithdrawal: estimateWithdrawalGasMock },
     fail: failMock,
     fulfill: fulfillMock,
     fulfillWithdrawal: fulfillWithdrawalMock,
@@ -57,6 +58,7 @@ describe('submit', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
+    estimateFulfillMock.mockResolvedValue(73804);
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
     fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx2' });
