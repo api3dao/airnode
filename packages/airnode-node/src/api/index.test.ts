@@ -4,7 +4,7 @@ import { AxiosError, AxiosHeaders } from 'axios';
 import * as fixtures from '../../test/fixtures';
 import { getExpectedTemplateIdV0 } from '../evm/templates';
 import { ApiCallErrorResponse, RequestErrorMessage } from '../types';
-import { API_CALL_TIMEOUT } from '../constants';
+import { FIRST_API_CALL_TIMEOUT, SECOND_API_CALL_TIMEOUT } from '../constants';
 import { callApi, verifyTemplateId } from '.';
 
 describe('callApi', () => {
@@ -63,7 +63,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: FIRST_API_CALL_TIMEOUT }
     );
   });
 
@@ -108,7 +108,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: FIRST_API_CALL_TIMEOUT }
     );
   });
 
@@ -146,7 +146,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: FIRST_API_CALL_TIMEOUT }
     );
   });
 
@@ -197,7 +197,7 @@ describe('callApi', () => {
           },
         ],
       },
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: FIRST_API_CALL_TIMEOUT }
     );
   });
 
@@ -216,7 +216,65 @@ describe('callApi', () => {
       expect.objectContaining({
         parameters: { from: 'ETH', amount: '1' },
       }),
-      { timeout: API_CALL_TIMEOUT }
+      { timeout: FIRST_API_CALL_TIMEOUT }
+    );
+  });
+
+  it('retries the API call if the first attempt fails', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockRejectedValueOnce(new Error('First attempt failed'));
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const requestedGasPrice = '100000000';
+    const requestedMinConfirmations = '0';
+    const parameters = {
+      _type: 'int256',
+      _path: 'price',
+      from: 'ETH',
+      _gasPrice: requestedGasPrice,
+      _minConfirmations: requestedMinConfirmations,
+    };
+
+    const [logs, res] = await callApi({
+      type: 'regular',
+      config: fixtures.buildConfig(),
+      aggregatedApiCall: fixtures.buildAggregatedRegularApiCall({ parameters }),
+    });
+
+    expect(logs).toEqual([]);
+    expect(res).toEqual({
+      success: true,
+      data: {
+        encodedValue: '0x0000000000000000000000000000000000000000000000000000000005f5e100',
+        signature:
+          '0xe92f5ee40ddb5aa42cab65fcdc025008b2bc026af80a7c93a9aac4e474f8a88f4f2bd861b9cf9a2b050bf0fd13e9714c4575cebbea658d7501e98c0963a5a38b1c',
+      },
+      // _minConfirmations is processed before making API calls
+      reservedParameterOverrides: {
+        gasPrice: requestedGasPrice,
+      },
+    });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: { from: 'ETH', amount: '1' },
+        metadata: {
+          chainId: '31337',
+          chainType: 'evm',
+          requestId: '0xf40127616f09d41b20891bcfd326957a0e3d5a5ecf659cff4d8106c04b024374',
+          requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+          sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
+          sponsorWalletAddress: '0x1C1CEEF1a887eDeAB20219889971e1fd4645b55D',
+        },
+        apiCredentials: [
+          {
+            securitySchemeName: 'myApiSecurityScheme',
+            securitySchemeValue: 'supersecret',
+          },
+        ],
+      },
+      { timeout: SECOND_API_CALL_TIMEOUT }
     );
   });
 
@@ -224,7 +282,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     const nonAxiosError = new Error('A non-axios error');
     spy.mockRejectedValueOnce(nonAxiosError);
-
+    spy.mockRejectedValueOnce(nonAxiosError);
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const [logs, res] = await callApi({ type: 'regular', config: fixtures.buildConfig(), aggregatedApiCall });
@@ -255,6 +313,7 @@ describe('callApi', () => {
   ])(`returns an error containing "$msg" for the respective axios API call failure`, async ({ e, msg }) => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     const axiosError = e;
+    spy.mockRejectedValueOnce(axiosError);
     spy.mockRejectedValueOnce(axiosError);
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
@@ -388,7 +447,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'BTC', source: 'airnode', amount: '1' },
         }),
-        { timeout: API_CALL_TIMEOUT }
+        { timeout: FIRST_API_CALL_TIMEOUT }
       );
     });
 
@@ -432,7 +491,7 @@ describe('callApi', () => {
         expect.objectContaining({
           parameters: { from: 'ETH', amount: '1' },
         }),
-        { timeout: API_CALL_TIMEOUT }
+        { timeout: FIRST_API_CALL_TIMEOUT }
       );
     });
   });

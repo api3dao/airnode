@@ -96,6 +96,7 @@ describe('callApis', () => {
     jest.spyOn(validator, 'unsafeParseConfigWithSecrets').mockReturnValue(config);
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('Unexpected error'));
+    spy.mockRejectedValueOnce(new Error('Unexpected error'));
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
@@ -116,8 +117,8 @@ describe('callApis', () => {
         errorMessage: `${RequestErrorMessage.ApiCallFailed}`,
       },
     ]);
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
+    expect(spy).toHaveBeenCalledTimes(2);
+  }, 35000);
 
   it('returns an error if the worker crashes', async () => {
     const spy = jest.spyOn(workers, 'spawn');

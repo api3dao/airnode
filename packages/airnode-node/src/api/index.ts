@@ -9,7 +9,7 @@ import compact from 'lodash/compact';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
-import { API_CALL_TIMEOUT } from '../constants';
+import { FIRST_API_CALL_TIMEOUT, SECOND_API_CALL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
@@ -201,21 +201,27 @@ export async function performApiCall(
   payload: ApiCallPayload
 ): Promise<LogsData<ApiCallErrorResponse | PerformApiCallSuccess>> {
   const options = buildOptions(payload);
-  const timeout = API_CALL_TIMEOUT;
-  // We also pass the timeout to adapter to gracefully abort the request after the timeout
-  const goRes = await go(() => adapter.buildAndExecuteRequest(options, { timeout }), {
-    totalTimeoutMs: timeout,
+  // We also pass the timeout to adapter to gracefully abort the request after the timeout.
+  // timeout passed to adapter will cause axios socket to hang until the timeout is reached
+  // even if the totalTimeoutMs is reached and the 2nd attempt is made
+  const goAttempt1 = await go(() => adapter.buildAndExecuteRequest(options, { timeout: FIRST_API_CALL_TIMEOUT }), {
+    totalTimeoutMs: FIRST_API_CALL_TIMEOUT,
   });
-  if (!goRes.success) {
-    const { aggregatedApiCall } = payload;
-    const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goRes.error);
-    // eslint-disable-next-line import/no-named-as-default-member
-    const axiosErrorMsg = axios.isAxiosError(goRes.error) ? errorMsgFromAxiosError(goRes.error) : '';
-    const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
-    return [[log], { success: false, errorMessage: errorMessage }];
+  if (goAttempt1.success) {
+    return [[], { ...goAttempt1.data }];
   }
-
-  return [[], { ...goRes.data }];
+  const goAttempt2 = await go(() => adapter.buildAndExecuteRequest(options, { timeout: SECOND_API_CALL_TIMEOUT }), {
+    totalTimeoutMs: SECOND_API_CALL_TIMEOUT,
+  });
+  if (goAttempt2.success) {
+    return [[], { ...goAttempt2.data }];
+  }
+  const { aggregatedApiCall } = payload;
+  const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, goAttempt2.error);
+  // eslint-disable-next-line import/no-named-as-default-member
+  const axiosErrorMsg = axios.isAxiosError(goAttempt2.error) ? errorMsgFromAxiosError(goAttempt2.error) : '';
+  const errorMessage = compact([RequestErrorMessage.ApiCallFailed, axiosErrorMsg]).join(' ');
+  return [[log], { success: false, errorMessage: errorMessage }];
 }
 
 export async function processSuccessfulApiCall(
