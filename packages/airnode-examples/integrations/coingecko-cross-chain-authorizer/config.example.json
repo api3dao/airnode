@@ -3,14 +3,10 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": [
-          "0xE2E0000000000000000000000000000000000000"
-        ],
+        "requesterEndpointAuthorizers": ["0xE2E0000000000000000000000000000000000000"],
         "crossChainRequesterAuthorizers": [
           {
-            "requesterEndpointAuthorizers": [
-              "0xE2E1111111111111111111111111111111111111"
-            ],
+            "requesterEndpointAuthorizers": ["0xE2E1111111111111111111111111111111111111"],
             "chainType": "evm",
             "chainId": "31337",
             "contracts": {
