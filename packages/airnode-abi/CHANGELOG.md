@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.11.0
+
+### Minor Changes
+
+- [#1647](https://github.com/api3dao/airnode/pull/1647) [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32) Thanks [@dcroote](https://github.com/dcroote)! - Bump Node.js from 14 to 18
+
 ## 0.10.0
 
 ## 0.9.0
