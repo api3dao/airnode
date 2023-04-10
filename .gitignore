@@ -6,6 +6,8 @@
 
 # IDE specific files
 .vscode
+*.swp
+*.swo
 
 # Log files
 *.log
