@@ -166,11 +166,10 @@ export const publishSnapshot = async (npmRegistry: string, npmTag: string, relea
 
 export const openPullRequest = async (releaseVersion: string, headBranch: string, baseBranch: string) => {
   fetchProject();
-  installDependencies();
-
   git.setIdentity('API3 Automation', 'automation@api3.org');
   github.authenticate();
   selectOrCreateBranch(headBranch, baseBranch);
+  installDependencies();
   applyReleaseChanges(releaseVersion, headBranch);
 
   const pullRequestTitle = `Release v${releaseVersion}`;
