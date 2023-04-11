@@ -1,5 +1,18 @@
 # @api3/airnode-node
 
+## 0.10.1
+
+### Patch Changes
+
+- [#1727](https://github.com/api3dao/airnode/pull/1727) [`0a16769a`](https://github.com/api3dao/airnode/commit/0a16769a37073e981d7ef297faea2b624b2ea30a) Thanks [@amarthadan](https://github.com/amarthadan)! - Replace hardcoded deploymentId values in tests
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.10.1
+  - @api3/airnode-adapter@0.10.1
+  - @api3/airnode-protocol@0.10.1
+  - @api3/airnode-utilities@0.10.1
+  - @api3/airnode-validator@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes
