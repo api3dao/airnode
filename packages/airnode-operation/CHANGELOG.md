@@ -1,5 +1,18 @@
 # @api3/airnode-operation
 
+## 0.11.0
+
+### Minor Changes
+
+- [#1647](https://github.com/api3dao/airnode/pull/1647) [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32) Thanks [@dcroote](https://github.com/dcroote)! - Bump Node.js from 14 to 18
+
+### Patch Changes
+
+- Updated dependencies [[`ad642715`](https://github.com/api3dao/airnode/commit/ad642715afcfb9fe690239ce5f3e0482a4b289fb), [`de936ceb`](https://github.com/api3dao/airnode/commit/de936cebcac36ce9355954641311615548fe3800), [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32), [`1b486bb9`](https://github.com/api3dao/airnode/commit/1b486bb946d90c9a4d9ea1d5eb0d7aa5f99cac60)]:
+  - @api3/airnode-utilities@0.11.0
+  - @api3/airnode-protocol@0.11.0
+  - @api3/airnode-abi@0.11.0
+
 ## 0.10.0
 
 ### Minor Changes
