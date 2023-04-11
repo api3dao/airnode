@@ -1,5 +1,32 @@
 # @api3/airnode-examples
 
+## 0.11.0
+
+### Minor Changes
+
+- [#1663](https://github.com/api3dao/airnode/pull/1663) [`ca3398ce`](https://github.com/api3dao/airnode/commit/ca3398cedf6b0dc8cecd42b32c7f97856e700a21) Thanks [@amarthadan](https://github.com/amarthadan)! - Add OEV gateway
+
+- [#1652](https://github.com/api3dao/airnode/pull/1652) [`b2f1edfa`](https://github.com/api3dao/airnode/commit/b2f1edfad867bb027f845b3dd2d601258ba7091d) Thanks [@dcroote](https://github.com/dcroote)! - Removes Node version 14 from pre/post-processing specification.
+  To do so, bumps @api3/ois to 2.0.0 and zod to 3.20.6.
+
+- [#1647](https://github.com/api3dao/airnode/pull/1647) [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32) Thanks [@dcroote](https://github.com/dcroote)! - Bump Node.js from 14 to 18
+
+- [#1664](https://github.com/api3dao/airnode/pull/1664) [`86332f80`](https://github.com/api3dao/airnode/commit/86332f806d45119b66b4116d2bb748c6c2f2a885) Thanks [@dcroote](https://github.com/dcroote)! - Combine http gateway integrations into a single integration
+
+### Patch Changes
+
+- [#1680](https://github.com/api3dao/airnode/pull/1680) [`a75741b4`](https://github.com/api3dao/airnode/commit/a75741b4546b2914c445759921a308b0ec65ac2e) Thanks [@dcroote](https://github.com/dcroote)! - Fix airnode-examples integration title
+
+- [#1681](https://github.com/api3dao/airnode/pull/1681) [`de936ceb`](https://github.com/api3dao/airnode/commit/de936cebcac36ce9355954641311615548fe3800) Thanks [@Siegrift](https://github.com/Siegrift)! - Minor adjustments related to the OEV gateway
+
+- Updated dependencies [[`ad642715`](https://github.com/api3dao/airnode/commit/ad642715afcfb9fe690239ce5f3e0482a4b289fb), [`87e9f4d1`](https://github.com/api3dao/airnode/commit/87e9f4d10283ddc9f563caa152646235d8017061), [`cc978fe9`](https://github.com/api3dao/airnode/commit/cc978fe9349924341001546505d62087bf1f15ef), [`1ae85d7d`](https://github.com/api3dao/airnode/commit/1ae85d7d38b4a1341f07c353b087ebc0c0ae050c), [`ca3398ce`](https://github.com/api3dao/airnode/commit/ca3398cedf6b0dc8cecd42b32c7f97856e700a21), [`de936ceb`](https://github.com/api3dao/airnode/commit/de936cebcac36ce9355954641311615548fe3800), [`2519fcbc`](https://github.com/api3dao/airnode/commit/2519fcbc75509484329e8cacf59949b2a22e12f8), [`bd3fe7bf`](https://github.com/api3dao/airnode/commit/bd3fe7bf0aa74cd8399570caf1a143287b88b4b7), [`18fe3d0f`](https://github.com/api3dao/airnode/commit/18fe3d0fecb7a88065efcb47db7566b965888016), [`b2f1edfa`](https://github.com/api3dao/airnode/commit/b2f1edfad867bb027f845b3dd2d601258ba7091d), [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32), [`e4d3bee6`](https://github.com/api3dao/airnode/commit/e4d3bee6e70bc733f4d95245fa320753d4204061), [`c77e843e`](https://github.com/api3dao/airnode/commit/c77e843e5c060a6d1400d42f56e5b8dae9645f63), [`1b486bb9`](https://github.com/api3dao/airnode/commit/1b486bb946d90c9a4d9ea1d5eb0d7aa5f99cac60)]:
+  - @api3/airnode-utilities@0.11.0
+  - @api3/airnode-deployer@0.11.0
+  - @api3/airnode-admin@0.11.0
+  - @api3/airnode-node@0.11.0
+  - @api3/airnode-protocol@0.11.0
+  - @api3/airnode-abi@0.11.0
+
 ## 0.10.0
 
 ### Minor Changes
