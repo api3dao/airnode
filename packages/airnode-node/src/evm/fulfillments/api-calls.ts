@@ -75,38 +75,6 @@ async function testFulfill(
   return [[noticeLog], null, goRes.data];
 }
 
-async function estimateGasToFulfill(
-  airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCallWithResponse>
-): Promise<LogsErrorData<ethers.BigNumber>> {
-  const noticeLog = logger.pend(
-    'DEBUG',
-    `Attempting to estimate gas for API call fulfillment for Request:${request.id}...`
-  );
-  if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
-
-  const operation = (): Promise<ethers.BigNumber> =>
-    airnodeRrp.estimateGas.fulfill(
-      request.id,
-      request.airnodeAddress,
-      request.fulfillAddress,
-      request.fulfillFunctionId,
-      request.data.encodedValue,
-      request.data.signature
-    );
-  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
-  if (!goRes.success) {
-    const errorLog = logger.pend(
-      'ERROR',
-      `Gas estimation for API call fulfillment failed for Request:${request.id} with ${goRes.error}`,
-      goRes.error
-    );
-    return [[noticeLog, errorLog], goRes.error, null];
-  }
-
-  return [[noticeLog], null, goRes.data];
-}
-
 async function submitFulfill(
   airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCallWithResponse>,
@@ -140,11 +108,16 @@ async function submitFulfill(
   return [[noticeLog], null, applyTransactionResult(request, goRes.data)];
 }
 
-export async function testAndSubmitFulfill(
+async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCallWithResponse>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
+  const errorMessage = requests.getErrorMessage(request);
+  if (errorMessage) {
+    return submitFail(airnodeRrp, request, errorMessage, options);
+  }
+
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
@@ -176,60 +149,6 @@ export async function testAndSubmitFulfill(
   );
 
   return [[...testLogs, errorLog], testErr, null];
-}
-
-export async function estimateGasAndSubmitFulfill(
-  airnodeRrp: AirnodeRrpV0,
-  request: Request<ApiCallWithResponse>,
-  options: TransactionOptions
-): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
-  // Should not throw
-  const [estimateGasLogs, estimateGasErr, estimateGasData] = await estimateGasToFulfill(airnodeRrp, request);
-
-  if (estimateGasErr || !estimateGasData) {
-    // Make static test call to get revert string
-    const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
-
-    if (testErr || !testData || !testData.callSuccess) {
-      const updatedRequest: Request<ApiCallWithResponse> = {
-        ...request,
-        errorMessage: testErr
-          ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
-          : RequestErrorMessage.FulfillTransactionFailed,
-      };
-      const [submitLogs, submitErr, submittedRequest] = await submitFail(
-        airnodeRrp,
-        updatedRequest,
-        testErr?.message ?? decodeRevertString(testData?.callData || '0x'),
-        options
-      );
-      return [[...estimateGasLogs, ...testLogs, ...submitLogs], submitErr, submittedRequest];
-    }
-
-    // If static test call is successful even though gas estimation failure,
-    // it'll be caused by an RPC issue, so submit specific reason to chain
-    const updatedRequest: Request<ApiCallWithResponse> = {
-      ...request,
-      errorMessage: estimateGasErr
-        ? `${RequestErrorMessage.GasEstimationFailed} with error: ${estimateGasErr.message}`
-        : RequestErrorMessage.GasEstimationFailed,
-    };
-    const [submitLogs, submitErr, submittedRequest] = await submitFail(
-      airnodeRrp,
-      updatedRequest,
-      estimateGasErr?.message ?? RequestErrorMessage.GasEstimationFailed,
-      options
-    );
-    return [[...estimateGasLogs, ...testLogs, ...submitLogs], submitErr, submittedRequest];
-  }
-
-  // If gas estimation is success, submit fulfillment without making static test call
-  const gasLimitNoticeLog = logger.pend('INFO', `Gas limit is set to ${estimateGasData} for Request:${request.id}.`);
-  const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, {
-    ...options,
-    gasTarget: { ...options.gasTarget, gasLimit: estimateGasData },
-  });
-  return [[...estimateGasLogs, gasLimitNoticeLog, ...submitLogs], submitErr, submitData];
 }
 
 // =================================================================
@@ -284,13 +203,6 @@ export const submitApiCall: SubmitRequest<ApiCallWithResponse> = (airnodeRrp, re
     return Promise.resolve([[log], null, null]);
   }
 
-  const errorMessage = requests.getErrorMessage(request);
-  if (errorMessage) {
-    return submitFail(airnodeRrp, request, errorMessage, options);
-  }
-
   // Should not throw
-  if (options.gasTarget.gasLimit) return testAndSubmitFulfill(airnodeRrp, request, options);
-
-  return estimateGasAndSubmitFulfill(airnodeRrp, request, options);
+  return testAndSubmitFulfill(airnodeRrp, request, options);
 };

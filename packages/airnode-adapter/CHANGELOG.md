@@ -1,5 +1,16 @@
 # @api3/airnode-adapter
 
+## 0.11.0
+
+### Minor Changes
+
+- [#1691](https://github.com/api3dao/airnode/pull/1691) [`ad642715`](https://github.com/api3dao/airnode/commit/ad642715afcfb9fe690239ce5f3e0482a4b289fb) Thanks [@Ashar2shahid](https://github.com/Ashar2shahid)! - update promise-utils to v0.4.0
+
+- [#1652](https://github.com/api3dao/airnode/pull/1652) [`b2f1edfa`](https://github.com/api3dao/airnode/commit/b2f1edfad867bb027f845b3dd2d601258ba7091d) Thanks [@dcroote](https://github.com/dcroote)! - Removes Node version 14 from pre/post-processing specification.
+  To do so, bumps @api3/ois to 2.0.0 and zod to 3.20.6.
+
+- [#1647](https://github.com/api3dao/airnode/pull/1647) [`a4929eee`](https://github.com/api3dao/airnode/commit/a4929eeefb5d7e40a37b59cfa11d1320a9ea2b32) Thanks [@dcroote](https://github.com/dcroote)! - Bump Node.js from 14 to 18
+
 ## 0.10.0
 
 ### Minor Changes

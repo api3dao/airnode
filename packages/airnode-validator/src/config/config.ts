@@ -147,7 +147,7 @@ export const gasPriceOracleSchema = z
 
 export const chainOptionsSchema = z
   .object({
-    fulfillmentGasLimit: z.number().int().optional(),
+    fulfillmentGasLimit: z.number().int(),
     withdrawalRemainder: amountSchema.optional(),
     gasPriceOracle: gasPriceOracleSchema,
   })

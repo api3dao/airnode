@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-adapter",
   "license": "MIT",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": false,
   "main": "dist/index",
   "types": "dist/index",
@@ -36,7 +36,7 @@
     "ethereum-waffle": "^4.0.10",
     "hardhat": "2.10.2",
     "jest": "^29.5.0",
-    "rimraf": "^4.4.0",
+    "rimraf": "^5.0.0",
     "ts-jest": "^29.0.5",
     "typescript": "^4.9.5"
   }
