@@ -1,5 +1,20 @@
 # @api3/airnode-deployer
 
+## 0.10.1
+
+### Patch Changes
+
+- [#1703](https://github.com/api3dao/airnode/pull/1703) [`f6c13b1e`](https://github.com/api3dao/airnode/commit/f6c13b1e89310f96dae263bb9cd8e1774a9539b0) Thanks [@amarthadan](https://github.com/amarthadan)! - Fix propagating of gateway URLs to heartbeat
+
+- [#1703](https://github.com/api3dao/airnode/pull/1703) [`0455e4a4`](https://github.com/api3dao/airnode/commit/0455e4a41abaeb7b826c98b7c18574b056e3e0d5) Thanks [@amarthadan](https://github.com/amarthadan)! - Fix parsing of secrets.env with comments
+
+- Updated dependencies [[`0a16769a`](https://github.com/api3dao/airnode/commit/0a16769a37073e981d7ef297faea2b624b2ea30a)]:
+  - @api3/airnode-node@0.10.1
+  - @api3/airnode-abi@0.10.1
+  - @api3/airnode-protocol@0.10.1
+  - @api3/airnode-utilities@0.10.1
+  - @api3/airnode-validator@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes

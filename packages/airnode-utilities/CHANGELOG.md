@@ -1,5 +1,12 @@
 # @api3/airnode-utilities
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @api3/airnode-validator@0.10.1
+
 ## 0.10.0
 
 ### Minor Changes
