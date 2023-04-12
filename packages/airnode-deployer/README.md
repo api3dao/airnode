@@ -5,7 +5,7 @@
 ## Documentation
 
 You can find documentation on how to use the deployer in the
-[deployer docs](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html).
+[deployer docs](https://docs.api3.org/reference/airnode/latest/docker/deployer-image.html).
 
 ## For developers
 
@@ -22,7 +22,7 @@ Instructions on how to build and use the deployer CLI from source:
    [required_version](https://github.com/api3dao/airnode/blob/master/packages/airnode-deployer/terraform/aws/backend.tf#L2)
    of terraform modules used.
 2. Prepare necessary cloud credentials. See the
-   [instructions in the docs](https://docs.api3.org/airnode/latest/grp-providers/docker/deployer-image.html#cloud-provider-credentials).
+   [instructions in the docs](https://docs.api3.org/reference/airnode/latest/docker/deployer-image.html#cloud-provider-credentials).
 3. Make sure `config.json` and `secrets.env` are available in the `config` directory. You can use the provided example
    `config.json` and `secrets.env` templates to get started quickly, but you will need to edit these with your own API
    details and secrets.

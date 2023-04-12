@@ -1,14 +1,5 @@
 {
-  "replacementPatterns": [
-    {
-      "pattern": "/airnode/latest/",
-      "replacement": "latestVersion"
-    },
-    {
-      "pattern": "/ois/latest/",
-      "replacement": "latestOisVersion"
-    }
-  ],
+  "replacementPatterns": [],
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "10s"
