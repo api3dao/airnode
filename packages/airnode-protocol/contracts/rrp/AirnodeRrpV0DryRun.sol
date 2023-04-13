@@ -40,9 +40,6 @@ contract AirnodeRrpV0DryRun
     /// the fulfillment. All of its keys will map to zero values.
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
-    // solhint-disable-next-line payable-fallback
-    fallback() external { }
-
     /// @notice Used by Airnode to estimate the gas amount needed to fulfill
     /// the request (excluding the external call). Do not call this function,
     /// as it will have no practical effect.
