@@ -28,7 +28,7 @@
     "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
   "devDependencies": {
-    "@api3/chains": "https://github.com/api3dao/chains.git#55522f8d59a87de8ae2c520f49ed0b73292de8a8",
+    "@api3/chains": "https://github.com/api3dao/chains.git#new-chains",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
