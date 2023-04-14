@@ -19,11 +19,11 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   });
   log(`Deployed RequesterAuthorizerWithAirnode at ${requesterAuthorizerWithAirnode.address}`);
 
-  const airnodeRrp = await deploy('AirnodeRrpV0', {
+  const airnodeRrpV0 = await deploy('AirnodeRrpV0', {
     from: accounts[0],
     log: true,
     deterministicDeployment: process.env.DETERMINISTIC ? hre.ethers.constants.HashZero : undefined,
   });
-  log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
+  log(`Deployed AirnodeRrpV0 at ${airnodeRrpV0.address}`);
 };
 module.exports.tags = ['deploy'];

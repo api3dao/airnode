@@ -4,6 +4,7 @@
     "compiler-version": "off",
     "func-visibility": ["warn", { "ignoreConstructors": true }],
     "not-rely-on-time": "off",
-    "no-empty-blocks": "off"
+    "no-empty-blocks": "off",
+    "no-global-import": "off"
   }
 }
