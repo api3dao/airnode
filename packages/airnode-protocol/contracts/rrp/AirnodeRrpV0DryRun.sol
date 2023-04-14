@@ -63,8 +63,8 @@ contract AirnodeRrpV0DryRun
     ) external returns (bool callSuccess, bytes memory callData) {
         // The line below is kept the same, except that the condition is
         // reversed to ensure that it never reverts. All
-        // `requestIdToFulfillmentParameters` values are zero and virtually any
-        // `keccak256()` output will not be equal to that.
+        // `requestIdToFulfillmentParameters` values are zero and virtually no
+        // `keccak256()` output will be equal to that.
         require(
             keccak256(
                 abi.encodePacked(
