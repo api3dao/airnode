@@ -33,9 +33,6 @@ contract AirnodeRrpV0DryRun
         bytes data
     );
 
-    // It is virtually impossible for a contract to be deployed at this address
-    address private constant ADDRESS_WITH_NO_BYTECODE = address(uint160(uint256(keccak256("Address with no bytecode"))));
-
     /// @dev This mapping is kept as it is in AirnodeRrpV0 to closely simulate
     /// the fulfillment. All of its keys will map to zero values.
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
@@ -89,8 +86,11 @@ contract AirnodeRrpV0DryRun
         // function will be behind an `onlyAirnodeRrp` modifier and will reject
         // the calls from AirnodeRrpV0DryRun.
         // Instead, we call an address that we know to not contain any
-        // bytecode, which means this call will not revert or spend extra gas.
-        (callSuccess, callData) = ADDRESS_WITH_NO_BYTECODE.call( // solhint-disable-line avoid-low-level-calls
+        // bytecode, which will result in the call to not revert or spend extra
+        // gas. Since we have already confirmed that `airnode` has signed a
+        // hash, it is guaranteed to be an EOA and we can use it as a dummy
+        // call target.
+        (callSuccess, callData) = airnode.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
         );
         // If the external call above does not succeed, the `eth_estimateGas`
