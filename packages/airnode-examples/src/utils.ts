@@ -5,7 +5,7 @@ import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
 import references from '@api3/airnode-protocol/deployments/references.json';
 
-export const supportedNetworks = ['sepolia', 'polygon-testnet', 'goerli'] as const;
+export const supportedNetworks = ['ethereum-sepolia-testnet', 'polygon-testnet', 'ethereum-goerli-testnet'] as const;
 
 export interface IntegrationInfo {
   integration: string;
