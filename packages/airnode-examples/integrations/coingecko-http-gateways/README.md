@@ -6,7 +6,7 @@ The only difference is that this integration allows the endpoint to return eithe
 gateway or HTTP signed data gateway, respectively.
 
 For more details, see the documentation for the
-[HTTP gateways](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/http-gateways.html).
+[HTTP gateways](https://docs.api3.org/reference/airnode/latest/understand/http-gateways.html).
 
 ## HTTP gateway
 
@@ -47,7 +47,7 @@ curl -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "
 ### Encode parameters
 
 The coingecko endpoint expects a parameter `coinId` which needs to be passed to the signed data gateway encoded using
-[Airnode ABI](https://docs.api3.org/airnode/latest/reference/specifications/airnode-abi-specifications.html).
+[Airnode ABI](https://docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html).
 
 We have encoded two basic parameter types:
 
@@ -74,7 +74,7 @@ Before making the request, you need to replace the following placeholders:
   command
 - `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.httpSignedData[0].endpointId` path. It can
   be derived using the Admin CLI command `derive-endpoint-id` described further
-  [here](https://docs.api3.org/airnode/latest/reference/packages/admin-cli.html#derive-endpoint-id)
+  [here](https://docs.api3.org/reference/airnode/latest/packages/admin-cli.html#derive-endpoint-id)
 
 The correct command may look like this:
 

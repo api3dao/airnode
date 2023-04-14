@@ -6,4 +6,4 @@ invalid, causing the request to fail everytime one tries to make it. This is to 
 like in case of failure.
 
 For more information about how the Airnode is configured, refer to the
-[docs](https://docs.api3.org/airnode/latest/grp-providers/guides/build-an-airnode/configuring-airnode.html).
+[docs](https://docs.api3.org/reference/airnode/latest/understand/configuring.html).
