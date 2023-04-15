@@ -13,6 +13,7 @@
     "288": "boba-ethereum",
     "416": "sx",
     "420": "optimism-goerli-testnet",
+    "599": "metis-goerli-testnet",
     "647": "sx-testnet",
     "1088": "metis",
     "1284": "moonbeam",
@@ -50,6 +51,7 @@
     "288": "0x7D15b4676c7FFfdcb69E838518B2182223aE46d3",
     "416": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "420": "0x92E5125adF385d86beDb950793526106143b6Df1",
+    "599": "0x81A850254769a6C87d4F11B9F80bCc5bE1CcF50E",
     "647": "0xD223DfDCb888CA1539bb3459a83c543A1608F038",
     "1088": "0xb015ACeEdD478fc497A798Ab45fcED8BdEd08924",
     "1284": "0x92E5125adF385d86beDb950793526106143b6Df1",
@@ -87,6 +89,7 @@
     "288": "0xb3070A0F2f84765Ee19EfADf91dfE50690a9eEa1",
     "416": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
     "420": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
+    "599": "0xe40f1a1A546B70003D9ddF66B89C261cA46A0CF0",
     "647": "0x4A0b644219d07fEa25B701AAf89b963576b468dC",
     "1088": "0x8262a9DAB3f8a0b1E6317551E214CeA89Bc3f56d",
     "1284": "0xf18c105D0375E80980e4EED829a4A68A539E6178",
@@ -124,6 +127,7 @@
     "288": "0x1d4F592E0723e03bed2Ff6d78F3CEe6750f08B38",
     "416": "0xE338f63170c42bA0d2a888f18F6185369779009c",
     "420": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
+    "599": "0x5997C09be60196b7De9dE73C88dd7776f2875401",
     "647": "0x20C9e9610d4e719a39F82893b3f42e2730F42778",
     "1088": "0xC02Ea0f403d5f3D45a4F1d0d817e7A2601346c9E",
     "1284": "0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd",
@@ -199,6 +203,10 @@
     "420": {
       "chainId": 420,
       "name": "optimism-goerli-testnet"
+    },
+    "599": {
+      "chainId": 599,
+      "name": "metis-goerli-testnet"
     },
     "647": {
       "chainId": 647,
