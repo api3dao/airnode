@@ -25,7 +25,8 @@
     "test:verify-local": "hardhat run scripts/verify-local.ts",
     "test:verify-local:network": "hardhat run scripts/verify-local.ts --network $NETWORK",
     "test:coverage": "hardhat coverage",
-    "test:gas": "REPORT_GAS=TRUE hardhat test"
+    "test:gas": "REPORT_GAS=TRUE hardhat test",
+    "write-example-env-file": "hardhat run scripts/write-example-env-file.ts"
   },
   "devDependencies": {
     "@api3/chains": "^2.0.0",
