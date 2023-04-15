@@ -10,10 +10,10 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@api3/chains@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-2.0.0.tgz#48bd8d808e1cbdaa523da2831722b92cbe0329a3"
-  integrity sha512-CpLJUG2JSfkbro8Xb1/51Vcb2OBp5M/Gw8SNdYaJa/dJrltPKyEFVaaRrU3koQQ1Mag1ThZZOnYcwnA5dpXAmg==
+"@api3/chains@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-2.1.0.tgz#67219e94e3301378a14ba81d50d4740e093d5678"
+  integrity sha512-u/YIE6aXsoHssSc1kir0Ws/12oYEIFPIMm5yDxC6TxL0upglasmYx0vrty40QVaksgsavva/CQNme+zwdJy4yA==
   dependencies:
     zod "^3.21.4"
 
