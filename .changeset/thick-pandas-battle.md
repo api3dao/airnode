@@ -2,4 +2,4 @@
 '@api3/airnode-protocol': minor
 ---
 
-Add AirnodeRrpV0DryRun.sol
+Add and deploy AirnodeRrpV0DryRun.sol
