@@ -18,5 +18,11 @@ module.exports = async ({ deployments }) => {
     address: AirnodeRrpV0.address,
     constructorArguments: [],
   });
+
+  const AirnodeRrpV0DryRun = await deployments.get('AirnodeRrpV0DryRun');
+  await hre.run('verify:verify', {
+    address: AirnodeRrpV0DryRun.address,
+    constructorArguments: [],
+  });
 };
 module.exports.tags = ['verify'];
