@@ -130,11 +130,11 @@ const defaultProviderUrl = (network: string): string => {
     case 'localhost':
       // Hardhat network default
       return 'http://127.0.0.1:8545/';
-    case 'goerli':
+    case 'ethereum-goerli-testnet':
       return getExamplePocketNetwork(network);
     case 'polygon-testnet':
       return `https://polygon-mumbai.g.alchemy.com/v2/`;
-    case 'sepolia':
+    case 'ethereum-sepolia-testnet':
       return 'https://sepolia.infura.io/v3/<INFURA_ID>';
     default:
       return getExamplePocketNetwork(network);

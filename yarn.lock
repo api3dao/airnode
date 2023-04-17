@@ -10,6 +10,13 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@api3/chains@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-2.1.0.tgz#67219e94e3301378a14ba81d50d4740e093d5678"
+  integrity sha512-u/YIE6aXsoHssSc1kir0Ws/12oYEIFPIMm5yDxC6TxL0upglasmYx0vrty40QVaksgsavva/CQNme+zwdJy4yA==
+  dependencies:
+    zod "^3.21.4"
+
 "@api3/ois@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.0.0.tgz#c700d2dfb568ac131e7c8f0581db7a212d35dcb1"
@@ -15135,7 +15142,7 @@ zksync-web3@^0.8.1:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.8.1.tgz#db289d8f6caf61f4d5ddc471fa3448d93208dc14"
   integrity sha512-1A4aHPQ3MyuGjpv5X/8pVEN+MdZqMjfVmiweQSRjOlklXYu65wT9BGEOtCmMs5d3gIvLp4ssfTeuR5OCKOD2kw==
 
-zod@^3.20.6:
+zod@^3.20.6, zod@^3.21.4:
   version "3.21.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.21.4.tgz#10882231d992519f0a10b5dd58a38c9dabbb64db"
   integrity sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==
