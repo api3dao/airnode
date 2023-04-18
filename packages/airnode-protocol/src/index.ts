@@ -14,6 +14,7 @@ import { ethers } from 'ethers';
 import {
   MockRrpRequesterV0__factory as MockRrpRequesterFactory,
   AirnodeRrpV0__factory as AirnodeRrpV0Factory,
+  AirnodeRrpV0DryRun__factory as AirnodeRrpV0DryRunFactory,
   AccessControlRegistry__factory as AccessControlRegistryFactory,
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerV0Factory,
@@ -23,6 +24,7 @@ import {
 import references from '../deployments/references.json';
 
 const AirnodeRrpAddresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const AirnodeRrpDryRunAddresses: { [chainId: string]: string } = references.AirnodeRrpV0DryRun;
 const AccessControlRegistryAddresses: { [chainId: string]: string } = references.AccessControlRegistry;
 const RequesterAuthorizerWithAirnodeAddresses: { [chainId: string]: string } =
   references.RequesterAuthorizerWithAirnode;
@@ -52,9 +54,11 @@ const authorizers = {
 
 export {
   AirnodeRrpAddresses,
+  AirnodeRrpDryRunAddresses,
   AccessControlRegistryAddresses,
   RequesterAuthorizerWithAirnodeAddresses,
   AirnodeRrpV0Factory,
+  AirnodeRrpV0DryRunFactory,
   AccessControlRegistryFactory,
   RrpBeaconServerV0Factory,
   RequesterAuthorizerWithErc721Factory,
@@ -67,6 +71,7 @@ export {
 
 export type {
   AirnodeRrpV0,
+  AirnodeRrpV0DryRun,
   MockRrpRequesterV0,
   AccessControlRegistry,
   RequesterAuthorizerWithAirnode,
