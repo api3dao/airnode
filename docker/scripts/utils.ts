@@ -32,8 +32,8 @@ export const runCommand = (command: string, options?: ExecSyncOptions) => {
       [
         ``,
         `Command failed with non-zero status code: ${err.status}`,
-        `Stderr: ${err.stderr.toString().trim()}.`,
-        `Stdout: ${err.stdout.toString().trim()}.`,
+        `Stderr: ${err.stderr?.toString().trim()}.`,
+        `Stdout: ${err.stdout?.toString().trim()}.`,
       ].join('\n')
     );
   }
