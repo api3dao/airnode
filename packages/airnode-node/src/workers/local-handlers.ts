@@ -29,9 +29,6 @@ export async function startCoordinator(): Promise<WorkerResponse> {
 }
 
 export async function initializeProvider({ state: providerState }: InitializeProviderPayload): Promise<WorkerResponse> {
-  const { chainId, name: providerName } = providerState.settings;
-  addMetadata({ 'Chain-ID': chainId, Provider: providerName });
-
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
