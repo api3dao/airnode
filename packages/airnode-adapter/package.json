@@ -34,7 +34,7 @@
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.7",
     "ethereum-waffle": "^4.0.10",
-    "hardhat": "2.10.2",
+    "hardhat": "^2.14.0",
     "jest": "^29.5.0",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.0.5",
