@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import zip from 'lodash/zip';
+import references from '@api3/airnode-protocol/deployments/references.json';
 import {
   Config,
   configSchema,
@@ -14,9 +15,12 @@ import {
   gasPriceOracleSchema,
   localOrCloudProviderSchema,
   chainConfigSchema,
+  crossChainRequesterAuthorizerSchema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
+
+const AirnodeRrpV0: { [chainId: string]: string } = references.AirnodeRrpV0;
 
 it('successfully parses config.json', () => {
   const config = JSON.parse(
@@ -639,6 +643,75 @@ describe('chainConfigSchema', () => {
         },
       ])
     );
+  });
+});
+
+describe('defaultAirnodeRrp', () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  // The field used to specify chain ID varies by schema
+  [
+    { testName: 'chains', schema: chainConfigSchema, configObject: { ...config.chains[0] }, chainIdField: 'id' },
+    {
+      testName: 'crossChainRequesterAuthorizer',
+      schema: crossChainRequesterAuthorizerSchema,
+      configObject: { ...config.chains[0].authorizers.crossChainRequesterAuthorizers[0] },
+      chainIdField: 'chainId',
+    },
+  ].forEach((obj) => {
+    const { testName, schema, configObject, chainIdField } = obj;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { contracts, ...objectMissingContracts } = configObject;
+
+    it(`fails if AirnodeRrp contract address within ${testName}.contracts is not specified and there is no deployment for the chain`, () => {
+      const missingChainId = '-5';
+      const chainMissingChainId = {
+        ...objectMissingContracts,
+        [chainIdField]: missingChainId,
+      };
+
+      expect(() => schema.parse(chainMissingChainId)).toThrow(
+        new ZodError([
+          {
+            validation: 'regex',
+            code: 'invalid_string',
+            message: 'Invalid',
+            path: [chainIdField],
+          },
+          {
+            code: 'custom',
+            message:
+              `AirnodeRrp contract address must be specified for chain ID '${missingChainId}'` +
+              `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+            path: ['contracts'],
+          },
+        ])
+      );
+    });
+
+    it(`adds ${testName}.contracts object if the AirnodeRrp contract address is not specified but there is a deployment for the chain`, () => {
+      const idWithDeployment = '1';
+      const chainWithDeployment = {
+        ...objectMissingContracts,
+        [chainIdField]: idWithDeployment,
+      };
+      const parsed = schema.parse(chainWithDeployment);
+      expect(parsed.contracts).toEqual({
+        AirnodeRrp: AirnodeRrpV0[chainWithDeployment[chainIdField]],
+      });
+    });
+
+    it(`allows an AirnodeRrp contract address to be specified within ${testName}.contracts`, () => {
+      const chainWithContracts = {
+        ...objectMissingContracts,
+        contracts: {
+          AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        },
+      };
+      expect(() => schema.parse(chainWithContracts)).not.toThrow();
+    });
   });
 });
 
