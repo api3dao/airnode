@@ -31,10 +31,10 @@
     "zod": "^3.20.6"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.23",
+    "@types/yargs": "^17.0.24",
     "jest": "^29.5.0",
     "rimraf": "^5.0.0",
-    "ts-jest": "^29.0.5",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
