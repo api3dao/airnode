@@ -28,14 +28,14 @@
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
-    "yargs": "^17.7.1",
+    "yargs": "^17.7.2",
     "zod": "^3.20.6"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.23",
+    "@types/yargs": "^17.0.24",
     "jest": "^29.5.0",
     "rimraf": "^5.0.0",
-    "ts-jest": "^29.0.5",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }

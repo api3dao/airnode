@@ -31,15 +31,15 @@
     "@api3/promise-utils": "^0.4.0",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
-    "yargs": "^17.7.1"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.191",
-    "@types/node": "^18.15.5",
-    "@types/yargs": "^17.0.23",
+    "@types/lodash": "^4.14.194",
+    "@types/node": "^18.16.3",
+    "@types/yargs": "^17.0.24",
     "jest": "^29.5.0",
     "rimraf": "^5.0.0",
-    "ts-jest": "^29.0.5",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
