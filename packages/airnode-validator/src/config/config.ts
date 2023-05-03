@@ -4,7 +4,7 @@ import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import size from 'lodash/size';
 import { goSync } from '@api3/promise-utils';
-import references from '@api3/airnode-protocol/deployments/references.json';
+import references from '@api3/airnode-protocol/dist/deployments/references.json';
 import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema, RELAY_METADATA_TYPES } from '../ois';
 import { SchemaType } from '../types';
