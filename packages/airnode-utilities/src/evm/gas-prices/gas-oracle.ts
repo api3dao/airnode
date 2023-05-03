@@ -93,7 +93,7 @@ export const fetchProviderRecommendedGasPrice = async (
   const latestBlock = await provider.getBlock('latest');
   const baseFeePerGas = latestBlock.baseFeePerGas;
 
-  if (baseFeePerGas && (multipliedGasPrice > baseFeePerGas.mul(5))) {
+  if (baseFeePerGas && multipliedGasPrice > baseFeePerGas.mul(5)) {
     return {
       type: 0,
       gasPrice: baseFeePerGas.mul(2).add(3),
