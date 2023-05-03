@@ -20,7 +20,7 @@ import {
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
 
-const AirnodeRrpV0: { [chainId: string]: string } = references.AirnodeRrpV0;
+const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
 
 it('successfully parses config.json', () => {
   const config = JSON.parse(
@@ -667,12 +667,12 @@ describe('defaultAirnodeRrp', () => {
 
     it(`fails if AirnodeRrp contract address within ${testName}.contracts is not specified and there is no deployment for the chain`, () => {
       const missingChainId = '-5';
-      const chainMissingChainId = {
+      const unknownChain = {
         ...objectMissingContracts,
         [chainIdField]: missingChainId,
       };
 
-      expect(() => schema.parse(chainMissingChainId)).toThrow(
+      expect(() => schema.parse(unknownChain)).toThrow(
         new ZodError([
           {
             validation: 'regex',
@@ -699,7 +699,7 @@ describe('defaultAirnodeRrp', () => {
       };
       const parsed = schema.parse(chainWithDeployment);
       expect(parsed.contracts).toEqual({
-        AirnodeRrp: AirnodeRrpV0[chainWithDeployment[chainIdField]],
+        AirnodeRrp: AirnodeRrpV0Addresses[chainWithDeployment[chainIdField]],
       });
     });
 

@@ -13,7 +13,7 @@ export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 export const chainIdSchema = z.string().regex(/^\d+$/);
 
-const AirnodeRrpV0: { [chainId: string]: string } = references.AirnodeRrpV0;
+const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
 
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
@@ -162,10 +162,10 @@ const defaultAirnodeRrp: SuperRefinement<{
   chainId?: ChainId;
   contracts: SchemaType<typeof airnodeRrpContractSchema>;
 }> = (chainConfig, ctx) => {
-  if (chainConfig.contracts.AirnodeRrp === '') {
+  if (!chainConfig.contracts.AirnodeRrp) {
     // id OR chainId refers to the chain ID depending on the calling schema
     const id = (chainConfig.id || chainConfig.chainId)!;
-    if (!AirnodeRrpV0[id]) {
+    if (!AirnodeRrpV0Addresses[id]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
@@ -176,7 +176,7 @@ const defaultAirnodeRrp: SuperRefinement<{
       return;
     }
     // Default to the deployed AirnodeRrp contract address if contracts is not specified
-    chainConfig.contracts = { AirnodeRrp: AirnodeRrpV0[id] };
+    chainConfig.contracts = { AirnodeRrp: AirnodeRrpV0Addresses[id] };
   }
 };
 
