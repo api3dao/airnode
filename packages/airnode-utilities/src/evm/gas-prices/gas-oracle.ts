@@ -90,6 +90,16 @@ export const fetchProviderRecommendedGasPrice = async (
     ? multiplyGasPrice(goGasPrice.data, recommendedGasPriceMultiplier)
     : goGasPrice.data;
 
+  const latestBlock = await provider.getBlock('latest');
+  const baseFeePerGas = latestBlock.baseFeePerGas;
+
+  if (baseFeePerGas && (multipliedGasPrice > baseFeePerGas.mul(5))) {
+    return {
+      type: 0,
+      gasPrice: baseFeePerGas.mul(2).add(3),
+    };
+  }
+
   return {
     type: 0,
     gasPrice: multipliedGasPrice,
