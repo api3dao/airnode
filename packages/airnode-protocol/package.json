@@ -47,7 +47,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@api3/airnode-utilities": "^0.11.0",
     "@openzeppelin/contracts": "4.4.2",
     "ethers": "^5.7.2"
   }

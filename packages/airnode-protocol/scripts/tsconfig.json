@@ -5,6 +5,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "references": [{ "path": "../../airnode-utilities/src" }],
   "include": ["./**/*.ts"]
 }
