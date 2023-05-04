@@ -421,6 +421,50 @@ describe('Gas oracle', () => {
       expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
+    it('returns the correct baseFeePerGas value', async () => {
+      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+
+      const blockDataMock = {
+        number: 23,
+        baseFeePerGas: ethers.BigNumber.from(15),
+      };
+      getBlockSpy.mockImplementationOnce(() => Promise.resolve(blockDataMock as any));
+
+      const startTime = Date.now();
+      const baseFeePerGas = await gasOracle.fetchBaseFeePerGas(provider, startTime);
+
+      expect(getBlockSpy).toHaveBeenCalledWith('latest');
+      expect(baseFeePerGas).toEqual(blockDataMock.baseFeePerGas);
+    });
+
+    it('returns null if baseFeePerGas is not available', async () => {
+      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+
+      const blockDataMock = {
+        number: 23,
+        baseFeePerGas: null,
+      };
+      getBlockSpy.mockImplementationOnce(() => Promise.resolve(blockDataMock as any));
+
+      const startTime = Date.now();
+      const baseFeePerGas = await gasOracle.fetchBaseFeePerGas(provider, startTime);
+
+      expect(getBlockSpy).toHaveBeenCalledWith('latest');
+      expect(baseFeePerGas).toBeNull();
+    });
+
+    it('throws an error if unable to get the latest block', async () => {
+      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
+      getBlockSpy.mockImplementationOnce(() => Promise.reject(new Error('Unable to get the latest block.')));
+
+      const startTime = Date.now();
+      await expect(gasOracle.fetchBaseFeePerGas(provider, startTime)).rejects.toThrow(
+        'Unable to get the latest block.'
+      );
+
+      expect(getBlockSpy).toHaveBeenCalledWith('latest');
+    });
+
     it('returns constantGasPrice if not enough blocks and fallback fails', async () => {
       const getBlockWithTransactionsSpy = jest.spyOn(
         ethers.providers.StaticJsonRpcProvider.prototype,

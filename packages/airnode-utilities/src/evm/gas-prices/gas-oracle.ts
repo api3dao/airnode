@@ -90,6 +90,23 @@ export const fetchProviderRecommendedGasPrice = async (
     ? multiplyGasPrice(goGasPrice.data, recommendedGasPriceMultiplier)
     : goGasPrice.data;
 
+  // New gas price strategy explained:
+  // https://github.com/api3dao/airnode/issues/1711
+  const baseFeePerGas = await fetchBaseFeePerGas(provider, startTime);
+  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(5))) {
+    return {
+      type: 0,
+      gasPrice: baseFeePerGas.mul(2).add(3),
+    };
+  }
+
+  return {
+    type: 0,
+    gasPrice: multipliedGasPrice,
+  };
+};
+
+export const fetchBaseFeePerGas = async (provider: Provider, startTime: number): Promise<ethers.BigNumber | null> => {
   const goLatestBlock = await go(() => provider.getBlock('latest'), {
     attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
     totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
@@ -109,19 +126,7 @@ export const fetchProviderRecommendedGasPrice = async (
   const latestBlock = goLatestBlock.data;
   const baseFeePerGas = latestBlock.baseFeePerGas;
 
-  // New gas price strategy explained:
-  // https://github.com/api3dao/airnode/issues/1711
-  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(5))) {
-    return {
-      type: 0,
-      gasPrice: baseFeePerGas.mul(2).add(3),
-    };
-  }
-
-  return {
-    type: 0,
-    gasPrice: multipliedGasPrice,
-  };
+  return baseFeePerGas || null;
 };
 
 export const fetchProviderRecommendedEip1559GasPrice = async (
