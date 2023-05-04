@@ -90,10 +90,28 @@ export const fetchProviderRecommendedGasPrice = async (
     ? multiplyGasPrice(goGasPrice.data, recommendedGasPriceMultiplier)
     : goGasPrice.data;
 
-  const latestBlock = await provider.getBlock('latest');
+  const goLatestBlock = await go(() => provider.getBlock('latest'), {
+    attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
+    totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
+    retries: 1,
+    delay: {
+      type: 'random',
+      minDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MIN_MS,
+      maxDelayMs: GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
+    },
+    onAttemptError: (goError) => logger.warn(`Failed attempt to get latest block. Error: ${goError.error}.`),
+  });
+
+  if (!goLatestBlock.success) {
+    throw new Error('Unable to get the latest block.');
+  }
+
+  const latestBlock = goLatestBlock.data;
   const baseFeePerGas = latestBlock.baseFeePerGas;
 
-  if (baseFeePerGas && multipliedGasPrice > baseFeePerGas.mul(5)) {
+  // New gas price strategy explained:
+  // https://github.com/api3dao/airnode/issues/1711
+  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(5))) {
     return {
       type: 0,
       gasPrice: baseFeePerGas.mul(2).add(3),
