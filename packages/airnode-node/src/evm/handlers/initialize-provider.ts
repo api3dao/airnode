@@ -182,10 +182,16 @@ export async function initializeProvider(
   );
   logger.logPending(verifyRrpTriggersLogs);
 
+  const [verifySponsorWalletsLogs, verifiedApiCallsForSponsorWallets] = verification.verifySponsorWallets(
+    verifiedApiCallsForRrpTriggers,
+    state4.masterHDNode
+  );
+  logger.logPending(verifySponsorWalletsLogs);
+
   const state5 = state.update(state4, {
     requests: {
       ...state4.requests,
-      apiCalls: verifiedApiCallsForRrpTriggers,
+      apiCalls: verifiedApiCallsForSponsorWallets,
     },
   });
 
