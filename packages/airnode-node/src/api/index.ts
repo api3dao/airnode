@@ -7,7 +7,7 @@ import axios, { AxiosError } from 'axios';
 import { ethers } from 'ethers';
 import compact from 'lodash/compact';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
-import { getAirnodeWalletFromPrivateKey, deriveSponsorWalletFromMnemonic } from '../evm';
+import { getAirnodeWalletFromPrivateKey } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
 import { FIRST_API_CALL_TIMEOUT, SECOND_API_CALL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
@@ -101,22 +101,6 @@ export function signWithTemplateId(templateId: string, timestamp: string, data: 
   );
 }
 
-export function verifySponsorWallet(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
-  const { config, aggregatedApiCall } = payload;
-
-  const { sponsorAddress, sponsorWalletAddress, id } = aggregatedApiCall;
-  const derivedSponsorWallet = deriveSponsorWalletFromMnemonic(
-    config.nodeSettings.airnodeWalletMnemonic,
-    sponsorAddress
-  );
-  if (derivedSponsorWallet.address === sponsorWalletAddress) return null;
-
-  // TODO: Abstract this to a logging utils file
-  const message = `${RequestErrorMessage.SponsorWalletInvalid}, Request ID:${id}`;
-  const log = logger.pend('ERROR', message);
-  return [[log], { success: false, errorMessage: message }];
-}
-
 export function verifyRequestId(payload: RegularApiCallPayload): LogsData<ApiCallErrorResponse> | null {
   const { aggregatedApiCall } = payload;
 
@@ -165,7 +149,7 @@ export function verifyCallApi(payload: ApiCallPayload) {
 }
 
 export function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
-  const verifications = [verifySponsorWallet, verifyRequestId, verifyTemplateId];
+  const verifications = [verifyRequestId, verifyTemplateId];
 
   return verifications.reduce((result, verifierFn) => {
     if (result) return result;
