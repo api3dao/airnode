@@ -2,7 +2,6 @@ import range from 'lodash/range';
 import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests } from '../../types';
-import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 
 const buildApiCallsWithSponsor = (count: number, sponsorAddress: string) =>
   range(count).map((i) => fixtures.requests.buildApiCall({ sponsorAddress, id: `id-${sponsorAddress}-${i}` }));
@@ -90,10 +89,10 @@ describe('applySponsorAndSponsorWalletRequestLimit', () => {
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
       // +2 because we changed the sponsorWallet for the first two requests
-    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS + 2);
+    ).toHaveLength(5 + 2);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1] && !apiCall.errorMessage)
-    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
+    ).toHaveLength(5);
     expect(res.withdrawals).toEqual([]);
   });
 });
@@ -168,7 +167,7 @@ describe('blockRequests', () => {
     expect(res.apiCalls.length).toEqual(9);
     expect(
       res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[0] && !apiCall.errorMessage)
-    ).toHaveLength(MAXIMUM_SPONSOR_WALLET_REQUESTS);
+    ).toHaveLength(5);
     expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[1])).toHaveLength(0);
     expect(res.apiCalls.filter((apiCall) => apiCall.sponsorAddress === sponsorAddresses[2])).toHaveLength(4);
     expect(res.withdrawals.length).toEqual(1);

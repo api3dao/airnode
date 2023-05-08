@@ -1,7 +1,6 @@
 import flow from 'lodash/flow';
 import keyBy from 'lodash/keyBy';
 import { logger, PendingLog } from '@api3/airnode-utilities';
-import { MAXIMUM_SPONSOR_WALLET_REQUESTS } from '../../constants';
 import { ApiCall, Request, GroupedRequests, LogsData } from '../../types';
 
 interface ApiCallsWithLogs {
@@ -61,7 +60,7 @@ export function applySponsorAndSponsorWalletRequestLimit([
     }
     const sponsorRequests = requestCountPerSponsorId.get(sponsorId)!;
 
-    if (sponsorRequests < MAXIMUM_SPONSOR_WALLET_REQUESTS) {
+    if (sponsorRequests < 5) {
       requestCountPerSponsorId.set(sponsorId, sponsorRequests + 1);
       allowedApiCalls.push(apiCall);
       return;
