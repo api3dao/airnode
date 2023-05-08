@@ -90,8 +90,6 @@ export const fetchProviderRecommendedGasPrice = async (
     ? multiplyGasPrice(goGasPrice.data, recommendedGasPriceMultiplier)
     : goGasPrice.data;
 
-  // New gas price strategy explained:
-  // https://github.com/api3dao/airnode/issues/1711
   const baseFeePerGas = await fetchBaseFeePerGas(provider, startTime);
   if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(5))) {
     return {

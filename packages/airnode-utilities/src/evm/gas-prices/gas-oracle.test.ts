@@ -301,7 +301,7 @@ describe('Gas oracle', () => {
       expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
     });
 
-    it('returns baseFeePerGas if getGasPrice too high', async () => {
+    it('returns baseFeePerGas if getGasPrice is too high', async () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(1000);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
@@ -320,7 +320,7 @@ describe('Gas oracle', () => {
       expect(providerRecommendedGasPrice.gasPrice).toEqual(expectedGasTarget);
     });
 
-    it('returns getGasPrice if not too high', async () => {
+    it('returns getGasPrice if the multiplied gas price is less than a multiple of the baseFeePerGas', async () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(1);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
