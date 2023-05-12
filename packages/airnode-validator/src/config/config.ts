@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { SuperRefinement, z } from 'zod';
+import { RefinementCtx, SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import size from 'lodash/size';
@@ -157,14 +157,13 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-const defaultAirnodeRrp: SuperRefinement<{
-  id?: ChainId;
-  chainId?: ChainId;
-  contracts: SchemaType<typeof airnodeRrpContractSchema>;
-}> = (chainConfig, ctx) => {
-  if (!chainConfig.contracts.AirnodeRrp) {
+const ensureValidAirnodeRrp = (
+  value: any, // Typing the value as any, because specifying it will break Zod inference
+  ctx: RefinementCtx
+) => {
+  if (!value.contracts.AirnodeRrp) {
     // id OR chainId refers to the chain ID depending on the calling schema
-    const id = (chainConfig.id || chainConfig.chainId)!;
+    const id = (value.id || value.chainId)!;
     if (!AirnodeRrpV0Addresses[id]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -173,11 +172,13 @@ const defaultAirnodeRrp: SuperRefinement<{
           `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
         path: ['contracts'],
       });
-      return;
+      return value;
     }
     // Default to the deployed AirnodeRrp contract address if contracts is not specified
-    chainConfig.contracts = { AirnodeRrp: AirnodeRrpV0Addresses[id] };
+    return { ...value, contracts: { ...value, AirnodeRrp: AirnodeRrpV0Addresses[id] } };
   }
+
+  return value;
 };
 
 export const chainAuthorizationsSchema = z.object({
@@ -196,7 +197,7 @@ export const crossChainRequesterAuthorizerSchema = z
     chainProvider: providerSchema,
   })
   .strict()
-  .superRefine(defaultAirnodeRrp);
+  .transform(ensureValidAirnodeRrp);
 
 export const erc721sSchema = z.array(evmAddressSchema);
 
@@ -260,7 +261,7 @@ export const chainConfigSchema = z
     maxConcurrency: maxConcurrencySchema,
   })
   .strict()
-  .superRefine(defaultAirnodeRrp)
+  .transform(ensureValidAirnodeRrp)
   .superRefine(validateMaxConcurrency);
 
 export const apiKeySchema = z.string().min(30).max(120);
