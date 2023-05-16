@@ -36,5 +36,6 @@ export function blockRequestsWithWithdrawals([
 }
 
 export const blockRequests = (requests: GroupedRequests): LogsData<GroupedRequests> => {
-  return [[], requests];
+  const filterRequests = blockRequestsWithWithdrawals([[], requests]);
+  return filterRequests;
 };
