@@ -34,8 +34,3 @@ export function blockRequestsWithWithdrawals([
 
   return [[...prevLogs, ...logs], { ...requests, apiCalls }];
 }
-
-export const blockRequests = (requests: GroupedRequests): LogsData<GroupedRequests> => {
-  const filterRequests = blockRequestsWithWithdrawals([[], requests]);
-  return filterRequests;
-};
