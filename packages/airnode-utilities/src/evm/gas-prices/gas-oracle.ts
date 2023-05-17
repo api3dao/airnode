@@ -101,20 +101,16 @@ export const sanitizedProviderRecommendedGasPrice = async (
   gasOracleOptions: config.SanitizedProviderRecommendedGasPriceStrategy,
   startTime: number
 ): Promise<LegacyGasTarget> => {
-  const {
-    recommendedGasPriceMultiplier,
-    baseFeePerGasMultiplier,
-    baseFeePerGasMultiplierThreshold,
-    baseFeeTip
-  } = gasOracleOptions;
+  const { recommendedGasPriceMultiplier, baseFeePerGasMultiplier, baseFeePerGasMultiplierThreshold, baseFeeTip } =
+    gasOracleOptions;
 
   const gasTarget = await fetchProviderRecommendedGasPrice(
     provider,
     {
       gasPriceStrategy: 'providerRecommendedGasPrice',
-      recommendedGasPriceMultiplier: recommendedGasPriceMultiplier
+      recommendedGasPriceMultiplier: recommendedGasPriceMultiplier,
     },
-    startTime,
+    startTime
   );
   const multipliedGasPrice = gasTarget.gasPrice;
 

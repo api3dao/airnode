@@ -527,7 +527,9 @@ export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
 export type LatestBlockPercentileGasPriceStrategy = z.infer<typeof latestBlockPercentileGasPriceStrategySchema>;
 export type ProviderRecommendedGasPriceStrategy = z.infer<typeof providerRecommendedGasPriceStrategySchema>;
-export type SanitizedProviderRecommendedGasPriceStrategy = z.infer<typeof sanitizedProviderRecommendedGasPriceStrategySchema>;
+export type SanitizedProviderRecommendedGasPriceStrategy = z.infer<
+  typeof sanitizedProviderRecommendedGasPriceStrategySchema
+>;
 export type ProviderRecommendedEip1559GasPriceStrategy = z.infer<
   typeof providerRecommendedEip1559GasPriceStrategySchema
 >;
