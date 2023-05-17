@@ -90,11 +90,39 @@ export const fetchProviderRecommendedGasPrice = async (
     ? multiplyGasPrice(goGasPrice.data, recommendedGasPriceMultiplier)
     : goGasPrice.data;
 
+  return {
+    type: 0,
+    gasPrice: multipliedGasPrice,
+  };
+};
+
+export const sanitizedProviderRecommendedGasPrice = async (
+  provider: Provider,
+  gasOracleOptions: config.SanitizedProviderRecommendedGasPriceStrategy,
+  startTime: number
+): Promise<LegacyGasTarget> => {
+  const {
+    recommendedGasPriceMultiplier,
+    baseFeePerGasMultiplier,
+    baseFeePerGasMultiplierThreshold,
+    baseFeeTip
+  } = gasOracleOptions;
+
+  const gasTarget = await fetchProviderRecommendedGasPrice(
+    provider,
+    {
+      gasPriceStrategy: 'providerRecommendedGasPrice',
+      recommendedGasPriceMultiplier: recommendedGasPriceMultiplier
+    },
+    startTime,
+  );
+  const multipliedGasPrice = gasTarget.gasPrice;
+
   const baseFeePerGas = await fetchBaseFeePerGas(provider, startTime);
-  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(5))) {
+  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(baseFeePerGasMultiplierThreshold))) {
     return {
       type: 0,
-      gasPrice: baseFeePerGas.mul(2).add(3),
+      gasPrice: baseFeePerGas.mul(baseFeePerGasMultiplier).add(baseFeeTip),
     };
   }
 
@@ -257,6 +285,8 @@ export const attemptGasOracleStrategy = (
       return fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedGasPrice':
       return fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
+    case 'sanitizedProviderRecommendedGasPrice':
+      return sanitizedProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedEip1559GasPrice':
       return fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
     default:
