@@ -9,7 +9,6 @@ import {
   GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
 } from '../../constants';
 import { logger, PendingLog, LogsData } from '../../logging';
-import { max } from 'date-fns';
 
 export const calculateTimeout = (startTime: number, totalTimeout: number) => totalTimeout - (Date.now() - startTime);
 
