@@ -9,6 +9,7 @@ import {
   GAS_ORACLE_RANDOM_BACKOFF_MAX_MS,
 } from '../../constants';
 import { logger, PendingLog, LogsData } from '../../logging';
+import { max } from 'date-fns';
 
 export const calculateTimeout = (startTime: number, totalTimeout: number) => totalTimeout - (Date.now() - startTime);
 
@@ -96,12 +97,12 @@ export const fetchProviderRecommendedGasPrice = async (
   };
 };
 
-export const sanitizedProviderRecommendedGasPrice = async (
+export const sanitizeProviderRecommendedGasPrice = async (
   provider: Provider,
-  gasOracleOptions: config.SanitizedProviderRecommendedGasPriceStrategy,
+  gasOracleOptions: config.SanitizeProviderRecommendedGasPriceStrategy,
   startTime: number
 ): Promise<LegacyGasTarget> => {
-  const { recommendedGasPriceMultiplier, baseFeePerGasMultiplier, baseFeePerGasMultiplierThreshold, baseFeeTip } =
+  const { recommendedGasPriceMultiplier, baseFeeMultiplier, baseFeeMultiplierThreshold, priorityFee } =
     gasOracleOptions;
 
   const gasTarget = await fetchProviderRecommendedGasPrice(
@@ -114,11 +115,12 @@ export const sanitizedProviderRecommendedGasPrice = async (
   );
   const multipliedGasPrice = gasTarget.gasPrice;
 
+  const maxPriorityFeePerGas = parsePriorityFee(priorityFee);
   const baseFeePerGas = await fetchBaseFeePerGas(provider, startTime);
-  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(baseFeePerGasMultiplierThreshold))) {
+  if (baseFeePerGas && multipliedGasPrice.gt(baseFeePerGas.mul(baseFeeMultiplierThreshold))) {
     return {
       type: 0,
-      gasPrice: baseFeePerGas.mul(baseFeePerGasMultiplier).add(baseFeeTip),
+      gasPrice: baseFeePerGas.mul(baseFeeMultiplier).add(maxPriorityFeePerGas),
     };
   }
 
@@ -128,7 +130,10 @@ export const sanitizedProviderRecommendedGasPrice = async (
   };
 };
 
-export const fetchBaseFeePerGas = async (provider: Provider, startTime: number): Promise<ethers.BigNumber | null> => {
+export const fetchBaseFeePerGas = async (
+  provider: Provider,
+  startTime: number
+): Promise<ethers.providers.Block['baseFeePerGas']> => {
   const goLatestBlock = await go(() => provider.getBlock('latest'), {
     attemptTimeoutMs: GAS_ORACLE_STRATEGY_ATTEMPT_TIMEOUT_MS,
     totalTimeoutMs: calculateTimeout(startTime, GAS_ORACLE_STRATEGY_MAX_TIMEOUT_MS),
@@ -146,9 +151,9 @@ export const fetchBaseFeePerGas = async (provider: Provider, startTime: number):
   }
 
   const latestBlock = goLatestBlock.data;
-  const baseFeePerGas = latestBlock.baseFeePerGas;
+  const baseFeePerGas = latestBlock?.baseFeePerGas;
 
-  return baseFeePerGas || null;
+  return baseFeePerGas;
 };
 
 export const fetchProviderRecommendedEip1559GasPrice = async (
@@ -281,8 +286,8 @@ export const attemptGasOracleStrategy = (
       return fetchLatestBlockPercentileGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedGasPrice':
       return fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
-    case 'sanitizedProviderRecommendedGasPrice':
-      return sanitizedProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
+    case 'sanitizeProviderRecommendedGasPrice':
+      return sanitizeProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedEip1559GasPrice':
       return fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
     default:

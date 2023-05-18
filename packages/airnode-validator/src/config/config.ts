@@ -100,13 +100,13 @@ export const providerRecommendedGasPriceStrategySchema = z
   })
   .strict();
 
-export const sanitizedProviderRecommendedGasPriceStrategySchema = z
+export const sanitizeProviderRecommendedGasPriceStrategySchema = z
   .object({
-    gasPriceStrategy: z.literal('sanitizedProviderRecommendedGasPrice'),
+    gasPriceStrategy: z.literal('sanitizeProviderRecommendedGasPrice'),
     recommendedGasPriceMultiplier: z.number().positive(),
-    baseFeePerGasMultiplierThreshold: z.number().positive(),
-    baseFeePerGasMultiplier: z.number().positive(),
-    baseFeeTip: z.number().positive(),
+    baseFeeMultiplierThreshold: z.number().positive(),
+    baseFeeMultiplier: z.number().positive(),
+    priorityFee: amountSchema,
   })
   .strict();
 
@@ -128,7 +128,7 @@ export const constantGasPriceStrategySchema = z
 export const gasPriceOracleStrategySchema = z.discriminatedUnion('gasPriceStrategy', [
   latestBlockPercentileGasPriceStrategySchema,
   providerRecommendedGasPriceStrategySchema,
-  sanitizedProviderRecommendedGasPriceStrategySchema,
+  sanitizeProviderRecommendedGasPriceStrategySchema,
   providerRecommendedEip1559GasPriceStrategySchema,
   constantGasPriceStrategySchema,
 ]);
@@ -527,8 +527,8 @@ export type ChainType = SchemaType<typeof chainTypeSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
 export type LatestBlockPercentileGasPriceStrategy = z.infer<typeof latestBlockPercentileGasPriceStrategySchema>;
 export type ProviderRecommendedGasPriceStrategy = z.infer<typeof providerRecommendedGasPriceStrategySchema>;
-export type SanitizedProviderRecommendedGasPriceStrategy = z.infer<
-  typeof sanitizedProviderRecommendedGasPriceStrategySchema
+export type SanitizeProviderRecommendedGasPriceStrategy = z.infer<
+  typeof sanitizeProviderRecommendedGasPriceStrategySchema
 >;
 export type ProviderRecommendedEip1559GasPriceStrategy = z.infer<
   typeof providerRecommendedEip1559GasPriceStrategySchema
