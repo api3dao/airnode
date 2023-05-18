@@ -65,4 +65,11 @@ module.exports = {
     'require-await': 'error',
     'no-return-await': 'error',
   },
+  settings: {
+    'import/resolver': {
+      node: {
+        paths: ['src'],
+      },
+    },
+  },
 };
