@@ -10,6 +10,13 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@api3/airnode-protocol-v1@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@api3/airnode-protocol-v1/-/airnode-protocol-v1-2.4.0.tgz#9b3a247adb43eba9066ecd1a7de3ff48f468dc8d"
+  integrity sha512-JEbYP+LmdQouoH/kynHSQ8LkY0xsdHczv2z16TqwrgYXY7IlEkdihZrZw+neID3sT0txwi6jliCW1S5/GrRmiA==
+  dependencies:
+    "@openzeppelin/contracts" "4.8.2"
+
 "@api3/chains@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-2.1.0.tgz#67219e94e3301378a14ba81d50d4740e093d5678"
@@ -3511,6 +3518,11 @@
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.4.2.tgz#4e889c9c66e736f7de189a53f8ba5b8d789425c2"
   integrity sha512-NyJV7sJgoGYqbtNUWgzzOGW4T6rR19FmX1IJgXGdapGPWsuMelGJn9h03nos0iqfforCbCB0iYIR0MtIuIFLLw==
+
+"@openzeppelin/contracts@4.8.2":
+  version "4.8.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.8.2.tgz#d815ade0027b50beb9bcca67143c6bcc3e3923d6"
+  integrity sha512-kEUOgPQszC0fSYWpbh2kT94ltOJwj1qfT2DWo+zVttmGmf97JZ99LspePNaeeaLhCImaHVeBbjaQFZQn7+Zc5g==
 
 "@parcel/watcher@2.0.4":
   version "2.0.4"
