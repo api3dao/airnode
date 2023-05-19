@@ -31,7 +31,7 @@ describe('Gas oracle', () => {
     gasPriceStrategy: 'sanitizeProviderRecommendedGasPrice',
     recommendedGasPriceMultiplier: 1.2,
     baseFeeMultiplier: 2,
-    baseFeeMultiplierThreshold : 5,
+    baseFeeMultiplierThreshold: 5,
     priorityFee: {
       value: 3.0,
       unit: 'gwei',
@@ -315,11 +315,9 @@ describe('Gas oracle', () => {
       const providerRecommendedGasPriceSpy = jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice');
       const providerRecommendedGasPriceMock: LegacyGasTarget = {
         type: 0,
-        gasPrice: ethers.BigNumber.from(1000)
+        gasPrice: ethers.BigNumber.from(1000),
       };
-      providerRecommendedGasPriceSpy.mockImplementation(
-        () => Promise.resolve(providerRecommendedGasPriceMock)
-      );
+      providerRecommendedGasPriceSpy.mockImplementation(() => Promise.resolve(providerRecommendedGasPriceMock));
 
       const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
       const baseFeePerGasMock = ethers.BigNumber.from(1);
@@ -331,11 +329,9 @@ describe('Gas oracle', () => {
         startTime
       );
 
-      const expectedGasTarget = baseFeePerGasMock.mul(
-        sanitizeProviderRecommendedGasPriceStrategy.baseFeeMultiplier
-      ).add(
-        gasOracle.parsePriorityFee(sanitizeProviderRecommendedGasPriceStrategy.priorityFee)
-      );
+      const expectedGasTarget = baseFeePerGasMock
+        .mul(sanitizeProviderRecommendedGasPriceStrategy.baseFeeMultiplier)
+        .add(gasOracle.parsePriorityFee(sanitizeProviderRecommendedGasPriceStrategy.priorityFee));
       expect(sanitizeProviderRecommendedGasPrice.gasPrice).toEqual(expectedGasTarget);
     });
 
@@ -343,11 +339,9 @@ describe('Gas oracle', () => {
       const providerRecommendedGasPriceSpy = jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice');
       const providerRecommendedGasPriceMock: LegacyGasTarget = {
         type: 0,
-        gasPrice: ethers.BigNumber.from(1)
+        gasPrice: ethers.BigNumber.from(1),
       };
-      providerRecommendedGasPriceSpy.mockImplementation(
-        () => Promise.resolve(providerRecommendedGasPriceMock)
-      );
+      providerRecommendedGasPriceSpy.mockImplementation(() => Promise.resolve(providerRecommendedGasPriceMock));
 
       const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
       const baseFeePerGasMock = ethers.BigNumber.from(10);
@@ -366,11 +360,9 @@ describe('Gas oracle', () => {
       const providerRecommendedGasPriceSpy = jest.spyOn(gasOracle, 'fetchProviderRecommendedGasPrice');
       const providerRecommendedGasPriceMock: LegacyGasTarget = {
         type: 0,
-        gasPrice: ethers.BigNumber.from(1)
+        gasPrice: ethers.BigNumber.from(1),
       };
-      providerRecommendedGasPriceSpy.mockImplementation(
-        () => Promise.resolve(providerRecommendedGasPriceMock)
-      );
+      providerRecommendedGasPriceSpy.mockImplementation(() => Promise.resolve(providerRecommendedGasPriceMock));
 
       const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
       const baseFeePerGasMock = null;
