@@ -30,9 +30,6 @@ export const WORKER_PROCESS_TRANSACTIONS_TIMEOUT = 10_000;
 // The maximum amount of time the "call API" worker is allowed before being timed out
 export const WORKER_CALL_API_TIMEOUT = 30_000;
 
-// The maximum number of requests for a single sponsor wallet in a single Airnode run cycle
-export const MAXIMUM_SPONSOR_WALLET_REQUESTS = 5;
-
 // The maximum character length of an error message sent on-chain
 export const MAXIMUM_ONCHAIN_ERROR_LENGTH = 100;
 

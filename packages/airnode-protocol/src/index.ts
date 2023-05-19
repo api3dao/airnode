@@ -12,16 +12,24 @@
  */
 import { ethers } from 'ethers';
 import {
+  RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
+  MockErc721__factory as MockErc721Factory,
+  references as airnodeProtocolV1References,
+} from '@api3/airnode-protocol-v1';
+import {
   MockRrpRequesterV0__factory as MockRrpRequesterFactory,
   AirnodeRrpV0__factory as AirnodeRrpV0Factory,
   AirnodeRrpV0DryRun__factory as AirnodeRrpV0DryRunFactory,
   AccessControlRegistry__factory as AccessControlRegistryFactory,
   RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
   RrpBeaconServerV0__factory as RrpBeaconServerV0Factory,
-  RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
-  MockErc721__factory as MockErc721Factory,
 } from './contracts';
-import references from '../deployments/references.json';
+import airnodeProtocolV0References from '../deployments/references.json';
+
+const references = {
+  ...airnodeProtocolV0References,
+  RequesterAuthorizerWithErc721: airnodeProtocolV1References.RequesterAuthorizerWithErc721,
+};
 
 const AirnodeRrpAddresses: { [chainId: string]: string } = references.AirnodeRrpV0;
 const AirnodeRrpDryRunAddresses: { [chainId: string]: string } = references.AirnodeRrpV0DryRun;
@@ -75,9 +83,10 @@ export type {
   MockRrpRequesterV0,
   AccessControlRegistry,
   RequesterAuthorizerWithAirnode,
-  RequesterAuthorizerWithErc721,
   RrpBeaconServerV0,
 } from './contracts';
+
+export type { RequesterAuthorizerWithErc721 } from '@api3/airnode-protocol-v1';
 
 export {
   MadeTemplateRequestEvent,

@@ -17,7 +17,7 @@ describe('verifySponsorWallets', () => {
     };
     const invalidApiCall = fixtures.requests.buildApiCall(invalidSponsorWallet);
     const doNotMatchApiCall = fixtures.requests.buildApiCall(sponsorWalletDoesNotBelongToSponsor);
-    const [apiCalllogs, verifiesdApiCalls] = verification.verifySponsorWallets(
+    const [apiCalllogs, verifiedApiCalls] = verification.verifySponsorWallets(
       [invalidApiCall, doNotMatchApiCall],
       masterHDNode
     );
@@ -31,7 +31,7 @@ describe('verifySponsorWallets', () => {
         message: `Invalid sponsor wallet:${doNotMatchApiCall.sponsorWalletAddress} for Request:${doNotMatchApiCall.id}. Expected:0xdBFe14C250643DEFE92C9AbC52103bf4978C7113`,
       },
     ]);
-    expect(verifiesdApiCalls.length).toEqual(0);
+    expect(verifiedApiCalls.length).toEqual(0);
 
     const invalidWithdrawal = fixtures.requests.buildWithdrawal(invalidSponsorWallet);
     const doNotMatchWithdrawal = fixtures.requests.buildWithdrawal(sponsorWalletDoesNotBelongToSponsor);
