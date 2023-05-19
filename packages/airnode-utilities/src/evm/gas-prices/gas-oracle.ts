@@ -96,7 +96,7 @@ export const fetchProviderRecommendedGasPrice = async (
   };
 };
 
-export const sanitizeProviderRecommendedGasPrice = async (
+export const fetchSanitizeProviderRecommendedGasPrice = async (
   provider: Provider,
   gasOracleOptions: config.SanitizeProviderRecommendedGasPriceStrategy,
   startTime: number
@@ -286,7 +286,7 @@ export const attemptGasOracleStrategy = (
     case 'providerRecommendedGasPrice':
       return fetchProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'sanitizeProviderRecommendedGasPrice':
-      return sanitizeProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
+      return fetchSanitizeProviderRecommendedGasPrice(provider, gasOracleConfig, startTime);
     case 'providerRecommendedEip1559GasPrice':
       return fetchProviderRecommendedEip1559GasPrice(provider, gasOracleConfig, startTime);
     default:
