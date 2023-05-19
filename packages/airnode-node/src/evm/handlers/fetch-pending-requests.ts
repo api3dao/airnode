@@ -36,9 +36,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     withdrawals: withdrawalRequests,
   };
 
-  // Block (filter out) any requests that cannot be processed
-  // TODO: Better naming
-  const [blockRequestsLogs, allowedRequests] = blocking.blockRequests(groupedRequests);
+  const [blockRequestsLogs, allowedRequests] = blocking.blockRequestsWithWithdrawals([[], groupedRequests]);
   logger.logPending(blockRequestsLogs);
 
   return allowedRequests;
