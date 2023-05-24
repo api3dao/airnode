@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
-import { SuperRefinement, z } from 'zod';
+import { RefinementCtx, SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import size from 'lodash/size';
 import { goSync } from '@api3/promise-utils';
-import references from '@api3/airnode-protocol/dist/deployments/references.json';
+import { references } from '@api3/airnode-protocol';
 import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema, RELAY_METADATA_TYPES } from '../ois';
 import { SchemaType } from '../types';
@@ -157,14 +157,13 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-const defaultAirnodeRrp: SuperRefinement<{
-  id?: ChainId;
-  chainId?: ChainId;
-  contracts: SchemaType<typeof airnodeRrpContractSchema>;
-}> = (chainConfig, ctx) => {
-  if (!chainConfig.contracts.AirnodeRrp) {
+const ensureValidAirnodeRrp = (
+  value: any, // Typing the value as any because specifying it will break Zod inference
+  ctx: RefinementCtx
+) => {
+  if (!value.contracts) {
     // id OR chainId refers to the chain ID depending on the calling schema
-    const id = (chainConfig.id || chainConfig.chainId)!;
+    const id = (value.id || value.chainId)!;
     if (!AirnodeRrpV0Addresses[id]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -173,11 +172,12 @@ const defaultAirnodeRrp: SuperRefinement<{
           `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
         path: ['contracts'],
       });
-      return;
+      return value;
     }
     // Default to the deployed AirnodeRrp contract address if contracts is not specified
-    chainConfig.contracts = { AirnodeRrp: AirnodeRrpV0Addresses[id] };
+    return { ...value, contracts: { AirnodeRrp: AirnodeRrpV0Addresses[id] } };
   }
+  return value;
 };
 
 export const chainAuthorizationsSchema = z.object({
@@ -192,11 +192,11 @@ export const crossChainRequesterAuthorizerSchema = z
     chainType: chainTypeSchema,
     chainId: chainIdSchema,
     // The type system requires optional() be transformed to the expected type despite a value being provided by superRefine
-    contracts: airnodeRrpContractSchema.optional().transform((val) => (val === undefined ? { AirnodeRrp: '' } : val)),
+    contracts: airnodeRrpContractSchema.optional(),
     chainProvider: providerSchema,
   })
   .strict()
-  .superRefine(defaultAirnodeRrp);
+  .transform(ensureValidAirnodeRrp);
 
 export const erc721sSchema = z.array(evmAddressSchema);
 
@@ -249,7 +249,7 @@ export const chainConfigSchema = z
     authorizations: chainAuthorizationsSchema,
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
     // The type system requires optional() be transformed to the expected type despite a value being provided by superRefine
-    contracts: airnodeRrpContractSchema.optional().transform((val) => (val === undefined ? { AirnodeRrp: '' } : val)),
+    contracts: airnodeRrpContractSchema.optional(),
     id: chainIdSchema,
     // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node but may be overridden
     // by a requester if the _minConfirmations reserved parameter is configured
@@ -260,7 +260,7 @@ export const chainConfigSchema = z
     maxConcurrency: maxConcurrencySchema,
   })
   .strict()
-  .superRefine(defaultAirnodeRrp)
+  .transform(ensureValidAirnodeRrp)
   .superRefine(validateMaxConcurrency);
 
 export const apiKeySchema = z.string().min(30).max(120);

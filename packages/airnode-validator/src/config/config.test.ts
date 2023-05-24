@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import zip from 'lodash/zip';
-import references from '@api3/airnode-protocol/dist/deployments/references.json';
+import { references } from '@api3/airnode-protocol/';
 import {
   Config,
   configSchema,
@@ -646,7 +646,7 @@ describe('chainConfigSchema', () => {
   });
 });
 
-describe('defaultAirnodeRrp', () => {
+describe('ensureValidAirnodeRrp', () => {
   const config = JSON.parse(
     readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
   );
@@ -666,7 +666,7 @@ describe('defaultAirnodeRrp', () => {
     const { contracts, ...objectMissingContracts } = configObject;
 
     it(`fails if AirnodeRrp contract address within ${testName}.contracts is not specified and there is no deployment for the chain`, () => {
-      const missingChainId = '-5';
+      const missingChainId = '99999999999999999999999';
       const unknownChain = {
         ...objectMissingContracts,
         [chainIdField]: missingChainId,
@@ -674,12 +674,6 @@ describe('defaultAirnodeRrp', () => {
 
       expect(() => schema.parse(unknownChain)).toThrow(
         new ZodError([
-          {
-            validation: 'regex',
-            code: 'invalid_string',
-            message: 'Invalid',
-            path: [chainIdField],
-          },
           {
             code: 'custom',
             message:
