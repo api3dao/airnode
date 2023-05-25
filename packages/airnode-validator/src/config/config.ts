@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { RefinementCtx, SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import size from 'lodash/size';
 import { goSync } from '@api3/promise-utils';
 import { references } from '@api3/airnode-protocol';
@@ -14,6 +15,7 @@ export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
 export const chainIdSchema = z.string().regex(/^\d+$/);
 
 const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const RequesterAuthorizerWithErc721Addresses: { [chainId: string]: string } = references.RequesterAuthorizerWithErc721;
 
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
@@ -191,7 +193,6 @@ export const crossChainRequesterAuthorizerSchema = z
     requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema.nonempty(),
     chainType: chainTypeSchema,
     chainId: chainIdSchema,
-    // The type system requires optional() be transformed to the expected type despite a value being provided by superRefine
     contracts: airnodeRrpContractSchema.optional(),
     chainProvider: providerSchema,
   })
@@ -202,24 +203,83 @@ export const erc721sSchema = z.array(evmAddressSchema);
 
 export const requesterAuthorizerWithErc721Schema = z.object({
   erc721s: erc721sSchema.nonempty(),
-  RequesterAuthorizerWithErc721: evmAddressSchema, // TODO: make optional like AirnodeRrpV0 once contract is deployed and available in references.json
+  RequesterAuthorizerWithErc721: evmAddressSchema.optional(),
 });
 
 export const requesterAuthorizersWithErc721Schema = z.array(requesterAuthorizerWithErc721Schema);
 
 export const requesterAuthorizerWithErc721ContractSchema = z
   .object({
-    RequesterAuthorizerWithErc721: evmAddressSchema, // TODO: make optional like AirnodeRrpV0 once contract is deployed and available in references.json
+    RequesterAuthorizerWithErc721: evmAddressSchema,
   })
   .strict();
 
-export const crossChainRequesterAuthorizersWithErc721Schema = z.object({
-  erc721s: erc721sSchema.nonempty(),
-  chainType: chainTypeSchema,
-  chainId: chainIdSchema,
-  contracts: requesterAuthorizerWithErc721ContractSchema,
-  chainProvider: providerSchema,
-});
+// This transform operates on entire chain config object because this is where the chain id is defined,
+// and the chain id is necessary to look up the RequesterAuthorizerWithErc721 contract address
+const ensureRequesterAuthorizerWithErc721 = (
+  value: any, // Typing the value as any because specifying it will break Zod inference
+  ctx: RefinementCtx
+) => {
+  if (!isEmpty(value.authorizers.requesterAuthorizersWithErc721)) {
+    // loop through each requesterAuthorizerWithErc721 object and check if the RequesterAuthorizer contract address is missing
+    const arr = value.authorizers.requesterAuthorizersWithErc721.map(
+      (raObj: SchemaType<typeof requesterAuthorizerWithErc721Schema>, ind: number) => {
+        if (!raObj.RequesterAuthorizerWithErc721) {
+          // If there isn't a deployment for the chain, throw an error
+          if (!RequesterAuthorizerWithErc721Addresses[value.id]) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.id}'` +
+                `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+              path: ['authorizers', 'requesterAuthorizersWithErc721', ind],
+            });
+            return value;
+          }
+          // Default to deployed RequesterAuthorizerWithErc721 contract address for the chain
+          return { ...raObj, RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[value.id] };
+        }
+        return raObj;
+      }
+    );
+    return { ...value, authorizers: { ...value.authorizers, requesterAuthorizersWithErc721: arr } };
+  }
+  return value;
+};
+
+const ensureCrossChainRequesterAuthorizerWithErc721 = (
+  value: any, // Typing the value as any because specifying it will break Zod inference
+  ctx: RefinementCtx
+) => {
+  if (!value.contracts) {
+    if (!RequesterAuthorizerWithErc721Addresses[value.chainId]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.chainId}'` +
+          `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+        path: ['contracts'],
+      });
+      return value;
+    }
+    // Default to the deployed RequesterAuthorizerWithErc721 contract address
+    return {
+      ...value,
+      contracts: { RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[value.chainId] },
+    };
+  }
+  return value;
+};
+
+export const crossChainRequesterAuthorizersWithErc721Schema = z
+  .object({
+    erc721s: erc721sSchema.nonempty(),
+    chainType: chainTypeSchema,
+    chainId: chainIdSchema,
+    contracts: requesterAuthorizerWithErc721ContractSchema.optional(),
+    chainProvider: providerSchema,
+  })
+  .transform(ensureCrossChainRequesterAuthorizerWithErc721);
 
 export const chainAuthorizersSchema = z.object({
   requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
@@ -261,6 +321,7 @@ export const chainConfigSchema = z
   })
   .strict()
   .transform(ensureValidAirnodeRrp)
+  .transform(ensureRequesterAuthorizerWithErc721)
   .superRefine(validateMaxConcurrency);
 
 export const apiKeySchema = z.string().min(30).max(120);

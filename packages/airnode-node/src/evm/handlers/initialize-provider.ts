@@ -40,7 +40,7 @@ async function fetchSameChainErc721Authorizations(currentState: ProviderState<EV
       chainId: currentState.settings.chainId,
       erc721s: authorizer.erc721s,
       provider: currentState.provider,
-      RequesterAuthorizerWithErc721Address: authorizer.RequesterAuthorizerWithErc721,
+      RequesterAuthorizerWithErc721Address: authorizer.RequesterAuthorizerWithErc721!,
     };
     const result = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
     return result;
