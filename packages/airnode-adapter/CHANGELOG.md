@@ -1,5 +1,7 @@
 # @api3/airnode-adapter
 
+## 0.11.1
+
 ## 0.11.0
 
 ### Minor Changes

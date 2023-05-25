@@ -1,5 +1,14 @@
 # @api3/airnode-operation
 
+## 0.11.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.11.1
+  - @api3/airnode-protocol@0.11.1
+  - @api3/airnode-utilities@0.11.1
+
 ## 0.11.0
 
 ### Minor Changes

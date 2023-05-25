@@ -1,5 +1,18 @@
 # @api3/airnode-node
 
+## 0.11.1
+
+### Patch Changes
+
+- [#1766](https://github.com/api3dao/airnode/pull/1766) [`be1cb537`](https://github.com/api3dao/airnode/commit/be1cb537382f93537deb2b259ff308ae8149b6bb) Thanks [@dcroote](https://github.com/dcroote)! - Ignore requests with an invalid sponsor wallet
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.11.1
+  - @api3/airnode-adapter@0.11.1
+  - @api3/airnode-protocol@0.11.1
+  - @api3/airnode-utilities@0.11.1
+  - @api3/airnode-validator@0.11.1
+
 ## 0.11.0
 
 ### Minor Changes
