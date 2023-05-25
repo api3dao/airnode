@@ -1,5 +1,16 @@
 # @api3/airnode-deployer
 
+## 0.12.0
+
+### Patch Changes
+
+- Updated dependencies [[`be1cb537`](https://github.com/api3dao/airnode/commit/be1cb537382f93537deb2b259ff308ae8149b6bb)]:
+  - @api3/airnode-node@0.12.0
+  - @api3/airnode-abi@0.12.0
+  - @api3/airnode-protocol@0.12.0
+  - @api3/airnode-utilities@0.12.0
+  - @api3/airnode-validator@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes
