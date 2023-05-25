@@ -159,13 +159,31 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-const ensureValidAirnodeRrp = (
-  value: any, // Typing the value as any because specifying it will break Zod inference
+const ensureValidCrossChainAuthorizerAirnodeRrp = (
+  value: SchemaType<typeof _crossChainRequesterAuthorizerSchema>,
   ctx: RefinementCtx
 ) => {
   if (!value.contracts) {
-    // id OR chainId refers to the chain ID depending on the calling schema
-    const id = (value.id || value.chainId)!;
+    const id = value.chainId;
+    if (!AirnodeRrpV0Addresses[id]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          `AirnodeRrp contract address must be specified for chain ID '${id}'` +
+          `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+        path: ['contracts'],
+      });
+      return value;
+    }
+    // Default to the deployed AirnodeRrp contract address if contracts is not specified
+    return { ...value, contracts: { AirnodeRrp: AirnodeRrpV0Addresses[id] } };
+  }
+  return value;
+};
+
+const ensureValidChainConfigAirnodeRrp = (value: SchemaType<typeof _chainConfigSchema>, ctx: RefinementCtx) => {
+  if (!value.contracts) {
+    const id = value.id;
     if (!AirnodeRrpV0Addresses[id]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -188,7 +206,7 @@ export const chainAuthorizationsSchema = z.object({
 
 export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
 
-export const crossChainRequesterAuthorizerSchema = z
+export const _crossChainRequesterAuthorizerSchema = z
   .object({
     requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema.nonempty(),
     chainType: chainTypeSchema,
@@ -196,8 +214,11 @@ export const crossChainRequesterAuthorizerSchema = z
     contracts: airnodeRrpContractSchema.optional(),
     chainProvider: providerSchema,
   })
-  .strict()
-  .transform(ensureValidAirnodeRrp);
+  .strict();
+
+export const crossChainRequesterAuthorizerSchema = _crossChainRequesterAuthorizerSchema.transform(
+  ensureValidCrossChainAuthorizerAirnodeRrp
+);
 
 export const erc721sSchema = z.array(evmAddressSchema);
 
@@ -303,7 +324,7 @@ const validateMaxConcurrency: SuperRefinement<{ providers: Providers; maxConcurr
   }
 };
 
-export const chainConfigSchema = z
+export const _chainConfigSchema = z
   .object({
     authorizers: chainAuthorizersSchema,
     authorizations: chainAuthorizationsSchema,
@@ -319,8 +340,10 @@ export const chainConfigSchema = z
     providers: providersSchema,
     maxConcurrency: maxConcurrencySchema,
   })
-  .strict()
-  .transform(ensureValidAirnodeRrp)
+  .strict();
+
+export const chainConfigSchema = _chainConfigSchema
+  .transform(ensureValidChainConfigAirnodeRrp)
   .transform(ensureRequesterAuthorizerWithErc721)
   .superRefine(validateMaxConcurrency);
 
