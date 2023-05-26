@@ -73,6 +73,7 @@ export {
   mocks,
   authorizers,
   networks,
+  references,
   PROTOCOL_IDS,
   erc721Mocks,
 };
