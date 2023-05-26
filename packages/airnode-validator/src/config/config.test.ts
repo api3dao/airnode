@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import zip from 'lodash/zip';
-import { references } from '@api3/airnode-protocol/';
+import { references } from '@api3/airnode-protocol';
 import {
   Config,
   configSchema,

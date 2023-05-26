@@ -2,4 +2,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Default to deployed AirnodeRrpV0 if contracts are omitted from config
+Make AirnodeRrpV0 and RequesterAuthorizerWithErc721 addresses optional
