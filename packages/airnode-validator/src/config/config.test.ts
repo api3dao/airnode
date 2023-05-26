@@ -680,7 +680,7 @@ describe('ensureValidAirnodeRrp', () => {
             code: 'custom',
             message:
               `AirnodeRrp contract address must be specified for chain ID '${idWithoutDeployment}'` +
-              `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+              `as there was no deployment for this chain exported from @api3/airnode-protocol`,
             path: ['contracts'],
           },
         ])
@@ -809,7 +809,7 @@ describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
           code: 'custom',
           message:
             `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
-            `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+            `as there was no deployment for this chain exported from @api3/airnode-protocol`,
           path: ['contracts'],
         },
       ])
@@ -850,7 +850,7 @@ describe('ensureRequesterAuthorizerWithErc721', () => {
           code: 'custom',
           message:
             `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
-            `as there was no deployment for this chain found in @airnode/protocol/deployments/references.json`,
+            `as there was no deployment for this chain exported from @api3/airnode-protocol`,
           path: ['authorizers', 'requesterAuthorizersWithErc721', 0],
         },
       ])
