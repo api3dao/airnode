@@ -26,10 +26,10 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@types/jest": "^29.5.1",
-    "@types/node": "^18.16.6",
+    "@types/node": "^18.16.16",
     "hardhat": "^2.14.0",
     "jest": "^29.5.0",
-    "rimraf": "^5.0.0",
+    "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
