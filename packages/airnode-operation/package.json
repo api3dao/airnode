@@ -41,7 +41,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.4",
-    "rimraf": "^5.0.0",
+    "rimraf": "^5.0.1",
     "typescript": "^5.0.4"
   }
 }
