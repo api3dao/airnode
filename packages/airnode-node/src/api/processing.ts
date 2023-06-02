@@ -15,6 +15,17 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
     return payload;
   }
 
+  let inputParameters = aggregatedApiCall.parameters;
+  // The HTTP gateway is a special case for ChainAPI that is not allowed to access reserved parameters
+  if (payload.type === 'http-gateway') {
+    inputParameters = Object.entries(inputParameters).reduce((acc, [key, value]) => {
+      if (key.startsWith('_')) {
+        return acc;
+      }
+      return { ...acc, [key]: value };
+    }, {});
+  }
+
   const goProcessedParameters = await go(
     () =>
       preProcessingSpecifications.reduce(async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
@@ -26,7 +37,7 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
-      }, Promise.resolve(aggregatedApiCall.parameters)),
+      }, Promise.resolve(inputParameters)),
     { retries: 0, totalTimeoutMs: PROCESSING_TIMEOUT }
   );
 
@@ -35,7 +46,17 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   }
 
   // Let this throw if the processed parameters are invalid
-  const parameters = apiCallParametersSchema.parse(goProcessedParameters.data);
+  let parameters = apiCallParametersSchema.parse(goProcessedParameters.data);
+
+  if (payload.type === 'http-gateway') {
+    // Add back reserved parameters for the HTTP gateway special case
+    parameters = Object.entries(aggregatedApiCall.parameters).reduce((params, [key, value]) => {
+      if (key.startsWith('_')) {
+        return { ...params, [key]: value };
+      }
+      return params;
+    }, parameters);
+  }
 
   return {
     ...payload,

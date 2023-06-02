@@ -2,88 +2,112 @@ import { ZodError } from 'zod';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import * as fixtures from '../../test/fixtures';
 
-describe('processing', () => {
-  describe('pre-processing', () => {
-    it('valid processing code', async () => {
-      const config = fixtures.buildConfig();
-      const preProcessingSpecifications = [
-        {
-          environment: 'Node' as const,
-          value: 'const output = {...input, from: "ETH"};',
-          timeoutMs: 5_000,
-        },
-        {
-          environment: 'Node' as const,
-          value: 'const output = {...input, newProp: "airnode"};',
-          timeoutMs: 5_000,
-        },
-      ];
-      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+describe('pre-processing', () => {
+  it('valid processing code', async () => {
+    const config = fixtures.buildConfig();
+    const preProcessingSpecifications = [
+      {
+        environment: 'Node' as const,
+        value: 'const output = {...input, from: "ETH"};',
+        timeoutMs: 5_000,
+      },
+      {
+        environment: 'Node' as const,
+        value: 'const output = {...input, newProp: "airnode"};',
+        timeoutMs: 5_000,
+      },
+    ];
+    config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
-      const parameters = { _type: 'int256', _path: 'price' };
-      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+    const parameters = { _type: 'int256', _path: 'price' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
-      const result = await preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
+    const result = await preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
-      expect(result.aggregatedApiCall.parameters).toEqual({
-        _path: 'price',
-        _type: 'int256',
-        from: 'ETH',
-        newProp: 'airnode',
-      });
+    expect(result.aggregatedApiCall.parameters).toEqual({
+      _path: 'price',
+      _type: 'int256',
+      from: 'ETH',
+      newProp: 'airnode',
     });
+  });
 
-    it('invalid processing code', async () => {
-      const config = fixtures.buildConfig();
-      const preProcessingSpecifications = [
+  it('invalid processing code', async () => {
+    const config = fixtures.buildConfig();
+    const preProcessingSpecifications = [
+      {
+        environment: 'Node' as const,
+        value: 'something invalid; const output = {...input, from: `ETH`};',
+        timeoutMs: 5_000,
+      },
+      {
+        environment: 'Node' as const,
+        value: 'const output = {...input, newProp: "airnode"};',
+        timeoutMs: 5_000,
+      },
+    ];
+    config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+
+    const parameters = { _type: 'int256', _path: 'price', from: 'TBD' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
+    const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
+
+    await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
+  });
+
+  it('throws validation error if result does not have parameters shape', async () => {
+    const config = fixtures.buildConfig();
+    const preProcessingSpecifications = [
+      {
+        environment: 'Node' as const,
+        value: 'const output = {...input, object: {a: 123, b: false}};',
+        timeoutMs: 5_000,
+      },
+    ];
+    config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+
+    const parameters = { _type: 'int256', _path: 'price', from: '*ETH' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+
+    const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
+
+    await expect(throwingFunc).rejects.toEqual(
+      new ZodError([
         {
-          environment: 'Node' as const,
-          value: 'something invalid; const output = {...input, from: `ETH`};',
-          timeoutMs: 5_000,
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'object',
+          path: ['object'],
+          message: 'Expected string, received object',
         },
-        {
-          environment: 'Node' as const,
-          value: 'const output = {...input, newProp: "airnode"};',
-          timeoutMs: 5_000,
-        },
-      ];
-      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
+      ])
+    );
+  });
 
-      const parameters = { _type: 'int256', _path: 'price', from: 'TBD' };
-      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
+  it('makes reserved parameters inaccessible for HTTP gateway requests', async () => {
+    const config = fixtures.buildConfig();
+    const preProcessingSpecifications = [
+      {
+        environment: 'Node' as const,
+        // pretend the user is trying to 1) override _path and 2) set a new parameter based on
+        // the presence of the reserved parameter _type (which is inaccessible)
+        value: 'const output = {...input, from: "ETH", _path: "price.newpath", myVal: input._type ? "123" : "456" };',
+        timeoutMs: 5_000,
+      },
+    ];
+    config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
-      const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
+    const parameters = { _type: 'int256', _path: 'price' };
+    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
-      await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
-    });
+    const result = await preProcessApiSpecifications({ type: 'http-gateway', config, aggregatedApiCall });
 
-    it('throws validation error if result does not have parameters shape', async () => {
-      const config = fixtures.buildConfig();
-      const preProcessingSpecifications = [
-        {
-          environment: 'Node' as const,
-          value: 'const output = {...input, object: {a: 123, b: false}};',
-          timeoutMs: 5_000,
-        },
-      ];
-      config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
-
-      const parameters = { _type: 'int256', _path: 'price', from: '*ETH' };
-      const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-
-      const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
-
-      await expect(throwingFunc).rejects.toEqual(
-        new ZodError([
-          {
-            code: 'invalid_type',
-            expected: 'string',
-            received: 'object',
-            path: ['object'],
-            message: 'Expected string, received object',
-          },
-        ])
-      );
+    expect(result.aggregatedApiCall.parameters).toEqual({
+      _path: 'price', // _path is not overridden
+      _type: 'int256',
+      from: 'ETH',
+      myVal: '456', // myVal is set to "456" because _type is not present in the environment
     });
   });
 });
