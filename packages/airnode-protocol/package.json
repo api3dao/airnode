@@ -40,7 +40,6 @@
     "hardhat": "^2.14.1",
     "hardhat-deploy": "^0.11.30",
     "hardhat-gas-reporter": "^1.0.9",
-    "replace-in-file": "^6.3.5",
     "rimraf": "^5.0.1",
     "solidity-coverage": "^0.8.2",
     "typechain": "^8.2.0",
