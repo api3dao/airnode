@@ -73,17 +73,35 @@ describe('processing', () => {
 
       const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
-      await expect(throwingFunc).rejects.toEqual(
-        new ZodError([
-          {
-            code: 'invalid_type',
-            expected: 'string',
-            received: 'object',
-            path: ['object'],
-            message: 'Expected string, received object',
-          },
-        ])
-      );
+      const zodErrors = new ZodError([
+        {
+          code: 'invalid_union',
+          unionErrors: [
+            new ZodError([
+              {
+                code: 'invalid_type',
+                expected: 'string',
+                received: 'object',
+                path: ['object'],
+                message: 'Expected string, received object',
+              },
+            ]),
+            new ZodError([
+              {
+                code: 'invalid_type',
+                expected: 'array',
+                received: 'object',
+                path: ['object'],
+                message: 'Expected array, received object',
+              },
+            ]),
+          ],
+          path: ['object'],
+          message: 'Invalid input',
+        },
+      ]);
+
+      await expect(throwingFunc).rejects.toEqual(zodErrors);
     });
   });
 });
