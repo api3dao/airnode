@@ -106,18 +106,6 @@ describe('verifyHttpRequest', () => {
     });
   });
 
-  it('returns error when the parameters are invalid', () => {
-    const config = loadConfigFixture();
-
-    const result = verifyHttpRequest(config, { nonStringValue: 123 }, validEndpointId);
-
-    expect(result).toEqual({
-      error: { message: 'Invalid request body' },
-      statusCode: 400,
-      success: false,
-    });
-  });
-
   it('returns success when the data is valid', () => {
     const config = loadConfigFixture();
 

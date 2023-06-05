@@ -45,6 +45,14 @@
     lodash "^4.17.21"
     zod "^3.20.6"
 
+"@aquarat/ois@2.0.0-230605-01":
+  version "2.0.0-230605-01"
+  resolved "https://registry.yarnpkg.com/@aquarat/ois/-/ois-2.0.0-230605-01.tgz#3f68144f7e1f3747001789d7cf41549d99073740"
+  integrity sha512-nPKf6xt2P0cvla+pgznY9blTD6NvgeR/d7SnOjYHV5HPwYB4XK6rguXWBjMEc7Idg44aPSZN1H2mtjr1vm2a+w==
+  dependencies:
+    lodash "^4.17.21"
+    zod "^3.20.6"
+
 "@aws-crypto/crc32@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@aws-crypto/crc32/-/crc32-3.0.0.tgz#07300eca214409c33e3ff769cd5697b57fdd38fa"
