@@ -37,6 +37,14 @@
   resolved "https://registry.yarnpkg.com/@api3/promise-utils/-/promise-utils-0.4.0.tgz#d1dcd77d74377b4fdb3071d2cc76d98c9151309c"
   integrity sha512-+8fcNjjQeQAuuSXFwu8PMZcYzjwjDiGYcMUfAQ0lpREb1zHonwWZ2N0B9h/g1cvWzg9YhElbeb/SyhCrNm+b/A==
 
+"@aquarat/ois@2.0.0-230605":
+  version "2.0.0-230605"
+  resolved "https://registry.yarnpkg.com/@aquarat/ois/-/ois-2.0.0-230605.tgz#d4e617d9eb8ac3308fe227fa8127923f9712c67f"
+  integrity sha512-CHR2MCcQzn0WJmojZIuXHEQRsVkMMREOY4tYY8iEqe6zPVfozGCKj+G+7D6WobZwY6yWeTcPMl8HA6nlwh0HPw==
+  dependencies:
+    lodash "^4.17.21"
+    zod "^3.20.6"
+
 "@aws-crypto/crc32@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@aws-crypto/crc32/-/crc32-3.0.0.tgz#07300eca214409c33e3ff769cd5697b57fdd38fa"

@@ -7,7 +7,7 @@ import { Config } from '../config';
 export async function processHttpRequest(
   config: Config,
   endpointId: string,
-  parameters: Record<string, string>
+  parameters: Record<string, string | any[]>
 ): Promise<[Error, null] | [null, HttpGatewayApiCallSuccessResponse]> {
   // Guaranteed to exist because validation is already performed in the deployer handler
   const trigger = find(config.triggers.http, ['endpointId', endpointId])!;
