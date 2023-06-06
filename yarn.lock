@@ -24,15 +24,7 @@
   dependencies:
     zod "^3.21.4"
 
-"@api3/ois@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.0.0.tgz#c700d2dfb568ac131e7c8f0581db7a212d35dcb1"
-  integrity sha512-G+hfxhO54JuMU/n1WWNbHxd4pNzO3f+8ZQc0zkmBl/QUEUK9dX43kZ4O+doOrlSyMUqAV0lJQKzVKe5H2pLdLA==
-  dependencies:
-    lodash "^4.17.21"
-    zod "^3.20.6"
-
-"@api3/ois@^2.1.0":
+"@api3/ois@2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.1.0.tgz#71a6b9e67a72fa972527e578f2a81a6a3e7b6863"
   integrity sha512-KcDzCNhC1z4XSrpz5G6XsvgUdJhTEtDwJLJX6VP8QNhIk6FWKgCqYUHuJ4PhOoSkMGUPPVu5jYqGbZj4q8ymEA==
