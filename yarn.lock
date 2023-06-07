@@ -24,13 +24,13 @@
   dependencies:
     zod "^3.21.4"
 
-"@api3/ois@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.0.0.tgz#c700d2dfb568ac131e7c8f0581db7a212d35dcb1"
-  integrity sha512-G+hfxhO54JuMU/n1WWNbHxd4pNzO3f+8ZQc0zkmBl/QUEUK9dX43kZ4O+doOrlSyMUqAV0lJQKzVKe5H2pLdLA==
+"@api3/ois@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.1.0.tgz#71a6b9e67a72fa972527e578f2a81a6a3e7b6863"
+  integrity sha512-KcDzCNhC1z4XSrpz5G6XsvgUdJhTEtDwJLJX6VP8QNhIk6FWKgCqYUHuJ4PhOoSkMGUPPVu5jYqGbZj4q8ymEA==
   dependencies:
     lodash "^4.17.21"
-    zod "^3.20.6"
+    zod "^3.21.4"
 
 "@api3/promise-utils@^0.4.0":
   version "0.4.0"
@@ -15643,7 +15643,7 @@ zksync-web3@^0.14.3:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.14.3.tgz#64ac2a16d597464c3fc4ae07447a8007631c57c9"
   integrity sha512-hT72th4AnqyLW1d5Jlv8N2B/qhEnl2NePK2A3org7tAa24niem/UAaHMkEvmWI3SF9waYUPtqAtjpf+yvQ9zvQ==
 
-zod@^3.20.6, zod@^3.21.4:
+zod@^3.21.4:
   version "3.21.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.21.4.tgz#10882231d992519f0a10b5dd58a38c9dabbb64db"
   integrity sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==

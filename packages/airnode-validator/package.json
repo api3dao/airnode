@@ -22,14 +22,14 @@
   },
   "dependencies": {
     "@api3/airnode-protocol": "^0.11.0",
-    "@api3/ois": "2.0.0",
+    "@api3/ois": "2.1.0",
     "@api3/promise-utils": "^0.4.0",
     "dotenv": "^16.1.4",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
     "yargs": "^17.7.2",
-    "zod": "^3.20.6"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.24",
