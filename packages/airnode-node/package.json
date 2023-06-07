@@ -39,7 +39,7 @@
     "google-auth-library": "^8.8.0",
     "lodash": "^4.17.21",
     "yargs": "^17.7.2",
-    "zod": "^3.20.6"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@api3/airnode-operation": "^0.11.0",
