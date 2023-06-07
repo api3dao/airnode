@@ -10,13 +10,13 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@api3/ois@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.0.0.tgz#c700d2dfb568ac131e7c8f0581db7a212d35dcb1"
-  integrity sha512-G+hfxhO54JuMU/n1WWNbHxd4pNzO3f+8ZQc0zkmBl/QUEUK9dX43kZ4O+doOrlSyMUqAV0lJQKzVKe5H2pLdLA==
+"@api3/ois@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.1.0.tgz#71a6b9e67a72fa972527e578f2a81a6a3e7b6863"
+  integrity sha512-KcDzCNhC1z4XSrpz5G6XsvgUdJhTEtDwJLJX6VP8QNhIk6FWKgCqYUHuJ4PhOoSkMGUPPVu5jYqGbZj4q8ymEA==
   dependencies:
     lodash "^4.17.21"
-    zod "^3.20.6"
+    zod "^3.21.4"
 
 "@api3/promise-utils@^0.4.0":
   version "0.4.0"
@@ -15107,6 +15107,19 @@ yargs@^17.2.1, yargs@^17.3.1, yargs@^17.6.2, yargs@^17.7.1:
     y18n "^5.0.5"
     yargs-parser "^21.1.1"
 
+yargs@^17.7.2:
+  version "17.7.2"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.7.2.tgz#991df39aca675a192b816e1e0363f9d75d2aa269"
+  integrity sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==
+  dependencies:
+    cliui "^8.0.1"
+    escalade "^3.1.1"
+    get-caller-file "^2.0.5"
+    require-directory "^2.1.1"
+    string-width "^4.2.3"
+    y18n "^5.0.5"
+    yargs-parser "^21.1.1"
+
 yargs@^3.6.0:
   version "3.32.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-3.32.0.tgz#03088e9ebf9e756b69751611d2a5ef591482c995"
@@ -15135,7 +15148,7 @@ zksync-web3@^0.8.1:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.8.1.tgz#db289d8f6caf61f4d5ddc471fa3448d93208dc14"
   integrity sha512-1A4aHPQ3MyuGjpv5X/8pVEN+MdZqMjfVmiweQSRjOlklXYu65wT9BGEOtCmMs5d3gIvLp4ssfTeuR5OCKOD2kw==
 
-zod@^3.20.6:
+zod@^3.21.4:
   version "3.21.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.21.4.tgz#10882231d992519f0a10b5dd58a38c9dabbb64db"
   integrity sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==
