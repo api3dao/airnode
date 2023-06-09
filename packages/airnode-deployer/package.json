@@ -42,8 +42,8 @@
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
-    "yargs": "^17.7.1",
-    "zod": "^3.20.6"
+    "yargs": "^17.7.2",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@aws-sdk/util-stream-node": "^3.295.0",
