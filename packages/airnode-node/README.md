@@ -4,7 +4,7 @@
 
 ## Documentation
 
-You can learn all the information about Airnode in the [docs](https://docs.api3.org/airnode/latest/).
+You can learn all the information about Airnode in the [docs](https://docs.api3.org/reference/airnode/latest/).
 
 ## For developers
 
