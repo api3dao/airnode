@@ -27,7 +27,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@types/jest": "^29.5.2",
     "@types/node": "^18.16.18",
-    "hardhat": "^2.15.0",
+    "hardhat": "^2.14.1",
     "jest": "^29.5.0",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
