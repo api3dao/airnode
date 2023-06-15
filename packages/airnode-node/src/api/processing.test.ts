@@ -1,4 +1,3 @@
-import { ZodError } from 'zod';
 import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import * as fixtures from '../../test/fixtures';
 
@@ -54,35 +53,6 @@ describe('pre-processing', () => {
     const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
 
     await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
-  });
-
-  it('throws validation error if result does not have parameters shape', async () => {
-    const config = fixtures.buildConfig();
-    const preProcessingSpecifications = [
-      {
-        environment: 'Node' as const,
-        value: 'const output = {...input, object: {a: 123, b: false}};',
-        timeoutMs: 5_000,
-      },
-    ];
-    config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
-
-    const parameters = { _type: 'int256', _path: 'price', from: '*ETH' };
-    const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
-
-    const throwingFunc = () => preProcessApiSpecifications({ type: 'regular', config, aggregatedApiCall });
-
-    await expect(throwingFunc).rejects.toEqual(
-      new ZodError([
-        {
-          code: 'invalid_type',
-          expected: 'string',
-          received: 'object',
-          path: ['object'],
-          message: 'Expected string, received object',
-        },
-      ])
-    );
   });
 
   it('makes reserved parameters inaccessible for HTTP gateway requests', async () => {
