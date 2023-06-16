@@ -68,16 +68,17 @@ describe('pre-processing', () => {
     ];
     config.ois[0].endpoints[0] = { ...config.ois[0].endpoints[0], preProcessingSpecifications };
 
-    const parameters = { _type: 'int256', _path: 'price' };
+    const parameters = { _type: 'int256', _path: 'price', to: 'USD' };
     const aggregatedApiCall = fixtures.buildAggregatedRegularApiCall({ parameters });
 
     const result = await preProcessApiSpecifications({ type: 'http-gateway', config, aggregatedApiCall });
 
     expect(result.aggregatedApiCall.parameters).toEqual({
-      _path: 'price', // _path is not overridden
+      _path: 'price', // is not overridden
       _type: 'int256',
-      from: 'ETH',
-      myVal: '456', // myVal is set to "456" because _type is not present in the environment
+      from: 'ETH', // originates from the processing code
+      to: 'USD', // should be unchanged from the original parameters
+      myVal: '456', // is set to "456" because _type is not present in the environment
     });
   });
 });
