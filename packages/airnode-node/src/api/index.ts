@@ -234,6 +234,10 @@ export async function processSuccessfulApiCall(
   );
   if (!goExtractAndEncodeResponse.success) {
     const log = logger.pend('ERROR', goExtractAndEncodeResponse.error.message);
+    // The HTTP gateway is a special case for ChainAPI where we return data from a successful API call that failed processing
+    if (payload.type === 'http-gateway') {
+      return [[log], { success: true, errorMessage: goExtractAndEncodeResponse.error.message, data: rawResponse.data }];
+    }
     return [[log], { success: false, errorMessage: goExtractAndEncodeResponse.error.message }];
   }
 
