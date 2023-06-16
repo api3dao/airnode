@@ -9,7 +9,7 @@ Airnode is a fully-serverless oracle node that is designed specifically for API 
 
 ## Documentation
 
-You can find all information about Airnode in the [documentation](https://docs.api3.org/airnode/latest/).
+You can find an overview of Airnode in the [documentation](https://docs.api3.org/explore/airnode/what-is-airnode.html).
 
 ## For developers
 

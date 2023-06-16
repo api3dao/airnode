@@ -136,7 +136,7 @@ yarn deploy-rrp
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
 [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
 these or how to create an AWS account, see
-[the following docs section](https://docs.api3.org/reference/airnode/latest/docker/deployer-image.html#aws).
+[the following docs section](https://docs.api3.org/reference/airnode/latest/understand/configuring.html#aws-setup-aws-deployment-only).
 
 After you know the secrets, run the following script to specify them:
 
@@ -155,7 +155,7 @@ your project by pairing it with your credit card. The amount of resources used b
 within the free tier, which means no charges will be incurred.
 
 If you are not sure how to create a GCP service account, see or download the access key for it,
-[the following docs section](https://docs.api3.org/reference/airnode/latest/docker/deployer-image.html#gcp).
+[the following docs section](https://docs.api3.org/reference/airnode/latest/understand/configuring.html#gcp-setup-gcp-deployment-only).
 
 Store the access key file as `gcp.json` in the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
