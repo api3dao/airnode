@@ -1,9 +1,28 @@
-import { Endpoint, ProcessingSpecification } from '@api3/ois';
+import { Endpoint, ProcessingSpecification, RESERVED_PARAMETERS } from '@api3/ois';
 import { go } from '@api3/promise-utils';
 import { unsafeEvaluate, unsafeEvaluateAsync } from './unsafe-evaluate';
 import { apiCallParametersSchema } from '../validation';
 import { PROCESSING_TIMEOUT } from '../constants';
-import { ApiCallPayload } from '../types';
+import { ApiCallParameters, ApiCallPayload } from '../types';
+
+const reservedParameters = RESERVED_PARAMETERS as string[];
+
+const removeReservedParameters = (parameters: ApiCallParameters): ApiCallParameters => {
+  return Object.fromEntries(Object.entries(parameters).filter(([key]) => !reservedParameters.includes(key)));
+};
+
+/**
+ * Re-inserts reserved parameters from the initial parameters object into the modified parameters object.
+ */
+const reInsertReservedParameters = (
+  initialParameters: ApiCallParameters,
+  modifiedParameters: ApiCallParameters
+): ApiCallParameters => {
+  return Object.entries(initialParameters).reduce(
+    (params, [key, value]) => (reservedParameters.includes(key) ? { ...params, [key]: value } : params),
+    modifiedParameters
+  );
+};
 
 export const preProcessApiSpecifications = async (payload: ApiCallPayload): Promise<ApiCallPayload> => {
   const { config, aggregatedApiCall } = payload;
@@ -18,12 +37,7 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   let inputParameters = aggregatedApiCall.parameters;
   // The HTTP gateway is a special case for ChainAPI that is not allowed to access reserved parameters
   if (payload.type === 'http-gateway') {
-    inputParameters = Object.entries(inputParameters).reduce((acc, [key, value]) => {
-      if (key.startsWith('_')) {
-        return acc;
-      }
-      return { ...acc, [key]: value };
-    }, {});
+    inputParameters = removeReservedParameters(inputParameters);
   }
 
   const goProcessedParameters = await go(
@@ -49,13 +63,7 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   let parameters = apiCallParametersSchema.parse(goProcessedParameters.data);
 
   if (payload.type === 'http-gateway') {
-    // Add back reserved parameters for the HTTP gateway special case
-    parameters = Object.entries(aggregatedApiCall.parameters).reduce((params, [key, value]) => {
-      if (key.startsWith('_')) {
-        return { ...params, [key]: value };
-      }
-      return params;
-    }, parameters);
+    parameters = reInsertReservedParameters(aggregatedApiCall.parameters, parameters);
   }
 
   return {
