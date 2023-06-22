@@ -25,6 +25,44 @@ const readConfig = (configPath: string): unknown => {
   return goParse.data;
 };
 
+export function addDefaultContractAddresses(config: configTypes.Config): configTypes.Config {
+  const ctx = { addIssue: () => {}, path: [] }; // Unused, but required by validator functions
+  const chains = config.chains.map((chain) => {
+    const contracts = configTypes.ensureValidAirnodeRrp(chain.contracts, chain.id, ctx);
+
+    const crossChainRequesterAuthorizers = chain.authorizers.crossChainRequesterAuthorizers
+      ? chain.authorizers.crossChainRequesterAuthorizers.map((craObj) => {
+          return configTypes.ensureCrossChainRequesterAuthorizerValidAirnodeRrp(craObj, ctx);
+        })
+      : [];
+
+    const crossChainRequesterAuthorizersWithErc721 = chain.authorizers.crossChainRequesterAuthorizersWithErc721
+      ? chain.authorizers.crossChainRequesterAuthorizersWithErc721.map((craObj) => {
+          return configTypes.ensureCrossChainRequesterAuthorizerWithErc721(craObj, ctx);
+        })
+      : [];
+
+    return {
+      // Add same-chain RequesterAuthorizerWithErc721 contract address, which operates
+      // on the entire chain object
+      ...configTypes.ensureRequesterAuthorizerWithErc721(
+        {
+          ...chain,
+          contracts: contracts,
+          authorizers: {
+            ...chain.authorizers,
+            crossChainRequesterAuthorizers,
+            crossChainRequesterAuthorizersWithErc721,
+          },
+        },
+        ctx
+      ),
+    };
+  });
+
+  return { ...config, chains };
+}
+
 export function loadConfig(configPath: string, secrets: Record<string, string | undefined>) {
   const rawConfig = readConfig(configPath);
   const parsedConfigRes = parseConfigWithSecrets(rawConfig, secrets);
@@ -38,8 +76,8 @@ export function loadConfig(configPath: string, secrets: Record<string, string | 
 
 export function loadTrustedConfig(configPath: string, secrets: Record<string, string | undefined>): configTypes.Config {
   const rawConfig = readConfig(configPath);
-  const config = unsafeParseConfigWithSecrets(rawConfig, secrets);
-
+  const parsedConfig = unsafeParseConfigWithSecrets(rawConfig, secrets);
+  const config = addDefaultContractAddresses(parsedConfig);
   const ois = parseOises(config.ois);
   return { ...config, ois };
 }
