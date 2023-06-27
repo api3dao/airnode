@@ -30,17 +30,15 @@ export function addDefaultContractAddresses(config: configTypes.Config): configT
   const chains = config.chains.map((chain) => {
     const contracts = configTypes.ensureValidAirnodeRrp(chain.contracts, chain.id, ctx);
 
-    const crossChainRequesterAuthorizers = chain.authorizers.crossChainRequesterAuthorizers
-      ? chain.authorizers.crossChainRequesterAuthorizers.map((craObj) => {
-          return configTypes.ensureCrossChainRequesterAuthorizerValidAirnodeRrp(craObj, ctx);
-        })
-      : [];
+    const crossChainRequesterAuthorizers = chain.authorizers.crossChainRequesterAuthorizers.map((craObj) => {
+      return configTypes.ensureCrossChainRequesterAuthorizerValidAirnodeRrp(craObj, ctx);
+    });
 
-    const crossChainRequesterAuthorizersWithErc721 = chain.authorizers.crossChainRequesterAuthorizersWithErc721
-      ? chain.authorizers.crossChainRequesterAuthorizersWithErc721.map((craObj) => {
-          return configTypes.ensureCrossChainRequesterAuthorizerWithErc721(craObj, ctx);
-        })
-      : [];
+    const crossChainRequesterAuthorizersWithErc721 = chain.authorizers.crossChainRequesterAuthorizersWithErc721.map(
+      (craObj) => {
+        return configTypes.ensureCrossChainRequesterAuthorizerWithErc721(craObj, ctx);
+      }
+    );
 
     return {
       // Add same-chain RequesterAuthorizerWithErc721 contract address, which operates
@@ -48,7 +46,7 @@ export function addDefaultContractAddresses(config: configTypes.Config): configT
       ...configTypes.ensureRequesterAuthorizerWithErc721(
         {
           ...chain,
-          contracts: contracts,
+          contracts,
           authorizers: {
             ...chain.authorizers,
             crossChainRequesterAuthorizers,
