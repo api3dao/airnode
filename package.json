@@ -10,13 +10,11 @@
     "type": "git",
     "url": "https://github.com/api3dao/airnode"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "bootstrap": "yarn install && lerna bootstrap",
+    "bootstrap": "yarn install",
     "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
     "build:adapter": "(cd packages/airnode-adapter && yarn run build)",
     "build:admin": "(cd packages/airnode-admin && yarn run build)",
@@ -74,7 +72,7 @@
     "lint:eslint:fix": "eslint --cache . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
-    "postinstall": "husky install && lerna link",
+    "postinstall": "husky install",
     "prettier:check": "prettier --check --cache .",
     "prettier:write": "prettier --write --cache --loglevel silent .",
     "publish": "lerna publish",
@@ -123,7 +121,7 @@
     "eslint-plugin-jest": "^27.2.1",
     "fast-glob": "^3.2.12",
     "husky": "^8.0.3",
-    "lerna": "^6.6.2",
+    "lerna": "^7.0.2",
     "libsodium-wrappers": "^0.7.11",
     "prettier": "^2.8.8",
     "prettier-plugin-solidity": "^1.1.3",
