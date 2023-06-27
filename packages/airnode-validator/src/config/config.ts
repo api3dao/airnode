@@ -159,12 +159,12 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-const ensureValidAirnodeRrp = (
+export const ensureValidAirnodeRrp = (
   contracts: SchemaType<typeof airnodeRrpContractSchema>,
   chainId: string,
   ctx: RefinementCtx
 ) => {
-  if (!contracts.AirnodeRrp) {
+  if (!contracts?.AirnodeRrp) {
     if (!AirnodeRrpV0Addresses[chainId]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -187,7 +187,7 @@ const ensureConfigValidAirnodeRrp = (value: z.infer<typeof _chainConfigSchema>, 
 
 // Similar to ensureConfigValidAirnodeRrp, but this needs to be a separate function because of the distinct
 // inferred type parameter (zod runs into cyclic inference errors with a single function that accepts either type)
-const ensureCrossChainRequesterAuthorizerValidAirnodeRrp = (
+export const ensureCrossChainRequesterAuthorizerValidAirnodeRrp = (
   value: z.infer<typeof _crossChainRequesterAuthorizerSchema>,
   ctx: RefinementCtx
 ) => {
@@ -234,7 +234,7 @@ export const requesterAuthorizerWithErc721ContractSchema = z
 
 // This transform operates on entire chain config object because this is where the chain id is defined,
 // and the chain id is necessary to look up the RequesterAuthorizerWithErc721 contract address
-const ensureRequesterAuthorizerWithErc721 = (value: z.infer<typeof _chainConfigSchema>, ctx: RefinementCtx) => {
+export const ensureRequesterAuthorizerWithErc721 = (value: z.infer<typeof _chainConfigSchema>, ctx: RefinementCtx) => {
   if (!isEmpty(value.authorizers.requesterAuthorizersWithErc721)) {
     const arr = value.authorizers.requesterAuthorizersWithErc721.map((raObj, ind) => {
       if (!raObj.RequesterAuthorizerWithErc721) {
@@ -258,11 +258,11 @@ const ensureRequesterAuthorizerWithErc721 = (value: z.infer<typeof _chainConfigS
   return value;
 };
 
-const ensureCrossChainRequesterAuthorizerWithErc721 = (
+export const ensureCrossChainRequesterAuthorizerWithErc721 = (
   value: z.infer<typeof _crossChainRequesterAuthorizersWithErc721Schema>,
   ctx: RefinementCtx
 ) => {
-  if (!value.contracts.RequesterAuthorizerWithErc721) {
+  if (!value.contracts?.RequesterAuthorizerWithErc721) {
     if (!RequesterAuthorizerWithErc721Addresses[value.chainId]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
