@@ -1,5 +1,11 @@
 # @api3/airnode-validator
 
+## 0.11.2
+
+### Patch Changes
+
+- [#1803](https://github.com/api3dao/airnode/pull/1803) [`fc70573b`](https://github.com/api3dao/airnode/commit/fc70573b205ecda6fbd86fbf4e2e8e6373a33b54) Thanks [@dcroote](https://github.com/dcroote)! - Widen accepted types for parameters to allow for native types to be sent as JSON
+
 ## 0.11.1
 
 ## 0.11.0

@@ -11,7 +11,7 @@
       "disableConcurrencyReservations": false
     },
     "stage": "starter-example",
-    "nodeVersion": "0.11.1",
+    "nodeVersion": "0.11.2",
     "timestamp": "2022-05-18T06:37:35.507Z"
   },
   "success": true

@@ -1,5 +1,12 @@
 # @api3/airnode-utilities
 
+## 0.11.2
+
+### Patch Changes
+
+- Updated dependencies [[`fc70573b`](https://github.com/api3dao/airnode/commit/fc70573b205ecda6fbd86fbf4e2e8e6373a33b54)]:
+  - @api3/airnode-validator@0.11.2
+
 ## 0.11.1
 
 ### Patch Changes
