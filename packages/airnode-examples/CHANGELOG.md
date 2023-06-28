@@ -1,5 +1,19 @@
 # @api3/airnode-examples
 
+## 0.11.2
+
+### Patch Changes
+
+- [#1807](https://github.com/api3dao/airnode/pull/1807) [`65fcd482`](https://github.com/api3dao/airnode/commit/65fcd48210679eb10542df83564d4c3b9fc2f6d1) Thanks [@amarthadan](https://github.com/amarthadan)! - Fix airnode-examples links to cloud provider docs
+
+- Updated dependencies [[`fc70573b`](https://github.com/api3dao/airnode/commit/fc70573b205ecda6fbd86fbf4e2e8e6373a33b54)]:
+  - @api3/airnode-node@0.11.2
+  - @api3/airnode-abi@0.11.2
+  - @api3/airnode-admin@0.11.2
+  - @api3/airnode-deployer@0.11.2
+  - @api3/airnode-protocol@0.11.2
+  - @api3/airnode-utilities@0.11.2
+
 ## 0.11.1
 
 ### Patch Changes

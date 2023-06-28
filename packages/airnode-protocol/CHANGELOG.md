@@ -1,5 +1,12 @@
 # @api3/airnode-protocol
 
+## 0.11.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @api3/airnode-utilities@0.11.2
+
 ## 0.11.1
 
 ### Patch Changes
