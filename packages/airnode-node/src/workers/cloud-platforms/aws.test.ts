@@ -16,6 +16,12 @@ describe('encodeUtf8', () => {
   });
 });
 
+describe('decodeUtf8', () => {
+  it('converts a byte stream with UTF-8 encoding into a string', () => {
+    expect(aws.decodeUtf8(encodingTestByteArray)).toEqual(encodingTestString);
+  });
+});
+
 describe('spawn', () => {
   fixtures.setEnvVariables({ AIRNODE_WALLET_PRIVATE_KEY: fixtures.getAirnodeWalletPrivateKey() });
 

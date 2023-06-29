@@ -8,6 +8,10 @@ export function encodeUtf8(input: string) {
   return new TextEncoder().encode(input) as Uint8ArrayBlobAdapter;
 }
 
+export function decodeUtf8(input: Uint8Array): string {
+  return new TextDecoder('utf-8').decode(input);
+}
+
 export async function spawn(params: WorkerParameters): Promise<WorkerResponse> {
   // Uses the current region by default
   const awsLambdaClient = new LambdaClient({});
@@ -41,7 +45,7 @@ export async function spawn(params: WorkerParameters): Promise<WorkerResponse> {
     throw error;
   }
 
-  const payloadString = invokeOutput.Payload.transformToString();
+  const payloadString = decodeUtf8(invokeOutput.Payload);
   const payload = JSON.parse(payloadString);
   const body = JSON.parse(payload.body);
 
