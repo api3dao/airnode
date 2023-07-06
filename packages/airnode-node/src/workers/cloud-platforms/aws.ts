@@ -1,10 +1,11 @@
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import { Uint8ArrayBlobAdapter } from '@aws-sdk/util-stream';
 import { WorkerParameters, WorkerResponse } from '../../types';
 
-export function encodeUtf8(input: string): Uint8Array {
-  return new TextEncoder().encode(input);
+export function encodeUtf8(input: string) {
+  return new TextEncoder().encode(input) as Uint8ArrayBlobAdapter;
 }
 
 export function decodeUtf8(input: Uint8Array): string {
