@@ -28,7 +28,7 @@ const readConfig = (configPath: string): unknown => {
 export function addDefaultContractAddresses(config: configTypes.Config): configTypes.Config {
   const ctx = { addIssue: () => {}, path: [] }; // Unused, but required by validator functions
   const chains = config.chains.map((chain) => {
-    const contracts = configTypes.ensureValidAirnodeRrp(chain.contracts, chain.id, ctx);
+    const { contracts } = configTypes.ensureConfigValidAirnodeRrp(chain, ctx);
 
     const crossChainRequesterAuthorizers = chain.authorizers.crossChainRequesterAuthorizers.map((craObj) => {
       return configTypes.ensureCrossChainRequesterAuthorizerValidAirnodeRrp(craObj, ctx);

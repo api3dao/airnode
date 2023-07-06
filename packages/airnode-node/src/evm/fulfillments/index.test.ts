@@ -54,7 +54,11 @@ describe('submit', () => {
         }),
       ],
     };
-    const gasTarget: GasTarget = { type: 0, gasPrice: ethers.BigNumber.from(1000) };
+    const gasTarget: GasTarget = {
+      type: 0,
+      gasPrice: ethers.BigNumber.from(1000),
+      gasLimit: ethers.BigNumber.from(500_000),
+    };
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(mutableInitialState, { gasTarget, provider, requests });
 
