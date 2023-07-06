@@ -22,6 +22,7 @@ import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
 
 const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const AirnodeRrpV0DryRunAddresses: { [chainId: string]: string } = references.AirnodeRrpV0DryRun;
 const RequesterAuthorizerWithErc721Addresses: { [chainId: string]: string } = references.RequesterAuthorizerWithErc721;
 
 it('successfully parses config.json', () => {
@@ -666,11 +667,13 @@ describe('ensureValidAirnodeRrp', () => {
     const { testName, schema, configObject, chainIdField } = obj;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { contracts, ...objectMissingContracts } = configObject;
-
+    //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { AirnodeRrp, ...contractsMissingAirnodeRrp } = contracts;
     it(`fails if AirnodeRrp contract address within ${testName}.contracts is not specified and there is no deployment for the chain`, () => {
       const idWithoutDeployment = '99999999999999999999999';
       const unknownChain = {
         ...objectMissingContracts,
+        contracts: contractsMissingAirnodeRrp,
         [chainIdField]: idWithoutDeployment,
       };
 
@@ -679,7 +682,7 @@ describe('ensureValidAirnodeRrp', () => {
           {
             code: 'custom',
             message:
-              `AirnodeRrp contract address must be specified for chain ID '${idWithoutDeployment}'` +
+              `AirnodeRrp contract address must be specified for chain ID '${idWithoutDeployment}' ` +
               `as there was no deployment for this chain exported from @api3/airnode-protocol`,
             path: ['contracts'],
           },
@@ -691,6 +694,7 @@ describe('ensureValidAirnodeRrp', () => {
       const idWithDeployment = '1';
       const chainWithDeployment = {
         ...objectMissingContracts,
+        contracts: contractsMissingAirnodeRrp,
         [chainIdField]: idWithDeployment,
       };
       const parsed = schema.parse(chainWithDeployment);
@@ -704,10 +708,83 @@ describe('ensureValidAirnodeRrp', () => {
         ...objectMissingContracts,
         contracts: {
           AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          AirnodeRrpDryRun: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         },
       };
       expect(() => schema.parse(chainWithContracts)).not.toThrow();
     });
+  });
+});
+
+describe('ensureValidAirnodeRrpDryRun', () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  const chainConfig = config.chains[0];
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { contracts, ...chainConfigMissingContracts } = chainConfig;
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { AirnodeRrpDryRun, ...contractsMissingAirnodeRrpDryRun } = contracts;
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { fulfillmentGasLimit, ...chainOptionsMissingFulfillmentGasLimit } = chainConfigMissingContracts.options;
+  it(`fails if the fulfillmentGasLimit is not defined and AirnodeRrpDryRun contract address within chains.contracts is not specified and there is no deployment for the chain`, () => {
+    const idWithoutDeployment = '99999999999999999999999';
+    const unknownChain = {
+      ...chainConfigMissingContracts,
+      contracts: contractsMissingAirnodeRrpDryRun,
+      options: chainOptionsMissingFulfillmentGasLimit,
+      id: idWithoutDeployment,
+    };
+
+    expect(() => chainConfigSchema.parse(unknownChain)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message:
+            `When 'fulfillmentGasLimit' is not specified, AirnodeRrpDryRun contract address must be specified for chain ID '${idWithoutDeployment}' ` +
+            `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+          path: ['contracts'],
+        },
+      ])
+    );
+  });
+
+  it(`adds chains.contracts object if the fulfillmentGasLimit and the AirnodeRrpDryRun contract address is not specified but there is a deployment for the chain`, () => {
+    const idWithDeployment = '1';
+    const chainWithDeployment = {
+      ...chainConfigMissingContracts,
+      contracts: contractsMissingAirnodeRrpDryRun,
+      options: chainOptionsMissingFulfillmentGasLimit,
+      id: idWithDeployment,
+    };
+
+    const parsed = chainConfigSchema.parse(chainWithDeployment);
+    expect(parsed.contracts).toEqual({
+      ...contractsMissingAirnodeRrpDryRun,
+      AirnodeRrpDryRun: AirnodeRrpV0DryRunAddresses[chainWithDeployment.id],
+    });
+  });
+
+  it(`allows an AirnodeRrpDryRun contract address to be specified within chains.contracts`, () => {
+    const chainWithContracts = {
+      ...chainConfigMissingContracts,
+      contracts: {
+        AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        AirnodeRrpDryRun: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      },
+    };
+    expect(() => chainConfigSchema.parse(chainWithContracts)).not.toThrow();
+  });
+
+  it(`allows an AirnodeRrpDryRun contract address to be not specified within chains.contracts if the fulfillmentGasLimit is defined`, () => {
+    const chainWithMissingAirnodeRrpDryRunContract = {
+      ...chainConfigMissingContracts,
+      contracts: {
+        AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+      },
+    };
+    expect(() => chainConfigSchema.parse(chainWithMissingAirnodeRrpDryRunContract)).not.toThrow();
   });
 });
 
@@ -808,7 +885,7 @@ describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
         {
           code: 'custom',
           message:
-            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
+            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}' ` +
             `as there was no deployment for this chain exported from @api3/airnode-protocol`,
           path: ['contracts'],
         },
@@ -849,7 +926,7 @@ describe('ensureRequesterAuthorizerWithErc721', () => {
         {
           code: 'custom',
           message:
-            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
+            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}' ` +
             `as there was no deployment for this chain exported from @api3/airnode-protocol`,
           path: ['authorizers', 'requesterAuthorizersWithErc721', 0],
         },
