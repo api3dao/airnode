@@ -6,7 +6,7 @@ require('hardhat-gas-reporter');
 const api3Chains = require('@api3/chains');
 require('dotenv').config();
 
-const { apiKey: etherscanApiKey, customChains: etherscanCustomChains } = api3Chains.hardhatEtherscan();
+const { apiKey: etherscanApiKey, customChains: etherscanCustomChains } = api3Chains.hardhatConfig.etherscan();
 const etherscan = {
   apiKey: Object.entries(etherscanApiKey).reduce((populatedApiKey, etherscanApiKeyEntry) => {
     const hardhatEtherscanChainAlias = etherscanApiKeyEntry[0];
@@ -22,7 +22,7 @@ const etherscan = {
   customChains: etherscanCustomChains,
 };
 
-const networks = Object.entries(api3Chains.hardhatConfigNetworks()).reduce((networksWithMnemonic, networkEntry) => {
+const networks = Object.entries(api3Chains.hardhatConfig.networks()).reduce((networksWithMnemonic, networkEntry) => {
   const chainAlias = networkEntry[0];
   const network = networkEntry[1];
   networksWithMnemonic[chainAlias] = {
