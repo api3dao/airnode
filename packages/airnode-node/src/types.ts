@@ -223,7 +223,10 @@ export interface AuthorizationByRequestId {
 }
 
 export type RegularApiCallResponse = RegularApiCallSuccessResponse | ApiCallErrorResponse;
-export type HttpGatewayApiCallResponse = HttpGatewayApiCallSuccessResponse | ApiCallErrorResponse;
+export type HttpGatewayApiCallResponse =
+  | HttpGatewayApiCallSuccessResponse
+  | HttpGatewayApiCallPartialResponse
+  | ApiCallErrorResponse;
 export type HttpSignedDataApiCallResponse = HttpSignedDataApiCallSuccessResponse | ApiCallErrorResponse;
 
 export type ApiCallResponse = RegularApiCallResponse | HttpGatewayApiCallResponse | HttpSignedDataApiCallResponse;
@@ -238,6 +241,12 @@ export interface RegularApiCallSuccessResponse {
 export interface HttpGatewayApiCallSuccessResponse {
   success: true;
   data: { values: unknown[]; rawValue: unknown; encodedValue: string };
+}
+
+export interface HttpGatewayApiCallPartialResponse {
+  success: true;
+  errorMessage: string;
+  data: unknown;
 }
 
 export interface HttpSignedDataApiCallSuccessResponse {

@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZodError } from 'zod';
 import zip from 'lodash/zip';
+import { references } from '@api3/airnode-protocol';
 import {
   Config,
   configSchema,
@@ -14,9 +15,14 @@ import {
   gasPriceOracleSchema,
   localOrCloudProviderSchema,
   chainConfigSchema,
+  crossChainRequesterAuthorizerSchema,
+  crossChainRequesterAuthorizersWithErc721Schema,
 } from './config';
 import { version as packageVersion } from '../../package.json';
 import { SchemaType } from '../types';
+
+const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const RequesterAuthorizerWithErc721Addresses: { [chainId: string]: string } = references.RequesterAuthorizerWithErc721;
 
 it('successfully parses config.json', () => {
   const config = JSON.parse(
@@ -642,6 +648,69 @@ describe('chainConfigSchema', () => {
   });
 });
 
+describe('ensureValidAirnodeRrp', () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+
+  // The field used to specify chain ID varies by schema
+  [
+    { testName: 'chains', schema: chainConfigSchema, configObject: { ...config.chains[0] }, chainIdField: 'id' },
+    {
+      testName: 'crossChainRequesterAuthorizer',
+      schema: crossChainRequesterAuthorizerSchema,
+      configObject: { ...config.chains[0].authorizers.crossChainRequesterAuthorizers[0] },
+      chainIdField: 'chainId',
+    },
+  ].forEach((obj) => {
+    const { testName, schema, configObject, chainIdField } = obj;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { contracts, ...objectMissingContracts } = configObject;
+
+    it(`fails if AirnodeRrp contract address within ${testName}.contracts is not specified and there is no deployment for the chain`, () => {
+      const idWithoutDeployment = '99999999999999999999999';
+      const unknownChain = {
+        ...objectMissingContracts,
+        [chainIdField]: idWithoutDeployment,
+      };
+
+      expect(() => schema.parse(unknownChain)).toThrow(
+        new ZodError([
+          {
+            code: 'custom',
+            message:
+              `AirnodeRrp contract address must be specified for chain ID '${idWithoutDeployment}'` +
+              `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+            path: ['contracts'],
+          },
+        ])
+      );
+    });
+
+    it(`adds ${testName}.contracts object if the AirnodeRrp contract address is not specified but there is a deployment for the chain`, () => {
+      const idWithDeployment = '1';
+      const chainWithDeployment = {
+        ...objectMissingContracts,
+        [chainIdField]: idWithDeployment,
+      };
+      const parsed = schema.parse(chainWithDeployment);
+      expect(parsed.contracts).toEqual({
+        AirnodeRrp: AirnodeRrpV0Addresses[chainWithDeployment[chainIdField]],
+      });
+    });
+
+    it(`allows an AirnodeRrp contract address to be specified within ${testName}.contracts`, () => {
+      const chainWithContracts = {
+        ...objectMissingContracts,
+        contracts: {
+          AirnodeRrp: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        },
+      };
+      expect(() => schema.parse(chainWithContracts)).not.toThrow();
+    });
+  });
+});
+
 describe('authorizers', () => {
   it('allows simultaneous authorizers', () => {
     const config = JSON.parse(
@@ -702,5 +771,89 @@ describe('authorizers', () => {
       },
     };
     expect(() => chainConfigSchema.parse(validAuthorizersChainConfig)).not.toThrow();
+  });
+});
+
+describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+  const crossChainRequesterAuthorizerWithErc721 =
+    config.chains[0].authorizers.crossChainRequesterAuthorizersWithErc721[0];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { contracts, ...crossChainWithoutAddress } = crossChainRequesterAuthorizerWithErc721;
+
+  it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
+    const idWithDeployment = '1';
+    const crossChainWithDeployment = {
+      ...crossChainWithoutAddress,
+      chainId: idWithDeployment,
+    };
+    const parsed = crossChainRequesterAuthorizersWithErc721Schema.parse(crossChainWithDeployment);
+    expect(parsed.contracts).toEqual({
+      RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[idWithDeployment],
+    });
+  });
+
+  it('fails if RequesterAuthorizerWithErc721 contract address is not specified and there is no deployment for the chain', () => {
+    const idWithoutDeployment = '99999999999999999999999';
+    const crossChainWithoutDeployment = {
+      ...crossChainWithoutAddress,
+      chainId: idWithoutDeployment,
+    };
+
+    expect(() => crossChainRequesterAuthorizersWithErc721Schema.parse(crossChainWithoutDeployment)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message:
+            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
+            `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+          path: ['contracts'],
+        },
+      ])
+    );
+  });
+});
+
+describe('ensureRequesterAuthorizerWithErc721', () => {
+  const config = JSON.parse(
+    readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+  );
+  const chainWithoutRequesterAuthorizerWithErc721Address = config.chains[0];
+  delete chainWithoutRequesterAuthorizerWithErc721Address.authorizers.requesterAuthorizersWithErc721[0]
+    .RequesterAuthorizerWithErc721;
+
+  it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
+    const idWithDeployment = '1';
+    const configWithDeployment = {
+      ...chainWithoutRequesterAuthorizerWithErc721Address,
+      id: idWithDeployment,
+    };
+    const parsed = chainConfigSchema.parse(configWithDeployment);
+    expect(parsed.authorizers.requesterAuthorizersWithErc721[0].RequesterAuthorizerWithErc721).toEqual(
+      RequesterAuthorizerWithErc721Addresses[idWithDeployment]
+    );
+  });
+
+  it('fails if RequesterAuthorizerWithErc721 contract address is not specified and there is no deployment for the chain', () => {
+    const idWithoutDeployment = '99999999999999999999999';
+    const crossChainWithoutDeployment = {
+      ...chainWithoutRequesterAuthorizerWithErc721Address,
+      id: idWithoutDeployment,
+    };
+
+    expect(() => chainConfigSchema.parse(crossChainWithoutDeployment)).toThrow(
+      new ZodError([
+        {
+          code: 'custom',
+          message:
+            `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${idWithoutDeployment}'` +
+            `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+          path: ['authorizers', 'requesterAuthorizersWithErc721', 0],
+        },
+      ])
+    );
   });
 });

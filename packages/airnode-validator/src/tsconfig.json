@@ -8,6 +8,7 @@
     "rootDirs": ["./src", "./bin"],
     "outDir": "../dist"
   },
+  "references": [{ "path": "../../airnode-protocol/src" }],
   "include": ["./**/*.ts", "../bin/**/*.ts", "../package.json"],
   "exclude": ["./**/*.test.ts"]
 }

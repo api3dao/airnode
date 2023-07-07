@@ -1,15 +1,21 @@
 import { ethers } from 'ethers';
-import { SuperRefinement, z } from 'zod';
+import { RefinementCtx, SuperRefinement, z } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import size from 'lodash/size';
 import { goSync } from '@api3/promise-utils';
+import { references } from '@api3/airnode-protocol';
 import { version as packageVersion } from '../../package.json';
 import { OIS, oisSchema, RELAY_METADATA_TYPES } from '../ois';
 import { SchemaType } from '../types';
 
 export const evmAddressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 export const evmIdSchema = z.string().regex(/^0x[a-fA-F0-9]{64}$/);
+export const chainIdSchema = z.string().regex(/^\d+$/);
+
+const AirnodeRrpV0Addresses: { [chainId: string]: string } = references.AirnodeRrpV0;
+const RequesterAuthorizerWithErc721Addresses: { [chainId: string]: string } = references.RequesterAuthorizerWithErc721;
 
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
@@ -164,25 +170,69 @@ export const chainOptionsSchema = z
   })
   .strict();
 
+export const ensureValidAirnodeRrp = (
+  contracts: SchemaType<typeof airnodeRrpContractSchema>,
+  chainId: string,
+  ctx: RefinementCtx
+) => {
+  if (!contracts?.AirnodeRrp) {
+    if (!AirnodeRrpV0Addresses[chainId]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          `AirnodeRrp contract address must be specified for chain ID '${chainId}'` +
+          `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+        path: ['contracts'],
+      });
+    }
+    // Default to the deployed AirnodeRrp contract address if contracts is not specified
+    return { ...contracts, AirnodeRrp: AirnodeRrpV0Addresses[chainId] };
+  }
+  return contracts;
+};
+
+const ensureConfigValidAirnodeRrp = (value: z.infer<typeof _chainConfigSchema>, ctx: RefinementCtx) => {
+  const contracts = ensureValidAirnodeRrp(value.contracts, value.id, ctx);
+  return { ...value, contracts };
+};
+
+// Similar to ensureConfigValidAirnodeRrp, but this needs to be a separate function because of the distinct
+// inferred type parameter (zod runs into cyclic inference errors with a single function that accepts either type)
+export const ensureCrossChainRequesterAuthorizerValidAirnodeRrp = (
+  value: z.infer<typeof _crossChainRequesterAuthorizerSchema>,
+  ctx: RefinementCtx
+) => {
+  const contracts = ensureValidAirnodeRrp(value.contracts, value.chainId, ctx);
+  return { ...value, contracts };
+};
+
 export const chainAuthorizationsSchema = z.object({
   requesterEndpointAuthorizations: z.record(endpointIdSchema, z.array(evmAddressSchema)),
 });
 
 export const requesterEndpointAuthorizersSchema = z.array(evmAddressSchema);
 
-export const crossChainRequesterAuthorizerSchema = z.object({
-  requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema.nonempty(),
-  chainType: chainTypeSchema,
-  chainId: z.string(),
-  contracts: airnodeRrpContractSchema,
-  chainProvider: providerSchema,
-});
+const _crossChainRequesterAuthorizerSchema = z
+  .object({
+    requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema.nonempty(),
+    chainType: chainTypeSchema,
+    chainId: chainIdSchema,
+    // The type system requires optional() be transformed to the expected type here despite the later transform
+    contracts: airnodeRrpContractSchema.optional().transform((val) => (val === undefined ? { AirnodeRrp: '' } : val)),
+    chainProvider: providerSchema,
+  })
+  .strict();
+
+export const crossChainRequesterAuthorizerSchema = _crossChainRequesterAuthorizerSchema.transform(
+  ensureCrossChainRequesterAuthorizerValidAirnodeRrp
+);
 
 export const erc721sSchema = z.array(evmAddressSchema);
 
 export const requesterAuthorizerWithErc721Schema = z.object({
   erc721s: erc721sSchema.nonempty(),
-  RequesterAuthorizerWithErc721: evmAddressSchema,
+  // The type system requires optional() be transformed to the expected type here despite the later transform
+  RequesterAuthorizerWithErc721: evmAddressSchema.optional().transform((val) => (val === undefined ? '' : val)),
 });
 
 export const requesterAuthorizersWithErc721Schema = z.array(requesterAuthorizerWithErc721Schema);
@@ -193,13 +243,70 @@ export const requesterAuthorizerWithErc721ContractSchema = z
   })
   .strict();
 
-export const crossChainRequesterAuthorizersWithErc721Schema = z.object({
+// This transform operates on entire chain config object because this is where the chain id is defined,
+// and the chain id is necessary to look up the RequesterAuthorizerWithErc721 contract address
+export const ensureRequesterAuthorizerWithErc721 = (value: z.infer<typeof _chainConfigSchema>, ctx: RefinementCtx) => {
+  if (!isEmpty(value.authorizers.requesterAuthorizersWithErc721)) {
+    const arr = value.authorizers.requesterAuthorizersWithErc721.map((raObj, ind) => {
+      if (!raObj.RequesterAuthorizerWithErc721) {
+        if (!RequesterAuthorizerWithErc721Addresses[value.id]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.id}'` +
+              `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+            path: ['authorizers', 'requesterAuthorizersWithErc721', ind],
+          });
+          return z.NEVER; // We need to return early from the transform while preserving the return type
+        }
+        // Default to the deployed RequesterAuthorizerWithErc721 contract address for the chain
+        return { ...raObj, RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[value.id] };
+      }
+      return raObj;
+    });
+    return { ...value, authorizers: { ...value.authorizers, requesterAuthorizersWithErc721: arr } };
+  }
+  return value;
+};
+
+export const ensureCrossChainRequesterAuthorizerWithErc721 = (
+  value: z.infer<typeof _crossChainRequesterAuthorizersWithErc721Schema>,
+  ctx: RefinementCtx
+) => {
+  if (!value.contracts?.RequesterAuthorizerWithErc721) {
+    if (!RequesterAuthorizerWithErc721Addresses[value.chainId]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.chainId}'` +
+          `as there was no deployment for this chain exported from @api3/airnode-protocol`,
+        path: ['contracts'],
+      });
+      return value;
+    }
+    // Default to the deployed RequesterAuthorizerWithErc721 contract address for the chain
+    return {
+      ...value,
+      contracts: { RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[value.chainId] },
+    };
+  }
+  return value;
+};
+
+const _crossChainRequesterAuthorizersWithErc721Schema = z.object({
   erc721s: erc721sSchema.nonempty(),
   chainType: chainTypeSchema,
-  chainId: z.string(),
-  contracts: requesterAuthorizerWithErc721ContractSchema,
+  chainId: chainIdSchema,
+  // The type system requires optional() be transformed to the expected type here despite the later transform
+  contracts: requesterAuthorizerWithErc721ContractSchema
+    .optional()
+    .transform((val) => (val === undefined ? { RequesterAuthorizerWithErc721: '' } : val)),
   chainProvider: providerSchema,
 });
+
+export const crossChainRequesterAuthorizersWithErc721Schema = _crossChainRequesterAuthorizersWithErc721Schema.transform(
+  ensureCrossChainRequesterAuthorizerWithErc721
+);
 
 export const chainAuthorizersSchema = z.object({
   requesterEndpointAuthorizers: requesterEndpointAuthorizersSchema,
@@ -223,13 +330,14 @@ const validateMaxConcurrency: SuperRefinement<{ providers: Providers; maxConcurr
   }
 };
 
-export const chainConfigSchema = z
+const _chainConfigSchema = z
   .object({
     authorizers: chainAuthorizersSchema,
     authorizations: chainAuthorizationsSchema,
     blockHistoryLimit: z.number().int().optional(), // Defaults to BLOCK_COUNT_HISTORY_LIMIT defined in airnode-node
-    contracts: airnodeRrpContractSchema,
-    id: z.string(),
+    // The type system requires optional() be transformed to the expected type here despite the later transform
+    contracts: airnodeRrpContractSchema.optional().transform((val) => (val === undefined ? { AirnodeRrp: '' } : val)),
+    id: chainIdSchema,
     // Defaults to BLOCK_MIN_CONFIRMATIONS defined in airnode-node but may be overridden
     // by a requester if the _minConfirmations reserved parameter is configured
     minConfirmations: z.number().int().optional(),
@@ -238,7 +346,11 @@ export const chainConfigSchema = z
     providers: providersSchema,
     maxConcurrency: maxConcurrencySchema,
   })
-  .strict()
+  .strict();
+
+export const chainConfigSchema = _chainConfigSchema
+  .transform(ensureConfigValidAirnodeRrp)
+  .transform(ensureRequesterAuthorizerWithErc721)
   .superRefine(validateMaxConcurrency);
 
 export const apiKeySchema = z.string().min(30).max(120);
@@ -524,6 +636,7 @@ export type Erc721s = SchemaType<typeof erc721sSchema>;
 export type ChainAuthorizations = SchemaType<typeof chainAuthorizationsSchema>;
 export type ChainOptions = SchemaType<typeof chainOptionsSchema>;
 export type ChainType = SchemaType<typeof chainTypeSchema>;
+export type ChainId = SchemaType<typeof chainIdSchema>;
 export type ChainConfig = SchemaType<typeof chainConfigSchema>;
 export type LatestBlockPercentileGasPriceStrategy = z.infer<typeof latestBlockPercentileGasPriceStrategySchema>;
 export type ProviderRecommendedGasPriceStrategy = z.infer<typeof providerRecommendedGasPriceStrategySchema>;

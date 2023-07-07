@@ -5,7 +5,7 @@ export function getReservedParameterValue(
   name: ReservedParameterName,
   endpoint: Endpoint,
   requestParameters: ApiCallParameters
-): string | undefined {
+): any {
   const reservedParameter = endpoint.reservedParameters.find((rp) => rp.name === name);
   // Reserved parameters must be whitelisted in order to be used, even if they have no fixed or default value
   if (!reservedParameter) {

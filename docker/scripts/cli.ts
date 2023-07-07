@@ -86,6 +86,7 @@ yargs(process.argv.slice(2))
             handleCliCommand({
               success: false,
               error: new Error('Either provide the release Git branch or mount the Airnode source code directory'),
+              data: undefined,
             });
             return;
           }
@@ -95,6 +96,7 @@ yargs(process.argv.slice(2))
               error: new Error(
                 `Can't provide the release Git branch and mount the Airnode source code directory at the same time`
               ),
+              data: undefined,
             });
             return;
           }
@@ -155,7 +157,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => publish(args.npmRegistry, args.npmTags, args.releaseBranch));
+          runCliCommand(() => publish(args.npmRegistry, args.npmTags as string[], args.releaseBranch));
         }
       )
       .help()
@@ -195,7 +197,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTags, args.dev));
+          runCliCommand(() => buildDockerImages(args.npmRegistry, args.npmTag, args.dockerTags as string[], args.dev));
         }
       )
       .command(
@@ -217,7 +219,7 @@ yargs(process.argv.slice(2))
         },
         (args) => {
           logger.log(`Running command '${args._[0]} ${args._[1]}' with arguments ${longArguments(args)}`);
-          runCliCommand(() => publishDockerImages(args.dockerTags, args.dev));
+          runCliCommand(() => publishDockerImages(args.dockerTags as string[], args.dev));
         }
       )
       .help()
