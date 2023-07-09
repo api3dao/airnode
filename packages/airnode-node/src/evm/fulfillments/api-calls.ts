@@ -121,9 +121,9 @@ async function estimateAirnodeRrpOverhead(
   );
   if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
 
-  const airnodeRrpDryRunAddress = options.contracts?.AirnodeRrpDryRun;
+  const airnodeRrpDryRunAddress = options.contracts.AirnodeRrpDryRun!;
 
-  const airnodeRrpDryRun = AirnodeRrpV0DryRunFactory.connect(airnodeRrpDryRunAddress!, airnodeRrp.signer);
+  const airnodeRrpDryRun = AirnodeRrpV0DryRunFactory.connect(airnodeRrpDryRunAddress, airnodeRrp.signer);
 
   const operation = (): Promise<ethers.BigNumber> =>
     airnodeRrpDryRun.estimateGas.fulfill(
@@ -277,7 +277,7 @@ export async function estimateGasAndSubmitFulfill(
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
   // Should not throw
   const [estimateGasLogs, estimateGasErr, estimateGasData] = await estimateGasToFulfill(airnodeRrp, request, options);
-  // const [estimateGasLogs, estimateGasErr, estimateGasData] = [[], new Error('cartcut'), [ethers.BigNumber.from(55),ethers.BigNumber.from(65)]];
+
   if (estimateGasErr || !estimateGasData) {
     // Make static test call to get revert string
     const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);

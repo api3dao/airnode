@@ -162,7 +162,7 @@ export const chainOptionsSchema = z
   })
   .strict();
 
-export const ensureValidAirnodeRrp = (airnodeRrp: string | undefined, chainId: string, ctx: RefinementCtx) => {
+export const ensureValidAirnodeRrp = (airnodeRrp: string, chainId: string, ctx: RefinementCtx) => {
   if (!airnodeRrp) {
     if (!AirnodeRrpV0Addresses[chainId]) {
       ctx.addIssue({
@@ -191,7 +191,7 @@ export const ensureValidAirnodeRrpDryRun = (
   // If 'fulfillmentGasLimit' is defined in the config,
   // it indicates that the AirnodeRrpDryRun contract will not be used to estimate gas
   if (options?.fulfillmentGasLimit) {
-    return;
+    return airnodeRrpDryRun;
   }
 
   if (!airnodeRrpDryRun) {

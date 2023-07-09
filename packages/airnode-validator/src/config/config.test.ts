@@ -699,6 +699,7 @@ describe('ensureValidAirnodeRrp', () => {
       };
       const parsed = schema.parse(chainWithDeployment);
       expect(parsed.contracts).toEqual({
+        ...contractsMissingAirnodeRrp,
         AirnodeRrp: AirnodeRrpV0Addresses[chainWithDeployment[chainIdField]],
       });
     });

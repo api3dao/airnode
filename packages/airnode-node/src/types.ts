@@ -195,7 +195,7 @@ export interface CoordinatorStateWithApiResponses extends CoordinatorState {
 export interface EVMContracts {
   // TODO: Rename to airnodeRrp for consistency
   readonly AirnodeRrp: string;
-  readonly AirnodeRrpDryRun?: string | undefined;
+  readonly AirnodeRrpDryRun?: string;
 }
 
 export interface EVMProviderState {
