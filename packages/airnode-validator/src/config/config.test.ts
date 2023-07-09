@@ -62,6 +62,16 @@ describe('gasPriceOracleSchema', () => {
     gasPriceStrategy: 'providerRecommendedGasPrice',
     recommendedGasPriceMultiplier: 1.2,
   };
+  const sanitizedProviderRecommendedGasPriceStrategy = {
+    gasPriceStrategy: 'sanitizedProviderRecommendedGasPrice',
+    recommendedGasPriceMultiplier: 1.2,
+    baseFeeMultiplier: 2,
+    baseFeeMultiplierThreshold: 5,
+    priorityFee: {
+      value: 3.0,
+      unit: 'gwei',
+    },
+  };
   const providerRecommendedEip1559GasPriceStrategy = {
     gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
     baseFeeMultiplier: 2,
@@ -80,6 +90,7 @@ describe('gasPriceOracleSchema', () => {
   const gasPriceOracleOptions = [
     latestBlockPercentileGasPriceStrategy,
     providerRecommendedGasPriceStrategy,
+    sanitizedProviderRecommendedGasPriceStrategy,
     providerRecommendedEip1559GasPriceStrategy,
     constantGasPriceStrategy,
   ];
