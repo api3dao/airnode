@@ -49,6 +49,7 @@ function getTransactionOptions<T>(
 
   return {
     gasTarget: gasTarget,
+    contracts: state.contracts,
     masterHDNode: state.masterHDNode,
     provider: state.provider,
     withdrawalRemainder: state.settings.chainOptions.withdrawalRemainder,
