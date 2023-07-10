@@ -42,6 +42,7 @@ const gasTargetFallback: GasTarget = {
 
 describe('submitWithdrawal', () => {
   const masterHDNode = wallet.getMasterHDNode(config);
+  const contracts = { AirnodeRrp: '', AirnodeRrpDryRun: '' };
 
   test.each([gasTarget, gasTargetFallback])(
     `subtracts transaction costs and submits the remaining balance for pending requests - %#`,
@@ -54,6 +55,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };
@@ -100,6 +102,7 @@ describe('submitWithdrawal', () => {
       };
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
         withdrawalRemainder: remainder,
@@ -141,6 +144,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };
@@ -165,6 +169,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: undefined });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };
@@ -190,6 +195,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };
@@ -217,6 +223,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };
@@ -245,6 +252,7 @@ describe('submitWithdrawal', () => {
       const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5 });
       const options = {
         gasTarget,
+        contracts,
         masterHDNode,
         provider,
       };

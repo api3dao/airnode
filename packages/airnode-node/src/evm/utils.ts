@@ -21,7 +21,7 @@ export function sortBigNumbers(bigNumbers: ethers.BigNumber[]) {
 export function decodeRevertString(callData: string) {
   // Refer to https://ethereum.stackexchange.com/a/83577
 
-  // Skip the funciton selector from the returned encoded data
+  // Skip the function selector from the returned encoded data
   // and only decode the revert reason string.
   // Function selector is 4 bytes long and that is why we skip
   // the first 2 bytes (0x) and the rest 8 bytes is the function selector
