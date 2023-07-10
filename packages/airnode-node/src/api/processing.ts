@@ -40,14 +40,17 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
     inputParameters = removeReservedParameters(inputParameters);
   }
 
+  // provide endpoint parameters immutably
+  const endpointParameters = JSON.parse(JSON.stringify(inputParameters));
+
   const goProcessedParameters = await go(
     () =>
       preProcessingSpecifications.reduce(async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node':
-            return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
+            return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);
           case 'Node async':
-            return unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
+            return unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
@@ -75,11 +78,19 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   } as ApiCallPayload;
 };
 
-export const postProcessApiSpecifications = async (input: unknown, endpoint: Endpoint) => {
+export const postProcessApiSpecifications = async (input: unknown, endpoint: Endpoint, payload: ApiCallPayload) => {
   const { postProcessingSpecifications } = endpoint;
 
   if (!postProcessingSpecifications || postProcessingSpecifications?.length === 0) {
     return input;
+  }
+
+  // provide endpoint parameters immutably
+  let endpointParameters = JSON.parse(JSON.stringify(payload.aggregatedApiCall.parameters));
+
+  // The HTTP gateway is a special case for ChainAPI that is not allowed to access reserved parameters
+  if (payload.type === 'http-gateway') {
+    endpointParameters = removeReservedParameters(endpointParameters);
   }
 
   const goResult = await go(
@@ -87,9 +98,9 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
       postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
         switch (currentValue.environment) {
           case 'Node':
-            return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs);
+            return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);
           case 'Node async':
-            return unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs);
+            return unsafeEvaluateAsync(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);
           default:
             throw new Error(`Environment ${currentValue.environment} is not supported`);
         }
