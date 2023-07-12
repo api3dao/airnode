@@ -45,6 +45,7 @@ export enum RequestErrorMessage {
   ApiCallFailed = 'API call failed',
   ReservedParametersInvalid = 'Reserved parameters are invalid',
   FulfillTransactionFailed = 'Fulfill transaction failed',
+  GasEstimationFailed = 'Gas estimation failed',
   SponsorRequestLimitExceeded = 'Sponsor request limit exceeded',
 }
 
@@ -194,6 +195,7 @@ export interface CoordinatorStateWithApiResponses extends CoordinatorState {
 export interface EVMContracts {
   // TODO: Rename to airnodeRrp for consistency
   readonly AirnodeRrp: string;
+  readonly AirnodeRrpDryRun?: string;
 }
 
 export interface EVMProviderState {
@@ -210,6 +212,7 @@ export interface EVMProviderSponsorState extends EVMProviderState {
 
 export interface TransactionOptions {
   readonly gasTarget: GasTarget;
+  readonly contracts: EVMContracts;
   readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly withdrawalRemainder?: Amount;

@@ -41,7 +41,7 @@
     "hardhat-deploy": "^0.11.34",
     "hardhat-gas-reporter": "^1.0.9",
     "rimraf": "^5.0.1",
-    "solidity-coverage": "^0.8.3",
+    "solidity-coverage": "^0.8.4",
     "typechain": "^8.2.0",
     "typescript": "^5.1.6"
   },
