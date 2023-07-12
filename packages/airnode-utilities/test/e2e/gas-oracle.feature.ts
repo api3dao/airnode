@@ -22,6 +22,16 @@ const providerRecommendedGasPriceStrategy: config.ProviderRecommendedGasPriceStr
   gasPriceStrategy: 'providerRecommendedGasPrice',
   recommendedGasPriceMultiplier: 1.2,
 };
+const sanitizedProviderRecommendedGasPriceStrategy: config.SanitizedProviderRecommendedGasPriceStrategy = {
+  gasPriceStrategy: 'sanitizedProviderRecommendedGasPrice',
+  recommendedGasPriceMultiplier: 1.2,
+  baseFeeMultiplier: 2,
+  baseFeeMultiplierThreshold: 5,
+  priorityFee: {
+    value: 3.0,
+    unit: 'gwei',
+  },
+};
 const providerRecommendedEip1559GasPriceStrategy: config.ProviderRecommendedEip1559GasPriceStrategy = {
   gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
   baseFeeMultiplier: 2,
@@ -150,6 +160,45 @@ describe('Gas oracle', () => {
         expect(gasTarget).toEqual(
           gasOracle.getGasTargetWithGasLimit(providerRecommendedEip1559GasPrice, fulfillmentGasLimit)
         );
+      });
+
+      it('returns sanitizedProviderRecommendedGasPrice', async () => {
+        const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+          ...defaultChainOptions,
+          gasPriceOracle: [sanitizedProviderRecommendedGasPriceStrategy, constantGasPriceStrategy],
+        });
+        const sanitizedProviderRecommendedGasPrice = await gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+          provider,
+          sanitizedProviderRecommendedGasPriceStrategy,
+          startTime
+        );
+
+        expect(gasTarget).toEqual(
+          gasOracle.getGasTargetWithGasLimit(sanitizedProviderRecommendedGasPrice, fulfillmentGasLimit)
+        );
+      });
+
+      it('returns same value with providerRecommendedGasPrice if baseFeeMultiplierThreshold is not exceeded', async () => {
+        const gasPriceOracleOptions: config.GasPriceOracleConfig = [
+          {
+            ...sanitizedProviderRecommendedGasPriceStrategy,
+            // Set a high baseFeeMultiplierThreshold to get non-sanitized providerRecommendedGasPrice
+            baseFeeMultiplierThreshold: 999,
+          },
+          constantGasPriceStrategy,
+        ];
+
+        const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+          ...defaultChainOptions,
+          gasPriceOracle: gasPriceOracleOptions,
+        });
+        const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
+          provider,
+          providerRecommendedGasPriceStrategy,
+          startTime
+        );
+
+        expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
       });
 
       it('returns providerRecommendedGasPrice if maxDeviationMultiplier is exceeded', async () => {
