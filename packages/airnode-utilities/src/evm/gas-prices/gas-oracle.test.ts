@@ -27,6 +27,16 @@ describe('Gas oracle', () => {
     gasPriceStrategy: 'providerRecommendedGasPrice',
     recommendedGasPriceMultiplier: 1.2,
   };
+  const sanitizedProviderRecommendedGasPriceStrategy: config.SanitizedProviderRecommendedGasPriceStrategy = {
+    gasPriceStrategy: 'sanitizedProviderRecommendedGasPrice',
+    recommendedGasPriceMultiplier: 1.2,
+    baseFeeMultiplier: 2,
+    baseFeeMultiplierThreshold: 5,
+    priorityFee: {
+      value: 3.0,
+      unit: 'gwei',
+    },
+  };
   const providerRecommendedEip1559GasPriceStrategy: config.ProviderRecommendedEip1559GasPriceStrategy = {
     gasPriceStrategy: 'providerRecommendedEip1559GasPrice',
     baseFeeMultiplier: 2,
@@ -145,6 +155,68 @@ describe('Gas oracle', () => {
     });
   });
 
+  describe('fetchSanitizedProviderRecommendedGasPrice', () => {
+    it('throws an error when block data cannot be fetched', async () => {
+      jest
+        .spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock')
+        .mockRejectedValue(new Error('RPC failed to respond'));
+
+      await expect(
+        gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+          provider,
+          sanitizedProviderRecommendedGasPriceStrategy,
+          startTime
+        )
+      ).rejects.toThrow(new Error(`Unable to get provider recommended EIP1559 gas price.`));
+    });
+
+    it('throws an error when block data does not include baseFeePerGas', async () => {
+      jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockResolvedValueOnce({} as any);
+
+      await expect(
+        gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+          provider,
+          sanitizedProviderRecommendedGasPriceStrategy,
+          startTime
+        )
+      ).rejects.toThrow(new Error(`Unable to get provider recommended EIP1559 gas price.`));
+    });
+
+    it('returns sanitized provider recommended gas target when variation between providerRecommendedGasPrice and baseFeePerGas exceeds threshold', async () => {
+      const getBlockMock = { baseFeePerGas: ethers.BigNumber.from(100000000000) }; // 100 gwei
+      const getGasPriceMock = ethers.BigNumber.from(600000000000); // 600 gwei
+      jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockResolvedValue(getBlockMock as any);
+      jest
+        .spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice')
+        .mockResolvedValueOnce(getGasPriceMock);
+
+      const expectedGasTarget = { type: 0, gasPrice: ethers.BigNumber.from(203000000000) }; // 203 gwei
+      const sanitizedGasTarget = await gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+        provider,
+        sanitizedProviderRecommendedGasPriceStrategy,
+        startTime
+      );
+      expect(sanitizedGasTarget).toEqual(expectedGasTarget);
+    });
+
+    it('returns provider recommended gas target when variation between providerRecommendedGasPrice and baseFeePerGas within threshold', async () => {
+      const getBlockMock = { baseFeePerGas: ethers.BigNumber.from(100000000000) }; // 100 gwei
+      const getGasPriceMock = ethers.BigNumber.from(300000000000); // 300 gwei
+      jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockResolvedValue(getBlockMock as any);
+      jest
+        .spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice')
+        .mockResolvedValueOnce(getGasPriceMock);
+
+      const expectedGasTarget = { type: 0, gasPrice: ethers.BigNumber.from(360000000000) }; // 360 gwei
+      const sanitizedGasTarget = await gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+        provider,
+        sanitizedProviderRecommendedGasPriceStrategy,
+        startTime
+      );
+      expect(sanitizedGasTarget).toEqual(expectedGasTarget);
+    });
+  });
+
   describe('getGasPrice', () => {
     it('returns oracle gas price with legacy values', async () => {
       const getBlockWithTransactionsSpy = jest.spyOn(
@@ -227,6 +299,32 @@ describe('Gas oracle', () => {
       );
     });
 
+    it('returns sanitizedProviderRecommendedGasPrice', async () => {
+      jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock').mockImplementation(
+        () =>
+          ({
+            baseFeePerGas: ethers.BigNumber.from(18),
+          } as any)
+      );
+      jest
+        .spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice')
+        .mockImplementation(() => Promise.resolve(ethers.BigNumber.from(11)));
+
+      const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
+        ...defaultChainOptions,
+        gasPriceOracle: [sanitizedProviderRecommendedGasPriceStrategy, constantGasPriceStrategy],
+      });
+      const sanitizedProviderRecommendedGasTarget = await gasOracle.fetchSanitizedProviderRecommendedGasPrice(
+        provider,
+        sanitizedProviderRecommendedGasPriceStrategy,
+        startTime
+      );
+
+      expect(gasTarget).toEqual(
+        gasOracle.getGasTargetWithGasLimit(sanitizedProviderRecommendedGasTarget, fulfillmentGasLimit)
+      );
+    });
+
     it('returns providerRecommendedGasPrice if not enough blocks', async () => {
       const getBlockWithTransactionsSpy = jest.spyOn(
         ethers.providers.StaticJsonRpcProvider.prototype,
@@ -244,10 +342,6 @@ describe('Gas oracle', () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -284,10 +378,6 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
-
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
@@ -299,69 +389,6 @@ describe('Gas oracle', () => {
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
       expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
-    });
-
-    it('returns baseFeePerGas if getGasPrice is too high', async () => {
-      const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      const getGasPriceMock = ethers.BigNumber.from(1000);
-      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(1);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
-
-      const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
-        provider,
-        providerRecommendedGasPriceStrategy,
-        startTime
-      );
-
-      const expectedGasTarget = baseFeePerGasMock.mul(2).add(3);
-      expect(providerRecommendedGasPrice.gasPrice).toEqual(expectedGasTarget);
-    });
-
-    it('returns getGasPrice if the multiplied gas price is less than a multiple of the baseFeePerGas', async () => {
-      const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      const getGasPriceMock = ethers.BigNumber.from(1);
-      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
-
-      const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
-        provider,
-        providerRecommendedGasPriceStrategy,
-        startTime
-      );
-
-      const expectedGasTarget = gasOracle.multiplyGasPrice(
-        getGasPriceMock,
-        providerRecommendedGasPriceStrategy.recommendedGasPriceMultiplier
-      );
-      expect(providerRecommendedGasPrice.gasPrice).toEqual(expectedGasTarget);
-    });
-
-    it('returns getGasPrice if baseFeePerGas is null', async () => {
-      const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
-      const getGasPriceMock = ethers.BigNumber.from(1);
-      getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = null;
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
-
-      const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
-        provider,
-        providerRecommendedGasPriceStrategy,
-        startTime
-      );
-
-      const expectedGasTarget = gasOracle.multiplyGasPrice(
-        getGasPriceMock,
-        providerRecommendedGasPriceStrategy.recommendedGasPriceMultiplier
-      );
-      expect(providerRecommendedGasPrice.gasPrice).toEqual(expectedGasTarget);
     });
 
     it('returns providerRecommendedGasPrice if not enough transactions with eip1559 gas prices', async () => {
@@ -388,10 +415,6 @@ describe('Gas oracle', () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -426,10 +449,6 @@ describe('Gas oracle', () => {
       const getGasPriceSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice');
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
-
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
@@ -467,10 +486,6 @@ describe('Gas oracle', () => {
       const getGasPriceMock = ethers.BigNumber.from(11);
       getGasPriceSpy.mockImplementation(() => Promise.resolve(getGasPriceMock));
 
-      const fetchBaseFeePerGasMock = jest.spyOn(gasOracle, 'fetchBaseFeePerGas');
-      const baseFeePerGasMock = ethers.BigNumber.from(10);
-      fetchBaseFeePerGasMock.mockResolvedValue(baseFeePerGasMock);
-
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
       // Check that the function returned the same value as the strategy-specific function
       const providerRecommendedGasPrice = await gasOracle.fetchProviderRecommendedGasPrice(
@@ -482,50 +497,6 @@ describe('Gas oracle', () => {
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(1, 'latest');
       expect(getBlockWithTransactionsSpy).toHaveBeenNthCalledWith(2, -20);
       expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(providerRecommendedGasPrice, fulfillmentGasLimit));
-    });
-
-    it('returns the correct baseFeePerGas value', async () => {
-      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
-
-      const blockDataMock = {
-        number: 23,
-        baseFeePerGas: ethers.BigNumber.from(15),
-      };
-      getBlockSpy.mockImplementationOnce(() => Promise.resolve(blockDataMock as any));
-
-      const startTime = Date.now();
-      const baseFeePerGas = await gasOracle.fetchBaseFeePerGas(provider, startTime);
-
-      expect(getBlockSpy).toHaveBeenCalledWith('latest');
-      expect(baseFeePerGas).toEqual(blockDataMock.baseFeePerGas);
-    });
-
-    it('returns null if baseFeePerGas is not available', async () => {
-      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
-
-      const blockDataMock = {
-        number: 23,
-        baseFeePerGas: null,
-      };
-      getBlockSpy.mockImplementationOnce(() => Promise.resolve(blockDataMock as any));
-
-      const startTime = Date.now();
-      const baseFeePerGas = await gasOracle.fetchBaseFeePerGas(provider, startTime);
-
-      expect(getBlockSpy).toHaveBeenCalledWith('latest');
-      expect(baseFeePerGas).toBeNull();
-    });
-
-    it('throws an error if unable to get the latest block', async () => {
-      const getBlockSpy = jest.spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getBlock');
-      getBlockSpy.mockImplementationOnce(() => Promise.reject(new Error('Unable to get the latest block.')));
-
-      const startTime = Date.now();
-      await expect(gasOracle.fetchBaseFeePerGas(provider, startTime)).rejects.toThrow(
-        'Unable to get the latest block.'
-      );
-
-      expect(getBlockSpy).toHaveBeenCalledWith('latest');
     });
 
     it('returns constantGasPrice if not enough blocks and fallback fails', async () => {
