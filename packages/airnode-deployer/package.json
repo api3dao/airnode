@@ -35,7 +35,7 @@
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.3",
-    "compare-versions": "^5.0.3",
+    "compare-versions": "^6.0.0",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "dotenv": "^16.3.1",
