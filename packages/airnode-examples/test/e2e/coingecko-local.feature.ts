@@ -1,7 +1,9 @@
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { Config } from '@api3/airnode-node';
 import { logger } from '@api3/airnode-utilities';
 import { runCommand, runCommandInBackground } from '../utils';
+import { getDeployedContract } from '../../src';
 
 const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
@@ -24,15 +26,23 @@ const chooseIntegration = () => {
 };
 
 describe('Coingecko integration with containerized Airnode and hardhat', () => {
-  it('works', () => {
+  it('works', async () => {
     chooseIntegration();
 
     runCommand('yarn deploy-rrp');
+    runCommand('yarn ts-node scripts/deploy-rrp-dry-run');
     runCommand('yarn create-airnode-config');
+
+    // Update the config to use the AirnodeRrpDryRun contract
+    const airnodeRrpDryRun = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0DryRun.sol');
+    const configPath = join(__dirname, '../../integrations/coingecko-cross-chain-authorizer/config.json');
+    const config: Config = JSON.parse(readFileSync(configPath).toString());
+    config.chains[0].contracts = { ...config.chains[0].contracts, AirnodeRrpDryRun: airnodeRrpDryRun.address };
+    delete config.chains[0].options.fulfillmentGasLimit; // removing is necessary to use AirnodeRrpDryRun gas estimation
+    writeFileSync(configPath, JSON.stringify(config, null, 2));
+
     runCommand('yarn create-airnode-secrets');
-
     runCommand('yarn ts-node integrations/coingecko-cross-chain-authorizer/deploy-authorizers-and-update-config');
-
     runCommandInBackground('yarn run-airnode-locally');
 
     // Try running the rest of the commands, but make sure to kill the Airnode running in background process gracefully.
