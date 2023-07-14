@@ -30,7 +30,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     chooseIntegration();
 
     runCommand('yarn deploy-rrp');
-    runCommand('yarn ts-node scripts/deploy-rrp-dry-run');
+    runCommand('yarn ts-node src/scripts/deploy-rrp-dry-run');
     runCommand('yarn create-airnode-config');
 
     // Update the config to use the AirnodeRrpDryRun contract
@@ -38,7 +38,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     const configPath = join(__dirname, '../../integrations/coingecko-cross-chain-authorizer/config.json');
     const config: Config = JSON.parse(readFileSync(configPath).toString());
     config.chains[0].contracts = { ...config.chains[0].contracts, AirnodeRrpDryRun: airnodeRrpDryRun.address };
-    delete config.chains[0].options.fulfillmentGasLimit; // removing is necessary to use AirnodeRrpDryRun gas estimation
+    delete config.chains[0].options.fulfillmentGasLimit; // removing fulfillmentGasLimit is necessary for AirnodeRrpDryRun gas estimation
     writeFileSync(configPath, JSON.stringify(config, null, 2));
 
     runCommand('yarn create-airnode-secrets');
