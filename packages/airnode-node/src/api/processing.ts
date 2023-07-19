@@ -34,18 +34,15 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
     return payload;
   }
 
-  let inputParameters = aggregatedApiCall.parameters;
-  // The HTTP gateway is a special case for ChainAPI that is not allowed to access reserved parameters
-  if (payload.type === 'http-gateway') {
-    inputParameters = removeReservedParameters(inputParameters);
-  }
-
-  // provide endpoint parameters immutably
-  const endpointParameters = JSON.parse(JSON.stringify(inputParameters));
+  const inputParameters = removeReservedParameters(aggregatedApiCall.parameters);
 
   const goProcessedParameters = await go(
     () =>
       preProcessingSpecifications.reduce(async (input: Promise<unknown>, currentValue: ProcessingSpecification) => {
+        // provide endpoint parameters without reserved parameters immutably between steps
+        const endpointParameters = removeReservedParameters(
+          JSON.parse(JSON.stringify(payload.aggregatedApiCall.parameters))
+        );
         switch (currentValue.environment) {
           case 'Node':
             return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);
@@ -63,11 +60,10 @@ export const preProcessApiSpecifications = async (payload: ApiCallPayload): Prom
   }
 
   // Let this throw if the processed parameters are invalid
-  let parameters = apiCallParametersSchema.parse(goProcessedParameters.data);
+  const parsedParameters = apiCallParametersSchema.parse(goProcessedParameters.data);
 
-  if (payload.type === 'http-gateway') {
-    parameters = reInsertReservedParameters(aggregatedApiCall.parameters, parameters);
-  }
+  // Having removed reserved parameters for pre-processing, we need to re-insert them for the API call
+  const parameters = reInsertReservedParameters(aggregatedApiCall.parameters, parsedParameters);
 
   return {
     ...payload,
@@ -85,17 +81,13 @@ export const postProcessApiSpecifications = async (input: unknown, endpoint: End
     return input;
   }
 
-  // provide endpoint parameters immutably
-  let endpointParameters = JSON.parse(JSON.stringify(payload.aggregatedApiCall.parameters));
-
-  // The HTTP gateway is a special case for ChainAPI that is not allowed to access reserved parameters
-  if (payload.type === 'http-gateway') {
-    endpointParameters = removeReservedParameters(endpointParameters);
-  }
-
   const goResult = await go(
     () =>
       postProcessingSpecifications.reduce(async (input: any, currentValue: ProcessingSpecification) => {
+        // provide endpoint parameters without reserved parameters immutably between steps
+        const endpointParameters = removeReservedParameters(
+          JSON.parse(JSON.stringify(payload.aggregatedApiCall.parameters))
+        );
         switch (currentValue.environment) {
           case 'Node':
             return unsafeEvaluate(await input, currentValue.value, currentValue.timeoutMs, endpointParameters);

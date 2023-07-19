@@ -55,7 +55,7 @@ describe('pre-processing', () => {
     await expect(throwingFunc).rejects.toEqual(new Error('SyntaxError: Unexpected identifier'));
   });
 
-  it('demonstrates access to endPointParameters, but reserved parameters are inaccessible for HTTP gateway requests', async () => {
+  it('demonstrates access to endPointParameters, but reserved parameters are inaccessible', async () => {
     const config = fixtures.buildConfig();
     const preProcessingSpecifications = [
       {
@@ -113,7 +113,7 @@ describe('post-processing', () => {
     expect(result).toEqual(4000);
   });
 
-  it('demonstrates access to endPointParameters, but reserved parameters are inaccessible for HTTP gateway requests', async () => {
+  it('demonstrates access to endPointParameters, but reserved parameters are inaccessible', async () => {
     const config = fixtures.buildConfig();
     const postProcessingSpecifications = [
       {
