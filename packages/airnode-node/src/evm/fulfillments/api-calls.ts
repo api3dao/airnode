@@ -1,7 +1,7 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
-import { go } from '@api3/promise-utils';
+import { go, goSync } from '@api3/promise-utils';
 import { applyTransactionResult } from './requests';
 import * as requests from '../../requests';
 import { BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT, MAXIMUM_ONCHAIN_ERROR_LENGTH } from '../../constants';
@@ -12,8 +12,10 @@ import {
   TransactionOptions,
   SubmitRequest,
   ApiCallWithResponse,
+  RegularApiCallSuccessResponse,
+  ApiCall,
 } from '../../types';
-import { AirnodeRrpV0 } from '../contracts';
+import { AirnodeRrpV0, AirnodeRrpV0DryRunFactory } from '../contracts';
 import { decodeRevertString } from '../utils';
 
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
@@ -75,6 +77,128 @@ async function testFulfill(
   return [[noticeLog], null, goRes.data];
 }
 
+async function estimateGasToFulfill(
+  airnodeRrp: AirnodeRrpV0,
+  request: Request<ApiCallWithResponse>,
+  options: TransactionOptions
+): Promise<LogsErrorData<[ethers.BigNumber, ethers.BigNumber]>> {
+  const noticeLog = logger.pend(
+    'DEBUG',
+    `Attempting to estimate required gas to fulfill API call for Request:${request.id}...`
+  );
+
+  const [estimateGasAirnodeRrpLogs, estimateGasAirnodeRrpErr, estimateGasAirnodeRrpData] =
+    await estimateAirnodeRrpOverhead(airnodeRrp, request, options);
+
+  if (estimateGasAirnodeRrpErr || !estimateGasAirnodeRrpData)
+    return [[noticeLog, ...estimateGasAirnodeRrpLogs], estimateGasAirnodeRrpErr, null];
+
+  const [estimateGasFulfillmentCallLogs, estimateGasFulfillmentCallErr, estimateGasFulfillmentCallData] =
+    await estimateFulfillmentCallOverhead(airnodeRrp, request, options);
+
+  if (estimateGasFulfillmentCallErr || !estimateGasFulfillmentCallData)
+    return [
+      [noticeLog, ...estimateGasAirnodeRrpLogs, ...estimateGasFulfillmentCallLogs],
+      estimateGasFulfillmentCallErr,
+      null,
+    ];
+
+  return [
+    [noticeLog, ...estimateGasAirnodeRrpLogs, ...estimateGasFulfillmentCallLogs],
+    null,
+    [estimateGasAirnodeRrpData, estimateGasFulfillmentCallData],
+  ];
+}
+
+async function estimateAirnodeRrpOverhead(
+  airnodeRrp: AirnodeRrpV0,
+  request: Request<ApiCallWithResponse>,
+  options: TransactionOptions
+): Promise<LogsErrorData<ethers.BigNumber>> {
+  const noticeLog = logger.pend(
+    'DEBUG',
+    `Attempting to estimate AirnodeRrp overhead to fulfill API call for Request:${request.id}...`
+  );
+  if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
+
+  const airnodeRrpDryRunAddress = options.contracts.AirnodeRrpDryRun!;
+
+  const airnodeRrpDryRun = AirnodeRrpV0DryRunFactory.connect(airnodeRrpDryRunAddress, airnodeRrp.signer);
+
+  const operation = (): Promise<ethers.BigNumber> =>
+    airnodeRrpDryRun.estimateGas.fulfill(
+      request.id,
+      request.airnodeAddress,
+      request.fulfillAddress,
+      request.fulfillFunctionId,
+      request.data.encodedValue,
+      request.data.signature,
+      {
+        nonce: request.nonce!,
+      }
+    );
+  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
+  if (!goRes.success) {
+    const errorLog = logger.pend(
+      'ERROR',
+      `AirnodeRrp overhead estimation failed for Request:${request.id} with ${goRes.error}`,
+      goRes.error
+    );
+    return [[noticeLog, errorLog], goRes.error, null];
+  }
+
+  return [[noticeLog], null, goRes.data];
+}
+
+export const createTxToCallFulfillFunction = (request: Request<ApiCall & RegularApiCallSuccessResponse>) => ({
+  to: request.fulfillAddress,
+  data: ethers.utils.hexConcat([
+    request.fulfillFunctionId,
+    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes'], [request.id, request.data.encodedValue]),
+  ]),
+});
+
+async function estimateFulfillmentCallOverhead(
+  airnodeRrp: AirnodeRrpV0,
+  request: Request<ApiCallWithResponse>,
+  options: TransactionOptions
+): Promise<LogsErrorData<ethers.BigNumber>> {
+  const noticeLog = logger.pend(
+    'DEBUG',
+    `Attempting to estimate fulfillment call overhead to fulfill API call for Request:${request.id}...`
+  );
+
+  if (!request.success) return [[], new Error('Only successful API can be submitted'), null];
+
+  // Create transaction to call fulfill function
+  const goTx = goSync(() => createTxToCallFulfillFunction(request));
+
+  if (!goTx.success) {
+    const errorLog = logger.pend(
+      'ERROR',
+      `Transaction creation while fulfillment call overhead estimation failed for Request:${request.id} with ${goTx.error}`,
+      goTx.error
+    );
+    return [[noticeLog, errorLog], goTx.error, null];
+  }
+
+  // Create voidSigner with address of airnodeRrp contract to avoid being blocked by `onlyAirnodeRrp` modifier
+  const voidSignerAirnodeRrp = new ethers.VoidSigner(airnodeRrp.address, options.provider);
+
+  const operation = (): Promise<ethers.BigNumber> => voidSignerAirnodeRrp.estimateGas(goTx.data);
+  const goRes = await go(operation, { retries: 1, attemptTimeoutMs: BLOCKCHAIN_CALL_ATTEMPT_TIMEOUT });
+  if (!goRes.success) {
+    const errorLog = logger.pend(
+      'ERROR',
+      `Fulfillment call overhead estimation failed for Request:${request.id} with ${goRes.error}`,
+      goRes.error
+    );
+    return [[noticeLog, errorLog], goRes.error, null];
+  }
+
+  return [[noticeLog], null, goRes.data];
+}
+
 async function submitFulfill(
   airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCallWithResponse>,
@@ -108,16 +232,11 @@ async function submitFulfill(
   return [[noticeLog], null, applyTransactionResult(request, goRes.data)];
 }
 
-async function testAndSubmitFulfill(
+export async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrpV0,
   request: Request<ApiCallWithResponse>,
   options: TransactionOptions
 ): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
-  const errorMessage = requests.getErrorMessage(request);
-  if (errorMessage) {
-    return submitFail(airnodeRrp, request, errorMessage, options);
-  }
-
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
@@ -149,6 +268,65 @@ async function testAndSubmitFulfill(
   );
 
   return [[...testLogs, errorLog], testErr, null];
+}
+
+export async function estimateGasAndSubmitFulfill(
+  airnodeRrp: AirnodeRrpV0,
+  request: Request<ApiCallWithResponse>,
+  options: TransactionOptions
+): Promise<LogsErrorData<Request<ApiCallWithResponse>>> {
+  // Should not throw
+  const [estimateGasLogs, estimateGasErr, estimateGasData] = await estimateGasToFulfill(airnodeRrp, request, options);
+
+  if (estimateGasErr || !estimateGasData) {
+    // Make static test call to get revert string
+    const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
+
+    if (testErr || !testData || !testData.callSuccess) {
+      const updatedRequest: Request<ApiCallWithResponse> = {
+        ...request,
+        errorMessage: testErr
+          ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
+          : RequestErrorMessage.FulfillTransactionFailed,
+      };
+      const [submitLogs, submitErr, submittedRequest] = await submitFail(
+        airnodeRrp,
+        updatedRequest,
+        testErr?.message ?? decodeRevertString(testData?.callData || '0x'),
+        options
+      );
+      return [[...estimateGasLogs, ...testLogs, ...submitLogs], submitErr, submittedRequest];
+    }
+
+    // If static test call is successful even though gas estimation failure,
+    // it'll be caused by an RPC issue, so submit specific reason to chain
+    const updatedRequest: Request<ApiCallWithResponse> = {
+      ...request,
+      errorMessage: estimateGasErr
+        ? `${RequestErrorMessage.GasEstimationFailed} with error: ${estimateGasErr.message}`
+        : RequestErrorMessage.GasEstimationFailed,
+    };
+    const [submitLogs, submitErr, submittedRequest] = await submitFail(
+      airnodeRrp,
+      updatedRequest,
+      estimateGasErr?.message ?? RequestErrorMessage.GasEstimationFailed,
+      options
+    );
+    return [[...estimateGasLogs, ...testLogs, ...submitLogs], submitErr, submittedRequest];
+  }
+
+  const [airnodeRrpGasCost, fulfillmentCallGasCost] = estimateGasData;
+  const totalCost = airnodeRrpGasCost.add(fulfillmentCallGasCost);
+  // If gas estimation is success, submit fulfillment without making static test call
+  const gasLimitNoticeLog = logger.pend(
+    'INFO',
+    `Gas limit is set to ${totalCost} (AirnodeRrp: ${airnodeRrpGasCost} + Fulfillment Call: ${fulfillmentCallGasCost}) for Request:${request.id}.`
+  );
+  const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, {
+    ...options,
+    gasTarget: { ...options.gasTarget, gasLimit: totalCost },
+  });
+  return [[...estimateGasLogs, gasLimitNoticeLog, ...submitLogs], submitErr, submitData];
 }
 
 // =================================================================
@@ -203,6 +381,13 @@ export const submitApiCall: SubmitRequest<ApiCallWithResponse> = (airnodeRrp, re
     return Promise.resolve([[log], null, null]);
   }
 
+  const errorMessage = requests.getErrorMessage(request);
+  if (errorMessage) {
+    return submitFail(airnodeRrp, request, errorMessage, options);
+  }
+
   // Should not throw
-  return testAndSubmitFulfill(airnodeRrp, request, options);
+  if (options.gasTarget.gasLimit) return testAndSubmitFulfill(airnodeRrp, request, options);
+
+  return estimateGasAndSubmitFulfill(airnodeRrp, request, options);
 };

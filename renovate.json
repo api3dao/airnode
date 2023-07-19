@@ -25,5 +25,7 @@
     "enabled": true
   },
   "reviewers": ["team:airnode"],
+  "minimumReleaseAge": "5 days",
+  "internalChecksFilter": "strict",
   "dependencyDashboard": false
 }
