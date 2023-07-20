@@ -81,9 +81,12 @@ export const addAirnodeRrpV0DryRunAddress = async (config: Config) => {
     return config;
   }
   const airnodeRrpDryRun = goAirnodeRrpDryRun.data;
-  /* eslint-disable-next-line functional/immutable-data */
-  config.chains[0].contracts = { ...config.chains[0].contracts, AirnodeRrpDryRun: airnodeRrpDryRun.address };
-  return config;
+  return {
+    ...config,
+    chains: [
+      { ...config.chains[0], contracts: { ...config.chains[0].contracts, AirnodeRrpDryRun: airnodeRrpDryRun.address } },
+    ],
+  };
 };
 
 export const generateConfigFile = async (dirname: string, config: Config, generateExampleFile: boolean) => {
