@@ -124,11 +124,13 @@ The [RRP contract](https://docs.api3.org/reference/airnode/latest/concepts/#airn
 which the [requester](https://docs.api3.org/reference/airnode/latest/concepts/requester.html) triggers a request for
 Airnode. This contract is common for all Airnodes and requesters on a chain.
 
-If you are using a local blockchain, deploy the contact using the command below. Otherwise, the contract deployed by
-API3 on the chosen chain will be used automatically.
+If you are using a local blockchain, deploy the contract using the first command below. Otherwise, the contract deployed
+by API3 on the chosen chain will be used automatically. The second command, also optional if using a public blockchain,
+deploys the contract necessary for gas estimation.
 
 ```sh
 yarn deploy-rrp
+yarn deploy-rrp-dry-run
 ```
 
 #### 5. (Only if deploying to AWS) Create AWS secrets file

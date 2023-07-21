@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { Config, LocalOrCloudProvider } from '@api3/airnode-node';
+import { go } from '@api3/promise-utils';
 import { format } from 'prettier';
 import {
   cliPrint,
@@ -65,9 +66,33 @@ export const createNodeVersion = () => {
   return packageVersion;
 };
 
-export const generateConfigFile = (dirname: string, config: Config, generateExampleFile: boolean) => {
+/**
+ * If the AirnodeRrpV0DryRun contract has been deployed, add its address to the config file,
+ * otherwise, return the config file as is.
+ *
+ * Note when using a public blockchain an AirnodeRrpV0DryRun deployment is not necessary as we default
+ * to using the API3 deployment
+ */
+export const addAirnodeRrpV0DryRunAddress = async (config: Config) => {
+  const goAirnodeRrpDryRun = await go(() =>
+    getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0DryRun.sol')
+  );
+  if (!goAirnodeRrpDryRun.success) {
+    return config;
+  }
+  const airnodeRrpDryRun = goAirnodeRrpDryRun.data;
+  return {
+    ...config,
+    chains: [
+      { ...config.chains[0], contracts: { ...config.chains[0].contracts, AirnodeRrpDryRun: airnodeRrpDryRun.address } },
+    ],
+  };
+};
+
+export const generateConfigFile = async (dirname: string, config: Config, generateExampleFile: boolean) => {
   const filename = generateExampleFile ? 'config.example.json' : 'config.json';
-  const formattedConfig = format(JSON.stringify(config, null, 2), { parser: 'json', printWidth: 120 });
+  const updatedConfig = await addAirnodeRrpV0DryRunAddress(config);
+  const formattedConfig = format(JSON.stringify(updatedConfig, null, 2), { parser: 'json', printWidth: 120 });
   writeFileSync(join(dirname, filename), formattedConfig);
 
   cliPrint.info(`A '${filename}' has been created.`);
