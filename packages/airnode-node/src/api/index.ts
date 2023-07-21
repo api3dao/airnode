@@ -219,7 +219,9 @@ export async function processSuccessfulApiCall(
   // _minConfirmations is handled prior to the API call
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
-  const goPostProcessApiSpecifications = await go(() => postProcessApiSpecifications(rawResponse.data, endpoint));
+  const goPostProcessApiSpecifications = await go(() =>
+    postProcessApiSpecifications(rawResponse.data, endpoint, payload)
+  );
   if (!goPostProcessApiSpecifications.success) {
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
