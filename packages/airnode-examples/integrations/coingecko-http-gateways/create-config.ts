@@ -239,7 +239,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
 
 const generateConfig = async (generateExampleFile = false) => {
   const config = await createConfig(generateExampleFile);
-  generateConfigFile(__dirname, config, generateExampleFile);
+  await generateConfigFile(__dirname, config, generateExampleFile);
 };
 
 export default generateConfig;

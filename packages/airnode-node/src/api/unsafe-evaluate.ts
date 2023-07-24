@@ -78,9 +78,10 @@ const builtInNodeModules = {
 /**
  * This function is dangerous. Make sure to use it only with Trusted code.
  */
-export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
+export const unsafeEvaluate = (input: any, code: string, timeout: number, endpointParameters?: any) => {
   const vmContext = {
     input,
+    endpointParameters,
     ...builtInNodeModules,
     deferredOutput: undefined,
   };
@@ -105,7 +106,7 @@ export const unsafeEvaluate = (input: any, code: string, timeout: number) => {
  *
  * The value given to `resolve` is expected to be the equivalent of `output` above.
  */
-export const unsafeEvaluateAsync = (input: any, code: string, timeout: number) => {
+export const unsafeEvaluateAsync = (input: any, code: string, timeout: number, endpointParameters?: any) => {
   let vmReject: (reason: unknown) => void;
 
   // Make sure the timeout is applied. When the processing snippet uses setTimeout or setInterval, the timeout option
@@ -131,6 +132,7 @@ export const unsafeEvaluateAsync = (input: any, code: string, timeout: number) =
 
     const vmContext = {
       input,
+      endpointParameters,
       resolve: vmResolve,
       reject: vmReject,
       setTimeout: timers.customSetTimeout,

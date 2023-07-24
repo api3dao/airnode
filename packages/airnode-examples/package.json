@@ -18,6 +18,7 @@
     "deploy-airnode": "ts-node src/scripts/deploy-airnode.ts",
     "deploy-requester": "ts-node src/scripts/deploy-requester.ts",
     "deploy-rrp": "ts-node src/scripts/deploy-rrp.ts",
+    "deploy-rrp-dry-run": "ts-node src/scripts/deploy-rrp-dry-run.ts",
     "derive-and-fund-sponsor-wallet": "ts-node src/scripts/derive-and-fund-sponsor-wallet.ts",
     "dev:generate-example-files": "ts-node dev-scripts/generate-example-files.ts",
     "eth-node": "hardhat node",
