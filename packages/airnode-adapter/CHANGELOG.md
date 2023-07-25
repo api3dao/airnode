@@ -1,5 +1,11 @@
 # @api3/airnode-adapter
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1743](https://github.com/api3dao/airnode/pull/1743) [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814) Thanks [@dcroote](https://github.com/dcroote)! - Bump hardhat from 2.10.2 to 2.14.0 and add back to Renovate
+
 ## 0.11.0
 
 ### Minor Changes

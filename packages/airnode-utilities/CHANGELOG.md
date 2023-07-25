@@ -1,5 +1,20 @@
 # @api3/airnode-utilities
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1743](https://github.com/api3dao/airnode/pull/1743) [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814) Thanks [@dcroote](https://github.com/dcroote)! - Bump hardhat from 2.10.2 to 2.14.0 and add back to Renovate
+
+- [#1757](https://github.com/api3dao/airnode/pull/1757) [`a11b7dbf`](https://github.com/api3dao/airnode/commit/a11b7dbfc8a02b2f60176ad98b8e0099fd07f5c0) Thanks [@cserb](https://github.com/cserb)! - New strategy for providerRecommendedGasPrice
+
+- [#1828](https://github.com/api3dao/airnode/pull/1828) [`cf09dc6f`](https://github.com/api3dao/airnode/commit/cf09dc6ffca9587e28a6dcb3c7b99a1816bcb68b) Thanks [@bdrhn9](https://github.com/bdrhn9)! - Implement gas price strategy `sanitizedProviderRecommendedGasPrice`
+
+### Patch Changes
+
+- Updated dependencies [[`0b7d89eb`](https://github.com/api3dao/airnode/commit/0b7d89eb582d63aa299216f3cc28d82cf7071981), [`4226fbc9`](https://github.com/api3dao/airnode/commit/4226fbc9a6bd9d03cb4ad6c83dcfbd5fbde95994), [`9b52f2d4`](https://github.com/api3dao/airnode/commit/9b52f2d492f08980346e93887ee3f0790be9e5be), [`cf09dc6f`](https://github.com/api3dao/airnode/commit/cf09dc6ffca9587e28a6dcb3c7b99a1816bcb68b), [`93bc917d`](https://github.com/api3dao/airnode/commit/93bc917d360e9c3993c6b6e44b806b1dfc67cb61), [`deb1b358`](https://github.com/api3dao/airnode/commit/deb1b3583810ab979768a43d3c0eaec057843da8)]:
+  - @api3/airnode-validator@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes
