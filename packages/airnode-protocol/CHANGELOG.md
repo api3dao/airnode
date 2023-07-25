@@ -1,5 +1,27 @@
 # @api3/airnode-protocol
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1823](https://github.com/api3dao/airnode/pull/1823) [`0c0c3529`](https://github.com/api3dao/airnode/commit/0c0c3529a090976040d2ed7e23ab8939e09a6f3c) Thanks [@dcroote](https://github.com/dcroote)! - Remove boba-moonbeam as it is no longer available
+
+- [#1743](https://github.com/api3dao/airnode/pull/1743) [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814) Thanks [@dcroote](https://github.com/dcroote)! - Bump hardhat from 2.10.2 to 2.14.0 and add back to Renovate
+
+- [#1744](https://github.com/api3dao/airnode/pull/1744) [`5d119a9e`](https://github.com/api3dao/airnode/commit/5d119a9e6cdd0174a8a832cf6dafc8247d3ce02e) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Export AirnodeRrpV0DryRun.sol
+
+- [#1737](https://github.com/api3dao/airnode/pull/1737) [`134b6ff2`](https://github.com/api3dao/airnode/commit/134b6ff215595167ff084916f66b51eeb718a456) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Add and deploy AirnodeRrpV0DryRun.sol
+
+- [#1771](https://github.com/api3dao/airnode/pull/1771) [`c94ec660`](https://github.com/api3dao/airnode/commit/c94ec660b84a41f7856ee7813536a40bd01c77d4) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Switch to the audited RequesterAuthorizerWithErc721
+
+### Patch Changes
+
+- [#1837](https://github.com/api3dao/airnode/pull/1837) [`f10ccaeb`](https://github.com/api3dao/airnode/commit/f10ccaeb1336670e8ec2d204b1b18115debefdbf) Thanks [@dcroote](https://github.com/dcroote)! - Bump @api3/chains to v3.3.0
+
+- [#1739](https://github.com/api3dao/airnode/pull/1739) [`9062ea3b`](https://github.com/api3dao/airnode/commit/9062ea3bbae9d0c0db7bd1af00862db6682cb9b7) Thanks [@bbenligiray](https://github.com/bbenligiray)! - Refer to @api3/chains for chain related information while deploying contracts
+
+- [#1824](https://github.com/api3dao/airnode/pull/1824) [`cd8a30d0`](https://github.com/api3dao/airnode/commit/cd8a30d01414d354740c35fbbe765f76a2901c6a) Thanks [@renovate](https://github.com/apps/renovate)! - Update airnode-protocol scripts with @api3/chains v3.0.0 changes
+
 ## 0.11.0
 
 ### Minor Changes

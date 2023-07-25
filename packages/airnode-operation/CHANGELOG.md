@@ -1,5 +1,20 @@
 # @api3/airnode-operation
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1743](https://github.com/api3dao/airnode/pull/1743) [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814) Thanks [@dcroote](https://github.com/dcroote)! - Bump hardhat from 2.10.2 to 2.14.0 and add back to Renovate
+
+- [#1794](https://github.com/api3dao/airnode/pull/1794) [`21076594`](https://github.com/api3dao/airnode/commit/2107659402037baf1199d24abbbacb239a447ff4) Thanks [@dcroote](https://github.com/dcroote)! - Change the HTTP gateway for ChainAPI test calls by 1) returning data from successful API calls that fail processing and 2) making reserved parameters inaccessible in pre/post processing
+
+### Patch Changes
+
+- Updated dependencies [[`0c0c3529`](https://github.com/api3dao/airnode/commit/0c0c3529a090976040d2ed7e23ab8939e09a6f3c), [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814), [`a11b7dbf`](https://github.com/api3dao/airnode/commit/a11b7dbfc8a02b2f60176ad98b8e0099fd07f5c0), [`5d119a9e`](https://github.com/api3dao/airnode/commit/5d119a9e6cdd0174a8a832cf6dafc8247d3ce02e), [`cf09dc6f`](https://github.com/api3dao/airnode/commit/cf09dc6ffca9587e28a6dcb3c7b99a1816bcb68b), [`f10ccaeb`](https://github.com/api3dao/airnode/commit/f10ccaeb1336670e8ec2d204b1b18115debefdbf), [`9062ea3b`](https://github.com/api3dao/airnode/commit/9062ea3bbae9d0c0db7bd1af00862db6682cb9b7), [`134b6ff2`](https://github.com/api3dao/airnode/commit/134b6ff215595167ff084916f66b51eeb718a456), [`c94ec660`](https://github.com/api3dao/airnode/commit/c94ec660b84a41f7856ee7813536a40bd01c77d4), [`cd8a30d0`](https://github.com/api3dao/airnode/commit/cd8a30d01414d354740c35fbbe765f76a2901c6a)]:
+  - @api3/airnode-protocol@0.12.0
+  - @api3/airnode-utilities@0.12.0
+  - @api3/airnode-abi@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes

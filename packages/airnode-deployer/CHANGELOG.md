@@ -1,5 +1,16 @@
 # @api3/airnode-deployer
 
+## 0.12.0
+
+### Patch Changes
+
+- Updated dependencies [[`0c0c3529`](https://github.com/api3dao/airnode/commit/0c0c3529a090976040d2ed7e23ab8939e09a6f3c), [`345f2ec9`](https://github.com/api3dao/airnode/commit/345f2ec991008d8b86409aa365a0457adf350814), [`0b7d89eb`](https://github.com/api3dao/airnode/commit/0b7d89eb582d63aa299216f3cc28d82cf7071981), [`21076594`](https://github.com/api3dao/airnode/commit/2107659402037baf1199d24abbbacb239a447ff4), [`a11b7dbf`](https://github.com/api3dao/airnode/commit/a11b7dbfc8a02b2f60176ad98b8e0099fd07f5c0), [`5d119a9e`](https://github.com/api3dao/airnode/commit/5d119a9e6cdd0174a8a832cf6dafc8247d3ce02e), [`4226fbc9`](https://github.com/api3dao/airnode/commit/4226fbc9a6bd9d03cb4ad6c83dcfbd5fbde95994), [`9b52f2d4`](https://github.com/api3dao/airnode/commit/9b52f2d492f08980346e93887ee3f0790be9e5be), [`cf09dc6f`](https://github.com/api3dao/airnode/commit/cf09dc6ffca9587e28a6dcb3c7b99a1816bcb68b), [`93bc917d`](https://github.com/api3dao/airnode/commit/93bc917d360e9c3993c6b6e44b806b1dfc67cb61), [`deb1b358`](https://github.com/api3dao/airnode/commit/deb1b3583810ab979768a43d3c0eaec057843da8), [`f10ccaeb`](https://github.com/api3dao/airnode/commit/f10ccaeb1336670e8ec2d204b1b18115debefdbf), [`15a1b07e`](https://github.com/api3dao/airnode/commit/15a1b07e0eef983cebc705b97ce71412ce8d3c1d), [`9062ea3b`](https://github.com/api3dao/airnode/commit/9062ea3bbae9d0c0db7bd1af00862db6682cb9b7), [`134b6ff2`](https://github.com/api3dao/airnode/commit/134b6ff215595167ff084916f66b51eeb718a456), [`459f09f6`](https://github.com/api3dao/airnode/commit/459f09f6105b291c062fc77fbc7fa47139514969), [`c94ec660`](https://github.com/api3dao/airnode/commit/c94ec660b84a41f7856ee7813536a40bd01c77d4), [`cd8a30d0`](https://github.com/api3dao/airnode/commit/cd8a30d01414d354740c35fbbe765f76a2901c6a), [`f49228a1`](https://github.com/api3dao/airnode/commit/f49228a15f73aa8d21001bd305ae2d3f5180db59)]:
+  - @api3/airnode-protocol@0.12.0
+  - @api3/airnode-utilities@0.12.0
+  - @api3/airnode-validator@0.12.0
+  - @api3/airnode-node@0.12.0
+  - @api3/airnode-abi@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes

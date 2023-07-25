@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-utilities",
   "license": "MIT",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "private": false,
   "description": "General utilities to support Airnode packages",
   "files": [
@@ -18,7 +18,7 @@
   "types": "dist/index",
   "main": "dist/index.js",
   "dependencies": {
-    "@api3/airnode-validator": "^0.11.0",
+    "@api3/airnode-validator": "^0.12.0",
     "@api3/promise-utils": "^0.4.0",
     "date-fns": "^2.30.0",
     "ethers": "^5.7.2"
