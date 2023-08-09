@@ -49,9 +49,9 @@ Commands:
 ```
 
 You can enable and disable GitHub pull-request merging. Disabling merging is useful during the release process so the
-`master` branch won't move untill the packages are released.
+`master` branch won't move until the packages are released.
 
-You need to provide `GITHUB_TOKEN` environment variable containing GitHub atuhentication token.
+You need to provide `GITHUB_TOKEN` environment variable containing GitHub authentication token.
 
 Example:
 
@@ -156,7 +156,7 @@ Use the `--release-version` option to specify the version of the release this pu
 
 Use the `--head-branch` option to specify the branch from which should be the pull-request opened.
 
-Use the `--base-branch` option to specify the branch against which should be the pull-request opened .
+Use the `--base-branch` option to specify the branch against which should be the pull-request opened.
 
 You have to provide `GITHUB_TOKEN` environment variable containing GitHub authentication token.
 
