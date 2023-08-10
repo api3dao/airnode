@@ -5078,10 +5078,10 @@ aws-sdk-client-mock-jest@^2.2.0:
     "@types/jest" "^28.1.3"
     tslib "^2.1.0"
 
-aws-sdk-client-mock@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk-client-mock/-/aws-sdk-client-mock-2.2.0.tgz#af79218f5a75c243e07a6f15a099b009d132deb1"
-  integrity sha512-Kq2N+6gHRDedbrgTA0NMMfyN1XDWEA5Kbpm9/M/cenSxoNjfvQBOtBawI1lQe5h4UziLl///E7u17K9PBoHEKA==
+aws-sdk-client-mock@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk-client-mock/-/aws-sdk-client-mock-3.0.0.tgz#4202ce0d52462e8aa96f81ccb0c250a4640b0976"
+  integrity sha512-4mBiWhuLYLZe1+K/iB8eYy5SAZyW2se+Keyh5u9QouMt6/qJ5SRZhss68xvUX5g3ApzROJ06QPRziYHP6buuvQ==
   dependencies:
     "@types/sinon" "^10.0.10"
     sinon "^14.0.2"
