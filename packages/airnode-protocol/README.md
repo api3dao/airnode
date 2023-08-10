@@ -237,9 +237,9 @@ increased gas cost (e.g., templates could have been logged instead of written to
 #### Usability and future-proofness over over-optimization
 
 This last point is a bit abstract, yet has guided us through a number of decisions: When needed to choose between a
-slight gas cost optimization and improved upgradability in protocol, we opted for the latter. The reasoning here is that
-there is virtually infinite potential value to be unlocked with a highly-capable oracle protocol, and sacrificing this
-to optimize for a limited use-case is short-sighted. An example can be given as `fulfill()` in `AirnodeRrpV0` being
+slight gas cost optimization and improved upgradeability in protocol, we opted for the latter. The reasoning here is
+that there is virtually infinite potential value to be unlocked with a highly-capable oracle protocol, and sacrificing
+this to optimize for a limited use-case is short-sighted. An example can be given as `fulfill()` in `AirnodeRrpV0` being
 fulfilled with a `bytes` type that needs to be decoded (which adds a gas cost overhead), where most users will have the
 request return a single 32 bytes-long type. Even though this decoding operation overhead will recur a lot, it is still
 negligible compared to the value that will be created by an oracle protocol that allows flexible response specifications
@@ -348,7 +348,7 @@ the request by deriving the sponsor wallet address itself.
 For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the
 `RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all
 airnodes and the latter is managed by each airnode individually. The token locking contract `AirnodeTokenLock.sol` has
-the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinently
+the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinitely
 whitelist a requester. Requesters who want to be whitelisted need to lock in API3 tokens for each endpoint they wish to
 access. Unlocking these locked tokens revokes the whitelisting.
 
