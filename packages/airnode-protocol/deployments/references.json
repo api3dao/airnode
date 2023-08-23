@@ -20,11 +20,11 @@
     "1284": "moonbeam",
     "1285": "moonriver",
     "1287": "moonbeam-testnet",
-    "1442": "polygon-zkevm-testnet",
+    "1442": "polygon-zkevm-goerli-testnet",
     "2001": "milkomeda-c1",
     "4002": "fantom-testnet",
     "5000": "mantle",
-    "5001": "mantle-testnet",
+    "5001": "mantle-goerli-testnet",
     "8453": "base",
     "10200": "gnosis-testnet",
     "42161": "arbitrum",
@@ -33,12 +33,12 @@
     "43114": "avalanche",
     "43288": "boba-avalanche",
     "56288": "boba-bnb",
-    "59140": "linea-testnet",
+    "59140": "linea-goerli-testnet",
     "59144": "linea",
     "71401": "godwoken-testnet",
     "71402": "godwoken",
     "80001": "polygon-testnet",
-    "84531": "base-testnet",
+    "84531": "base-goerli-testnet",
     "200101": "milkomeda-c1-testnet",
     "421613": "arbitrum-goerli-testnet",
     "11155111": "ethereum-sepolia-testnet",
@@ -312,7 +312,7 @@
     },
     "1442": {
       "chainId": 1442,
-      "name": "polygon-zkevm-testnet"
+      "name": "polygon-zkevm-goerli-testnet"
     },
     "2001": {
       "chainId": 2001,
@@ -328,7 +328,7 @@
     },
     "5001": {
       "chainId": 5001,
-      "name": "mantle-testnet"
+      "name": "mantle-goerli-testnet"
     },
     "8453": {
       "chainId": 8453,
@@ -364,7 +364,7 @@
     },
     "59140": {
       "chainId": 59140,
-      "name": "linea-testnet"
+      "name": "linea-goerli-testnet"
     },
     "59144": {
       "chainId": 59144,
@@ -384,7 +384,7 @@
     },
     "84531": {
       "chainId": 84531,
-      "name": "base-testnet"
+      "name": "base-goerli-testnet"
     },
     "200101": {
       "chainId": 200101,
