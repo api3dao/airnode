@@ -9,12 +9,13 @@ ENV appDir="/app" \
 RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && echo "python3 make g++") && \
     yarn global add npm && \
     # Download both solidity compilers as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
-    mkdir -p /root/.cache/hardhat-nodejs/compilers/wasm && \
-    wget -O /root/.cache/hardhat-nodejs/compilers/wasm/soljson-v0.8.9+commit.e5eed63a.js https://solc-bin.ethereum.org/wasm/soljson-v0.8.9+commit.e5eed63a.js && \
-    wget -O /root/.cache/hardhat-nodejs/compilers/wasm/list.json https://solc-bin.ethereum.org/wasm/list.json && \
-    mkdir -p /root/.cache/hardhat-nodejs/compilers/linux-amd64 && \
-    wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a https://binaries.soliditylang.org/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a && \
-    wget -O /root/.cache/hardhat-nodejs/compilers/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json
+    mkdir -p /root/.cache/hardhat-nodejs/compilers-v2/wasm && \
+    wget -O /root/.cache/hardhat-nodejs/compilers-v2/wasm/soljson-v0.8.9+commit.e5eed63a.js https://solc-bin.ethereum.org/wasm/soljson-v0.8.9+commit.e5eed63a.js && \
+    wget -O /root/.cache/hardhat-nodejs/compilers-v2/wasm/list.json https://solc-bin.ethereum.org/wasm/list.json && \
+    mkdir -p /root/.cache/hardhat-nodejs/compilers-v2/linux-amd64 && \
+    wget -O /root/.cache/hardhat-nodejs/compilers-v2/linux-amd64/list.json https://solc-bin.ethereum.org/linux-amd64/list.json && \
+    touch /root/.cache/hardhat-nodejs/compilers-v2/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a && \
+    touch /root/.cache/hardhat-nodejs/compilers-v2/linux-amd64/solc-linux-amd64-v0.8.9+commit.e5eed63a.does.not.work
 
 COPY docker/scripts/dist/*.js ${appDir}/
 COPY docker/scripts/dist/*.map ${appDir}/

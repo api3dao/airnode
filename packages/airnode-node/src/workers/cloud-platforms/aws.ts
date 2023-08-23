@@ -1,7 +1,9 @@
 import { logger } from '@api3/airnode-utilities';
 import { go } from '@api3/promise-utils';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
-import { Uint8ArrayBlobAdapter } from '@aws-sdk/util-stream';
+// The following is an indirect @aws-sdk/client-lambda dependency
+// For more, see comments in https://github.com/api3dao/airnode/pull/1830
+import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import { WorkerParameters, WorkerResponse } from '../../types';
 
 export function encodeUtf8(input: string) {

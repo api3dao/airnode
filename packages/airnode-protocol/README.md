@@ -348,7 +348,7 @@ the request by deriving the sponsor wallet address itself.
 For requesters to be able to access an airnode endpoint , they need to be whitelisted on the airnode endpoint via the
 `RequesterAuthorizerWithManager` or the `RequesterAuthorizerWithAirnode`. The former is managed by the API3DAO for all
 airnodes and the latter is managed by each airnode individually. The token locking contract `AirnodeTokenLock.sol` has
-the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinently
+the indefinite whitelister role of the `RequesterAuthorizerWithManager`, this allows this contract to indefinitely
 whitelist a requester. Requesters who want to be whitelisted need to lock in API3 tokens for each endpoint they wish to
 access. Unlocking these locked tokens revokes the whitelisting.
 

@@ -94,7 +94,7 @@ yarn run dev:eth-requests
 
 A deployment file (`evm-dev.json`) must be present in the deployments folder before running this script.
 
-Airnode can now be invoked which will cause these requests to be actioned.
+Airnode can now be invoked which will cause these requests to be processed.
 
 ### Configuration
 

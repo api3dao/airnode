@@ -46,7 +46,7 @@ describe('processHttpRequest', () => {
     const [_err, result] = await processHttpRequest(modifiedConfig, endpointId, minimalParameters);
 
     const expected: HttpGatewayApiCallResponse = {
-      data: { result: '723.39202' },
+      data: { rawValue: { result: '723.39202' } },
       success: true,
       errorMessage: `Invalid type: ${invalidType}`,
     };
