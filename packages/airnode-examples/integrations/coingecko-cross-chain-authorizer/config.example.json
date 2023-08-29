@@ -67,10 +67,14 @@
       "enabled": false
     },
     "httpGateway": {
-      "enabled": false
+      "enabled": true,
+      "maxConcurrency": 20,
+      "corsOrigins": []
     },
     "httpSignedDataGateway": {
-      "enabled": false
+      "enabled": true,
+      "maxConcurrency": 20,
+      "corsOrigins": []
     },
     "oevGateway": {
       "enabled": false
@@ -89,8 +93,20 @@
         "cacheResponses": false
       }
     ],
-    "http": [],
-    "httpSignedData": []
+    "http": [
+      {
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
+      }
+    ],
+    "httpSignedData": [
+      {
+        "endpointId": "0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
+      }
+    ]
   },
   "templates": [],
   "ois": [

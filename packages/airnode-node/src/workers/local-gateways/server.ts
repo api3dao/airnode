@@ -23,7 +23,7 @@ const httpSignedDataBodySchema = z.object({
   encodedParameters: z.string(),
 });
 const DEFAULT_PORT = 3000;
-const DEFAULT_PATH_KEY = '01234567-abcd-abcd-abcd-012345678abc';
+export const DEFAULT_PATH_KEY = '01234567-abcd-abcd-abcd-012345678abc';
 
 export function getGatewaysUrl(port: number = DEFAULT_PORT, path?: string) {
   const base = `http://localhost:${port || DEFAULT_PORT}`;
