@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { Config } from '@api3/airnode-node';
+import { ethers } from 'ethers';
+import { Config, DEFAULT_PATH_KEY } from '@api3/airnode-node';
 import { logger } from '@api3/airnode-utilities';
 import { runCommand, runCommandInBackground } from '../utils';
 
@@ -31,6 +32,7 @@ const removeFulfillmentGasLimit = () => {
   const config: Config = JSON.parse(readFileSync(configPath, 'utf8'));
   delete config.chains[0].options.fulfillmentGasLimit;
   writeFileSync(configPath, JSON.stringify(config, null, 2));
+  return config;
 };
 
 describe('Coingecko integration with containerized Airnode and hardhat', () => {
@@ -41,7 +43,7 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
     runCommand('yarn deploy-rrp-dry-run');
     runCommand('yarn create-airnode-config');
     runCommand('yarn create-airnode-secrets');
-    removeFulfillmentGasLimit();
+    const config = removeFulfillmentGasLimit();
     runCommand(`yarn ts-node integrations/${integration}/deploy-authorizers-and-update-config`);
     runCommandInBackground('yarn run-airnode-locally');
 
@@ -55,15 +57,39 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
 
       const pathOfResponseText = 'Ethereum price is';
       expect(response).toContain(pathOfResponseText);
-
       const priceText = response.split(pathOfResponseText)[1];
       expect(priceText).toContain('USD');
+      const priceStr = priceText.split('USD')[0].trim();
+      const price = Number(priceStr);
+      logger.log(`Blockchain request: The Ethereum price is ${price} USD.`);
 
-      const price = priceText.split('USD')[0].trim();
-      expect(Number(price)).toEqual(expect.any(Number));
-      expect(Number(price).toString()).toBe(price);
+      const endpointId = config.triggers.rrp[0].endpointId;
+      const timesReservedParameter = config.ois[0].endpoints[0].reservedParameters.find((rp) => rp.name === '_times');
+      const timesValue = Number(timesReservedParameter!.fixed);
 
-      logger.log(`The Ethereum price is ${price} USD.`);
+      const httpResponse = runCommand(
+        `curl --silent --show-error -X POST -H 'Content-Type: application/json' -d '{"parameters": {"coinId": "ethereum"}}' 'http://localhost:3000/http-data/${DEFAULT_PATH_KEY}/${endpointId}'`
+      );
+      const httpGatewayPrice = Number(JSON.parse(httpResponse).values[0]) / timesValue;
+      expect(httpGatewayPrice).toEqual(expect.any(Number));
+      logger.log(`HTTP Gateway request: The Ethereum price is ${price} USD.`);
+
+      const signedHttpResponse = runCommand(
+        `curl --silent --show-error -X POST -H 'Content-Type: application/json' -d '{"encodedParameters": "0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000657468657265756d000000000000000000000000000000000000000000000000"}' 'http://localhost:3000/http-signed-data/${DEFAULT_PATH_KEY}/${endpointId}'`
+      );
+      const encodedValue = JSON.parse(signedHttpResponse).encodedValue;
+      const decodedBigNumber: ethers.BigNumber = ethers.utils.defaultAbiCoder.decode(['int256'], encodedValue)[0];
+      const signedGatewayPrice = decodedBigNumber.toNumber() / timesValue;
+      expect(signedGatewayPrice).toEqual(expect.any(Number));
+      logger.log(`Signed HTTP Gateway request: The Ethereum price is ${price} USD.`);
+
+      // Values returned by all three requests should be similar
+      const allowedDifference = 50; // very conservative
+      expect(Math.abs(httpGatewayPrice - signedGatewayPrice)).toBeLessThan(allowedDifference);
+      expect(Math.abs(httpGatewayPrice - price)).toBeLessThan(allowedDifference);
+      expect(Math.abs(signedGatewayPrice - price)).toBeLessThan(allowedDifference);
+
+      logger.log('All three requests returned similar Ethereum price values.');
     } finally {
       runCommand('yarn stop-local-airnode');
     }
