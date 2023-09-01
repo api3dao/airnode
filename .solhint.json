@@ -5,6 +5,8 @@
     "func-visibility": ["warn", { "ignoreConstructors": true }],
     "not-rely-on-time": "off",
     "no-empty-blocks": "off",
-    "no-global-import": "off"
+    "no-global-import": "off",
+    "custom-errors": "off",
+    "immutable-vars-naming": "off"
   }
 }
