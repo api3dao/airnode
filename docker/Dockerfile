@@ -7,7 +7,7 @@ ENV appDir="/app" \
     CI="true"
 
 RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && echo "python3 make g++") && \
-    yarn global add npm && \
+    yarn global add npm@^9.8.1 && \
     # Download both solidity compilers as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371
     mkdir -p /root/.cache/hardhat-nodejs/compilers-v2/wasm && \
     wget -O /root/.cache/hardhat-nodejs/compilers-v2/wasm/soljson-v0.8.9+commit.e5eed63a.js https://solc-bin.ethereum.org/wasm/soljson-v0.8.9+commit.e5eed63a.js && \
