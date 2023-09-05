@@ -281,7 +281,7 @@ describe('Gas oracle', () => {
         () =>
           ({
             baseFeePerGas: ethers.BigNumber.from(18),
-          } as any)
+          }) as any
       );
 
       const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
@@ -304,7 +304,7 @@ describe('Gas oracle', () => {
         () =>
           ({
             baseFeePerGas: ethers.BigNumber.from(18),
-          } as any)
+          }) as any
       );
       jest
         .spyOn(ethers.providers.StaticJsonRpcProvider.prototype, 'getGasPrice')

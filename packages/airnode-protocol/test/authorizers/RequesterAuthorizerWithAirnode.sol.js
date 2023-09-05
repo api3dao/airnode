@@ -45,9 +45,8 @@ describe('RequesterAuthorizerWithAirnode', function () {
       .initializeRoleAndGrantToSender(airnodeRootRole, requesterAuthorizerWithAirnodeAdminRoleDescription, {
         gasLimit: 1000000,
       });
-    whitelistExpirationExtenderRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(
-      airnodeAddress
-    );
+    whitelistExpirationExtenderRole =
+      await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(airnodeAddress);
     await accessControlRegistry
       .connect(airnodeWallet)
       .initializeRoleAndGrantToSender(
@@ -58,9 +57,8 @@ describe('RequesterAuthorizerWithAirnode', function () {
     await accessControlRegistry
       .connect(airnodeWallet)
       .grantRole(whitelistExpirationExtenderRole, roles.whitelistExpirationExtender.address, { gasLimit: 1000000 });
-    whitelistExpirationSetterRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(
-      airnodeAddress
-    );
+    whitelistExpirationSetterRole =
+      await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(airnodeAddress);
     await accessControlRegistry
       .connect(airnodeWallet)
       .initializeRoleAndGrantToSender(

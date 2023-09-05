@@ -151,10 +151,13 @@ export function verifyCallApi(payload: ApiCallPayload) {
 export function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   const verifications = [verifyRequestId, verifyTemplateId];
 
-  return verifications.reduce((result, verifierFn) => {
-    if (result) return result;
-    return verifierFn(payload);
-  }, null as LogsData<ApiCallErrorResponse> | null);
+  return verifications.reduce(
+    (result, verifierFn) => {
+      if (result) return result;
+      return verifierFn(payload);
+    },
+    null as LogsData<ApiCallErrorResponse> | null
+  );
 }
 
 export function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
