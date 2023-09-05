@@ -6,7 +6,7 @@ import { version as packageVersion } from '../packages/airnode-node/package.json
 const configPatterns = ['./packages/**/*config.example.json', './packages/**/*config.valid.json'];
 configPatterns.forEach((pattern) => {
   const exampleConfigs = fg.sync(pattern, { ignore: ['**/node_modules'] });
-  exampleConfigs.forEach((f) => {
+  exampleConfigs.forEach(async (f) => {
     const config = JSON.parse(readFileSync(f, 'utf-8'));
 
     // eslint-disable-next-line functional/immutable-data
@@ -14,7 +14,8 @@ configPatterns.forEach((pattern) => {
 
     // eslint-disable-next-line no-console
     console.log(`Updating "${f}" to version ${packageVersion}`);
-    writeFileSync(f, format(JSON.stringify(config, null, 2), { parser: 'json', printWidth: 120 }));
+    const formattedConfig = await format(JSON.stringify(config, null, 2), { parser: 'json', printWidth: 120 });
+    writeFileSync(f, formattedConfig);
   });
 });
 

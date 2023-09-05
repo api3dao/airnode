@@ -94,11 +94,13 @@ export function splitReservedParameters(parameters: ResponseReservedParameters):
   });
 
   const reservedParameters: ResponseReservedParameters[] = range(typesLength).map((i) =>
-    splitParams.reduce((acc, param) => {
-      if (!param.splitResult) return acc;
-
-      return { ...acc, [param.name]: param.splitResult[i] };
-    }, {} as any as ResponseReservedParameters)
+    splitParams.reduce(
+      (acc, param) => {
+        if (!param.splitResult) return acc;
+        return { ...acc, [param.name]: param.splitResult[i] };
+      },
+      {} as any as ResponseReservedParameters
+    )
   );
 
   return reservedParameters;

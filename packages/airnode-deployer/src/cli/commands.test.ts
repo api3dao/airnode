@@ -71,7 +71,7 @@ describe('deployer commands', () => {
     jest
       .spyOn(logger, 'getSpinner')
       .mockImplementation(
-        () => ({ start: () => mockSpinner, succeed: () => mockSpinner } as unknown as logger.Spinner)
+        () => ({ start: () => mockSpinner, succeed: () => mockSpinner }) as unknown as logger.Spinner
       );
     jest.spyOn(logger, 'inDebugMode').mockImplementation(() => false);
     tempConfigDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode-rollback-test'));
