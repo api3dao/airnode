@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'packages/airnode-protocol/**'
+      - '!packages/airnode-protocol/package.json'
     types: [opened, synchronize, reopened]
 
 env:
