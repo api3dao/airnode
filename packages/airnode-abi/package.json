@@ -21,9 +21,9 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.195",
-    "jest": "^29.6.0",
+    "@types/lodash": "^4.14.197",
+    "jest": "^29.6.4",
     "rimraf": "^5.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }
