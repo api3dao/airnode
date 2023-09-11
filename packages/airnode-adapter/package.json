@@ -29,8 +29,8 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@types/chai": "^4.3.5",
-    "@types/lodash": "^4.14.197",
+    "@types/chai": "^4.3.6",
+    "@types/lodash": "^4.14.198",
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.8",
     "ethereum-waffle": "^4.0.10",
