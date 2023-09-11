@@ -50,7 +50,7 @@
     "@google-cloud/functions-framework": "^3.3.0",
     "@types/adm-zip": "^0.5.0",
     "@types/aws-lambda": "^8.10.119",
-    "@types/lodash": "^4.14.197",
+    "@types/lodash": "^4.14.198",
     "@types/node": "^18.17.14",
     "@types/yargs": "^17.0.24",
     "aws-sdk-client-mock": "^3.0.0",
