@@ -30,4 +30,4 @@ const networks = Object.entries(references.chainNames).reduce((acc, [chainId, na
 }, {});
 references.networks = networks;
 
-fs.writeFileSync(path.join('deployments', 'references.json'), JSON.stringify(references, null, 2));
+fs.writeFileSync(path.join('deployments', 'references.json'), JSON.stringify(references, null, 2) + '\n');

@@ -21,8 +21,13 @@ yarn run test:coverage
 yarn run test:gas
 ```
 
-Deploy the contracts on a network (`<NETWORK>` must be one of the names from `credentials.example.json`), verify the
-deployment
+### Contract deployment
+
+To deploy the contracts on a network first copy `example.env` to `.env`. Enter a mnemonic and any appropriate API keys.
+Note that the mnemonic must be present (though can be arbitrary) even if the exclusive goal is contract verification.
+The `<NETWORK>` in the below commands must correspond to a network in `TODO`. If a hardhat error occurs during
+verification stating that a json file in `artifacts/build-info` is missing, running `yarn run clean` followed by
+`yarn run compile` should fix it.
 
 ```sh
 # Deploys deterministically (does not work on some chains)
@@ -34,8 +39,14 @@ NETWORK=<NETWORK> yarn run deploy:undeterministic
 # Verifies the deployment on the respective block explorer (not supported for some chains)
 NETWORK=<NETWORK> yarn run deploy:verify
 
-# Verifies the deployment locally (only works for undeterministic deployments)
-NETWORK=<NETWORK> yarn run deploy:verify-local
+# Verifies the deployments locally
+yarn run test:verify-local
+
+# The same as above, but for a specific network
+NETWORK=<NETWORK> yarn run test:verify-local:network
+
+# Generates deployments/references.json
+yarn run deploy:generate-references
 ```
 
 ### Deterministic deployment addresses
@@ -45,6 +56,8 @@ AirnodeRrpV0: 0xa0AD79D995DdeeB18a14eAef56A549A04e3Aa1Bd
 RequesterAuthorizerWithAirnode: 0xf18c105D0375E80980e4EED829a4A68A539E6178
 
 AccessControlRegistry: 0x92E5125adF385d86beDb950793526106143b6Df1
+
+AirnodeRrpV0DryRun: 0x2e768206bf5112e7D7efAf1d9df614C26475193f
 
 ### Integration notes
 
