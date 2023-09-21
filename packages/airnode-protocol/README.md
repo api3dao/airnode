@@ -25,9 +25,9 @@ yarn run test:gas
 
 To deploy the contracts on a network first copy `example.env` to `.env`. Enter a mnemonic and any appropriate API keys.
 Note that the mnemonic must be present (though can be arbitrary) even if the exclusive goal is contract verification.
-The `<NETWORK>` in the below commands must correspond to a network in `TODO`. If a hardhat error occurs during
-verification stating that a json file in `artifacts/build-info` is missing, running `yarn run clean` followed by
-`yarn run compile` should fix it.
+The `<NETWORK>` in the below commands must correspond to a filename (without the `.json` extension) from
+https://github.com/api3dao/chains/tree/main/chains. If a hardhat error occurs during verification stating that a json
+file in `artifacts/build-info` is missing, running `yarn run clean` followed by `yarn run compile` should fix it.
 
 ```sh
 # Deploys deterministically (does not work on some chains)
