@@ -3,7 +3,7 @@ import * as authentication from './authentication';
 import * as cookies from './cookies';
 import { BuilderParameters, CachedBuildRequestOptions, RequestParameters } from '../types';
 
-function initalParameters(): BuilderParameters {
+function initialParameters(): BuilderParameters {
   return {
     paths: {},
     query: {},
@@ -49,7 +49,7 @@ function buildFixedParameters(options: CachedBuildRequestOptions): BuilderParame
     }
 
     return appendParameter(acc, target, name, parameter.value);
-  }, initalParameters());
+  }, initialParameters());
 }
 
 function buildUserParameters(options: CachedBuildRequestOptions): BuilderParameters {
@@ -66,16 +66,19 @@ function buildUserParameters(options: CachedBuildRequestOptions): BuilderParamet
 
     // Double check that the parameter exists in the API specification
     const apiParameter = operation.parameters.find(
-      (p) => p.name === parameter.operationParameter.name && p.in === parameter.operationParameter.in
+      (p) =>
+        parameter.operationParameter &&
+        p.name === parameter.operationParameter.name &&
+        p.in === parameter.operationParameter.in
     );
-    if (!apiParameter) {
+    if (!apiParameter || !parameter.operationParameter) {
       return acc;
     }
 
     const { name, in: target } = parameter.operationParameter;
 
     return appendParameter(acc, target, name, parameters[key]);
-  }, initalParameters());
+  }, initialParameters());
 }
 
 export function buildParameters(options: CachedBuildRequestOptions): RequestParameters {
