@@ -5,13 +5,13 @@
  * cleans them up after use.
  */
 export const createTimers = () => {
-  let timeouts: NodeJS.Timer[] = [];
+  let timeouts: NodeJS.Timeout[] = [];
 
   const customSetTimeout = (fn: () => void, ms: number) => {
     timeouts.push(setTimeout(fn, ms));
   };
 
-  const customClearTimeout = (id: NodeJS.Timer) => {
+  const customClearTimeout = (id: NodeJS.Timeout) => {
     timeouts = timeouts.filter((timeoutId) => timeoutId !== id);
     clearTimeout(id);
   };
@@ -21,13 +21,13 @@ export const createTimers = () => {
     timeouts = [];
   };
 
-  let intervals: NodeJS.Timer[] = [];
+  let intervals: NodeJS.Timeout[] = [];
 
   const customSetInterval = (fn: () => void, ms: number) => {
     intervals.push(setInterval(fn, ms));
   };
 
-  const customClearInterval = (id: NodeJS.Timer) => {
+  const customClearInterval = (id: NodeJS.Timeout) => {
     intervals = intervals.filter((intervalId) => intervalId !== id);
     clearInterval(id);
   };
