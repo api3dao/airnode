@@ -29,13 +29,13 @@
   dependencies:
     zod "^3.22.2"
 
-"@api3/ois@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.1.0.tgz#71a6b9e67a72fa972527e578f2a81a6a3e7b6863"
-  integrity sha512-KcDzCNhC1z4XSrpz5G6XsvgUdJhTEtDwJLJX6VP8QNhIk6FWKgCqYUHuJ4PhOoSkMGUPPVu5jYqGbZj4q8ymEA==
+"@api3/ois@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.2.0.tgz#15924f09797926355c58534e26579015bfccee76"
+  integrity sha512-cgOvwu1WlMllW2SJeGO78HXaecjEd58hd4UTabXviAX8p6eGJ0WsTB7uwF6G/ahy0hTVA16uKcSpdZVd7ZsDoQ==
   dependencies:
     lodash "^4.17.21"
-    zod "^3.21.4"
+    zod "^3.22.2"
 
 "@api3/promise-utils@^0.4.0":
   version "0.4.0"
