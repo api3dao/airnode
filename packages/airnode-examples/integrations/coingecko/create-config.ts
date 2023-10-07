@@ -90,7 +90,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '2.2.0',
+      oisFormat: '2.2.1',
       title: 'CoinGecko basic request',
       version: '1.0.0',
       apiSpecifications: {

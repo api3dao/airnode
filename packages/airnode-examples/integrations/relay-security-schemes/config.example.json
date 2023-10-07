@@ -83,7 +83,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "2.2.0",
+      "oisFormat": "2.2.1",
       "title": "Relay Security Schemes via httpbin",
       "version": "1.0.0",
       "apiSpecifications": {
