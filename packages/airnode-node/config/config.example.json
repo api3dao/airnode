@@ -113,7 +113,7 @@
   "templates": [],
   "ois": [
     {
-      "oisFormat": "2.2.0",
+      "oisFormat": "2.2.1",
       "version": "1.2.3",
       "title": "Currency Converter API",
       "apiSpecifications": {

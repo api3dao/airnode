@@ -29,13 +29,13 @@
   dependencies:
     zod "^3.22.2"
 
-"@api3/ois@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.2.0.tgz#15924f09797926355c58534e26579015bfccee76"
-  integrity sha512-cgOvwu1WlMllW2SJeGO78HXaecjEd58hd4UTabXviAX8p6eGJ0WsTB7uwF6G/ahy0hTVA16uKcSpdZVd7ZsDoQ==
+"@api3/ois@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.2.1.tgz#caa5c672c51b5572cf9bb30226a0647b3a51a57d"
+  integrity sha512-C4tSMBccDlD8NkZMVATQXOKctI46fSOlzpbZmZoFknsIdYfQvGNU49StGRJZ6fJJkwXEX1TlkRC7rY2yHEJjqw==
   dependencies:
     lodash "^4.17.21"
-    zod "^3.22.2"
+    zod "^3.22.3"
 
 "@api3/promise-utils@^0.4.0":
   version "0.4.0"
@@ -15080,12 +15080,12 @@ zksync-web3@^0.14.3:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.14.3.tgz#64ac2a16d597464c3fc4ae07447a8007631c57c9"
   integrity sha512-hT72th4AnqyLW1d5Jlv8N2B/qhEnl2NePK2A3org7tAa24niem/UAaHMkEvmWI3SF9waYUPtqAtjpf+yvQ9zvQ==
 
-zod@^3.21.4:
-  version "3.22.0"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.0.tgz#2478211a9bf477eb2d7d2ce031b5f8ff0d596407"
-  integrity sha512-y5KZY/ssf5n7hCGDGGtcJO/EBJEm5Pa+QQvFBeyMOtnFYOSflalxIFFvdaYevPhePcmcKC4aTbFkCcXN7D0O8Q==
-
 zod@^3.22.2:
   version "3.22.2"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.2.tgz#3add8c682b7077c05ac6f979fea6998b573e157b"
   integrity sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==
+
+zod@^3.22.3:
+  version "3.22.4"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
+  integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==
