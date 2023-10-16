@@ -29,18 +29,18 @@
     "write-example-env-file": "hardhat run scripts/write-example-env-file.ts"
   },
   "devDependencies": {
-    "@api3/chains": "^3.5.0",
+    "@api3/chains": "^3.5.1",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@typechain/ethers-v5": "^11.1.1",
-    "chai": "^4.3.8",
+    "chai": "^4.3.10",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^4.0.10",
     "hardhat": "^2.14.1",
-    "hardhat-deploy": "^0.11.37",
+    "hardhat-deploy": "^0.11.42",
     "hardhat-gas-reporter": "^1.0.9",
-    "rimraf": "^5.0.1",
+    "rimraf": "^5.0.5",
     "solidity-coverage": "^0.8.5",
     "typechain": "^8.3.1",
     "typescript": "^5.2.2"
