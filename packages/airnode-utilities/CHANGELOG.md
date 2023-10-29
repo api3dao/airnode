@@ -1,5 +1,14 @@
 # @api3/airnode-utilities
 
+## 0.13.0
+
+### Patch Changes
+
+- [#1825](https://github.com/api3dao/airnode/pull/1825) [`b447fcc5`](https://github.com/api3dao/airnode/commit/b447fcc5d82f63c9393e2ef5651cedf66809a4a3) Thanks [@renovate](https://github.com/apps/renovate)! - Apply prettier v3 formatting
+
+- Updated dependencies [[`1da62631`](https://github.com/api3dao/airnode/commit/1da62631905cf4b49266f248c8c385b5106d4c4d), [`cefc5e4a`](https://github.com/api3dao/airnode/commit/cefc5e4abcc0f10a9b0b84b9bf55af2f34ffe1bd)]:
+  - @api3/airnode-validator@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
