@@ -1,5 +1,32 @@
 # @api3/airnode-node
 
+## 0.13.0
+
+### Minor Changes
+
+- [#1899](https://github.com/api3dao/airnode/pull/1899) [`449fa396`](https://github.com/api3dao/airnode/commit/449fa39665025e1832d55a2e9cb8792b2b76de4f) Thanks [@Siegrift](https://github.com/Siegrift)! - Import processing implementation from @api3/commons
+
+- [#1888](https://github.com/api3dao/airnode/pull/1888) [`1da62631`](https://github.com/api3dao/airnode/commit/1da62631905cf4b49266f248c8c385b5106d4c4d) Thanks [@dcroote](https://github.com/dcroote)! - Bump OIS to v2.2.0 and make operationParameter optional within endpoint parameters
+
+### Patch Changes
+
+- [#1859](https://github.com/api3dao/airnode/pull/1859) [`502a5aa7`](https://github.com/api3dao/airnode/commit/502a5aa722eb4a1a6b921aa4a489916ffb04c22e) Thanks [@dcroote](https://github.com/dcroote)! - Harmonize HTTP gateway response object when encoding fails compared to when it succeeds
+
+- [#1869](https://github.com/api3dao/airnode/pull/1869) [`fb90c4c5`](https://github.com/api3dao/airnode/commit/fb90c4c5c207165a9b0c157af36da8ae1f3f84c5) Thanks [@dcroote](https://github.com/dcroote)! - Test HTTP gateways in E2E integration test
+
+- [#1830](https://github.com/api3dao/airnode/pull/1830) [`1d7e4b2f`](https://github.com/api3dao/airnode/commit/1d7e4b2fe4467cee05a6d5f4b34b772d377337df) Thanks [@renovate](https://github.com/apps/renovate)! - Update to @smithy package for aws-sdk
+
+- [#1893](https://github.com/api3dao/airnode/pull/1893) [`cefc5e4a`](https://github.com/api3dao/airnode/commit/cefc5e4abcc0f10a9b0b84b9bf55af2f34ffe1bd) Thanks [@dcroote](https://github.com/dcroote)! - Bump ois to v2.2.1
+
+- [#1825](https://github.com/api3dao/airnode/pull/1825) [`b447fcc5`](https://github.com/api3dao/airnode/commit/b447fcc5d82f63c9393e2ef5651cedf66809a4a3) Thanks [@renovate](https://github.com/apps/renovate)! - Apply prettier v3 formatting
+
+- Updated dependencies [[`87cee037`](https://github.com/api3dao/airnode/commit/87cee0372afc60acb141ad308d3664172f3cbdb6), [`1da62631`](https://github.com/api3dao/airnode/commit/1da62631905cf4b49266f248c8c385b5106d4c4d), [`d2e5a04b`](https://github.com/api3dao/airnode/commit/d2e5a04bf6e88de1888f044dfb171344171ba0ea), [`1d7e4b2f`](https://github.com/api3dao/airnode/commit/1d7e4b2fe4467cee05a6d5f4b34b772d377337df), [`cefc5e4a`](https://github.com/api3dao/airnode/commit/cefc5e4abcc0f10a9b0b84b9bf55af2f34ffe1bd), [`b447fcc5`](https://github.com/api3dao/airnode/commit/b447fcc5d82f63c9393e2ef5651cedf66809a4a3)]:
+  - @api3/airnode-protocol@0.13.0
+  - @api3/airnode-validator@0.13.0
+  - @api3/airnode-adapter@0.13.0
+  - @api3/airnode-utilities@0.13.0
+  - @api3/airnode-abi@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
