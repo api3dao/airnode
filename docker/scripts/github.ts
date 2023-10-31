@@ -6,7 +6,7 @@ import { runCommand } from './utils';
 
 const OWNER = 'api3dao';
 const REPOSITORY = 'airnode';
-const TEAM = 'airnode';
+const TEAM = 'airnode-releasers';
 
 const initializeOctokit = () => {
   const githubToken = process.env.GITHUB_TOKEN;
