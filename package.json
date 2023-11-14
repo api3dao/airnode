@@ -98,6 +98,7 @@
     "test:protocol:verify-local": "cd packages/airnode-protocol && yarn run test:verify-local",
     "test:node": "(cd packages/airnode-node && yarn run test)",
     "test:node:watch": "cd packages/airnode-node && yarn run test:watch",
+    "test:release": "ts-node scripts/test-release.ts",
     "test:utilities": "(cd packages/airnode-utilities && yarn run test)",
     "test:validator": "(cd packages/airnode-validator && yarn run test)",
     "update-ois-version": "ts-node scripts/update-ois-version.ts"
