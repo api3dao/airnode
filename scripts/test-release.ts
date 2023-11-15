@@ -1,3 +1,17 @@
+/**
+ * This script facilitates testing of Airnode releases and snapshot releases.
+ * It covers the following:
+ * - Testing npm packages that have a help command to catch broken packaging
+ * - Validating config.json and secrets.env using the npm validator package
+ * - Testing the generate-mnemonic command of the npm admin package
+ * - Pulling the docker images
+ * - Deploying Airnode to a cloud provider
+ * - Making a blockchain request
+ * - Making a HTTP gateway request
+ * - Making a HTTP signed data gateway request
+ * - Listing deployed Airnodes
+ * - Removing the Airnode deployment
+ */
 import { spawnSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import axios from 'axios';
@@ -149,11 +163,15 @@ const main = async () => {
   executeCommandSync('yarn deploy-requester');
   executeCommandSync('yarn derive-and-fund-sponsor-wallet');
   executeCommandSync('yarn sponsor-requester');
+  // Wait for 30 seconds as sometimes sponsorship will not be recognized immediately
+  console.log('Waiting for 30 seconds before making a request...');
+  await new Promise((resolve) => setTimeout(resolve, 30000));
   executeCommandSync('yarn make-request');
   executeCommandSync('yarn make-withdrawal-request');
 
   const httpConfig = {
     method: 'post',
+    // triggers.http[0].endpointId from coingecko-http-gateways config.json
     url: `${gatewayUrls.httpGatewayUrl}/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4`,
     headers: {
       'Content-Type': 'application/json',
@@ -173,13 +191,15 @@ const main = async () => {
   const signedConfig = {
     method: 'post',
     maxBodyLength: Infinity,
+    // triggers.httpSignedData[0].endpointId from coingecko-http-gateways config.json
     url: `${gatewayUrls.signedHttpGatewayUrl}/0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4`,
     headers: {
       'Content-Type': 'application/json',
     },
     data: JSON.stringify({
       encodedParameters:
-        '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000',
+        // From coingecko-http-gateways integration README for encoded 'ethereum' coinId
+        '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000657468657265756d000000000000000000000000000000000000000000000000',
     }),
   };
 
