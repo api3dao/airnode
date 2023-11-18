@@ -1,6 +1,6 @@
 import * as adapter from '@api3/airnode-adapter';
 import isEmpty from 'lodash/isEmpty';
-import { RESERVED_PARAMETERS } from '@api3/ois';
+import { OIS, RESERVED_PARAMETERS } from '@api3/ois';
 import { preProcessApiCallParameters, postProcessApiCallResponse } from '@api3/commons';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
@@ -27,7 +27,7 @@ export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptio
   const { type, config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
-  const ois = config.ois.find((o) => o.title === oisTitle)!;
+  const ois = config.ois.find((o) => o.title === oisTitle)! as OIS;
   const apiCredentials = config.apiCredentials
     .filter((c) => c.oisTitle === oisTitle)
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
@@ -217,7 +217,7 @@ export async function processSuccessfulApiCall(
 ): Promise<LogsData<ApiCallResponse>> {
   const { type, config, aggregatedApiCall } = payload;
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
-  const ois = config.ois.find((o) => o.title === oisTitle)!;
+  const ois = config.ois.find((o) => o.title === oisTitle)! as OIS;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
   // _minConfirmations is handled prior to the API call
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
@@ -231,9 +231,10 @@ export async function processSuccessfulApiCall(
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
   }
+  const postProcessedValue = goPostProcessApiSpecifications.data.apiCallResponse;
 
   const goExtractAndEncodeResponse = goSync(() =>
-    adapter.extractAndEncodeResponse(goPostProcessApiSpecifications.data, {
+    adapter.extractAndEncodeResponse(postProcessedValue, {
       _type,
       _path,
       _times,
@@ -273,7 +274,7 @@ export async function processSuccessfulApiCall(
       ];
     }
     case 'http-signed-data-gateway': {
-      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const timestamp = (goPostProcessApiSpecifications.data.timestamp ?? Math.floor(Date.now() / 1000)).toString();
       const goSignWithTemplateId = await go(() =>
         signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue)
       );
@@ -300,28 +301,33 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   const {
     aggregatedApiCall: { parameters },
   } = payload;
-  const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)!;
+  const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)! as OIS;
   const endpoint = ois.endpoints.find((e) => e.name === payload.aggregatedApiCall.endpointName)!;
-  const processedParameters = await preProcessApiCallParameters(endpoint, parameters, {
+  const { apiCallParameters: processedApiCallParameters } = await preProcessApiCallParameters(endpoint, parameters, {
     totalTimeoutMs: PROCESSING_TIMEOUT,
   });
 
   // skip API call if operation is undefined and fixedOperationParameters is empty array
   if (!endpoint.operation && isEmpty(endpoint.fixedOperationParameters)) {
-    // contents of preProcessingSpecifications or postProcessingSpecifications (or both) will simulate an API when API call is skipped
-    if (isEmpty(endpoint.preProcessingSpecifications) && isEmpty(endpoint.postProcessingSpecifications)) {
-      const message = `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois '${payload.aggregatedApiCall.oisTitle}', endpoint '${payload.aggregatedApiCall.endpointName}'.`;
+    // Some processing needs to be defined.
+    if (
+      isEmpty(endpoint.preProcessingSpecifications) &&
+      isEmpty(endpoint.postProcessingSpecifications) &&
+      !endpoint.preProcessingSpecificationV2 &&
+      !endpoint.postProcessingSpecificationV2
+    ) {
+      const message = `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array or define 'preProcessingSpecificationV2' or 'postProcessingSpecificationV2' at ois '${payload.aggregatedApiCall.oisTitle}', endpoint '${payload.aggregatedApiCall.endpointName}'.`;
       const log = logger.pend('ERROR', message);
       return [[log], { success: false, errorMessage: message }];
     }
-    // output of preProcessingSpecifications can be used as output directly or
-    // preProcessingSpecifications can be used to manipulate parameters to use in postProcessingSpecifications
-    return processSuccessfulApiCall(payload, { data: processedParameters });
+    // The pre-processing output can be used as output directly or it can be used to manipulate parameters to use in
+    // post-processing.
+    return processSuccessfulApiCall(payload, { data: processedApiCallParameters });
   }
 
   const [logs, response] = await performApiCall({
     ...payload,
-    aggregatedApiCall: { ...payload.aggregatedApiCall, parameters: processedParameters },
+    aggregatedApiCall: { ...payload.aggregatedApiCall, parameters: processedApiCallParameters },
   } as ApiCallPayload);
   if (isPerformApiCallFailure(response)) {
     return [logs, response];
