@@ -110,7 +110,7 @@
     "@changesets/cli": "^2.26.2",
     "@octokit/core": "^5.0.1",
     "@types/libsodium-wrappers": "^0.7.12",
-    "@types/node": "^18.18.7",
+    "@types/node": "^20.9.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vercel/ncc": "^0.38.1",
