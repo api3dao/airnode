@@ -307,19 +307,9 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
     totalTimeoutMs: PROCESSING_TIMEOUT,
   });
 
-  // skip API call if operation is undefined and fixedOperationParameters is empty array
+  // Skip API call if operation is undefined and fixedOperationParameters is empty array. We can be sure that there is
+  // at least one processing specification defined (either v1 or v2) because it is verified by the OIS schema.
   if (!endpoint.operation && isEmpty(endpoint.fixedOperationParameters)) {
-    // Some processing needs to be defined.
-    if (
-      isEmpty(endpoint.preProcessingSpecifications) &&
-      isEmpty(endpoint.postProcessingSpecifications) &&
-      !endpoint.preProcessingSpecificationV2 &&
-      !endpoint.postProcessingSpecificationV2
-    ) {
-      const message = `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array or define 'preProcessingSpecificationV2' or 'postProcessingSpecificationV2' at ois '${payload.aggregatedApiCall.oisTitle}', endpoint '${payload.aggregatedApiCall.endpointName}'.`;
-      const log = logger.pend('ERROR', message);
-      return [[log], { success: false, errorMessage: message }];
-    }
     // The pre-processing output can be used as output directly or it can be used to manipulate parameters to use in
     // post-processing.
     return processSuccessfulApiCall(payload, { data: processedEndpointParameters });
