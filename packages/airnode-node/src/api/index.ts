@@ -1,7 +1,7 @@
 import * as adapter from '@api3/airnode-adapter';
 import isEmpty from 'lodash/isEmpty';
 import { OIS, RESERVED_PARAMETERS } from '@api3/ois';
-import { preProcessApiCallParameters, postProcessApiCallResponse } from '@api3/commons';
+import { preProcessEndpointParameters, postProcessResponse } from '@api3/commons';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import axios, { AxiosError } from 'axios';
@@ -223,7 +223,7 @@ export async function processSuccessfulApiCall(
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() =>
-    postProcessApiCallResponse(rawResponse.data, endpoint, aggregatedApiCall.parameters, {
+    postProcessResponse(rawResponse.data, endpoint, aggregatedApiCall.parameters, {
       totalTimeoutMs: PROCESSING_TIMEOUT,
     })
   );
@@ -231,7 +231,7 @@ export async function processSuccessfulApiCall(
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
   }
-  const postProcessedValue = goPostProcessApiSpecifications.data.apiCallResponse;
+  const postProcessedValue = goPostProcessApiSpecifications.data.response;
 
   const goExtractAndEncodeResponse = goSync(() =>
     adapter.extractAndEncodeResponse(postProcessedValue, {
@@ -303,7 +303,7 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   } = payload;
   const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)! as OIS;
   const endpoint = ois.endpoints.find((e) => e.name === payload.aggregatedApiCall.endpointName)!;
-  const { apiCallParameters: processedApiCallParameters } = await preProcessApiCallParameters(endpoint, parameters, {
+  const { endpointParameters: processedEndpointParameters } = await preProcessEndpointParameters(endpoint, parameters, {
     totalTimeoutMs: PROCESSING_TIMEOUT,
   });
 
@@ -322,12 +322,12 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
     }
     // The pre-processing output can be used as output directly or it can be used to manipulate parameters to use in
     // post-processing.
-    return processSuccessfulApiCall(payload, { data: processedApiCallParameters });
+    return processSuccessfulApiCall(payload, { data: processedEndpointParameters });
   }
 
   const [logs, response] = await performApiCall({
     ...payload,
-    aggregatedApiCall: { ...payload.aggregatedApiCall, parameters: processedApiCallParameters },
+    aggregatedApiCall: { ...payload.aggregatedApiCall, parameters: processedEndpointParameters },
   } as ApiCallPayload);
   if (isPerformApiCallFailure(response)) {
     return [logs, response];
