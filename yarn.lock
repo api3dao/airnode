@@ -35,8 +35,10 @@
     viem "^1.18.2"
     zod "^3.22.4"
 
-"@api3/commons@file:../commons":
-  version "0.4.1"
+"@api3/commons@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmjs.org/@api3/commons/-/commons-0.5.0.tgz#d9ff9aba3a2da8cd7b678371550881e008c43a1c"
+  integrity sha512-PqSukqnAGQORuGTSLaQiVuxUtU5RBNOhm5GEnX0fhROhoKyX11E5EJuuQqYwIG4LsBkhVGNJuR7PhnUs6VmwrA==
   dependencies:
     "@api3/ois" "^2.3.0"
     "@api3/promise-utils" "^0.4.0"
@@ -70,8 +72,10 @@
     lodash "^4.17.21"
     zod "^3.22.3"
 
-"@api3/ois@^2.3.0", "@api3/ois@file:../ois":
+"@api3/ois@^2.3.0":
   version "2.3.0"
+  resolved "https://registry.npmjs.org/@api3/ois/-/ois-2.3.0.tgz#f5407eab380396c70031a82b4d9e188200082474"
+  integrity sha512-B/F9sirQLBZNGClnpK/U585/gqYvjEHNKR5Xgc92LTvPe6F8w9RSW3JNZo4qAc+7Tzly9xr6kmoWQJsgnwD9iQ==
   dependencies:
     lodash "^4.17.21"
     zod "^3.22.4"
