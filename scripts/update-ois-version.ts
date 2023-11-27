@@ -19,7 +19,7 @@ if (versions.length > 1) {
 if (versions.length === 0) {
   throw new Error(`No version of @api3/ois found in packages`);
 }
-const packageVersion = versions[0];
+const packageVersion = versions[0].replace('^', '');
 
 const oisJsonPatterns = ['./packages/**/*config*.json', './packages/**/ois.json'];
 oisJsonPatterns.forEach((pattern) => {
