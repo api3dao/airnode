@@ -64,15 +64,7 @@
     winston-console-format "^1.0.8"
     zod "^3.22.4"
 
-"@api3/ois@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.2.1.tgz#caa5c672c51b5572cf9bb30226a0647b3a51a57d"
-  integrity sha512-C4tSMBccDlD8NkZMVATQXOKctI46fSOlzpbZmZoFknsIdYfQvGNU49StGRJZ6fJJkwXEX1TlkRC7rY2yHEJjqw==
-  dependencies:
-    lodash "^4.17.21"
-    zod "^3.22.3"
-
-"@api3/ois@^2.3.0":
+"@api3/ois@2.3.0", "@api3/ois@^2.3.0":
   version "2.3.0"
   resolved "https://registry.npmjs.org/@api3/ois/-/ois-2.3.0.tgz#f5407eab380396c70031a82b4d9e188200082474"
   integrity sha512-B/F9sirQLBZNGClnpK/U585/gqYvjEHNKR5Xgc92LTvPe6F8w9RSW3JNZo4qAc+7Tzly9xr6kmoWQJsgnwD9iQ==
@@ -16169,7 +16161,7 @@ zksync-web3@^0.14.3:
   resolved "https://registry.yarnpkg.com/zksync-web3/-/zksync-web3-0.14.3.tgz#64ac2a16d597464c3fc4ae07447a8007631c57c9"
   integrity sha512-hT72th4AnqyLW1d5Jlv8N2B/qhEnl2NePK2A3org7tAa24niem/UAaHMkEvmWI3SF9waYUPtqAtjpf+yvQ9zvQ==
 
-zod@^3.22.3, zod@^3.22.4:
+zod@^3.22.4:
   version "3.22.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
   integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==

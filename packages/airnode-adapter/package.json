@@ -19,7 +19,7 @@
     "test:watch": "yarn test:ts --watch"
   },
   "dependencies": {
-    "@api3/ois": "2.2.1",
+    "@api3/ois": "2.3.0",
     "@api3/promise-utils": "^0.4.0",
     "axios": "^1.5.0",
     "bignumber.js": "^9.1.2",

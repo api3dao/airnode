@@ -170,23 +170,24 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               },
             },
           ],
-          preProcessingSpecifications: [
-            {
-              environment: 'Node',
-              timeoutMs: 5000,
-              value: `
-                const rawDate = new Date(input.unixTimestamp * 1000);
-                const day = rawDate.getDate().toString().padStart(2, '0');
-                const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
-                const year = rawDate.getFullYear();
+          preProcessingSpecificationV2: {
+            environment: 'Node',
+            timeoutMs: 5000,
+            value: `
+async ({apiCallParameters}) => {
+  const rawDate = new Date(apiCallParameters.unixTimestamp * 1000);
+  const day = rawDate.getDate().toString().padStart(2, '0');
+  const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
+  const year = rawDate.getFullYear();
 
-                const formattedDate = day + '-' + month + '-' + year;
-                const output = {...input, unixTimestamp: formattedDate};
+  const formattedDate = day + '-' + month + '-' + year;
+  const newApiCallParameters = {...apiCallParameters, unixTimestamp: formattedDate};
 
-                console.log(\`[Pre-processing snippet]: Formatted \\\${input.unixTimestamp} to \\\${formattedDate}.\`)
-              `,
-            },
-          ],
+  console.log(\`[Pre-processing snippet]: Formatted \\\${apiCallParameters.unixTimestamp} to \\\${formattedDate}.\`)
+  return {apiCallParameters: newApiCallParameters};
+}
+            `.trim(),
+          },
         },
       ],
     },

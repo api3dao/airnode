@@ -91,7 +91,7 @@ export const addAirnodeRrpV0DryRunAddress = async (config: Config) => {
 
 export const generateConfigFile = async (dirname: string, config: Config, generateExampleFile: boolean) => {
   const filename = generateExampleFile ? 'config.example.json' : 'config.json';
-  const updatedConfig = await addAirnodeRrpV0DryRunAddress(config);
+  const updatedConfig = generateExampleFile ? config : await addAirnodeRrpV0DryRunAddress(config);
   const formattedConfig = await format(JSON.stringify(updatedConfig, null, 2), { parser: 'json', printWidth: 120 });
   writeFileSync(join(dirname, filename), formattedConfig);
 

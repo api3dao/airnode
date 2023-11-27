@@ -88,7 +88,19 @@ function getSchemeAuthentication(
   credentials: BaseApiCredentials | null,
   options: CachedBuildRequestOptions
 ): Partial<Authentication> {
-  switch (apiSecurityScheme.type) {
+  // TODO: The ApiSecurityScheme type imported from OIS is typed as "any" by TypeScript making the switch statement
+  // below be non-exhaustive and generate a TS error. This is a workaround.
+  type ApiSecuritySchemeType =
+    | 'apiKey'
+    | 'http'
+    | 'relayChainId'
+    | 'relayChainType'
+    | 'relayRequesterAddress'
+    | 'relaySponsorAddress'
+    | 'relaySponsorWalletAddress'
+    | 'relayRequestId';
+
+  switch (apiSecurityScheme.type as ApiSecuritySchemeType) {
     case 'apiKey':
       return getApiKeyAuth(apiSecurityScheme, credentials);
     case 'http':
