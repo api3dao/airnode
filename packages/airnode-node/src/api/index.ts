@@ -1,6 +1,6 @@
 import * as adapter from '@api3/airnode-adapter';
 import isEmpty from 'lodash/isEmpty';
-import { OIS, RESERVED_PARAMETERS } from '@api3/ois';
+import { RESERVED_PARAMETERS } from '@api3/ois';
 import { preProcessEndpointParameters, postProcessResponse } from '@api3/commons';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
@@ -27,7 +27,7 @@ export function buildOptions(payload: ApiCallPayload): adapter.BuildRequestOptio
   const { type, config, aggregatedApiCall } = payload;
   const { endpointName, parameters, oisTitle } = aggregatedApiCall;
 
-  const ois = config.ois.find((o) => o.title === oisTitle)! as OIS;
+  const ois = config.ois.find((o) => o.title === oisTitle)!;
   const apiCredentials = config.apiCredentials
     .filter((c) => c.oisTitle === oisTitle)
     .map((c) => removeKey(c, 'oisTitle')) as adapter.BaseApiCredentials[];
@@ -217,7 +217,7 @@ export async function processSuccessfulApiCall(
 ): Promise<LogsData<ApiCallResponse>> {
   const { type, config, aggregatedApiCall } = payload;
   const { endpointName, oisTitle, parameters } = aggregatedApiCall;
-  const ois = config.ois.find((o) => o.title === oisTitle)! as OIS;
+  const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
   // _minConfirmations is handled prior to the API call
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
@@ -301,7 +301,7 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   const {
     aggregatedApiCall: { parameters },
   } = payload;
-  const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)! as OIS;
+  const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === payload.aggregatedApiCall.endpointName)!;
   const { endpointParameters: processedEndpointParameters } = await preProcessEndpointParameters(endpoint, parameters, {
     totalTimeoutMs: PROCESSING_TIMEOUT,

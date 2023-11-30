@@ -64,7 +64,15 @@
     winston-console-format "^1.0.8"
     zod "^3.22.4"
 
-"@api3/ois@2.3.0", "@api3/ois@^2.3.0":
+"@api3/ois@2.3.1":
+  version "2.3.1"
+  resolved "https://registry.npmjs.org/@api3/ois/-/ois-2.3.1.tgz#de80dc1b404f094be9049d2a8fdc0362cdfd7dce"
+  integrity sha512-7TmgEiJn3TrqV2BZGh4fKTF4qX7Q/dyGdQh9L6gj4dHBmoKzfK0eDbwjWR+RokYrd9k4E4whGNxEnzdZr3ubSA==
+  dependencies:
+    lodash "^4.17.21"
+    zod "^3.22.4"
+
+"@api3/ois@^2.3.0":
   version "2.3.0"
   resolved "https://registry.npmjs.org/@api3/ois/-/ois-2.3.0.tgz#f5407eab380396c70031a82b4d9e188200082474"
   integrity sha512-B/F9sirQLBZNGClnpK/U585/gqYvjEHNKR5Xgc92LTvPe6F8w9RSW3JNZo4qAc+7Tzly9xr6kmoWQJsgnwD9iQ==
