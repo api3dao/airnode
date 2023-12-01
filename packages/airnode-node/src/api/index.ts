@@ -231,10 +231,10 @@ export async function processSuccessfulApiCall(
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
   }
-  const postProcessedData = goPostProcessApiSpecifications.data.response;
+  const postProcessedData = goPostProcessApiSpecifications.data;
 
   const goExtractAndEncodeResponse = goSync(() =>
-    adapter.extractAndEncodeResponse(postProcessedData, {
+    adapter.extractAndEncodeResponse(postProcessedData.response, {
       _type,
       _path,
       _times,
@@ -274,7 +274,7 @@ export async function processSuccessfulApiCall(
       ];
     }
     case 'http-signed-data-gateway': {
-      const timestamp = (goPostProcessApiSpecifications.data.timestamp ?? Math.floor(Date.now() / 1000)).toString();
+      const timestamp = (postProcessedData.timestamp ?? Math.floor(Date.now() / 1000)).toString();
       const goSignWithTemplateId = await go(() =>
         signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue)
       );
