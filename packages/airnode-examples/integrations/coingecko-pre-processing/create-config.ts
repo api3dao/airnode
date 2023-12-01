@@ -90,7 +90,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '2.2.1',
+      oisFormat: '2.3.1',
       title: 'CoinGecko history data request',
       version: '1.0.0',
       apiSpecifications: {
@@ -170,23 +170,24 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               },
             },
           ],
-          preProcessingSpecifications: [
-            {
-              environment: 'Node',
-              timeoutMs: 5000,
-              value: `
-                const rawDate = new Date(input.unixTimestamp * 1000);
-                const day = rawDate.getDate().toString().padStart(2, '0');
-                const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
-                const year = rawDate.getFullYear();
+          preProcessingSpecificationV2: {
+            environment: 'Node',
+            timeoutMs: 5000,
+            value: `
+async ({endpointParameters}) => {
+  const rawDate = new Date(endpointParameters.unixTimestamp * 1000);
+  const day = rawDate.getDate().toString().padStart(2, '0');
+  const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
+  const year = rawDate.getFullYear();
 
-                const formattedDate = day + '-' + month + '-' + year;
-                const output = {...input, unixTimestamp: formattedDate};
+  const formattedDate = day + '-' + month + '-' + year;
+  const newEndpointParameters = {...endpointParameters, unixTimestamp: formattedDate};
 
-                console.log(\`[Pre-processing snippet]: Formatted \\\${input.unixTimestamp} to \\\${formattedDate}.\`)
-              `,
-            },
-          ],
+  console.log(\`[Pre-processing snippet]: Formatted \\\${endpointParameters.unixTimestamp} to \\\${formattedDate}.\`)
+  return {endpointParameters: newEndpointParameters};
+}
+            `.trim(),
+          },
         },
       ],
     },

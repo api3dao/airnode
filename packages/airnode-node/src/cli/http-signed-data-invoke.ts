@@ -29,10 +29,6 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.log(`Invoke HTTP signed data handler`);
       const config = loadTrustedConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
-      const parameters = JSON.parse(args.encodedParameters);
-      if (!parameters) {
-        throw new Error('Missing request parameters');
-      }
       logger.log(
         JSON.stringify(await processHttpSignedDataRequest(config, args['endpoint-id'], args['encoded-parameters']))
       );
