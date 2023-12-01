@@ -174,17 +174,17 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
             environment: 'Node',
             timeoutMs: 5000,
             value: `
-async ({apiCallParameters}) => {
-  const rawDate = new Date(apiCallParameters.unixTimestamp * 1000);
+async ({endpointParameters}) => {
+  const rawDate = new Date(endpointParameters.unixTimestamp * 1000);
   const day = rawDate.getDate().toString().padStart(2, '0');
   const month = (rawDate.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
   const year = rawDate.getFullYear();
 
   const formattedDate = day + '-' + month + '-' + year;
-  const newApiCallParameters = {...apiCallParameters, unixTimestamp: formattedDate};
+  const newEndpointParameters = {...endpointParameters, unixTimestamp: formattedDate};
 
-  console.log(\`[Pre-processing snippet]: Formatted \\\${apiCallParameters.unixTimestamp} to \\\${formattedDate}.\`)
-  return {apiCallParameters: newApiCallParameters};
+  console.log(\`[Pre-processing snippet]: Formatted \\\${endpointParameters.unixTimestamp} to \\\${formattedDate}.\`)
+  return {endpointParameters: newEndpointParameters};
 }
             `.trim(),
           },

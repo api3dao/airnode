@@ -231,10 +231,10 @@ export async function processSuccessfulApiCall(
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
   }
-  const postProcessedValue = goPostProcessApiSpecifications.data.response;
+  const postProcessedData = goPostProcessApiSpecifications.data.response;
 
   const goExtractAndEncodeResponse = goSync(() =>
-    adapter.extractAndEncodeResponse(postProcessedValue, {
+    adapter.extractAndEncodeResponse(postProcessedData, {
       _type,
       _path,
       _times,
