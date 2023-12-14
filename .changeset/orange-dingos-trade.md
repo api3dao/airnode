@@ -5,4 +5,4 @@
 '@api3/airnode-node': minor
 ---
 
-Bump axios and @api3 deps and remove tests and code reliant on deployed RequesterAuthorizerWithErc721 addresses
+Bump axios and @api3 deps

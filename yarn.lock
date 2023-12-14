@@ -20,10 +20,10 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@api3/airnode-protocol-v1@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/airnode-protocol-v1/-/airnode-protocol-v1-3.0.0.tgz#2d7e07050a4c14f26aececcf42812191bc119d50"
-  integrity sha512-QMBLPxxnbibxweoRLnPOiGMTPqHnAmqn1BRrSTJS9APcdB2FfDqozcRW1Ye5oHLQL1wOH973hJODetWHcBUf8g==
+"@api3/airnode-protocol-v1@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/airnode-protocol-v1/-/airnode-protocol-v1-3.1.0.tgz#b4cfe0a0321f51326e959d7201a8094454fc2cbc"
+  integrity sha512-3XOYdQqQPWXC2xSz1cCnk6kzkeugE6NdxgU25C43dzkJStvY+jALyxmS9SBtsUCaq4KA7hYVxci5gkDi7rZbAQ==
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 

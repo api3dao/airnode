@@ -873,6 +873,18 @@ describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { contracts, ...crossChainWithoutAddress } = crossChainRequesterAuthorizerWithErc721;
 
+  it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
+    const idWithDeployment = '11155111';
+    const crossChainWithDeployment = {
+      ...crossChainWithoutAddress,
+      chainId: idWithDeployment,
+    };
+    const parsed = crossChainRequesterAuthorizersWithErc721Schema.parse(crossChainWithDeployment);
+    expect(parsed.contracts).toEqual({
+      RequesterAuthorizerWithErc721: RequesterAuthorizerWithErc721Addresses[idWithDeployment],
+    });
+  });
+
   it('fails if RequesterAuthorizerWithErc721 contract address is not specified and there is no deployment for the chain', () => {
     const idWithoutDeployment = '99999999999999999999999';
     const crossChainWithoutDeployment = {
@@ -903,6 +915,18 @@ describe('ensureRequesterAuthorizerWithErc721', () => {
   const chainWithoutRequesterAuthorizerWithErc721Address = config.chains[0];
   delete chainWithoutRequesterAuthorizerWithErc721Address.authorizers.requesterAuthorizersWithErc721[0]
     .RequesterAuthorizerWithErc721;
+
+  it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
+    const idWithDeployment = '11155111';
+    const configWithDeployment = {
+      ...chainWithoutRequesterAuthorizerWithErc721Address,
+      id: idWithDeployment,
+    };
+    const parsed = chainConfigSchema.parse(configWithDeployment);
+    expect(parsed.authorizers.requesterAuthorizersWithErc721[0].RequesterAuthorizerWithErc721).toEqual(
+      RequesterAuthorizerWithErc721Addresses[idWithDeployment]
+    );
+  });
 
   it('fails if RequesterAuthorizerWithErc721 contract address is not specified and there is no deployment for the chain', () => {
     const idWithoutDeployment = '99999999999999999999999';
