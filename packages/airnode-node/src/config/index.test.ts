@@ -13,7 +13,7 @@ describe('config validation', () => {
   const exampleSecrets = dotenv.parse(readFileSync(join(__dirname, '../../config/secrets.example.env')));
 
   it('loads the config and adds default contract addresses', () => {
-    const chainId = '5';
+    const chainId = '11155111';
     const invalidConfig = JSON.parse(readFileSync(exampleConfigPath, 'utf-8'));
     invalidConfig.chains[0].id = chainId; // Need to use an actual chain not hardhat
     delete invalidConfig.chains[0].contracts;
