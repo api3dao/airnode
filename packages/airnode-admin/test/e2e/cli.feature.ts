@@ -24,9 +24,9 @@ it('has disabled DEBUG_COMMANDS flag', () => {
   expect(DEBUG_COMMANDS).toBe(false);
 });
 
-describe('CLI', () => {
-  jest.setTimeout(120_000);
+jest.setTimeout(120_000);
 
+describe('CLI', () => {
   let provider: ethers.providers.JsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
   const aliceDerivationPath = "m/44'/60'/0'/0/1";
