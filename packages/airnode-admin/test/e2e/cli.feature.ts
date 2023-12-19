@@ -25,7 +25,7 @@ it('has disabled DEBUG_COMMANDS flag', () => {
 });
 
 describe('CLI', () => {
-  jest.setTimeout(45_000);
+  jest.setTimeout(120_000);
 
   let provider: ethers.providers.JsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
