@@ -35,10 +35,10 @@
     viem "^1.19.11"
     zod "^3.22.4"
 
-"@api3/commons@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/@api3/commons/-/commons-0.5.0.tgz#d9ff9aba3a2da8cd7b678371550881e008c43a1c"
-  integrity sha512-PqSukqnAGQORuGTSLaQiVuxUtU5RBNOhm5GEnX0fhROhoKyX11E5EJuuQqYwIG4LsBkhVGNJuR7PhnUs6VmwrA==
+"@api3/commons@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@api3/commons/-/commons-0.6.0.tgz#dc578609f35e4d114766ba9b4b94666889b7e152"
+  integrity sha512-6NyWoUVxYQLxLNuSHGWHRvex+AziutFu3Me+ncJmz3JiLIuJCdEfKvu1kFHmBOtUQksN6rUbdr4I4tOot4LXbQ==
   dependencies:
     "@api3/ois" "^2.3.0"
     "@api3/promise-utils" "^0.4.0"
