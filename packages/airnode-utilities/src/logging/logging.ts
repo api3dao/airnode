@@ -1,8 +1,20 @@
 import omit from 'lodash/omit';
+import { logFormatOptions, logLevelOptions, createLogger } from '@api3/commons/dist/logger';
+import { z } from 'zod';
 import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
 import { formatDateTimeMs } from '../date';
 
 let logOptions: LogOptions | undefined;
+
+const logLevelSchema = z.enum(logLevelOptions);
+const logFormatOptionsSchema = z.enum(logFormatOptions);
+
+const externalLogger = createLogger({
+  colorize: !!process.env.LOG_COLORIZE,
+  enabled: !!process.env.LOGGER_ENABLED,
+  minLevel: logLevelSchema.parse(process.env.LOG_LEVEL ?? 'info'),
+  format: logFormatOptionsSchema.parse(logFormatOptionsSchema ?? 'pretty'),
+});
 
 export const getLogOptions = () => {
   return logOptions;
@@ -43,7 +55,7 @@ export const logger = {
       logFull('INFO', message, options);
       return;
     }
-    consoleLog(message);
+    externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
   },
   debug: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
@@ -134,27 +146,10 @@ export function formatMetadata(meta: LogMetadata) {
 }
 
 export function plain(level: LogLevel, message: string, options: LogOptions) {
-  const timestamp = formatDateTimeMs(new Date());
-  const paddedMsg = message.padEnd(80);
-
-  const metadata = formatMetadata(options.meta ?? {});
-  consoleLog(`[${timestamp}] ${level} ${paddedMsg} ${metadata}`);
+  externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
-  const timestamp = formatDateTimeMs(new Date());
-  const logObject = {
-    timestamp,
-    level,
-    message,
-    ...options.meta,
-  };
-
-  consoleLog(JSON.stringify(logObject));
-}
-
-export function consoleLog(...args: any[]) {
-  if (process.env.SILENCE_LOGGER) return;
-  // eslint-disable-next-line no-console
-  console.log(...args);
+  // TODO two loggers?
+  externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
 }
