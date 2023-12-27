@@ -1,19 +1,24 @@
 import omit from 'lodash/omit';
-import { logFormatOptions, logLevelOptions, createLogger } from '@api3/commons/dist/logger';
+import { logLevelOptions, createLogger } from '@api3/commons';
 import { z } from 'zod';
 import { LogLevel, LogOptions, ErrorLogOptions, PendingLog, LogMetadata } from './types';
-import { formatDateTimeMs } from '../date';
 
 let logOptions: LogOptions | undefined;
 
 const logLevelSchema = z.enum(logLevelOptions);
-const logFormatOptionsSchema = z.enum(logFormatOptions);
 
-const externalLogger = createLogger({
+const externalJsonLogger = createLogger({
   colorize: !!process.env.LOG_COLORIZE,
   enabled: !!process.env.LOGGER_ENABLED,
   minLevel: logLevelSchema.parse(process.env.LOG_LEVEL ?? 'info'),
-  format: logFormatOptionsSchema.parse(logFormatOptionsSchema ?? 'pretty'),
+  format: 'json',
+});
+
+const externalTextLogger = createLogger({
+  colorize: !!process.env.LOG_COLORIZE,
+  enabled: !!process.env.LOGGER_ENABLED,
+  minLevel: logLevelSchema.parse(process.env.LOG_LEVEL ?? 'info'),
+  format: 'pretty',
 });
 
 export const getLogOptions = () => {
@@ -55,41 +60,41 @@ export const logger = {
       logFull('INFO', message, options);
       return;
     }
-    externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
+    externalTextLogger.info(message, options);
   },
   debug: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('DEBUG', message, options);
       return;
     }
-    consoleLog(message);
+    externalTextLogger.debug(message);
   },
   info: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('INFO', message, options);
       return;
     }
-    consoleLog(message);
+    externalTextLogger.info(message);
   },
   warn: (message: string, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('WARN', message, options);
       return;
     }
-    consoleLog(message);
+    externalTextLogger.warn(message);
   },
   error: (message: string, error: Error | null = null, options: LogOptions | undefined = logOptions) => {
     if (options) {
       logFull('ERROR', message, { ...options, error });
       return;
     }
-    if (error) consoleLog(message, error);
-    else consoleLog(message);
+    if (error) externalTextLogger.error(message, error);
+    else externalTextLogger.error(message);
   },
   logPending: (pendingLogs: PendingLog[], options?: Partial<LogOptions>) =>
     pendingLogs.forEach((pendingLog) => {
       if (!logOptions) {
-        consoleLog(pendingLog.message);
+        externalTextLogger.info(pendingLog.message);
         return;
       }
 
@@ -146,10 +151,15 @@ export function formatMetadata(meta: LogMetadata) {
 }
 
 export function plain(level: LogLevel, message: string, options: LogOptions) {
-  externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
+  externalTextLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
   // TODO two loggers?
-  externalLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
+  externalJsonLogger[logLevelSchema.parse(level.toLocaleLowerCase())](message, options.meta);
+}
+
+export function consoleLog(...args: any[]) {
+  if (process.env.SILENCE_LOGGER) return;
+  externalTextLogger.info(args.join(' '));
 }
