@@ -35,9 +35,6 @@ const validDecodedBeacons = [
     beaconId: '0x1032c3cbea7692429f3f1bdb72c47b5c61bdd3ca995a763027f8aa511b42b11b',
     templateId: '0x64a8f8e70cd1bd4e4621bde25053bf4e22633241effa9f768bf18ff6400dc702',
     airnodeAddress: '0x9A2Df85E73851e27044504d72563696E5cE86B95',
-    endpointId: '0xa473a7ca2d5211e6e5766cc6a27c6e90a4f0270f13565e303c56a629815ed60a',
-    encodedParameters:
-      '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000657468657265756d000000000000000000000000000000000000000000000000',
     signedData: {
       timestamp: '1677747253',
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e8', // 1000
@@ -50,9 +47,6 @@ const validDecodedBeacons = [
     beaconId: '0xd6965b1162b263e4dac3084ff0589614a464ac3e4ca012cb90ebb73094f7204e',
     templateId: '0x306c24b3373f82f267e678464c3bbca29ca5657d0cc6fa4e92981ff91e7c97f3',
     airnodeAddress: '0x9A2Df85E73851e27044504d72563696E5cE86B95',
-    endpointId: '0x6c0d51132b51cfca233be8f652189a62d1d9e3d7e0fed3dd2f131ebbf01d31d5',
-    encodedParameters:
-      '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000626974636f696e00000000000000000000000000000000000000000000000000',
     signedData: {
       timestamp: '1677747310',
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003e9', // 1001
@@ -65,9 +59,6 @@ const validDecodedBeacons = [
     beaconId: '0xac1054d456689fa9d63e70d6a39b2f3896f494a544865969f1de6d3a61bf10ed',
     templateId: '0xf13fcbc7e9b814d6f42ca68793c4c5843950d7d77f4c54105669468efc7bb8a0',
     airnodeAddress: '0xc89216a9adFA290354eB5365C3d5de6B6A24296a',
-    endpointId: '0x0441ead8bafbca489e41d994bdde04d233b88423d93bd789651f2dd60d11f752',
-    encodedParameters:
-      '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000646f6765636f696e000000000000000000000000000000000000000000000000',
     signedData: {
       timestamp: '1677747379',
       encodedValue: '0x00000000000000000000000000000000000000000000000000000000000003ea', // 1002
@@ -82,12 +73,12 @@ const validBeaconsWithIds = validDecodedBeacons.map<Required<BeaconWithIds>>((de
 );
 const validRequestBody: ProcessSignOevDataRequestBody = {
   chainId: 31337,
-  dapiServerAddress: '0x720D8B97a6B90AB8a53358447Df5cf28A9391Ab4',
+  api3ServerV1: '0x720D8B97a6B90AB8a53358447Df5cf28A9391Ab4',
   oevProxyAddress: '0x9AA42184aFD00c9599CE05748E2199F8f083036b',
   updateId: '0x3039656530346630306130383438646138323665616363636538343664303000',
   bidderAddress: '0xb5c062D4d799b85B4e29c274F9570Fd8216AED68',
   bidAmount: '0x0000000000000000000000000000000000000000000000000000000a571a14c0',
-  beacons: validBeaconsWithIds.map((beacon) => omit(beacon, ['templateId', 'beaconId'])),
+  beacons: validBeaconsWithIds.map((beacon) => omit(beacon, ['beaconId'])),
 };
 
 describe('verifyHttpRequest', () => {
@@ -252,10 +243,8 @@ describe('validateBeacons', () => {
     expect(validateBeacons([validRequestBody.beacons[0]])).toEqual([beacon]);
   });
 
-  it('returns null if some beacons have invalid encoded parameters', () => {
-    expect(
-      validateBeacons([{ ...validRequestBody.beacons[0], encodedParameters: 'invalid encoded parameters' }])
-    ).toBeNull();
+  it('returns null if some beacons have invalid template IDs', () => {
+    expect(validateBeacons([{ ...validRequestBody.beacons[0], templateId: 'invalidTemplate' }])).toBeNull();
   });
 });
 
@@ -310,7 +299,7 @@ describe('verifySignOevDataRequest', () => {
     ...validBeaconsWithIds[0],
     signedData: { ...validBeaconsWithIds[0].signedData, timestamp: '1677740000' },
   };
-  const invalidEncodedParametersBeacon: BeaconWithIds = { ...validBeaconsWithIds[0], encodedParameters: 'invalid' };
+  const invalidTemplateIdBeacon: BeaconWithIds = { ...validBeaconsWithIds[0], templateId: 'invalid' };
   const invalidEncodedValueBeacon: BeaconWithIds = {
     ...validBeaconsWithIds[0],
     signedData: { ...validBeaconsWithIds[0].signedData, encodedValue: 'invalid' },
@@ -395,10 +384,10 @@ describe('verifySignOevDataRequest', () => {
     });
   });
 
-  it('fails if there are beacons with invalid encoded parameters', () => {
+  it('fails if there are beacons with invalid template Id', () => {
     expect(
       verifySignOevDataRequest({
-        beacons: [...validRequestBody.beacons, invalidEncodedParametersBeacon],
+        beacons: [...validRequestBody.beacons, invalidTemplateIdBeacon],
       } as ProcessSignOevDataRequestBody)
     ).toEqual({
       success: false,
