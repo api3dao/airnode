@@ -874,7 +874,7 @@ describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
   const { contracts, ...crossChainWithoutAddress } = crossChainRequesterAuthorizerWithErc721;
 
   it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
-    const idWithDeployment = '1';
+    const idWithDeployment = '11155111';
     const crossChainWithDeployment = {
       ...crossChainWithoutAddress,
       chainId: idWithDeployment,
@@ -891,6 +891,8 @@ describe('ensureCrossChainRequesterAuthorizerWithErc721', () => {
       ...crossChainWithoutAddress,
       chainId: idWithoutDeployment,
     };
+
+    expect(Object.keys(RequesterAuthorizerWithErc721Addresses)).not.toContain(idWithoutDeployment);
 
     expect(() => crossChainRequesterAuthorizersWithErc721Schema.parse(crossChainWithoutDeployment)).toThrow(
       new ZodError([
@@ -915,7 +917,7 @@ describe('ensureRequesterAuthorizerWithErc721', () => {
     .RequesterAuthorizerWithErc721;
 
   it('adds the default RequesterAuthorizerWithErc721 contract address for the given chain if the chain has a deployment', () => {
-    const idWithDeployment = '1';
+    const idWithDeployment = '11155111';
     const configWithDeployment = {
       ...chainWithoutRequesterAuthorizerWithErc721Address,
       id: idWithDeployment,
@@ -932,6 +934,8 @@ describe('ensureRequesterAuthorizerWithErc721', () => {
       ...chainWithoutRequesterAuthorizerWithErc721Address,
       id: idWithoutDeployment,
     };
+
+    expect(Object.keys(RequesterAuthorizerWithErc721Addresses)).not.toContain(idWithoutDeployment);
 
     expect(() => chainConfigSchema.parse(crossChainWithoutDeployment)).toThrow(
       new ZodError([

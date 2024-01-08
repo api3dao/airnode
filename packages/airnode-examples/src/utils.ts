@@ -3,7 +3,8 @@ import { join } from 'path';
 import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
-import references from '@api3/airnode-protocol/deployments/references.json';
+import { AirnodeRrpV0 } from '@api3/airnode-protocol/deployments/references.json';
+import { hardhatConfig } from '@api3/chains';
 
 export const supportedNetworks = ['ethereum-sepolia-testnet', 'polygon-testnet', 'ethereum-goerli-testnet'] as const;
 
@@ -104,12 +105,9 @@ export const setMaxPromiseTimeout = <T>(promise: Promise<T>, timeoutMs: number):
  * @returns The AirnodeRrpV0 contract address for the named network
  */
 export const getExistingAirnodeRrpV0 = (networkName: string) => {
-  const { chainNames, AirnodeRrpV0 } = references;
+  const networks = hardhatConfig.networks();
 
-  // get network ID (key) for a given network name (value)
-  const networkId = (Object.keys(chainNames) as (keyof typeof chainNames)[]).find((name) => {
-    return chainNames[name] === networkName;
-  });
+  const networkId = networks[networkName].chainId.toString() as keyof typeof AirnodeRrpV0;
 
   if (networkId) {
     return AirnodeRrpV0[networkId];

@@ -10,7 +10,6 @@
  *
  * The generated code "value exports" the factories, but "type exports" the contracts.
  */
-import { ethers } from 'ethers';
 import {
   RequesterAuthorizerWithErc721__factory as RequesterAuthorizerWithErc721Factory,
   MockErc721__factory as MockErc721Factory,
@@ -36,7 +35,6 @@ const AirnodeRrpDryRunAddresses: { [chainId: string]: string } = references.Airn
 const AccessControlRegistryAddresses: { [chainId: string]: string } = references.AccessControlRegistry;
 const RequesterAuthorizerWithAirnodeAddresses: { [chainId: string]: string } =
   references.RequesterAuthorizerWithAirnode;
-const networks: { [chainId: string]: ethers.providers.Network } = references.networks;
 
 const PROTOCOL_IDS = {
   RRP: '1',
@@ -72,7 +70,6 @@ export {
   RequesterAuthorizerWithErc721Factory,
   mocks,
   authorizers,
-  networks,
   references,
   PROTOCOL_IDS,
   erc721Mocks,
