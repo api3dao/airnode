@@ -384,7 +384,7 @@ describe('verifySignOevDataRequest', () => {
     });
   });
 
-  it('fails if there are beacons with invalid template Id', () => {
+  it('fails if there are beacons with invalid template ID', () => {
     expect(
       verifySignOevDataRequest({
         beacons: [...validRequestBody.beacons, invalidTemplateIdBeacon],
