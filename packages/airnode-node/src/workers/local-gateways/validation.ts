@@ -6,11 +6,10 @@ import { ethers } from 'ethers';
 import { decode } from '@api3/airnode-abi';
 import { logger } from '@api3/airnode-utilities';
 import { goSync } from '@api3/promise-utils';
-import { ApiCallParameters, ApiCallTemplateWithoutId } from '../../types';
+import { ApiCallParameters } from '../../types';
 import { Config, endpointIdSchema } from '../../config';
 import { apiCallParametersSchema } from '../../validation';
 import { getAirnodeWalletFromPrivateKey } from '../../evm';
-import { getExpectedTemplateIdV1 } from '../../evm/templates';
 
 const TIMESTAMP_DEVIATION = 2; // in minutes
 // Solidity type(int224).min
@@ -121,8 +120,7 @@ export function verifyHttpSignedDataRequest(
 
 const beaconSchema = z.object({
   airnodeAddress: z.string(),
-  endpointId: z.string(),
-  encodedParameters: z.string(),
+  templateId: z.string(),
   // Signed data might be missing for some of the beacons (as long as the majority has the data). We still need to know
   // all of the beacons to derive the data feed ID.
   signedData: z
@@ -146,7 +144,7 @@ export interface BeaconDecoded extends Required<BeaconWithIds> {
 
 export const signOevDataBodySchema = z.object({
   chainId: z.number().positive(),
-  dapiServerAddress: z.string(),
+  api3ServerV1: z.string(),
   oevProxyAddress: z.string(),
   updateId: z.string(),
   bidderAddress: z.string(),
@@ -234,18 +232,9 @@ export const validateBeacons = (beacons: Beacon[]): BeaconWithIds[] | null => {
   const goValidateBeacons = goSync(() => {
     const beaconsWithIds: BeaconWithIds[] = [];
     for (const beacon of beacons) {
-      const { airnodeAddress, encodedParameters, endpointId } = beacon;
+      const { airnodeAddress, templateId } = beacon;
 
-      // To check parameters validity, exception is caught by the goSync
-      decode(encodedParameters);
-
-      const template: ApiCallTemplateWithoutId = {
-        airnodeAddress,
-        endpointId,
-        encodedParameters,
-      };
-      // Both template ID and beacon ID can fail, but it's OK because we are wrapping the validation in goSync
-      const templateId = getExpectedTemplateIdV1(template);
+      // Beacon ID derivation can fail, but it's OK because we are wrapping the validation in goSync
       const beaconId = deriveBeaconId(airnodeAddress, templateId);
 
       beaconsWithIds.push({ ...beacon, templateId, beaconId });
@@ -262,7 +251,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
   oevUpdateHash: string;
   beacons: BeaconDecoded[];
 }> {
-  const { chainId, dapiServerAddress, oevProxyAddress, updateId, bidderAddress, bidAmount, beacons } = requestBody;
+  const { chainId, api3ServerV1, oevProxyAddress, updateId, bidderAddress, bidAmount, beacons } = requestBody;
 
   const beaconsWithIds = validateBeacons(beacons);
   if (!beaconsWithIds) {
@@ -326,7 +315,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
     logger.debug(
       `Deriving update hash. Params: ${JSON.stringify([
         chainId,
-        dapiServerAddress,
+        api3ServerV1,
         oevProxyAddress,
         dataFeedId,
         updateId,
@@ -340,7 +329,7 @@ export function verifySignOevDataRequest(requestBody: ProcessSignOevDataRequestB
       ['uint256', 'address', 'address', 'bytes32', 'bytes32', 'uint256', 'bytes', 'address', 'uint256'],
       [
         chainId,
-        dapiServerAddress,
+        api3ServerV1,
         oevProxyAddress,
         dataFeedId,
         updateId,
