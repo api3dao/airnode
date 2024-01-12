@@ -18,7 +18,7 @@ components:
       type: object
       required:
         - chainId
-        - dapiServerAddress
+        - api3ServerV1
         - oevProxyAddress
         - updateId
         - bidderAddress
@@ -29,7 +29,7 @@ components:
           type: integer
           format: int32
           minimum: 1
-        dapiServerAddress:
+        api3ServerV1:
           type: string
         oevProxyAddress:
           type: string
@@ -47,14 +47,11 @@ components:
             type: object
             required:
               - airnodeAddress
-              - endpointId
-              - encodedParameters
+              - templateId
             properties:
               airnodeAddress:
                 type: string
-              endpointId:
-                type: string
-              encodedParameters:
+              templateId:
                 type: string
               signedData:
                 type: object
@@ -82,7 +79,7 @@ components:
       value: |
         {
           "chainId": 1,
-          "dapiServerAddress": "0x...",
+          "api3ServerV1": "0x...",
           "oevProxyAddress": "0x...",
           "updateId": "0x...",
           "bidderAddress": "0x...",
@@ -90,8 +87,7 @@ components:
           "beacons": [
             {
               "airnodeAddress": "0x...",
-              "endpointId": "0x...",
-              "encodedParameters": "0x...",
+              "templateId": "0x...",
               "signedData": {
                 "timestamp": "16...",
                 "encodedValue": "0x...",
@@ -100,8 +96,7 @@ components:
             },
             {
               "airnodeAddress": "0x...",
-              "endpointId": "0x...",
-              "encodedParameters": "0x..."
+              "templateId": "0x...",
             }
           ]
         }
