@@ -27,14 +27,6 @@
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 
-"@api3/chains@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-4.1.1.tgz#07b57a79813f9f6dbd4c79d8f1ffd1d718927aa7"
-  integrity sha512-+XyFaWAQNXNJjMKXNFgkYu335icMIk7i3MEjlw925oazQ0n7mnP6LVbsPIdYxdgIa0WwJTCmlbS+r9YcM7hpmQ==
-  dependencies:
-    viem "^1.19.11"
-    zod "^3.22.4"
-
 "@api3/chains@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-4.3.0.tgz#97942268588e63ee030323f622f144eb2ec240a2"
@@ -5016,11 +5008,6 @@ abitype@0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.10.0.tgz#d3504747cc81df2acaa6c460250ef7bc9219a77c"
   integrity sha512-QvMHEUzgI9nPj9TWtUGnS2scas80/qaL5PBxGdwWhhvzqXfOph+IEiiiWrzuisu3U3JgDQVruW9oLbJoQ3oZ3A==
-
-abitype@0.9.8:
-  version "0.9.8"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.8.tgz#1f120b6b717459deafd213dfbf3a3dd1bf10ae8c"
-  integrity sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -15592,20 +15579,6 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
-
-viem@^1.19.11:
-  version "1.19.13"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.19.13.tgz#3a018720bd2abf54a039c751fc2bcd473838c523"
-  integrity sha512-DizIwJAecLedI+nq6c5LIqCLAnYXUhQX5BnH6o1H2ln6isPyJVf+v4H1IfMlRHgR5KRlC+wGI/mCjarr3tW6eg==
-  dependencies:
-    "@adraffy/ens-normalize" "1.10.0"
-    "@noble/curves" "1.2.0"
-    "@noble/hashes" "1.3.2"
-    "@scure/bip32" "1.3.2"
-    "@scure/bip39" "1.2.1"
-    abitype "0.9.8"
-    isows "1.0.3"
-    ws "8.13.0"
 
 viem@^2.0.6:
   version "2.0.6"
