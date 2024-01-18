@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-utilities",
   "license": "MIT",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": false,
   "description": "General utilities to support Airnode packages",
   "files": [
@@ -18,19 +18,19 @@
   "types": "dist/index",
   "main": "dist/index.js",
   "dependencies": {
-    "@api3/airnode-validator": "^0.12.0",
+    "@api3/airnode-validator": "^0.13.0",
     "@api3/promise-utils": "^0.4.0",
     "date-fns": "^2.30.0",
     "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@types/jest": "^29.5.2",
-    "@types/node": "^18.16.19",
+    "@types/jest": "^29.5.6",
+    "@types/node": "^18.18.7",
     "hardhat": "^2.14.1",
-    "jest": "^29.6.0",
-    "rimraf": "^5.0.1",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }

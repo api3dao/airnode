@@ -75,10 +75,14 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
       enabled: false,
     },
     httpGateway: {
-      enabled: false,
+      enabled: true,
+      maxConcurrency: 20,
+      corsOrigins: [],
     },
     httpSignedDataGateway: {
-      enabled: false,
+      enabled: true,
+      maxConcurrency: 20,
+      corsOrigins: [],
     },
     oevGateway: {
       enabled: false,
@@ -97,13 +101,25 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
         cacheResponses: false,
       },
     ],
-    http: [],
-    httpSignedData: [],
+    http: [
+      {
+        endpointId: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
+      },
+    ],
+    httpSignedData: [
+      {
+        endpointId: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+        oisTitle: 'CoinGecko basic request',
+        endpointName: 'coinMarketData',
+      },
+    ],
   },
   templates: [],
   ois: [
     {
-      oisFormat: '2.1.0',
+      oisFormat: '2.3.1',
       title: 'CoinGecko basic request',
       version: '1.0.0',
       apiSpecifications: {

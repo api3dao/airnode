@@ -35,7 +35,7 @@ jest.spyOn(AirnodeRrpV0DryRunFactory, 'connect').mockImplementation(
   () =>
     ({
       estimateGas: { fulfill: estimateAirnodeRrpOverheadMock },
-    } as any)
+    }) as any
 );
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrpV0;

@@ -1,15 +1,15 @@
 import * as adapter from '@api3/airnode-adapter';
 import isEmpty from 'lodash/isEmpty';
-import { OIS, RESERVED_PARAMETERS, Endpoint } from '@api3/ois';
+import { RESERVED_PARAMETERS } from '@api3/ois';
+import { preProcessEndpointParameters, postProcessResponse } from '@api3/commons';
 import { logger, removeKeys, removeKey } from '@api3/airnode-utilities';
 import { go, goSync } from '@api3/promise-utils';
 import axios, { AxiosError } from 'axios';
 import { ethers } from 'ethers';
 import compact from 'lodash/compact';
-import { postProcessApiSpecifications, preProcessApiSpecifications } from './processing';
 import { getAirnodeWalletFromPrivateKey } from '../evm';
 import { getReservedParameters } from '../adapters/http/parameters';
-import { FIRST_API_CALL_TIMEOUT, SECOND_API_CALL_TIMEOUT } from '../constants';
+import { FIRST_API_CALL_TIMEOUT, PROCESSING_TIMEOUT, SECOND_API_CALL_TIMEOUT } from '../constants';
 import { isValidRequestId } from '../evm/verification';
 import { getExpectedTemplateIdV0, getExpectedTemplateIdV1 } from '../evm/templates';
 import {
@@ -151,10 +151,13 @@ export function verifyCallApi(payload: ApiCallPayload) {
 export function verifyRegularCallApiParams(payload: RegularApiCallPayload) {
   const verifications = [verifyRequestId, verifyTemplateId];
 
-  return verifications.reduce((result, verifierFn) => {
-    if (result) return result;
-    return verifierFn(payload);
-  }, null as LogsData<ApiCallErrorResponse> | null);
+  return verifications.reduce(
+    (result, verifierFn) => {
+      if (result) return result;
+      return verifierFn(payload);
+    },
+    null as LogsData<ApiCallErrorResponse> | null
+  );
 }
 
 export function verifyHttpSignedCallApiParams(payload: HttpSignedApiCallPayload) {
@@ -220,15 +223,18 @@ export async function processSuccessfulApiCall(
   const { _type, _path, _times, _gasPrice } = getReservedParameters(endpoint, parameters);
 
   const goPostProcessApiSpecifications = await go(() =>
-    postProcessApiSpecifications(rawResponse.data, endpoint, payload)
+    postProcessResponse(rawResponse.data, endpoint, aggregatedApiCall.parameters, {
+      totalTimeoutMs: PROCESSING_TIMEOUT,
+    })
   );
   if (!goPostProcessApiSpecifications.success) {
     const log = logger.pend('ERROR', goPostProcessApiSpecifications.error.message);
     return [[log], { success: false, errorMessage: goPostProcessApiSpecifications.error.message }];
   }
+  const postProcessedData = goPostProcessApiSpecifications.data;
 
   const goExtractAndEncodeResponse = goSync(() =>
-    adapter.extractAndEncodeResponse(goPostProcessApiSpecifications.data, {
+    adapter.extractAndEncodeResponse(postProcessedData.response, {
       _type,
       _path,
       _times,
@@ -237,7 +243,7 @@ export async function processSuccessfulApiCall(
   if (!goExtractAndEncodeResponse.success) {
     const log = logger.pend('ERROR', goExtractAndEncodeResponse.error.message);
     // The HTTP gateway is a special case for ChainAPI where we return data from a successful API call that failed processing
-    if (payload.type === 'http-gateway') {
+    if (type === 'http-gateway') {
       return [
         [log],
         { success: true, errorMessage: goExtractAndEncodeResponse.error.message, data: { rawValue: rawResponse.data } },
@@ -268,7 +274,7 @@ export async function processSuccessfulApiCall(
       ];
     }
     case 'http-signed-data-gateway': {
-      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const timestamp = (postProcessedData.timestamp ?? Math.floor(Date.now() / 1000)).toString();
       const goSignWithTemplateId = await go(() =>
         signWithTemplateId(aggregatedApiCall.templateId, timestamp, response.encodedValue)
       );
@@ -292,24 +298,27 @@ export async function callApi(payload: ApiCallPayload): Promise<LogsData<ApiCall
   const verificationResult = verifyCallApi(payload);
   if (verificationResult) return verificationResult;
 
-  const processedPayload = await preProcessApiSpecifications(payload);
-  const ois = payload.config.ois.find((o: OIS) => o.title === payload.aggregatedApiCall.oisTitle)!;
-  const endpoint = ois.endpoints.find((e: Endpoint) => e.name === payload.aggregatedApiCall.endpointName)!;
+  const {
+    aggregatedApiCall: { parameters },
+  } = payload;
+  const ois = payload.config.ois.find((o) => o.title === payload.aggregatedApiCall.oisTitle)!;
+  const endpoint = ois.endpoints.find((e) => e.name === payload.aggregatedApiCall.endpointName)!;
+  const { endpointParameters: processedEndpointParameters } = await preProcessEndpointParameters(endpoint, parameters, {
+    totalTimeoutMs: PROCESSING_TIMEOUT,
+  });
 
-  // skip API call if operation is undefined and fixedOperationParameters is empty array
+  // Skip API call if operation is undefined and fixedOperationParameters is empty array. We can be sure that there is
+  // at least one processing specification defined (either v1 or v2) because it is verified by the OIS schema.
   if (!endpoint.operation && isEmpty(endpoint.fixedOperationParameters)) {
-    // contents of preProcessingSpecifications or postProcessingSpecifications (or both) will simulate an API when API call is skipped
-    if (isEmpty(endpoint.preProcessingSpecifications) && isEmpty(endpoint.postProcessingSpecifications)) {
-      const message = `Failed to skip API call. Ensure at least one of 'preProcessingSpecifications' or 'postProcessingSpecifications' is defined and is not an empty array at ois '${payload.aggregatedApiCall.oisTitle}', endpoint '${payload.aggregatedApiCall.endpointName}'.`;
-      const log = logger.pend('ERROR', message);
-      return [[log], { success: false, errorMessage: message }];
-    }
-    // output of preProcessingSpecifications can be used as output directly or
-    // preProcessingSpecifications can be used to manipulate parameters to use in postProcessingSpecifications
-    return processSuccessfulApiCall(payload, { data: processedPayload.aggregatedApiCall.parameters });
+    // The pre-processing output can be used as output directly or it can be used to manipulate parameters to use in
+    // post-processing.
+    return processSuccessfulApiCall(payload, { data: processedEndpointParameters });
   }
 
-  const [logs, response] = await performApiCall(processedPayload);
+  const [logs, response] = await performApiCall({
+    ...payload,
+    aggregatedApiCall: { ...payload.aggregatedApiCall, parameters: processedEndpointParameters },
+  } as ApiCallPayload);
   if (isPerformApiCallFailure(response)) {
     return [logs, response];
   }

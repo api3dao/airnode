@@ -81,6 +81,33 @@ describe('fixed parameters', () => {
       headers: {},
     });
   });
+
+  it('ignores parameters without operationParameter', () => {
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.paths['/convert'].get!.parameters.push({ in: 'query', name: 'noOperationParameter' });
+    const options = fixtures.buildCacheRequestOptions({
+      ois,
+      parameters: { f: 'ETH', amount: '1', no_op: 'myValue' },
+    });
+    options.endpoint.parameters.push({
+      name: 'no_op',
+      // operationParameter is absent
+    });
+    options.operation.parameters.push({ name: 'noOperationParameter', in: 'query' });
+    const res = parameters.buildParameters(options);
+    expect(res).toEqual({
+      paths: {},
+      query: {
+        // Expectedly absent:
+        // noOperationParameter: 'myValue',
+        access_key: 'super-secret-key',
+        amount: '1',
+        from: 'ETH',
+        to: 'USD',
+      },
+      headers: {},
+    });
+  });
 });
 
 describe('user parameters', () => {

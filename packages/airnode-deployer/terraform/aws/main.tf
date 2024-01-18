@@ -300,7 +300,7 @@ module "signOevReq" {
   name                           = "${local.name_prefix}-signOevReq"
   handler                        = "index.signOevReq"
   source_dir                     = var.handler_dir
-  memory_size                    = 256
+  memory_size                    = 2048
   timeout                        = 30
   configuration_file             = var.configuration_file
   secrets_file                   = var.secrets_file

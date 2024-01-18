@@ -85,7 +85,7 @@ export async function callApis(
   const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorMessage);
   const skippedAggregatedCalls = aggregatedApiCalls
     .filter((a) => a.errorMessage)
-    .map((a) => ({ ...a, success: false, errorMessage: a.errorMessage! } as const));
+    .map((a) => ({ ...a, success: false, errorMessage: a.errorMessage! }) as const);
 
   if (isEmpty(pendingAggregatedCalls)) {
     const log = logger.pend('INFO', 'No pending API calls to process. Skipping API calls...');

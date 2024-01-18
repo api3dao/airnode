@@ -90,7 +90,7 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
   templates: [],
   ois: [
     {
-      oisFormat: '2.1.0',
+      oisFormat: '2.3.1',
       title: 'CoinGecko coins markets request',
       version: '1.0.0',
       apiSpecifications: {
@@ -203,25 +203,26 @@ const createConfig = async (generateExampleFile: boolean): Promise<Config> => ({
               },
             },
           ],
-          postProcessingSpecifications: [
-            {
-              environment: 'Node',
-              timeoutMs: 5000,
-              value: `
-                // Log out every coin data
-                input.forEach((coinData) => {
-                  console.log(\`[Post-processing snippet]: Received the following coin data: \\\${JSON.stringify(coinData, null, 2)}\`)
-                })
+          postProcessingSpecificationV2: {
+            environment: 'Node',
+            timeoutMs: 5000,
+            value: `
+async function({ response }) {
+  // Log out every coin data
+  response.forEach((coinData) => {
+      console.log(\`[Post-processing snippet]: Received the following coin data: \\\${JSON.stringify(coinData, null, 2)}\`);
+  });
 
-                const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);
-                const average = sum(input.map((coinData) => coinData.current_price)) / input.length;
-                const percentageChange = sum(input.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / input.length;
+  const sum = (nums) => nums.reduce((acc, num) => acc + num, 0);
+  const average = sum(response.map((coinData) => coinData.current_price)) / response.length;
+  const percentageChange =
+    sum(response.map((coinData) => coinData.price_change_percentage_30d_in_currency)) / response.length;
 
-                // Create the data to be sent on chain and multiply it by 10^8 to preserve precision
-                const output = [average, percentageChange].map((x) => x * 10 ** 8);
-              `,
-            },
-          ],
+  // Create the data to be sent on chain and multiply it by 10^8 to preserve precision
+  return { response: [average, percentageChange].map((x) => x * 10 ** 8) };
+}
+            `.trim(),
+          },
         },
       ],
     },

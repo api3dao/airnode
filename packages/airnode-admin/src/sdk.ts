@@ -14,7 +14,10 @@ export class AdminSdk {
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
   static useAirnodeRrp = evm.useAirnodeRrp;
 
-  constructor(public airnodeRrp: AirnodeRrpV0, public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode) {}
+  constructor(
+    public airnodeRrp: AirnodeRrpV0,
+    public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode
+  ) {}
 
   deriveAirnodeXpub = (airnodeMnemonic: string) => admin.deriveAirnodeXpub(airnodeMnemonic);
 

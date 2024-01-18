@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'packages/airnode-protocol/**'
+      - '!packages/airnode-protocol/package.json'
     types: [opened, synchronize, reopened]
 
 env:
@@ -16,8 +17,6 @@ jobs:
   pre-build:
     name: Prepare build environment
     runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - name: Clone airnode
         uses: actions/checkout@v3
@@ -39,8 +38,6 @@ jobs:
   build:
     name: Build Protocol
     runs-on: ubuntu-latest
-    # Don't run twice for a push within an internal PR
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     needs: pre-build
     steps:
       - uses: actions/cache@v3

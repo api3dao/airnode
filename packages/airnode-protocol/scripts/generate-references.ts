@@ -9,11 +9,6 @@ const networkNames = fs
   .map((item) => item.name);
 
 const references: any = {};
-references.chainNames = {};
-
-for (const network of networkNames) {
-  references.chainNames[hre.config.networks[network].chainId] = network;
-}
 
 for (const contractName of contractNames) {
   references[contractName] = {};
@@ -24,10 +19,4 @@ for (const contractName of contractNames) {
   }
 }
 
-const networks = Object.entries(references.chainNames).reduce((acc, [chainId, name]) => {
-  if (name === 'mainnet') return { ...acc, [parseInt(chainId)]: { chainId: parseInt(chainId), name: 'homestead' } };
-  return { ...acc, [parseInt(chainId)]: { chainId: parseInt(chainId), name } };
-}, {});
-references.networks = networks;
-
-fs.writeFileSync(path.join('deployments', 'references.json'), JSON.stringify(references, null, 2));
+fs.writeFileSync(path.join('deployments', 'references.json'), JSON.stringify(references, null, 2) + '\n');
