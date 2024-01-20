@@ -1,5 +1,22 @@
 # @api3/airnode-deployer
 
+## 0.14.0
+
+### Minor Changes
+
+- [#1928](https://github.com/api3dao/airnode/pull/1928) [`92416562`](https://github.com/api3dao/airnode/commit/924165621221d405064cd95aab61a3faf7de757e) Thanks [@Siegrift](https://github.com/Siegrift)! - Increase OEV gateway memory limit
+
+- [#1931](https://github.com/api3dao/airnode/pull/1931) [`66f69fe3`](https://github.com/api3dao/airnode/commit/66f69fe382ed10afab5b24979824c1411729556b) Thanks [@dcroote](https://github.com/dcroote)! - BREAKING CHANGE: the OEV gateway interface has changed in the following ways: `api3ServerV1` has replaced `dapiServerAddress` and `templateId` has replaced `endpointId` and `encodedParameters`.
+
+### Patch Changes
+
+- Updated dependencies [[`d3cf108d`](https://github.com/api3dao/airnode/commit/d3cf108d3ee49ef1c27762ba6ed4c6f90030dfaf), [`8afaf34f`](https://github.com/api3dao/airnode/commit/8afaf34f55a06a4483b16d553731a75239cfa0e2), [`37d5a123`](https://github.com/api3dao/airnode/commit/37d5a123a5fa95b56c0638d2e57028fd0c15f931), [`b87e0b33`](https://github.com/api3dao/airnode/commit/b87e0b336cbdf027bffac90c408e01cb68d98e84), [`e683fbb9`](https://github.com/api3dao/airnode/commit/e683fbb909f563b9feab50c128bcd4379b8d10c8), [`66f69fe3`](https://github.com/api3dao/airnode/commit/66f69fe382ed10afab5b24979824c1411729556b), [`74c4c299`](https://github.com/api3dao/airnode/commit/74c4c299b94f428ed17beb2d5af9857d71c5c764), [`a3d31080`](https://github.com/api3dao/airnode/commit/a3d31080689717f1fdb57ad024509ba7aa82284e)]:
+  - @api3/airnode-node@0.14.0
+  - @api3/airnode-protocol@0.14.0
+  - @api3/airnode-validator@0.14.0
+  - @api3/airnode-utilities@0.14.0
+  - @api3/airnode-abi@0.14.0
+
 ## 0.13.0
 
 ### Minor Changes
