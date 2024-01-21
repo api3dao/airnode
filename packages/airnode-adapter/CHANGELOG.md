@@ -1,5 +1,11 @@
 # @api3/airnode-adapter
 
+## 0.14.0
+
+### Minor Changes
+
+- [#1921](https://github.com/api3dao/airnode/pull/1921) [`b87e0b33`](https://github.com/api3dao/airnode/commit/b87e0b336cbdf027bffac90c408e01cb68d98e84) Thanks [@dcroote](https://github.com/dcroote)! - Bump axios and @api3 deps
+
 ## 0.13.0
 
 ### Minor Changes

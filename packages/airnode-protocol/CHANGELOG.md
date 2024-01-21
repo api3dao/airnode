@@ -1,5 +1,19 @@
 # @api3/airnode-protocol
 
+## 0.14.0
+
+### Minor Changes
+
+- [#1929](https://github.com/api3dao/airnode/pull/1929) [`d3cf108d`](https://github.com/api3dao/airnode/commit/d3cf108d3ee49ef1c27762ba6ed4c6f90030dfaf) Thanks [@dcroote](https://github.com/dcroote)! - BREAKING CHANGE: Remove chainNames and networks from references.json and instead use api3/chains
+
+- [#1924](https://github.com/api3dao/airnode/pull/1924) [`8afaf34f`](https://github.com/api3dao/airnode/commit/8afaf34f55a06a4483b16d553731a75239cfa0e2) Thanks [@vanshwassan](https://github.com/vanshwassan)! - deploy protocol contracts on lightlink-goerli-testnet
+
+- [#1921](https://github.com/api3dao/airnode/pull/1921) [`b87e0b33`](https://github.com/api3dao/airnode/commit/b87e0b336cbdf027bffac90c408e01cb68d98e84) Thanks [@dcroote](https://github.com/dcroote)! - Bump axios and @api3 deps
+
+- [#1923](https://github.com/api3dao/airnode/pull/1923) [`e683fbb9`](https://github.com/api3dao/airnode/commit/e683fbb909f563b9feab50c128bcd4379b8d10c8) Thanks [@dcroote](https://github.com/dcroote)! - Remove boba-avalanche as it has been shut down
+
+- [#1936](https://github.com/api3dao/airnode/pull/1936) [`a3d31080`](https://github.com/api3dao/airnode/commit/a3d31080689717f1fdb57ad024509ba7aa82284e) Thanks [@Ashar2shahid](https://github.com/Ashar2shahid)! - Deploy Protocol Contracts to Blast Sepolia Testnet
+
 ## 0.13.0
 
 ### Minor Changes
