@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-validator",
   "license": "MIT",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": false,
   "main": "./dist/src/index.js",
   "bin": {
@@ -21,7 +21,7 @@
     "test:e2e:update-snapshot": "yarn test:e2e --updateSnapshot"
   },
   "dependencies": {
-    "@api3/airnode-protocol": "^0.13.0",
+    "@api3/airnode-protocol": "^0.14.0",
     "@api3/ois": "2.3.1",
     "@api3/promise-utils": "^0.4.0",
     "dotenv": "^16.3.1",

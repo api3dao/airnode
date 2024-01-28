@@ -1,5 +1,14 @@
 # @api3/airnode-operation
 
+## 0.14.0
+
+### Patch Changes
+
+- Updated dependencies [[`d3cf108d`](https://github.com/api3dao/airnode/commit/d3cf108d3ee49ef1c27762ba6ed4c6f90030dfaf), [`8afaf34f`](https://github.com/api3dao/airnode/commit/8afaf34f55a06a4483b16d553731a75239cfa0e2), [`b87e0b33`](https://github.com/api3dao/airnode/commit/b87e0b336cbdf027bffac90c408e01cb68d98e84), [`e683fbb9`](https://github.com/api3dao/airnode/commit/e683fbb909f563b9feab50c128bcd4379b8d10c8), [`a3d31080`](https://github.com/api3dao/airnode/commit/a3d31080689717f1fdb57ad024509ba7aa82284e)]:
+  - @api3/airnode-protocol@0.14.0
+  - @api3/airnode-utilities@0.14.0
+  - @api3/airnode-abi@0.14.0
+
 ## 0.13.0
 
 ### Patch Changes
