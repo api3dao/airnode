@@ -95,7 +95,7 @@ The protocols are extended in functionality through _authorizers_. An authorizer
 called statically to check if a particular request should be responded to, e.g., if its requester is whitelisted. While
 deploying an Airnode, the operator specifies the addresses of the authorizer contracts they want to use. (These
 contracts may live on a chain different than the protocol contract, e.g., an Airnode can be configured to refer to a
-mainnet authorizer for requests received from Rinkeby.) Then, whenever an Airnode receives a request, it will make a
+mainnet authorizer for requests received from Sepolia.) Then, whenever an Airnode receives a request, it will make a
 static call to its authorizers to determine if it should respond to the request.
 
 The contracts that use the Airnode protocol to make API calls are called _requesters_. A requester can be a user-facing
