@@ -24,7 +24,7 @@ jobs:
           # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
           fetch-depth: 0
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
@@ -46,7 +46,7 @@ jobs:
           path: ./*
           key: pre-build-protocol-${{ github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
@@ -68,7 +68,7 @@ jobs:
           path: ./*
           key: build-protocol-${{ github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
