@@ -30,7 +30,7 @@ jobs:
           cache: yarn
       - name: Install Dependencies
         run: yarn run bootstrap
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-pre-build
         with:
           path: ./*
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-build
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-pre-build
         with:
           path: ./*
@@ -52,7 +52,7 @@ jobs:
           cache: yarn
       - name: Build
         run: yarn run build:protocol
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-build
         with:
           path: ./*
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: restore-build
         with:
           path: ./*
