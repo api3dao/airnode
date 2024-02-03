@@ -121,7 +121,7 @@
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-jest": "^27.6.0",
     "fast-glob": "^3.3.1",
-    "husky": "^8.0.3",
+    "husky": "^9.0.6",
     "lerna": "^7.4.1",
     "libsodium-wrappers": "^0.7.13",
     "prettier": "^3.0.3",
