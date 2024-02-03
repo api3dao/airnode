@@ -14,7 +14,7 @@ import { goSync } from '@api3/promise-utils';
 import * as admin from '../../src';
 import { cliExamples } from '../../src/cli-examples';
 
-const PROVIDER_URL = 'http://localhost:8545/';
+const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/src/cli.js`;
 // Turning this flag to 'true' will print each command before executing it
 // It might be useful to turn on, while debugging particular test.

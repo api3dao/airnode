@@ -46,7 +46,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@types/jest": "^29.5.6",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.11.0",
     "@types/prompts": "^2.4.7",
     "chalk": "^4.1.2",
     "dotenv": "^16.3.1",
