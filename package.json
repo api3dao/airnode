@@ -72,7 +72,7 @@
     "lint:eslint:fix": "eslint --cache . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
-    "postinstall": "husky install",
+    "postinstall": "husky",
     "prettier:check": "prettier --check --cache .",
     "prettier:write": "prettier --write --cache --loglevel silent .",
     "publish": "lerna publish",
