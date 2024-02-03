@@ -11,7 +11,7 @@ import difference from 'lodash/difference';
 import * as admin from '../../src/implementation';
 import { AdminSdk } from '../../src/sdk';
 
-const PROVIDER_URL = 'http://127.0.0.1:8545/';
+const PROVIDER_URL = 'http://localhost:8545/';
 
 describe('SDK', () => {
   let provider: ethers.providers.JsonRpcProvider;
@@ -24,7 +24,7 @@ describe('SDK', () => {
   const mnemonic = 'test test test test test test test test test test test junk';
 
   beforeAll(() => {
-    provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
+    provider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
   });
