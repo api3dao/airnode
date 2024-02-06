@@ -19,18 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone airnode
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Required for changesets check. See: https://github.com/changesets/changesets/issues/517#issuecomment-813282523
           fetch-depth: 0
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
       - name: Install Dependencies
         run: yarn run bootstrap
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-pre-build
         with:
           path: ./*
@@ -40,19 +40,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-build
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-pre-build
         with:
           path: ./*
           key: pre-build-protocol-${{ github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
       - name: Build
         run: yarn run build:protocol
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-build
         with:
           path: ./*
@@ -62,13 +62,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: restore-build
         with:
           path: ./*
           key: build-protocol-${{ github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
