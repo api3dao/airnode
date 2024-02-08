@@ -1,4 +1,4 @@
-// Even though hardhat-etherscan claims to also verify the deployment locally,
+// Even though hardhat-verify claims to also verify the deployment locally,
 // it doesn't expose that as a command. As a result, you can't verify deployments
 // on chains at which there is no supported block explorer. This is an alternative
 // that fetches the deployed bytecode from a chain and compares that with the output
