@@ -15,6 +15,8 @@ import {
   CopyObjectCommand,
   DeleteObjectsCommand,
   DeleteBucketCommand,
+  BucketLocationConstraint,
+  ServerSideEncryption,
 } from '@aws-sdk/client-s3';
 import { sdkStreamMixin } from '@aws-sdk/util-stream-node';
 import {
@@ -71,7 +73,7 @@ describe('getAirnodeBucket', () => {
       .on(ListBucketsCommand, mockListBucketsCommandInput)
       .resolves({ Buckets: [{ Name: bucketName }] })
       .on(GetBucketLocationCommand, mockGetBucketLocationCommandInput)
-      .resolves({ LocationConstraint: 'us-east-1' });
+      .resolves({ LocationConstraint: undefined }); // undefined means the default 'us-east-1' region
 
     const fetchedBucket = await getAirnodeBucket();
     expect(fetchedBucket).toEqual(bucket);
@@ -151,7 +153,12 @@ describe('createAirnodeBucket', () => {
   const mockPutBucketEncryptionCommandInput = {
     Bucket: bucketName,
     ServerSideEncryptionConfiguration: {
-      Rules: [{ ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' }, BucketKeyEnabled: true }],
+      Rules: [
+        {
+          ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'AES256' as ServerSideEncryption },
+          BucketKeyEnabled: true,
+        },
+      ],
     },
   };
   const mockPutPublicAccessBlockCommandInput = {
@@ -187,7 +194,7 @@ describe('createAirnodeBucket', () => {
   it(`creates S3 Airnode bucket with options for other than 'us-east-1' region`, async () => {
     const mockCreateBucketCommandInputDifferentRegion = {
       Bucket: bucketName,
-      CreateBucketConfiguration: { LocationConstraint: 'europe-central-1' },
+      CreateBucketConfiguration: { LocationConstraint: 'europe-central-1' as BucketLocationConstraint },
     };
     mockS3Client
       .on(CreateBucketCommand, mockCreateBucketCommandInputDifferentRegion)
