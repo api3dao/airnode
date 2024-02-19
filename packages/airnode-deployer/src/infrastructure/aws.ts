@@ -14,6 +14,7 @@ import {
   CopyObjectCommand,
   DeleteObjectsCommand,
   DeleteBucketCommand,
+  BucketLocationConstraint,
 } from '@aws-sdk/client-s3';
 import concat from 'lodash/concat';
 import compact from 'lodash/compact';
@@ -63,16 +64,13 @@ export const getAirnodeBucket = async () => {
     throw new Error(`Failed to get location for bucket '${bucketName}': ${goBucketLocation.error}`);
   }
 
-  let region = goBucketLocation.data.LocationConstraint;
+  // The documentation says that for buckets in the `us-east-1` region the value of `LocationConstraint` is null but it is actually undefined
+  // https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLocation.html#API_GetBucketLocation_ResponseElements
+  const region = goBucketLocation.data.LocationConstraint ?? 'us-east-1';
   // The `EU` option is listed as a possible one in the documentation
   // https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLocation.html#API_GetBucketLocation_ResponseElements
   if (region === 'EU') {
     throw new Error(`Unknown bucket region '${region}'`);
-  }
-  // The documentation says that for buckets in the `us-east-1` region the value of `LocationConstraint` is null but it is actually undefined
-  // https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLocation.html#API_GetBucketLocation_ResponseElements
-  if (region === undefined) {
-    region = 'us-east-1';
   }
 
   return {
@@ -90,7 +88,10 @@ export const createAirnodeBucket = async (cloudProvider: AwsCloudProvider) => {
   // If the region is `us-east-1` the configuration must be empty...
   // https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html#API_CreateBucket_RequestBody
   if (cloudProvider.region !== 'us-east-1') {
-    createParams = { ...createParams, CreateBucketConfiguration: { LocationConstraint: cloudProvider.region } };
+    createParams = {
+      ...createParams,
+      CreateBucketConfiguration: { LocationConstraint: cloudProvider.region as BucketLocationConstraint },
+    };
   }
 
   logger.debug(`Creating S3 bucket '${bucketName}' in '${cloudProvider.region}'`);

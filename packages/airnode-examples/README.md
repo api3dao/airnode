@@ -77,8 +77,7 @@ depending on how you would like to run the example - e.g. you don't need to star
 intend to run the example with a public network.
 
 If using a Linux distribution that enforces SELinux policies, make sure allow the Docker images access to the host
-directory by
-[creating an appropriate rule](https://stackoverflow.com/questions/24288616/permission-denied-on-accessing-host-directory-in-docker).
+directory by [configuring the selinux label](https://docs.docker.com/storage/bind-mounts/#configure-the-selinux-label).
 
 #### 1. Choose an example
 
@@ -185,9 +184,9 @@ yarn create-airnode-secrets
 
 > If you are using Docker Desktop (on any platform) and you want to connect to your local hardhat network, you will need
 > to modify the generated `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL
-> with the following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitation. See:
-> https://stackoverflow.com/a/24326540. A symptom of needing this change is the following error when attempting to
-> connect to your local hardhat network: `could not detect network`.
+> with the following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitation. A symptom of needing
+> this change is the following error when attempting to connect to your local hardhat network:
+> `could not detect network`.
 >
 > The `create-airnode-secrets` script will handle this for you on Mac, Windows, and WSL.
 
