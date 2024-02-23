@@ -29,7 +29,7 @@
     "write-example-env-file": "hardhat run scripts/write-example-env-file.ts"
   },
   "devDependencies": {
-    "@api3/chains": "^4.7.0",
+    "@api3/chains": "^4.9.0",
     "@nomicfoundation/hardhat-verify": "^2.0.4",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
@@ -41,7 +41,7 @@
     "hardhat-deploy": "^0.11.45",
     "hardhat-gas-reporter": "^1.0.10",
     "rimraf": "^5.0.5",
-    "solidity-coverage": "^0.8.6",
+    "solidity-coverage": "^0.8.7",
     "typechain": "^8.3.2",
     "typescript": "^5.3.3"
   },
