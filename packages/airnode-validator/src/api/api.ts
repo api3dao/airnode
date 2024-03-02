@@ -18,7 +18,7 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
   if (!parsedSecrets.success) return parsedSecrets;
 
   const interpolateConfigRes = goSync(() =>
-    interpolateSecretsIntoConfig(config, parsedSecrets.data, { allowBlankSecretValue: false })
+    interpolateSecretsIntoConfig(config, parsedSecrets.data, { allowBlankSecretValue: false, validateSecretName: true })
   );
   if (!interpolateConfigRes.success) {
     return {
@@ -67,8 +67,7 @@ export function parseReceipt(receipt: unknown): ValidationResult<Receipt> {
  * In case there is an error when interpolating secrets the function throws an error.
  */
 export function unsafeParseConfigWithSecrets(config: unknown, secrets: Secrets): Config {
-  // The expected usage passes full "process.env" as secrets and some of them system-wide are not following the expected
-  // pattern for secret names.
+  // System and docker secrets passed via process.env do not necessarily obey the expected secret name pattern
   return interpolateSecretsIntoConfig(config, secrets, {
     allowBlankSecretValue: true,
     validateSecretName: false,
