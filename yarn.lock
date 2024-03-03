@@ -35,15 +35,17 @@
     viem "^2.7.1"
     zod "^3.22.4"
 
-"@api3/commons@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@api3/commons/-/commons-0.6.2.tgz#e25d1bce560e53bf44075d08295bf243365c0bfd"
-  integrity sha512-IBR9WAcbglFdMyehiv3MWFVK1jKv2jAao6tU2DcUmMztea0H+Nn9xAomHCwAlg7mTNn3qk7ZpWosZNGZjfeSTw==
+"@api3/commons@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.npmjs.org/@api3/commons/-/commons-0.7.1.tgz#f9c99ce31cfc2dc332945e396a4d9b646199d698"
+  integrity sha512-Cm2OfuLklEffSh2/DFnfyOBpa/JC3mXi4Xx0MUVZU8aqcGkc62bD3CqLXRXHEsxe2IQLg3B4NZhOZeNEWFl0nQ==
   dependencies:
     "@api3/ois" "^2.3.0"
     "@api3/promise-utils" "^0.4.0"
     "@typescript-eslint/eslint-plugin" "^6.2.1"
     "@typescript-eslint/parser" "^6.2.1"
+    axios "^1.6.7"
+    dotenv "^16.4.5"
     eslint-config-next "^13.1.6"
     eslint-plugin-check-file "^2.6.2"
     eslint-plugin-cypress "^2.14.0"
