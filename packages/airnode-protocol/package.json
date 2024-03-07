@@ -29,24 +29,24 @@
     "write-example-env-file": "hardhat run scripts/write-example-env-file.ts"
   },
   "devDependencies": {
-    "@api3/chains": "^4.4.0",
+    "@api3/chains": "^4.9.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.4",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@typechain/ethers-v5": "^11.1.2",
-    "chai": "^4.3.10",
+    "chai": "^4.4.1",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^4.0.10",
     "hardhat": "^2.19.5",
-    "hardhat-deploy": "^0.11.43",
-    "hardhat-gas-reporter": "^1.0.9",
+    "hardhat-deploy": "^0.11.45",
+    "hardhat-gas-reporter": "^1.0.10",
     "rimraf": "^5.0.5",
-    "solidity-coverage": "^0.8.5",
+    "solidity-coverage": "^0.8.8",
     "typechain": "^8.3.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@api3/airnode-protocol-v1": "^3.1.0",
+    "@api3/airnode-protocol-v1": "^3.2.0",
     "@openzeppelin/contracts": "4.4.2",
     "ethers": "^5.7.2"
   }

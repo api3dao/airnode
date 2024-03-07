@@ -64,7 +64,7 @@ AirnodeRrpV0DryRun: 0x2e768206bf5112e7D7efAf1d9df614C26475193f
 - `arbitrum`, `avalanche`, `metis` and their testnets do not support deterministic deployment and are deployed
   undeterministically, resulting different contract addresses.
 
-- `fantom`, `metis`, `milkomeda` and their testnets are not verified due to not being supported by hardhat-etherscan or
+- `fantom`, `fantom` testnet, and `milkomeda` testnet are not verified due to not being supported by hardhat-verify or
   the support being broken. The addresses act as the verification for deterministic deployments, and you can use
   `deploy:verify-local` to verify undeterministic deployments.
 

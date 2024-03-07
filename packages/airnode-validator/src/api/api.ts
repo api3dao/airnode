@@ -1,6 +1,5 @@
 import { goSync } from '@api3/promise-utils';
-import template from 'lodash/template';
-import reduce from 'lodash/reduce';
+import { interpolateSecretsIntoConfig } from '@api3/commons';
 import { z } from 'zod';
 import { Config, configSchema } from '../config';
 import { Receipt, receiptSchema } from '../receipt';
@@ -18,7 +17,9 @@ export function parseConfigWithSecrets(config: unknown, secrets: unknown): Valid
   const parsedSecrets = parseSecrets(secrets);
   if (!parsedSecrets.success) return parsedSecrets;
 
-  const interpolateConfigRes = interpolateSecrets(config, parsedSecrets.data);
+  const interpolateConfigRes = goSync(() =>
+    interpolateSecretsIntoConfig(config, parsedSecrets.data, { allowBlankSecretValue: false, validateSecretName: true })
+  );
   if (!interpolateConfigRes.success) {
     return {
       success: false,
@@ -59,47 +60,6 @@ export function parseReceipt(receipt: unknown): ValidationResult<Receipt> {
   return receiptSchema.safeParse(receipt);
 }
 
-// Regular expression that does not match anything, ensuring no escaping or interpolation happens
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
-const NO_MATCH_REGEXP = /($^)/;
-// Regular expression matching ES template literal delimiter (${}) with escaping
-// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
-const ES_MATCH_REGEXP = /(?<!\\)\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
-// Regular expression matching the escaped ES template literal delimiter (${}). We need to use "\\\\" (four backslashes)
-// because "\\" becomes "\\\\" when converted to string
-const ESCAPED_ES_MATCH_REGEXP = /\\\\(\$\{([^\\}]*(?:\\.[^\\}]*)*)\})/g;
-
-function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult<unknown> {
-  const stringifiedSecrets = reduce(
-    secrets,
-    (acc, value, key) => {
-      return {
-        ...acc,
-        // Convert to value to JSON to encode new lines as "\n". The resulting value will be a JSON string with quotes
-        // which are sliced off.
-        [key]: JSON.stringify(value).slice(1, -1),
-      };
-    },
-    {} as Secrets
-  );
-
-  const interpolationRes = goSync(() =>
-    JSON.parse(
-      template(JSON.stringify(config), {
-        escape: NO_MATCH_REGEXP,
-        evaluate: NO_MATCH_REGEXP,
-        interpolate: ES_MATCH_REGEXP,
-      })(stringifiedSecrets)
-    )
-  );
-
-  if (!interpolationRes.success) return interpolationRes;
-
-  const interpolatedConfig = JSON.stringify(interpolationRes.data);
-  // Un-escape the escaped config interpolations (e.g. to enable interpolation in processing snippets)
-  return goSync(() => JSON.parse(interpolatedConfig.replace(ESCAPED_ES_MATCH_REGEXP, '$1')));
-}
-
 /**
  * Used to interpolate secrets into config. This function only interpolates the secrets and does not perform any
  * validation. Only use this function when you are sure the interpolation result is a valid Airnode config.
@@ -107,8 +67,9 @@ function interpolateSecrets(config: unknown, secrets: Secrets): ValidationResult
  * In case there is an error when interpolating secrets the function throws an error.
  */
 export function unsafeParseConfigWithSecrets(config: unknown, secrets: Secrets): Config {
-  const interpolationResult = interpolateSecrets(config, secrets);
-  if (!interpolationResult.success) throw interpolationResult.error;
-
-  return interpolationResult.data as Config;
+  // System and docker secrets passed via process.env do not necessarily obey the expected secret name pattern
+  return interpolateSecretsIntoConfig(config, secrets, {
+    allowBlankSecretValue: true,
+    validateSecretName: false,
+  }) as Config;
 }
