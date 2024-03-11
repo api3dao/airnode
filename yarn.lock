@@ -4208,7 +4208,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/aws-lambda@^8.10.135":
+"@types/aws-lambda@^8.10.136":
   version "8.10.136"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.136.tgz#12a2af86b9123f4e4549992b27e1bf0dcf60d9f9"
   integrity sha512-cmmgqxdVGhxYK9lZMYYXYRJk6twBo53ivtXjIUEFZxfxe4TkZTZBK3RRWrY2HjJcUIix0mdifn15yjOAat5lTA==

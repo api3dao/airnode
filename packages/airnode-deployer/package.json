@@ -49,7 +49,7 @@
     "@aws-sdk/util-stream-node": "^3.370.0",
     "@google-cloud/functions-framework": "^3.3.0",
     "@types/adm-zip": "^0.5.5",
-    "@types/aws-lambda": "^8.10.135",
+    "@types/aws-lambda": "^8.10.136",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.21",
     "@types/yargs": "^17.0.32",
