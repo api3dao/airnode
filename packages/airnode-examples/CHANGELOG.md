@@ -1,5 +1,19 @@
 # @api3/airnode-examples
 
+## 0.14.1
+
+### Patch Changes
+
+- [#1977](https://github.com/api3dao/airnode/pull/1977) [`41f9f7d7`](https://github.com/api3dao/airnode/commit/41f9f7d775ab7741b5db26c1037936250f8ba874) Thanks [@dcroote](https://github.com/dcroote)! - Bump api3/ois to v2.3.2
+
+- Updated dependencies [[`41f9f7d7`](https://github.com/api3dao/airnode/commit/41f9f7d775ab7741b5db26c1037936250f8ba874), [`539ba32d`](https://github.com/api3dao/airnode/commit/539ba32de64ef8264d09adcf86d0c118dc0a1cbe)]:
+  - @api3/airnode-deployer@0.14.1
+  - @api3/airnode-node@0.14.1
+  - @api3/airnode-admin@0.14.1
+  - @api3/airnode-abi@0.14.1
+  - @api3/airnode-protocol@0.14.1
+  - @api3/airnode-utilities@0.14.1
+
 ## 0.14.0
 
 ### Minor Changes
