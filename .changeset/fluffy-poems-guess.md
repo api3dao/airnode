@@ -2,4 +2,4 @@
 "@api3/airnode-protocol": minor
 ---
 
-removed deprecated chains
+remove deprecated chains from protocol deployments

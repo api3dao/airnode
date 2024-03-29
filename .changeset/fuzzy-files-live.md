@@ -2,4 +2,4 @@
 "@api3/airnode-protocol": minor
 ---
 
-remove deprecated, added sepolia testnets
+add sepolia chains to protocol deployments
