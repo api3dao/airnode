@@ -36,7 +36,7 @@
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.3",
     "compare-versions": "^6.1.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.6.0",
     "date-fns-tz": "^2.0.0",
     "dotenv": "^16.4.5",
     "ethers": "^5.7.2",
