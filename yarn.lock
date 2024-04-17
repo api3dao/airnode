@@ -6871,10 +6871,10 @@ dataloader@^1.4.0:
   resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-1.4.0.tgz#bca11d867f5d3f1b9ed9f737bd15970c65dff5c8"
   integrity sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==
 
-date-fns-tz@^2.0.0:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/date-fns-tz/-/date-fns-tz-2.0.1.tgz#0a9b2099031c0d74120b45de9fd23192e48ea495"
-  integrity sha512-fJCG3Pwx8HUoLhkepdsP7Z5RsucUi+ZBOxyM5d0ZZ6c4SdYustq0VMmOu6Wf7bli+yS/Jwp91TOCqn9jMcVrUA==
+date-fns-tz@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/date-fns-tz/-/date-fns-tz-3.1.2.tgz#c1fd25548c9a1e414615909be9ce213871efb6dc"
+  integrity sha512-OP6X4mWaT2l5KpiLe1dwMDvaR5lvar6cicLssB5JOLMm+A5TPRNqcD00E/M9hBf5MyH4fHgHVGihfukJZucdUA==
 
 date-fns@^3.6.0:
   version "3.6.0"
