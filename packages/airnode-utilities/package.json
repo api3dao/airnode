@@ -20,13 +20,13 @@
   "dependencies": {
     "@api3/airnode-validator": "^0.14.0",
     "@api3/promise-utils": "^0.4.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.6.0",
     "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@types/jest": "^29.5.12",
-    "@types/node": "^18.19.18",
+    "@types/node": "^18.19.21",
     "hardhat": "^2.14.1",
     "jest": "^29.7.0",
     "rimraf": "^5.0.5",
