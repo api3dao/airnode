@@ -27,10 +27,10 @@
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 
-"@api3/chains@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-5.1.0.tgz#a371c63e1f473ba1307a62234ec85c201817888d"
-  integrity sha512-9A+UFY6EjeWN238jcdRsYlCIcps1qaXfrEAKwqkGQ8gjyeNvF+kWtrsuSNz1kVFstrhk5b8/9GFKqpk6f7ecFg==
+"@api3/chains@^5.2.2":
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-5.2.2.tgz#cbd48a3f24477215abe7a510d19c7a708defc8a3"
+  integrity sha512-VAl7LYnpe14h+f398we1fUyokH5Lb3l/Z9CZ/vZKlpM8uaQ38ySQyK6en1YSUAf1u4svQsBRPQGmdP8szKNfig==
   dependencies:
     viem "^2.9.6"
     zod "^3.22.4"
