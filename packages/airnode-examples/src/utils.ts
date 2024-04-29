@@ -6,7 +6,7 @@ import isWsl from 'is-wsl';
 import { AirnodeRrpV0 } from '@api3/airnode-protocol/deployments/references.json';
 import { hardhatConfig } from '@api3/chains';
 
-export const supportedNetworks = ['ethereum-sepolia-testnet', 'polygon-testnet', 'ethereum-goerli-testnet'] as const;
+export const supportedNetworks = ['ethereum-sepolia-testnet'] as const;
 
 export interface IntegrationInfo {
   integration: string;
