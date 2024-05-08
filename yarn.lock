@@ -27,21 +27,13 @@
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 
-"@api3/chains@^5.2.2":
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-5.2.2.tgz#cbd48a3f24477215abe7a510d19c7a708defc8a3"
-  integrity sha512-VAl7LYnpe14h+f398we1fUyokH5Lb3l/Z9CZ/vZKlpM8uaQ38ySQyK6en1YSUAf1u4svQsBRPQGmdP8szKNfig==
+"@api3/chains@^6.1.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-6.2.0.tgz#10c31695a9d60d5af06e7ef029150b70ca93967f"
+  integrity sha512-TjwOACEO896lBTOFN7sLMn7zsNZkWsBbXN+Y1nf7lyyZTx8GBFx8kLj2eho1jcKa5EPvi3ADUss3L4/6v2s5vw==
   dependencies:
-    viem "^2.9.6"
-    zod "^3.22.4"
-
-"@api3/chains@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-5.3.0.tgz#6d86ea7e3892b9adea8cf12616fcd80c9c6be516"
-  integrity sha512-Hs4yt77Sw8vfW3YbumGfPV8LHhIVYNe6YWwWGrZrkICG3prQ6RvCz3r71frSz3amEoCV/BvMH9JyB8M190S0sw==
-  dependencies:
-    viem "^2.9.6"
-    zod "^3.22.4"
+    viem "^2.9.29"
+    zod "^3.23.5"
 
 "@api3/commons@^0.9.0":
   version "0.9.0"
@@ -15154,10 +15146,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-viem@^2.9.6:
-  version "2.9.27"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.9.27.tgz#415d6a7b1e97c6b0a2d4a9d1f4edeaafaefa6b2b"
-  integrity sha512-C+5tispAKzUywf+G5fxNVxThtKrNtvDRvvF34hC10LeSsrd5l4tlKpf0B4xYVcpL0YYZd+YEordLzlWToPjUnQ==
+viem@^2.9.29:
+  version "2.10.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.10.2.tgz#65c2ca82b64e6fb9ee84c02b95dcf2c270ffe651"
+  integrity sha512-gcOL+XxA0UWDarli856OEgumaBz4df/qNMpgno4NTSSZtJSC1XixIb3gWjVBei6Vx085ivw/U9ZE8gdniIo7fA==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"
@@ -15706,3 +15698,8 @@ zod@^3.22.4:
   version "3.22.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
   integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==
+
+zod@^3.23.5:
+  version "3.23.7"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.7.tgz#db33c910c592b8ce13f2f449097d4fb926c84f51"
+  integrity sha512-NBeIoqbtOiUMomACV/y+V3Qfs9+Okr18vR5c/5pHClPpufWOrsx8TENboDPe265lFdfewX2yBtNTLPvnmCxwog==
