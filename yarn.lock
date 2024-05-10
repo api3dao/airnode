@@ -27,7 +27,7 @@
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 
-"@api3/chains@^6.1.0":
+"@api3/chains@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-6.2.0.tgz#10c31695a9d60d5af06e7ef029150b70ca93967f"
   integrity sha512-TjwOACEO896lBTOFN7sLMn7zsNZkWsBbXN+Y1nf7lyyZTx8GBFx8kLj2eho1jcKa5EPvi3ADUss3L4/6v2s5vw==
