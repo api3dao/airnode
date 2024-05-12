@@ -40,7 +40,6 @@
     "heartbeat": {
       "enabled": true,
       "apiKey": "${HEARTBEAT_API_KEY}",
-      "id": "${HEARTBEAT_ID}",
       "url": "${HEARTBEAT_URL}"
     },
     "httpGateway": {
