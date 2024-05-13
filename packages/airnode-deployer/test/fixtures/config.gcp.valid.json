@@ -3,7 +3,10 @@
     {
       "maxConcurrency": 100,
       "authorizers": {
-        "requesterEndpointAuthorizers": []
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": [],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
       },
       "authorizations": {
         "requesterEndpointAuthorizations": {}
@@ -11,9 +14,9 @@
       "contracts": {
         "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
-      "id": "4",
+      "id": "11155111",
       "providers": {
-        "rinkeby": {
+        "sepolia": {
           "url": "${PROVIDER_URL}"
         }
       },
@@ -37,7 +40,6 @@
     "heartbeat": {
       "enabled": true,
       "apiKey": "${HEARTBEAT_API_KEY}",
-      "id": "${HEARTBEAT_ID}",
       "url": "${HEARTBEAT_URL}"
     },
     "httpGateway": {

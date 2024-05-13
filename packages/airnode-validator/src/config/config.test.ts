@@ -291,6 +291,23 @@ describe('templates', () => {
       ])
     );
   });
+
+  it('allows a valid template', () => {
+    const config = JSON.parse(
+      readFileSync(join(__dirname, '../../test/fixtures/interpolated-config.valid.json')).toString()
+    );
+    config.nodeSettings.airnodeWalletMnemonic =
+      'answer tobacco wave sausage age report congress cannon fever hammer happy budget';
+    const validTemplates = [
+      {
+        templateId: '0x0058c1abb08d25f0c397673931eb30b94682f47a7d2509e6eebb92fc8b292a3c',
+        endpointId: '0xfb87102cdabadf905321521ba0b3cbf74ad09c5d400ac2eccdbef8d6143e78c4',
+        encodedParameters:
+          '0x3173000000000000000000000000000000000000000000000000000000000000636f696e49640000000000000000000000000000000000000000000000000000657468657265756d000000000000000000000000000000000000000000000000',
+      },
+    ];
+    expect(() => configSchema.parse({ ...config, templates: validTemplates })).not.toThrow();
+  });
 });
 
 it('fails if a securitySchemeName is enabled and it is of type "apiKey" or "http" but is missing credentials in "apiCredentials"', () => {
