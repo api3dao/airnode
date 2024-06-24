@@ -319,7 +319,7 @@ export async function estimateGasAndSubmitFulfill(
   const subTotalCost = airnodeRrpGasCost.add(fulfillmentCallGasCost);
   // https://github.com/ethereum/EIPs/issues/114
   // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-150.md
-  const eip150GasReserve = subTotalCost.div(64);
+  const eip150GasReserve = subTotalCost.div(63);
   const totalGasCost = subTotalCost.add(eip150GasReserve);
 
   // If gas estimation is success, submit fulfillment without making static test call
