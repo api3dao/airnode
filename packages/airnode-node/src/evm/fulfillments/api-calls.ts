@@ -316,15 +316,20 @@ export async function estimateGasAndSubmitFulfill(
   }
 
   const [airnodeRrpGasCost, fulfillmentCallGasCost] = estimateGasData;
-  const totalCost = airnodeRrpGasCost.add(fulfillmentCallGasCost);
+  const subTotalCost = airnodeRrpGasCost.add(fulfillmentCallGasCost);
+  // https://github.com/ethereum/EIPs/issues/114
+  // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-150.md
+  const eip150GasReserve = subTotalCost.div(63);
+  const totalGasCost = subTotalCost.add(eip150GasReserve);
+
   // If gas estimation is success, submit fulfillment without making static test call
   const gasLimitNoticeLog = logger.pend(
     'INFO',
-    `Gas limit is set to ${totalCost} (AirnodeRrp: ${airnodeRrpGasCost} + Fulfillment Call: ${fulfillmentCallGasCost}) for Request:${request.id}.`
+    `Gas limit is set to ${totalGasCost} (AirnodeRrp: ${airnodeRrpGasCost} + Fulfillment Call: ${fulfillmentCallGasCost} + EIP150: ${eip150GasReserve}) for Request:${request.id}.`
   );
   const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, {
     ...options,
-    gasTarget: { ...options.gasTarget, gasLimit: totalCost },
+    gasTarget: { ...options.gasTarget, gasLimit: totalGasCost },
   });
   return [[...estimateGasLogs, gasLimitNoticeLog, ...submitLogs], submitErr, submitData];
 }
