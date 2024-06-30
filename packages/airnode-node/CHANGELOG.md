@@ -1,5 +1,18 @@
 # @api3/airnode-node
 
+## 0.14.2
+
+### Patch Changes
+
+- [#2003](https://github.com/api3dao/airnode/pull/2003) [`280ae808`](https://github.com/api3dao/airnode/commit/280ae808893a93d5c7c6547ef74396f4488ed347) Thanks [@dcroote](https://github.com/dcroote)! - Adds extra gas to estimate to account for EIP-150
+
+- Updated dependencies []:
+  - @api3/airnode-abi@0.14.2
+  - @api3/airnode-adapter@0.14.2
+  - @api3/airnode-protocol@0.14.2
+  - @api3/airnode-utilities@0.14.2
+  - @api3/airnode-validator@0.14.2
+
 ## 0.14.1
 
 ### Patch Changes

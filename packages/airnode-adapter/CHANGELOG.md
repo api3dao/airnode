@@ -1,5 +1,7 @@
 # @api3/airnode-adapter
 
+## 0.14.2
+
 ## 0.14.1
 
 ### Patch Changes
