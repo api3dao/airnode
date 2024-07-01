@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-adapter",
   "license": "MIT",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "private": false,
   "main": "dist/index",
   "types": "dist/index",
