@@ -22,7 +22,7 @@
   ],
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": false
   },
   "reviewers": ["team:airnode"],
   "minimumReleaseAge": "5 days",
