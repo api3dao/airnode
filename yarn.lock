@@ -13956,10 +13956,10 @@ solc@0.8.15:
     semver "^5.5.0"
     tmp "0.0.33"
 
-solhint@^4.5.4:
-  version "4.5.4"
-  resolved "https://registry.yarnpkg.com/solhint/-/solhint-4.5.4.tgz#171cf33f46c36b8499efe60c0e425f6883a54e50"
-  integrity sha512-Cu1XiJXub2q1eCr9kkJ9VPv1sGcmj3V7Zb76B0CoezDOB9bu3DxKIFFH7ggCl9fWpEPD6xBmRLfZrYijkVmujQ==
+solhint@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/solhint/-/solhint-5.0.2.tgz#720f7a879d7d137ffa1498575462cac8e131ba2a"
+  integrity sha512-fDoflGz1jztGRqEDiLI25wSvpjGu0fIqeRXXYKYt4qBOA0EJi8RZwlM11+K2ZAcGFW2K8bevJ2A/wtZ0lDi/bw==
   dependencies:
     "@solidity-parser/parser" "^0.18.0"
     ajv "^6.12.6"
