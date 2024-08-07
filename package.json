@@ -108,7 +108,7 @@
     "@api3/promise-utils": "^0.4.0",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
-    "@octokit/core": "^5.2.0",
+    "@octokit/core": "^6.1.2",
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^18.19.31",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
