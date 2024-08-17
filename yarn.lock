@@ -27,12 +27,12 @@
   dependencies:
     "@openzeppelin/contracts" "4.8.2"
 
-"@api3/chains@^8.1.1":
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-8.1.1.tgz#1f292eba31e4395d89c6b067f2b2a86955fca0b6"
-  integrity sha512-2woMgPksMEzH2tU7ZH5tHNHr9qbZDG+bEWcAGcs+A3/GJKNBaTmxVerIyTo4IZA9f6vN91i7fH3UPAq/S8KQDw==
+"@api3/chains@^9.2.1":
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/@api3/chains/-/chains-9.2.1.tgz#963b461b8dcfad96ec189d43830f89f3f2c49ce1"
+  integrity sha512-6PO1Cr7IWq/qRoZkIZ4rmsIgZKkQMKXGePlK+km3Z28LSTpo7WnYlpDD/vl21t1epEXL8z3u5fbtVKbjYZ9BVg==
   dependencies:
-    viem "^2.16.5"
+    viem "^2.18.8"
     zod "^3.23.8"
 
 "@api3/commons@^0.9.0":
@@ -15158,10 +15158,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-viem@^2.16.5:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.18.0.tgz#ea0d037f0db356e6d71f1251243825345d6dc08f"
-  integrity sha512-HA4Dj+PCNWvvZDThWcUPg0sjiS8uwGRaxs3CMBOASL/j0p2pD4nR9vY/y/pAiRr491hGCnrSCVCmb/qqA57wIw==
+viem@^2.18.8:
+  version "2.19.6"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.19.6.tgz#e04a7ca7f16516fe817ae692c126c404a45fed54"
+  integrity sha512-7jiuX+ZncPZE8iEzgW/iO7EaAMRJEW8hYeJy9YFTMK34Wa9aWzqOm4lrORgemlsqJ/kpQG4InzhG0jc2HY67FA==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.4.0"
