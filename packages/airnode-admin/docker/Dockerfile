@@ -12,6 +12,7 @@ LABEL application=${name} \
 
 # Install airnode-admin
 RUN npm set registry ${npmRegistryUrl} && \
+    apk add --update --no-cache build-base g++ cmake linux-headers && \
     yarn global add ${packageName}@${npmTag} && \
     ln -s /usr/local/share/.config/yarn/global/node_modules/${packageName}/dist ${appDir} && \
     # Create user
