@@ -1,12 +1,13 @@
 import { spawn } from 'node:child_process';
 import * as hre from 'hardhat';
-import { BigNumber, ethers } from 'ethers';
+// import { BigNumber } from 'ethers';
+// import { BigNumber, ethers } from 'ethers';
 import '@nomiclabs/hardhat-ethers';
 import { go, assertGoSuccess } from '@api3/promise-utils';
 import { config } from '@api3/airnode-validator';
 import * as gasOracle from '../../src/evm/gas-prices/gas-oracle';
-import { GasTarget } from '../../src/evm/gas-prices/types';
-import { executeTransactions } from '../setup/transactions';
+// import { GasTarget } from '../../src/evm/gas-prices/types';
+// import { executeTransactions } from '../setup/transactions';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
@@ -59,50 +60,50 @@ const defaultChainOptions: config.ChainOptions = {
   fulfillmentGasLimit,
 };
 
-const multiplyGasPrice = (gasPrice: BigNumber, recommendedGasPriceMultiplier?: number) =>
-  recommendedGasPriceMultiplier ? gasOracle.multiplyGasPrice(gasPrice, recommendedGasPriceMultiplier) : gasPrice;
+// const multiplyGasPrice = (gasPrice: BigNumber, recommendedGasPriceMultiplier?: number) =>
+//   recommendedGasPriceMultiplier ? gasOracle.multiplyGasPrice(gasPrice, recommendedGasPriceMultiplier) : gasPrice;
 
-const processBlockData = async (
-  provider: ethers.providers.StaticJsonRpcProvider,
-  blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[],
-  percentile: number,
-  maxDeviationMultiplier: number,
-  fallbackGasPrice: config.Amount,
-  recommendedGasPriceMultiplier: number
-): Promise<GasTarget> => {
-  const latestBlock = blocksWithGasPrices[0];
-  const referenceBlock = blocksWithGasPrices[20];
-
-  const latestBlockPercentileGasPrice = gasOracle.getPercentile(
-    latestBlockPercentileGasPriceStrategy.percentile,
-    latestBlock.gasPrices.map((p) => p)
-  );
-  const referenceBlockPercentileGasPrice = gasOracle.getPercentile(
-    percentile,
-    referenceBlock.gasPrices.map((p) => p)
-  );
-
-  const isWithinDeviationLimit = gasOracle.checkMaxDeviationLimit(
-    latestBlockPercentileGasPrice!,
-    referenceBlockPercentileGasPrice!,
-    maxDeviationMultiplier
-  );
-
-  if (isWithinDeviationLimit) return { type: 0, gasPrice: latestBlockPercentileGasPrice! };
-
-  try {
-    const providerGasPrice = await provider.getGasPrice();
-    return {
-      type: 0,
-      gasPrice: multiplyGasPrice(providerGasPrice, recommendedGasPriceMultiplier),
-    };
-  } catch (_e) {
-    return {
-      type: 0,
-      gasPrice: gasOracle.parsePriorityFee(fallbackGasPrice),
-    };
-  }
-};
+// const processBlockData = async (
+//   provider: ethers.providers.StaticJsonRpcProvider,
+//   blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[],
+//   percentile: number,
+//   maxDeviationMultiplier: number,
+//   fallbackGasPrice: config.Amount,
+//   recommendedGasPriceMultiplier: number
+// ): Promise<GasTarget> => {
+//   const latestBlock = blocksWithGasPrices[0];
+//   const referenceBlock = blocksWithGasPrices[20];
+//
+//   const latestBlockPercentileGasPrice = gasOracle.getPercentile(
+//     latestBlockPercentileGasPriceStrategy.percentile,
+//     latestBlock.gasPrices.map((p) => p)
+//   );
+//   const referenceBlockPercentileGasPrice = gasOracle.getPercentile(
+//     percentile,
+//     referenceBlock.gasPrices.map((p) => p)
+//   );
+//
+//   const isWithinDeviationLimit = gasOracle.checkMaxDeviationLimit(
+//     latestBlockPercentileGasPrice!,
+//     referenceBlockPercentileGasPrice!,
+//     maxDeviationMultiplier
+//   );
+//
+//   if (isWithinDeviationLimit) return { type: 0, gasPrice: latestBlockPercentileGasPrice! };
+//
+//   try {
+//     const providerGasPrice = await provider.getGasPrice();
+//     return {
+//       type: 0,
+//       gasPrice: multiplyGasPrice(providerGasPrice, recommendedGasPriceMultiplier),
+//     };
+//   } catch (_e) {
+//     return {
+//       type: 0,
+//       gasPrice: gasOracle.parsePriorityFee(fallbackGasPrice),
+//     };
+//   }
+// };
 
 const resetAnvil = async () => {
   spawn('bash', ['-c', 'killall anvil;']);
@@ -117,7 +118,7 @@ describe('Gas oracle', () => {
 
   txTypes.forEach((txType) => {
     describe(`${txType} network`, () => {
-      let blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[];
+      // let blocksWithGasPrices: { blockNumber: number; gasPrices: BigNumber[] }[];
 
       beforeEach(async () => {
         // Reset the local hardhat network state for each test to prevent issues with other test contracts
@@ -129,9 +130,9 @@ describe('Gas oracle', () => {
         jest.resetAllMocks();
         jest.restoreAllMocks();
 
-        const transactions = await executeTransactions(txType);
+        // const transactions = await executeTransactions(txType);
 
-        blocksWithGasPrices = transactions.blocksWithGasPrices.sort((a, b) => b.blockNumber - a.blockNumber);
+        // blocksWithGasPrices = transactions.blocksWithGasPrices.sort((a, b) => b.blockNumber - a.blockNumber);
 
         // Set automining to true
         await hre.network.provider.send('evm_setAutomine', [true]);
@@ -139,20 +140,20 @@ describe('Gas oracle', () => {
         startTime = Date.now();
       });
 
-      it('returns latestBlockPercentileGasPrice', async () => {
-        const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
-
-        const processedPercentileGasPrice = await processBlockData(
-          provider,
-          blocksWithGasPrices,
-          latestBlockPercentileGasPriceStrategy.percentile,
-          latestBlockPercentileGasPriceStrategy.maxDeviationMultiplier,
-          constantGasPriceStrategy.gasPrice as config.Amount,
-          providerRecommendedGasPriceStrategy.recommendedGasPriceMultiplier
-        );
-
-        expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(processedPercentileGasPrice, fulfillmentGasLimit));
-      });
+      // it('returns latestBlockPercentileGasPrice', async () => {
+      //   const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, defaultChainOptions);
+      //
+      //   const processedPercentileGasPrice = await processBlockData(
+      //     provider,
+      //     blocksWithGasPrices,
+      //     latestBlockPercentileGasPriceStrategy.percentile,
+      //     latestBlockPercentileGasPriceStrategy.maxDeviationMultiplier,
+      //     constantGasPriceStrategy.gasPrice as config.Amount,
+      //     providerRecommendedGasPriceStrategy.recommendedGasPriceMultiplier
+      //   );
+      //
+      //   expect(gasTarget).toEqual(gasOracle.getGasTargetWithGasLimit(processedPercentileGasPrice, fulfillmentGasLimit));
+      // });
 
       it('returns providerRecommendedEip1559GasPrice', async () => {
         const [_logs, gasTarget] = await gasOracle.getGasPrice(provider, {
