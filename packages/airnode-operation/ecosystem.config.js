@@ -23,7 +23,7 @@ module.exports = {
     },
     {
       name: 'ethereum-node',
-      script: 'hardhat node',
+      script: 'anvil',
       env: {
         NODE_ENV: 'development',
       },
@@ -37,5 +37,37 @@ module.exports = {
       out_file: 'logs/ethereum-node.log',
       merge_logs: true,
     },
+    // {
+    //   name: 'ethereum-node-anvil',
+    //   script: 'anvil --port 8546',
+    //   env: {
+    //     NODE_ENV: 'development',
+    //   },
+    //   env_production: {
+    //     NODE_ENV: 'production',
+    //   },
+    //
+    //   // Logs
+    //   log_date_format: 'YYYY-MM-DD HH:mm:ss',
+    //   error_file: 'logs/ethereum-node-anvil.log',
+    //   out_file: 'logs/ethereum-node-anvil.log',
+    //   merge_logs: true,
+    // },
+    // {
+    //   name: 'ethereum-node',
+    //   script: 'hardhat node',
+    //   env: {
+    //     NODE_ENV: 'development',
+    //   },
+    //   env_production: {
+    //     NODE_ENV: 'production',
+    //   },
+    //
+    //   // Logs
+    //   log_date_format: 'YYYY-MM-DD HH:mm:ss',
+    //   error_file: 'logs/ethereum-node.log',
+    //   out_file: 'logs/ethereum-node.log',
+    //   merge_logs: true,
+    // },
   ],
 };

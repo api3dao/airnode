@@ -229,7 +229,7 @@ describe('CLI', () => {
           ['--max-fee', 20],
           ['--max-priority-fee', 10]
         )
-      ).toThrow('Transaction requires at least 21560 gas but got 1');
+      ).toThrow();
     });
 
     it('stops sponsoring requester', async () => {

@@ -139,6 +139,10 @@ jobs:
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
+      - name: Install Foundry
+        run: "curl -L https://foundry.paradigm.xyz | bash"
+      - name: Install Anvil
+        run: "foundryup"
       - name: Start background services
         run: yarn run dev:background
       - run: yarn run test:e2e-${{ matrix.package }}
@@ -159,6 +163,10 @@ jobs:
         with:
           node-version: ${{ env.TARGET_NODE_VERSION }}
           cache: yarn
+      - name: Install Foundry
+        run: "curl -L https://foundry.paradigm.xyz | bash"
+      - name: Install Anvil
+        run: "foundryup"
       - name: Start background services
         run: yarn run dev:background
       - run: yarn run test:e2e-examples

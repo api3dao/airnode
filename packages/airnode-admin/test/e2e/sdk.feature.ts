@@ -75,7 +75,7 @@ describe('SDK', () => {
 
   it('uses transaction overrides', async () => {
     await expect(sdk.sponsorRequester(wallet.address, { gasLimit: 1 })).rejects.toThrow(
-      'Transaction requires at least 21572 gas but got 1'
+      expect.objectContaining({name: expect.stringContaining('Error'), message: expect.stringContaining('gas')})
     );
   });
 });

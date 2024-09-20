@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import { logger } from '@api3/airnode-utilities';
 
-const PORT = 5000;
+const PORT = 5005;
 
 const app = express();
 
