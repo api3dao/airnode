@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process';
 import * as hre from 'hardhat';
 import { BigNumber, ethers } from 'ethers';
 import '@nomiclabs/hardhat-ethers';
@@ -6,7 +7,6 @@ import { config } from '@api3/airnode-validator';
 import * as gasOracle from '../../src/evm/gas-prices/gas-oracle';
 import { GasTarget } from '../../src/evm/gas-prices/types';
 import { executeTransactions } from '../setup/transactions';
-import { spawn } from 'node:child_process';
 
 // Jest version 27 has a bug where jest.setTimeout does not work correctly inside describe or test blocks
 // https://github.com/facebook/jest/issues/11607
@@ -105,8 +105,8 @@ const processBlockData = async (
 };
 
 const resetAnvil = async () => {
-  spawn("bash", ["-c", 'killall anvil;']);
-  await new Promise(f => setTimeout(f, 1000));
+  spawn('bash', ['-c', 'killall anvil;']);
+  await new Promise((f) => setTimeout(f, 1000));
 };
 
 describe('Gas oracle', () => {
