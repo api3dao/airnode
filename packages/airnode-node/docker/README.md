@@ -1,7 +1,7 @@
 # Airnode Docker image
 
 **This README is intended for the developers. Documentation on how to use the client image is in the
-[docs](https://docs.api3.org/reference/airnode/latest/docker/client-image.html).**
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/docker/client-image.html).**
 
 This documentation focuses on the Airnode Docker image, not the Airnode itself. If you want to learn more about Airnode,
 please read [its documentation](../README.md).
@@ -18,4 +18,4 @@ yarn docker:build:local
 > the image will not be built correctly.
 
 The configuration and usage is documented in the
-[docs](https://docs.api3.org/reference/airnode/latest/docker/client-image.html).
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/docker/client-image.html).

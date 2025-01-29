@@ -5,7 +5,7 @@
 ## Documentation
 
 You can learn about Airnode and the protocols used in the
-[documentation](https://docs.api3.org/reference/airnode/latest/).
+[documentation](https://airnode-docs.api3.org/reference/airnode/latest/).
 
 ## For developers
 
