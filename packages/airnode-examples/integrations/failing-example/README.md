@@ -4,4 +4,4 @@ This integration is similar to the coingecko integration, but the endpoint URL i
 requests to fail and therefore serves to demonstrate Airnode behaviour in the case of failure.
 
 For more information about how the Airnode is configured, refer to the
-[docs](https://docs.api3.org/reference/airnode/latest/understand/configuring.html).
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html).

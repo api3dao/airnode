@@ -1,7 +1,7 @@
 # Coingecko pre-processing integration example
 
 This is a basic example showcasing how to use
-[preprocessing](https://docs.api3.org/reference/ois/latest/processing.html) to enable an advanced use case which
+[preprocessing](https://airnode-docs.api3.org/reference/ois/latest/processing.html) to enable an advanced use case which
 modifies the endpoint parameters before making the API request to CoinGecko API.
 
 The `config.json` defines a single callable endpoint, called `coinHistoryData` which you can call with different coin ID
@@ -16,4 +16,4 @@ Overall the process looks like this:
 4. Airnode makes the API call, waits for response, encodes the value and finally submits it on chain.
 
 For more information about how the Airnode is configured refer to the
-[docs](https://docs.api3.org/reference/airnode/latest/understand/configuring.html).
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html).
