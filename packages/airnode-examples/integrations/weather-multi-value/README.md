@@ -33,6 +33,6 @@ by OpenWeather. Each of these reserved parameters has a corresponding mapping in
 `../../contracts/weather-multi-value/Requester.sol` requester contract.
 
 Refer to the docs for more information on
-[how the Airnode is configured](https://docs.api3.org/reference/airnode/latest/understand/configuring.html) and
-[reserved parameters](https://docs.api3.org/reference/airnode/latest/specifications/reserved-parameters.html), including
-encoding multiple values.
+[how the Airnode is configured](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html) and
+[reserved parameters](https://airnode-docs.api3.org/reference/airnode/latest/specifications/reserved-parameters.html),
+including encoding multiple values.

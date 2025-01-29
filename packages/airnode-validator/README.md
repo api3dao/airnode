@@ -5,7 +5,7 @@
 ## Documentation
 
 You can find documentation on how to use validator in the
-[validator docs](https://docs.api3.org/reference/airnode/latest/packages/validator.html).
+[validator docs](https://airnode-docs.api3.org/reference/airnode/latest/packages/validator.html).
 
 ## For developers
 

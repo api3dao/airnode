@@ -51,7 +51,7 @@
     "@types/adm-zip": "^0.5.5",
     "@types/aws-lambda": "^8.10.137",
     "@types/lodash": "^4.17.0",
-    "@types/node": "^18.19.31",
+    "@types/node": "^20.17.0",
     "@types/yargs": "^17.0.32",
     "aws-sdk-client-mock": "^4.0.0",
     "aws-sdk-client-mock-jest": "^4.0.0",
