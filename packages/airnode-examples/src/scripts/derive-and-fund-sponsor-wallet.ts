@@ -10,7 +10,7 @@ const main = async () => {
   // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' command from the admin CLI package
   const airnodeXpub = deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
 
-  // Derive the sponsor wallet address programatically
+  // Derive the sponsor wallet address programmatically
   // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' command from the admin CLI package
   const sponsorWalletAddress = await deriveSponsorWalletAddress(airnodeXpub, airnodeWallet.address, sponsor.address);
 
