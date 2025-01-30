@@ -15,7 +15,7 @@ COPY airnode-crontab ${cronjob}
 COPY entrypoint.sh /entrypoint.sh
 
 # Install Tini to correctly pass signals
-RUN apk add --update --no-cache tini dos2unix && \
+RUN apk add --update --no-cache tini dos2unix build-base g++ cmake linux-headers && \
     # Install airnode-node
     npm set registry ${npmRegistryUrl} && \
     yarn global add ${packageName}@${npmTag} && \

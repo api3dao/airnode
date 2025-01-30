@@ -15,7 +15,7 @@ COPY ./entrypoint.sh /entrypoint.sh
 
 RUN ARCH=`[ $(arch) == "x86_64" ] && echo "amd64" || echo "arm64" ` && \
     # Install external dependencies
-    apk add --update --no-cache su-exec git dos2unix && \
+    apk add --update --no-cache su-exec git dos2unix build-base g++ cmake linux-headers && \
     # Download Terraform binary
     wget ${baseTerraformURL}${ARCH}.zip && \
     unzip *.zip -d /bin && \
