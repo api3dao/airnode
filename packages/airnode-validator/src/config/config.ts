@@ -21,7 +21,7 @@ const RequesterAuthorizerWithErc721Addresses: { [chainId: string]: string } = re
 
 // We use a convention for deriving endpoint ID from OIS title and endpoint name,
 // but we are not enforcing the convention in docs:
-// https://docs.api3.org/reference/airnode/latest/concepts/endpoint.html#endpointid
+// https://airnode-docs.api3.org/reference/airnode/latest/concepts/endpoint.html#endpointid
 export const endpointIdSchema = z.string();
 
 export const triggerSchema = z

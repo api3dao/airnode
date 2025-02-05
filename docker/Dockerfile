@@ -1,4 +1,4 @@
-FROM node:18.19.1-alpine3.19 AS environment
+FROM node:20.17.0-alpine3.20 AS environment
 
 ENV appDir="/app" \
     buildDir="/build" \
@@ -6,6 +6,7 @@ ENV appDir="/app" \
     # https://github.com/changesets/changesets/blob/8c0846977597ddaf51aaeb35f1f0f9428bf8ba14/packages/cli/src/commands/publish/publishPackages.ts#L57
     CI="true"
 
+RUN apk --update --no-cache add build-base cmake linux-headers
 RUN apk add --update --no-cache git rsync docker $([ $(arch) == "aarch64" ] && echo "python3 make g++") && \
     yarn global add npm && \
     # Download both solidity compilers as per: https://github.com/nomiclabs/hardhat/issues/1280#issuecomment-949822371

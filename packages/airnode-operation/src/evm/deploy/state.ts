@@ -12,7 +12,14 @@ import {
 import { deriveEndpointId } from '../utils';
 
 export function buildDeployState(config: Config): State {
-  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+  const provider = new ethers.providers.JsonRpcProvider({
+    url: 'http://127.0.0.1:8545/',
+    headers: {
+      // The default behavior of keep-alive changed from Node.js v18 to v20, so we need to disable it for e2e tests
+      Connection: 'close',
+    },
+  });
+
   const deployer = provider.getSigner(config.deployerIndex);
 
   return {

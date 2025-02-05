@@ -245,7 +245,7 @@ describe('extract and encode multiple values', () => {
       ).toThrow('Parameter "_path" must be empty string or undefined when "_type" is "timestamp", but it was "1"');
     });
 
-    it('throws if _times is present for non numberic types', () => {
+    it('throws if _times is present for non numeric types', () => {
       const encodedString = ethers.utils.formatBytes32String('simplestring');
       expect(() => extractAndEncodeResponse(encodedString, { _type: 'bytes32', _times: '1000' })).toThrow(
         'Parameter "_times" can only be used with numeric types, but "_type" was "bytes32"'

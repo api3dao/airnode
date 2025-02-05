@@ -1,7 +1,7 @@
 # `@api3/airnode-abi`
 
 > Encoding and decoding utilities for Airnode according to the
-> [Airnode ABI specifications](https://docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
+> [Airnode ABI specifications](https://airnode-docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
 
 ## Documentation
 
@@ -11,5 +11,5 @@ then grouped and encoded as the rest of the body.
 
 For more information see the API3 Documentation.
 
-- [Airnode ABI Reference](https://docs.api3.org/reference/airnode/latest/packages/airnode-abi.html)
-- [Airnode ABI Specifications](https://docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
+- [Airnode ABI Reference](https://airnode-docs.api3.org/reference/airnode/latest/packages/airnode-abi.html)
+- [Airnode ABI Specifications](https://airnode-docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)

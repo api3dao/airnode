@@ -24,7 +24,7 @@ Currently, all of the examples utilize the RRP protocol. The example RRP flow co
    requester
 
 If you would like to know more about RRP, read the
-[API3 docs](https://docs.api3.org/reference/airnode/latest/concepts/).
+[API3 docs](https://airnode-docs.api3.org/reference/airnode/latest/concepts/).
 
 ### Available examples
 
@@ -38,16 +38,18 @@ reserved parameters. The following list orders integrations alphabetically:
 - [coingecko](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
   unauthenticated cryptocurrency price request.
 - [coingecko-cross-chain-authorizer](https://github.com/api3dao/airnode/blob/master/packages/airnode-examples/integrations/coingecko) -
-  demonstration of a cross-chain [authorizer](https://docs.api3.org/reference/airnode/latest/concepts/authorizers.html).
+  demonstration of a cross-chain
+  [authorizer](https://airnode-docs.api3.org/reference/airnode/latest/concepts/authorizers.html).
 - [coingecko-http-gateways](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-http-gateways) -
   demonstration of the
-  [HTTP gateway and HTTP signed data gateway](https://docs.api3.org/reference/airnode/latest/understand/http-gateways.html).
+  [HTTP gateway and HTTP signed data gateway](https://airnode-docs.api3.org/reference/airnode/latest/understand/http-gateways.html).
 - [coingecko-post-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-post-processing) -
-  demonstration of the [post-processing](https://docs.api3.org/reference/ois/latest/processing.html) feature.
+  demonstration of the [post-processing](https://airnode-docs.api3.org/reference/ois/latest/processing.html) feature.
 - [coingecko-pre-processing](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-pre-processing) -
-  demonstration of the [pre-processing](https://docs.api3.org/reference/ois/latest/processing.html) feature.
+  demonstration of the [pre-processing](https://airnode-docs.api3.org/reference/ois/latest/processing.html) feature.
 - [coingecko-template](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/coingecko-template) -
-  demonstration of [template](https://docs.api3.org/reference/airnode/latest/developers/using-templates.html) requests.
+  demonstration of [template](https://airnode-docs.api3.org/reference/airnode/latest/developers/using-templates.html)
+  requests.
 - [failing-example](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/failing-example) -
   demonstration of Airnode error handling through an invalid request.
 - [relay-security-schemes](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples/integrations/relay-security-schemes) -
@@ -119,9 +121,9 @@ deploy the contracts and make transactions, so make sure it is funded. The recom
 
 #### 4. (Only if using local blockchain) Deploy the RRP contract
 
-The [RRP contract](https://docs.api3.org/reference/airnode/latest/concepts/#airnoderrpv0-sol) is a contract through
-which the [requester](https://docs.api3.org/reference/airnode/latest/concepts/requester.html) triggers a request for
-Airnode. This contract is common for all Airnodes and requesters on a chain.
+The [RRP contract](https://airnode-docs.api3.org/reference/airnode/latest/concepts/#airnoderrpv0-sol) is a contract
+through which the [requester](https://airnode-docs.api3.org/reference/airnode/latest/concepts/requester.html) triggers a
+request for Airnode. This contract is common for all Airnodes and requesters on a chain.
 
 If you are using a local blockchain, deploy the contract using the first command below. Otherwise, the contract deployed
 by API3 on the chosen chain will be used automatically. The second command, also optional if using a public blockchain,
@@ -137,7 +139,7 @@ yarn deploy-rrp-dry-run
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
 [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
 these or how to create an AWS account, see
-[the following docs section](https://docs.api3.org/reference/airnode/latest/understand/configuring.html#aws-setup-aws-deployment-only).
+[the following docs section](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html#aws-setup-aws-deployment-only).
 
 After you know the secrets, run the following script to specify them:
 
@@ -156,7 +158,7 @@ your project by pairing it with your credit card. The amount of resources used b
 within the free tier, which means no charges will be incurred.
 
 If you are not sure how to create a GCP service account, see or download the access key for it,
-[the following docs section](https://docs.api3.org/reference/airnode/latest/understand/configuring.html#gcp-setup-gcp-deployment-only).
+[the following docs section](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html#gcp-setup-gcp-deployment-only).
 
 Store the access key file as `gcp.json` in the integration directory - e.g. if you have chosen the `coingecko`
 integration, store the file as `integrations/coingecko/gcp.json`.
@@ -190,8 +192,8 @@ yarn create-airnode-secrets
 >
 > The `create-airnode-secrets` script will handle this for you on Mac, Windows, and WSL.
 
-Refer to the [documentation](https://docs.api3.org/reference/airnode/latest/understand/configuring.html) for more
-details.
+Refer to the [documentation](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html) for
+more details.
 
 #### 9. (Only if deploying to a cloud provider) Deploy Airnode
 
@@ -244,11 +246,11 @@ yarn deploy-requester
 
 #### 12. Derive and fund the sponsor wallet
 
-Airnode requests require a [sponsor](https://docs.api3.org/reference/airnode/latest/concepts/sponsor.html), which will
-pay for the response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet
-is called a "sponsor wallet" and can be derived from a sponsor address and Airnode's extended public key with the
-[admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
-[documentation](https://docs.api3.org/reference/airnode/latest/developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
+Airnode requests require a [sponsor](https://airnode-docs.api3.org/reference/airnode/latest/concepts/sponsor.html),
+which will pay for the response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode.
+This wallet is called a "sponsor wallet" and can be derived from a sponsor address and Airnode's extended public key
+with the [admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
+[documentation](https://airnode-docs.api3.org/reference/airnode/latest/developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 
 To derive and fund the sponsor wallet, run:
