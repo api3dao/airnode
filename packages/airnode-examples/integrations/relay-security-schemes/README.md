@@ -17,4 +17,4 @@ demonstrate how the value can be sent via `query`, `header`, and `cookie`:
 - relayRequestId
 
 For more information on supported security schemes, refer to the
-[docs](https://docs.api3.org/reference/airnode/latest/understand/api-security.html).
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/understand/api-security.html).
