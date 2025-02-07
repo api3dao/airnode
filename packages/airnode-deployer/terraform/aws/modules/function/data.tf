@@ -18,6 +18,9 @@ data "aws_iam_policy_document" "cloudwatch_log_policy" {
     actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+      "logs:ListTagsForResource",
+      "logs:TagResource",
+      "logs:UntagResource"
     ]
     resources = ["${aws_cloudwatch_log_group.cloudwatch_log_group.arn}:*"]
   }
