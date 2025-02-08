@@ -1,4 +1,4 @@
-FROM node:18.19.1-alpine3.19
+FROM node:20.17.0-alpine3.20
 
 ARG npmRegistryUrl=https://registry.npmjs.org/
 ARG npmTag=latest
@@ -12,6 +12,7 @@ LABEL application=${name} \
 
 # Install airnode-admin
 RUN npm set registry ${npmRegistryUrl} && \
+    apk add --update --no-cache build-base g++ cmake linux-headers && \
     yarn global add ${packageName}@${npmTag} && \
     ln -s /usr/local/share/.config/yarn/global/node_modules/${packageName}/dist ${appDir} && \
     # Create user

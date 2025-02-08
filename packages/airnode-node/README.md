@@ -4,7 +4,7 @@
 
 ## Documentation
 
-You can learn all the information about Airnode in the [docs](https://docs.api3.org/reference/airnode/latest/).
+You can learn all the information about Airnode in the [docs](https://airnode-docs.api3.org/reference/airnode/latest/).
 
 ## For developers
 
@@ -75,7 +75,7 @@ src/
 
 Before you can use or invoke Airnode locally, you must have a valid `config.json` in the `config` folder. You can find
 the specification in the
-[config.json documentation](https://docs.api3.org/reference/airnode/latest/deployment-files/config-json.html).
+[config.json documentation](https://airnode-docs.api3.org/reference/airnode/latest/deployment-files/config-json.html).
 
 For your convenience, example `config.json` and `secrets.env` files are provided in the `config` folder. You can simply
 copy these files and remove the `.example` from the filename.

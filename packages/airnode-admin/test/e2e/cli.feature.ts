@@ -125,7 +125,7 @@ describe('CLI', () => {
     it('derives airnode xpub', () => {
       const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
 
-      // Derive the xpub programatically
+      // Derive the xpub programmatically
       const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
 
       // Derive the xpub using CLI
@@ -172,7 +172,7 @@ describe('CLI', () => {
         ['--sponsor-address', sponsorAddress]
       );
 
-      // Derive the wallet programatically
+      // Derive the wallet programmatically
       const sponsorWallet = await deriveSponsorWallet(airnodeWallet.mnemonic.phrase, sponsorAddress);
 
       // Check that they generate the same wallet address

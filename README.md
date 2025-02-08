@@ -9,7 +9,8 @@ Airnode is a fully-serverless oracle node that is designed specifically for API 
 
 ## Documentation
 
-You can find an overview of Airnode in the [documentation](https://docs.api3.org/explore/airnode/what-is-airnode.html).
+You can find an overview of Airnode in the
+[documentation](https://airnode-docs.api3.org/reference/airnode/latest/understand/).
 
 ## For developers
 
@@ -19,11 +20,11 @@ This is a monorepo managed by [Lerna](https://github.com/lerna/lerna).
 
 [**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities
 for Airnode according to the
-[Airnode ABI specifications](https://docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
+[Airnode ABI specifications](https://airnode-docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
 
 [**airnode-adapter**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-adapter) Used for building
-requests from an [Oracle Integration Specification (OIS)](https://docs.api3.org/reference/ois/latest/), executing them,
-parsing the responses, but also converting and encoding them for on chain purposes
+requests from an [Oracle Integration Specification (OIS)](https://airnode-docs.api3.org/reference/ois/latest/),
+executing them, parsing the responses, but also converting and encoding them for on chain purposes
 
 [**airnode-admin**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin) A package/CLI tool to
 interact with the Airnode contracts across chains

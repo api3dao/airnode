@@ -11,4 +11,4 @@ multiply the asset price returned from the API. This is necessary to preserve th
 contract, since solidity only allows to use integers.
 
 For more information about how the Airnode is configured refer to the
-[docs](https://docs.api3.org/reference/airnode/latest/understand/configuring.html).
+[docs](https://airnode-docs.api3.org/reference/airnode/latest/understand/configuring.html).
