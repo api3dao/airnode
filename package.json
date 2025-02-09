@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^18.19.1"
+    "node": "^20.17.0"
   },
   "repository": {
     "type": "git",
@@ -110,7 +110,7 @@
     "@changesets/cli": "^2.27.1",
     "@octokit/core": "^5.2.0",
     "@types/libsodium-wrappers": "^0.7.14",
-    "@types/node": "^18.19.31",
+    "@types/node": "^20.17.0",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "@vercel/ncc": "^0.38.1",

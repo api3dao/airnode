@@ -37,7 +37,7 @@
     "chai": "^4.4.1",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^4.0.10",
-    "hardhat": "^2.14.1",
+    "hardhat": "^2.22.18",
     "hardhat-deploy": "^0.12.4",
     "hardhat-gas-reporter": "^1.0.10",
     "rimraf": "^6.0.1",
@@ -46,7 +46,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@api3/airnode-protocol-v1": "^3.3.0",
+    "@api3/airnode-protocol-v1": "^3.4.0",
     "@openzeppelin/contracts": "4.4.2",
     "ethers": "^5.7.2"
   }
