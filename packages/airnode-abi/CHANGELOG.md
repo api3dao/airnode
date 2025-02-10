@@ -1,5 +1,11 @@
 # @api3/airnode-abi
 
+## 0.15.0
+
+### Minor Changes
+
+- [#1954](https://github.com/api3dao/airnode/pull/1954) [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0) Thanks [@renovate](https://github.com/apps/renovate)! - Bump minimum Node.js version to 18.19.1.
+
 ## 0.14.0
 
 ## 0.13.0
