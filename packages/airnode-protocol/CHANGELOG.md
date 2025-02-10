@@ -1,5 +1,37 @@
 # @api3/airnode-protocol
 
+## 0.15.0
+
+### Minor Changes
+
+- [#1953](https://github.com/api3dao/airnode/pull/1953) [`ea29aef`](https://github.com/api3dao/airnode/commit/ea29aefb12e75d919ebf4bca1e53673baa72c4d5) Thanks [@dcroote](https://github.com/dcroote)! - Deploy contracts on base-sepolia-testnet and optimism-sepolia-testnet. Bump api3/chains to v4.7.0.
+
+- [#1954](https://github.com/api3dao/airnode/pull/1954) [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0) Thanks [@renovate](https://github.com/apps/renovate)! - Bump minimum Node.js version to 18.19.1.
+
+- [#1974](https://github.com/api3dao/airnode/pull/1974) [`38bd229`](https://github.com/api3dao/airnode/commit/38bd229fa0c4054be16311ffc31c036e5a4aea19) Thanks [@vanshwassan](https://github.com/vanshwassan)! - remove deprecated chains from protocol deployments
+
+- [#1974](https://github.com/api3dao/airnode/pull/1974) [`38bd229`](https://github.com/api3dao/airnode/commit/38bd229fa0c4054be16311ffc31c036e5a4aea19) Thanks [@vanshwassan](https://github.com/vanshwassan)! - add sepolia chains to protocol deployments
+
+- [#1951](https://github.com/api3dao/airnode/pull/1951) [`c0bf33d`](https://github.com/api3dao/airnode/commit/c0bf33d8087efe5e5cba35f86178105e1ba9e574) Thanks [@dcroote](https://github.com/dcroote)! - Replace deprecated hardhat-etherscan with hardhat-verify
+
+- [#1991](https://github.com/api3dao/airnode/pull/1991) [`0bb350f`](https://github.com/api3dao/airnode/commit/0bb350f165899c38abdc3c87f034df3134f02c52) Thanks [@dcroote](https://github.com/dcroote)! - Remove goerli and polygon mumbai deployments. Bump api3/chains to v5.
+
+- [#2000](https://github.com/api3dao/airnode/pull/2000) [`c1fb30b`](https://github.com/api3dao/airnode/commit/c1fb30bca503ac4a7ec5adcf058834d04649fad0) Thanks [@vanshwassan](https://github.com/vanshwassan)! - deploy protocol contracts on new market chains
+
+- [#1967](https://github.com/api3dao/airnode/pull/1967) [`7128ea7`](https://github.com/api3dao/airnode/commit/7128ea7013db4c8c061573d931122c0b8303a849) Thanks [@vanshwassan](https://github.com/vanshwassan)! - deploy protocol contracts to blast
+
+### Patch Changes
+
+- [#1995](https://github.com/api3dao/airnode/pull/1995) [`9261e5b`](https://github.com/api3dao/airnode/commit/9261e5bf0eba7dee7e1d118dfd3cba1ad85ca775) Thanks [@renovate](https://github.com/apps/renovate)! - Bump api3/chains to v6.2.0
+
+- [#1942](https://github.com/api3dao/airnode/pull/1942) [`c9a94bf`](https://github.com/api3dao/airnode/commit/c9a94bf8074bdb4251c060c2c10bfdece861ac37) Thanks [@dcroote](https://github.com/dcroote)! - Remove unnecessary eslint-disable-line
+
+- [#1940](https://github.com/api3dao/airnode/pull/1940) [`e4edd31`](https://github.com/api3dao/airnode/commit/e4edd3189dde0cac804a0d843c39a87b26a49daa) Thanks [@dcroote](https://github.com/dcroote)! - Replace old Rinkeby reference
+
+- [#2026](https://github.com/api3dao/airnode/pull/2026) [`4a8b877`](https://github.com/api3dao/airnode/commit/4a8b87752019f7ca9c081f4a5b3ae2fe9d2fa0d6) Thanks [@dcroote](https://github.com/dcroote)! - Bump dependencies and fix typos
+
+- [#1965](https://github.com/api3dao/airnode/pull/1965) [`8d0b331`](https://github.com/api3dao/airnode/commit/8d0b331fc67037f7a789e5aeb4ac916e30bcdb5f) Thanks [@renovate](https://github.com/apps/renovate)! - Bump api3/chains to v4.12.0
+
 ## 0.14.0
 
 ### Minor Changes

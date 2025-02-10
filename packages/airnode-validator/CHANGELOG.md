@@ -1,5 +1,32 @@
 # @api3/airnode-validator
 
+## 0.15.0
+
+### Minor Changes
+
+- [#1954](https://github.com/api3dao/airnode/pull/1954) [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0) Thanks [@renovate](https://github.com/apps/renovate)! - Bump minimum Node.js version to 18.19.1.
+
+- [#1991](https://github.com/api3dao/airnode/pull/1991) [`0bb350f`](https://github.com/api3dao/airnode/commit/0bb350f165899c38abdc3c87f034df3134f02c52) Thanks [@dcroote](https://github.com/dcroote)! - Remove goerli and polygon mumbai deployments. Bump api3/chains to v5.
+
+### Patch Changes
+
+- [#1891](https://github.com/api3dao/airnode/pull/1891) [`0591e10`](https://github.com/api3dao/airnode/commit/0591e10c32b9dc427e2f89b6075f58fbe8001b70) Thanks [@renovate](https://github.com/apps/renovate)! - Bump dependencies
+
+- [#1954](https://github.com/api3dao/airnode/pull/1954) [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0) Thanks [@renovate](https://github.com/apps/renovate)! - Update typescript-eslint monorepo to v7
+
+- [#1946](https://github.com/api3dao/airnode/pull/1946) [`07e0feb`](https://github.com/api3dao/airnode/commit/07e0febb5101354fe271efb84b87f88d821f2931) Thanks [@dcroote](https://github.com/dcroote)! - Bump api3/ois to v2.3.2
+
+- [#2026](https://github.com/api3dao/airnode/pull/2026) [`4a8b877`](https://github.com/api3dao/airnode/commit/4a8b87752019f7ca9c081f4a5b3ae2fe9d2fa0d6) Thanks [@dcroote](https://github.com/dcroote)! - Bump dependencies and fix typos
+
+- [#1984](https://github.com/api3dao/airnode/pull/1984) [`fce847d`](https://github.com/api3dao/airnode/commit/fce847d04dbfbecd232ea4eeaeb113db18680f8d) Thanks [@dcroote](https://github.com/dcroote)! - Bump api3/commons to v0.9.0
+
+- [#1962](https://github.com/api3dao/airnode/pull/1962) [`1c49d6f`](https://github.com/api3dao/airnode/commit/1c49d6fe602eb430093a73f8339ec0034afdbcae) Thanks [@dcroote](https://github.com/dcroote)! - Use secret interpolation from api3/commons
+
+- [#1998](https://github.com/api3dao/airnode/pull/1998) [`228d91d`](https://github.com/api3dao/airnode/commit/228d91d7fd08f370dd852787c8eae1174d84aefa) Thanks [@dcroote](https://github.com/dcroote)! - Fix deployer test config files and add an airnode-validator valid template test
+
+- Updated dependencies [[`9261e5b`](https://github.com/api3dao/airnode/commit/9261e5bf0eba7dee7e1d118dfd3cba1ad85ca775), [`ea29aef`](https://github.com/api3dao/airnode/commit/ea29aefb12e75d919ebf4bca1e53673baa72c4d5), [`c9a94bf`](https://github.com/api3dao/airnode/commit/c9a94bf8074bdb4251c060c2c10bfdece861ac37), [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0), [`38bd229`](https://github.com/api3dao/airnode/commit/38bd229fa0c4054be16311ffc31c036e5a4aea19), [`38bd229`](https://github.com/api3dao/airnode/commit/38bd229fa0c4054be16311ffc31c036e5a4aea19), [`c0bf33d`](https://github.com/api3dao/airnode/commit/c0bf33d8087efe5e5cba35f86178105e1ba9e574), [`e4edd31`](https://github.com/api3dao/airnode/commit/e4edd3189dde0cac804a0d843c39a87b26a49daa), [`0bb350f`](https://github.com/api3dao/airnode/commit/0bb350f165899c38abdc3c87f034df3134f02c52), [`4a8b877`](https://github.com/api3dao/airnode/commit/4a8b87752019f7ca9c081f4a5b3ae2fe9d2fa0d6), [`8d0b331`](https://github.com/api3dao/airnode/commit/8d0b331fc67037f7a789e5aeb4ac916e30bcdb5f), [`c1fb30b`](https://github.com/api3dao/airnode/commit/c1fb30bca503ac4a7ec5adcf058834d04649fad0), [`7128ea7`](https://github.com/api3dao/airnode/commit/7128ea7013db4c8c061573d931122c0b8303a849)]:
+  - @api3/airnode-protocol@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes

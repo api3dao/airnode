@@ -1,5 +1,20 @@
 # @api3/airnode-utilities
 
+## 0.15.0
+
+### Minor Changes
+
+- [#1954](https://github.com/api3dao/airnode/pull/1954) [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0) Thanks [@renovate](https://github.com/apps/renovate)! - Bump minimum Node.js version to 18.19.1.
+
+- [#1920](https://github.com/api3dao/airnode/pull/1920) [`eaa6570`](https://github.com/api3dao/airnode/commit/eaa6570c51710e8fe4617cd7c319a7f36c25adca) Thanks [@dcroote](https://github.com/dcroote)! - Replace Node.js 18 with Node.js 20
+
+### Patch Changes
+
+- [#1945](https://github.com/api3dao/airnode/pull/1945) [`ab87cc6`](https://github.com/api3dao/airnode/commit/ab87cc6f10fee7271d3a215acebf557ab6f24aa4) Thanks [@renovate](https://github.com/apps/renovate)! - Bump date-fns and date-fns-tz to v3
+
+- Updated dependencies [[`0591e10`](https://github.com/api3dao/airnode/commit/0591e10c32b9dc427e2f89b6075f58fbe8001b70), [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0), [`ccad662`](https://github.com/api3dao/airnode/commit/ccad662d600bb20ecd22ac23147397c815a5e2d0), [`07e0feb`](https://github.com/api3dao/airnode/commit/07e0febb5101354fe271efb84b87f88d821f2931), [`0bb350f`](https://github.com/api3dao/airnode/commit/0bb350f165899c38abdc3c87f034df3134f02c52), [`4a8b877`](https://github.com/api3dao/airnode/commit/4a8b87752019f7ca9c081f4a5b3ae2fe9d2fa0d6), [`fce847d`](https://github.com/api3dao/airnode/commit/fce847d04dbfbecd232ea4eeaeb113db18680f8d), [`1c49d6f`](https://github.com/api3dao/airnode/commit/1c49d6fe602eb430093a73f8339ec0034afdbcae), [`228d91d`](https://github.com/api3dao/airnode/commit/228d91d7fd08f370dd852787c8eae1174d84aefa)]:
+  - @api3/airnode-validator@0.15.0
+
 ## 0.14.0
 
 ### Patch Changes
