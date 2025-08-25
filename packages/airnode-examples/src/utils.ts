@@ -4,7 +4,7 @@ import { parse as parseEnvFile } from 'dotenv';
 import prompts, { PromptObject } from 'prompts';
 import isWsl from 'is-wsl';
 import { AirnodeRrpV0 } from '@api3/airnode-protocol/deployments/references.json';
-import { hardhatConfig } from '@api3/chains';
+import { hardhatConfig } from '@api3/contracts';
 
 export const supportedNetworks = ['ethereum-sepolia-testnet'] as const;
 

@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { hardhatConfig } from '@api3/chains';
+import { hardhatConfig } from '@api3/contracts';
 
 fs.writeFileSync(
   'example.env',
