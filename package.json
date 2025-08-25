@@ -14,7 +14,7 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "yarn install",
+    "bootstrap": "yarn install --ignore-engines",
     "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
     "build:adapter": "(cd packages/airnode-adapter && yarn run build)",
     "build:admin": "(cd packages/airnode-admin && yarn run build)",
