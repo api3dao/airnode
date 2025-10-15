@@ -1,4 +1,9 @@
 {
+  "ignorePatterns": [
+    {
+      "pattern": "https://www.terraform.io/downloads.html"
+    }
+  ],
   "replacementPatterns": [],
   "retryOn429": true,
   "retryCount": 3,
