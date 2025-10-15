@@ -114,7 +114,7 @@
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "@vercel/ncc": "^0.38.1",
-    "axios": "^1.6.8",
+    "axios": "^1.12.2",
     "comment-json": "^4.2.3",
     "eslint": "^8.57.0",
     "eslint-plugin-functional": "^5.0.8",
