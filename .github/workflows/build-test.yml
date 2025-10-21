@@ -102,7 +102,7 @@ jobs:
         run: yarn docker:scripts:npm-registry:stop
       - name: Publish Docker containers
         env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_USERNAME: api3
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: yarn docker:scripts:docker:publish --dev --docker-tags ${{ github.sha }}
   unit-tests:
