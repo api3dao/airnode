@@ -1,4 +1,12 @@
 {
+  "ignorePatterns": [
+    {
+      "pattern": "https://www.terraform.io/downloads.html"
+    },
+    {
+      "pattern": "https://github.com/api3dao/.*/commit/.*"
+    }
+  ],
   "replacementPatterns": [],
   "retryOn429": true,
   "retryCount": 3,
