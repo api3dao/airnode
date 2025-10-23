@@ -3,11 +3,11 @@ require('@nomiclabs/hardhat-waffle');
 require('solidity-coverage');
 require('hardhat-deploy');
 require('hardhat-gas-reporter');
-const api3Chains = require('@api3/chains');
+const api3Contracts = require('@api3/contracts');
 require('dotenv').config();
 
-const etherscan = api3Chains.hardhatConfig.etherscan();
-const networks = api3Chains.hardhatConfig.networks();
+const etherscan = api3Contracts.hardhatConfig.etherscan();
+const networks = api3Contracts.hardhatConfig.networks();
 
 module.exports = {
   etherscan,

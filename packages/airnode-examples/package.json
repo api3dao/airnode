@@ -39,6 +39,7 @@
     "@api3/airnode-node": "^0.15.0",
     "@api3/airnode-protocol": "^0.15.0",
     "@api3/airnode-utilities": "^0.15.0",
+    "@api3/contracts": "^27.0.0",
     "ethers": "^5.7.2",
     "is-wsl": "^2.2.0"
   },

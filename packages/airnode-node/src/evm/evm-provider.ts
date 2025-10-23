@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { CHAINS } from '@api3/chains';
+import { CHAINS } from '@api3/contracts';
 import { EVM_PROVIDER_TIMEOUT } from '../constants';
 
 export function buildEVMProvider(url: string, chainId: string) {
