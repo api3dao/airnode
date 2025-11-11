@@ -13,6 +13,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "resolutions": {
+    "cloudevents": "10.0.0"
+  },
   "scripts": {
     "bootstrap": "yarn install",
     "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
