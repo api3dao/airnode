@@ -11,7 +11,7 @@ on:
 
 env:
   DOCKER_BUILDKIT: 1
-  TARGET_NODE_VERSION: '20.17.0'
+  TARGET_NODE_VERSION: '22.12.0'
 
 jobs:
   pre-build:
