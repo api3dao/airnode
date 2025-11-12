@@ -36,15 +36,17 @@ describe('caching utils', () => {
     const filesStatData = files.map((file) => ({ file, mtimeMs: 1 }));
 
     const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-    // @ts-expect-error - Jest's spyOn infers the Dirent overload, but we need the string[] overload
-    readdirSyncSpy.mockImplementationOnce(() => files);
+    readdirSyncSpy.mockImplementation(
+      ((_path: fs.PathLike, _options?: BufferEncoding | fs.ObjectEncodingOptions | null) =>
+        files) as typeof fs.readdirSync
+    );
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
 
-    statSyncSpy.mockImplementation(
-      (file: PathLike) =>
-        filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)! as unknown as Stats
-    );
+    statSyncSpy.mockImplementation((file: PathLike) => {
+      const fileData = filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)!;
+      return { mtimeMs: fileData.mtimeMs } as Stats;
+    });
 
     const rmSyncSpy = jest.spyOn(fs, 'rmSync');
     rmSyncSpy.mockImplementation(() => {});
@@ -61,15 +63,17 @@ describe('caching utils', () => {
     const filesStatData = files.map((file) => ({ file, mtimeMs: Date.now() }));
 
     const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-    // @ts-expect-error - Jest's spyOn infers the Dirent overload, but we need the string[] overload
-    readdirSyncSpy.mockImplementationOnce(() => files);
+    readdirSyncSpy.mockImplementation(
+      ((_path: fs.PathLike, _options?: BufferEncoding | fs.ObjectEncodingOptions | null) =>
+        files) as typeof fs.readdirSync
+    );
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
 
-    statSyncSpy.mockImplementation(
-      (file: PathLike) =>
-        filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)! as unknown as Stats
-    );
+    statSyncSpy.mockImplementation((file: PathLike) => {
+      const fileData = filesStatData.find((statData) => file.toString().indexOf(statData.file) > -1)!;
+      return { mtimeMs: fileData.mtimeMs } as Stats;
+    });
 
     const rmSyncSpy = jest.spyOn(fs, 'rmSync');
     rmSyncSpy.mockImplementation(() => {});
