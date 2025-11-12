@@ -908,7 +908,7 @@ describe('removeAirnode', () => {
 
   beforeEach(() => {
     mutableDirectoryStructure = cloneDeep(mockBucketDirectoryStructure);
-    exec.mockImplementation(() => ({}));
+    exec.mockImplementation(() => ({ stdout: '' }));
     awsGetAirnodeBucketSpy = jest.spyOn(aws, 'getAirnodeBucket').mockResolvedValue(bucket);
     awsGetBucketDirectoryStructureSpy = jest
       .spyOn(aws, 'getBucketDirectoryStructure')

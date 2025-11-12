@@ -273,7 +273,7 @@ Use the `--dev` option to push the images, with the `-dev` suffix in their name.
 
 You need to provide two environment variables to authenticate against the DockerHub registry:
 
-- `DOCKERHUB_USERNAME` - DockerHub username
+- `DOCKERHUB_USERNAME` - DockerHub username i.e. `api3`
 - `DOCKERHUB_TOKEN` - DockerHub access token
 
 Example:
