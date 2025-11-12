@@ -1,4 +1,4 @@
-import fs, { Dirent, PathLike, Stats } from 'fs';
+import fs, { PathLike, Stats } from 'fs';
 import { caching, CACHE_BASE_PATH } from './index';
 
 describe('caching utils', () => {
@@ -35,8 +35,11 @@ describe('caching utils', () => {
     const files = ['1', '2', '3', '4', '5'];
     const filesStatData = files.map((file) => ({ file, mtimeMs: 1 }));
 
-    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-    readdirSyncSpy.mockReturnValueOnce(files as unknown as Dirent[]);
+    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync') as unknown as jest.SpyInstance<
+      string[],
+      [path: fs.PathLike, options?: (fs.ObjectEncodingOptions & { withFileTypes?: false }) | BufferEncoding | null]
+    >;
+    readdirSyncSpy.mockImplementationOnce(() => files);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
 
@@ -59,8 +62,11 @@ describe('caching utils', () => {
     const files = ['1', '2', '3', '4', '5'];
     const filesStatData = files.map((file) => ({ file, mtimeMs: Date.now() }));
 
-    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-    readdirSyncSpy.mockReturnValueOnce(files as unknown as Dirent[]);
+    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync') as unknown as jest.SpyInstance<
+      string[],
+      [path: fs.PathLike, options?: (fs.ObjectEncodingOptions & { withFileTypes?: false }) | BufferEncoding | null]
+    >;
+    readdirSyncSpy.mockImplementationOnce(() => files);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
 

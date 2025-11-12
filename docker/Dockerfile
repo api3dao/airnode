@@ -1,4 +1,4 @@
-FROM node:20.17.0-alpine3.20 AS environment
+FROM node:22.12.0-alpine3.21 AS environment
 
 ENV appDir="/app" \
     buildDir="/build" \
