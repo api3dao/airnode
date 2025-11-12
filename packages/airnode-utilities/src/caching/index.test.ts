@@ -35,10 +35,8 @@ describe('caching utils', () => {
     const files = ['1', '2', '3', '4', '5'];
     const filesStatData = files.map((file) => ({ file, mtimeMs: 1 }));
 
-    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync') as unknown as jest.SpyInstance<
-      string[],
-      [path: fs.PathLike, options?: (fs.ObjectEncodingOptions & { withFileTypes?: false }) | BufferEncoding | null]
-    >;
+    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
+    // @ts-expect-error - Jest's spyOn infers the Dirent overload, but we need the string[] overload
     readdirSyncSpy.mockImplementationOnce(() => files);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
@@ -62,10 +60,8 @@ describe('caching utils', () => {
     const files = ['1', '2', '3', '4', '5'];
     const filesStatData = files.map((file) => ({ file, mtimeMs: Date.now() }));
 
-    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync') as unknown as jest.SpyInstance<
-      string[],
-      [path: fs.PathLike, options?: (fs.ObjectEncodingOptions & { withFileTypes?: false }) | BufferEncoding | null]
-    >;
+    const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
+    // @ts-expect-error - Jest's spyOn infers the Dirent overload, but we need the string[] overload
     readdirSyncSpy.mockImplementationOnce(() => files);
 
     const statSyncSpy = jest.spyOn(fs, 'statSync');
