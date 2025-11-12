@@ -91,7 +91,7 @@ export async function runCommand(command: string, options: CommandOptions) {
   }
 
   commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
-  return goExec.data.stdout;
+  return goExec.data.stdout.toString();
 }
 
 export type CommandArg = string | [string, string] | [string, string, string];
