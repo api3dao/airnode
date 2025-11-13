@@ -63,12 +63,12 @@
     winston-console-format "^1.0.8"
     zod "^3.22.4"
 
-"@api3/contracts@^27.0.0":
-  version "27.0.0"
-  resolved "https://registry.yarnpkg.com/@api3/contracts/-/contracts-27.0.0.tgz#5b5dcbb42054fbc7d2ff6d6260fdf8242c88bfc9"
-  integrity sha512-FPjsKqTI4o737kIdO5K5mCUw1Uij0UOLkd7fjkiD63Dhxz1p5NQQzeuigpXtnyhG7kqXtmOoBSZeOxzpK2b/lA==
+"@api3/contracts@^31.4.0":
+  version "31.4.0"
+  resolved "https://registry.yarnpkg.com/@api3/contracts/-/contracts-31.4.0.tgz#3c48291c18ba863aa434ce1302777cf8914a31d5"
+  integrity sha512-wCjtCNHslRYpC1BaKk5NXY7vkBUAmVLHCUG2/EYaADEzroSrOqWfBWZUbIYxp0BaqU/J8p58o5/AhFgyH899qA==
   dependencies:
-    ethers "^6.13.2"
+    ethers "^6.15.0"
     viem "^2.23.2"
     yargs "^17.7.2"
     zod "^4.0.15"
@@ -8219,7 +8219,7 @@ ethers@^5.7.0, ethers@^5.7.2, ethers@~5.7.0:
     "@ethersproject/web" "5.7.1"
     "@ethersproject/wordlists" "5.7.0"
 
-ethers@^6.13.2:
+ethers@^6.15.0:
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.15.0.tgz#2980f2a3baf0509749b7e21f8692fa8a8349c0e3"
   integrity sha512-Kf/3ZW54L4UT0pZtsY/rf+EkBU7Qi5nnhonjUb8yTXcxH3cdcWrV2cRyk0Xk/4jK6OoHhxxZHriyhje20If2hQ==
@@ -15288,6 +15288,11 @@ undici-types@~5.26.4:
   version "5.26.5"
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
+
+undici-types@~6.19.2:
+  version "6.19.8"
+  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
+  integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
 undici-types@~6.21.0:
   version "6.21.0"
