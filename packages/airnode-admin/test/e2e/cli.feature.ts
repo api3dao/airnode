@@ -10,9 +10,26 @@ import {
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { logger } from '@api3/airnode-utilities';
-import { goSync } from '@api3/promise-utils';
+import { go, goSync } from '@api3/promise-utils';
 import * as admin from '../../src';
 import { cliExamples } from '../../src/cli-examples';
+
+// Retry helper for async operations that may fail due to connection issues
+const withRetry = async <T>(fn: () => Promise<T>, maxRetries = 3, delayMs = 200): Promise<T> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const result = await go(fn);
+    if (result.success) {
+      return result.data;
+    }
+    const isConnectionError =
+      result.error.message.includes('ECONNRESET') || result.error.message.includes('ECONNREFUSED');
+    if (!isConnectionError || attempt === maxRetries) {
+      throw result.error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  throw new Error('Retry failed');
+};
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/src/cli.js`;
@@ -75,12 +92,14 @@ describe('CLI', () => {
   });
 
   beforeEach(async () => {
-    airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
+    await withRetry(async () => {
+      airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
 
-    airnodeWallet = ethers.Wallet.createRandom().connect(provider);
-    await deployer.sendTransaction({
-      to: airnodeWallet.address,
-      value: ethers.utils.parseEther('1'),
+      airnodeWallet = ethers.Wallet.createRandom().connect(provider);
+      await deployer.sendTransaction({
+        to: airnodeWallet.address,
+        value: ethers.utils.parseEther('1'),
+      });
     });
   });
 
@@ -337,14 +356,16 @@ Template data:
     const sponsorBalance = () => sponsor.getBalance();
 
     beforeEach(async () => {
-      // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
-      sponsor = alice;
+      await withRetry(async () => {
+        // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
+        sponsor = alice;
 
-      // Derive and fund the designated sponsor wallet
-      sponsorWallet = await deriveSponsorWallet(airnodeWallet.mnemonic.phrase, sponsor.address);
-      await deployer.sendTransaction({
-        to: sponsorWallet.address,
-        value: ethers.utils.parseEther('1'),
+        // Derive and fund the designated sponsor wallet
+        sponsorWallet = await deriveSponsorWallet(airnodeWallet.mnemonic.phrase, sponsor.address);
+        await deployer.sendTransaction({
+          to: sponsorWallet.address,
+          value: ethers.utils.parseEther('1'),
+        });
       });
     });
 
@@ -502,58 +523,64 @@ Template data:
     let requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode;
 
     beforeEach(async () => {
-      accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
-      requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
-        accessControlRegistry.address,
-        'RequesterAuthorizerWithAirnode admin'
-      );
+      await withRetry(async () => {
+        accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
+        requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
+          accessControlRegistry.address,
+          'RequesterAuthorizerWithAirnode admin'
+        );
 
-      const airnodeRootRole = await accessControlRegistry.deriveRootRole(airnodeWallet.address);
-      // Initialize the roles and grant them to respective accounts
-      const adminRole = await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address);
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .initializeRoleAndGrantToSender(airnodeRootRole, await requesterAuthorizerWithAirnode.adminRoleDescription(), {
-          gasLimit: 1000000,
-        });
-      const whitelistExpirationExtenderRole =
-        await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(airnodeWallet.address);
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .initializeRoleAndGrantToSender(
-          adminRole,
-          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-          { gasLimit: 1000000 }
+        const airnodeRootRole = await accessControlRegistry.deriveRootRole(airnodeWallet.address);
+        // Initialize the roles and grant them to respective accounts
+        const adminRole = await requesterAuthorizerWithAirnode.deriveAdminRole(airnodeWallet.address);
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .initializeRoleAndGrantToSender(
+            airnodeRootRole,
+            await requesterAuthorizerWithAirnode.adminRoleDescription(),
+            {
+              gasLimit: 1000000,
+            }
+          );
+        const whitelistExpirationExtenderRole =
+          await requesterAuthorizerWithAirnode.deriveWhitelistExpirationExtenderRole(airnodeWallet.address);
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .initializeRoleAndGrantToSender(
+            adminRole,
+            await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+            { gasLimit: 1000000 }
+          );
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .grantRole(whitelistExpirationExtenderRole, bob.address, { gasLimit: 1000000 });
+        const whitelistExpirationSetterRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(
+          airnodeWallet.address
         );
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .grantRole(whitelistExpirationExtenderRole, bob.address, { gasLimit: 1000000 });
-      const whitelistExpirationSetterRole = await requesterAuthorizerWithAirnode.deriveWhitelistExpirationSetterRole(
-        airnodeWallet.address
-      );
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .initializeRoleAndGrantToSender(
-          adminRole,
-          await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-          { gasLimit: 1000000 }
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .initializeRoleAndGrantToSender(
+            adminRole,
+            await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+            { gasLimit: 1000000 }
+          );
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .grantRole(whitelistExpirationSetterRole, alice.address, { gasLimit: 1000000 });
+        const indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(
+          airnodeWallet.address
         );
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .grantRole(whitelistExpirationSetterRole, alice.address, { gasLimit: 1000000 });
-      const indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(
-        airnodeWallet.address
-      );
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .initializeRoleAndGrantToSender(
-          adminRole,
-          await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-          { gasLimit: 1000000 }
-        );
-      await accessControlRegistry
-        .connect(airnodeWallet)
-        .grantRole(indefiniteWhitelisterRole, alice.address, { gasLimit: 1000000 });
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .initializeRoleAndGrantToSender(
+            adminRole,
+            await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+            { gasLimit: 1000000 }
+          );
+        await accessControlRegistry
+          .connect(airnodeWallet)
+          .grantRole(indefiniteWhitelisterRole, alice.address, { gasLimit: 1000000 });
+      });
     });
 
     it('sets whitelist expiration timestamp', async () => {
