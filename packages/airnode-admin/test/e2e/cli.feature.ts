@@ -103,6 +103,11 @@ describe('CLI', () => {
     });
   });
 
+  // Small delay between tests to let hardhat node recover in CI
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  });
+
   it('shows help', () => {
     const output = execCommand('--help');
     expect(output).toMatchSnapshot();
