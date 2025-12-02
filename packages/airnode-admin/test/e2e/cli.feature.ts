@@ -84,14 +84,13 @@ describe('CLI', () => {
     ).connect(provider);
   };
 
-  beforeAll(() => {
+  beforeEach(async () => {
+    // Create fresh provider for each test to reset connection state
     provider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     alice = ethers.Wallet.fromMnemonic(mnemonic, aliceDerivationPath).connect(provider);
     bob = ethers.Wallet.fromMnemonic(mnemonic, bobDerivationPath).connect(provider);
-  });
 
-  beforeEach(async () => {
     await withRetry(async () => {
       airnodeRrp = await new AirnodeRrpV0Factory(deployer).deploy();
 
@@ -101,11 +100,6 @@ describe('CLI', () => {
         value: ethers.utils.parseEther('1'),
       });
     });
-  });
-
-  // Small delay between tests to let hardhat node recover in CI
-  afterEach(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
   });
 
   it('shows help', () => {
