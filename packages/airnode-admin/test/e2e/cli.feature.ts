@@ -27,7 +27,7 @@ it('has disabled DEBUG_COMMANDS flag', () => {
 describe('CLI', () => {
   jest.setTimeout(45_000);
 
-  let provider: ethers.providers.JsonRpcProvider;
+  let provider: ethers.providers.StaticJsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
   const aliceDerivationPath = "m/44'/60'/0'/0/1";
   let alice: ethers.Wallet;
@@ -68,7 +68,7 @@ describe('CLI', () => {
   };
 
   beforeAll(() => {
-    provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
+    provider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     alice = ethers.Wallet.fromMnemonic(mnemonic, aliceDerivationPath).connect(provider);
     bob = ethers.Wallet.fromMnemonic(mnemonic, bobDerivationPath).connect(provider);

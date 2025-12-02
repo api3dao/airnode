@@ -14,7 +14,7 @@ import { AdminSdk } from '../../src/sdk';
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 
 describe('SDK', () => {
-  let provider: ethers.providers.JsonRpcProvider;
+  let provider: ethers.providers.StaticJsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
   let airnodeRrp: AirnodeRrpV0;
   let accessControlRegistry: AccessControlRegistry;
@@ -24,7 +24,7 @@ describe('SDK', () => {
   const mnemonic = 'test test test test test test test test test test test junk';
 
   beforeAll(() => {
-    provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
+    provider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner();
     wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
   });
