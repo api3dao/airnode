@@ -710,4 +710,7 @@ export type Amount = SchemaType<typeof amountSchema>;
 export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
 export type MaxConcurrency = SchemaType<typeof maxConcurrencySchema>;
 
-export const availableCloudProviders: CloudProvider['type'][] = ['aws', 'gcp'];
+// Extract literal values from discriminated union options
+export const availableCloudProviders = cloudProviderSchema.options.map(
+  (option) => option.shape.type.value
+) as CloudProvider['type'][];
