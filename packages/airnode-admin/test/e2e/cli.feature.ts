@@ -334,6 +334,19 @@ Template data:
     let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
 
+    // Helper to retry async operations that may fail due to transient connection issues in CI
+    const withRetry = async <T>(fn: () => Promise<T>, maxRetries = 3, delayMs = 1000): Promise<T> => {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          return await fn();
+        } catch (error) {
+          if (attempt === maxRetries) throw error;
+          await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+        }
+      }
+      throw new Error('Unreachable');
+    };
+
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
       sponsor = alice;
@@ -370,7 +383,8 @@ Template data:
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
-      const balanceBefore = await sponsor.getBalance();
+      // Use retry for balance fetches to handle transient ECONNRESET errors in CI
+      const balanceBefore = await withRetry(() => sponsor.getBalance());
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
 
       const fulfillResult = await admin.fulfillWithdrawal(
@@ -384,10 +398,7 @@ Template data:
 
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
 
-      // Create a fresh provider instance to avoid stale connection issues in CI
-      const freshProvider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
-      const balanceAfter = await freshProvider.getBalance(sponsor.address);
-
+      const balanceAfter = await withRetry(() => sponsor.getBalance());
       expect(balanceAfter.toString()).toBe(balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString());
     });
   });
