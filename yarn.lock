@@ -66,7 +66,15 @@
     winston-console-format "^1.0.8"
     zod "^3.22.4"
 
-"@api3/ois@2.3.2", "@api3/ois@^2.3.0":
+"@api3/ois@3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-3.0.0.tgz#98b731c1a978d363714f67d9ee13f7b171ad06ff"
+  integrity sha512-scqcvBOBsptgW3rsTLxQSlTA51W1Fr0YpvyKg2JDS2zTDeGNg1gWx9A3tW6fTM4cj57VnowPgj/ZyxQ7w1Ch0Q==
+  dependencies:
+    lodash "^4.17.21"
+    zod "^4.0.5"
+
+"@api3/ois@^2.3.0":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@api3/ois/-/ois-2.3.2.tgz#1707a7311e7db55384b8b2ea7513eccb0dfd8846"
   integrity sha512-hYQCbCAtWMGKV+pECRY5tbfCSOcheeo9s6wtrhn1dOWw151VeG0sKG3VbBEsyA6cvSaldewBWY3t/JGaupdThg==
@@ -15966,3 +15974,8 @@ zod@^3.23.8:
   version "3.23.8"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
+
+zod@^4.0.5, zod@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-4.2.1.tgz#07f0388c7edbfd5f5a2466181cb4adf5b5dbd57b"
+  integrity sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==

@@ -17,7 +17,7 @@ export const airnodeWalletSchema = z
   .superRefine(({ airnodeAddress }, ctx) => {
     if (!ethers.utils.isAddress(airnodeAddress)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Airnode address is not a valid address',
         path: ['airnodeAddress'],
       });
@@ -36,7 +36,7 @@ export const deploymentSchema = z
       if (version === packageVersion) return;
 
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `The "nodeVersion" must be ${packageVersion}`,
         path: [],
       });

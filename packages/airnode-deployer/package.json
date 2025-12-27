@@ -43,7 +43,7 @@
     "lodash": "^4.17.21",
     "ora": "^5.4.1",
     "yargs": "^17.7.2",
-    "zod": "^3.22.4"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@aws-sdk/util-stream-node": "^3.374.0",

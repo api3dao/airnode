@@ -72,7 +72,7 @@ describe('parseConfigWithSecrets', () => {
       {
         code: 'too_small',
         minimum: 1,
-        type: 'string',
+        origin: 'string',
         inclusive: true,
         exact: false,
         message: 'Secret cannot be empty',
@@ -104,8 +104,8 @@ describe('parseConfigWithSecrets', () => {
       expect(parseConfigWithSecrets(config, secrets)).toEqual({
         error: new ZodError([
           {
-            validation: 'regex',
-            code: 'invalid_string',
+            format: 'regex',
+            code: 'invalid_format',
             message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
             path: ['0123STAGE_NAME'],
           },
@@ -126,8 +126,8 @@ describe('parseConfigWithSecrets', () => {
       expect(parseConfigWithSecrets(config, secrets)).toEqual({
         error: new ZodError([
           {
-            validation: 'regex',
-            code: 'invalid_string',
+            format: 'regex',
+            code: 'invalid_format',
             message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
             path: ['STAGE-NAME'],
           },
@@ -171,8 +171,8 @@ describe('parseConfigWithSecrets', () => {
     expect(parseConfigWithSecrets(config, secrets)).toEqual({
       error: new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'invalid', 0],
         },

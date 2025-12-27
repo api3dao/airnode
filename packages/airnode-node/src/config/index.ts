@@ -26,7 +26,7 @@ const readConfig = (configPath: string): unknown => {
 };
 
 export function addDefaultContractAddresses(config: configTypes.Config): configTypes.Config {
-  const ctx = { addIssue: () => {}, path: [] }; // Unused, but required by validator functions
+  const ctx = { addIssue: () => {}, path: [], value: null, issues: [] }; // Unused, but required by validator functions
   const chains = config.chains.map((chain) => {
     const { contracts } = configTypes.ensureConfigValidAirnodeRrp(chain, ctx);
 

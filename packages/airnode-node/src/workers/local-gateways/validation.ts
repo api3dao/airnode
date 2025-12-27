@@ -38,7 +38,7 @@ function verifyEndpointId(
   config: Config,
   endpointId: unknown,
   gateway: 'http' | 'httpSignedData'
-): VerificationResult<z.SafeParseSuccess<string>> {
+): VerificationResult<z.ZodSafeParseSuccess<string>> {
   const parsedEndpointId = endpointIdSchema.safeParse(endpointId);
   if (!parsedEndpointId.success) {
     return {

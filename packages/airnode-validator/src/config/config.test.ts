@@ -112,7 +112,7 @@ describe('gasPriceOracleSchema', () => {
         {
           code: 'too_small',
           minimum: 1,
-          type: 'array',
+          origin: 'array',
           inclusive: true,
           exact: false,
           message: 'Array must contain at least 1 element(s)',
@@ -240,11 +240,10 @@ describe('nodeSettingsSchema', () => {
     expect(() => localOrCloudProviderSchema.parse(invalidCloudProvider)).toThrow(
       new ZodError([
         {
-          code: 'invalid_type',
           expected: 'string',
-          received: 'undefined',
+          code: 'invalid_type',
           path: ['projectId'],
-          message: `Required`,
+          message: `Expected string, received undefined`,
         },
       ])
     );
@@ -436,7 +435,7 @@ describe('apiKey schemas', () => {
           {
             code: 'too_small',
             minimum: 30,
-            type: 'string',
+            origin: 'string',
             inclusive: true,
             exact: false,
             message: 'String must contain at least 30 character(s)',
@@ -451,7 +450,7 @@ describe('apiKey schemas', () => {
           {
             code: 'too_big',
             maximum: 120,
-            type: 'string',
+            origin: 'string',
             inclusive: true,
             exact: false,
             message: 'String must contain at most 120 character(s)',
@@ -636,8 +635,8 @@ describe('authorizations', () => {
     expect(() => configSchema.parse(invalidConfig)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'endpoint-id', 0],
         },

@@ -20,7 +20,7 @@ it(`doesn't allow extraneous properties`, () => {
         code: 'unrecognized_keys',
         keys: ['unknownProp'],
         path: [],
-        message: `Unrecognized key(s) in object: 'unknownProp'`,
+        message: `Unrecognized key: "unknownProp"`,
       },
     ])
   );
@@ -84,8 +84,8 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment01)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['stage'],
         },
@@ -96,8 +96,8 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment02)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['stage'],
         },
@@ -112,8 +112,8 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['timestamp'],
         },
@@ -128,8 +128,8 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
+          format: 'regex',
+          code: 'invalid_format',
           message: 'Invalid',
           path: ['deploymentId'],
         },

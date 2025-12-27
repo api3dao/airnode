@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { RefinementCtx, SuperRefinement, z } from 'zod';
+import { z, type RefinementCtx } from 'zod';
 import forEach from 'lodash/forEach';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -150,7 +150,7 @@ export const gasPriceOracleSchema = z
 
     if (!constantGasPriceStrategy) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `Missing required constantGasPrice strategy`,
         path: ['gasPriceOracle'],
       });
@@ -158,7 +158,7 @@ export const gasPriceOracleSchema = z
 
     if (strategies[strategies.length - 1]?.gasPriceStrategy !== 'constantGasPrice') {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `ConstantGasPrice strategy must be set as the last strategy in the array.`,
         path: ['gasPriceOracle'],
       });
@@ -177,7 +177,7 @@ export const ensureValidAirnodeRrp = (airnodeRrp: string, chainId: string, ctx: 
   if (!airnodeRrp) {
     if (!AirnodeRrpV0Addresses[chainId]) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message:
           `AirnodeRrp contract address must be specified for chain ID '${chainId}' ` +
           `as there was no deployment for this chain exported from @api3/airnode-protocol`,
@@ -208,7 +208,7 @@ export const ensureValidAirnodeRrpDryRun = (
   if (!airnodeRrpDryRun) {
     if (!AirnodeRrpV0DryRunAddresses[chainId]) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message:
           `When 'fulfillmentGasLimit' is not specified, ` +
           `AirnodeRrpDryRun contract address must be specified for chain ID '${chainId}' ` +
@@ -292,7 +292,7 @@ export const ensureRequesterAuthorizerWithErc721 = (value: z.infer<typeof _chain
       if (!raObj.RequesterAuthorizerWithErc721) {
         if (!RequesterAuthorizerWithErc721Addresses[value.id]) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message:
               `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.id}' ` +
               `as there was no deployment for this chain exported from @api3/airnode-protocol`,
@@ -317,7 +317,7 @@ export const ensureCrossChainRequesterAuthorizerWithErc721 = (
   if (!value.contracts?.RequesterAuthorizerWithErc721) {
     if (!RequesterAuthorizerWithErc721Addresses[value.chainId]) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message:
           `RequesterAuthorizerWithErc721 contract address must be specified for chain ID '${value.chainId}' ` +
           `as there was no deployment for this chain exported from @api3/airnode-protocol`,
@@ -358,13 +358,13 @@ export const chainAuthorizersSchema = z.object({
 
 export const maxConcurrencySchema = z.number().int().positive();
 
-const validateMaxConcurrency: SuperRefinement<{ providers: Providers; maxConcurrency: MaxConcurrency }> = (
-  chainConfig,
-  ctx
+const validateMaxConcurrency = (
+  chainConfig: { providers: Providers; maxConcurrency: MaxConcurrency },
+  ctx: RefinementCtx
 ) => {
   if (chainConfig.maxConcurrency < size(chainConfig.providers)) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       message: `Concurrency limit can't be lower than the number of providers for given chain`,
       path: ['maxConcurrency'],
     });
@@ -468,11 +468,11 @@ export const localOrCloudProviderSchema = z.discriminatedUnion('type', [
   gcpCloudProviderSchema,
 ]);
 
-const validateMnemonic: SuperRefinement<string> = (mnemonic, ctx) => {
+const validateMnemonic = (mnemonic: string, ctx: RefinementCtx) => {
   const goWallet = goSync(() => ethers.Wallet.fromMnemonic(mnemonic));
   if (!goWallet.success) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       message: 'Airnode wallet mnemonic is not a valid mnemonic',
       path: [],
     });
@@ -494,7 +494,7 @@ export const nodeSettingsSchema = z
       if (version === packageVersion) return;
 
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `The "nodeVersion" must be ${packageVersion}`,
         path: [],
       });
@@ -515,10 +515,13 @@ export const apiCredentialsSchema = baseApiCredentialsSchema
   })
   .strict();
 
-const validateSecuritySchemesReferences: SuperRefinement<{
-  ois: OIS[];
-  apiCredentials: ApiCredentials[];
-}> = (config, ctx) => {
+const validateSecuritySchemesReferences = (
+  config: {
+    ois: OIS[];
+    apiCredentials: ApiCredentials[];
+  },
+  ctx: RefinementCtx
+) => {
   config.ois.forEach((ois, index) => {
     Object.keys(ois.apiSpecifications.security).forEach((enabledSecuritySchemeName) => {
       const enabledSecurityScheme = ois.apiSpecifications.components.securitySchemes[enabledSecuritySchemeName];
@@ -528,7 +531,7 @@ const validateSecuritySchemesReferences: SuperRefinement<{
         );
         if (!securitySchemeApiCredentials) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: `The security scheme is enabled but no credentials are provided in "apiCredentials"`,
             path: ['ois', index, 'apiSpecifications', 'security', enabledSecuritySchemeName],
           });
@@ -538,10 +541,13 @@ const validateSecuritySchemesReferences: SuperRefinement<{
   });
 };
 
-const validateTemplateSchemes: SuperRefinement<{
-  nodeSettings: NodeSettings;
-  templates: Template[];
-}> = (config, ctx) => {
+const validateTemplateSchemes = (
+  config: {
+    nodeSettings: NodeSettings;
+    templates: Template[];
+  },
+  ctx: RefinementCtx
+) => {
   if (config.templates) {
     config.templates.forEach((template: any) => {
       // Verify that a V0/RRP templates are valid by hashing the airnodeAddress,
@@ -553,7 +559,7 @@ const validateTemplateSchemes: SuperRefinement<{
       );
       if (derivedTemplateId !== template.templateId) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `Template is invalid`,
           path: [template.templateId],
         });
@@ -562,10 +568,13 @@ const validateTemplateSchemes: SuperRefinement<{
   }
 };
 
-const validateTriggersReferences: SuperRefinement<{
-  ois: OIS[];
-  triggers: Triggers;
-}> = (config, ctx) => {
+const validateTriggersReferences = (
+  config: {
+    ois: OIS[];
+    triggers: Triggers;
+  },
+  ctx: RefinementCtx
+) => {
   forEach(config.triggers, (triggers, triggerSection) => {
     forEach(triggers, (trigger, index) => {
       const { oisTitle, endpointName } = trigger;
@@ -574,7 +583,7 @@ const validateTriggersReferences: SuperRefinement<{
       const ois = config.ois.find((ois) => ois.title === oisTitle);
       if (!ois) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `No matching OIS for trigger with OIS title "${oisTitle}"`,
           path: ['triggers', triggerSection, index, 'oisTitle'],
         });
@@ -586,7 +595,7 @@ const validateTriggersReferences: SuperRefinement<{
       const endpoint = ois.endpoints.find((endpoint) => endpoint.name === endpointName);
       if (!endpoint) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `No matching endpoint for trigger with endpoint name "${endpointName}"`,
           path: ['triggers', triggerSection, index, 'endpointName'],
         });
@@ -600,7 +609,7 @@ const validateTriggersReferences: SuperRefinement<{
       );
       if (derivedEndpointId !== trigger.endpointId) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `The endpointId does not match the hash of the oisTitle and endpointName`,
           path: ['triggers', triggerSection, index, 'endpointId'],
         });
@@ -609,10 +618,13 @@ const validateTriggersReferences: SuperRefinement<{
   });
 };
 
-const ensureRelayedMetadataAreNotUsedWithGateways: SuperRefinement<{
-  ois: OIS[];
-  triggers: Triggers;
-}> = (config, ctx) => {
+const ensureRelayedMetadataAreNotUsedWithGateways = (
+  config: {
+    ois: OIS[];
+    triggers: Triggers;
+  },
+  ctx: RefinementCtx
+) => {
   // Check whether we have `http` or `httpSignedData` trigger defined
   const httpGatewaysUsed = config.triggers.http.length !== 0;
   const httpSignedDataGatewaysUsed = config.triggers.httpSignedData.length !== 0;
@@ -626,7 +638,7 @@ const ensureRelayedMetadataAreNotUsedWithGateways: SuperRefinement<{
       if (securitySchema && includes(RELAY_METADATA_TYPES, securitySchema.type)) {
         if (httpGatewaysUsed) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: `Relayed metadata authentication can't be used with an HTTP gateway`,
             path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', securitySchemaName, 'type'],
           });
@@ -634,7 +646,7 @@ const ensureRelayedMetadataAreNotUsedWithGateways: SuperRefinement<{
 
         if (httpSignedDataGatewaysUsed) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: `Relayed metadata authentication can't be used with an HTTP signed data gateway`,
             path: ['ois', 'apiSpecifications', 'components', 'securitySchemes', securitySchemaName, 'type'],
           });
@@ -698,4 +710,4 @@ export type Amount = SchemaType<typeof amountSchema>;
 export type EnabledGateway = SchemaType<typeof enabledGatewaySchema>;
 export type MaxConcurrency = SchemaType<typeof maxConcurrencySchema>;
 
-export const availableCloudProviders = Array.from(cloudProviderSchema.optionsMap.keys()) as CloudProvider['type'][];
+export const availableCloudProviders: CloudProvider['type'][] = ['aws', 'gcp'];
