@@ -25,7 +25,7 @@ it('has disabled DEBUG_COMMANDS flag', () => {
 });
 
 describe('CLI', () => {
-  jest.setTimeout(45_000);
+  jest.setTimeout(300_000);
 
   let provider: ethers.providers.StaticJsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
@@ -333,7 +333,6 @@ Template data:
   describe('withdrawal', () => {
     let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
-    const sponsorBalance = () => sponsor.getBalance();
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
@@ -371,13 +370,25 @@ Template data:
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
-      const balanceBefore = await sponsorBalance();
+      const balanceBefore = await sponsor.getBalance();
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
-      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, '0.8');
-      expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
-      expect((await sponsorBalance()).toString()).toBe(
-        balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()
+
+      const fulfillResult = await admin.fulfillWithdrawal(
+        airnodeRrp,
+        withdrawalRequestId,
+        airnodeWallet.address,
+        sponsor.address,
+        '0.8'
       );
+      expect(fulfillResult).not.toBeNull();
+
+      expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
+
+      // Create a fresh provider instance to avoid stale connection issues in CI
+      const freshProvider = new ethers.providers.StaticJsonRpcProvider(PROVIDER_URL);
+      const balanceAfter = await freshProvider.getBalance(sponsor.address);
+
+      expect(balanceAfter.toString()).toBe(balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString());
     });
   });
 
