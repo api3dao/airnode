@@ -43,7 +43,7 @@ export const deploymentSchema = z
     }),
     stage: z.string().regex(/^[a-z0-9-]{1,16}$/),
     cloudProvider: cloudProviderSchema,
-    timestamp: z.string().regex(ISO_DATE_REGEX),
+    timestamp: z.string().regex(ISO_DATE_REGEX, { message: 'Invalid timestamp format: must be ISO' }),
   })
   .strict();
 
