@@ -17,7 +17,7 @@ export const airnodeWalletSchema = z
   .superRefine(({ airnodeAddress }, ctx) => {
     if (!ethers.utils.isAddress(airnodeAddress)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Airnode address is not a valid address',
         path: ['airnodeAddress'],
       });
@@ -36,14 +36,14 @@ export const deploymentSchema = z
       if (version === packageVersion) return;
 
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `The "nodeVersion" must be ${packageVersion}`,
         path: [],
       });
     }),
     stage: z.string().regex(/^[a-z0-9-]{1,16}$/),
     cloudProvider: cloudProviderSchema,
-    timestamp: z.string().regex(ISO_DATE_REGEX),
+    timestamp: z.string().regex(ISO_DATE_REGEX, { message: 'Invalid timestamp format: must be ISO' }),
   })
   .strict();
 

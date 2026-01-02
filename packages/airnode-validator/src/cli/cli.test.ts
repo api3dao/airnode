@@ -65,12 +65,22 @@ describe('validateConfiguration', () => {
         `
 The configuration is not valid. Reason: [
   {
-    "validation": "regex",
-    "code": "invalid_string",
-    "message": "Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/",
+    "code": "invalid_key",
+    "origin": "record",
+    "issues": [
+      {
+        "origin": "string",
+        "code": "invalid_format",
+        "format": "regex",
+        "pattern": "/^[A-Z][A-Z0-9_]*$/",
+        "path": [],
+        "message": "Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/"
+      }
+    ],
     "path": [
       "0123STAGE_NAME"
-    ]
+    ],
+    "message": "Invalid key in record"
   }
 ]
 `.trim()

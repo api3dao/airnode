@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import zip from 'lodash/zip';
 import { references } from '@api3/airnode-protocol';
 import {
@@ -45,7 +45,7 @@ it(`doesn't allow extraneous properties`, () => {
         code: 'unrecognized_keys',
         keys: ['unknownProp'],
         path: [],
-        message: `Unrecognized key(s) in object: 'unknownProp'`,
+        message: `Unrecognized key: "unknownProp"`,
       },
     ])
   );
@@ -110,13 +110,12 @@ describe('gasPriceOracleSchema', () => {
     expect(() => gasPriceOracleSchema.parse([])).toThrow(
       new ZodError([
         {
+          origin: 'array',
           code: 'too_small',
           minimum: 1,
-          type: 'array',
           inclusive: true,
-          exact: false,
-          message: 'Array must contain at least 1 element(s)',
           path: [],
+          message: 'Too small: expected array to have >=1 items',
         },
         {
           code: 'custom',
@@ -240,11 +239,10 @@ describe('nodeSettingsSchema', () => {
     expect(() => localOrCloudProviderSchema.parse(invalidCloudProvider)).toThrow(
       new ZodError([
         {
-          code: 'invalid_type',
           expected: 'string',
-          received: 'undefined',
+          code: 'invalid_type',
           path: ['projectId'],
-          message: `Required`,
+          message: `Invalid input: expected string, received undefined`,
         },
       ])
     );
@@ -434,13 +432,12 @@ describe('apiKey schemas', () => {
       expect(() => schema.parse(newValue)).toThrow(
         new ZodError([
           {
+            origin: 'string',
             code: 'too_small',
             minimum: 30,
-            type: 'string',
             inclusive: true,
-            exact: false,
-            message: 'String must contain at least 30 character(s)',
             path: ['apiKey'],
+            message: 'Too small: expected string to have >=30 characters',
           },
         ])
       );
@@ -449,13 +446,12 @@ describe('apiKey schemas', () => {
       expect(() => schema.parse(newValue)).toThrow(
         new ZodError([
           {
+            origin: 'string',
             code: 'too_big',
             maximum: 120,
-            type: 'string',
             inclusive: true,
-            exact: false,
-            message: 'String must contain at most 120 character(s)',
             path: ['apiKey'],
+            message: 'Too big: expected string to have <=120 characters',
           },
         ])
       );
@@ -636,11 +632,13 @@ describe('authorizations', () => {
     expect(() => configSchema.parse(invalidConfig)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern: '/^0x[a-fA-F0-9]{40}$/',
           path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'endpoint-id', 0],
-        },
+          message: 'Invalid string: must match pattern /^0x[a-fA-F0-9]{40}$/',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ])
     );
   });

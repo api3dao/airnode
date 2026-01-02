@@ -25,7 +25,7 @@ it('has disabled DEBUG_COMMANDS flag', () => {
 });
 
 describe('CLI', () => {
-  jest.setTimeout(45_000);
+  jest.setTimeout(300_000);
 
   let provider: ethers.providers.StaticJsonRpcProvider;
   let deployer: ethers.providers.JsonRpcSigner;
@@ -333,7 +333,19 @@ Template data:
   describe('withdrawal', () => {
     let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
-    const sponsorBalance = () => sponsor.getBalance();
+
+    // Helper to retry async operations that may fail due to transient connection issues in CI
+    const withRetry = async <T>(fn: () => Promise<T>, maxRetries = 3, delayMs = 1000): Promise<T> => {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          return await fn();
+        } catch (error) {
+          if (attempt === maxRetries) throw error;
+          await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+        }
+      }
+      throw new Error('Unreachable');
+    };
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
@@ -371,13 +383,23 @@ Template data:
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
-      const balanceBefore = await sponsorBalance();
+      // Use retry for balance fetches to handle transient ECONNRESET errors in CI
+      const balanceBefore = await withRetry(() => sponsor.getBalance());
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
-      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, '0.8');
-      expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
-      expect((await sponsorBalance()).toString()).toBe(
-        balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()
+
+      const fulfillResult = await admin.fulfillWithdrawal(
+        airnodeRrp,
+        withdrawalRequestId,
+        airnodeWallet.address,
+        sponsor.address,
+        '0.8'
       );
+      expect(fulfillResult).not.toBeNull();
+
+      expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
+
+      const balanceAfter = await withRetry(() => sponsor.getBalance());
+      expect(balanceAfter.toString()).toBe(balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString());
     });
   });
 

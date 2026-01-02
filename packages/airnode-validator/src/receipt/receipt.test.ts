@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { AirnodeWallet, airnodeWalletSchema, Deployment, deploymentSchema, receiptSchema } from './receipt';
 import { version as packageVersion } from '../../package.json';
 
@@ -20,7 +20,7 @@ it(`doesn't allow extraneous properties`, () => {
         code: 'unrecognized_keys',
         keys: ['unknownProp'],
         path: [],
-        message: `Unrecognized key(s) in object: 'unknownProp'`,
+        message: `Unrecognized key: "unknownProp"`,
       },
     ])
   );
@@ -84,11 +84,13 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment01)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern: '/^[a-z0-9-]{1,16}$/',
           path: ['stage'],
-        },
+          message: 'Invalid string: must match pattern /^[a-z0-9-]{1,16}$/',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ])
     );
 
@@ -96,11 +98,13 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment02)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern: '/^[a-z0-9-]{1,16}$/',
           path: ['stage'],
-        },
+          message: 'Invalid string: must match pattern /^[a-z0-9-]{1,16}$/',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ])
     );
   });
@@ -112,11 +116,14 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern:
+            '/^(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z))|(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z))|(\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z))$/',
           path: ['timestamp'],
-        },
+          message: 'Invalid timestamp format: must be ISO',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ])
     );
   });
@@ -128,11 +135,13 @@ describe('deploymentSchema', () => {
     expect(() => deploymentSchema.parse(invalidDeployment)).toThrow(
       new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern: '/(aws|gcp)[a-f0-9]{8}/',
           path: ['deploymentId'],
-        },
+          message: 'Invalid string: must match pattern /(aws|gcp)[a-f0-9]{8}/',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ])
     );
   });

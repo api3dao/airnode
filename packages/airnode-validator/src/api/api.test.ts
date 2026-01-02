@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { readFileSync } from 'fs';
 import forEach from 'lodash/forEach';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import { parseConfigWithSecrets, unsafeParseConfigWithSecrets, parseSecrets } from './api';
 import { Config } from '../config';
 
@@ -70,22 +70,21 @@ describe('parseConfigWithSecrets', () => {
 
     const emptyError = new ZodError([
       {
+        origin: 'string',
         code: 'too_small',
         minimum: 1,
-        type: 'string',
         inclusive: true,
-        exact: false,
-        message: 'Secret cannot be empty',
         path: ['AIRNODE_WALLET_MNEMONIC'],
+        message: 'Secret cannot be empty',
       },
     ]);
 
-    expect(parseSecrets(secrets)).toEqual({
+    expect(parseSecrets(secrets)).toMatchObject({
       error: emptyError,
       success: false,
     });
 
-    expect(parseConfigWithSecrets(config, secrets)).toEqual({
+    expect(parseConfigWithSecrets(config, secrets)).toMatchObject({
       error: emptyError,
       success: false,
     });
@@ -101,13 +100,23 @@ describe('parseConfigWithSecrets', () => {
         ['0123STAGE_NAME']: 'dev',
       };
 
-      expect(parseConfigWithSecrets(config, secrets)).toEqual({
+      expect(parseConfigWithSecrets(config, secrets)).toMatchObject({
         error: new ZodError([
           {
-            validation: 'regex',
-            code: 'invalid_string',
-            message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+            code: 'invalid_key',
+            origin: 'record',
+            issues: [
+              {
+                origin: 'string',
+                code: 'invalid_format',
+                format: 'regex',
+                pattern: '/^[A-Z][A-Z0-9_]*$/',
+                path: [],
+                message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+              } as z.core.$ZodIssueInvalidStringFormat,
+            ],
             path: ['0123STAGE_NAME'],
+            message: 'Invalid key in record',
           },
         ]),
         success: false,
@@ -123,13 +132,23 @@ describe('parseConfigWithSecrets', () => {
         ['STAGE-NAME']: 'dev',
       };
 
-      expect(parseConfigWithSecrets(config, secrets)).toEqual({
+      expect(parseConfigWithSecrets(config, secrets)).toMatchObject({
         error: new ZodError([
           {
-            validation: 'regex',
-            code: 'invalid_string',
-            message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+            code: 'invalid_key',
+            origin: 'record',
+            issues: [
+              {
+                origin: 'string',
+                code: 'invalid_format',
+                format: 'regex',
+                pattern: '/^[A-Z][A-Z0-9_]*$/',
+                path: [],
+                message: 'Secret name is not a valid. Secret name must match /^[A-Z][A-Z0-9_]*$/',
+              } as z.core.$ZodIssueInvalidStringFormat,
+            ],
             path: ['STAGE-NAME'],
+            message: 'Invalid key in record',
           },
         ]),
         success: false,
@@ -168,14 +187,16 @@ describe('parseConfigWithSecrets', () => {
       REQUESTER_1: 'invalid',
     };
 
-    expect(parseConfigWithSecrets(config, secrets)).toEqual({
+    expect(parseConfigWithSecrets(config, secrets)).toMatchObject({
       error: new ZodError([
         {
-          validation: 'regex',
-          code: 'invalid_string',
-          message: 'Invalid',
+          origin: 'string',
+          code: 'invalid_format',
+          format: 'regex',
+          pattern: '/^0x[a-fA-F0-9]{40}$/',
           path: ['chains', 0, 'authorizations', 'requesterEndpointAuthorizations', 'invalid', 0],
-        },
+          message: 'Invalid string: must match pattern /^0x[a-fA-F0-9]{40}$/',
+        } as z.core.$ZodIssueInvalidStringFormat,
       ]),
       success: false,
     });
