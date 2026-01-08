@@ -3,7 +3,7 @@
   "extends": ["local>api3dao/renovate-config", "docker:disable"],
   "packageRules": [
     {
-      "matchPackageNames": ["ora", "node", "@openzeppelin/contracts"],
+      "matchPackageNames": ["ora", "node", "@openzeppelin/contracts", "zod"],
       "enabled": false
     }
   ],
