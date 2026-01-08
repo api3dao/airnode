@@ -1,31 +1,14 @@
 {
-  "extends": ["config:base", "docker:disable"],
-  "automerge": true,
-  "automergeType": "pr",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["local>api3dao/renovate-config", "docker:disable"],
   "packageRules": [
     {
-      "matchPackageNames": ["chalk", "hardhat", "ora", "node", "@openzeppelin/contracts", "zod"],
+      "matchPackageNames": ["ora", "node", "@openzeppelin/contracts", "zod"],
       "enabled": false
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "schedule": ["before 2am on monday"],
-      "groupName": "devDependencies (non-major)"
-    },
-    {
-      "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "schedule": ["before 2am on monday"],
-      "groupName": "dependencies (non-major)"
     }
   ],
-  "rangeStrategy": "bump",
   "lockFileMaintenance": {
     "enabled": false
   },
-  "reviewers": ["team:airnode"],
-  "minimumReleaseAge": "5 days",
-  "internalChecksFilter": "strict",
-  "dependencyDashboard": false
+  "reviewers": ["team:airnode"]
 }
