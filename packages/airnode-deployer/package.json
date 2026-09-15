@@ -32,7 +32,7 @@
     "@aws-sdk/client-s3": "^3.525.0",
     "@aws-sdk/signature-v4-crt": "^3.525.0",
     "@google-cloud/storage": "^7.7.0",
-    "adm-zip": "^0.5.16",
+    "adm-zip": "^0.6.0",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.3",
     "compare-versions": "^6.1.1",
