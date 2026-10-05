@@ -39,7 +39,7 @@
     "ethereum-waffle": "^4.0.10",
     "hardhat": "^2.22.18",
     "hardhat-deploy": "^0.12.4",
-    "hardhat-gas-reporter": "^1.0.10",
+    "hardhat-gas-reporter": "^2.3.0",
     "rimraf": "^6.0.1",
     "solidity-coverage": "^0.8.12",
     "typechain": "^8.3.2",
