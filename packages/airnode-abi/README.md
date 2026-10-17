@@ -1,5 +1,8 @@
 # `@api3/airnode-abi`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > Encoding and decoding utilities for Airnode according to the
 > [Airnode ABI specifications](https://airnode-docs.api3.org/reference/airnode/latest/specifications/airnode-abi.html)
 

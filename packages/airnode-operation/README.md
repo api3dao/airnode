@@ -1,5 +1,8 @@
 # `@api3/airnode-operation`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > Development and testing utilities for the core parts of Airnode
 
 ## Documentation
