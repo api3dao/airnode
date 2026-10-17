@@ -1,5 +1,8 @@
 # `@api3/airnode-protocol`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > The contracts that implement the Airnode protocols
 
 ## Documentation

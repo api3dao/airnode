@@ -1,5 +1,8 @@
 # `@api3/airnode-admin`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > A package/CLI tool to interact with the Airnode contracts across chains
 
 ## Documentation

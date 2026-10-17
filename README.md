@@ -5,6 +5,10 @@
   />
 </p>
 
+> **Airnode is deprecated.** Its successors are [AirnodeHub](https://airnodehub.api3.org), where API providers serve
+> their APIs with signed responses, and [signed-api](https://github.com/api3dao/signed-api), the Airnode feed and Signed
+> API services that push signed data to API3 data feeds.
+
 Airnode is a fully-serverless oracle node that is designed specifically for API providers to operate their own oracles.
 
 ## Documentation

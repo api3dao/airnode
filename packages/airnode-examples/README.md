@@ -1,5 +1,8 @@
 # `@api3/airnode-examples`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > A public list of examples showcasing the features of Airnode
 
 This project contains runnable scripts that will guide you through the necessary steps to run an Airnode instance. You
