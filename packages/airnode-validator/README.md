@@ -1,5 +1,8 @@
 # `@api3/airnode-validator`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > A package/CLI tool that can be used to validate and convert airnode specification files
 
 ## Documentation

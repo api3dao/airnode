@@ -1,5 +1,8 @@
 # `@api3/airnode-deployer`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > A CLI tool to automate Airnode deployment
 
 ## Documentation

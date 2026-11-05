@@ -1,5 +1,8 @@
 # `@api3/airnode-node`
 
+> **Deprecated.** See the [Airnode repository](https://github.com/api3dao/airnode#readme) for its successors,
+> [AirnodeHub](https://airnodehub.api3.org) and [signed-api](https://github.com/api3dao/signed-api).
+
 > The node part of Airnode that allows for connecting multiple blockchains to the rest of the world
 
 ## Documentation
